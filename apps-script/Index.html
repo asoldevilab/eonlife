@@ -242,6 +242,7 @@ h1, h2, h3, h4 { text-wrap: balance; }
 }
 .nav-item:hover { background: rgba(255, 255, 255, 0.07); color: var(--sidebar-ink); }
 .nav-item.on { background: rgba(255, 255, 255, 0.12); color: #FFFFFF; }
+.nav-actions { display: flex; flex-direction: column; gap: 8px; }
 .nav-new {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; border-radius: 11px; border: 1px solid rgba(255, 255, 255, 0.28);
@@ -824,6 +825,48 @@ input[type="search"].input { -webkit-appearance: none; }
 .lp-sr { display: block; font-size: 11.5px; color: var(--ink-3); }
 .lp-block td { background: var(--surface-2); padding: 6px 10px; }
 
+/* Base de dades */
+.page-wide { max-width: 1560px; }
+.dbtabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.dbtabs::-webkit-scrollbar { display: none; }
+.dbtab { flex: none; min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-weight: 650; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.dbtab:hover { border-color: var(--brand-2); color: var(--ink); }
+.dbtab.on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.dbcard { padding: 16px; }
+.dbbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.dbbar .select { width: auto; flex: 0 1 220px; }
+.dbhint { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; margin: 12px 2px 10px; font-size: 13.5px; color: var(--ink-2); }
+.dbwrap { overflow: auto; max-height: calc(100vh - 290px); min-height: 180px; border: 1px solid var(--line); border-radius: 12px; -webkit-overflow-scrolling: touch; }
+.dbt { border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: 14px; }
+.dbt th, .dbt td { padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: left; background: var(--surface); }
+.dbt thead th { position: sticky; top: 0; z-index: 2; background: var(--surface-2); color: var(--ink-3); font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: bottom; }
+.dbt-grouped thead tr.dbt-g th { height: 34px; }
+.dbt-grouped thead tr.dbt-h th { top: 34px; }
+.dbt thead th.grp { text-align: center; color: var(--ink-2); text-transform: none; letter-spacing: 0; font-size: 12.5px; vertical-align: middle; }
+.dbt .gstart { border-left: 1px solid var(--line); }
+.dbt .sticky { position: sticky; left: 0; z-index: 1; box-shadow: 1px 0 0 var(--line); }
+.dbt thead th.sticky { z-index: 3; }
+.dbt .num { text-align: right; font-variant-numeric: tabular-nums; }
+.dbt .center { text-align: center; }
+.dbt .wide { white-space: normal; min-width: 220px; max-width: 360px; }
+.dbt td.dbempty { color: var(--line-2); }
+.dbt td.dbname { font-weight: 650; }
+.dbt tbody tr { cursor: pointer; }
+.dbt tbody tr:hover td, .dbt tbody tr:focus-visible td { background: var(--surface-3); }
+.dbt tbody tr:focus-visible { outline: none; }
+.dbt td .score + .score { margin-left: 3px; }
+.thbtn { display: inline-flex; align-items: baseline; gap: 5px; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
+.dbt th.num .thbtn { justify-content: flex-end; }
+.thunit { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--ink-3); }
+.thsort { font-size: 9px; color: var(--link); }
+.dbt th.sorted { color: var(--ink); }
+.quickadd { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; padding: 14px 18px; }
+.quickadd-head { display: flex; flex-direction: column; gap: 2px; margin-right: 6px; }
+.quickadd-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.group { scroll-margin-top: 150px; transition: box-shadow 0.3s; }
+.flash { box-shadow: 0 0 0 3px var(--focus); }
+@media (max-width: 640px) { .dbwrap { max-height: none; } .dbbar .select { flex: 1 1 100%; } }
+
 /* Biblioteca i configuració */
 .libgroup + .libgroup { margin-top: 20px; }
 .libgroup-head { display: flex; align-items: center; gap: 12px; padding: 4px 0 8px; }
@@ -1024,7 +1067,7 @@ tfoot .rpc { font-size: 14px; }
 <noscript>Aquesta aplicació necessita JavaScript.</noscript>
 <script>!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?n(exports):"function"==typeof define&&define.amd?define(["exports"],n):n(e.htmPreact={})}(this,function(e){var n,_,t,o,r,u,l,i={},c=[],f=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(e,n){for(var _ in n)e[_]=n[_];return e}function a(e){var n=e.parentNode;n&&n.removeChild(e)}function p(e,_,t){var o,r,u,l={};for(u in _)"key"==u?o=_[u]:"ref"==u?r=_[u]:l[u]=_[u];if(arguments.length>2&&(l.children=arguments.length>3?n.call(arguments,2):t),"function"==typeof e&&null!=e.defaultProps)for(u in e.defaultProps)void 0===l[u]&&(l[u]=e.defaultProps[u]);return h(e,l,o,r,null)}function h(e,n,o,r,u){var l={type:e,props:n,key:o,ref:r,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,__h:null,constructor:void 0,__v:null==u?++t:u};return null!=_.vnode&&_.vnode(l),l}function d(e){return e.children}function v(e,n){this.props=e,this.context=n}function y(e,n){if(null==n)return e.__?y(e.__,e.__.__k.indexOf(e)+1):null;for(var _;n<e.__k.length;n++)if(null!=(_=e.__k[n])&&null!=_.__e)return _.__e;return"function"==typeof e.type?y(e):null}function m(e){var n,_;if(null!=(e=e.__)&&null!=e.__c){for(e.__e=e.__c.base=null,n=0;n<e.__k.length;n++)if(null!=(_=e.__k[n])&&null!=_.__e){e.__e=e.__c.base=_.__e;break}return m(e)}}function g(e){(!e.__d&&(e.__d=!0)&&o.push(e)&&!k.__r++||u!==_.debounceRendering)&&((u=_.debounceRendering)||r)(k)}function k(){for(var e;k.__r=o.length;)e=o.sort(function(e,n){return e.__v.__b-n.__v.__b}),o=[],e.some(function(e){var n,_,t,o,r,u;e.__d&&(r=(o=(n=e).__v).__e,(u=n.__P)&&(_=[],(t=s({},o)).__v=o.__v+1,D(u,o,t,n.__n,void 0!==u.ownerSVGElement,null!=o.__h?[r]:null,_,null==r?y(o):r,o.__h),w(_,o),o.__e!=r&&m(o)))})}function b(e,n,_,t,o,r,u,l,f,s){var a,p,v,m,g,k,b,H=t&&t.__k||c,E=H.length;for(_.__k=[],a=0;a<n.length;a++)if(null!=(m=_.__k[a]=null==(m=n[a])||"boolean"==typeof m?null:"string"==typeof m||"number"==typeof m||"bigint"==typeof m?h(null,m,null,null,m):Array.isArray(m)?h(d,{children:m},null,null,null):m.__b>0?h(m.type,m.props,m.key,null,m.__v):m)){if(m.__=_,m.__b=_.__b+1,null===(v=H[a])||v&&m.key==v.key&&m.type===v.type)H[a]=void 0;else for(p=0;p<E;p++){if((v=H[p])&&m.key==v.key&&m.type===v.type){H[p]=void 0;break}v=null}D(e,m,v=v||i,o,r,u,l,f,s),g=m.__e,(p=m.ref)&&v.ref!=p&&(b||(b=[]),v.ref&&b.push(v.ref,null,m),b.push(p,m.__c||g,m)),null!=g?(null==k&&(k=g),"function"==typeof m.type&&null!=m.__k&&m.__k===v.__k?m.__d=f=C(m,f,e):f=x(e,m,v,H,g,f),s||"option"!==_.type?"function"==typeof _.type&&(_.__d=f):e.value=""):f&&v.__e==f&&f.parentNode!=e&&(f=y(v))}for(_.__e=k,a=E;a--;)null!=H[a]&&("function"==typeof _.type&&null!=H[a].__e&&H[a].__e==_.__d&&(_.__d=y(t,a+1)),A(H[a],H[a]));if(b)for(a=0;a<b.length;a++)U(b[a],b[++a],b[++a])}function C(e,n,_){var t,o;for(t=0;t<e.__k.length;t++)(o=e.__k[t])&&(o.__=e,n="function"==typeof o.type?C(o,n,_):x(_,o,o,e.__k,o.__e,n));return n}function x(e,n,_,t,o,r){var u,l,i;if(void 0!==n.__d)u=n.__d,n.__d=void 0;else if(null==_||o!=r||null==o.parentNode)e:if(null==r||r.parentNode!==e)e.appendChild(o),u=null;else{for(l=r,i=0;(l=l.nextSibling)&&i<t.length;i+=2)if(l==o)break e;e.insertBefore(o,r),u=r}return void 0!==u?u:o.nextSibling}function H(e,n,_){"-"===n[0]?e.setProperty(n,_):e[n]=null==_?"":"number"!=typeof _||f.test(n)?_:_+"px"}function E(e,n,_,t,o){var r;e:if("style"===n)if("string"==typeof _)e.style.cssText=_;else{if("string"==typeof t&&(e.style.cssText=t=""),t)for(n in t)_&&n in _||H(e.style,n,"");if(_)for(n in _)t&&_[n]===t[n]||H(e.style,n,_[n])}else if("o"===n[0]&&"n"===n[1])r=n!==(n=n.replace(/Capture$/,"")),n=n.toLowerCase()in e?n.toLowerCase().slice(2):n.slice(2),e.l||(e.l={}),e.l[n+r]=_,_?t||e.addEventListener(n,r?S:P,r):e.removeEventListener(n,r?S:P,r);else if("dangerouslySetInnerHTML"!==n){if(o)n=n.replace(/xlink[H:h]/,"h").replace(/sName$/,"s");else if("href"!==n&&"list"!==n&&"form"!==n&&"tabIndex"!==n&&"download"!==n&&n in e)try{e[n]=null==_?"":_;break e}catch(e){}"function"==typeof _||(null!=_&&(!1!==_||"a"===n[0]&&"r"===n[1])?e.setAttribute(n,_):e.removeAttribute(n))}}function P(e){this.l[e.type+!1](_.event?_.event(e):e)}function S(e){this.l[e.type+!0](_.event?_.event(e):e)}function D(e,n,t,o,r,u,l,i,c){var f,a,p,h,y,m,g,k,C,x,H,E=n.type;if(void 0!==n.constructor)return null;null!=t.__h&&(c=t.__h,i=n.__e=t.__e,n.__h=null,u=[i]),(f=_.__b)&&f(n);try{e:if("function"==typeof E){if(k=n.props,C=(f=E.contextType)&&o[f.__c],x=f?C?C.props.value:f.__:o,t.__c?g=(a=n.__c=t.__c).__=a.__E:("prototype"in E&&E.prototype.render?n.__c=a=new E(k,x):(n.__c=a=new v(k,x),a.constructor=E,a.render=M),C&&C.sub(a),a.props=k,a.state||(a.state={}),a.context=x,a.__n=o,p=a.__d=!0,a.__h=[]),null==a.__s&&(a.__s=a.state),null!=E.getDerivedStateFromProps&&(a.__s==a.state&&(a.__s=s({},a.__s)),s(a.__s,E.getDerivedStateFromProps(k,a.__s))),h=a.props,y=a.state,p)null==E.getDerivedStateFromProps&&null!=a.componentWillMount&&a.componentWillMount(),null!=a.componentDidMount&&a.__h.push(a.componentDidMount);else{if(null==E.getDerivedStateFromProps&&k!==h&&null!=a.componentWillReceiveProps&&a.componentWillReceiveProps(k,x),!a.__e&&null!=a.shouldComponentUpdate&&!1===a.shouldComponentUpdate(k,a.__s,x)||n.__v===t.__v){a.props=k,a.state=a.__s,n.__v!==t.__v&&(a.__d=!1),a.__v=n,n.__e=t.__e,n.__k=t.__k,n.__k.forEach(function(e){e&&(e.__=n)}),a.__h.length&&l.push(a);break e}null!=a.componentWillUpdate&&a.componentWillUpdate(k,a.__s,x),null!=a.componentDidUpdate&&a.__h.push(function(){a.componentDidUpdate(h,y,m)})}a.context=x,a.props=k,a.state=a.__s,(f=_.__r)&&f(n),a.__d=!1,a.__v=n,a.__P=e,f=a.render(a.props,a.state,a.context),a.state=a.__s,null!=a.getChildContext&&(o=s(s({},o),a.getChildContext())),p||null==a.getSnapshotBeforeUpdate||(m=a.getSnapshotBeforeUpdate(h,y)),H=null!=f&&f.type===d&&null==f.key?f.props.children:f,b(e,Array.isArray(H)?H:[H],n,t,o,r,u,l,i,c),a.base=n.__e,n.__h=null,a.__h.length&&l.push(a),g&&(a.__E=a.__=null),a.__e=!1}else null==u&&n.__v===t.__v?(n.__k=t.__k,n.__e=t.__e):n.__e=T(t.__e,n,t,o,r,u,l,c);(f=_.diffed)&&f(n)}catch(e){n.__v=null,(c||null!=u)&&(n.__e=i,n.__h=!!c,u[u.indexOf(i)]=null),_.__e(e,n,t)}}function w(e,n){_.__c&&_.__c(n,e),e.some(function(n){try{e=n.__h,n.__h=[],e.some(function(e){e.call(n)})}catch(e){_.__e(e,n.__v)}})}function T(e,_,t,o,r,u,l,c){var f,s,p,h=t.props,d=_.props,v=_.type,m=0;if("svg"===v&&(r=!0),null!=u)for(;m<u.length;m++)if((f=u[m])&&(f===e||(v?f.localName==v:3==f.nodeType))){e=f,u[m]=null;break}if(null==e){if(null===v)return document.createTextNode(d);e=r?document.createElementNS("http://www.w3.org/2000/svg",v):document.createElement(v,d.is&&d),u=null,c=!1}if(null===v)h===d||c&&e.data===d||(e.data=d);else{if(u=u&&n.call(e.childNodes),s=(h=t.props||i).dangerouslySetInnerHTML,p=d.dangerouslySetInnerHTML,!c){if(null!=u)for(h={},m=0;m<e.attributes.length;m++)h[e.attributes[m].name]=e.attributes[m].value;(p||s)&&(p&&(s&&p.__html==s.__html||p.__html===e.innerHTML)||(e.innerHTML=p&&p.__html||""))}if(function(e,n,_,t,o){var r;for(r in _)"children"===r||"key"===r||r in n||E(e,r,null,_[r],t);for(r in n)o&&"function"!=typeof n[r]||"children"===r||"key"===r||"value"===r||"checked"===r||_[r]===n[r]||E(e,r,n[r],_[r],t)}(e,d,h,r,c),p)_.__k=[];else if(m=_.props.children,b(e,Array.isArray(m)?m:[m],_,t,o,r&&"foreignObject"!==v,u,l,u?u[0]:t.__k&&y(t,0),c),null!=u)for(m=u.length;m--;)null!=u[m]&&a(u[m]);c||("value"in d&&void 0!==(m=d.value)&&(m!==e.value||"progress"===v&&!m)&&E(e,"value",m,h.value,!1),"checked"in d&&void 0!==(m=d.checked)&&m!==e.checked&&E(e,"checked",m,h.checked,!1))}return e}function U(e,n,t){try{"function"==typeof e?e(n):e.current=n}catch(e){_.__e(e,t)}}function A(e,n,t){var o,r;if(_.unmount&&_.unmount(e),(o=e.ref)&&(o.current&&o.current!==e.__e||U(o,null,n)),null!=(o=e.__c)){if(o.componentWillUnmount)try{o.componentWillUnmount()}catch(e){_.__e(e,n)}o.base=o.__P=null}if(o=e.__k)for(r=0;r<o.length;r++)o[r]&&A(o[r],n,"function"!=typeof e.type);t||null==e.__e||a(e.__e),e.__e=e.__d=void 0}function M(e,n,_){return this.constructor(e,_)}n=c.slice,_={__e:function(e,n){for(var _,t,o;n=n.__;)if((_=n.__c)&&!_.__)try{if((t=_.constructor)&&null!=t.getDerivedStateFromError&&(_.setState(t.getDerivedStateFromError(e)),o=_.__d),null!=_.componentDidCatch&&(_.componentDidCatch(e),o=_.__d),o)return _.__E=_}catch(n){e=n}throw e}},t=0,v.prototype.setState=function(e,n){var _;_=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),"function"==typeof e&&(e=e(s({},_),this.props)),e&&s(_,e),null!=e&&this.__v&&(n&&this.__h.push(n),g(this))},v.prototype.forceUpdate=function(e){this.__v&&(this.__e=!0,e&&this.__h.push(e),g(this))},v.prototype.render=d,o=[],r="function"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,k.__r=0,l=0;var F,L,N,W=0,R=[],I=_.__b,O=_.__r,V=_.diffed,q=_.__c,B=_.unmount;function $(e,n){_.__h&&_.__h(L,e,W||n),W=0;var t=L.__H||(L.__H={__:[],__h:[]});return e>=t.__.length&&t.__.push({}),t.__[e]}function j(e){return W=1,G(ee,e)}function G(e,n,_){var t=$(F++,2);return t.t=e,t.__c||(t.__=[_?_(n):ee(void 0,n),function(e){var n=t.t(t.__[0],e);t.__[0]!==n&&(t.__=[n,t.__[1]],t.__c.setState({}))}],t.__c=L),t.__}function z(e,n){var t=$(F++,4);!_.__s&&Z(t.__H,n)&&(t.__=e,t.__H=n,L.__h.push(t))}function J(e,n){var _=$(F++,7);return Z(_.__H,n)&&(_.__=e(),_.__H=n,_.__h=e),_.__}function K(){R.forEach(function(e){if(e.__P)try{e.__H.__h.forEach(X),e.__H.__h.forEach(Y),e.__H.__h=[]}catch(n){e.__H.__h=[],_.__e(n,e.__v)}}),R=[]}_.__b=function(e){L=null,I&&I(e)},_.__r=function(e){O&&O(e),F=0;var n=(L=e.__c).__H;n&&(n.__h.forEach(X),n.__h.forEach(Y),n.__h=[])},_.diffed=function(e){V&&V(e);var n=e.__c;n&&n.__H&&n.__H.__h.length&&(1!==R.push(n)&&N===_.requestAnimationFrame||((N=_.requestAnimationFrame)||function(e){var n,_=function(){clearTimeout(t),Q&&cancelAnimationFrame(n),setTimeout(e)},t=setTimeout(_,100);Q&&(n=requestAnimationFrame(_))})(K)),L=void 0},_.__c=function(e,n){n.some(function(e){try{e.__h.forEach(X),e.__h=e.__h.filter(function(e){return!e.__||Y(e)})}catch(t){n.some(function(e){e.__h&&(e.__h=[])}),n=[],_.__e(t,e.__v)}}),q&&q(e,n)},_.unmount=function(e){B&&B(e);var n=e.__c;if(n&&n.__H)try{n.__H.__.forEach(X)}catch(e){_.__e(e,n.__v)}};var Q="function"==typeof requestAnimationFrame;function X(e){var n=L;"function"==typeof e.__c&&e.__c(),L=n}function Y(e){var n=L;e.__c=e.__(),L=n}function Z(e,n){return!e||e.length!==n.length||n.some(function(n,_){return n!==e[_]})}function ee(e,n){return"function"==typeof n?n(e):n}var ne=function(e,n,_,t){var o;n[0]=0;for(var r=1;r<n.length;r++){var u=n[r++],l=n[r]?(n[0]|=u?1:2,_[n[r++]]):n[++r];3===u?t[0]=l:4===u?t[1]=Object.assign(t[1]||{},l):5===u?(t[1]=t[1]||{})[n[++r]]=l:6===u?t[1][n[++r]]+=l+"":u?(o=e.apply(l,ne(e,l,_,["",null])),t.push(o),l[0]?n[0]|=2:(n[r-2]=0,n[r]=o)):t.push(l)}return t},_e=new Map,te=function(e){var n=_e.get(this);return n||(n=new Map,_e.set(this,n)),(n=ne(this,n.get(e)||(n.set(e,n=function(e){for(var n,_,t=1,o="",r="",u=[0],l=function(e){1===t&&(e||(o=o.replace(/^\s*\n\s*|\s*\n\s*$/g,"")))?u.push(0,e,o):3===t&&(e||o)?(u.push(3,e,o),t=2):2===t&&"..."===o&&e?u.push(4,e,0):2===t&&o&&!e?u.push(5,0,!0,o):t>=5&&((o||!e&&5===t)&&(u.push(t,0,o,_),t=6),e&&(u.push(t,e,0,_),t=6)),o=""},i=0;i<e.length;i++){i&&(1===t&&l(),l(i));for(var c=0;c<e[i].length;c++)n=e[i][c],1===t?"<"===n?(l(),u=[u],t=3):o+=n:4===t?"--"===o&&">"===n?(t=1,o=""):o=n+o[0]:r?n===r?r="":o+=n:'"'===n||"'"===n?r=n:">"===n?(l(),t=1):t&&("="===n?(t=5,_=o,o=""):"/"===n&&(t<5||">"===e[i][c+1])?(l(),3===t&&(u=u[0]),t=u,(u=u[0]).push(2,0,t),t=0):" "===n||"\t"===n||"\n"===n||"\r"===n?(l(),t=2):o+=n),3===t&&"!--"===o&&(t=4,u=u[0])}return l(),u}(e)),n),arguments,[])).length>1?n:n[0]}.bind(p);e.h=p,e.html=te,e.render=function(e,t,o){var r,u,l;_.__&&_.__(e,t),u=(r="function"==typeof o)?null:o&&o.__k||t.__k,l=[],D(t,e=(!r&&o||t).__k=p(d,null,[e]),u||i,i,void 0!==t.ownerSVGElement,!r&&o?[o]:u?null:t.firstChild?n.call(t.childNodes):null,l,!r&&o?o:u?u.__e:t.firstChild,r),w(l,e)},e.Component=v,e.createContext=function(e,n){var _={__c:n="__cC"+l++,__:e,Consumer:function(e,n){return e.children(n)},Provider:function(e){var _,t;return this.getChildContext||(_=[],(t={})[n]=this,this.getChildContext=function(){return t},this.shouldComponentUpdate=function(e){this.props.value!==e.value&&_.some(g)},this.sub=function(e){_.push(e);var n=e.componentWillUnmount;e.componentWillUnmount=function(){_.splice(_.indexOf(e),1),n&&n.call(e)}}),e.children}};return _.Provider.__=_.Consumer.contextType=_},e.useState=j,e.useReducer=G,e.useEffect=function(e,n){var t=$(F++,3);!_.__s&&Z(t.__H,n)&&(t.__=e,t.__H=n,L.__H.__h.push(t))},e.useLayoutEffect=z,e.useRef=function(e){return W=5,J(function(){return{current:e}},[])},e.useImperativeHandle=function(e,n,_){W=6,z(function(){"function"==typeof e?e(n()):e&&(e.current=n())},null==_?_:_.concat(e))},e.useMemo=J,e.useCallback=function(e,n){return W=8,J(function(){return e},n)},e.useContext=function(e){var n=L.context[e.__c],_=$(F++,9);return _.c=e,n?(null==_.__&&(_.__=!0,n.sub(L)),n.props.value):e.__},e.useDebugValue=function(e,n){_.useDebugValue&&_.useDebugValue(n?n(e):e)},e.useErrorBoundary=function(e){var n=$(F++,10),_=j();return n.__=e,L.componentDidCatch||(L.componentDidCatch=function(e){n.__&&n.__(e),_[1](e)}),[_[0],function(){_[1](void 0)}]}});
 </script>
-<script>window.EON_BUILD = "2026-09-28 11:38";
+<script>window.EON_BUILD = "2026-09-28 11:53";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -1072,6 +1115,12 @@ const U = {
     const r = U.round(n, d);
     const s = d > 0 ? String(r) : String(Math.round(r));
     return s.replace('.', ',');
+  },
+
+  // Sempre amb els mateixos decimals (per a columnes de taules): 7 → "7,0".
+  fmtFixed(n, d = 1, fallback = '—') {
+    if (n == null || !Number.isFinite(n)) return fallback;
+    return n.toFixed(d).replace('.', ',');
   },
 
   fmtSigned(n, d = 1) {
@@ -1373,9 +1422,10 @@ const OPT = {
     { v: 'X', label: 'Altre / no ho indica' },
   ],
   assessmentTypes: [
-    { v: 'inicial', label: 'Valoració inicial' },
-    { v: 'retest', label: 'Re-test' },
-    { v: 'alta', label: 'Valoració d\'alta' },
+    { v: 'inicial', label: 'Valoració inicial', short: 'Inicial' },
+    { v: 'retest', label: 'Re-test', short: 'Re-test' },
+    { v: 'control', label: 'Control de mesures', short: 'Control' },
+    { v: 'alta', label: 'Valoració d\'alta', short: 'Alta' },
   ],
   sessionStatus: [
     { v: 'planificada', label: 'Planificada' },
@@ -2671,18 +2721,20 @@ const Store = {
     return this.put('patients', p, { immediate: true });
   },
 
-  newAssessment(pid) {
+  newAssessment(pid, opts = {}) {
     const p = this.get('patients', pid);
     const prev = this.assessmentsOf(pid);
     const last = prev[prev.length - 1];
-    const date = U.today();
+    const date = opts.date || U.today();
     const a = {
-      id: U.uid('V'), patientId: pid, date, type: prev.length ? 'retest' : 'inicial',
+      id: U.uid('V'), patientId: pid, date, type: opts.type || (prev.length ? 'retest' : 'inicial'),
       professional: (p && p.professional) || '',
       general: { weight: last && last.general ? last.general.weight : '', height: last && last.general ? last.general.height : '', goal: (p && p.goal) || '' },
       values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
       encoder: { rows: [{ id: U.uid('R'), name: 'Squat' }, { id: U.uid('R'), name: 'RDL' }, { id: U.uid('R'), name: 'Hip Thrust' }] },
-      bike: {}, patterns: {}, free: [], conclusions: {}, nextRetest: U.addMonths(date, T.retestMonths),
+      bike: {}, patterns: {}, free: [], conclusions: {},
+      // Un control de mesures no mou la data del proper re-test.
+      nextRetest: opts.type === 'control' && last ? (last.nextRetest || U.addMonths(last.date, T.retestMonths)) : U.addMonths(date, T.retestMonths),
       createdAt: new Date().toISOString(),
     };
     return this.put('assessments', a, { immediate: true });
@@ -3082,6 +3134,305 @@ function makeDemoData() {
 }
 
 
+/* ── 07-dbcols.js ── */
+/* EON Life · base de dades: definició de les taules (files i columnes).
+   Cada taula correspon a una pestanya del sistema EON v1 (clients, valoracions, Kinvent ROM,
+   dinamometria, postural, Y-Balance, My Jump, patrons, sessions, registre d'exercicis).
+   Les mesures viuen dins de cada valoració: una fila = una valoració d'un client en una data. */
+
+const DB_TABLES = [
+  { id: 'clients', label: 'Clients', kind: 'patients', add: 'Nou client', hint: 'Una fila per client.' },
+  { id: 'valoracions', label: 'Valoracions', kind: 'assessments', focus: 'dades', add: 'Nova valoració', hint: 'Una fila per valoració, amb les dades clau de cada àrea.' },
+  { id: 'mobilitat', label: 'Mobilitat · K-Move', kind: 'assessments', focus: 'rom', add: 'Afegeix mobilitat', hint: 'Goniometria digital (Kinvent K-Move) i knee-to-wall. Graus i cm.' },
+  { id: 'postural', label: 'Neurodinàmia i postural', kind: 'assessments', focus: 'neuro', add: 'Afegeix tests posturals', hint: 'Slump, prone knee bending, Adams, Thomas, Windlass i single leg squat.' },
+  { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
+  { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
+  { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
+  { id: 'rendiment', label: 'Encoder i bike', kind: 'assessments', focus: 'encoder', add: 'Afegeix encoder o bike', hint: 'Velocitat d\'execució i Assault bike 30 s.' },
+  { id: 'patrons', label: 'Patrons', kind: 'assessments', focus: 'patterns', add: 'Afegeix patrons', hint: 'Sessió 1 · puntuació 0 / − / −− i P (dolor).' },
+  { id: 'perfil', label: 'Tests per perfil', kind: 'assessments', focus: 'profile', add: 'Afegeix tests de perfil', hint: 'Tests complementaris dels perfils A, B i C.' },
+  { id: 'sessions', label: 'Sessions', kind: 'sessions', hint: 'Una fila per sessió: RPE, minuts i càrrega.' },
+  { id: 'exercicis', label: 'Registre d\'exercicis', kind: 'log', hint: 'Una fila per exercici de cada sessió.' },
+];
+
+const DB = (() => {
+  const num = (x) => U.num(x);
+  const V = (a, tid) => ((a && a.values) || {})[tid] || {};
+  const typeShort = (t) => (OPT.assessmentTypes.find((o) => o.v === t) || {}).short || '';
+  const positive = (x) => (x && /^Positiu/.test(x) ? 'warn' : '');
+  const decFor = (unit) => (['°', 'N', 'W', 'bpm', 'reps', 'tocs', 'm'].includes(unit) ? 0 : unit === 'm/s' ? 2 : 1);
+
+  const lead = () => [
+    { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+    { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.a.date },
+    { id: 'type', label: 'Tipus', kind: 'text', lead: true, get: (r) => typeShort(r.a.type) },
+  ];
+
+  function biCols(tid, group) {
+    const t = TEST_INDEX[tid];
+    const g = group || t.short || t.name;
+    const u = t.unit;
+    const dec = decFor(u);
+    const low = t.rule === 'wblt' ? (r, v) => (v != null && v < THRESHOLDS.wbltMin ? 'bad' : '') : null;
+    const cols = [
+      { id: `${tid}.d`, group: g, label: 'D', unit: u, kind: 'num', dec, get: (r) => num(V(r.a, tid).d), tone: low },
+      { id: `${tid}.e`, group: g, label: 'E', unit: u, kind: 'num', dec, get: (r) => num(V(r.a, tid).e), tone: low },
+    ];
+    if (t.diffOnly) {
+      cols.push({ id: `${tid}.dif`, group: g, label: 'Dif.', unit: u, kind: 'signed', dec: 1,
+        get: (r) => { const d = num(V(r.a, tid).d), e = num(V(r.a, tid).e); return d != null && e != null ? d - e : null; },
+        tone: t.rule === 'wblt' ? (r, v) => (v != null && Math.abs(v) >= THRESHOLDS.wbltDiff ? 'bad' : '') : null });
+    } else {
+      cols.push({ id: `${tid}.asym`, group: g, label: 'Asim.', unit: '%', kind: 'pct', dec: 0,
+        get: (r) => { const as = Calc.asym(V(r.a, tid).d, V(r.a, tid).e); return as ? as.pct : null; },
+        tone: (r, v) => Calc.asymTone(v) });
+    }
+    if (t.perKg) {
+      cols.push({ id: `${tid}.dkg`, group: g, label: 'D', unit: 'N/kg', kind: 'num', dec: 1, get: (r) => Calc.perKg(V(r.a, tid).d, Calc.weight(r.a)) });
+      cols.push({ id: `${tid}.ekg`, group: g, label: 'E', unit: 'N/kg', kind: 'num', dec: 1, get: (r) => Calc.perKg(V(r.a, tid).e, Calc.weight(r.a)) });
+    }
+    return cols;
+  }
+
+  const singleCol = (tid, label) => {
+    const t = TEST_INDEX[tid];
+    return { id: tid, label: label || t.short || t.name, unit: t.unit, kind: 'num', dec: decFor(t.unit), get: (r) => num(V(r.a, tid).v) };
+  };
+  const biSelectCols = (tid) => {
+    const t = TEST_INDEX[tid];
+    const g = t.short || t.name;
+    return [
+      { id: `${tid}.d`, group: g, label: 'D', kind: 'text', get: (r) => V(r.a, tid).d || '', tone: (r, v) => positive(v) },
+      { id: `${tid}.e`, group: g, label: 'E', kind: 'text', get: (r) => V(r.a, tid).e || '', tone: (r, v) => positive(v) },
+    ];
+  };
+  const selectCol = (tid) => {
+    const t = TEST_INDEX[tid];
+    return { id: tid, label: t.short || t.name, kind: 'text', get: (r) => V(r.a, tid).v || '', tone: (r, v) => positive(v) };
+  };
+  const scoreBiCols = (tid) => {
+    const t = TEST_INDEX[tid];
+    const g = t.short || t.name;
+    return [
+      { id: `${tid}.d`, group: g, label: 'D', kind: 'score', get: (r) => V(r.a, tid).sd || '' },
+      { id: `${tid}.e`, group: g, label: 'E', kind: 'score', get: (r) => V(r.a, tid).se || '' },
+      { id: `${tid}.p`, group: g, label: 'P', kind: 'pain', get: (r) => (V(r.a, tid).pain ? 'P' : '') },
+    ];
+  };
+  const encoder = (name) => (r) => ((r.a.encoder && r.a.encoder.rows) || []).find((x) => U.norm(x.name) === U.norm(name)) || {};
+  const jump = (type, k) => (r) => { const j = Calc.jumps(r.a)[type]; return j ? j[k] : null; };
+  const patterns = (r) => Calc.patterns(r.a);
+
+  const COLUMNS = {
+    clients: () => [
+      { id: 'client', label: 'Client', kind: 'client', get: (r) => U.fullName(r.p) },
+      { id: 'age', label: 'Edat', kind: 'num', dec: 0, get: (r) => U.age(r.p.birthDate) },
+      { id: 'profile', label: 'Perfil', kind: 'text', get: (r) => r.p.profile || '' },
+      { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.p.professional || '' },
+      { id: 'status', label: 'Estat', kind: 'text', get: (r) => (OPT.status.find((o) => o.v === r.p.status) || {}).label || '' },
+      { id: 'start', label: 'Alta', kind: 'date', get: (r) => r.p.startDate || '' },
+      { id: 'done', label: 'Sessions fetes', kind: 'num', dec: 0, get: (r) => Store.byPatient('sessions', r.p.id).filter((s) => s.status === 'feta').length },
+      { id: 'lastSession', label: 'Última sessió', kind: 'date', get: (r) => (U.sortBy(Store.byPatient('sessions', r.p.id).filter((s) => s.status === 'feta'), 'date', -1)[0] || {}).date || '' },
+      { id: 'lastAssessment', label: 'Última valoració', kind: 'date', get: (r) => (Store.assessmentsOf(r.p.id).pop() || {}).date || '' },
+      { id: 'retest', label: 'Propera valoració', kind: 'date', get: (r) => { const x = Calc.retestDue(Store.assessmentsOf(r.p.id)); return x ? x.due : ''; },
+        tone: (r, v) => (v && v <= U.today() ? 'warn' : '') },
+      { id: 'iq', label: 'Dies des de la IQ', kind: 'num', dec: 0, get: (r) => (r.p.surgeryDate ? U.diffDays(r.p.surgeryDate, U.today()) : null) },
+      { id: 'injury', label: 'Dies des de la lesió', kind: 'num', dec: 0, get: (r) => (r.p.injuryDate ? U.diffDays(r.p.injuryDate, U.today()) : null) },
+      { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.p.goal || '' },
+    ],
+
+    valoracions: () => [
+      ...lead(),
+      { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.a.professional || '' },
+      { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
+      { id: 'cmj', group: 'CMJ', label: 'Millor', unit: 'cm', kind: 'num', dec: 1, get: jump('CMJ', 'best') },
+      { id: 'cmjw', group: 'CMJ', label: 'Potència', unit: 'W/kg', kind: 'num', dec: 1, get: jump('CMJ', 'relPower') },
+      { id: 'ybtd', group: 'Y-Balance', label: 'D', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.ybt(r.a).d.comp },
+      { id: 'ybte', group: 'Y-Balance', label: 'E', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.ybt(r.a).e.comp },
+      { id: 'ktwd', group: 'Knee-to-wall', label: 'D', unit: 'cm', kind: 'num', dec: 1, get: (r) => num(V(r.a, 'wblt').d), tone: (r, v) => (v != null && v < THRESHOLDS.wbltMin ? 'bad' : '') },
+      { id: 'ktwe', group: 'Knee-to-wall', label: 'E', unit: 'cm', kind: 'num', dec: 1, get: (r) => num(V(r.a, 'wblt').e), tone: (r, v) => (v != null && v < THRESHOLDS.wbltMin ? 'bad' : '') },
+      { id: 'quad', label: 'Asim. quàdriceps', unit: '%', kind: 'pct', dec: 0, get: (r) => { const as = Calc.asym(V(r.a, 'dyn_knee_ext').d, V(r.a, 'dyn_knee_ext').e); return as ? as.pct : null; }, tone: (r, v) => Calc.asymTone(v) },
+      { id: 'p0', group: 'Patrons', label: '0', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['0'] : null) },
+      { id: 'p1', group: 'Patrons', label: '−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['-'] : null) },
+      { id: 'p2', group: 'Patrons', label: '−−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['--'] : null), tone: (r, v) => (v ? 'bad' : '') },
+      { id: 'pp', group: 'Patrons', label: 'P', kind: 'num', dec: 0, get: (r) => (patterns(r).scored || patterns(r).counts.P ? patterns(r).counts.P : null), tone: (r, v) => (v ? 'bad' : '') },
+      { id: 'alerts', label: 'Punts d\'atenció', kind: 'num', dec: 0, get: (r) => Calc.alerts(r.a).length,
+        tone: (r) => (Calc.alerts(r.a).some((x) => x.tone === 'bad') ? 'bad' : Calc.alerts(r.a).length ? 'warn' : '') },
+    ],
+
+    mobilitat: () => [...lead(), ...['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex', 'rom_knee_ext', 'wblt'].flatMap((tid) => biCols(tid))],
+
+    postural: () => [...lead(), ...biSelectCols('slump'), ...biSelectCols('pkb'), selectCol('adams'), ...biSelectCols('thomas'), ...biSelectCols('windlass'), ...scoreBiCols('sls')],
+
+    dinamometria: () => [
+      ...lead(),
+      { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
+      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
+      { ...singleCol('dyn_squeeze', 'Squeeze'), group: 'Squeeze', label: 'N' },
+      { id: 'squeezekg', group: 'Squeeze', label: 'N/kg', kind: 'num', dec: 1, get: (r) => Calc.perKg(V(r.a, 'dyn_squeeze').v, Calc.weight(r.a)) },
+      { id: 'hqd', group: 'Ràtio isquios/quàdriceps', label: 'D', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).d },
+      { id: 'hqe', group: 'Ràtio isquios/quàdriceps', label: 'E', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).e },
+    ],
+
+    ybalance: () => {
+      const side = (s, k) => (r) => Calc.ybt(r.a)[s][k];
+      const dir = (k, label) => [
+        { id: `${k}.d`, group: label, label: 'D', unit: 'cm', kind: 'num', dec: 1, get: side('d', k) },
+        { id: `${k}.e`, group: label, label: 'E', unit: 'cm', kind: 'num', dec: 1, get: side('e', k) },
+      ];
+      return [
+        ...lead(),
+        ...dir('ant', 'Anterior'),
+        { id: 'antdiff', group: 'Anterior', label: 'Dif.', unit: 'cm', kind: 'num', dec: 1, get: (r) => Calc.ybt(r.a).antDiff, tone: (r, v) => (v != null && v >= THRESHOLDS.ybtAntDiff ? 'bad' : '') },
+        ...dir('pm', 'Posteromedial'), ...dir('pl', 'Posterolateral'), ...dir('len', 'Longitud de cama'),
+        { id: 'compd', group: 'Composite', label: 'D', unit: '%', kind: 'num', dec: 1, get: side('d', 'comp') },
+        { id: 'compe', group: 'Composite', label: 'E', unit: '%', kind: 'num', dec: 1, get: side('e', 'comp') },
+      ];
+    },
+
+    salts: () => [
+      ...lead(),
+      { id: 'cmjbest', group: 'CMJ', label: 'Millor', unit: 'cm', kind: 'num', dec: 1, get: jump('CMJ', 'best') },
+      { id: 'cmjmean', group: 'CMJ', label: 'Mitjana', unit: 'cm', kind: 'num', dec: 1, get: jump('CMJ', 'mean') },
+      { id: 'cmjpow', group: 'CMJ', label: 'Potència', unit: 'W', kind: 'num', dec: 0, get: jump('CMJ', 'bestPower') },
+      { id: 'cmjrel', group: 'CMJ', label: 'Potència', unit: 'W/kg', kind: 'num', dec: 1, get: jump('CMJ', 'relPower') },
+      { id: 'cmjf', group: 'CMJ', label: 'Força', unit: 'N', kind: 'num', dec: 0, get: jump('CMJ', 'bestForce') },
+      { id: 'cmjv', group: 'CMJ', label: 'Velocitat', unit: 'm/s', kind: 'num', dec: 2, get: jump('CMJ', 'bestVel') },
+      { id: 'cmjrsi', group: 'CMJ', label: 'RSI-mod', kind: 'num', dec: 2, get: jump('CMJ', 'bestRsi') },
+      { id: 'cmjn', group: 'CMJ', label: 'Intents', kind: 'num', dec: 0, get: jump('CMJ', 'n') },
+      { id: 'sj', label: 'SJ millor', unit: 'cm', kind: 'num', dec: 1, get: jump('SJ', 'best') },
+      { id: 'cmjfree', label: 'CMJ lliure millor', unit: 'cm', kind: 'num', dec: 1, get: jump('CMJ lliure', 'best') },
+      { id: 'dj', label: 'DJ RSI-mod', kind: 'num', dec: 2, get: jump('DJ', 'bestRsi') },
+      { id: 'ready', label: 'Estat de forma', kind: 'text', get: (r) => (r.a.jumps && r.a.jumps.readiness) || '',
+        tone: (r, v) => (v === 'vermell' ? 'bad' : v === 'groc' ? 'warn' : v === 'verd' ? 'ok' : '') },
+    ],
+
+    rendiment: () => [
+      ...lead(),
+      ...['Squat', 'RDL', 'Hip Thrust'].flatMap((n) => [
+        { id: `${n}.kg`, group: `Encoder ${n}`, label: 'Càrrega', unit: 'kg', kind: 'num', dec: 1, get: (r) => num(encoder(n)(r).load) },
+        { id: `${n}.v`, group: `Encoder ${n}`, label: 'Velocitat', unit: 'm/s', kind: 'num', dec: 2, get: (r) => num(encoder(n)(r).vel) },
+      ]),
+      { id: 'bikepk', group: 'Assault bike 30 s', label: 'Pic', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).peak },
+      { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
+      { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },
+      { id: 'bikefat', group: 'Assault bike 30 s', label: 'Fatiga', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).fatigue },
+    ],
+
+    patrons: () => [
+      ...lead(),
+      ...PATTERNS.map((pt) => ({ id: pt.id, group: 'Puntuació', label: pt.short || pt.name, kind: 'score',
+        get: (r) => Calc.patternScore((r.a.patterns || {})[pt.id], pt.uni), pain: (r) => !!((r.a.patterns || {})[pt.id] || {}).pain })),
+      { id: 'c0', group: 'Resum', label: '0', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['0'] : null) },
+      { id: 'c1', group: 'Resum', label: '−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['-'] : null) },
+      { id: 'c2', group: 'Resum', label: '−−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['--'] : null), tone: (r, v) => (v ? 'bad' : '') },
+      { id: 'cp', group: 'Resum', label: 'P', kind: 'num', dec: 0, get: (r) => (patterns(r).scored || patterns(r).counts.P ? patterns(r).counts.P : null), tone: (r, v) => (v ? 'bad' : '') },
+    ],
+
+    perfil: () => [
+      ...lead(),
+      { id: 'profile', label: 'Perfil', kind: 'text', get: (r) => r.p.profile || '' },
+      ...PROFILE_TESTS.flatMap((t) => {
+        if (t.kind === 'bi') return biCols(t.id, t.name).filter((c) => !c.id.endsWith('.asym'));
+        if (t.kind === 'single') return [singleCol(t.id, t.name)];
+        if (t.kind === 'scoreBi') return scoreBiCols(t.id).filter((c) => !c.id.endsWith('.p'));
+        return [{ id: t.id, label: t.name, kind: 'text', get: (r) => V(r.a, t.id).v || '' }];
+      }),
+    ],
+
+    sessions: () => [
+      { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+      { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.s.date },
+      { id: 'num', label: 'Nº', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
+      { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
+      { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
+      { id: 'sleep', group: 'Com arriba', label: 'Son', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).sleep) },
+      { id: 'energy', group: 'Com arriba', label: 'Energia', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).energy) },
+      { id: 'painpre', group: 'Com arriba', label: 'Dolor', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).pain) },
+      { id: 'rpe', group: 'Tancament', label: 'RPE', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).rpe) },
+      { id: 'min', group: 'Tancament', label: 'Minuts', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).duration) },
+      { id: 'load', group: 'Tancament', label: 'Càrrega', unit: 'UA', kind: 'num', dec: 0, get: (r) => Calc.sessionLoad(r.s) },
+      { id: 'painpost', group: 'Tancament', label: 'Dolor', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).pain), tone: (r, v) => (v != null && v >= 4 ? 'bad' : '') },
+      { id: 'exercises', label: 'Exercicis', kind: 'num', dec: 0, get: (r) => Calc.itemCount(r.s) },
+      { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.s.professional || '' },
+    ],
+
+    exercicis: () => [
+      { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+      { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.s.date },
+      { id: 'num', label: 'Sessió', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
+      { id: 'block', label: 'Bloc', kind: 'block', get: (r) => r.b.key },
+      { id: 'order', label: 'Ordre', kind: 'text', get: (r) => `${blockNum(r.b.key)}.${r.idx + 1}` },
+      { id: 'name', label: 'Exercici', kind: 'text', wide: true, get: (r) => r.it.name },
+      { id: 'sets', label: 'Sèries', kind: 'text', get: (r) => r.it.sets || '' },
+      { id: 'reps', label: 'Reps / temps', kind: 'text', get: (r) => r.it.reps || '' },
+      { id: 'load', label: 'Càrrega', kind: 'text', get: (r) => Calc.load(r.it.load) },
+      { id: 'int', label: 'Intensitat', kind: 'text', get: (r) => r.it.intensity || '' },
+      { id: 'rest', label: 'Descans', kind: 'text', get: (r) => r.it.rest || '' },
+      { id: 'material', label: 'Material', kind: 'text', get: (r) => r.it.material || '' },
+      { id: 'done', label: 'Fet', kind: 'text', get: (r) => (r.it.done ? 'Sí' : ''), tone: (r, v) => (v ? 'ok' : '') },
+    ],
+  };
+
+  function rows(tableId) {
+    const P = (id) => Store.get('patients', id);
+    const def = DB_TABLES.find((t) => t.id === tableId);
+    if (!def) return [];
+    if (def.kind === 'patients') return Store.patients().map((p) => ({ key: p.id, p }));
+    if (def.kind === 'sessions') return Store.all('sessions').map((s) => ({ key: s.id, s, p: P(s.patientId) })).filter((r) => r.p);
+    if (def.kind === 'log') {
+      const out = [];
+      for (const s of Store.all('sessions')) {
+        const p = P(s.patientId);
+        if (!p) continue;
+        for (const b of s.blocks || []) (b.items || []).filter((i) => i.name).forEach((it, idx) => out.push({ key: `${s.id}:${it.id}`, s, p, b, it, idx }));
+      }
+      return out;
+    }
+    return Store.all('assessments').map((a) => ({ key: a.id, a, p: P(a.patientId) })).filter((r) => r.p);
+  }
+
+  const empty = (v) => v == null || v === '' || (typeof v === 'number' && !Number.isFinite(v));
+
+  // Files amb alguna dada a les columnes pròpies de la taula (no només client i data).
+  function withData(tableId, list, cols) {
+    const def = DB_TABLES.find((t) => t.id === tableId);
+    if (!def || def.kind !== 'assessments' || tableId === 'valoracions') return list;
+    const own = cols.filter((c) => !c.lead);
+    return list.filter((r) => own.some((c) => !empty(c.get(r))));
+  }
+
+  function sortRows(list, col, dir) {
+    if (!col) return list;
+    const val = (r) => col.get(r);
+    return [...list].sort((x, y) => {
+      const a = val(x), b = val(y);
+      if (empty(a) && empty(b)) return 0;
+      if (empty(a)) return 1;
+      if (empty(b)) return -1;
+      if (typeof a === 'number' && typeof b === 'number') return (a - b) * dir;
+      return String(a).localeCompare(String(b), 'ca', { numeric: true }) * dir;
+    });
+  }
+
+  function header(c) {
+    return `${c.group ? `${c.group} · ` : ''}${c.label}${c.unit ? ` (${c.unit})` : ''}`;
+  }
+
+  // Valor per a l'exportació a Excel.
+  function csvValue(c, r) {
+    const v = c.get(r);
+    if (empty(v)) return '';
+    if (c.kind === 'score') return Flat.sym(v) + (c.pain && c.pain(r) ? ' P' : '');
+    if (typeof v === 'number') return U.round(v, c.dec ?? 2);
+    if (c.kind === 'block') return blockName(v);
+    return v;
+  }
+
+  return { COLUMNS, rows, withData, sortRows, header, csvValue, empty };
+})();
+
+
 /* ── 10-ui.js ── */
 /* EON Life · components d'interfície reutilitzables. */
 
@@ -3132,6 +3483,8 @@ const ICONS = {
   flame: html`<path d="M12 21c-3.9 0-6.5-2.6-6.5-6 0-3.2 2.2-5 3.5-7.5.6 1.7 1.6 2.6 2.6 3 .3-3.1 1.6-5.6 4-7.5.2 3 1.9 4.5 3 6.5.8 1.4 1.4 2.9 1.4 4.5 0 3.9-3 7-8 7z"/>`,
   target: html`<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>`,
   refresh: html`<path d="M20 11a8 8 0 0 0-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 16"/><path d="M20 20v-4h-4"/>`,
+  table: html`<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9 4v16"/>`,
+  database: html`<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>`,
 };
 
 function Icon({ name, size = 18, class: c }) {
@@ -3939,6 +4292,7 @@ function HomeView() {
         <h1 class="h1">${greeting()}</h1>
       </div>
       <div class="page-actions">
+        <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Afegeix mesures</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou client</${Btn}>
       </div>
     </header>
@@ -4091,7 +4445,15 @@ function PatientSummary({ p, sessions, assessments }) {
   const last = assessments[assessments.length - 1];
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
-  return html`<div class="grid-2">
+  const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
+  return html`<section class="card quickadd">
+    <div class="quickadd-head"><h2 class="h2">Registrar mesures</h2><span class="muted small">Obre el formulari directament a l'apartat</span></div>
+    <div class="quickadd-chips">
+      ${quick.map(([f, label]) => html`<button type="button" class="chip" onClick=${() => openAddMeasurement(f, p.id)}><${Icon} name="plus" size=${14} />${label}</button>`)}
+      <button type="button" class="chip" onClick=${() => go('dades', 'valoracions', p.id)}><${Icon} name="table" size=${14} />Veure totes les dades</button>
+    </div>
+  </section>
+  <div class="grid-2">
     <section class="card">
       <div class="card-head"><h2 class="h2">Propera sessió</h2>
         <${Btn} size="sm" variant="ghost" icon="plus" onClick=${() => openNewSession(p.id)}>Nova</${Btn}></div>
@@ -4295,7 +4657,19 @@ function PatientForm({ p, onRemove }) {
 /* EON Life · valoració funcional a la tauleta (Mobilitat · Força · Rendiment · Patrons · Perfil).
    Tot es calcula al moment: asimetries, N/kg, composite del Y-Balance, resum de salts i patrons. */
 
-function AssessmentEditor({ id }) {
+function AssessmentEditor({ id, focus }) {
+  // Si s'hi arriba des de la base de dades («+ Afegeix dinamometria»…), baixa fins al grup i el ressalta.
+  useEffect(() => {
+    if (!focus) return undefined;
+    const t = setTimeout(() => {
+      const el = document.getElementById(`grp-${focus}`) || document.getElementById(`sec-${focus}`);
+      if (!el) return;
+      el.scrollIntoView({ block: 'start' });
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 1800);
+    }, 80);
+    return () => clearTimeout(t);
+  }, [id, focus]);
   const a = Store.get('assessments', id);
   if (!a) return html`<div class="page"><${Empty} icon="clipboard" title="No trobo aquesta valoració" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
@@ -4400,7 +4774,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
   else body = html`<div class="trows">${(g.tests || []).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
   const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'profile' ? 'Bateria segons el perfil del client' : g.kind === 'free' ? 'Mesures addicionals' : '');
-  return html`<div class="card group">
+  return html`<div class="card group" id=${`grp-${g.id}`}>
     <div class="group-head">
       <h3 class="group-title">${title}</h3>
       ${g.device && html`<${Pill} tone=${g.device === 'Fase 2' ? 'warn' : 'neutral'}>${g.device}</${Pill}>`}
@@ -5776,6 +6150,198 @@ function SettingsView() {
 }
 
 
+/* ── 30-database.js ── */
+/* EON Life · pantalla «Base de dades»: totes les dades dels clients en taules
+   (una per àrea, com les pestanyes del full de càlcul), amb filtres, ordenació i «+ Afegeix». */
+
+function DatabaseView({ table = 'valoracions', pid = '' }) {
+  const [q, setQ] = useState('');
+  const [client, setClient] = useState(pid || '');
+  const [prof, setProf] = useState('');
+  const [latest, setLatest] = useState(false);
+  const [sort, setSort] = useState(null);
+  const [limit, setLimit] = useState(150);
+  useEffect(() => { setClient(pid || ''); }, [pid]);
+  useEffect(() => { setSort(null); setLimit(150); }, [table]);
+
+  const def = DB_TABLES.find((t) => t.id === table) || DB_TABLES[1];
+  const cols = useMemo(() => DB.COLUMNS[def.id](), [def.id]);
+  const patients = Store.patients();
+
+  let list = DB.withData(def.id, DB.rows(def.id), cols);
+  const nq = U.norm(q);
+  if (nq) list = list.filter((r) => U.norm(U.fullName(r.p)).includes(nq));
+  if (client) list = list.filter((r) => r.p.id === client);
+  if (prof) list = list.filter((r) => ((r.a && r.a.professional) || (r.s && r.s.professional) || r.p.professional) === prof);
+  if (latest && def.kind === 'assessments') {
+    const last = {};
+    for (const r of list) if (!last[r.p.id] || r.a.date > last[r.p.id].a.date) last[r.p.id] = r;
+    list = Object.values(last);
+  }
+  const defaultSort = cols.find((c) => c.id === 'date') ? { id: 'date', dir: -1 } : { id: 'client', dir: 1 };
+  const s = sort || defaultSort;
+  const sortCol = cols.find((c) => c.id === s.id);
+  list = DB.sortRows(list, sortCol, s.dir);
+  const shown = list.slice(0, limit);
+
+  const toggleSort = (c) => setSort(s.id === c.id ? { id: c.id, dir: -s.dir } : { id: c.id, dir: c.kind === 'date' || c.kind === 'num' || c.kind === 'pct' ? -1 : 1 });
+  const open = (r) => {
+    if (def.kind === 'patients') go('client', r.p.id);
+    else if (def.kind === 'assessments') go('valoracio', r.a.id, def.focus && def.focus !== 'dades' ? def.focus : '');
+    else go('sessio', r.s.id);
+  };
+  const add = () => {
+    if (def.kind === 'patients') openNewPatient();
+    else if (def.kind === 'assessments') openAddMeasurement(def.focus, client);
+  };
+  const exportCsv = () => {
+    const headers = cols.map(DB.header);
+    const data = list.map((r) => Object.fromEntries(cols.map((c, i) => [headers[i], DB.csvValue(c, r)])));
+    const ok = U.download(`eonlife-${def.id}-${U.today()}.csv`, U.toCsv(data, headers), 'text/csv');
+    if (!ok) UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad');
+  };
+
+  return html`<div class="page page-wide">
+    <header class="page-head">
+      <div><p class="eyebrow">Totes les dades dels clients</p><h1 class="h1">Base de dades</h1></div>
+      <div class="page-actions">
+        ${!IS_ARTIFACT && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
+        ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
+      </div>
+    </header>
+
+    <div class="dbtabs" role="tablist" aria-label="Taules">
+      ${DB_TABLES.map((t) => html`<button type="button" role="tab" aria-selected=${t.id === def.id}
+        class=${U.cls('dbtab', t.id === def.id && 'on')} onClick=${() => go('dades', t.id, client)}>${t.label}</button>`)}
+    </div>
+
+    <section class="card dbcard">
+      <div class="dbbar">
+        <label class="search"><${Icon} name="search" size=${17} />
+          <input class="input" type="search" placeholder="Cerca un client…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca un client" /></label>
+        <${Select} value=${client} onValue=${(v) => go('dades', def.id, v)} placeholder="Tots els clients" options=${patients.map((p) => ({ v: p.id, label: U.fullName(p) }))} ariaLabel="Client" />
+        <${Select} value=${prof} onValue=${setProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
+        ${def.kind === 'assessments' && html`<label class="check"><input type="checkbox" checked=${latest} onChange=${(e) => setLatest(e.currentTarget.checked)} /> Només l'última de cada client</label>`}
+      </div>
+      <p class="dbhint"><span>${def.hint}</span> <span class="muted">${U.plural(list.length, 'fila', 'files')}${def.kind === 'assessments' || def.kind === 'patients' || def.kind === 'sessions' ? ' · toca una fila per obrir-la' : ''}</span></p>
+      ${list.length ? html`<${DbTable} cols=${cols} rows=${shown} sort=${s} onSort=${toggleSort} onOpen=${open} />`
+        : html`<${Empty} icon="table" title="Encara no hi ha dades en aquesta taula"
+            text=${def.kind === 'assessments' ? 'Toca el botó per afegir-hi mesures d\'un client: s\'obrirà el formulari directament en aquest apartat.' : 'Quan n\'hi hagi, apareixeran aquí.'}>
+            ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
+          </${Empty}>`}
+      ${list.length > shown.length && html`<div class="row-actions"><${Btn} onClick=${() => setLimit(limit + 300)}>Mostra'n més (${list.length - shown.length})</${Btn}></div>`}
+    </section>
+  </div>`;
+}
+
+function DbTable({ cols, rows, sort, onSort, onOpen }) {
+  const grouped = cols.some((c) => c.group);
+  // Capçalera en dos nivells: el grup (p. ex. «Quàdriceps») a sobre de D · E · Asim.
+  const groups = [];
+  for (const c of cols) {
+    const last = groups[groups.length - 1];
+    if (c.group && last && last.group === c.group) last.cols.push(c);
+    else groups.push({ group: c.group || null, cols: [c] });
+  }
+  const starts = new Set(groups.filter((g) => g.group).map((g) => g.cols[0].id));
+  const th = (c, extra = {}) => {
+    const active = sort && sort.id === c.id;
+    return html`<th class=${U.cls('sortable', c.kind === 'client' && 'sticky', ['num', 'pct', 'signed', 'date'].includes(c.kind) && 'num', starts.has(c.id) && 'gstart', active && 'sorted')}
+      rowspan=${extra.rowspan} scope="col" aria-sort=${active ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none'}>
+      <button type="button" class="thbtn" onClick=${() => onSort(c)}>${c.label}${c.unit && html`<span class="thunit">${c.unit}</span>`}${active && html`<span class="thsort">${sort.dir > 0 ? '▲' : '▼'}</span>`}</button>
+    </th>`;
+  };
+  return html`<div class="dbwrap">
+    <table class=${U.cls('dbt', grouped && 'dbt-grouped')}>
+      <thead>
+        ${grouped ? html`
+          <tr class="dbt-g">${groups.map((g) => (g.group
+            ? html`<th colspan=${g.cols.length} class="grp gstart" scope="colgroup">${g.group}</th>`
+            : th(g.cols[0], { rowspan: 2 })))}</tr>
+          <tr class="dbt-h">${cols.filter((c) => c.group).map((c) => th(c))}</tr>`
+          : html`<tr class="dbt-h">${cols.map((c) => th(c))}</tr>`}
+      </thead>
+      <tbody>${rows.map((r) => html`<tr key=${r.key} onClick=${() => onOpen(r)} tabindex="0" onKeyDown=${(e) => { if (e.key === 'Enter') onOpen(r); }}>
+        ${cols.map((c) => html`<${DbCell} c=${c} r=${r} gstart=${starts.has(c.id)} />`)}
+      </tr>`)}</tbody>
+    </table>
+  </div>`;
+}
+
+function DbCell({ c, r, gstart }) {
+  const v = c.get(r);
+  const tone = c.tone ? c.tone(r, v) : '';
+  const isEmpty = DB.empty(v);
+  const cls = U.cls(gstart && 'gstart', ['num', 'pct', 'signed', 'date'].includes(c.kind) && 'num', c.wide && 'wide');
+  const wrap = (text) => (tone && !isEmpty ? html`<span class=${`pill pill-${tone}`}>${text}</span>` : text);
+  if (c.kind === 'client') return html`<td class="sticky dbname">${v}</td>`;
+  if (isEmpty && c.kind !== 'score') return html`<td class=${U.cls(cls, 'dbempty')}>—</td>`;
+  switch (c.kind) {
+    case 'date': return html`<td class=${cls}>${wrap(U.fmtDate(v))}</td>`;
+    case 'num': return html`<td class=${cls}>${wrap(U.fmtFixed(v, c.dec ?? 1))}</td>`;
+    case 'signed': return html`<td class=${cls}>${wrap(U.fmtSigned(v, c.dec ?? 1))}</td>`;
+    case 'pct': return html`<td class=${cls}>${wrap(`${U.fmtFixed(v, c.dec ?? 0)} %`)}</td>`;
+    case 'score': {
+      const pain = c.pain ? c.pain(r) : false;
+      if (!v && !pain) return html`<td class=${U.cls(cls, 'dbempty')}>—</td>`;
+      return html`<td class=${U.cls(cls, 'center')}><${ScoreDot} v=${v} pain=${pain && !v} size="xs" />${pain && v ? html` <${ScoreDot} pain=${true} size="xs" />` : ''}</td>`;
+    }
+    case 'pain': return html`<td class=${U.cls(cls, 'center')}><${ScoreDot} pain=${true} size="xs" /></td>`;
+    case 'block': return html`<td class=${cls}><${BlockTag} k=${v} small=${true} /></td>`;
+    default: return html`<td class=${cls}>${wrap(v)}</td>`;
+  }
+}
+
+// ── Afegir mesures: tria el client i la data i obre el formulari a l'apartat corresponent ──
+function openAddMeasurement(focus, pid) {
+  if (!Store.patients().length) { UI.toast('Primer crea un client.', 'bad'); openNewPatient(); return; }
+  let close = null;
+  close = UI.open(() => html`<${AddMeasurementDialog} focus=${focus} pid=${pid} onClose=${() => close()} />`);
+}
+
+const FOCUS_LABELS = {
+  dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', neuro: 'Neurodinàmia i postural',
+  dyn: 'Dinamometria (K-Push)', sls: 'Single Leg Squat', ybt: 'Y-Balance', jumps: 'Salts (My Jump)',
+  encoder: 'Encoder i bike', patterns: 'Patrons de moviment', profile: 'Tests per perfil',
+};
+
+function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
+  const patients = Store.patients();
+  const [p, setP] = useState(pid || (patients[0] && patients[0].id) || '');
+  const [date, setDate] = useState(U.today());
+  const [what, setWhat] = useState(focus || 'dades');
+  const prev = p ? Store.assessmentsOf(p) : [];
+  const existing = prev.find((a) => a.date === date);
+  const suggested = !prev.length ? 'inicial' : what === 'dades' ? 'retest' : 'control';
+  const [type, setType] = useState(null);
+  const t = type || suggested;
+  const go_ = () => {
+    if (!p) return;
+    const a = existing || Store.newAssessment(p, { date, type: t });
+    onClose();
+    go('valoracio', a.id, what === 'dades' ? '' : what);
+  };
+  return html`<${Dialog} title="Afegeix mesures" onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="right" onClick=${go_}>Continua</${Btn}>`}>
+    <div class="form-grid">
+      <${Field} label="Client" id="am-client" wide=${true}>
+        <${Select} id="am-client" value=${p} onValue=${(v) => { setP(v); setType(null); }} options=${patients.map((x) => ({ v: x.id, label: U.fullName(x) }))} />
+      </${Field}>
+      <${Field} label="Què vols registrar?" id="am-what" wide=${true}>
+        <${Select} id="am-what" value=${what} onValue=${(v) => { setWhat(v); setType(null); }} options=${Object.entries(FOCUS_LABELS).map(([v, label]) => ({ v, label }))} />
+      </${Field}>
+      <${Field} label="Data" id="am-date"><${TextInput} id="am-date" type="date" value=${date} onValue=${setDate} /></${Field}>
+      ${!existing && html`<${Field} label="Tipus" id="am-type"><${Select} id="am-type" value=${t} onValue=${setType} options=${OPT.assessmentTypes.map((o) => ({ v: o.v, label: o.label }))} /></${Field}>`}
+    </div>
+    <p class="dialog-text">${existing
+      ? `Aquest client ja té una valoració el ${U.fmtDate(date)} (${(OPT.assessmentTypes.find((o) => o.v === existing.type) || {}).label.toLowerCase()}): les mesures s'hi afegiran.`
+      : prev.length ? `Es crearà una valoració nova del ${U.fmtDate(date)}. Només cal omplir el que mesureu avui; la resta pot quedar en blanc.`
+        : 'És la primera valoració d\'aquest client.'}</p>
+  </${Dialog}>`;
+}
+
+
 /* ── 99-app.js ── */
 /* EON Life · estructura de l'app i arrencada. */
 
@@ -5783,7 +6349,7 @@ function Sidebar({ route, open, onClose }) {
   const item = (name, icon, label, active) => html`<button type="button" class=${U.cls('nav-item', active && 'on')} onClick=${() => { onClose(); go(name); }}>
     <${Icon} name=${icon} size=${19} /><span>${label}</span></button>`;
   const r = route.name;
-  const clientRoutes = ['inici', 'client', 'valoracio', 'sessio'];
+  const clientRoutes = ['inici', 'client', 'sessio'];
   return html`<aside class=${U.cls('sidebar', open && 'open')}>
     <div class="sidebar-brand">
       <span class="logo-mark" role="img" aria-label=${Store.settings.centerName || 'EON Life'}></span>
@@ -5791,10 +6357,14 @@ function Sidebar({ route, open, onClose }) {
     </div>
     <nav class="nav">
       ${item('inici', 'home', 'Inici i clients', clientRoutes.includes(r))}
+      ${item('dades', 'database', 'Base de dades', r === 'dades' || r === 'valoracio')}
       ${item('biblioteca', 'book', 'Biblioteca', r === 'biblioteca' || r === 'plantilla')}
       ${item('configuracio', 'settings', 'Configuració', r === 'configuracio')}
     </nav>
-    <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou client</button>
+    <div class="nav-actions">
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou client</button>
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Afegeix mesures</button>
+    </div>
     <div class="sidebar-foot">
       <span class="sidebar-mode"><${Icon} name=${Store.meta.mode === 'google' ? 'cloud' : 'device'} size=${16} />${Store.meta.mode === 'google' ? 'Google Sheets' : 'Mode local'}</span>
       ${Store.meta.user && html`<span class="sidebar-user">${Store.meta.user}</span>`}
@@ -5824,7 +6394,8 @@ function renderRoute(r) {
   const [a, b] = r.params;
   switch (r.name) {
     case 'client': return html`<${PatientView} id=${a} tab=${b || 'resum'} />`;
-    case 'valoracio': return html`<${AssessmentEditor} id=${a} />`;
+    case 'valoracio': return html`<${AssessmentEditor} id=${a} focus=${b} />`;
+    case 'dades': return html`<${DatabaseView} table=${a || 'valoracions'} pid=${b || ''} />`;
     case 'informe': return html`<${AssessmentReport} id=${a} />`;
     case 'sessio': return html`<${SessionEditor} id=${a} />`;
     case 'fitxa': return html`<${SessionSheet} id=${a} />`;

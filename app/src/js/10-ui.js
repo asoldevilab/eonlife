@@ -47,6 +47,8 @@ const ICONS = {
   flame: html`<path d="M12 21c-3.9 0-6.5-2.6-6.5-6 0-3.2 2.2-5 3.5-7.5.6 1.7 1.6 2.6 2.6 3 .3-3.1 1.6-5.6 4-7.5.2 3 1.9 4.5 3 6.5.8 1.4 1.4 2.9 1.4 4.5 0 3.9-3 7-8 7z"/>`,
   target: html`<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>`,
   refresh: html`<path d="M20 11a8 8 0 0 0-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 16"/><path d="M20 20v-4h-4"/>`,
+  table: html`<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9 4v16"/>`,
+  database: html`<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>`,
 };
 
 function Icon({ name, size = 18, class: c }) {

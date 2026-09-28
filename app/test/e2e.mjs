@@ -153,6 +153,46 @@ const step = async (label, fn) => {
     await page.waitForSelector('text=On es guarden les dades');
     await shot(page, '11-configuracio', false);
   });
+  await step('base de dades: taules', async () => {
+    await page.click('.sidebar >> text=Base de dades');
+    await page.waitForSelector('.dbt tbody tr');
+    await shot(page, '18-base-dades', false);
+    await page.click('.dbtab >> text=Dinamometria · K-Push');
+    await page.waitForSelector('.dbt >> text=Quàdriceps');
+    await shot(page, '19-base-dades-dinamometria', false);
+    await page.click('.dbtab >> text=Y-Balance');
+    await page.waitForSelector('.dbt >> text=Composite');
+    await page.click('.dbtab >> text=Registre d\'exercicis');
+    await page.waitForSelector('.dbt tbody tr');
+    // Ordenar per una columna.
+    await page.click('.dbtab >> text=Sessions');
+    await page.click('.dbt th >> text=RPE');
+    await page.waitForSelector('.dbt th.sorted >> text=RPE');
+  });
+  await step('base de dades: afegir dinamometria a un client', async () => {
+    await page.click('.dbtab >> text=Dinamometria · K-Push');
+    await page.click('.page-actions >> text=Afegeix dinamometria');
+    await page.selectOption('#am-client', { label: 'Àlex Martí Soler' });
+    await page.fill('#am-date', '2026-10-05');
+    await page.click('.dialog-foot >> text=Continua');
+    await page.waitForSelector('#grp-dyn.flash');
+    await page.getByLabel('Leg extension · quàdriceps dreta').fill('580');
+    await page.getByLabel('Leg extension · quàdriceps esquerra').fill('560');
+    await page.waitForTimeout(1100);
+    await page.click('.sidebar >> text=Base de dades');
+    await page.click('.dbtab >> text=Dinamometria · K-Push');
+    await page.waitForSelector('.dbt td >> text=05/10/2026');
+    const types = await page.locator('.dbt tbody tr:has-text("05/10/2026") td').allInnerTexts();
+    if (!types.includes('Control')) throw new Error(`tipus: ${types.slice(0, 4).join(' | ')}`);
+    if (!types.includes('580')) throw new Error('no surt el valor 580');
+  });
+  await step('fitxa del client: registrar mesures', async () => {
+    await goHash(page, '#/client/P-DEMO-JORDI');
+    await page.click('.quickadd >> text=Y-Balance');
+    await page.waitForSelector('#am-client');
+    await page.click('.dialog-foot >> text=Continua');
+    await page.waitForSelector('#grp-ybt.flash');
+  });
   await step('persistència local', async () => {
     const before = await page.evaluate(() => ({ pending: Store.pending(), stored: (localStorage.getItem('eonlife:data:v1') || '').includes('Automàtica') }));
     await page.evaluate(() => { window.__beforeReload = true; });

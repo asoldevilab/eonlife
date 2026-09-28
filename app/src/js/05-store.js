@@ -265,18 +265,20 @@ const Store = {
     return this.put('patients', p, { immediate: true });
   },
 
-  newAssessment(pid) {
+  newAssessment(pid, opts = {}) {
     const p = this.get('patients', pid);
     const prev = this.assessmentsOf(pid);
     const last = prev[prev.length - 1];
-    const date = U.today();
+    const date = opts.date || U.today();
     const a = {
-      id: U.uid('V'), patientId: pid, date, type: prev.length ? 'retest' : 'inicial',
+      id: U.uid('V'), patientId: pid, date, type: opts.type || (prev.length ? 'retest' : 'inicial'),
       professional: (p && p.professional) || '',
       general: { weight: last && last.general ? last.general.weight : '', height: last && last.general ? last.general.height : '', goal: (p && p.goal) || '' },
       values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
       encoder: { rows: [{ id: U.uid('R'), name: 'Squat' }, { id: U.uid('R'), name: 'RDL' }, { id: U.uid('R'), name: 'Hip Thrust' }] },
-      bike: {}, patterns: {}, free: [], conclusions: {}, nextRetest: U.addMonths(date, T.retestMonths),
+      bike: {}, patterns: {}, free: [], conclusions: {},
+      // Un control de mesures no mou la data del proper re-test.
+      nextRetest: opts.type === 'control' && last ? (last.nextRetest || U.addMonths(last.date, T.retestMonths)) : U.addMonths(date, T.retestMonths),
       createdAt: new Date().toISOString(),
     };
     return this.put('assessments', a, { immediate: true });

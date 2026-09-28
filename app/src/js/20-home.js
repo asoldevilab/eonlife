@@ -39,6 +39,7 @@ function HomeView() {
         <h1 class="h1">${greeting()}</h1>
       </div>
       <div class="page-actions">
+        <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Afegeix mesures</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou client</${Btn}>
       </div>
     </header>

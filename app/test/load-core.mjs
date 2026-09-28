@@ -6,7 +6,7 @@ import vm from 'node:vm';
 
 const jsDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'js');
 
-export function loadCore(upTo = '06') {
+export function loadCore(upTo = '07') {
   const files = readdirSync(jsDir).filter((f) => f.endsWith('.js') && f.slice(0, 2) <= upTo).sort();
   const storage = new Map();
   const context = {
@@ -24,7 +24,7 @@ export function loadCore(upTo = '06') {
   context.globalThis = context;
   vm.createContext(context);
   const code = files.map((f) => readFileSync(join(jsDir, f), 'utf8')).join('\n;\n')
-    + '\n;globalThis.__core = { U, BLOCKS, OPT, THRESHOLDS, SCORES, PATTERNS, PROTOCOL, PROFILE_TESTS, TEST_INDEX, SEED_EXERCISES, SEED_TEMPLATES, Calc, Flat, parseMyJumpCsv, makeDemoData, Store: typeof Store !== "undefined" ? Store : null, LocalBackend: typeof LocalBackend !== "undefined" ? LocalBackend : null };';
+    + '\n;globalThis.__core = { DB, DB_TABLES, U, BLOCKS, OPT, THRESHOLDS, SCORES, PATTERNS, PROTOCOL, PROFILE_TESTS, TEST_INDEX, SEED_EXERCISES, SEED_TEMPLATES, Calc, Flat, parseMyJumpCsv, makeDemoData, Store: typeof Store !== "undefined" ? Store : null, LocalBackend: typeof LocalBackend !== "undefined" ? LocalBackend : null };';
   vm.runInContext(code, context, { filename: 'eonlife-core.js' });
   context.__core.__storage = storage;
   return context.__core;

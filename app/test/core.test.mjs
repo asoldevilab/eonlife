@@ -158,3 +158,38 @@ test('mode local: cada canvi es desa al navegador a l\'instant', async () => {
   const raw = core.__storage.get('eonlife:data:v1');
   assert.ok(raw && raw.includes('P-INSTANT'), 'no s\'ha desat de seguida');
 });
+
+test('base de dades: totes les taules es poden calcular amb les dades de prova', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  for (const t of core.DB_TABLES) {
+    const cols = core.DB.COLUMNS[t.id]();
+    const rows = core.DB.withData(t.id, core.DB.rows(t.id), cols);
+    assert.ok(cols.length > 2, `${t.id}: columnes`);
+    for (const r of rows) for (const c of cols) {
+      assert.doesNotThrow(() => { c.get(r); core.DB.csvValue(c, r); }, `${t.id}.${c.id}`);
+    }
+  }
+});
+
+test('base de dades: dinamometria i Y-Balance', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const cols = core.DB.COLUMNS.dinamometria();
+  const rows = core.DB.withData('dinamometria', core.DB.rows('dinamometria'), cols);
+  const laura = core.DB.sortRows(rows.filter((r) => r.p.id === 'P-DEMO-LAURA'), cols.find((c) => c.id === 'date'), 1)[0];
+  const col = (id) => cols.find((c) => c.id === id);
+  assert.equal(col('dyn_knee_ext.d').get(laura), 312);
+  assert.equal(Math.round(col('dyn_knee_ext.asym').get(laura)), 15);
+  assert.equal(col('dyn_knee_ext.asym').tone(laura, col('dyn_knee_ext.asym').get(laura)), 'bad');
+  assert.equal(core.DB.header(col('dyn_knee_ext.dkg')), 'Quàdriceps · D (N/kg)');
+  // Y-Balance: la Montserrat no en té, i no ha de sortir a la taula.
+  const ycols = core.DB.COLUMNS.ybalance();
+  const yrows = core.DB.withData('ybalance', core.DB.rows('ybalance'), ycols);
+  assert.ok(yrows.length >= 3);
+  assert.ok(!yrows.some((r) => r.p.id === 'P-DEMO-MONTSE'));
+  // Patrons: l'exportació fa servir els símbols de puntuació.
+  const pcols = core.DB.COLUMNS.patrons();
+  const prow = core.DB.rows('patrons').find((r) => r.p.id === 'P-DEMO-JORDI');
+  assert.equal(core.DB.csvValue(pcols.find((c) => c.id === 'lunge'), prow), '−−');
+});

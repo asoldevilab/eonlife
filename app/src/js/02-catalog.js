@@ -63,9 +63,10 @@ const OPT = {
     { v: 'X', label: 'Altre / no ho indica' },
   ],
   assessmentTypes: [
-    { v: 'inicial', label: 'Valoració inicial' },
-    { v: 'retest', label: 'Re-test' },
-    { v: 'alta', label: 'Valoració d\'alta' },
+    { v: 'inicial', label: 'Valoració inicial', short: 'Inicial' },
+    { v: 'retest', label: 'Re-test', short: 'Re-test' },
+    { v: 'control', label: 'Control de mesures', short: 'Control' },
+    { v: 'alta', label: 'Valoració d\'alta', short: 'Alta' },
   ],
   sessionStatus: [
     { v: 'planificada', label: 'Planificada' },

@@ -4,7 +4,7 @@ function Sidebar({ route, open, onClose }) {
   const item = (name, icon, label, active) => html`<button type="button" class=${U.cls('nav-item', active && 'on')} onClick=${() => { onClose(); go(name); }}>
     <${Icon} name=${icon} size=${19} /><span>${label}</span></button>`;
   const r = route.name;
-  const clientRoutes = ['inici', 'client', 'valoracio', 'sessio'];
+  const clientRoutes = ['inici', 'client', 'sessio'];
   return html`<aside class=${U.cls('sidebar', open && 'open')}>
     <div class="sidebar-brand">
       <span class="logo-mark" role="img" aria-label=${Store.settings.centerName || 'EON Life'}></span>
@@ -12,10 +12,14 @@ function Sidebar({ route, open, onClose }) {
     </div>
     <nav class="nav">
       ${item('inici', 'home', 'Inici i clients', clientRoutes.includes(r))}
+      ${item('dades', 'database', 'Base de dades', r === 'dades' || r === 'valoracio')}
       ${item('biblioteca', 'book', 'Biblioteca', r === 'biblioteca' || r === 'plantilla')}
       ${item('configuracio', 'settings', 'Configuració', r === 'configuracio')}
     </nav>
-    <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou client</button>
+    <div class="nav-actions">
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou client</button>
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Afegeix mesures</button>
+    </div>
     <div class="sidebar-foot">
       <span class="sidebar-mode"><${Icon} name=${Store.meta.mode === 'google' ? 'cloud' : 'device'} size=${16} />${Store.meta.mode === 'google' ? 'Google Sheets' : 'Mode local'}</span>
       ${Store.meta.user && html`<span class="sidebar-user">${Store.meta.user}</span>`}
@@ -45,7 +49,8 @@ function renderRoute(r) {
   const [a, b] = r.params;
   switch (r.name) {
     case 'client': return html`<${PatientView} id=${a} tab=${b || 'resum'} />`;
-    case 'valoracio': return html`<${AssessmentEditor} id=${a} />`;
+    case 'valoracio': return html`<${AssessmentEditor} id=${a} focus=${b} />`;
+    case 'dades': return html`<${DatabaseView} table=${a || 'valoracions'} pid=${b || ''} />`;
     case 'informe': return html`<${AssessmentReport} id=${a} />`;
     case 'sessio': return html`<${SessionEditor} id=${a} />`;
     case 'fitxa': return html`<${SessionSheet} id=${a} />`;

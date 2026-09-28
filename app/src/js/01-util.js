@@ -46,6 +46,12 @@ const U = {
     return s.replace('.', ',');
   },
 
+  // Sempre amb els mateixos decimals (per a columnes de taules): 7 → "7,0".
+  fmtFixed(n, d = 1, fallback = '—') {
+    if (n == null || !Number.isFinite(n)) return fallback;
+    return n.toFixed(d).replace('.', ',');
+  },
+
   fmtSigned(n, d = 1) {
     if (n == null || !Number.isFinite(n)) return '—';
     const s = U.fmt(Math.abs(n), d);

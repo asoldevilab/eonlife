@@ -1,7 +1,19 @@
 /* EON Life · valoració funcional a la tauleta (Mobilitat · Força · Rendiment · Patrons · Perfil).
    Tot es calcula al moment: asimetries, N/kg, composite del Y-Balance, resum de salts i patrons. */
 
-function AssessmentEditor({ id }) {
+function AssessmentEditor({ id, focus }) {
+  // Si s'hi arriba des de la base de dades («+ Afegeix dinamometria»…), baixa fins al grup i el ressalta.
+  useEffect(() => {
+    if (!focus) return undefined;
+    const t = setTimeout(() => {
+      const el = document.getElementById(`grp-${focus}`) || document.getElementById(`sec-${focus}`);
+      if (!el) return;
+      el.scrollIntoView({ block: 'start' });
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 1800);
+    }, 80);
+    return () => clearTimeout(t);
+  }, [id, focus]);
   const a = Store.get('assessments', id);
   if (!a) return html`<div class="page"><${Empty} icon="clipboard" title="No trobo aquesta valoració" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
@@ -106,7 +118,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
   else body = html`<div class="trows">${(g.tests || []).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
   const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'profile' ? 'Bateria segons el perfil del client' : g.kind === 'free' ? 'Mesures addicionals' : '');
-  return html`<div class="card group">
+  return html`<div class="card group" id=${`grp-${g.id}`}>
     <div class="group-head">
       <h3 class="group-title">${title}</h3>
       ${g.device && html`<${Pill} tone=${g.device === 'Fase 2' ? 'warn' : 'neutral'}>${g.device}</${Pill}>`}

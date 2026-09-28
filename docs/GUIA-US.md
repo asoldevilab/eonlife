@@ -10,6 +10,27 @@ Tot es desa sol mentre escrius (a dalt a la dreta: *Desant…* › *Desat al nú
 
 ---
 
+## Base de dades
+
+Menú **Base de dades**: totes les dades de tots els clients en taules, una per àrea (com les
+pestanyes del full de càlcul):
+
+**Clients · Valoracions · Mobilitat (K-Move) · Neurodinàmia i postural · Dinamometria (K-Push) ·
+Y-Balance · Salts (My Jump) · Encoder i bike · Patrons · Tests per perfil · Sessions · Registre d'exercicis**
+
+- Cada fila és una mesura d'un client en una data. Toca-la per obrir-la i editar-la.
+- Filtres per client i professional, cerca per nom, **Només l'última de cada client**, i ordenació
+  tocant el títol de qualsevol columna.
+- Les asimetries surten en verd, taronja o vermell (menys del 10 %, del 10 al 15 %, més del 15 %),
+  i els valors fora de referència en vermell.
+- **+ Afegeix…** (p. ex. *Afegeix dinamometria*): tries el client i la data i s'obre el formulari
+  directament en aquell apartat. Si el client ja té una valoració aquell dia, les mesures s'hi
+  afegeixen; si no, es crea un **Control de mesures** (no cal omplir la resta de tests).
+- **Exporta a Excel** descarrega la taula que estàs veient.
+
+També es pot començar des de **Afegeix mesures** (menú lateral i inici) o des de la fitxa de cada
+client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / Patrons**.
+
 ## Clients
 
 - **Inici** mostra les sessions d'avui i dels propers 7 dies, els re-tests pendents

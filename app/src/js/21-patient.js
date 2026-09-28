@@ -66,7 +66,15 @@ function PatientSummary({ p, sessions, assessments }) {
   const last = assessments[assessments.length - 1];
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
-  return html`<div class="grid-2">
+  const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
+  return html`<section class="card quickadd">
+    <div class="quickadd-head"><h2 class="h2">Registrar mesures</h2><span class="muted small">Obre el formulari directament a l'apartat</span></div>
+    <div class="quickadd-chips">
+      ${quick.map(([f, label]) => html`<button type="button" class="chip" onClick=${() => openAddMeasurement(f, p.id)}><${Icon} name="plus" size=${14} />${label}</button>`)}
+      <button type="button" class="chip" onClick=${() => go('dades', 'valoracions', p.id)}><${Icon} name="table" size=${14} />Veure totes les dades</button>
+    </div>
+  </section>
+  <div class="grid-2">
     <section class="card">
       <div class="card-head"><h2 class="h2">Propera sessió</h2>
         <${Btn} size="sm" variant="ghost" icon="plus" onClick=${() => openNewSession(p.id)}>Nova</${Btn}></div>
