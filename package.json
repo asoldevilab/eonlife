@@ -1,0 +1,13 @@
+{
+  "name": "eonlife-human-performance",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EON Life · Human Performance: valoracions funcionals, sessions de 6 blocs i seguiment de clients (Google Sheets + Drive).",
+  "type": "module",
+  "scripts": {
+    "build": "node app/build.mjs",
+    "test": "node --test app/test/*.test.mjs",
+    "test:e2e": "node app/test/e2e.mjs && node app/test/e2e-google.mjs"
+  },
+  "license": "UNLICENSED"
+}
