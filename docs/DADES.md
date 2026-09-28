@@ -69,3 +69,6 @@ npm run build      # genera dist/eonlife.html i apps-script/Index.html
 npm test           # càlculs, columnes del full i servidor Apps Script (simulat)
 npm run test:e2e   # recorre totes les pantalles amb Chromium, en local i en mode Google
 ```
+
+Per generar la versió de prova per a un enllaç privat de claude.ai (sense botons d'imprimir ni de
+descarregar, que aquell visor no permet): `node app/build.mjs --artifact sortida.html`.

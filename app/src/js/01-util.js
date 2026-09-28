@@ -3,6 +3,9 @@
 
 const { h, render, html, useState, useEffect, useMemo, useRef, useCallback, useLayoutEffect } = window.htmPreact;
 
+// Dins del visor d'enllaços privats de claude.ai no es pot imprimir ni descarregar fitxers.
+const IS_ARTIFACT = window.EON_ENV === 'artifact';
+
 const MONTHS = ['gener', 'febrer', 'març', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
 const MONTHS_SHORT = ['gen.', 'febr.', 'març', 'abr.', 'maig', 'juny', 'jul.', 'ag.', 'set.', 'oct.', 'nov.', 'des.'];
 const WEEKDAYS = ['diumenge', 'dilluns', 'dimarts', 'dimecres', 'dijous', 'divendres', 'dissabte'];

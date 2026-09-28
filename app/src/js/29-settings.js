@@ -79,7 +79,10 @@ function SettingsView() {
           </div>`}
     </section>
 
-    <section class="card">
+    ${IS_ARTIFACT ? html`<section class="card">
+      <div class="card-head"><h2 class="h2">Exportar i còpies de seguretat</h2></div>
+      <p class="muted">En aquest enllaç de prova no es poden descarregar fitxers ni imprimir. A la versió instal·lada a Google, les dades ja són al full de càlcul i els informes es desen en PDF.</p>
+    </section>` : html`<section class="card">
       <div class="card-head"><h2 class="h2">Exportar i còpies de seguretat</h2></div>
       <p class="muted">Els CSV s'obren directament amb Excel (separador punt i coma).</p>
       <div class="row-actions">
@@ -89,7 +92,7 @@ function SettingsView() {
         <input type="file" accept=".json,application/json" hidden ref=${fileRef} onChange=${(e) => importJson(e.currentTarget.files[0])} />
         <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa una còpia</${Btn}>
       </div>
-    </section>
+    </section>`}
 
     <section class="card">
       <div class="card-head"><h2 class="h2">Centre</h2></div>

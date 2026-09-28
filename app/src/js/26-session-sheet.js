@@ -20,7 +20,7 @@ function PresentBar({ onClose, children, title }) {
     ${children}
     <${Btn} variant="ghost" icon=${dark ? 'sun' : 'moon'} title=${dark ? 'Tema clar' : 'Tema fosc'} onClick=${toggleTheme} />
     <${Btn} variant="ghost" icon="expand" title="Pantalla completa" onClick=${full} />
-    <${Btn} variant="primary" icon="print" onClick=${printPage}>Imprimeix / PDF</${Btn}>
+    ${!IS_ARTIFACT && html`<${Btn} variant="primary" icon="print" onClick=${printPage}>Imprimeix / PDF</${Btn}>`}
   </div>`;
 }
 

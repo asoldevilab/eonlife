@@ -116,7 +116,7 @@ function ClientRow({ p, sessions }) {
 function DemoBanner() {
   return html`<div class="banner">
     <${Icon} name="info" />
-    <div><strong>Mode de prova amb clients ficticis.</strong> Les dades es guarden només en aquest navegador. Quan l'app estigui connectada a Google, tot es desarà al full de càlcul del centre.</div>
+    <div><strong>${IS_ARTIFACT ? 'Enllaç de prova amb clients ficticis.' : 'Mode de prova amb clients ficticis.'}</strong> Les dades es guarden només en aquest ${IS_ARTIFACT ? 'dispositiu' : 'navegador'}. Quan l'app estigui connectada a Google, tot es desarà al full de càlcul del centre.</div>
     <${Btn} size="sm" variant="ghost" onClick=${() => go('configuracio')}>Configuració</${Btn}>
   </div>`;
 }

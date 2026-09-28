@@ -3,6 +3,8 @@
 const Router = {
   current: null,
   listeners: new Set(),
+  // A l'enllaç privat la navegació es fa en memòria (sense tocar l'adreça del visor).
+  memory: IS_ARTIFACT,
   parse(hash) {
     const h = String(hash || '').replace(/^#\/?/, '');
     const [name, ...params] = h.split('/').filter((x) => x !== '').map((x) => { try { return decodeURIComponent(x); } catch (e) { return x; } });
@@ -10,8 +12,9 @@ const Router = {
   },
   init() {
     let hash = '';
-    try { hash = window.location.hash; } catch (e) { hash = ''; }
+    if (!this.memory) { try { hash = window.location.hash; } catch (e) { hash = ''; } }
     this.current = this.parse(hash);
+    if (this.memory) return;
     window.addEventListener('hashchange', () => {
       const next = this.parse(window.location.hash);
       if (next.name === this.current.name && next.params.join('/') === this.current.params.join('/')) return;
@@ -23,7 +26,7 @@ const Router = {
     const clean = params.filter((p) => p != null && p !== '');
     this.current = { name, params: clean.map(String) };
     const hash = `#/${[name, ...clean].map((x) => encodeURIComponent(String(x))).join('/')}`;
-    try { if (window.location.hash !== hash) window.location.hash = hash; } catch (e) { /* entorn sense hash */ }
+    if (!this.memory) { try { if (window.location.hash !== hash) window.location.hash = hash; } catch (e) { /* entorn sense hash */ } }
     this.emit(true);
   },
   emit(scroll) {
