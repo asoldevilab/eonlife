@@ -7,8 +7,9 @@ Quan acabis tindràs:
 
 - **Un full de càlcul** «EON Life · Base de dades» amb una pestanya per a clients, valoracions,
   sessions, registre d'exercicis, biblioteca i plantilles. S'omple sol des de l'app: cada test és una
-  columna, cada valoració i cada sessió una fila. El fisio i la metgessa el poden consultar i filtrar
-  com un Excel.
+  columna, cada valoració i cada sessió una fila. El fisio i la metgessa el poden consultar, filtrar
+  i descarregar com un Excel. Les dades, però, s'omplen i es corregeixen sempre des de l'app
+  (vegeu *Problemes freqüents*).
 - **Una carpeta de Drive** «EON Life · Clients» amb una subcarpeta per client
   (`01 · Valoracions`, `02 · Vídeos`, `03 · Informes`) on van els vídeos i els PDF.
 - **L'aplicació web** (un enllaç) que obriu a la tauleta, a l'ordinador o al mòbil.
@@ -102,6 +103,8 @@ de la carpeta per enllaçar-los.
 | No es crea la carpeta del client | La carpeta «EON Life · Clients» no està compartida com a Editor amb aquest professional. |
 | Dues persones editen la mateixa sessió | Es queda l'últim canvi desat. Al menú lateral hi ha **Actualitza les dades** per veure els canvis dels altres. |
 | Vull veure qui ha canviat una fila | Columnes `updated_by` i `updated_at` de cada pestanya. |
+| He corregit una cel·la directament al full i a l'app no surt | L'app no llegeix les columnes del full, només el que s'hi ha desat des de l'app, i quan es torna a desar aquell registre la fila sencera es sobreescriu. Corregiu-ho des de l'app (fitxa del client o **Base de dades**). |
+| Un company no veu el que acabo d'afegir | Les dades es carreguen en obrir l'app. Que premi **Actualitza les dades** al menú lateral. |
 
 ## Dades i privacitat
 

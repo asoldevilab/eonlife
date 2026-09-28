@@ -27,6 +27,9 @@ Y-Balance · Salts (My Jump) · Encoder i bike · Patrons · Tests per perfil ·
   directament en aquell apartat. Si el client ja té una valoració aquell dia, les mesures s'hi
   afegeixen; si no, es crea un **Control de mesures** (no cal omplir la resta de tests).
 - **Exporta a Excel** descarrega la taula que estàs veient.
+- Amb Google, les mateixes dades són al full de càlcul del centre. El full és per consultar-lo,
+  filtrar-lo o descarregar-lo; les dades s'omplen i es corregeixen sempre des de l'app (si es
+  canvia una cel·la directament al full, l'app no la veu i es perd el pròxim cop que es desa aquell registre).
 
 També es pot començar des de **Afegeix mesures** (menú lateral i inici) o des de la fitxa de cada
 client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / Patrons**.
