@@ -115,6 +115,20 @@ A cada test de la valoració hi ha el botó de **vídeo** › **Grava o puja un 
 de la tauleta, el vídeo es puja directament a *02 · Vídeos* de la carpeta del client i queda enllaçat al test.
 També es poden pujar amb l'app de OneDrive i triar-los després de la llista *Vídeos de la carpeta*.
 
+## Informes de Kinvent (PDF)
+
+L'app de Kinvent exporta l'informe en PDF i només l'ofereix a les apps de la tauleta que obren PDF.
+
+- **Amb l'app d'EON Life:** a Kinvent, *Compartir › Files by Google* (desa el PDF a la tauleta). Després, a la
+  valoració del client, **Informes i fitxers › Adjunta l'informe de Kinvent** (o *Adjunta el PDF* a les targetes
+  de K-Push i K-Move). El PDF es desa sol a *01 · Valoracions* de la carpeta del client i queda enllaçat a la
+  valoració i a l'Excel (columna *Informes adjunts*).
+- **Directament a OneDrive:** instal·leu l'app **Microsoft OneDrive** a la tauleta i entreu amb el compte del centre.
+  A partir d'aquí, OneDrive surt a la llista de *Compartir* de Kinvent.
+
+Els números de Kinvent (dreta, esquerra) s'escriuen a la valoració, a Mobilitat (K-Move) i Força (K-Push):
+l'app calcula l'asimetria i els N/kg i els posa a les columnes de l'Excel. Un PDF no omple les columnes sol.
+
 ## Problemes freqüents
 
 | Què diu l'app | Què fer |

@@ -66,6 +66,8 @@ Consells:
 - La icona de **nota** obre un camp d'observacions per a cada test; la de **vídeo** enllaça el
   vídeo de la carpeta del client. Amb Microsoft 365, **Grava o puja un vídeo** obre la càmera o la galeria
   de la tauleta i el desa directament a *02 · Vídeos* de la carpeta del client.
+- **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *01 · Valoracions*
+  de la carpeta del client (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
 - **Importa CSV de My Jump**: exporta el CSV des de My Jump Lab i puja'l; l'app detecta les
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
