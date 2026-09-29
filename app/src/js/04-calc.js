@@ -332,6 +332,7 @@ const Flat = {
     o['Pes (kg)'] = n(U.num(a.general && a.general.weight));
     o['Alçada (cm)'] = n(U.num(a.general && a.general.height));
     o['Motiu / objectiu'] = (a.general && a.general.goal) || '';
+    o['Informes adjunts'] = (a.files || []).map((f) => `${f.name}${f.url ? ` (${f.url})` : ''}`).join('\n');
     const w = Calc.weight(a);
 
     for (const sec of PROTOCOL) {

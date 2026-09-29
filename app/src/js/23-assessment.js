@@ -66,6 +66,8 @@ function AssessmentEditor({ id, focus }) {
       <${ProfessionalsList} />
     </section>
 
+    <${AssessmentFiles} a=${a} p=${p} upd=${upd} />
+
     ${PROTOCOL.map((sec) => html`<section class="asec" id=${`sec-${sec.id}`}>
       <h2 class="asec-title">${sec.title}</h2>
       ${sec.groups.map((grp) => html`<${GroupCard} key=${grp.id} g=${grp} a=${a} p=${p} upd=${upd} setVal=${setVal} />`)}
@@ -122,6 +124,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
     <div class="group-head">
       <h3 class="group-title">${title}</h3>
       ${g.device && html`<${Pill} tone=${g.device === 'Fase 2' ? 'warn' : 'neutral'}>${g.device}</${Pill}>`}
+      ${/Kinvent/.test(g.device || '') && html`<${AttachButton} a=${a} p=${p} upd=${upd} label=${`Informe ${g.device.replace(' · ', ' ')}`} compact=${true} />`}
       ${(g.info || g.ref) && html`<button type="button" class=${U.cls('link', 'group-info-btn')} onClick=${() => setInfo(!info)} aria-expanded=${info}>
         <${Icon} name="info" size=${15} />Protocol</button>`}
     </div>
@@ -454,4 +457,64 @@ function FreeBlock({ a, upd }) {
     </table></div>`}
     <div class="row-actions"><${Btn} size="sm" icon="plus" onClick=${add}>Afegeix mesura</${Btn}></div>
   </div>`;
+}
+
+// ── Informes de Kinvent (PDF) i altres fitxers de la valoració ──
+// Es pugen a «01 · Valoracions» de la carpeta del client i queden enllaçats a la valoració (i a l'Excel).
+function AssessmentFiles({ a, p, upd }) {
+  const files = a.files || [];
+  const unlink = async (f) => {
+    if (!(await UI.confirm({ title: 'Treure l\'enllaç?', text: `«${f.name}» deixarà de sortir a la valoració. El fitxer es queda a la carpeta del client.`, ok: 'Treu l\'enllaç' }))) return;
+    upd((x) => { x.files = (x.files || []).filter((y) => y.id !== f.id); });
+  };
+  return html`<section class="card" id="sec-fitxers">
+    <div class="card-head"><h2 class="h2">Informes i fitxers</h2>
+      <div class="inline">
+        <${AttachButton} a=${a} p=${p} upd=${upd} label="Informe Kinvent" primary=${true} />
+        <${AttachButton} a=${a} p=${p} upd=${upd} label="Document" />
+      </div>
+    </div>
+    ${files.length ? html`<ul class="files">${files.map((f) => html`<li class="file" key=${f.id}>
+        <${Icon} name="note" size=${18} />
+        <a class="link file-name" href=${f.url} target="_blank" rel="noopener">${f.name}</a>
+        <span class="muted small">${U.fmtDate(f.date)}</span>
+        <${Btn} variant="ghost" size="sm" icon="x" title="Treu l'enllaç" onClick=${() => unlink(f)} />
+      </li>`)}</ul>`
+      : html`<p class="muted">${canUploadFiles()
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «01 · Valoracions» de la carpeta del client.'
+        : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del client.'}</p>`}
+  </section>`;
+}
+
+function AttachButton({ a, p, upd, label, primary, compact }) {
+  const [pct, setPct] = useState(null);
+  const ref = useRef(null);
+  const add = (f) => upd((x) => { x.files = [...(x.files || []), { id: U.uid('F'), date: U.today(), ...f }]; });
+  const upload = async (file) => {
+    if (ref.current) ref.current.value = '';
+    if (!file) return;
+    setPct(0);
+    try {
+      const res = await uploadToClient(p, file, { label, date: a.date, subfolder: M365_NAMES.reports, onProgress: setPct });
+      add({ name: res.name, url: res.url, label });
+      UI.toast('Informe desat a la carpeta del client.');
+    } catch (e) {
+      UI.toast(e.message, 'bad');
+    }
+    setPct(null);
+  };
+  const addLink = async () => {
+    const url = await UI.prompt({ title: label, label: 'Enllaç del fitxer', placeholder: 'https://…' });
+    if (!url) return;
+    if (!U.isUrl(url)) { UI.toast('Enganxa un enllaç complet (https://…).', 'bad'); return; }
+    add({ name: `${label} · ${U.fmtDate(a.date)}`, url, label });
+  };
+  const upOk = canUploadFiles();
+  const text = compact ? 'Adjunta el PDF' : label === 'Document' ? 'Un altre fitxer' : 'Adjunta l\'informe de Kinvent';
+  if (pct != null) return html`<span class="attach-busy" role="status"><span class="spinner"></span>Pujant… ${Math.round(pct * 100)} %</span>`;
+  return html`<span class="attach">
+    ${upOk && html`<input type="file" accept=".pdf,application/pdf,image/*,.csv,.xlsx,.xls" hidden ref=${ref} onChange=${(e) => upload(e.currentTarget.files[0])} />`}
+    <${Btn} variant=${primary ? 'primary' : compact ? 'ghost' : 'secondary'} size=${compact ? 'sm' : undefined} icon="upload"
+      onClick=${() => (upOk ? ref.current && ref.current.click() : addLink())}>${upOk ? text : compact ? 'Enllaç del PDF' : text.replace('Adjunta', 'Enllaça')}</${Btn}>
+  </span>`;
 }

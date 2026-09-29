@@ -216,6 +216,24 @@ let pid = null;
     if (vids.length !== 1 || !/Montse Riera\.mov$/.test(vids[0].name)) throw new Error(`vídeos: ${vids.map((v) => v.name)}`);
     await waitSaved(page);
   });
+  await step('informe de Kinvent (PDF) → «01 · Valoracions» i enllaç a l\'Excel', async () => {
+    await page.evaluate(() => { document.getElementById('sec-fitxers').scrollIntoView(); });
+    await shot(page, 'm365-06a-informes');
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('#sec-fitxers >> text=Adjunta l\'informe de Kinvent')]);
+    await chooser.setFiles({ name: 'Informe_Kinvent.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(52000, 2) });
+    await page.waitForSelector('#sec-fitxers .file-name', { timeout: 15000 });
+    await shot(page, 'm365-06b-informe-adjunt');
+    await page.waitForTimeout(1100);
+    await waitSaved(page);
+    const clients = mock.child(shared.folder.id, 'EON Life · Clients');
+    const folder = mock.childrenOf(clients.id)[0];
+    const docs = mock.childrenOf(mock.child(folder.id, '01 · Valoracions').id).map((x) => x.name);
+    if (docs.length !== 1 || !/Informe Kinvent · Montse Riera\.pdf$/.test(docs[0])) throw new Error(`fitxers: ${docs}`);
+    const r = rows('tValoracions');
+    if (!String(r[0]['Informes adjunts']).includes('Informe Kinvent')) throw new Error(`columna: ${r[0]['Informes adjunts']}`);
+    // Botó directe a la targeta de la dinamometria (Kinvent K-Push).
+    await page.waitForSelector('#grp-dyn >> text=Adjunta el PDF');
+  });
   await step('sessió des de plantilla → Sessions i Registre_exercicis', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);
     await page.click('.phead-actions >> text=Nova sessió');

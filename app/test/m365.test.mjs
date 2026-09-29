@@ -244,3 +244,14 @@ test('taules llargues: es llegeixen per trossos i en poques crides', async () =>
   assert.ok(recs.patients.some((p) => p.id === 'P-L449'));
   assert.ok(calls <= 4, `crides $batch: ${calls}`);
 });
+
+test('informe de Kinvent (PDF) a «01 · Valoracions» del client', async () => {
+  const { mock, api } = setup();
+  const a = await api();
+  const f = await a.ensureFolder({ id: 'P-K', firstName: 'Jordi', lastName: 'Vila' });
+  const pdf = new Blob([new Uint8Array(40000).fill(3)], { type: 'application/pdf' });
+  const up = await a.uploadFile(f.folderId, pdf, { name: '2026-09-29 · Informe Kinvent K-Push · Jordi Vila.pdf', subfolder: '01 · Valoracions' });
+  const dir = mock.child(f.folderId, '01 · Valoracions');
+  assert.deepEqual(mock.childrenOf(dir.id).map((x) => x.name), ['2026-09-29 · Informe Kinvent K-Push · Jordi Vila.pdf']);
+  assert.ok(up.url.includes('sharepoint.com'));
+});

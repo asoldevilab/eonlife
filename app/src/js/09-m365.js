@@ -18,6 +18,7 @@ const M365_NAMES = {
   clients: 'EON Life · Clients',
   subfolders: ['01 · Valoracions', '02 · Vídeos', '03 · Informes'],
   videos: '02 · Vídeos',
+  reports: '01 · Valoracions',
 };
 
 const XL = {
@@ -750,10 +751,10 @@ class M365Api {
     return out.sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : 0));
   }
 
-  // Puja un vídeo (o qualsevol fitxer) a «02 · Vídeos» del client, per trossos i amb progrés.
-  async uploadFile(folderId, file, { name, onProgress } = {}) {
+  // Puja un fitxer de la tauleta a una subcarpeta del client (per defecte «02 · Vídeos»), per trossos i amb progrés.
+  async uploadFile(folderId, file, { name, onProgress, subfolder = M365_NAMES.videos } = {}) {
     if (!file || !file.size) throw new M365Error('El fitxer és buit.', 'upload');
-    const target = await this.ensureChildFolder(folderId, M365_NAMES.videos);
+    const target = await this.ensureChildFolder(folderId, subfolder);
     const fileName = safeName(name || file.name) || 'video.mp4';
     const session = await this.g.req('POST', `${this.childPath(target.id, fileName)}:/createUploadSession`, {
       body: { item: { '@microsoft.graph.conflictBehavior': 'rename', name: fileName } },

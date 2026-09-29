@@ -381,7 +381,7 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
   const [up, setUp] = useState(null);
   const fileRef = useRef(null);
   const cloud = Store.cloud();
-  const canUpload = cloud && !!Store.backend.uploadFile && !!patient;
+  const canUpload = canUploadFiles() && !!patient;
   const loadFiles = async (fid = folderId) => {
     if (!fid) return;
     setLoading(true);
@@ -393,24 +393,14 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
   const upload = async (file) => {
     if (fileRef.current) fileRef.current.value = '';
     if (!file) return;
-    let fid = folderId;
-    if (!fid) {
-      const res = await ensureFolder(Store.get('patients', patient.id) || patient, { silent: true });
-      fid = (res && res.folderId) || '';
-      setFolderId(fid);
-    }
-    if (!fid) return;
-    const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || ['.mp4'])[0].toLowerCase();
     setUp({ pct: 0 });
     try {
-      const res = await Store.backend.uploadFile(fid, file, {
-        name: `${U.today()} · ${title} · ${U.fullName(patient)}${ext}`,
-        onProgress: (pct) => setUp({ pct }),
-      });
+      const res = await uploadToClient({ ...patient, folderId }, file, { label: title, onProgress: (pct) => setUp({ pct }) });
       setUp(null);
+      setFolderId(res.folderId);
       if (res.url) setV(res.url);
       UI.toast('Vídeo desat a la carpeta del client.');
-      loadFiles(fid);
+      loadFiles(res.folderId);
     } catch (e) {
       setUp(null);
       UI.toast(e.message, 'bad');

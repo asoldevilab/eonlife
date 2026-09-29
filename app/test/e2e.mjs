@@ -91,6 +91,13 @@ const step = async (label, fn) => {
     await e.fill('400');
     await page.waitForSelector('text=25 %');
   });
+  await step('informes adjunts: en mode local es pot enganxar l\'enllaç', async () => {
+    await page.waitForSelector('#sec-fitxers >> text=Enllaça l\'informe de Kinvent');
+    await page.click('#sec-fitxers >> text=Enllaça l\'informe de Kinvent');
+    await page.fill('#prompt-input', 'https://eonlife.sharepoint.com/informe.pdf');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('#sec-fitxers .file-name');
+  });
   await step('informe de la valoració', async () => {
     await page.click('.editbar >> text=Informe');
     await page.waitForSelector('.report');
