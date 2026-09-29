@@ -21,9 +21,9 @@ function Sidebar({ route, open, onClose }) {
       <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Afegeix mesures</button>
     </div>
     <div class="sidebar-foot">
-      <span class="sidebar-mode"><${Icon} name=${Store.meta.mode === 'google' ? 'cloud' : 'device'} size=${16} />${Store.meta.mode === 'google' ? 'Google Sheets' : 'Mode local'}</span>
+      <span class="sidebar-mode"><${Icon} name=${Store.cloud() ? 'cloud' : 'device'} size=${16} />${{ google: 'Google Sheets', m365: 'Microsoft 365 · Excel' }[Store.meta.mode] || 'Mode local'}</span>
       ${Store.meta.user && html`<span class="sidebar-user">${Store.meta.user}</span>`}
-      ${Store.meta.mode === 'google' && html`<button type="button" class="sidebar-refresh" onClick=${reloadData} title="Torna a carregar les dades del full (canvis d'altres professionals)"><${Icon} name="refresh" size=${14} />Actualitza les dades</button>`}
+      ${Store.cloud() && html`<button type="button" class="sidebar-refresh" onClick=${reloadData} title="Torna a carregar les dades del full (canvis d'altres professionals)"><${Icon} name="refresh" size=${14} />Actualitza les dades</button>`}
     </div>
   </aside>`;
 }
@@ -71,11 +71,13 @@ function App() {
     return off;
   }, []);
   useEffect(() => {
-    const warn = (e) => { if (Store.pending()) { e.preventDefault(); e.returnValue = ''; } };
+    // Amb Microsoft 365 els canvis pendents ja queden guardats a la tauleta: no cal avisar en sortir.
+    const warn = (e) => { if (Store.pending() && !(Store.backend && Store.backend.outbox)) { e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, []);
 
+  if (Store.error && Store.backend && Store.backend.mode === 'm365') return html`<${ConnectScreen} code=${Store.errorCode} message=${Store.error} />`;
   if (Store.error) {
     return html`<div class="boot boot-error">
       <span class="logo-mark boot-logo" aria-hidden="true"></span>

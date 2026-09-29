@@ -27,7 +27,7 @@ Y-Balance · Salts (My Jump) · Encoder i bike · Patrons · Tests per perfil ·
   directament en aquell apartat. Si el client ja té una valoració aquell dia, les mesures s'hi
   afegeixen; si no, es crea un **Control de mesures** (no cal omplir la resta de tests).
 - **Exporta a Excel** descarrega la taula que estàs veient.
-- Amb Google, les mateixes dades són al full de càlcul del centre. El full és per consultar-lo,
+- Amb Microsoft 365 o Google, les mateixes dades són a l'Excel o al full de càlcul del centre. És per consultar-lo,
   filtrar-lo o descarregar-lo; les dades s'omplen i es corregeixen sempre des de l'app (si es
   canvia una cel·la directament al full, l'app no la veu i es perd la pròxima vegada que es desi aquell registre).
 
@@ -38,8 +38,8 @@ client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / P
 
 - **Inici** mostra les sessions d'avui i dels propers 7 dies, els re-tests pendents
   (cada 3 mesos) i la llista de clients amb filtres per estat, perfil i professional.
-- **Nou client**: nom, cognoms, perfil i professional. A Google es crea automàticament la
-  carpeta de Drive del client.
+- **Nou client**: nom, cognoms, perfil i professional. Amb Microsoft 365 o Google es crea automàticament
+  la carpeta del client (amb *01 · Valoracions*, *02 · Vídeos* i *03 · Informes*).
 - **Perfil A · B · C** (de la plantilla EON):
   A = rendiment / esportistes · B = salut i condició física · C = autonomia (adults grans).
   El perfil decideix quins tests complementaris surten a la valoració.
@@ -64,7 +64,8 @@ Consells:
 
 - Les **D** i **E** són dreta i esquerra. Els decimals es poden escriure amb coma.
 - La icona de **nota** obre un camp d'observacions per a cada test; la de **vídeo** enllaça el
-  vídeo de la carpeta del client.
+  vídeo de la carpeta del client. Amb Microsoft 365, **Grava o puja un vídeo** obre la càmera o la galeria
+  de la tauleta i el desa directament a *02 · Vídeos* de la carpeta del client.
 - **Importa CSV de My Jump**: exporta el CSV des de My Jump Lab i puja'l; l'app detecta les
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
@@ -127,4 +128,4 @@ Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de 
 - Professionals de l'equip, nom del centre i noms dels blocs.
 - Exportar a Excel (CSV): valoracions (una fila per valoració, una columna per test) i registre
   d'exercicis. Còpia de seguretat completa i importació.
-- Amb Google, enllaços directes al full de càlcul i a la carpeta de clients.
+- Amb Microsoft 365 o Google, enllaços directes a l'Excel (o full de càlcul) i a les carpetes dels clients. Amb Microsoft 365, també **Tanca la sessió** i **Canvia de carpeta**.

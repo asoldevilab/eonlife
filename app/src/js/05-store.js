@@ -1,8 +1,10 @@
 /* EON Life · dades: magatzem en memòria + desament automàtic.
-   Dos modes:
-   · Google  → quan l'app s'obre des de Google Apps Script: les dades van al full de càlcul del centre
-               (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del client.
-   · Local   → quan s'obre el fitxer directament: les dades es guarden en aquest navegador (mode prova). */
+   Tres modes:
+   · Google        → quan l'app s'obre des de Google Apps Script: les dades van al full de càlcul del centre
+                     (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del client.
+   · Microsoft 365 → quan s'obre la versió publicada per al centre (09-m365.js): les dades van a l'Excel de la
+                     carpeta compartida de OneDrive/SharePoint i els vídeos a la carpeta de cada client.
+   · Local         → quan s'obre el fitxer directament: les dades es guarden en aquest navegador (mode prova). */
 
 const KINDS = ['patients', 'assessments', 'sessions', 'exercises', 'templates'];
 const LOCAL_KEY = 'eonlife:data:v1';
@@ -89,6 +91,7 @@ const Store = {
   backend: null,
   ready: false,
   error: null,
+  errorCode: '',
   meta: {},
   version: 0,
   data: { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {} },
@@ -99,13 +102,21 @@ const Store = {
   again: new Set(),
   dirty: new Set(),
   saveError: null,
+  saveErrorCode: '',
   lastSaved: null,
+  rev: {},
+
+  // Dades compartides al núvol (Google o Microsoft 365)?
+  cloud() { return this.meta.mode === 'google' || this.meta.mode === 'm365'; },
+  cloudName() { return this.meta.mode === 'google' ? 'Google Drive' : this.meta.mode === 'm365' ? 'Microsoft 365' : ''; },
 
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); },
   emit() { this.version++; for (const fn of this.listeners) fn(this.version); },
 
   async init() {
-    this.backend = hasGoogle() ? GoogleBackend : LocalBackend;
+    this.backend = hasGoogle() ? GoogleBackend : (typeof M365 !== 'undefined' && M365.available()) ? M365Backend : LocalBackend;
+    this.error = null;
+    this.errorCode = '';
     try {
       const { records, meta } = await this.backend.init();
       this.meta = { ...meta, mode: this.backend.mode };
@@ -118,10 +129,25 @@ const Store = {
       this.settings = { ...defaultSettings(), ...(st || {}) };
       this.settings.blocks = BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc, ...((this.settings.blocks || []).find((x) => x.key === b.key) || {}) }));
       this.ready = true;
+      this.replayOutbox();
     } catch (err) {
       this.error = err.message || String(err);
+      this.errorCode = err.code || '';
     }
     this.emit();
+  },
+
+  // Canvis que no s'havien pogut desar (sense connexió, sessió caducada, pàgina tancada): es tornen a enviar.
+  replayOutbox() {
+    if (!this.backend.outbox) return;
+    for (const [key, rec] of Object.entries(Outbox.all())) {
+      const [kind, id] = key.split(/:(.+)/);
+      if (!rec || !id) { Outbox.drop(key); continue; }
+      if (kind === 'settings') this.settings = { ...this.settings, ...rec };
+      else if (this.data[kind]) this.data[kind][id] = rec;
+      else { Outbox.drop(key); continue; }
+      this.queue(kind, id, 300);
+    }
   },
 
   // ── Lectura ──
@@ -204,6 +230,11 @@ const Store = {
     const key = `${kind}:${id}`;
     clearTimeout(this.timers[key]);
     this.dirty.add(key);
+    this.rev[key] = (this.rev[key] || 0) + 1;
+    if (this.backend && this.backend.outbox) {
+      const rec = kind === 'settings' ? this.settings : this.data[kind] && this.data[kind][id];
+      if (rec) Outbox.put(key, rec);
+    }
     this.timers[key] = setTimeout(() => this.flush(kind, id), delay);
   },
   flushAll() {
@@ -234,15 +265,19 @@ const Store = {
       flat = {};
     }
     this.emit();
+    const rev = this.rev[key];
     this.inflight[key] = this.backend.save(kind, rec, flat, log)
       .then((res) => {
         const cur = kind === 'settings' ? this.settings : this.data[kind][id];
         if (cur && res) { cur.updatedAt = res.updatedAt; cur.updatedBy = res.updatedBy; }
+        if (this.backend.outbox && this.rev[key] === rev && !this.dirty.has(key)) Outbox.drop(key);
         this.saveError = null;
+        this.saveErrorCode = '';
         this.lastSaved = Date.now();
       })
       .catch((err) => {
         this.saveError = err.message || String(err);
+        this.saveErrorCode = err.code || '';
         this.dirty.add(key);
         clearTimeout(this.timers[key]);
         this.timers[key] = setTimeout(() => this.flush(kind, id), 6000);

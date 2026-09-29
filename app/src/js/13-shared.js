@@ -62,7 +62,7 @@ function NewPatientDialog({ onClose }) {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del client.', 'bad'); return; }
     const p = Store.newPatient({ ...f, firstName: f.firstName.trim(), lastName: f.lastName.trim() });
     onClose();
-    if (Store.meta.mode === 'google') ensureFolder(p);
+    if (Store.cloud()) ensureFolder(p);
     go('client', p.id, 'fitxa');
   };
   return html`<${Dialog} title="Nou client" onClose=${onClose} footer=${html`
@@ -88,14 +88,14 @@ function ProfessionalsList() {
   return html`<datalist id="prof-list">${Store.professionals().map((p) => html`<option value=${p}></option>`)}</datalist>`;
 }
 
-// Crea (si cal) la carpeta de Drive del client i en desa l'enllaç.
+// Crea (si cal) la carpeta del client (Google Drive o Microsoft 365) i en desa l'enllaç.
 async function ensureFolder(p, { silent } = {}) {
-  if (Store.meta.mode !== 'google') return null;
+  if (!Store.cloud()) return null;
   try {
     const res = await Store.backend.ensureFolder(p);
     if (res && res.folderUrl) {
       Store.update('patients', p.id, (x) => { x.folderUrl = res.folderUrl; x.folderId = res.folderId; });
-      if (!silent) UI.toast('Carpeta del client creada a Google Drive.');
+      if (!silent) UI.toast(`Carpeta del client creada a ${Store.cloudName()}.`);
     }
     return res;
   } catch (e) {

@@ -59,19 +59,21 @@ function SettingsView() {
   };
 
   const google = Store.meta.mode === 'google';
+  const m365 = Store.meta.mode === 'm365';
+  const cloud = google || m365;
   return html`<div class="page">
     <header class="page-head"><div><p class="eyebrow">${st.centerName}</p><h1 class="h1">Configuració</h1></div><${SaveStatus} /></header>
 
     <section class="card">
       <div class="card-head"><h2 class="h2">On es guarden les dades</h2>
-        <${Pill} tone=${google ? 'ok' : 'warn'} icon=${google ? 'cloud' : 'device'}>${google ? 'Google Sheets · núvol del centre' : 'Només en aquest navegador'}</${Pill}></div>
-      ${google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a clients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada client.</p>
+        <${Pill} tone=${cloud ? 'ok' : 'warn'} icon=${cloud ? 'cloud' : 'device'}>${google ? 'Google Sheets · núvol del centre' : m365 ? 'Microsoft 365 · carpeta del centre' : 'Només en aquest navegador'}</${Pill}></div>
+      ${m365 ? html`<${M365DataCard} />` : google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a clients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada client.</p>
         ${Store.meta.user && html`<p class="muted">Connectat com a <strong>${Store.meta.user}</strong>.</p>`}
         <div class="row-actions">
           ${Store.meta.spreadsheetUrl && html`<${Btn} icon="clipboard" href=${Store.meta.spreadsheetUrl}>Obre el full de càlcul</${Btn}>`}
           ${Store.meta.rootFolderUrl && html`<${Btn} icon="folder" href=${Store.meta.rootFolderUrl}>Carpeta de clients</${Btn}>`}
         </div>`
-        : html`<p>Estàs fent servir l'app en <strong>mode local</strong>: les dades només es guarden en aquest navegador i no les veu ningú més. Per treballar tot l'equip amb les mateixes dades, cal publicar l'app a Google (guia <em>docs/INSTALLACIO.md</em> del projecte).</p>
+        : html`<p>Estàs fent servir l'app en <strong>mode local</strong>: les dades només es guarden en aquest navegador i no les veu ningú més. Per treballar tot l'equip amb les mateixes dades, cal publicar l'app per al centre amb Microsoft 365 (guia <em>docs/INSTALLACIO-M365.md</em>) o amb Google (<em>docs/INSTALLACIO.md</em>).</p>
           ${!LocalBackend.persistent && html`<p class="warn-text"><${Icon} name="alert" size=${15} /> Aquest navegador no permet guardar dades: si tanques la pàgina es perdran els canvis. Descarrega una còpia abans de sortir.</p>`}
           <div class="row-actions">
             <${Btn} icon="refresh" onClick=${() => resetLocal(true)}>Carrega els clients de prova</${Btn}>
@@ -125,4 +127,42 @@ function SettingsView() {
 
     <p class="muted small center">EON Life · Human Performance · versió ${window.EON_BUILD || 'dev'}</p>
   </div>`;
+}
+
+// Microsoft 365: on són les dades, amb qui s'ha entrat i accessos directes.
+function M365DataCard() {
+  const m = Store.meta;
+  const logout = async () => {
+    const pending = Object.keys(Outbox.all()).length;
+    const ok = await UI.confirm({
+      title: 'Tancar la sessió de Microsoft?',
+      text: pending ? `Hi ha ${U.plural(pending, 'canvi', 'canvis')} pendent${pending > 1 ? 's' : ''} de desar. Es guarden en aquesta tauleta i s'enviaran quan algú hi torni a entrar.` : 'Per tornar a fer servir l\'app en aquesta tauleta caldrà tornar a entrar amb el compte del centre.',
+      ok: 'Tanca la sessió',
+    });
+    if (ok) MsAuth.logout(M365.config());
+  };
+  const changeFolder = async () => {
+    const ok = await UI.confirm({
+      title: 'Canviar de carpeta?',
+      text: 'L\'app deixarà de fer servir aquesta carpeta en aquesta tauleta. Les dades no s\'esborren: continuen a l\'Excel de la carpeta actual.',
+      ok: 'Tria una altra carpeta',
+    });
+    if (!ok) return;
+    M365.forgetFolder();
+    Store.ready = false;
+    await Store.init();
+    go('inici');
+  };
+  return html`<p>Totes les dades es desen automàticament a l'Excel <strong>«EON Life · Base de dades»</strong>${m.dataFolderName ? html` de la carpeta <strong>«${m.dataFolderName}»</strong>` : ''}: una pestanya per a clients, valoracions, sessions i el registre d'exercicis, amb una fila per registre i una columna per test. Els vídeos i els PDF van a la carpeta de cada client, dins de «EON Life · Clients».</p>
+    <p class="muted">Tothom qui tingui accés a la carpeta pot obrir l'Excel per consultar-lo, filtrar-lo o descarregar-lo. Les dades, però, s'omplen i es corregeixen sempre des de l'app.</p>
+    ${m.user && html`<p class="muted">Connectat com a <strong>${m.userName ? `${m.userName} · ` : ''}${m.user}</strong>.</p>`}
+    <div class="row-actions">
+      ${m.spreadsheetUrl && html`<${Btn} icon="table" href=${m.spreadsheetUrl}>Obre l'Excel</${Btn}>`}
+      ${m.rootFolderUrl && html`<${Btn} icon="folder" href=${m.rootFolderUrl}>Carpetes dels clients</${Btn}>`}
+      ${m.dataFolderUrl && html`<${Btn} icon="folder" href=${m.dataFolderUrl}>Carpeta compartida</${Btn}>`}
+    </div>
+    <div class="row-actions">
+      <${Btn} variant="ghost" icon="refresh" onClick=${changeFolder}>Canvia de carpeta</${Btn}>
+      <${Btn} variant="ghost" icon="x" onClick=${logout}>Tanca la sessió</${Btn}>
+    </div>`;
 }

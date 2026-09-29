@@ -72,7 +72,7 @@ let pid = null;
     await waitSaved(page);
     const rows = sheetRows('Pacients');
     if (rows.length !== 1) throw new Error(`files: ${rows.length}`);
-    if (rows[0].Nom !== 'Marta' || !String(rows[0]['Carpeta Drive']).includes('drive.google.com')) throw new Error(JSON.stringify(rows[0]).slice(0, 200));
+    if (rows[0].Nom !== 'Marta' || !String(rows[0]['Carpeta del client']).includes('drive.google.com')) throw new Error(JSON.stringify(rows[0]).slice(0, 200));
     pid = rows[0].id;
     const folder = env.myDrive.folders[0].folders[0];
     if (!folder || folder.getName() !== `Riera, Marta · ${pid}`) throw new Error('carpeta no creada');

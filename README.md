@@ -1,8 +1,8 @@
 # EON Life · Human Performance
 
 Aplicació per al seguiment dels clients del centre: **valoració funcional**, **sessions de 6 blocs**
-i **seguiment mensual**, amb les dades al **full de càlcul de Google** del centre i els vídeos i
-informes a la **carpeta de Drive** de cada client.
+i **seguiment mensual**, amb totes les dades en un **Excel de la carpeta compartida de Microsoft 365**
+(o al full de càlcul de Google) i els vídeos i informes a la **carpeta de cada client**.
 
 Substitueix l'Excel mensual per client, la plantilla de sessió, la plantilla de My Jump i el
 «EON Human Performance System v1», mantenint-ne l'estructura:
@@ -24,11 +24,18 @@ navegador.
 
 ## Posar-la en marxa per a tot l'equip
 
-Segueix [docs/INSTALLACIO.md](docs/INSTALLACIO.md): un full de càlcul de Google, copiar dos fitxers
-a Apps Script i publicar-la com a aplicació web. No cal cap servidor ni cap subscripció.
+- **Microsoft 365** (OneDrive, SharePoint o Teams): [docs/INSTALLACIO-M365.md](docs/INSTALLACIO-M365.md).
+  Una carpeta compartida, registrar l'app a Microsoft Entra i publicar una pàgina web. Cada professional entra
+  amb el seu compte de l'empresa; les dades van a l'Excel «EON Life · Base de dades» de la carpeta i els vídeos,
+  a la carpeta de cada client (es poden gravar i pujar directament des de la tauleta).
+- **Google**: [docs/INSTALLACIO.md](docs/INSTALLACIO.md). Un full de càlcul de Google, copiar dos fitxers a
+  Apps Script i publicar-la com a aplicació web.
+
+No cal cap servidor ni cap subscripció nova.
 
 ## Documentació
 
+- [Instal·lació amb Microsoft 365](docs/INSTALLACIO-M365.md)
 - [Instal·lació a Google](docs/INSTALLACIO.md)
 - [Guia d'ús per a l'equip](docs/GUIA-US.md)
 - [Dades, personalització i estructura del codi](docs/DADES.md)

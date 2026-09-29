@@ -4,7 +4,8 @@
 // Sortides:
 //   dist/eonlife.html        → versió independent (mode local / demostració)
 //   apps-script/Index.html   → mateix fitxer, per enganxar a Google Apps Script
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
+//   dist/m365/index.html     → versió per publicar al web amb Microsoft 365 (codis de app/m365.config.json)
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,6 +34,21 @@ for (const out of [join(repo, 'dist', 'eonlife.html'), join(repo, 'apps-script',
   writeFileSync(out, html);
 }
 console.log(`OK · ${jsFiles.length} mòduls · ${(html.length / 1024).toFixed(0)} KB · ${stamp}`);
+
+// Versió per a Microsoft 365: la mateixa app amb els codis de l'aplicació d'Entra i la carpeta compartida.
+const cfgPath = join(appDir, 'm365.config.json');
+const cfg = existsSync(cfgPath) ? JSON.parse(readFileSync(cfgPath, 'utf8')) : {};
+const m365 = {
+  clientId: String(cfg.clientId || '').trim(),
+  tenantId: String(cfg.tenantId || '').trim(),
+  folderUrl: String(cfg.folderUrl || '').trim(),
+};
+const m365Html = html
+  .replace('<meta charset="utf-8">', () => '<meta charset="utf-8">\n<meta name="robots" content="noindex">')
+  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_BUILD =`);
+mkdirSync(join(repo, 'dist', 'm365'), { recursive: true });
+writeFileSync(join(repo, 'dist', 'm365', 'index.html'), m365Html);
+console.log(`Microsoft 365: dist/m365/index.html${m365.clientId ? '' : ' (sense codis: es demanaran a la primera connexió)'}`);
 
 // Variant per a l'enllaç privat: el visor ja hi posa <html>, <head> i <body>; sense impressió ni descàrregues.
 const ai = process.argv.indexOf('--artifact');

@@ -34,7 +34,7 @@ function PatientView({ id, tab = 'resum' }) {
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
         <${Btn} icon="clipboard" onClick=${() => createAssessment(p.id)}>${assessments.length ? 'Nova valoració' : 'Valoració inicial'}</${Btn}>
         ${p.folderUrl ? html`<${Btn} icon="folder" href=${p.folderUrl}>Carpeta</${Btn}>`
-          : Store.meta.mode === 'google' ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
+          : Store.cloud() ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
         <${Menu} items=${[
           { label: 'Edita les dades', icon: 'edit', onClick: () => setTab('fitxa') },
           { sep: true },
@@ -256,11 +256,11 @@ function PatientForm({ p, onRemove }) {
       <div class="card-head"><h2 class="h2">Carpeta al núvol</h2></div>
       <p class="muted">Vídeos de la valoració i dels exercicis, informes en PDF i documents del client. Es pot compartir amb el client en mode lectura.</p>
       <div class="form-grid">
-        ${F('Enllaç de la carpeta (Google Drive)', 'folderUrl', { wide: true, placeholder: 'https://drive.google.com/drive/folders/…' })}
+        ${F(Store.cloud() ? `Enllaç de la carpeta (${Store.cloudName()})` : 'Enllaç de la carpeta del client', 'folderUrl', { wide: true, placeholder: 'https://…' })}
       </div>
       <div class="row-actions">
         ${p.folderUrl && html`<${Btn} icon="folder" href=${p.folderUrl}>Obre la carpeta</${Btn}>`}
-        ${!p.folderUrl && Store.meta.mode === 'google' && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta a Drive</${Btn}>`}
+        ${!p.folderUrl && Store.cloud() && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta del client</${Btn}>`}
       </div>
     </section>
     <section class="card">

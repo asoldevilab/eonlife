@@ -1011,6 +1011,41 @@ tfoot .rpc { font-size: 14px; }
 .boot-logo { width: 190px; color: var(--brand); }
 .boot-error p { max-width: 52ch; }
 
+/* Connexió amb Microsoft 365 */
+.connect { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px 16px; background: var(--bg); }
+.connect-card { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px 28px 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-2); }
+.connect-card > p { margin: 0; color: var(--ink-2); line-height: 1.5; }
+.connect-logo { width: 150px; color: var(--brand); margin-bottom: 4px; }
+.connect-steps { list-style: none; margin: 0 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.connect-steps li { display: inline-flex; align-items: center; gap: 7px; }
+.connect-steps li.on { color: var(--ink); }
+.connect-steps li.done { color: var(--ok-ink); }
+.connect-num { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; background: var(--surface-3); color: var(--ink-2); }
+.connect-steps li.on .connect-num { background: var(--brand); color: var(--on-primary); }
+.connect-steps li.done .connect-num { background: var(--ok-bg); color: var(--ok-ink); }
+.connect-form { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.connect-form .btn, .connect-actions .btn-primary { align-self: flex-start; }
+.connect-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.connect-note { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 10px 12px; border-radius: 10px; font-size: 14px; line-height: 1.45; }
+.connect-note .ic { flex: none; margin-top: 2px; }
+.connect-note-bad { background: var(--bad-bg); color: var(--bad-ink); }
+.connect-note-info { background: var(--surface-2); color: var(--ink-2); }
+.connect-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.connect-list li { display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; color: var(--ink-2); }
+.connect-list .ic { flex: none; margin-top: 2px; color: var(--brand); }
+.connect-uri { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+.connect-uri-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.connect-uri code { font-size: 12.5px; background: var(--surface-2); padding: 5px 8px; border-radius: 6px; overflow-wrap: anywhere; min-width: 0; }
+.connect-foot { margin: 0; text-align: center; font-size: 13px; }
+@media (max-width: 520px) { .connect-card { padding: 22px 18px 20px; border-radius: 14px; } }
+
+/* Pujada de vídeos */
+.upload-box { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px; border: 1px dashed var(--line-2); border-radius: 12px; background: var(--surface-2); margin-bottom: 4px; }
+.upload-progress { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.upload-progress .bar { height: 8px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+.upload-progress .bar span { display: block; height: 100%; background: var(--brand); border-radius: 99px; transition: width .2s; }
+.save-btn { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
 /* ── Impressió / PDF (A4) ── */
 @media print {
   :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {

@@ -307,7 +307,7 @@ const Flat = {
       'Objectiu': p.goal || '', 'Motiu de consulta': p.reason || '', 'Antecedents': p.history || '',
       'Data IQ': p.surgeryDate || '', 'IQ': p.surgeryNote || '',
       'Data lesió': p.injuryDate || '', 'Lesió': p.injuryNote || '',
-      'Carpeta Drive': p.folderUrl || '', 'Notes': p.notes || '',
+      'Carpeta del client': p.folderUrl || '', 'Notes': p.notes || '',
     };
   },
 

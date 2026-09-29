@@ -350,12 +350,17 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
 // Estat de desament visible a totes les pantalles d'edició.
 function SaveStatus() {
   const pending = Store.pending();
-  if (Store.saveError) return html`<span class="save save-error" title=${Store.saveError}><${Icon} name="alert" size=${15} />No s'ha pogut desar · reintentant</span>`;
+  if (Store.saveError && Store.saveErrorCode === 'login' && Store.meta.mode === 'm365') {
+    // La sessió de Microsoft ha caducat: els canvis queden guardats a la tauleta fins que es torni a entrar.
+    return html`<button type="button" class="save save-error save-btn" title=${Store.saveError}
+      onClick=${() => MsAuth.begin(M365.config(), { loginHint: Store.meta.user })}><${Icon} name="alert" size=${15} />Sessió caducada · torna a entrar</button>`;
+  }
+  if (Store.saveError) return html`<span class="save save-error" title=${Store.saveError}><${Icon} name="alert" size=${15} />${Store.saveErrorCode === 'network' ? 'Sense connexió · es desarà en tornar' : 'No s\'ha pogut desar · reintentant'}</span>`;
   if (pending) return html`<span class="save save-busy"><span class="spinner"></span>Desant…</span>`;
-  return html`<span class="save save-ok"><${Icon} name=${Store.meta.mode === 'google' ? 'cloud' : 'check'} size=${15} />${Store.meta.mode === 'google' ? 'Desat al núvol' : 'Desat'}</span>`;
+  return html`<span class="save save-ok"><${Icon} name=${Store.cloud() ? 'cloud' : 'check'} size=${15} />${Store.cloud() ? 'Desat al núvol' : 'Desat'}</span>`;
 }
 
-// Enllaç de vídeo d'un test o exercici (Drive, YouTube…).
+// Enllaç de vídeo d'un test o exercici (carpeta del client, YouTube…).
 function VideoButton({ url, onChange, title = 'Vídeo', patient }) {
   const has = U.isUrl(url);
   return html`<button type="button" class=${U.cls('mini', has && 'on')} title=${has ? `${title}: obrir o canviar l'enllaç` : `${title}: afegir enllaç`}
@@ -372,27 +377,65 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
   const [v, setV] = useState(url || '');
   const [files, setFiles] = useState(null);
   const [loading, setLoading] = useState(false);
-  const folderId = patient && patient.folderId;
-  const loadFiles = async () => {
-    if (!folderId) return;
+  const [folderId, setFolderId] = useState((patient && patient.folderId) || '');
+  const [up, setUp] = useState(null);
+  const fileRef = useRef(null);
+  const cloud = Store.cloud();
+  const canUpload = cloud && !!Store.backend.uploadFile && !!patient;
+  const loadFiles = async (fid = folderId) => {
+    if (!fid) return;
     setLoading(true);
-    try { setFiles(await Store.backend.listFiles(folderId)); } catch (e) { UI.toast(e.message, 'bad'); }
+    try { setFiles(await Store.backend.listFiles(fid)); } catch (e) { UI.toast(e.message, 'bad'); }
     setLoading(false);
   };
-  useEffect(() => { if (Store.meta.mode === 'google' && folderId) loadFiles(); }, []);
+  useEffect(() => { if (cloud && folderId) loadFiles(); }, []);
+  // Grava o tria un vídeo a la tauleta i el puja a «02 · Vídeos» de la carpeta del client.
+  const upload = async (file) => {
+    if (fileRef.current) fileRef.current.value = '';
+    if (!file) return;
+    let fid = folderId;
+    if (!fid) {
+      const res = await ensureFolder(Store.get('patients', patient.id) || patient, { silent: true });
+      fid = (res && res.folderId) || '';
+      setFolderId(fid);
+    }
+    if (!fid) return;
+    const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || ['.mp4'])[0].toLowerCase();
+    setUp({ pct: 0 });
+    try {
+      const res = await Store.backend.uploadFile(fid, file, {
+        name: `${U.today()} · ${title} · ${U.fullName(patient)}${ext}`,
+        onProgress: (pct) => setUp({ pct }),
+      });
+      setUp(null);
+      if (res.url) setV(res.url);
+      UI.toast('Vídeo desat a la carpeta del client.');
+      loadFiles(fid);
+    } catch (e) {
+      setUp(null);
+      UI.toast(e.message, 'bad');
+    }
+  };
   const videos = (files || []).filter((f) => /video|image/.test(f.mimeType || '') || /\.(mov|mp4|m4v|avi|webm)$/i.test(f.name));
   return html`<${Dialog} title=${`Vídeo · ${title}`} onClose=${onClose} footer=${html`
     ${url && html`<${Btn} variant="ghost" icon="trash" onClick=${() => onSave('')}>Treu l'enllaç</${Btn}>`}
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" onClick=${() => onSave(v.trim())}>Desa</${Btn}>`}>
-    <${Field} label="Enllaç al vídeo" id="video-url" hint="Enganxa l'enllaç del fitxer de la carpeta del client (Google Drive).">
-      <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://drive.google.com/…" autoFocus=${true} />
+    ${canUpload && html`<div class="upload-box">
+      <input type="file" accept="video/*,image/*" hidden ref=${fileRef} onChange=${(e) => upload(e.currentTarget.files[0])} />
+      ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
+          <span class="muted">Pujant el vídeo… ${Math.round(up.pct * 100)} %</span><span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
+        : html`<${Btn} variant="primary" icon="video" onClick=${() => fileRef.current && fileRef.current.click()}>Grava o puja un vídeo</${Btn}>
+          <span class="muted small">Es desa a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.</span>`}
+    </div>`}
+    <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
+      <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />
     </${Field}>
     ${U.isUrl(v) && html`<p><a class="link" href=${v} target="_blank" rel="noopener"><${Icon} name="video" size=${15} /> Obre el vídeo</a></p>`}
     ${patient && patient.folderUrl && html`<p><a class="link" href=${patient.folderUrl} target="_blank" rel="noopener"><${Icon} name="folder" size=${15} /> Obre la carpeta de ${patient.firstName}</a></p>`}
-    ${Store.meta.mode === 'google' && folderId && html`<div class="filepick">
-      <div class="filepick-head"><strong>Vídeos de la carpeta</strong><${Btn} variant="ghost" size="sm" icon="refresh" onClick=${loadFiles}>Actualitza</${Btn}></div>
+    ${cloud && folderId && html`<div class="filepick">
+      <div class="filepick-head"><strong>Vídeos de la carpeta</strong><${Btn} variant="ghost" size="sm" icon="refresh" onClick=${() => loadFiles()}>Actualitza</${Btn}></div>
       ${loading && html`<p class="muted">Carregant…</p>`}
       ${!loading && files && !videos.length && html`<p class="muted">No hi ha vídeos a la carpeta.</p>`}
       ${videos.map((f) => html`<button type="button" class=${U.cls('filepick-item', v === f.url && 'on')} onClick=${() => setV(f.url)}>

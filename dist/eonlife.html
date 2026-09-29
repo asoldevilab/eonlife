@@ -1021,6 +1021,41 @@ tfoot .rpc { font-size: 14px; }
 .boot-logo { width: 190px; color: var(--brand); }
 .boot-error p { max-width: 52ch; }
 
+/* Connexió amb Microsoft 365 */
+.connect { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px 16px; background: var(--bg); }
+.connect-card { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px 28px 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-2); }
+.connect-card > p { margin: 0; color: var(--ink-2); line-height: 1.5; }
+.connect-logo { width: 150px; color: var(--brand); margin-bottom: 4px; }
+.connect-steps { list-style: none; margin: 0 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.connect-steps li { display: inline-flex; align-items: center; gap: 7px; }
+.connect-steps li.on { color: var(--ink); }
+.connect-steps li.done { color: var(--ok-ink); }
+.connect-num { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; background: var(--surface-3); color: var(--ink-2); }
+.connect-steps li.on .connect-num { background: var(--brand); color: var(--on-primary); }
+.connect-steps li.done .connect-num { background: var(--ok-bg); color: var(--ok-ink); }
+.connect-form { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.connect-form .btn, .connect-actions .btn-primary { align-self: flex-start; }
+.connect-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.connect-note { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 10px 12px; border-radius: 10px; font-size: 14px; line-height: 1.45; }
+.connect-note .ic { flex: none; margin-top: 2px; }
+.connect-note-bad { background: var(--bad-bg); color: var(--bad-ink); }
+.connect-note-info { background: var(--surface-2); color: var(--ink-2); }
+.connect-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.connect-list li { display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; color: var(--ink-2); }
+.connect-list .ic { flex: none; margin-top: 2px; color: var(--brand); }
+.connect-uri { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+.connect-uri-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.connect-uri code { font-size: 12.5px; background: var(--surface-2); padding: 5px 8px; border-radius: 6px; overflow-wrap: anywhere; min-width: 0; }
+.connect-foot { margin: 0; text-align: center; font-size: 13px; }
+@media (max-width: 520px) { .connect-card { padding: 22px 18px 20px; border-radius: 14px; } }
+
+/* Pujada de vídeos */
+.upload-box { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px; border: 1px dashed var(--line-2); border-radius: 12px; background: var(--surface-2); margin-bottom: 4px; }
+.upload-progress { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.upload-progress .bar { height: 8px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+.upload-progress .bar span { display: block; height: 100%; background: var(--brand); border-radius: 99px; transition: width .2s; }
+.save-btn { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
 /* ── Impressió / PDF (A4) ── */
 @media print {
   :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
@@ -1067,7 +1102,7 @@ tfoot .rpc { font-size: 14px; }
 <noscript>Aquesta aplicació necessita JavaScript.</noscript>
 <script>!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?n(exports):"function"==typeof define&&define.amd?define(["exports"],n):n(e.htmPreact={})}(this,function(e){var n,_,t,o,r,u,l,i={},c=[],f=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(e,n){for(var _ in n)e[_]=n[_];return e}function a(e){var n=e.parentNode;n&&n.removeChild(e)}function p(e,_,t){var o,r,u,l={};for(u in _)"key"==u?o=_[u]:"ref"==u?r=_[u]:l[u]=_[u];if(arguments.length>2&&(l.children=arguments.length>3?n.call(arguments,2):t),"function"==typeof e&&null!=e.defaultProps)for(u in e.defaultProps)void 0===l[u]&&(l[u]=e.defaultProps[u]);return h(e,l,o,r,null)}function h(e,n,o,r,u){var l={type:e,props:n,key:o,ref:r,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,__h:null,constructor:void 0,__v:null==u?++t:u};return null!=_.vnode&&_.vnode(l),l}function d(e){return e.children}function v(e,n){this.props=e,this.context=n}function y(e,n){if(null==n)return e.__?y(e.__,e.__.__k.indexOf(e)+1):null;for(var _;n<e.__k.length;n++)if(null!=(_=e.__k[n])&&null!=_.__e)return _.__e;return"function"==typeof e.type?y(e):null}function m(e){var n,_;if(null!=(e=e.__)&&null!=e.__c){for(e.__e=e.__c.base=null,n=0;n<e.__k.length;n++)if(null!=(_=e.__k[n])&&null!=_.__e){e.__e=e.__c.base=_.__e;break}return m(e)}}function g(e){(!e.__d&&(e.__d=!0)&&o.push(e)&&!k.__r++||u!==_.debounceRendering)&&((u=_.debounceRendering)||r)(k)}function k(){for(var e;k.__r=o.length;)e=o.sort(function(e,n){return e.__v.__b-n.__v.__b}),o=[],e.some(function(e){var n,_,t,o,r,u;e.__d&&(r=(o=(n=e).__v).__e,(u=n.__P)&&(_=[],(t=s({},o)).__v=o.__v+1,D(u,o,t,n.__n,void 0!==u.ownerSVGElement,null!=o.__h?[r]:null,_,null==r?y(o):r,o.__h),w(_,o),o.__e!=r&&m(o)))})}function b(e,n,_,t,o,r,u,l,f,s){var a,p,v,m,g,k,b,H=t&&t.__k||c,E=H.length;for(_.__k=[],a=0;a<n.length;a++)if(null!=(m=_.__k[a]=null==(m=n[a])||"boolean"==typeof m?null:"string"==typeof m||"number"==typeof m||"bigint"==typeof m?h(null,m,null,null,m):Array.isArray(m)?h(d,{children:m},null,null,null):m.__b>0?h(m.type,m.props,m.key,null,m.__v):m)){if(m.__=_,m.__b=_.__b+1,null===(v=H[a])||v&&m.key==v.key&&m.type===v.type)H[a]=void 0;else for(p=0;p<E;p++){if((v=H[p])&&m.key==v.key&&m.type===v.type){H[p]=void 0;break}v=null}D(e,m,v=v||i,o,r,u,l,f,s),g=m.__e,(p=m.ref)&&v.ref!=p&&(b||(b=[]),v.ref&&b.push(v.ref,null,m),b.push(p,m.__c||g,m)),null!=g?(null==k&&(k=g),"function"==typeof m.type&&null!=m.__k&&m.__k===v.__k?m.__d=f=C(m,f,e):f=x(e,m,v,H,g,f),s||"option"!==_.type?"function"==typeof _.type&&(_.__d=f):e.value=""):f&&v.__e==f&&f.parentNode!=e&&(f=y(v))}for(_.__e=k,a=E;a--;)null!=H[a]&&("function"==typeof _.type&&null!=H[a].__e&&H[a].__e==_.__d&&(_.__d=y(t,a+1)),A(H[a],H[a]));if(b)for(a=0;a<b.length;a++)U(b[a],b[++a],b[++a])}function C(e,n,_){var t,o;for(t=0;t<e.__k.length;t++)(o=e.__k[t])&&(o.__=e,n="function"==typeof o.type?C(o,n,_):x(_,o,o,e.__k,o.__e,n));return n}function x(e,n,_,t,o,r){var u,l,i;if(void 0!==n.__d)u=n.__d,n.__d=void 0;else if(null==_||o!=r||null==o.parentNode)e:if(null==r||r.parentNode!==e)e.appendChild(o),u=null;else{for(l=r,i=0;(l=l.nextSibling)&&i<t.length;i+=2)if(l==o)break e;e.insertBefore(o,r),u=r}return void 0!==u?u:o.nextSibling}function H(e,n,_){"-"===n[0]?e.setProperty(n,_):e[n]=null==_?"":"number"!=typeof _||f.test(n)?_:_+"px"}function E(e,n,_,t,o){var r;e:if("style"===n)if("string"==typeof _)e.style.cssText=_;else{if("string"==typeof t&&(e.style.cssText=t=""),t)for(n in t)_&&n in _||H(e.style,n,"");if(_)for(n in _)t&&_[n]===t[n]||H(e.style,n,_[n])}else if("o"===n[0]&&"n"===n[1])r=n!==(n=n.replace(/Capture$/,"")),n=n.toLowerCase()in e?n.toLowerCase().slice(2):n.slice(2),e.l||(e.l={}),e.l[n+r]=_,_?t||e.addEventListener(n,r?S:P,r):e.removeEventListener(n,r?S:P,r);else if("dangerouslySetInnerHTML"!==n){if(o)n=n.replace(/xlink[H:h]/,"h").replace(/sName$/,"s");else if("href"!==n&&"list"!==n&&"form"!==n&&"tabIndex"!==n&&"download"!==n&&n in e)try{e[n]=null==_?"":_;break e}catch(e){}"function"==typeof _||(null!=_&&(!1!==_||"a"===n[0]&&"r"===n[1])?e.setAttribute(n,_):e.removeAttribute(n))}}function P(e){this.l[e.type+!1](_.event?_.event(e):e)}function S(e){this.l[e.type+!0](_.event?_.event(e):e)}function D(e,n,t,o,r,u,l,i,c){var f,a,p,h,y,m,g,k,C,x,H,E=n.type;if(void 0!==n.constructor)return null;null!=t.__h&&(c=t.__h,i=n.__e=t.__e,n.__h=null,u=[i]),(f=_.__b)&&f(n);try{e:if("function"==typeof E){if(k=n.props,C=(f=E.contextType)&&o[f.__c],x=f?C?C.props.value:f.__:o,t.__c?g=(a=n.__c=t.__c).__=a.__E:("prototype"in E&&E.prototype.render?n.__c=a=new E(k,x):(n.__c=a=new v(k,x),a.constructor=E,a.render=M),C&&C.sub(a),a.props=k,a.state||(a.state={}),a.context=x,a.__n=o,p=a.__d=!0,a.__h=[]),null==a.__s&&(a.__s=a.state),null!=E.getDerivedStateFromProps&&(a.__s==a.state&&(a.__s=s({},a.__s)),s(a.__s,E.getDerivedStateFromProps(k,a.__s))),h=a.props,y=a.state,p)null==E.getDerivedStateFromProps&&null!=a.componentWillMount&&a.componentWillMount(),null!=a.componentDidMount&&a.__h.push(a.componentDidMount);else{if(null==E.getDerivedStateFromProps&&k!==h&&null!=a.componentWillReceiveProps&&a.componentWillReceiveProps(k,x),!a.__e&&null!=a.shouldComponentUpdate&&!1===a.shouldComponentUpdate(k,a.__s,x)||n.__v===t.__v){a.props=k,a.state=a.__s,n.__v!==t.__v&&(a.__d=!1),a.__v=n,n.__e=t.__e,n.__k=t.__k,n.__k.forEach(function(e){e&&(e.__=n)}),a.__h.length&&l.push(a);break e}null!=a.componentWillUpdate&&a.componentWillUpdate(k,a.__s,x),null!=a.componentDidUpdate&&a.__h.push(function(){a.componentDidUpdate(h,y,m)})}a.context=x,a.props=k,a.state=a.__s,(f=_.__r)&&f(n),a.__d=!1,a.__v=n,a.__P=e,f=a.render(a.props,a.state,a.context),a.state=a.__s,null!=a.getChildContext&&(o=s(s({},o),a.getChildContext())),p||null==a.getSnapshotBeforeUpdate||(m=a.getSnapshotBeforeUpdate(h,y)),H=null!=f&&f.type===d&&null==f.key?f.props.children:f,b(e,Array.isArray(H)?H:[H],n,t,o,r,u,l,i,c),a.base=n.__e,n.__h=null,a.__h.length&&l.push(a),g&&(a.__E=a.__=null),a.__e=!1}else null==u&&n.__v===t.__v?(n.__k=t.__k,n.__e=t.__e):n.__e=T(t.__e,n,t,o,r,u,l,c);(f=_.diffed)&&f(n)}catch(e){n.__v=null,(c||null!=u)&&(n.__e=i,n.__h=!!c,u[u.indexOf(i)]=null),_.__e(e,n,t)}}function w(e,n){_.__c&&_.__c(n,e),e.some(function(n){try{e=n.__h,n.__h=[],e.some(function(e){e.call(n)})}catch(e){_.__e(e,n.__v)}})}function T(e,_,t,o,r,u,l,c){var f,s,p,h=t.props,d=_.props,v=_.type,m=0;if("svg"===v&&(r=!0),null!=u)for(;m<u.length;m++)if((f=u[m])&&(f===e||(v?f.localName==v:3==f.nodeType))){e=f,u[m]=null;break}if(null==e){if(null===v)return document.createTextNode(d);e=r?document.createElementNS("http://www.w3.org/2000/svg",v):document.createElement(v,d.is&&d),u=null,c=!1}if(null===v)h===d||c&&e.data===d||(e.data=d);else{if(u=u&&n.call(e.childNodes),s=(h=t.props||i).dangerouslySetInnerHTML,p=d.dangerouslySetInnerHTML,!c){if(null!=u)for(h={},m=0;m<e.attributes.length;m++)h[e.attributes[m].name]=e.attributes[m].value;(p||s)&&(p&&(s&&p.__html==s.__html||p.__html===e.innerHTML)||(e.innerHTML=p&&p.__html||""))}if(function(e,n,_,t,o){var r;for(r in _)"children"===r||"key"===r||r in n||E(e,r,null,_[r],t);for(r in n)o&&"function"!=typeof n[r]||"children"===r||"key"===r||"value"===r||"checked"===r||_[r]===n[r]||E(e,r,n[r],_[r],t)}(e,d,h,r,c),p)_.__k=[];else if(m=_.props.children,b(e,Array.isArray(m)?m:[m],_,t,o,r&&"foreignObject"!==v,u,l,u?u[0]:t.__k&&y(t,0),c),null!=u)for(m=u.length;m--;)null!=u[m]&&a(u[m]);c||("value"in d&&void 0!==(m=d.value)&&(m!==e.value||"progress"===v&&!m)&&E(e,"value",m,h.value,!1),"checked"in d&&void 0!==(m=d.checked)&&m!==e.checked&&E(e,"checked",m,h.checked,!1))}return e}function U(e,n,t){try{"function"==typeof e?e(n):e.current=n}catch(e){_.__e(e,t)}}function A(e,n,t){var o,r;if(_.unmount&&_.unmount(e),(o=e.ref)&&(o.current&&o.current!==e.__e||U(o,null,n)),null!=(o=e.__c)){if(o.componentWillUnmount)try{o.componentWillUnmount()}catch(e){_.__e(e,n)}o.base=o.__P=null}if(o=e.__k)for(r=0;r<o.length;r++)o[r]&&A(o[r],n,"function"!=typeof e.type);t||null==e.__e||a(e.__e),e.__e=e.__d=void 0}function M(e,n,_){return this.constructor(e,_)}n=c.slice,_={__e:function(e,n){for(var _,t,o;n=n.__;)if((_=n.__c)&&!_.__)try{if((t=_.constructor)&&null!=t.getDerivedStateFromError&&(_.setState(t.getDerivedStateFromError(e)),o=_.__d),null!=_.componentDidCatch&&(_.componentDidCatch(e),o=_.__d),o)return _.__E=_}catch(n){e=n}throw e}},t=0,v.prototype.setState=function(e,n){var _;_=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),"function"==typeof e&&(e=e(s({},_),this.props)),e&&s(_,e),null!=e&&this.__v&&(n&&this.__h.push(n),g(this))},v.prototype.forceUpdate=function(e){this.__v&&(this.__e=!0,e&&this.__h.push(e),g(this))},v.prototype.render=d,o=[],r="function"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,k.__r=0,l=0;var F,L,N,W=0,R=[],I=_.__b,O=_.__r,V=_.diffed,q=_.__c,B=_.unmount;function $(e,n){_.__h&&_.__h(L,e,W||n),W=0;var t=L.__H||(L.__H={__:[],__h:[]});return e>=t.__.length&&t.__.push({}),t.__[e]}function j(e){return W=1,G(ee,e)}function G(e,n,_){var t=$(F++,2);return t.t=e,t.__c||(t.__=[_?_(n):ee(void 0,n),function(e){var n=t.t(t.__[0],e);t.__[0]!==n&&(t.__=[n,t.__[1]],t.__c.setState({}))}],t.__c=L),t.__}function z(e,n){var t=$(F++,4);!_.__s&&Z(t.__H,n)&&(t.__=e,t.__H=n,L.__h.push(t))}function J(e,n){var _=$(F++,7);return Z(_.__H,n)&&(_.__=e(),_.__H=n,_.__h=e),_.__}function K(){R.forEach(function(e){if(e.__P)try{e.__H.__h.forEach(X),e.__H.__h.forEach(Y),e.__H.__h=[]}catch(n){e.__H.__h=[],_.__e(n,e.__v)}}),R=[]}_.__b=function(e){L=null,I&&I(e)},_.__r=function(e){O&&O(e),F=0;var n=(L=e.__c).__H;n&&(n.__h.forEach(X),n.__h.forEach(Y),n.__h=[])},_.diffed=function(e){V&&V(e);var n=e.__c;n&&n.__H&&n.__H.__h.length&&(1!==R.push(n)&&N===_.requestAnimationFrame||((N=_.requestAnimationFrame)||function(e){var n,_=function(){clearTimeout(t),Q&&cancelAnimationFrame(n),setTimeout(e)},t=setTimeout(_,100);Q&&(n=requestAnimationFrame(_))})(K)),L=void 0},_.__c=function(e,n){n.some(function(e){try{e.__h.forEach(X),e.__h=e.__h.filter(function(e){return!e.__||Y(e)})}catch(t){n.some(function(e){e.__h&&(e.__h=[])}),n=[],_.__e(t,e.__v)}}),q&&q(e,n)},_.unmount=function(e){B&&B(e);var n=e.__c;if(n&&n.__H)try{n.__H.__.forEach(X)}catch(e){_.__e(e,n.__v)}};var Q="function"==typeof requestAnimationFrame;function X(e){var n=L;"function"==typeof e.__c&&e.__c(),L=n}function Y(e){var n=L;e.__c=e.__(),L=n}function Z(e,n){return!e||e.length!==n.length||n.some(function(n,_){return n!==e[_]})}function ee(e,n){return"function"==typeof n?n(e):n}var ne=function(e,n,_,t){var o;n[0]=0;for(var r=1;r<n.length;r++){var u=n[r++],l=n[r]?(n[0]|=u?1:2,_[n[r++]]):n[++r];3===u?t[0]=l:4===u?t[1]=Object.assign(t[1]||{},l):5===u?(t[1]=t[1]||{})[n[++r]]=l:6===u?t[1][n[++r]]+=l+"":u?(o=e.apply(l,ne(e,l,_,["",null])),t.push(o),l[0]?n[0]|=2:(n[r-2]=0,n[r]=o)):t.push(l)}return t},_e=new Map,te=function(e){var n=_e.get(this);return n||(n=new Map,_e.set(this,n)),(n=ne(this,n.get(e)||(n.set(e,n=function(e){for(var n,_,t=1,o="",r="",u=[0],l=function(e){1===t&&(e||(o=o.replace(/^\s*\n\s*|\s*\n\s*$/g,"")))?u.push(0,e,o):3===t&&(e||o)?(u.push(3,e,o),t=2):2===t&&"..."===o&&e?u.push(4,e,0):2===t&&o&&!e?u.push(5,0,!0,o):t>=5&&((o||!e&&5===t)&&(u.push(t,0,o,_),t=6),e&&(u.push(t,e,0,_),t=6)),o=""},i=0;i<e.length;i++){i&&(1===t&&l(),l(i));for(var c=0;c<e[i].length;c++)n=e[i][c],1===t?"<"===n?(l(),u=[u],t=3):o+=n:4===t?"--"===o&&">"===n?(t=1,o=""):o=n+o[0]:r?n===r?r="":o+=n:'"'===n||"'"===n?r=n:">"===n?(l(),t=1):t&&("="===n?(t=5,_=o,o=""):"/"===n&&(t<5||">"===e[i][c+1])?(l(),3===t&&(u=u[0]),t=u,(u=u[0]).push(2,0,t),t=0):" "===n||"\t"===n||"\n"===n||"\r"===n?(l(),t=2):o+=n),3===t&&"!--"===o&&(t=4,u=u[0])}return l(),u}(e)),n),arguments,[])).length>1?n:n[0]}.bind(p);e.h=p,e.html=te,e.render=function(e,t,o){var r,u,l;_.__&&_.__(e,t),u=(r="function"==typeof o)?null:o&&o.__k||t.__k,l=[],D(t,e=(!r&&o||t).__k=p(d,null,[e]),u||i,i,void 0!==t.ownerSVGElement,!r&&o?[o]:u?null:t.firstChild?n.call(t.childNodes):null,l,!r&&o?o:u?u.__e:t.firstChild,r),w(l,e)},e.Component=v,e.createContext=function(e,n){var _={__c:n="__cC"+l++,__:e,Consumer:function(e,n){return e.children(n)},Provider:function(e){var _,t;return this.getChildContext||(_=[],(t={})[n]=this,this.getChildContext=function(){return t},this.shouldComponentUpdate=function(e){this.props.value!==e.value&&_.some(g)},this.sub=function(e){_.push(e);var n=e.componentWillUnmount;e.componentWillUnmount=function(){_.splice(_.indexOf(e),1),n&&n.call(e)}}),e.children}};return _.Provider.__=_.Consumer.contextType=_},e.useState=j,e.useReducer=G,e.useEffect=function(e,n){var t=$(F++,3);!_.__s&&Z(t.__H,n)&&(t.__=e,t.__H=n,L.__H.__h.push(t))},e.useLayoutEffect=z,e.useRef=function(e){return W=5,J(function(){return{current:e}},[])},e.useImperativeHandle=function(e,n,_){W=6,z(function(){"function"==typeof e?e(n()):e&&(e.current=n())},null==_?_:_.concat(e))},e.useMemo=J,e.useCallback=function(e,n){return W=8,J(function(){return e},n)},e.useContext=function(e){var n=L.context[e.__c],_=$(F++,9);return _.c=e,n?(null==_.__&&(_.__=!0,n.sub(L)),n.props.value):e.__},e.useDebugValue=function(e,n){_.useDebugValue&&_.useDebugValue(n?n(e):e)},e.useErrorBoundary=function(e){var n=$(F++,10),_=j();return n.__=e,L.componentDidCatch||(L.componentDidCatch=function(e){n.__&&n.__(e),_[1](e)}),[_[0],function(){_[1](void 0)}]}});
 </script>
-<script>window.EON_BUILD = "2026-09-28 11:53";
+<script>window.EON_BUILD = "2026-09-29 08:53";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -2174,7 +2209,7 @@ const Flat = {
       'Objectiu': p.goal || '', 'Motiu de consulta': p.reason || '', 'Antecedents': p.history || '',
       'Data IQ': p.surgeryDate || '', 'IQ': p.surgeryNote || '',
       'Data lesió': p.injuryDate || '', 'Lesió': p.injuryNote || '',
-      'Carpeta Drive': p.folderUrl || '', 'Notes': p.notes || '',
+      'Carpeta del client': p.folderUrl || '', 'Notes': p.notes || '',
     };
   },
 
@@ -2455,10 +2490,12 @@ function parseMyJumpCsv(text) {
 
 /* ── 05-store.js ── */
 /* EON Life · dades: magatzem en memòria + desament automàtic.
-   Dos modes:
-   · Google  → quan l'app s'obre des de Google Apps Script: les dades van al full de càlcul del centre
-               (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del client.
-   · Local   → quan s'obre el fitxer directament: les dades es guarden en aquest navegador (mode prova). */
+   Tres modes:
+   · Google        → quan l'app s'obre des de Google Apps Script: les dades van al full de càlcul del centre
+                     (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del client.
+   · Microsoft 365 → quan s'obre la versió publicada per al centre (09-m365.js): les dades van a l'Excel de la
+                     carpeta compartida de OneDrive/SharePoint i els vídeos a la carpeta de cada client.
+   · Local         → quan s'obre el fitxer directament: les dades es guarden en aquest navegador (mode prova). */
 
 const KINDS = ['patients', 'assessments', 'sessions', 'exercises', 'templates'];
 const LOCAL_KEY = 'eonlife:data:v1';
@@ -2545,6 +2582,7 @@ const Store = {
   backend: null,
   ready: false,
   error: null,
+  errorCode: '',
   meta: {},
   version: 0,
   data: { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {} },
@@ -2555,13 +2593,21 @@ const Store = {
   again: new Set(),
   dirty: new Set(),
   saveError: null,
+  saveErrorCode: '',
   lastSaved: null,
+  rev: {},
+
+  // Dades compartides al núvol (Google o Microsoft 365)?
+  cloud() { return this.meta.mode === 'google' || this.meta.mode === 'm365'; },
+  cloudName() { return this.meta.mode === 'google' ? 'Google Drive' : this.meta.mode === 'm365' ? 'Microsoft 365' : ''; },
 
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); },
   emit() { this.version++; for (const fn of this.listeners) fn(this.version); },
 
   async init() {
-    this.backend = hasGoogle() ? GoogleBackend : LocalBackend;
+    this.backend = hasGoogle() ? GoogleBackend : (typeof M365 !== 'undefined' && M365.available()) ? M365Backend : LocalBackend;
+    this.error = null;
+    this.errorCode = '';
     try {
       const { records, meta } = await this.backend.init();
       this.meta = { ...meta, mode: this.backend.mode };
@@ -2574,10 +2620,25 @@ const Store = {
       this.settings = { ...defaultSettings(), ...(st || {}) };
       this.settings.blocks = BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc, ...((this.settings.blocks || []).find((x) => x.key === b.key) || {}) }));
       this.ready = true;
+      this.replayOutbox();
     } catch (err) {
       this.error = err.message || String(err);
+      this.errorCode = err.code || '';
     }
     this.emit();
+  },
+
+  // Canvis que no s'havien pogut desar (sense connexió, sessió caducada, pàgina tancada): es tornen a enviar.
+  replayOutbox() {
+    if (!this.backend.outbox) return;
+    for (const [key, rec] of Object.entries(Outbox.all())) {
+      const [kind, id] = key.split(/:(.+)/);
+      if (!rec || !id) { Outbox.drop(key); continue; }
+      if (kind === 'settings') this.settings = { ...this.settings, ...rec };
+      else if (this.data[kind]) this.data[kind][id] = rec;
+      else { Outbox.drop(key); continue; }
+      this.queue(kind, id, 300);
+    }
   },
 
   // ── Lectura ──
@@ -2660,6 +2721,11 @@ const Store = {
     const key = `${kind}:${id}`;
     clearTimeout(this.timers[key]);
     this.dirty.add(key);
+    this.rev[key] = (this.rev[key] || 0) + 1;
+    if (this.backend && this.backend.outbox) {
+      const rec = kind === 'settings' ? this.settings : this.data[kind] && this.data[kind][id];
+      if (rec) Outbox.put(key, rec);
+    }
     this.timers[key] = setTimeout(() => this.flush(kind, id), delay);
   },
   flushAll() {
@@ -2690,15 +2756,19 @@ const Store = {
       flat = {};
     }
     this.emit();
+    const rev = this.rev[key];
     this.inflight[key] = this.backend.save(kind, rec, flat, log)
       .then((res) => {
         const cur = kind === 'settings' ? this.settings : this.data[kind][id];
         if (cur && res) { cur.updatedAt = res.updatedAt; cur.updatedBy = res.updatedBy; }
+        if (this.backend.outbox && this.rev[key] === rev && !this.dirty.has(key)) Outbox.drop(key);
         this.saveError = null;
+        this.saveErrorCode = '';
         this.lastSaved = Date.now();
       })
       .catch((err) => {
         this.saveError = err.message || String(err);
+        this.saveErrorCode = err.code || '';
         this.dirty.add(key);
         clearTimeout(this.timers[key]);
         this.timers[key] = setTimeout(() => this.flush(kind, id), 6000);
@@ -3433,6 +3503,1023 @@ const DB = (() => {
 })();
 
 
+/* ── 08-xlsx.js ── */
+/* EON Life · generador de fitxers Excel (.xlsx) sense dependències.
+   Serveix per crear la plantilla de la base de dades a Microsoft 365: un full per tipus de dada,
+   cadascun amb una taula d'Excel (capçalera de color, primera fila fixada i columnes internes amagades). */
+
+const Xlsx = (() => {
+  const esc = (s) => String(s)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const colName = (n) => { // 1 → A, 27 → AA
+    let s = '';
+    for (let x = n; x > 0; x = Math.floor((x - 1) / 26)) s = String.fromCharCode(65 + ((x - 1) % 26)) + s;
+    return s;
+  };
+
+  // ── ZIP (sense compressió) ──
+  const CRC = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  const crc32 = (bytes) => {
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) c = CRC[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  };
+
+  function zip(files) {
+    const enc = new TextEncoder();
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    const u16 = (v) => [v & 0xFF, (v >>> 8) & 0xFF];
+    const u32 = (v) => [v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF];
+    const DOS_TIME = 0, DOS_DATE = ((2024 - 1980) << 9) | (1 << 5) | 1;
+    for (const f of files) {
+      const name = enc.encode(f.name);
+      const data = typeof f.data === 'string' ? enc.encode(f.data) : f.data;
+      const crc = crc32(data);
+      const common = [...u16(20), ...u16(0x0800), ...u16(0), ...u16(DOS_TIME), ...u16(DOS_DATE), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0)];
+      const local = new Uint8Array([...u32(0x04034b50), ...common]);
+      parts.push(local, name, data);
+      central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...common, ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)]), name);
+      offset += local.length + name.length + data.length;
+    }
+    const cdSize = central.reduce((n, p) => n + p.length, 0);
+    const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
+    const all = [...parts, ...central, end];
+    const out = new Uint8Array(all.reduce((n, p) => n + p.length, 0));
+    let pos = 0;
+    for (const p of all) { out.set(p, pos); pos += p.length; }
+    return out;
+  }
+
+  // ── Llibre ──
+  // sheets: [{ name, table?, columns: [{ name, width?, hidden? }], rows?: [[...]] }]
+  function workbook(sheets, { brand = '421215' } = {}) {
+    const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+    const NSR = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+    const PKG = 'http://schemas.openxmlformats.org/package/2006/relationships';
+    const files = [];
+    const ct = [
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
+      '<Default Extension="xml" ContentType="application/xml"/>',
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>',
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>',
+    ];
+    const wbRels = [];
+    const wbSheets = [];
+    let tableNo = 0;
+
+    const cell = (ref, v, style) => {
+      const s = style ? ` s="${style}"` : '';
+      if (v === null || v === undefined || v === '') return '';
+      if (typeof v === 'number' && isFinite(v)) return `<c r="${ref}"${s}><v>${v}</v></c>`;
+      if (typeof v === 'boolean') return `<c r="${ref}"${s} t="b"><v>${v ? 1 : 0}</v></c>`;
+      return `<c r="${ref}"${s} t="inlineStr"><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
+    };
+
+    sheets.forEach((sh, i) => {
+      const n = i + 1;
+      const cols = sh.columns;
+      const width = cols.length;
+      const rows = sh.rows || [];
+      const last = colName(width);
+      const lastRow = Math.max(2, rows.length + 1);
+      const xmlRows = [`<row r="1">${cols.map((c, j) => cell(`${colName(j + 1)}1`, c.name, 1)).join('')}</row>`];
+      rows.forEach((r, k) => {
+        xmlRows.push(`<row r="${k + 2}">${r.map((v, j) => cell(`${colName(j + 1)}${k + 2}`, v)).join('')}</row>`);
+      });
+      const colXml = cols.map((c, j) => `<col min="${j + 1}" max="${j + 1}" width="${c.width || 16}" customWidth="1"${c.hidden ? ' hidden="1"' : ''}/>`).join('');
+      let tableRef = '';
+      if (sh.table) {
+        tableNo++;
+        const tid = tableNo;
+        const ref = `A1:${last}${lastRow}`;
+        files.push({
+          name: `xl/tables/table${tid}.xml`,
+          data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<table xmlns="${NS}" id="${tid}" name="${esc(sh.table)}" displayName="${esc(sh.table)}" ref="${ref}" totalsRowShown="0">`
+            + `<autoFilter ref="${ref}"/><tableColumns count="${width}">${cols.map((c, j) => `<tableColumn id="${j + 1}" name="${esc(c.name)}"/>`).join('')}</tableColumns>`
+            + '<tableStyleInfo name="TableStyleLight15" showFirstColumn="0" showLastColumn="0" showRowStripes="1" showColumnStripes="0"/></table>',
+        });
+        files.push({
+          name: `xl/worksheets/_rels/sheet${n}.xml.rels`,
+          data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="${PKG}"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/table" Target="../tables/table${tid}.xml"/></Relationships>`,
+        });
+        ct.push(`<Override PartName="/xl/tables/table${tid}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml"/>`);
+        tableRef = '<tableParts count="1"><tablePart r:id="rId1"/></tableParts>';
+      }
+      files.push({
+        name: `xl/worksheets/sheet${n}.xml`,
+        data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="${NS}" xmlns:r="${NSR}">`
+          + `<dimension ref="A1:${last}${lastRow}"/>`
+          + `<sheetViews><sheetView workbookViewId="0"${i === 0 ? ' tabSelected="1"' : ''}><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A2" sqref="A2"/></sheetView></sheetViews>`
+          + '<sheetFormatPr defaultRowHeight="15"/>'
+          + `<cols>${colXml}</cols><sheetData>${xmlRows.join('')}</sheetData>`
+          + '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>'
+          + `${tableRef}</worksheet>`,
+      });
+      ct.push(`<Override PartName="/xl/worksheets/sheet${n}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`);
+      wbRels.push(`<Relationship Id="rId${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${n}.xml"/>`);
+      wbSheets.push(`<sheet name="${esc(sh.name)}" sheetId="${n}" r:id="rId${n}"/>`);
+    });
+    const stylesId = sheets.length + 1;
+    wbRels.push(`<Relationship Id="rId${stylesId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
+
+    files.unshift(
+      { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${ct.join('')}</Types>` },
+      { name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="${PKG}"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+      { name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="${NS}" xmlns:r="${NSR}"><bookViews><workbookView xWindow="0" yWindow="0" windowWidth="28800" windowHeight="16000"/></bookViews><sheets>${wbSheets.join('')}</sheets></workbook>` },
+      { name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="${PKG}">${wbRels.join('')}</Relationships>` },
+      {
+        name: 'xl/styles.xml',
+        data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="${NS}">`
+          + '<fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font></fonts>'
+          + `<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF${brand}"/><bgColor indexed="64"/></patternFill></fill></fills>`
+          + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+          + '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+          + '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'
+          + '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+          + '</styleSheet>',
+      },
+    );
+    return zip(files);
+  }
+
+  return { workbook, colName, zip, crc32 };
+})();
+
+
+/* ── 09-m365.js ── */
+/* EON Life · Microsoft 365.
+   Quan l'app es publica per al centre (web amb window.EON_M365), cada professional entra amb el seu compte
+   de Microsoft i les dades es desen a la carpeta compartida de OneDrive/SharePoint:
+   · «EON Life · Base de dades.xlsx» → la base de dades: un full per tipus de dada (Pacients, Valoracions,
+     Sessions…), una fila per registre i una columna per test. Columna oculta data_json = registre complet.
+   · «EON Life · Clients» → una carpeta per client amb 01 · Valoracions, 02 · Vídeos i 03 · Informes.
+   Mateixa estructura que la versió de Google (apps-script/Code.gs). */
+
+const M365_KEYS = {
+  config: 'eonlife:m365:config',
+  token: 'eonlife:m365:token',
+  pkce: 'eonlife:m365:pkce',
+  outbox: 'eonlife:m365:outbox',
+};
+
+const M365_NAMES = {
+  workbook: 'EON Life · Base de dades.xlsx',
+  clients: 'EON Life · Clients',
+  subfolders: ['01 · Valoracions', '02 · Vídeos', '03 · Informes'],
+  videos: '02 · Vídeos',
+};
+
+const XL = {
+  sheets: { patients: 'Pacients', assessments: 'Valoracions', sessions: 'Sessions', exercises: 'Biblioteca', templates: 'Plantilles', settings: 'Configuracio' },
+  log: 'Registre_exercicis',
+  base: ['id', 'patient_id', 'updated_at', 'updated_by', 'deleted', 'data_json'],
+  logBase: ['session_id', 'patient_id'],
+  extraChunks: 4, // data_json_2 … data_json_5 ja creades a la plantilla
+  cellLimit: 30000, // Excel admet 32.767 caràcters per cel·la
+  table: (sheet) => `t${sheet}`,
+};
+
+class M365Error extends Error {
+  constructor(message, code, status) { super(message); this.code = code || ''; this.status = status || 0; }
+}
+
+const store_ = (area) => ({
+  get(k) { try { const v = window[area].getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  set(k, v) { try { window[area].setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  del(k) { try { window[area].removeItem(k); } catch (e) { /* res */ } },
+});
+const M365Local = store_('localStorage');
+const M365Session = store_('sessionStorage');
+
+// ── Configuració ──
+const M365 = {
+  // La versió publicada per al centre porta window.EON_M365 = { clientId, tenantId, folderUrl }.
+  available() { return !!window.EON_M365 || !!(M365Local.get(M365_KEYS.config) || {}).enabled; },
+  config() {
+    const baked = window.EON_M365 || {};
+    const saved = M365Local.get(M365_KEYS.config) || {};
+    const pick = (k) => (baked[k] && String(baked[k]).trim()) || saved[k] || '';
+    return {
+      clientId: pick('clientId'), tenantId: pick('tenantId'), folderUrl: pick('folderUrl'),
+      baked: { clientId: !!baked.clientId, tenantId: !!baked.tenantId, folderUrl: !!baked.folderUrl },
+      driveId: saved.driveId || '', folderId: saved.folderId || '', folderName: saved.folderName || '', folderWebUrl: saved.folderWebUrl || '',
+      resolvedFrom: saved.resolvedFrom || '',
+    };
+  },
+  save(patch) {
+    const cur = M365Local.get(M365_KEYS.config) || {};
+    M365Local.set(M365_KEYS.config, { ...cur, ...patch });
+  },
+  forgetFolder() { this.save({ driveId: '', folderId: '', folderName: '', folderWebUrl: '', resolvedFrom: '', folderUrl: '' }); },
+};
+
+// ── Inici de sessió (OAuth 2.0 amb PKCE, sense biblioteques) ──
+const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const randomB64 = (n) => { const a = new Uint8Array(n); crypto.getRandomValues(a); return b64url(a); };
+
+const MsAuth = {
+  scopes: 'openid profile offline_access User.Read Files.ReadWrite.All',
+  fetch: (...a) => fetch(...a),
+  authority(cfg) { return `https://login.microsoftonline.com/${encodeURIComponent(cfg.tenantId || 'organizations')}/oauth2/v2.0`; },
+  // Sempre la mateixa adreça (amb o sense «index.html»): és la que es registra a Entra.
+  redirectUri() { return window.location.origin + window.location.pathname.replace(/index\.html?$/i, ''); },
+  tokens() { return M365Local.get(M365_KEYS.token); },
+  user() { const t = this.tokens(); return (t && t.user) || null; },
+  clear() { M365Local.del(M365_KEYS.token); },
+  expire() { const t = this.tokens(); if (t) M365Local.set(M365_KEYS.token, { ...t, exp: 0 }); },
+
+  async begin(cfg, { prompt, loginHint } = {}) {
+    const verifier = randomB64(48);
+    const state = randomB64(16);
+    const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+    M365Session.set(M365_KEYS.pkce, { state, verifier, hash: window.location.hash || '', at: Date.now() });
+    const q = new URLSearchParams({
+      client_id: cfg.clientId, response_type: 'code', redirect_uri: this.redirectUri(), response_mode: 'query',
+      scope: this.scopes, state, code_challenge: b64url(digest), code_challenge_method: 'S256',
+    });
+    if (prompt) q.set('prompt', prompt);
+    if (loginHint) q.set('login_hint', loginHint);
+    window.location.assign(`${this.authority(cfg)}/authorize?${q}`);
+  },
+
+  // En tornar de Microsoft (?code=…&state=…): canvia el codi per les claus d'accés i neteja l'adreça.
+  async complete(cfg) {
+    const q = new URLSearchParams(window.location.search);
+    if (!q.has('code') && !q.has('error')) return false;
+    const pending = M365Session.get(M365_KEYS.pkce);
+    M365Session.del(M365_KEYS.pkce);
+    window.history.replaceState(null, '', window.location.pathname + ((pending && pending.hash) || ''));
+    // Torna a la pantalla on s'era abans d'anar a Microsoft (replaceState no avisa el navegador de l'app).
+    if (typeof Router !== 'undefined' && Router.current) {
+      Router.current = Router.parse(window.location.hash);
+      Router.emit(false);
+    }
+    if (q.has('error')) throw new M365Error(describeAuthError(q.get('error'), q.get('error_description')), 'login');
+    if (!pending || pending.state !== q.get('state')) throw new M365Error('La resposta de l\'inici de sessió no és vàlida o ha caducat. Torna-ho a provar.', 'login');
+    await this.tokenRequest(cfg, { grant_type: 'authorization_code', code: q.get('code'), redirect_uri: this.redirectUri(), code_verifier: pending.verifier });
+    return true;
+  },
+
+  async tokenRequest(cfg, params) {
+    let res, data;
+    try {
+      res = await this.fetch(`${this.authority(cfg)}/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ client_id: cfg.clientId, scope: this.scopes, ...params }).toString(),
+      });
+      data = await res.json().catch(() => ({}));
+    } catch (e) {
+      throw new M365Error('No hi ha connexió amb Microsoft. Comprova la connexió a internet.', 'network');
+    }
+    if (!res.ok || !data.access_token) throw new M365Error(describeAuthError(data.error, data.error_description), 'login');
+    const old = this.tokens() || {};
+    const t = {
+      access: data.access_token,
+      refresh: data.refresh_token || old.refresh || '',
+      exp: Date.now() + (Number(data.expires_in) || 3600) * 1000,
+      user: parseIdToken(data.id_token) || old.user || null,
+    };
+    M365Local.set(M365_KEYS.token, t);
+    return t;
+  },
+
+  async accessToken(cfg) {
+    const t = this.tokens();
+    if (t && t.access && t.exp - 120000 > Date.now()) return t.access;
+    if (t && t.refresh) {
+      try {
+        return (await this.tokenRequest(cfg, { grant_type: 'refresh_token', refresh_token: t.refresh })).access;
+      } catch (e) {
+        if (e.code === 'network') throw e;
+        this.clear();
+      }
+    }
+    throw new M365Error('Cal iniciar la sessió amb el compte de Microsoft del centre.', 'login');
+  },
+
+  logout(cfg) {
+    this.clear();
+    window.location.assign(`${this.authority(cfg)}/logout?post_logout_redirect_uri=${encodeURIComponent(this.redirectUri())}`);
+  },
+};
+
+function parseIdToken(jwt) {
+  try {
+    const part = jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(escape(atob(part + '='.repeat((4 - (part.length % 4)) % 4))));
+    const c = JSON.parse(json);
+    return { name: c.name || '', email: c.preferred_username || c.email || c.upn || '' };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Errors de Microsoft Entra més habituals, explicats.
+function describeAuthError(code, desc) {
+  const d = String(desc || '');
+  const has = (x) => d.includes(x);
+  if (has('AADSTS50011')) return 'L\'adreça d\'aquesta app no està registrada a Microsoft Entra. Cal afegir-la com a «URI de redirecció» de tipus «Aplicació d\'una sola pàgina (SPA)».';
+  if (has('AADSTS9002326') || has('AADSTS9002327')) return 'L\'app està registrada com a «Web» i ha de ser «Aplicació d\'una sola pàgina (SPA)». Canvia-ho a Microsoft Entra › Autenticació.';
+  if (has('AADSTS65001') || has('AADSTS90094') || has('AADSTS90008')) return 'Cal que l\'administrador de Microsoft 365 aprovi els permisos de l\'app («Concedeix el consentiment de l\'administrador»).';
+  if (has('AADSTS700016')) return 'L\'identificador de l\'aplicació no existeix en aquest directori. Revisa l\'Id. de l\'aplicació i l\'Id. del directori.';
+  if (has('AADSTS90002') || has('AADSTS90023')) return 'L\'identificador del directori (inquilí) no és correcte.';
+  if (has('AADSTS50105')) return 'El teu compte no té accés a aquesta app. Demana a l\'administrador que te l\'assigni.';
+  if (has('AADSTS70000') || has('AADSTS54005') || has('AADSTS70008')) return 'L\'inici de sessió ha caducat. Torna-ho a provar.';
+  if (code === 'access_denied') return 'S\'ha cancel·lat l\'inici de sessió o no s\'han acceptat els permisos.';
+  if (code === 'interaction_required' || code === 'login_required' || code === 'invalid_grant') return 'Cal tornar a iniciar la sessió amb Microsoft.';
+  return `No s'ha pogut iniciar la sessió amb Microsoft${d ? `: ${d.split(/\r?\n/)[0]}` : code ? ` (${code})` : '.'}`;
+}
+
+// ── Microsoft Graph ──
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+class GraphClient {
+  constructor(getToken, { fetchImpl, base = 'https://graph.microsoft.com/v1.0' } = {}) {
+    this.getToken = getToken;
+    this.fetch = fetchImpl || ((...a) => fetch(...a));
+    this.base = base;
+  }
+
+  async req(method, path, { body, headers = {}, retries = 4, absolute = false, noAuth = false, binary = false } = {}) {
+    const url = absolute ? path : this.base + path;
+    for (let attempt = 0; ; attempt++) {
+      const h = { ...headers };
+      if (!noAuth) h.Authorization = `Bearer ${await this.getToken()}`;
+      let payload;
+      if (body !== undefined) {
+        if (binary) payload = body;
+        else { payload = JSON.stringify(body); h['Content-Type'] = 'application/json'; }
+      }
+      let res;
+      const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+      try {
+        if (offline) throw new Error('offline');
+        res = await this.fetch(url, { method, headers: h, body: payload });
+      } catch (e) {
+        // Sense connexió no s'insisteix gaire: la cua de desament ja torna a provar-ho cada pocs segons.
+        if (!offline && attempt < Math.min(retries, 1)) { await sleep(800); continue; }
+        throw new M365Error('No hi ha connexió amb Microsoft 365. Els canvis es desaran quan torni la connexió.', 'network');
+      }
+      if (res.status === 401 && attempt === 0 && !noAuth) { MsAuth.expire(); continue; }
+      if ([429, 502, 503, 504].includes(res.status) && attempt < retries) {
+        const ra = Number(res.headers.get('Retry-After'));
+        await sleep(ra > 0 ? Math.min(ra, 30) * 1000 : 700 * 2 ** attempt);
+        continue;
+      }
+      if (res.status === 204) return null;
+      const text = await res.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+      if (!res.ok) throw graphError(res.status, data);
+      return data;
+    }
+  }
+
+  // Fins a 20 peticions en una sola crida ($batch). Retorna les respostes en el mateix ordre.
+  // sequential: el servei les executa una darrere l'altra (recomanat per a Excel).
+  async batch(requests, { retries = 3, sequential = false } = {}) {
+    const out = new Array(requests.length);
+    let todo = requests.map((r, i) => ({ ...r, id: String(i + 1), i }));
+    for (let attempt = 0; todo.length; attempt++) {
+      const chunks = [];
+      for (let i = 0; i < todo.length; i += 20) chunks.push(todo.slice(i, i + 20));
+      const again = [];
+      let wait = 0;
+      for (const chunk of chunks) {
+        const res = await this.req('POST', '/$batch', {
+          body: {
+            requests: chunk.map((r, k) => {
+              const headers = { ...(r.headers || {}), ...(r.body !== undefined ? { 'Content-Type': 'application/json' } : {}) };
+              return {
+                id: r.id, method: r.method || 'GET', url: r.url,
+                ...(Object.keys(headers).length ? { headers } : {}),
+                ...(r.body !== undefined ? { body: r.body } : {}),
+                ...(sequential && k > 0 ? { dependsOn: [chunk[k - 1].id] } : {}),
+              };
+            }),
+          },
+        });
+        for (const resp of (res && res.responses) || []) {
+          const r = chunk.find((x) => x.id === String(resp.id));
+          if (!r) continue;
+          // 424: no s'ha executat perquè ha fallat l'anterior de la cadena.
+          if ([409, 424, 429, 502, 503, 504].includes(resp.status) && attempt < retries) {
+            again.push(r);
+            wait = Math.max(wait, Number((resp.headers || {})['Retry-After']) * 1000 || 800 * 2 ** attempt);
+          } else {
+            out[r.i] = resp.status >= 400 ? { error: graphError(resp.status, resp.body) } : { status: resp.status, body: resp.body };
+          }
+        }
+      }
+      todo = again;
+      if (todo.length) await sleep(Math.min(wait, 30000));
+    }
+    return out;
+  }
+}
+
+function graphError(status, data) {
+  const err = (data && data.error) || {};
+  const code = err.code || String(status);
+  let msg = err.message || `Error ${status}`;
+  if (status === 403 || code === 'accessDenied') msg = 'No tens permís per escriure a la carpeta compartida. Demana que et donin accés d\'edició.';
+  else if (status === 404 && /itemNotFound/i.test(code)) msg = 'No s\'ha trobat l\'element a OneDrive/SharePoint (potser s\'ha mogut o esborrat).';
+  else if (status === 423) msg = 'L\'Excel està bloquejat per una altra aplicació. Es tornarà a provar.';
+  else if (status === 507) msg = 'No queda espai a OneDrive/SharePoint.';
+  const e = new M365Error(msg, code, status);
+  e.detail = err.message || '';
+  return e;
+}
+
+// ── Excel com a base de dades ──
+class ExcelDb {
+  constructor(graph, driveId, itemId) {
+    this.g = graph;
+    this.path = `/drives/${driveId}/items/${itemId}/workbook`;
+    this.session = null;
+    this.queue = Promise.resolve();
+    this.failedCols = new Set();
+  }
+
+  // Les escriptures a l'Excel van d'una en una (Excel no admet bé canvis simultanis).
+  exclusive(fn) {
+    const run = this.queue.then(fn, fn);
+    this.queue = run.catch(() => null);
+    return run;
+  }
+
+  async ensureSession() {
+    if (this.session && Date.now() - this.session.used < 4 * 60 * 1000) { this.session.used = Date.now(); return; }
+    try {
+      const s = await this.g.req('POST', `${this.path}/createSession`, { body: { persistChanges: true }, retries: 2 });
+      this.session = s && s.id ? { id: s.id, used: Date.now() } : null;
+    } catch (e) {
+      if (e.code === 'network') throw e;
+      this.session = null; // sense sessió també funciona, només és més lent
+    }
+  }
+
+  sessionHeaders() { return this.session ? { 'workbook-session-id': this.session.id } : {}; }
+
+  async call(method, rel, opts = {}) {
+    await this.ensureSession();
+    try {
+      return await this.g.req(method, this.path + rel, { ...opts, headers: { ...this.sessionHeaders(), ...(opts.headers || {}) } });
+    } catch (e) {
+      if (this.session && /session/i.test(e.code)) {
+        this.session = null;
+        await this.ensureSession();
+        return this.g.req(method, this.path + rel, { ...opts, headers: { ...this.sessionHeaders(), ...(opts.headers || {}) } });
+      }
+      throw e;
+    }
+  }
+
+  async batch(list) {
+    await this.ensureSession();
+    const base = this.path.replace(/^\//, '');
+    return this.g.batch(list.map((r) => ({ ...r, url: `/${base}${r.url}`, headers: { ...this.sessionHeaders(), ...(r.headers || {}) } })), { sequential: true });
+  }
+
+  static tablePath(sheet) { return `/tables/${encodeURIComponent(XL.table(sheet))}`; }
+  static rangePath(sheet, address) { return `/worksheets/${encodeURIComponent(sheet)}/range(address='${address}')`; }
+
+  // "Pacients!A1:AF57" → { startRow, startCol, endRow, endCol }
+  static parseAddress(addr) {
+    const a = String(addr || '').split('!').pop().replace(/\$/g, '');
+    const m = a.match(/^([A-Z]+)(\d+)(?::([A-Z]+)(\d+))?$/);
+    if (!m) throw new M365Error(`Adreça de rang desconeguda: ${addr}`, 'address');
+    const n = (s) => s.split('').reduce((x, ch) => x * 26 + ch.charCodeAt(0) - 64, 0);
+    return { startCol: n(m[1]), startRow: Number(m[2]), endCol: n(m[3] || m[1]), endRow: Number(m[4] || m[2]) };
+  }
+
+  // Capçalera i columna d'identificadors d'una taula en una sola anada i tornada.
+  async layout(sheet, idColumn = 'id') {
+    return (await this.layouts([[sheet, idColumn]]))[0];
+  }
+
+  static layoutRequests(sheet, idColumn) {
+    const t = ExcelDb.tablePath(sheet);
+    return [
+      { url: `${t}/headerRowRange?$select=address,values` },
+      { url: `${t}/columns/${encodeURIComponent(idColumn)}/dataBodyRange?$select=address,values` },
+    ];
+  }
+
+  // Diverses taules alhora. Una taula que no existeix torna l'error (status 404) al seu lloc.
+  async layouts(list, { tolerate = false } = {}) {
+    const res = await this.batch(list.flatMap(([sheet, idColumn = 'id']) => ExcelDb.layoutRequests(sheet, idColumn)));
+    return list.map((_, k) => {
+      const head = res[2 * k], ids = res[2 * k + 1];
+      const err = head.error || ids.error;
+      if (err) { if (tolerate) return { error: err }; throw err; }
+      return ExcelDb.makeLayout(head, ids);
+    });
+  }
+
+  static makeLayout(head, ids) {
+    const h = ExcelDb.parseAddress(head.body.address);
+    const b = ExcelDb.parseAddress(ids.body.address);
+    return {
+      headers: (head.body.values[0] || []).map((x) => String(x)),
+      startCol: h.startCol,
+      headerRow: h.startRow,
+      firstRow: b.startRow,
+      ids: (ids.body.values || []).map((r) => String(r[0] == null ? '' : r[0])),
+    };
+  }
+
+  rowAddress(lay, sheetRow, width) {
+    return `${Xlsx.colName(lay.startCol)}${sheetRow}:${Xlsx.colName(lay.startCol + width - 1)}${sheetRow}`;
+  }
+
+  // Afegeix les columnes que falten al final de la taula. Si no es pot, la dada continua a data_json.
+  async addColumns(sheet, lay, keys) {
+    const have = new Set(lay.headers.map((x) => x.toLowerCase()));
+    const missing = [];
+    for (const k of keys) {
+      const lk = k.toLowerCase();
+      if (!have.has(lk) && !this.failedCols.has(`${sheet}|${lk}`) && !missing.some((m) => m.toLowerCase() === lk)) missing.push(k);
+    }
+    for (const name of missing) {
+      try {
+        await this.call('POST', `${ExcelDb.tablePath(sheet)}/columns/add`, { body: { name }, retries: 2 });
+        lay.headers.push(name);
+      } catch (e) {
+        if (e.code === 'network') throw e;
+        this.failedCols.add(`${sheet}|${name.toLowerCase()}`);
+      }
+    }
+    return lay;
+  }
+
+  async readTable(sheet, opts = {}) {
+    return (await this.readTables([[sheet, opts]]))[0];
+  }
+
+  // Llegeix diverses taules amb dues anades i tornades: capçaleres + identificadors, i després les dades.
+  async readTables(list) {
+    const lays = await this.layouts(list.map(([sheet]) => [sheet, 'id']), { tolerate: true });
+    const plans = list.map(([sheet, opts = {}], k) => {
+      const lay = lays[k];
+      if (lay.error) {
+        if (lay.error.status === 404) return null; // el full no existeix (encara)
+        throw lay.error;
+      }
+      return this.readPlan(sheet, lay, opts);
+    });
+    const reqs = plans.flatMap((p, k) => (p ? p.reqs.map((r) => ({ ...r, k })) : []));
+    const res = reqs.length ? await this.batch(reqs) : [];
+    res.forEach((r, i) => {
+      if (r.error) throw r.error;
+      const { k, s } = reqs[i];
+      plans[k].put(s, r.body.values || []);
+    });
+    return plans.map((p) => (p ? p.finish() : []));
+  }
+
+  readPlan(sheet, lay, { keepDeleted = false } = {}) {
+    const n = lay.ids.length;
+    const col = (name) => lay.headers.indexOf(name);
+    const iDel = col('deleted');
+    const iJson = col('data_json');
+    const chunkCols = lay.headers.map((h, i) => ({ i, n: /^data_json_(\d+)$/.test(h) ? Number(h.split('_').pop()) : 0 }))
+      .filter((x) => x.n > 0).sort((a, b) => a.n - b.n);
+    if (iDel < 0 || iJson < 0) return { reqs: [], put() {}, finish: () => [] }; // no és una taula de l'app
+    const wanted = [iDel, iJson, ...chunkCols.map((c) => c.i)];
+    // Les columnes deleted/data_json* són contigües a la plantilla: un sol rang per tros de files.
+    const lo = Math.min(...wanted), hi = Math.max(...wanted);
+    const STEP = 200;
+    const reqs = [];
+    const cols = {};
+    for (const ci of wanted) cols[ci] = new Array(n).fill('');
+    for (let s = 0; s < n; s += STEP) {
+      const r1 = lay.firstRow + s, r2 = lay.firstRow + Math.min(n, s + STEP) - 1;
+      const range = `${Xlsx.colName(lay.startCol + lo)}${r1}:${Xlsx.colName(lay.startCol + hi)}${r2}`;
+      reqs.push({ s, url: `${ExcelDb.rangePath(sheet, range)}?$select=values` });
+    }
+    const put = (s, values) => values.forEach((line, j) => { for (const ci of wanted) cols[ci][s + j] = line[ci - lo]; });
+    return { reqs, put, finish: () => this.collect(sheet, lay, cols, { iDel, iJson, chunkCols, keepDeleted }) };
+  }
+
+  collect(sheet, lay, cols, { iDel, iJson, chunkCols, keepDeleted }) {
+    const n = lay.ids.length;
+    const byId = {};
+    for (let i = 0; i < n; i++) {
+      const id = lay.ids[i];
+      if (!id) continue;
+      const dv = cols[iDel][i];
+      const deleted = dv === true || String(dv).toUpperCase() === 'TRUE';
+      if (deleted && !keepDeleted) { delete byId[id]; continue; }
+      let json = String(cols[iJson][i] || '');
+      for (const c of chunkCols) json += unmarkChunk(cols[c.i][i]);
+      if (!json) continue;
+      try {
+        const rec = JSON.parse(json);
+        if (deleted) rec.deleted = true;
+        const prev = byId[id];
+        if (!prev || String(rec.updatedAt || '') >= String(prev.updatedAt || '')) byId[id] = rec;
+      } catch (e) {
+        console.warn(`Fila il·legible a ${sheet}: ${id}`);
+      }
+    }
+    return Object.values(byId);
+  }
+
+  async upsert(kind, record, flat, log, user) {
+    const sheet = XL.sheets[kind];
+    if (!sheet) throw new M365Error(`Tipus de dada desconegut: ${kind}`, 'kind');
+    if (!record || !/^[A-Za-z0-9_-]{1,80}$/.test(String(record.id || ''))) throw new M365Error('Registre sense identificador vàlid.', 'id');
+    return this.exclusive(async () => {
+      const now = new Date().toISOString();
+      const rec = { ...record, updatedAt: now, updatedBy: user };
+      const json = JSON.stringify(rec);
+      const chunks = [];
+      for (let i = 0; i < json.length; i += XL.cellLimit) chunks.push(json.slice(i, i + XL.cellLimit));
+      if (chunks.length > 1 + XL.extraChunks) throw new M365Error('Aquest registre és massa gran per desar-lo a l\'Excel.', 'size');
+      const readable = Object.keys(flat || {}).filter((k) => !XL.base.includes(k) && !/^data_json/.test(k) && k.length <= 200 && !/[\r\n]/.test(k));
+      for (let attempt = 0; ; attempt++) {
+        try {
+          const lay = await this.layout(sheet);
+          await this.addColumns(sheet, lay, readable);
+          const row = lay.headers.map((h) => {
+            if (h === 'id') return rec.id;
+            if (h === 'patient_id') return kind === 'patients' ? rec.id : (rec.patientId || '');
+            if (h === 'updated_at') return now;
+            if (h === 'updated_by') return user;
+            if (h === 'deleted') return !!rec.deleted;
+            if (h === 'data_json') return chunks[0] || '';
+            if (/^data_json_\d+$/.test(h)) return markChunk(chunks[Number(h.split('_').pop()) - 1]);
+            return xlCell(flat[h]);
+          });
+          const at = lay.ids.indexOf(String(rec.id));
+          if (at >= 0) {
+            await this.call('PATCH', ExcelDb.rangePath(sheet, this.rowAddress(lay, lay.firstRow + at, row.length)), { body: { values: [row] } });
+          } else {
+            // Afegir files a una taula és atòmic: dues tauletes no poden escriure a la mateixa fila.
+            await this.call('POST', `${ExcelDb.tablePath(sheet)}/rows/add`, { body: { values: [row] }, retries: 0 });
+          }
+          break;
+        } catch (e) {
+          if (attempt >= 2 || ![409, 429, 500, 502, 503, 504].includes(e.status)) throw e;
+          await sleep(1200 * (attempt + 1));
+        }
+      }
+      if (kind === 'sessions') await this.writeLog(rec, rec.deleted ? [] : (log || []));
+      return { id: rec.id, updatedAt: now, updatedBy: user };
+    });
+  }
+
+  // Registre d'exercicis: una fila per exercici; es substitueixen les files de la sessió.
+  async writeLog(session, rows) {
+    const sheet = XL.log;
+    const lay = await this.layout(sheet, 'session_id');
+    const keys = [];
+    for (const r of rows) for (const k of Object.keys(r)) if (!keys.includes(k) && !XL.logBase.includes(k)) keys.push(k);
+    await this.addColumns(sheet, lay, keys);
+    const values = rows.map((r) => lay.headers.map((h) => {
+      if (h === 'session_id') return session.id;
+      if (h === 'patient_id') return session.patientId || '';
+      return xlCell(r[h]);
+    }));
+    const mine = [];
+    lay.ids.forEach((id, i) => { if (id === String(session.id)) mine.push(i); });
+    const width = lay.headers.length;
+    const common = Math.min(mine.length, values.length);
+    for (let k = 0; k < common;) {
+      // Files consecutives en una sola escriptura.
+      let j = k;
+      while (j + 1 < common && mine[j + 1] === mine[j] + 1) j++;
+      const r1 = lay.firstRow + mine[k], r2 = lay.firstRow + mine[j];
+      const addr = `${Xlsx.colName(lay.startCol)}${r1}:${Xlsx.colName(lay.startCol + width - 1)}${r2}`;
+      await this.call('PATCH', ExcelDb.rangePath(sheet, addr), { body: { values: values.slice(k, j + 1) } });
+      k = j + 1;
+    }
+    if (values.length > common) {
+      await this.call('POST', `${ExcelDb.tablePath(sheet)}/rows/add`, { body: { values: values.slice(common) }, retries: 0 });
+    }
+    // Sobren files: s'esborren de baix a dalt perquè no es moguin les altres.
+    for (const i of mine.slice(common).reverse()) {
+      const addr = this.rowAddress(lay, lay.firstRow + i, width);
+      try {
+        await this.call('POST', `${ExcelDb.rangePath(sheet, addr)}/delete`, { body: { shift: 'Up' } });
+      } catch (e) {
+        if (e.code === 'network') throw e;
+        // Excel no deixa buidar del tot una taula: es deixa la fila en blanc.
+        await this.call('PATCH', ExcelDb.rangePath(sheet, addr), { body: { values: [new Array(width).fill('')] } });
+      }
+    }
+  }
+}
+
+// Continuació de data_json: una marca inicial evita que Excel llegeixi el tros com a fórmula o
+// es mengi un apòstrof inicial.
+const markChunk = (s) => (s ? `~${s}` : '');
+const unmarkChunk = (v) => { const s = v == null ? '' : String(v); return s.startsWith('~') ? s.slice(1) : s; };
+
+// Valor segur per a una cel·la: números com a número, dates AAAA-MM-DD com a data i la resta com a text
+// (l'apòstrof inicial fa que Excel no el converteixi: «8-10» no ha de ser el 8 d'octubre, ni «=…» una fórmula).
+function xlCell(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'number') return isFinite(v) ? v : '';
+  if (typeof v === 'boolean') return v;
+  const s = String(v);
+  if (/^-?\d+([.,]\d+)?$/.test(s) && s.length < 16) return Number(s.replace(',', '.'));
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^[=+\-@']/.test(s) || /^[\d\s.,:/\-']+$/.test(s) || /^\d+\s*(e|E)\s*\d+$/.test(s)) return `'${s}`;
+  return s;
+}
+
+// Columnes de la plantilla: les mateixes que genera l'app per a un registre buit.
+function m365TemplateSheets() {
+  const chunk = Array.from({ length: XL.extraChunks }, (_, i) => `data_json_${i + 2}`);
+  const cols = (keys, widths = {}) => keys.map((name) => ({
+    name,
+    hidden: /^data_json/.test(name),
+    width: /^data_json/.test(name) ? 10 : widths[name] || (name.length > 18 ? 22 : 16),
+  }));
+  const base = [...XL.base, ...chunk];
+  const p = { id: 'P', firstName: '', lastName: '' };
+  const a = {
+    id: 'V', patientId: 'P', date: '', values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [] },
+    encoder: { rows: [{ name: 'Squat' }, { name: 'RDL' }, { name: 'Hip Thrust' }] }, bike: {}, patterns: {}, free: [], general: {},
+  };
+  const s = { id: 'S', patientId: 'P', blocks: BLOCKS.map((b) => ({ key: b.key, items: [] })), feedback: {}, readiness: {} };
+  const logKeys = Object.keys(Flat.sessionLog({ blocks: [{ key: 'for', items: [{ name: 'x' }] }] }, p)[0]);
+  const settingsKeys = [];
+  const readable = {
+    patients: Object.keys(Flat.patient(p)),
+    assessments: Object.keys(Flat.assessment(a, p)),
+    sessions: Object.keys(Flat.session(s, p)),
+    exercises: Object.keys(Flat.exercise({})),
+    templates: Object.keys(Flat.template({ items: [], blocks: [] })),
+    settings: settingsKeys,
+  };
+  const wide = { Client: 24, Nom: 18, Cognoms: 22, Objectiu: 30, Observacions: 30, Exercici: 26 };
+  const sheets = Object.entries(XL.sheets).map(([kind, name]) => ({
+    name, table: XL.table(name), columns: cols([...base, ...readable[kind]], wide),
+  }));
+  sheets.push({ name: XL.log, table: XL.table(XL.log), columns: cols([...XL.logBase, ...logKeys], wide) });
+  return sheets;
+}
+
+function m365TemplateFile() {
+  return Xlsx.workbook(m365TemplateSheets());
+}
+
+// ── Carpetes i fitxers (OneDrive / SharePoint) ──
+const safeName = (s) => String(s || '').replace(/["*:<>?/\\|#%]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^\.+|\.+$/g, '').slice(0, 120);
+
+class M365Api {
+  constructor(graph, cfg, user) {
+    this.g = graph;
+    this.cfg = cfg;
+    this.user = user;
+    this.drive = `/drives/${cfg.driveId}`;
+    this.db = null;
+    this.workbookItem = null;
+    this.clientsItem = null;
+  }
+
+  static encodeShare(url) {
+    const bytes = new TextEncoder().encode(url.trim());
+    return `u!${b64url(bytes)}`;
+  }
+
+  // Enllaç d'una carpeta (el de «Copia l'enllaç» o el de la barra d'adreces) → carpeta de Graph.
+  static async resolveFolder(graph, url) {
+    const clean = String(url || '').trim();
+    if (!/^https:\/\/\S+$/i.test(clean)) throw new M365Error('Enganxa l\'enllaç complet de la carpeta (comença per https://).', 'folder');
+    let item;
+    try {
+      item = await graph.req('GET', `/shares/${M365Api.encodeShare(clean)}/driveItem?$select=id,name,webUrl,folder,parentReference`, { headers: { Prefer: 'redeemSharingLink' } });
+    } catch (e) {
+      if (e.code === 'network') throw e;
+      throw new M365Error('No s\'ha pogut obrir aquest enllaç. Comprova que és l\'enllaç de la carpeta i que tens permís d\'edició.', 'folder');
+    }
+    if (!item || !item.folder) throw new M365Error('Aquest enllaç és d\'un fitxer, no d\'una carpeta. Copia l\'enllaç de la carpeta compartida.', 'folder');
+    return { driveId: item.parentReference && item.parentReference.driveId, folderId: item.id, folderName: item.name, folderWebUrl: item.webUrl };
+  }
+
+  childPath(parentId, name) { return `${this.drive}/items/${parentId}:/${encodeURIComponent(name)}`; }
+
+  async child(parentId, name) {
+    try {
+      return await this.g.req('GET', `${this.childPath(parentId, name)}?$select=id,name,webUrl,folder,file`);
+    } catch (e) {
+      if (e.status === 404) return null;
+      throw e;
+    }
+  }
+
+  async ensureChildFolder(parentId, name) {
+    const found = await this.child(parentId, name);
+    if (found) return found;
+    try {
+      return await this.g.req('POST', `${this.drive}/items/${parentId}/children`, { body: { name, folder: {}, '@microsoft.graph.conflictBehavior': 'fail' } });
+    } catch (e) {
+      if (e.status === 409) return this.child(parentId, name);
+      throw e;
+    }
+  }
+
+  async children(folderId) {
+    const out = [];
+    let next = `${this.drive}/items/${folderId}/children?$select=id,name,webUrl,folder,file,lastModifiedDateTime&$top=200`;
+    while (next && out.length < 2000) {
+      const res = await this.g.req('GET', next, { absolute: /^https:/.test(next) });
+      out.push(...((res && res.value) || []));
+      next = res && res['@odata.nextLink'];
+    }
+    return out;
+  }
+
+  // Existeix la base de dades a la carpeta?
+  async locate() {
+    this.workbookItem = await this.child(this.cfg.folderId, M365_NAMES.workbook);
+    this.clientsItem = await this.child(this.cfg.folderId, M365_NAMES.clients);
+    if (this.workbookItem) this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
+    return !!this.workbookItem;
+  }
+
+  // Primer cop: crea l'Excel (plantilla) i la carpeta de clients.
+  async setup() {
+    if (!this.workbookItem) {
+      const bytes = m365TemplateFile();
+      try {
+        this.workbookItem = await this.g.req('PUT', `${this.childPath(this.cfg.folderId, M365_NAMES.workbook)}:/content?@microsoft.graph.conflictBehavior=fail`, {
+          body: new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+          binary: true,
+          headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+        });
+      } catch (e) {
+        if (e.status !== 409) throw e;
+        this.workbookItem = await this.child(this.cfg.folderId, M365_NAMES.workbook);
+      }
+    }
+    this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
+    this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
+  }
+
+  async bootstrap() {
+    const kinds = Object.entries(XL.sheets);
+    const tables = await this.db.readTables(kinds.map(([kind, sheet]) => [sheet, { keepDeleted: kind === 'exercises' || kind === 'templates' }]));
+    return Object.fromEntries(kinds.map(([kind], i) => [kind, tables[i]]));
+  }
+
+  async ensureFolder(p) {
+    if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new M365Error('Client sense identificador vàlid.', 'id');
+    if (p.folderId) {
+      try {
+        const f = await this.g.req('GET', `${this.drive}/items/${p.folderId}?$select=id,webUrl,folder,deleted`);
+        if (f && f.folder) return { folderId: f.id, folderUrl: f.webUrl };
+      } catch (e) {
+        if (e.code === 'network') throw e;
+      }
+    }
+    if (!this.clientsItem) this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
+    const existing = (await this.children(this.clientsItem.id)).find((x) => x.folder && x.name.includes(p.id));
+    if (existing) return { folderId: existing.id, folderUrl: existing.webUrl };
+    const name = safeName([[p.lastName, p.firstName].filter(Boolean).join(', ') || 'Client', p.id].join(' · '));
+    const folder = await this.ensureChildFolder(this.clientsItem.id, name);
+    for (const sub of M365_NAMES.subfolders) await this.ensureChildFolder(folder.id, sub);
+    return { folderId: folder.id, folderUrl: folder.webUrl };
+  }
+
+  async listFiles(folderId) {
+    if (!folderId) return [];
+    const out = [];
+    const add = (f, where) => out.push({ id: f.id, name: f.name, url: f.webUrl, mimeType: (f.file && f.file.mimeType) || '', folder: where, updated: f.lastModifiedDateTime || '' });
+    const items = await this.children(folderId);
+    for (const it of items) if (it.file) add(it, '');
+    for (const sub of items.filter((x) => x.folder)) {
+      for (const it of await this.children(sub.id)) if (it.file && out.length < 300) add(it, sub.name);
+    }
+    return out.sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : 0));
+  }
+
+  // Puja un vídeo (o qualsevol fitxer) a «02 · Vídeos» del client, per trossos i amb progrés.
+  async uploadFile(folderId, file, { name, onProgress } = {}) {
+    if (!file || !file.size) throw new M365Error('El fitxer és buit.', 'upload');
+    const target = await this.ensureChildFolder(folderId, M365_NAMES.videos);
+    const fileName = safeName(name || file.name) || 'video.mp4';
+    const session = await this.g.req('POST', `${this.childPath(target.id, fileName)}:/createUploadSession`, {
+      body: { item: { '@microsoft.graph.conflictBehavior': 'rename', name: fileName } },
+    });
+    const CHUNK = 327680 * 16; // 5 MB (múltiple de 320 KiB)
+    const size = file.size;
+    let item = null;
+    for (let start = 0; start < size; start += CHUNK) {
+      const end = Math.min(size, start + CHUNK);
+      const part = file.slice(start, end);
+      for (let attempt = 0; ; attempt++) {
+        try {
+          const res = await this.g.fetch(session.uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Range': `bytes ${start}-${Math.max(end - 1, 0)}/${size}` },
+            body: part,
+          });
+          if (res.status === 200 || res.status === 201) item = await res.json();
+          else if (res.status !== 202) throw new M365Error(`No s'ha pogut pujar el fitxer (error ${res.status}).`, 'upload', res.status);
+          break;
+        } catch (e) {
+          if (attempt >= 3) throw e.code ? e : new M365Error('S\'ha tallat la connexió mentre es pujava el vídeo.', 'network');
+          await sleep(1500 * (attempt + 1));
+        }
+      }
+      if (onProgress) onProgress(end / size);
+    }
+    return { id: item && item.id, name: (item && item.name) || fileName, url: (item && item.webUrl) || '' };
+  }
+}
+
+// ── Canvis pendents guardats a la tauleta (sobreviuen a un tancament o a un nou inici de sessió) ──
+const Outbox = {
+  all() { return M365Local.get(M365_KEYS.outbox) || {}; },
+  put(key, rec) { const o = this.all(); o[key] = rec; M365Local.set(M365_KEYS.outbox, o); },
+  drop(key) { const o = this.all(); if (key in o) { delete o[key]; M365Local.set(M365_KEYS.outbox, o); } },
+};
+
+// ── Backend per a Store ──
+const M365Backend = {
+  mode: 'm365',
+  outbox: true,
+  api: null,
+  cfg: null,
+  graph: null,
+
+  graphFor(cfg) {
+    return new GraphClient(() => MsAuth.accessToken(cfg), { fetchImpl: MsAuth.fetch });
+  },
+
+  // Passos de connexió: config → login → folder → setup → dades.
+  async init() {
+    const cfg = M365.config();
+    this.cfg = cfg;
+    if (!cfg.clientId || !cfg.tenantId) throw new M365Error('Falta configurar la connexió amb Microsoft 365.', 'config');
+    await MsAuth.complete(cfg);
+    await MsAuth.accessToken(cfg);
+    this.graph = this.graphFor(cfg);
+    const user = MsAuth.user() || {};
+    if (!cfg.driveId || !cfg.folderId || (cfg.folderUrl && cfg.baked.folderUrl && cfg.resolvedFrom !== cfg.folderUrl)) {
+      if (!cfg.folderUrl) throw new M365Error('Falta triar la carpeta compartida on es desaran les dades.', 'folder');
+      const f = await M365Api.resolveFolder(this.graph, cfg.folderUrl);
+      M365.save({ ...f, resolvedFrom: cfg.folderUrl });
+      Object.assign(cfg, f);
+    }
+    this.api = new M365Api(this.graph, cfg, user.email || user.name || '');
+    if (!(await this.api.locate())) throw new M365Error(`La carpeta «${cfg.folderName || 'compartida'}» encara no té la base de dades.`, 'setup');
+    const records = await this.api.bootstrap();
+    return {
+      records,
+      meta: {
+        user: user.email || user.name || '',
+        userName: user.name || '',
+        spreadsheetUrl: (this.api.workbookItem && this.api.workbookItem.webUrl) || '',
+        rootFolderUrl: (this.api.clientsItem && this.api.clientsItem.webUrl) || '',
+        dataFolderUrl: cfg.folderWebUrl || '',
+        dataFolderName: cfg.folderName || '',
+      },
+    };
+  },
+
+  async connectFolder(url) {
+    const cfg = M365.config();
+    const graph = this.graphFor(cfg);
+    const f = await M365Api.resolveFolder(graph, url);
+    M365.save({ ...f, folderUrl: url.trim(), resolvedFrom: url.trim() });
+    return f;
+  },
+
+  async setup() {
+    const cfg = M365.config();
+    const graph = this.graphFor(cfg);
+    const user = MsAuth.user() || {};
+    const api = new M365Api(graph, cfg, user.email || '');
+    await api.locate();
+    await api.setup();
+  },
+
+  save(kind, record, flat, log) { return this.api.db.upsert(kind, U.clone(record), flat, log, this.api.user); },
+  ensureFolder(p) { return this.api.ensureFolder(p); },
+  listFiles(folderId) { return this.api.listFiles(folderId); },
+  uploadFile(folderId, file, opts) { return this.api.uploadFile(folderId, file, opts); },
+};
+
+
 /* ── 10-ui.js ── */
 /* EON Life · components d'interfície reutilitzables. */
 
@@ -3786,12 +4873,17 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
 // Estat de desament visible a totes les pantalles d'edició.
 function SaveStatus() {
   const pending = Store.pending();
-  if (Store.saveError) return html`<span class="save save-error" title=${Store.saveError}><${Icon} name="alert" size=${15} />No s'ha pogut desar · reintentant</span>`;
+  if (Store.saveError && Store.saveErrorCode === 'login' && Store.meta.mode === 'm365') {
+    // La sessió de Microsoft ha caducat: els canvis queden guardats a la tauleta fins que es torni a entrar.
+    return html`<button type="button" class="save save-error save-btn" title=${Store.saveError}
+      onClick=${() => MsAuth.begin(M365.config(), { loginHint: Store.meta.user })}><${Icon} name="alert" size=${15} />Sessió caducada · torna a entrar</button>`;
+  }
+  if (Store.saveError) return html`<span class="save save-error" title=${Store.saveError}><${Icon} name="alert" size=${15} />${Store.saveErrorCode === 'network' ? 'Sense connexió · es desarà en tornar' : 'No s\'ha pogut desar · reintentant'}</span>`;
   if (pending) return html`<span class="save save-busy"><span class="spinner"></span>Desant…</span>`;
-  return html`<span class="save save-ok"><${Icon} name=${Store.meta.mode === 'google' ? 'cloud' : 'check'} size=${15} />${Store.meta.mode === 'google' ? 'Desat al núvol' : 'Desat'}</span>`;
+  return html`<span class="save save-ok"><${Icon} name=${Store.cloud() ? 'cloud' : 'check'} size=${15} />${Store.cloud() ? 'Desat al núvol' : 'Desat'}</span>`;
 }
 
-// Enllaç de vídeo d'un test o exercici (Drive, YouTube…).
+// Enllaç de vídeo d'un test o exercici (carpeta del client, YouTube…).
 function VideoButton({ url, onChange, title = 'Vídeo', patient }) {
   const has = U.isUrl(url);
   return html`<button type="button" class=${U.cls('mini', has && 'on')} title=${has ? `${title}: obrir o canviar l'enllaç` : `${title}: afegir enllaç`}
@@ -3808,27 +4900,65 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
   const [v, setV] = useState(url || '');
   const [files, setFiles] = useState(null);
   const [loading, setLoading] = useState(false);
-  const folderId = patient && patient.folderId;
-  const loadFiles = async () => {
-    if (!folderId) return;
+  const [folderId, setFolderId] = useState((patient && patient.folderId) || '');
+  const [up, setUp] = useState(null);
+  const fileRef = useRef(null);
+  const cloud = Store.cloud();
+  const canUpload = cloud && !!Store.backend.uploadFile && !!patient;
+  const loadFiles = async (fid = folderId) => {
+    if (!fid) return;
     setLoading(true);
-    try { setFiles(await Store.backend.listFiles(folderId)); } catch (e) { UI.toast(e.message, 'bad'); }
+    try { setFiles(await Store.backend.listFiles(fid)); } catch (e) { UI.toast(e.message, 'bad'); }
     setLoading(false);
   };
-  useEffect(() => { if (Store.meta.mode === 'google' && folderId) loadFiles(); }, []);
+  useEffect(() => { if (cloud && folderId) loadFiles(); }, []);
+  // Grava o tria un vídeo a la tauleta i el puja a «02 · Vídeos» de la carpeta del client.
+  const upload = async (file) => {
+    if (fileRef.current) fileRef.current.value = '';
+    if (!file) return;
+    let fid = folderId;
+    if (!fid) {
+      const res = await ensureFolder(Store.get('patients', patient.id) || patient, { silent: true });
+      fid = (res && res.folderId) || '';
+      setFolderId(fid);
+    }
+    if (!fid) return;
+    const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || ['.mp4'])[0].toLowerCase();
+    setUp({ pct: 0 });
+    try {
+      const res = await Store.backend.uploadFile(fid, file, {
+        name: `${U.today()} · ${title} · ${U.fullName(patient)}${ext}`,
+        onProgress: (pct) => setUp({ pct }),
+      });
+      setUp(null);
+      if (res.url) setV(res.url);
+      UI.toast('Vídeo desat a la carpeta del client.');
+      loadFiles(fid);
+    } catch (e) {
+      setUp(null);
+      UI.toast(e.message, 'bad');
+    }
+  };
   const videos = (files || []).filter((f) => /video|image/.test(f.mimeType || '') || /\.(mov|mp4|m4v|avi|webm)$/i.test(f.name));
   return html`<${Dialog} title=${`Vídeo · ${title}`} onClose=${onClose} footer=${html`
     ${url && html`<${Btn} variant="ghost" icon="trash" onClick=${() => onSave('')}>Treu l'enllaç</${Btn}>`}
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" onClick=${() => onSave(v.trim())}>Desa</${Btn}>`}>
-    <${Field} label="Enllaç al vídeo" id="video-url" hint="Enganxa l'enllaç del fitxer de la carpeta del client (Google Drive).">
-      <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://drive.google.com/…" autoFocus=${true} />
+    ${canUpload && html`<div class="upload-box">
+      <input type="file" accept="video/*,image/*" hidden ref=${fileRef} onChange=${(e) => upload(e.currentTarget.files[0])} />
+      ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
+          <span class="muted">Pujant el vídeo… ${Math.round(up.pct * 100)} %</span><span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
+        : html`<${Btn} variant="primary" icon="video" onClick=${() => fileRef.current && fileRef.current.click()}>Grava o puja un vídeo</${Btn}>
+          <span class="muted small">Es desa a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.</span>`}
+    </div>`}
+    <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
+      <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />
     </${Field}>
     ${U.isUrl(v) && html`<p><a class="link" href=${v} target="_blank" rel="noopener"><${Icon} name="video" size=${15} /> Obre el vídeo</a></p>`}
     ${patient && patient.folderUrl && html`<p><a class="link" href=${patient.folderUrl} target="_blank" rel="noopener"><${Icon} name="folder" size=${15} /> Obre la carpeta de ${patient.firstName}</a></p>`}
-    ${Store.meta.mode === 'google' && folderId && html`<div class="filepick">
-      <div class="filepick-head"><strong>Vídeos de la carpeta</strong><${Btn} variant="ghost" size="sm" icon="refresh" onClick=${loadFiles}>Actualitza</${Btn}></div>
+    ${cloud && folderId && html`<div class="filepick">
+      <div class="filepick-head"><strong>Vídeos de la carpeta</strong><${Btn} variant="ghost" size="sm" icon="refresh" onClick=${() => loadFiles()}>Actualitza</${Btn}></div>
       ${loading && html`<p class="muted">Carregant…</p>`}
       ${!loading && files && !videos.length && html`<p class="muted">No hi ha vídeos a la carpeta.</p>`}
       ${videos.map((f) => html`<button type="button" class=${U.cls('filepick-item', v === f.url && 'on')} onClick=${() => setV(f.url)}>
@@ -4078,7 +5208,11 @@ const Router = {
 
 function useRoute() {
   const [r, setR] = useState(Router.current);
-  useEffect(() => Router.subscribe((x) => setR({ ...x })), []);
+  useEffect(() => {
+    const off = Router.subscribe((x) => setR({ ...x }));
+    setR({ ...Router.current }); // per si la ruta ha canviat abans de subscriure's (tornada de l'inici de sessió)
+    return off;
+  }, []);
   return r;
 }
 
@@ -4150,7 +5284,7 @@ function NewPatientDialog({ onClose }) {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del client.', 'bad'); return; }
     const p = Store.newPatient({ ...f, firstName: f.firstName.trim(), lastName: f.lastName.trim() });
     onClose();
-    if (Store.meta.mode === 'google') ensureFolder(p);
+    if (Store.cloud()) ensureFolder(p);
     go('client', p.id, 'fitxa');
   };
   return html`<${Dialog} title="Nou client" onClose=${onClose} footer=${html`
@@ -4176,14 +5310,14 @@ function ProfessionalsList() {
   return html`<datalist id="prof-list">${Store.professionals().map((p) => html`<option value=${p}></option>`)}</datalist>`;
 }
 
-// Crea (si cal) la carpeta de Drive del client i en desa l'enllaç.
+// Crea (si cal) la carpeta del client (Google Drive o Microsoft 365) i en desa l'enllaç.
 async function ensureFolder(p, { silent } = {}) {
-  if (Store.meta.mode !== 'google') return null;
+  if (!Store.cloud()) return null;
   try {
     const res = await Store.backend.ensureFolder(p);
     if (res && res.folderUrl) {
       Store.update('patients', p.id, (x) => { x.folderUrl = res.folderUrl; x.folderId = res.folderId; });
-      if (!silent) UI.toast('Carpeta del client creada a Google Drive.');
+      if (!silent) UI.toast(`Carpeta del client creada a ${Store.cloudName()}.`);
     }
     return res;
   } catch (e) {
@@ -4413,7 +5547,7 @@ function PatientView({ id, tab = 'resum' }) {
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
         <${Btn} icon="clipboard" onClick=${() => createAssessment(p.id)}>${assessments.length ? 'Nova valoració' : 'Valoració inicial'}</${Btn}>
         ${p.folderUrl ? html`<${Btn} icon="folder" href=${p.folderUrl}>Carpeta</${Btn}>`
-          : Store.meta.mode === 'google' ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
+          : Store.cloud() ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
         <${Menu} items=${[
           { label: 'Edita les dades', icon: 'edit', onClick: () => setTab('fitxa') },
           { sep: true },
@@ -4635,11 +5769,11 @@ function PatientForm({ p, onRemove }) {
       <div class="card-head"><h2 class="h2">Carpeta al núvol</h2></div>
       <p class="muted">Vídeos de la valoració i dels exercicis, informes en PDF i documents del client. Es pot compartir amb el client en mode lectura.</p>
       <div class="form-grid">
-        ${F('Enllaç de la carpeta (Google Drive)', 'folderUrl', { wide: true, placeholder: 'https://drive.google.com/drive/folders/…' })}
+        ${F(Store.cloud() ? `Enllaç de la carpeta (${Store.cloudName()})` : 'Enllaç de la carpeta del client', 'folderUrl', { wide: true, placeholder: 'https://…' })}
       </div>
       <div class="row-actions">
         ${p.folderUrl && html`<${Btn} icon="folder" href=${p.folderUrl}>Obre la carpeta</${Btn}>`}
-        ${!p.folderUrl && Store.meta.mode === 'google' && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta a Drive</${Btn}>`}
+        ${!p.folderUrl && Store.cloud() && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta del client</${Btn}>`}
       </div>
     </section>
     <section class="card">
@@ -6081,19 +7215,21 @@ function SettingsView() {
   };
 
   const google = Store.meta.mode === 'google';
+  const m365 = Store.meta.mode === 'm365';
+  const cloud = google || m365;
   return html`<div class="page">
     <header class="page-head"><div><p class="eyebrow">${st.centerName}</p><h1 class="h1">Configuració</h1></div><${SaveStatus} /></header>
 
     <section class="card">
       <div class="card-head"><h2 class="h2">On es guarden les dades</h2>
-        <${Pill} tone=${google ? 'ok' : 'warn'} icon=${google ? 'cloud' : 'device'}>${google ? 'Google Sheets · núvol del centre' : 'Només en aquest navegador'}</${Pill}></div>
-      ${google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a clients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada client.</p>
+        <${Pill} tone=${cloud ? 'ok' : 'warn'} icon=${cloud ? 'cloud' : 'device'}>${google ? 'Google Sheets · núvol del centre' : m365 ? 'Microsoft 365 · carpeta del centre' : 'Només en aquest navegador'}</${Pill}></div>
+      ${m365 ? html`<${M365DataCard} />` : google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a clients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada client.</p>
         ${Store.meta.user && html`<p class="muted">Connectat com a <strong>${Store.meta.user}</strong>.</p>`}
         <div class="row-actions">
           ${Store.meta.spreadsheetUrl && html`<${Btn} icon="clipboard" href=${Store.meta.spreadsheetUrl}>Obre el full de càlcul</${Btn}>`}
           ${Store.meta.rootFolderUrl && html`<${Btn} icon="folder" href=${Store.meta.rootFolderUrl}>Carpeta de clients</${Btn}>`}
         </div>`
-        : html`<p>Estàs fent servir l'app en <strong>mode local</strong>: les dades només es guarden en aquest navegador i no les veu ningú més. Per treballar tot l'equip amb les mateixes dades, cal publicar l'app a Google (guia <em>docs/INSTALLACIO.md</em> del projecte).</p>
+        : html`<p>Estàs fent servir l'app en <strong>mode local</strong>: les dades només es guarden en aquest navegador i no les veu ningú més. Per treballar tot l'equip amb les mateixes dades, cal publicar l'app per al centre amb Microsoft 365 (guia <em>docs/INSTALLACIO-M365.md</em>) o amb Google (<em>docs/INSTALLACIO.md</em>).</p>
           ${!LocalBackend.persistent && html`<p class="warn-text"><${Icon} name="alert" size=${15} /> Aquest navegador no permet guardar dades: si tanques la pàgina es perdran els canvis. Descarrega una còpia abans de sortir.</p>`}
           <div class="row-actions">
             <${Btn} icon="refresh" onClick=${() => resetLocal(true)}>Carrega els clients de prova</${Btn}>
@@ -6147,6 +7283,44 @@ function SettingsView() {
 
     <p class="muted small center">EON Life · Human Performance · versió ${window.EON_BUILD || 'dev'}</p>
   </div>`;
+}
+
+// Microsoft 365: on són les dades, amb qui s'ha entrat i accessos directes.
+function M365DataCard() {
+  const m = Store.meta;
+  const logout = async () => {
+    const pending = Object.keys(Outbox.all()).length;
+    const ok = await UI.confirm({
+      title: 'Tancar la sessió de Microsoft?',
+      text: pending ? `Hi ha ${U.plural(pending, 'canvi', 'canvis')} pendent${pending > 1 ? 's' : ''} de desar. Es guarden en aquesta tauleta i s'enviaran quan algú hi torni a entrar.` : 'Per tornar a fer servir l\'app en aquesta tauleta caldrà tornar a entrar amb el compte del centre.',
+      ok: 'Tanca la sessió',
+    });
+    if (ok) MsAuth.logout(M365.config());
+  };
+  const changeFolder = async () => {
+    const ok = await UI.confirm({
+      title: 'Canviar de carpeta?',
+      text: 'L\'app deixarà de fer servir aquesta carpeta en aquesta tauleta. Les dades no s\'esborren: continuen a l\'Excel de la carpeta actual.',
+      ok: 'Tria una altra carpeta',
+    });
+    if (!ok) return;
+    M365.forgetFolder();
+    Store.ready = false;
+    await Store.init();
+    go('inici');
+  };
+  return html`<p>Totes les dades es desen automàticament a l'Excel <strong>«EON Life · Base de dades»</strong>${m.dataFolderName ? html` de la carpeta <strong>«${m.dataFolderName}»</strong>` : ''}: una pestanya per a clients, valoracions, sessions i el registre d'exercicis, amb una fila per registre i una columna per test. Els vídeos i els PDF van a la carpeta de cada client, dins de «EON Life · Clients».</p>
+    <p class="muted">Tothom qui tingui accés a la carpeta pot obrir l'Excel per consultar-lo, filtrar-lo o descarregar-lo. Les dades, però, s'omplen i es corregeixen sempre des de l'app.</p>
+    ${m.user && html`<p class="muted">Connectat com a <strong>${m.userName ? `${m.userName} · ` : ''}${m.user}</strong>.</p>`}
+    <div class="row-actions">
+      ${m.spreadsheetUrl && html`<${Btn} icon="table" href=${m.spreadsheetUrl}>Obre l'Excel</${Btn}>`}
+      ${m.rootFolderUrl && html`<${Btn} icon="folder" href=${m.rootFolderUrl}>Carpetes dels clients</${Btn}>`}
+      ${m.dataFolderUrl && html`<${Btn} icon="folder" href=${m.dataFolderUrl}>Carpeta compartida</${Btn}>`}
+    </div>
+    <div class="row-actions">
+      <${Btn} variant="ghost" icon="refresh" onClick=${changeFolder}>Canvia de carpeta</${Btn}>
+      <${Btn} variant="ghost" icon="x" onClick=${logout}>Tanca la sessió</${Btn}>
+    </div>`;
 }
 
 
@@ -6342,6 +7516,163 @@ function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
 }
 
 
+/* ── 31-connect.js ── */
+/* EON Life · connexió amb Microsoft 365: codis de l'app, inici de sessió, carpeta compartida i preparació.
+   Es mostra en lloc de l'app mentre falti algun pas (Store.errorCode: config · login · folder · setup · altres). */
+
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function reconnect() {
+  Store.ready = false;
+  Store.error = null;
+  Store.errorCode = '';
+  Store.emit();
+  await Store.init();
+}
+
+function ConnectScreen({ code, message }) {
+  const cfg = M365.config();
+  const user = MsAuth.user();
+  const step = { config: 1, login: 1, folder: 2, setup: 3 }[code] || 0;
+  const steps = ['Compte', 'Carpeta', 'Base de dades'];
+  let body;
+  if (code === 'config') body = html`<${ConnectConfig} cfg=${cfg} />`;
+  else if (code === 'login') body = html`<${ConnectLogin} cfg=${cfg} message=${message} />`;
+  else if (code === 'folder') body = html`<${ConnectFolder} cfg=${cfg} user=${user} />`;
+  else if (code === 'setup') body = html`<${ConnectSetup} cfg=${cfg} message=${message} />`;
+  else body = html`<${ConnectError} cfg=${cfg} message=${message} code=${code} />`;
+  return html`<div class="connect">
+    <div class="connect-card">
+      <span class="logo-mark connect-logo" role="img" aria-label="EON Life"></span>
+      ${step > 0 && html`<ol class="connect-steps" aria-label="Passos">
+        ${steps.map((s, i) => html`<li class=${U.cls(i + 1 < step && 'done', i + 1 === step && 'on')} aria-current=${i + 1 === step ? 'step' : undefined}>
+          <span class="connect-num">${i + 1 < step ? html`<${Icon} name="check" size=${13} />` : i + 1}</span>${s}</li>`)}
+      </ol>`}
+      ${body}
+    </div>
+    ${user && code !== 'login' && code !== 'config' && html`<p class="connect-foot muted">Has entrat com a <strong>${user.email || user.name}</strong>${' · '}<button type="button" class="link" onClick=${() => MsAuth.logout(cfg)}>Canvia de compte</button></p>`}
+    <${ModalHost} />
+  </div>`;
+}
+
+function ConnectNote({ tone = 'bad', children }) {
+  return html`<p class=${U.cls('connect-note', `connect-note-${tone}`)} role=${tone === 'bad' ? 'alert' : undefined}>
+    <${Icon} name=${tone === 'bad' ? 'alert' : 'info'} size=${16} /><span>${children}</span></p>`;
+}
+
+function useBusy() {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const run = async (fn) => {
+    setBusy(true);
+    setErr('');
+    try { await fn(); } catch (e) { setErr(e.message || String(e)); setBusy(false); }
+  };
+  return { busy, err, run, setErr };
+}
+
+// Pas 0: els dos codis de Microsoft Entra (només si la versió publicada no els porta ja).
+function ConnectConfig({ cfg }) {
+  const [clientId, setClientId] = useState(cfg.clientId);
+  const [tenantId, setTenantId] = useState(cfg.tenantId);
+  const { busy, err, run, setErr } = useBusy();
+  const save = () => {
+    const c = clientId.trim(), t = tenantId.trim();
+    if (!GUID_RE.test(c)) { setErr('L\'Id. de l\'aplicació ha de tenir el format 00000000-0000-0000-0000-000000000000.'); return; }
+    if (!GUID_RE.test(t) && !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(t)) { setErr('L\'Id. del directori ha de ser un codi com el de l\'aplicació (o el domini, p. ex. eonlife.onmicrosoft.com).'); return; }
+    run(async () => { M365.save({ enabled: true, clientId: c, tenantId: t }); await reconnect(); });
+  };
+  return html`<h1 class="h2">Connecta l'app amb Microsoft 365</h1>
+    <p>Aquests dos codis te'ls dona l'administrador de Microsoft 365 del centre. Són a <em>Microsoft Entra › Registres d'aplicacions › EON Life › Informació general</em>.</p>
+    <form class="connect-form" onSubmit=${(e) => { e.preventDefault(); save(); }}>
+      <${Field} label="Id. de l'aplicació (client)" id="cx-client">
+        <${TextInput} id="cx-client" value=${clientId} onValue=${setClientId} placeholder="00000000-0000-0000-0000-000000000000" autoFocus=${true} disabled=${cfg.baked.clientId} />
+      </${Field}>
+      <${Field} label="Id. del directori (inquilí)" id="cx-tenant">
+        <${TextInput} id="cx-tenant" value=${tenantId} onValue=${setTenantId} placeholder="00000000-0000-0000-0000-000000000000" disabled=${cfg.baked.tenantId} />
+      </${Field}>
+      ${err && html`<${ConnectNote}>${err}</${ConnectNote}>`}
+      <${Btn} type="submit" variant="primary" iconRight="right" disabled=${busy}>${busy ? 'Connectant…' : 'Desa i continua'}</${Btn}>
+    </form>
+    <${RedirectInfo} />`;
+}
+
+// L'adreça que cal registrar a Entra com a URI de redirecció (SPA).
+function RedirectInfo() {
+  const uri = MsAuth.redirectUri();
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(uri); UI.toast('Adreça copiada.'); } catch (e) { UI.toast('No s\'ha pogut copiar: selecciona-la i copia-la a mà.', 'bad'); }
+  };
+  return html`<div class="connect-uri">
+    <span class="muted small">Adreça d'aquesta app (URI de redirecció de tipus SPA):</span>
+    <span class="connect-uri-row"><code>${uri}</code><${Btn} variant="ghost" size="sm" icon="copy" title="Copia l'adreça" onClick=${copy} /></span>
+  </div>`;
+}
+
+// Pas 1: inici de sessió.
+function ConnectLogin({ cfg, message }) {
+  const { busy, err, run } = useBusy();
+  const problem = err || (message && !/^Cal iniciar la sessió/.test(message) ? message : '');
+  return html`<h1 class="h2">Inicia la sessió</h1>
+    <p>Entra amb el <strong>compte de Microsoft del centre</strong> (el mateix del correu de l'empresa). A cada tauleta només cal fer-ho un cop.</p>
+    ${problem && html`<${ConnectNote}>${problem}</${ConnectNote}>`}
+    <div class="connect-actions">
+      <${Btn} variant="primary" icon="link" disabled=${busy} onClick=${() => run(() => MsAuth.begin(cfg))}>${busy ? 'Obrint Microsoft…' : 'Inicia la sessió amb Microsoft'}</${Btn}>
+      ${!cfg.baked.clientId && html`<${Btn} variant="ghost" onClick=${() => { M365.save({ clientId: '', tenantId: '' }); reconnect(); }}>Canvia els codis de l'app</${Btn}>`}
+    </div>
+    ${problem && html`<${RedirectInfo} />`}`;
+}
+
+// Pas 2: carpeta compartida (enllaç de «Copia l'enllaç»).
+function ConnectFolder({ cfg }) {
+  const [url, setUrl] = useState(cfg.folderUrl || '');
+  const { busy, err, run, setErr } = useBusy();
+  const connect = () => {
+    if (!/^https:\/\/\S+$/i.test(url.trim())) { setErr('Enganxa l\'enllaç complet de la carpeta (comença per https://).'); return; }
+    run(async () => { await M365Backend.connectFolder(url); await reconnect(); });
+  };
+  return html`<h1 class="h2">Tria la carpeta compartida</h1>
+    <p>És la carpeta de OneDrive o SharePoint on es desaran totes les dades i els vídeos. Obre-la al navegador, prem <strong>Copia l'enllaç</strong> (o copia l'adreça de la barra) i enganxa-la aquí.</p>
+    <form class="connect-form" onSubmit=${(e) => { e.preventDefault(); connect(); }}>
+      <${Field} label="Enllaç de la carpeta" id="cx-folder">
+        <${TextInput} id="cx-folder" value=${url} onValue=${setUrl} placeholder="https://…sharepoint.com/…" autoFocus=${true} />
+      </${Field}>
+      ${err && html`<${ConnectNote}>${err}</${ConnectNote}>`}
+      <${Btn} type="submit" variant="primary" icon="folder" disabled=${busy}>${busy ? 'Comprovant la carpeta…' : 'Connecta la carpeta'}</${Btn}>
+    </form>
+    <p class="muted small">Cal tenir permís d'<strong>edició</strong> a la carpeta.</p>`;
+}
+
+// Pas 3: primera vegada a la carpeta → es creen l'Excel i la carpeta de clients.
+function ConnectSetup({ cfg }) {
+  const { busy, err, run } = useBusy();
+  const other = async () => { M365.forgetFolder(); await reconnect(); };
+  return html`<h1 class="h2">Prepara la carpeta${cfg.folderName ? html` «${cfg.folderName}»` : ''}</h1>
+    <p>És el primer cop que s'hi connecta l'app. Només cal fer-ho una vegada per a tot el centre. S'hi crearan:</p>
+    <ul class="connect-list">
+      <li><${Icon} name="table" size=${18} /><span><strong>EON Life · Base de dades</strong> (Excel): una pestanya per a clients, valoracions, sessions i registre d'exercicis. Cada test és una columna i cada valoració o sessió, una fila.</span></li>
+      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per client amb <em>01 · Valoracions</em>, <em>02 · Vídeos</em> i <em>03 · Informes</em>.</span></li>
+    </ul>
+    ${err && html`<${ConnectNote}>${err}</${ConnectNote}>`}
+    <div class="connect-actions">
+      <${Btn} variant="primary" icon="check" disabled=${busy} onClick=${() => run(async () => { await M365Backend.setup(); await reconnect(); })}>${busy ? 'Preparant…' : 'Prepara la carpeta'}</${Btn}>
+      ${!cfg.baked.folderUrl && html`<${Btn} variant="ghost" disabled=${busy} onClick=${other}>Tria una altra carpeta</${Btn}>`}
+    </div>`;
+}
+
+// Qualsevol altre problema (connexió, permisos…).
+function ConnectError({ cfg, message, code }) {
+  const { busy, run } = useBusy();
+  return html`<h1 class="h2">No s'han pogut carregar les dades</h1>
+    <${ConnectNote}>${message || 'Error desconegut.'}</${ConnectNote}>
+    <p class="muted">${code === 'network' ? 'Comprova la connexió a internet de la tauleta.' : 'Si el problema continua, comprova que tens permís d\'edició a la carpeta compartida.'}</p>
+    <div class="connect-actions">
+      <${Btn} variant="primary" icon="refresh" disabled=${busy} onClick=${() => run(reconnect)}>Torna-ho a provar</${Btn}>
+      ${!cfg.baked.folderUrl && html`<${Btn} variant="ghost" onClick=${() => { M365.forgetFolder(); reconnect(); }}>Tria una altra carpeta</${Btn}>`}
+    </div>`;
+}
+
+
 /* ── 99-app.js ── */
 /* EON Life · estructura de l'app i arrencada. */
 
@@ -6366,9 +7697,9 @@ function Sidebar({ route, open, onClose }) {
       <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Afegeix mesures</button>
     </div>
     <div class="sidebar-foot">
-      <span class="sidebar-mode"><${Icon} name=${Store.meta.mode === 'google' ? 'cloud' : 'device'} size=${16} />${Store.meta.mode === 'google' ? 'Google Sheets' : 'Mode local'}</span>
+      <span class="sidebar-mode"><${Icon} name=${Store.cloud() ? 'cloud' : 'device'} size=${16} />${{ google: 'Google Sheets', m365: 'Microsoft 365 · Excel' }[Store.meta.mode] || 'Mode local'}</span>
       ${Store.meta.user && html`<span class="sidebar-user">${Store.meta.user}</span>`}
-      ${Store.meta.mode === 'google' && html`<button type="button" class="sidebar-refresh" onClick=${reloadData} title="Torna a carregar les dades del full (canvis d'altres professionals)"><${Icon} name="refresh" size=${14} />Actualitza les dades</button>`}
+      ${Store.cloud() && html`<button type="button" class="sidebar-refresh" onClick=${reloadData} title="Torna a carregar les dades del full (canvis d'altres professionals)"><${Icon} name="refresh" size=${14} />Actualitza les dades</button>`}
     </div>
   </aside>`;
 }
@@ -6416,11 +7747,13 @@ function App() {
     return off;
   }, []);
   useEffect(() => {
-    const warn = (e) => { if (Store.pending()) { e.preventDefault(); e.returnValue = ''; } };
+    // Amb Microsoft 365 els canvis pendents ja queden guardats a la tauleta: no cal avisar en sortir.
+    const warn = (e) => { if (Store.pending() && !(Store.backend && Store.backend.outbox)) { e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, []);
 
+  if (Store.error && Store.backend && Store.backend.mode === 'm365') return html`<${ConnectScreen} code=${Store.errorCode} message=${Store.error} />`;
   if (Store.error) {
     return html`<div class="boot boot-error">
       <span class="logo-mark boot-logo" aria-hidden="true"></span>

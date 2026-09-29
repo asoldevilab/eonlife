@@ -38,7 +38,11 @@ const Router = {
 
 function useRoute() {
   const [r, setR] = useState(Router.current);
-  useEffect(() => Router.subscribe((x) => setR({ ...x })), []);
+  useEffect(() => {
+    const off = Router.subscribe((x) => setR({ ...x }));
+    setR({ ...Router.current }); // per si la ruta ha canviat abans de subscriure's (tornada de l'inici de sessió)
+    return off;
+  }, []);
   return r;
 }
 
