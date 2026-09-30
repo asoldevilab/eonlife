@@ -115,6 +115,9 @@ async function device(name, { user = 'tok-laura', viewport = { width: 1180, heig
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   await page.route(/login\.microsoftonline\.com/, handleLogin);
   await page.route(/graph\.microsoft\.com|upload\.mock\.test/, handleGraph);
+  // Miniatures i vídeos de OneDrive (adreces temporals pre-autenticades).
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+  await page.route(/download\.mock\.test/, (r) => r.fulfill({ status: 200, headers: cors, contentType: r.request().url().includes('/thumb/') ? 'image/png' : 'video/mp4', body: png }));
   loginAs.current = user;
   return { ctx, page };
 }
@@ -202,14 +205,15 @@ let pid = null;
   });
   await step('vídeo gravat a la tauleta → «02 · Vídeos» del client', async () => {
     await page.locator('button.mini[title^="Leg extension"]').first().click();
-    await page.waitForSelector('text=Grava o puja un vídeo');
+    await page.waitForSelector('text=Grava ara');
     await shot(page, 'm365-05-video');
-    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Grava o puja un vídeo')]);
+    const capture = await page.getAttribute('input[data-kind="record"]', 'capture');
+    if (capture !== 'environment') throw new Error(`capture=${capture}`);
+    // «Grava ara» obre la càmera; en acabar, el vídeo es puja i queda enllaçat sense prémer res més.
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Grava ara')]);
     await chooser.setFiles({ name: 'IMG_0042.MOV', mimeType: 'video/quicktime', buffer: Buffer.alloc(327680 * 16 + 5000, 1) });
-    await page.waitForSelector('.filepick-item', { timeout: 15000 });
-    const val = await page.inputValue('#video-url');
-    if (!val.includes('sharepoint.com')) throw new Error(`enllaç: ${val}`);
-    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.dialog', { state: 'detached', timeout: 15000 });
+    await page.waitForSelector('button.mini.on[title^="Leg extension"]');
     const clients = mock.child(shared.folder.id, 'EON Life · Clients');
     const folder = mock.childrenOf(clients.id)[0];
     const vids = mock.childrenOf(mock.child(folder.id, '02 · Vídeos').id);
@@ -233,6 +237,24 @@ let pid = null;
     if (!String(r[0]['Informes adjunts']).includes('Informe Kinvent')) throw new Error(`columna: ${r[0]['Informes adjunts']}`);
     // Botó directe a la targeta de la dinamometria (Kinvent K-Push).
     await page.waitForSelector('#grp-dyn >> text=Adjunta el PDF');
+  });
+  await step('informe amb vídeos (miniatura, reproducció i QR) i informe només de força', async () => {
+    await page.click('.editbar >> text=Informe');
+    await page.waitForSelector('.rvideos .rvid-thumb img', { timeout: 15000 });
+    if (!(await page.locator('.rvideos svg.qr path').count())) throw new Error('sense codi QR');
+    await shot(page, 'm365-07-informe-videos');
+    await page.click('.rvid-thumb');
+    const src = await page.getAttribute('.rvideos video', 'src');
+    if (!/download\.mock\.test/.test(src || '')) throw new Error(`vídeo: ${src}`);
+    await page.selectOption('.presentbar select', 'forca');
+    await page.waitForSelector('.report-cover >> text=Informe · Força');
+    if (!/#\/informe\/[^/]+\/forca$/.test(page.url())) throw new Error(`adreça: ${page.url()}`);
+    if (!(await page.locator('.rvideos').count())) throw new Error('el vídeo de força no surt a l\'informe de força');
+    await page.selectOption('.presentbar select', 'mobilitat');
+    await page.waitForSelector('.report-cover >> text=Informe · Mobilitat');
+    if (await page.locator('.rvideos').count()) throw new Error('a mobilitat no hi ha vídeos');
+    await page.click('.presentbar >> text=Torna');
+    await page.waitForSelector('#sec-forca >> text=Informe de força');
   });
   await step('sessió des de plantilla → Sessions i Registre_exercicis', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);

@@ -702,6 +702,8 @@ input[type="search"].input { -webkit-appearance: none; }
 /* Valoració */
 .asec { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 150px; }
 #sec-dades, #sec-conclusions { scroll-margin-top: 150px; }
+.asec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-top: 22px; }
+.asec-head .asec-title { margin: 0; }
 .asec-title { margin: 22px 0 0; font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.1; }
 .group-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 .group-title { margin: 0; font-size: 17px; font-weight: 700; }
@@ -1095,4 +1097,24 @@ tfoot .rpc { font-size: 14px; }
   .rsec-title, .h3 { break-after: avoid; }
   .table-wrap { overflow: visible; }
   .sheet-foot { margin-top: 12pt; }
+}
+
+/* Vídeos a l'informe */
+.rvid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.rvid { margin: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); display: flex; flex-direction: column; break-inside: avoid; }
+.rvid-media { position: relative; aspect-ratio: 16 / 10; background: var(--surface-3); }
+.rvid-media video { display: block; width: 100%; height: 100%; background: #000; }
+.rvid-thumb { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: var(--surface-3); cursor: pointer; display: grid; place-items: center; }
+.rvid-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rvid-ph { color: var(--ink-3); }
+.rvid-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: rgba(20, 8, 10, 0.62); color: #FFFFFF; }
+.rvid figcaption { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.rvid-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.qr { flex: none; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+.no-screen { display: none; }
+@media print {
+  .no-screen { display: block; }
+  .rvid-play { display: none; }
+  .rvid-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .rvid-media { aspect-ratio: 16 / 9; }
 }

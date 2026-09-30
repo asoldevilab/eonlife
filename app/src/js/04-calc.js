@@ -234,6 +234,34 @@ const Calc = {
     return rows;
   },
 
+  // Apartat del protocol al qual pertany una mètrica (per als informes d'un sol apartat).
+  area(metricId) {
+    if (metricId === 'cmj' || metricId === 'cmjPow') return 'rendiment';
+    if (metricId === 'ybt') return 'forca';
+    if (metricId === 'patterns') return 'patrons';
+    if (metricId === 'weight') return 'tot';
+    const t = TEST_INDEX[String(metricId).replace(/_kg$/, '')];
+    return (t && t.section) || 'altres';
+  },
+
+  // Vídeos enllaçats a una valoració, amb l'apartat on s'han gravat.
+  videos(a) {
+    const out = [];
+    const v = a.values || {};
+    const add = (area, label, url) => { if (U.isUrl(url)) out.push({ area, label, url: String(url).trim() }); };
+    add('tot', 'Vídeo general', (a.general || {}).video);
+    for (const sec of PROTOCOL) {
+      for (const g of sec.groups) {
+        for (const t of g.tests || []) add(sec.id, TEST_INDEX[t.id].name, (v[t.id] || {}).video);
+        if (g.kind === 'ybt') add(sec.id, 'Y-Balance Test', (a.ybt || {}).video);
+        if (g.kind === 'jumps') add(sec.id, 'Salts · CMJ', (a.jumps || {}).video);
+        if (g.kind === 'patterns') for (const pt of PATTERNS) add(sec.id, pt.name, ((a.patterns || {})[pt.id] || {}).video);
+        if (g.kind === 'profile') for (const t of PROFILE_TESTS) add(sec.id, t.name, (v[t.id] || {}).video);
+      }
+    }
+    return out;
+  },
+
   // ── Sessions ──
   presc(it) {
     if (!it) return '';
