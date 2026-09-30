@@ -14,6 +14,7 @@ const ICONS = {
   down: html`<path d="m5 9 7 7 7-7"/>`,
   up: html`<path d="m5 15 7-7 7 7"/>`,
   back: html`<path d="M19 12H5"/><path d="m11 18-6-6 6-6"/>`,
+  playfill: html`<path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/>`,
   play: html`<rect x="3" y="4" width="18" height="13" rx="2"/><path d="m10 8.5 4.5 2.5-4.5 2.5z"/><path d="M8 21h8"/>`,
   print: html`<path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>`,
   copy: html`<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>`,
@@ -379,6 +380,7 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
   const [loading, setLoading] = useState(false);
   const [folderId, setFolderId] = useState((patient && patient.folderId) || '');
   const [up, setUp] = useState(null);
+  const recRef = useRef(null);
   const fileRef = useRef(null);
   const cloud = Store.cloud();
   const canUpload = canUploadFiles() && !!patient;
@@ -389,18 +391,19 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
     setLoading(false);
   };
   useEffect(() => { if (cloud && folderId) loadFiles(); }, []);
-  // Grava o tria un vídeo a la tauleta i el puja a «02 · Vídeos» de la carpeta del client.
+  // Grava (càmera) o tria un vídeo de la tauleta: es puja a «02 · Vídeos» de la carpeta del client
+  // i queda enllaçat al test sense haver de fer res més.
   const upload = async (file) => {
-    if (fileRef.current) fileRef.current.value = '';
+    for (const r of [recRef, fileRef]) if (r.current) r.current.value = '';
     if (!file) return;
     setUp({ pct: 0 });
     try {
       const res = await uploadToClient({ ...patient, folderId }, file, { label: title, onProgress: (pct) => setUp({ pct }) });
       setUp(null);
       setFolderId(res.folderId);
-      if (res.url) setV(res.url);
-      UI.toast('Vídeo desat a la carpeta del client.');
-      loadFiles(res.folderId);
+      UI.toast(`Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
+      if (res.url) onSave(res.url);
+      else loadFiles(res.folderId);
     } catch (e) {
       setUp(null);
       UI.toast(e.message, 'bad');
@@ -413,11 +416,14 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" onClick=${() => onSave(v.trim())}>Desa</${Btn}>`}>
     ${canUpload && html`<div class="upload-box">
-      <input type="file" accept="video/*,image/*" hidden ref=${fileRef} onChange=${(e) => upload(e.currentTarget.files[0])} />
+      <input type="file" accept="video/*" capture="environment" hidden ref=${recRef} data-kind="record" onChange=${(e) => upload(e.currentTarget.files[0])} />
+      <input type="file" accept="video/*,image/*" hidden ref=${fileRef} data-kind="gallery" onChange=${(e) => upload(e.currentTarget.files[0])} />
       ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
-          <span class="muted">Pujant el vídeo… ${Math.round(up.pct * 100)} %</span><span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
-        : html`<${Btn} variant="primary" icon="video" onClick=${() => fileRef.current && fileRef.current.click()}>Grava o puja un vídeo</${Btn}>
-          <span class="muted small">Es desa a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.</span>`}
+          <span class="muted">Pujant el vídeo a la carpeta de ${patient.firstName || 'el client'}… ${Math.round(up.pct * 100)} % · no tanquis aquesta finestra</span>
+          <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
+        : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
+          <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
+          <span class="muted small">Es desa sol a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.</span>`}
     </div>`}
     <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
       <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />

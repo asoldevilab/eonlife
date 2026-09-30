@@ -6,7 +6,7 @@
 //   apps-script/Index.html   → mateix fitxer, per enganxar a Google Apps Script
 //   dist/m365/index.html     → versió per publicar al web amb Microsoft 365 (codis de app/m365.config.json)
 //   dist/m365/demo/index.html → demostració amb clients ficticis, sense compte (es publica a …/eonlife/demo/)
-import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +17,7 @@ const read = (p) => readFileSync(join(src, p), 'utf8');
 
 const jsFiles = readdirSync(join(src, 'js')).filter((f) => f.endsWith('.js')).sort();
 const appJs = jsFiles.map((f) => `/* ── ${f} ── */\n${read('js/' + f)}`).join('\n\n');
-const vendorJs = read('vendor/preact-htm.umd.js');
+const vendorJs = ['vendor/preact-htm.umd.js', 'vendor/qrcode.js'].map(read).join('\n;\n');
 const logo = 'data:image/png;base64,' + read('assets/logo-mask.b64').trim();
 const css = read('styles.css').replaceAll('__LOGO_MASK__', logo);
 
@@ -44,11 +44,40 @@ const m365 = {
   tenantId: String(cfg.tenantId || '').trim(),
   folderUrl: String(cfg.folderUrl || '').trim(),
 };
+// Instal·lable a la tauleta («Afegeix a la pantalla d'inici»): manifest i icones al costat de l'app.
+const installable = [
+  '<meta name="robots" content="noindex">',
+  '<link rel="manifest" href="manifest.webmanifest">',
+  '<link rel="icon" type="image/png" href="icon-192.png">',
+  '<link rel="apple-touch-icon" href="apple-touch-icon.png">',
+  '<meta name="apple-mobile-web-app-capable" content="yes">',
+  '<meta name="mobile-web-app-capable" content="yes">',
+  '<meta name="apple-mobile-web-app-title" content="EON Life">',
+].join('\n');
 const m365Html = html
-  .replace('<meta charset="utf-8">', () => '<meta charset="utf-8">\n<meta name="robots" content="noindex">')
+  .replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${installable}`)
   .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_BUILD =`);
-mkdirSync(join(repo, 'dist', 'm365'), { recursive: true });
-writeFileSync(join(repo, 'dist', 'm365', 'index.html'), m365Html);
+const m365Dir = join(repo, 'dist', 'm365');
+mkdirSync(m365Dir, { recursive: true });
+writeFileSync(join(m365Dir, 'index.html'), m365Html);
+for (const f of readdirSync(join(src, 'assets', 'icons'))) copyFileSync(join(src, 'assets', 'icons', f), join(m365Dir, f));
+writeFileSync(join(m365Dir, 'manifest.webmanifest'), JSON.stringify({
+  name: 'EON Life · Human Performance',
+  short_name: 'EON Life',
+  description: 'Valoracions, sessions de 6 blocs i seguiment dels clients.',
+  lang: 'ca',
+  start_url: './',
+  scope: './',
+  display: 'standalone',
+  orientation: 'any',
+  background_color: '#F3F0EC',
+  theme_color: '#421215',
+  icons: [
+    { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+    { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+    { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+}, null, 2));
 console.log(`Microsoft 365: dist/m365/index.html${m365.clientId ? '' : ' (sense codis: es demanaran a la primera connexió)'}`);
 
 // Demostració publicada al costat de l'app: mode local amb clients ficticis, sense iniciar sessió.

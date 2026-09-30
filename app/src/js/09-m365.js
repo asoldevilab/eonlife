@@ -41,7 +41,6 @@ const store_ = (area) => ({
   del(k) { try { window[area].removeItem(k); } catch (e) { /* res */ } },
 });
 const M365Local = store_('localStorage');
-const M365Session = store_('sessionStorage');
 
 // ── Configuració ──
 const M365 = {
@@ -84,7 +83,8 @@ const MsAuth = {
     const verifier = randomB64(48);
     const state = randomB64(16);
     const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
-    M365Session.set(M365_KEYS.pkce, { state, verifier, hash: window.location.hash || '', at: Date.now() });
+    // A localStorage (i no a sessionStorage): l'app instal·lada a la tauleta pot tornar de Microsoft en una altra finestra.
+    M365Local.set(M365_KEYS.pkce, { state, verifier, hash: window.location.hash || '', at: Date.now() });
     const q = new URLSearchParams({
       client_id: cfg.clientId, response_type: 'code', redirect_uri: this.redirectUri(), response_mode: 'query',
       scope: this.scopes, state, code_challenge: b64url(digest), code_challenge_method: 'S256',
@@ -98,8 +98,9 @@ const MsAuth = {
   async complete(cfg) {
     const q = new URLSearchParams(window.location.search);
     if (!q.has('code') && !q.has('error')) return false;
-    const pending = M365Session.get(M365_KEYS.pkce);
-    M365Session.del(M365_KEYS.pkce);
+    const saved = M365Local.get(M365_KEYS.pkce);
+    M365Local.del(M365_KEYS.pkce);
+    const pending = saved && Date.now() - (saved.at || 0) < 15 * 60 * 1000 ? saved : null;
     window.history.replaceState(null, '', window.location.pathname + ((pending && pending.hash) || ''));
     // Torna a la pantalla on s'era abans d'anar a Microsoft (replaceState no avisa el navegador de l'app).
     if (typeof Router !== 'undefined' && Router.current) {
@@ -751,6 +752,17 @@ class M365Api {
     return out.sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : 0));
   }
 
+  // Miniatura i adreça temporal de reproducció (una hora) de fitxers de la carpeta, per veure els vídeos a l'informe.
+  async media(ids) {
+    const res = await this.g.batch(ids.map((id) => ({ url: `${this.drive}/items/${id}?$expand=thumbnails` })));
+    return res.map((r, i) => {
+      if (!r || r.error) return { id: ids[i] };
+      const b = r.body || {};
+      const t = (b.thumbnails || [])[0] || {};
+      return { id: ids[i], play: b['@microsoft.graph.downloadUrl'] || '', thumb: (t.large || t.medium || t.small || {}).url || '' };
+    });
+  }
+
   // Puja un fitxer de la tauleta a una subcarpeta del client (per defecte «02 · Vídeos»), per trossos i amb progrés.
   async uploadFile(folderId, file, { name, onProgress, subfolder = M365_NAMES.videos } = {}) {
     if (!file || !file.size) throw new M365Error('El fitxer és buit.', 'upload');
@@ -857,4 +869,13 @@ const M365Backend = {
   ensureFolder(p) { return this.api.ensureFolder(p); },
   listFiles(folderId) { return this.api.listFiles(folderId); },
   uploadFile(folderId, file, opts) { return this.api.uploadFile(folderId, file, opts); },
+  // { enllaç del vídeo → { thumb, play } } per als vídeos que són a la carpeta del client.
+  async mediaInfo(folderId, urls) {
+    const files = await this.api.listFiles(folderId);
+    const byUrl = new Map(files.map((f) => [f.url, f.id]));
+    const wanted = [...new Set(urls)].filter((u) => byUrl.has(u));
+    if (!wanted.length) return {};
+    const info = await this.api.media(wanted.map((u) => byUrl.get(u)));
+    return Object.fromEntries(wanted.map((u, i) => [u, info[i]]));
+  },
 };

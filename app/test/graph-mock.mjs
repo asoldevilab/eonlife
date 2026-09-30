@@ -339,7 +339,12 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
         if (/["*:<>?/\\|]/.test(body.name)) throw httpError(400, 'invalidRequest', 'Invalid name');
         return { status: 201, body: view(addItem(driveId, itemId, body.name, { folder: {} })) };
       }
-      if (rest === '' && method === 'GET') return { body: view(it) };
+      if (rest === '' && method === 'GET') {
+        const body = view(it);
+        if (it.file) body['@microsoft.graph.downloadUrl'] = `https://download.mock.test/${it.id}`;
+        if (it.file && url.searchParams.get('$expand') === 'thumbnails') body.thumbnails = [{ id: '0', large: { url: `https://download.mock.test/thumb/${it.id}.png`, width: 800, height: 450 } }];
+        return { body };
+      }
     }
     throw httpError(400, 'BadRequest', `Petició no simulada: ${method} ${path}`);
   }

@@ -72,6 +72,12 @@ Consells:
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
   les prioritats, les decisions i la data del re-test (per defecte, 3 mesos després).
+- **Informe per apartat**: al costat del títol de cada apartat (Mobilitat, Força, Rendiment, Patrons, Perfil) hi ha
+  *Informe de …*: només aquell apartat, els seus vídeos i la comparació amb l'última vegada que es va mesurar.
+  Quan es repeteix un apartat (per exemple, els patrons al cap d'un mes), es fa amb **Afegeix mesures** i el seu
+  informe ja surt comparat amb l'anterior. A la barra de l'informe es pot canviar entre *Informe complet* i cada apartat.
+- **Vídeos a l'informe**: tots els vídeos enllaçats surten a l'informe, amb la miniatura (amb Microsoft 365 es
+  reprodueixen allà mateix) i un codi QR per obrir-los des del PDF o el paper.
 - **Informe**: presentació per ensenyar al client en pantalla. Amb el botó
   *Sense notes / Amb notes* es mostren o s'amaguen les observacions internes de cada test.
   Si hi ha una valoració anterior, surt la comparació de les mètriques clau.

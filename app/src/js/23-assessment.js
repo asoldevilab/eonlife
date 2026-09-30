@@ -69,7 +69,11 @@ function AssessmentEditor({ id, focus }) {
     <${AssessmentFiles} a=${a} p=${p} upd=${upd} />
 
     ${PROTOCOL.map((sec) => html`<section class="asec" id=${`sec-${sec.id}`}>
-      <h2 class="asec-title">${sec.title}</h2>
+      <div class="asec-head">
+        <h2 class="asec-title">${sec.title}</h2>
+        ${areaHasData(a, sec.id) && html`<${Btn} variant="ghost" size="sm" icon="play" onClick=${() => go('informe', a.id, sec.id)}
+          title=${`Informe només de ${sec.short.toLowerCase()}, comparat amb l'última vegada`}>Informe de ${sec.short.toLowerCase()}</${Btn}>`}
+      </div>
       ${sec.groups.map((grp) => html`<${GroupCard} key=${grp.id} g=${grp} a=${a} p=${p} upd=${upd} setVal=${setVal} />`)}
     </section>`)}
 

@@ -1,13 +1,29 @@
-/* EON Life · informe de la valoració per ensenyar al client (pantalla) i desar en PDF. */
+/* EON Life · informe de la valoració per ensenyar al client (pantalla) i desar en PDF.
+   Pot ser complet o d'un sol apartat (Mobilitat, Força, Rendiment, Patrons, Perfil): en aquest cas es compara
+   amb l'última valoració que tenia dades d'aquell apartat, per veure l'evolució quan es repeteix. */
 
-function AssessmentReport({ id }) {
+// Té dades aquest apartat del protocol?
+function areaHasData(a, area) {
+  if (area === 'tot') return true;
+  const sec = PROTOCOL.find((s) => s.id === area);
+  if (!sec) return false;
+  if (area === 'altres') return (a.free || []).some((r) => r.name);
+  return sectionProgress(a, sec, {}).done > 0;
+}
+
+function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const a = Store.get('assessments', id);
   const [notes, setNotes] = useState(false);
   if (!a) return html`<div class="page"><${Empty} icon="clipboard" title="No trobo aquesta valoració" /></div>`;
   const p = Store.get('patients', a.patientId) || {};
   const all = Store.assessmentsOf(a.patientId);
   const idx = all.findIndex((x) => x.id === a.id);
-  const prev = idx > 0 ? all[idx - 1] : null;
+  const areas = PROTOCOL.filter((s) => areaHasData(a, s.id));
+  const scope = scopeParam !== 'tot' && PROTOCOL.some((s) => s.id === scopeParam) ? scopeParam : 'tot';
+  const scopeSec = PROTOCOL.find((s) => s.id === scope);
+  const show = (area) => scope === 'tot' || scope === area;
+  // Valoració anterior: la immediatament anterior (informe complet) o l'última amb dades d'aquest apartat.
+  const prev = idx > 0 ? (scope === 'tot' ? all[idx - 1] : all.slice(0, idx).reverse().find((x) => areaHasData(x, scope)) || null) : null;
   const v = a.values || {};
   const g = a.general || {}, c = a.conclusions || {};
   const w = Calc.weight(a);
@@ -43,20 +59,28 @@ function AssessmentReport({ id }) {
     return x.d || x.e || x.v || x.sd || x.se;
   });
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
-  const cmp = prev ? Calc.compare(a, prev, true) : [];
+  const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
   const hasPatterns = pc.scored > 0 || pc.counts.P > 0;
+  const videos = Calc.videos(a).filter((x) => scope === 'tot' || x.area === scope);
+  const patternsCmp = prev && show('patrons') ? PATTERNS.map((pt) => {
+    const x = (a.patterns || {})[pt.id] || {}, y = (prev.patterns || {})[pt.id] || {};
+    return { pt, cur: Calc.patternScore(x, pt.uni), curP: !!x.pain, old: Calc.patternScore(y, pt.uni), oldP: !!y.pain };
+  }).filter((r) => (r.cur || r.curP) && (r.old || r.oldP)) : [];
+  const setScope = (v) => go('informe', a.id, v === 'tot' ? '' : v);
 
   const ScoreCell = ({ s, pain }) => html`<span class="rscore"><${ScoreDot} v=${s} pain=${pain} size="sm" />${s ? Calc.scoreInfo(s).label : ''}</span>`;
 
   return html`<div class="present">
     <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)}>
+      ${areas.length > 1 && html`<${Select} value=${scope} onValue=${setScope} class="select-sm" ariaLabel="Apartat de l'informe"
+        options=${[{ v: 'tot', label: 'Informe complet' }, ...areas.map((s) => ({ v: s.id, label: `Només ${s.short.toLowerCase()}` }))]} />`}
       <${Btn} variant="ghost" icon=${notes ? 'eye' : 'eyeoff'} onClick=${() => setNotes(!notes)} title="Mostra o amaga les observacions de cada test">${notes ? 'Amb notes' : 'Sense notes'}</${Btn}>
     </${PresentBar}>
     <article class="report">
       <header class="report-cover">
         <${BrandMark} />
         <div class="report-id">
-          <p class="eyebrow">Valoració funcional · Human Performance</p>
+          <p class="eyebrow">${scopeSec ? `Informe · ${scopeSec.title}` : 'Valoració funcional · Human Performance'}</p>
           <h1 class="report-title">${U.fullName(p)}</h1>
           <p class="report-sub">${typeLabel} · ${U.fmtDateLong(a.date, false)}${a.professional ? ` · ${a.professional}` : ''}</p>
         </div>
@@ -68,7 +92,7 @@ function AssessmentReport({ id }) {
         </dl>
       </header>
 
-      <section class="rsec">
+      ${scope === 'tot' && html`<section class="rsec">
         <h2 class="rsec-title">Resum</h2>
         <div class="rtiles">
           ${cmj && cmj.best != null && html`<${Stat} label="CMJ · millor salt" value=${U.fmt(cmj.best, 1)} unit="cm" sub=${cmj.relPower != null ? `${U.fmt(cmj.relPower, 1)} W/kg de potència` : `${U.plural(cmj.n, 'intent', 'intents')}`} />`}
@@ -89,9 +113,11 @@ function AssessmentReport({ id }) {
             ${c.priorities && html`<h3 class="h3">Prioritats</h3><p class="prose">${c.priorities}</p>`}
           </div>
         </div>
-      </section>
+      </section>`}
 
-      ${(rom.length > 0 || wblt.length > 0 || clin.length > 0) && html`<section class="rsec">
+      ${scope !== 'tot' && !areaHasData(a, scope) && html`<section class="rsec"><p class="muted">Aquesta valoració no té dades de ${scopeSec.short.toLowerCase()}.</p></section>`}
+
+      ${show('mobilitat') && (rom.length > 0 || wblt.length > 0 || clin.length > 0) && html`<section class="rsec">
         <h2 class="rsec-title">Mobilitat i anàlisi postural</h2>
         ${rom.length > 0 && html`<h3 class="h3">Goniometria digital <span class="muted">· Kinvent K-Move · graus</span></h3><${BiBars} rows=${rom} unit="°" />`}
         ${kneeExt && html`<p class="muted small">Extensió de genoll: dreta ${U.fmt(kneeExt.d, 0)}° · esquerra ${U.fmt(kneeExt.e, 0)}°.</p>`}
@@ -104,7 +130,7 @@ function AssessmentReport({ id }) {
             ${t.kind === 'select' ? html`<td colspan="2">${x.v || '—'}</td>` : html`<td>${x.d || '—'}</td><td>${x.e || '—'}</td>`}</tr>`)}</tbody></table></div>`}
       </section>`}
 
-      ${(dyn.length > 0 || squeeze != null || sls.sd || sls.se || ybt.d.comp != null || ybt.e.comp != null) && html`<section class="rsec">
+      ${show('forca') && (dyn.length > 0 || squeeze != null || sls.sd || sls.se || ybt.d.comp != null || ybt.e.comp != null) && html`<section class="rsec">
         <h2 class="rsec-title">Força i control</h2>
         ${dyn.length > 0 && html`<h3 class="h3">Dinamometria manual <span class="muted">· Kinvent K-Push · força isomètrica</span></h3>
           <${BiBars} rows=${dyn} unit="N" />
@@ -122,7 +148,7 @@ function AssessmentReport({ id }) {
           </tbody></table></div>`}
       </section>`}
 
-      ${(Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null) && html`<section class="rsec">
+      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null) && html`<section class="rsec">
         <h2 class="rsec-title">Rendiment</h2>
         ${Object.keys(jumps).length > 0 && html`<h3 class="h3">Salts <span class="muted">· My Jump Lab</span></h3>
           <div class="jump-sum">${Object.entries(jumps).map(([type, sm]) => html`<div class="jump-card">
@@ -142,7 +168,7 @@ function AssessmentReport({ id }) {
           </div>`}
       </section>`}
 
-      ${hasPatterns && html`<section class="rsec">
+      ${show('patrons') && hasPatterns && html`<section class="rsec">
         <h2 class="rsec-title">Sessió 1 · Patrons bàsics de moviment</h2>
         <div class="table-wrap"><table class="table rtable rpatterns">
           <thead><tr><th>Patró</th><th>Esq.</th><th>Dta.</th><th>Puntuació</th><th>Compensacions observades</th><th>Decisió</th></tr></thead>
@@ -165,7 +191,7 @@ function AssessmentReport({ id }) {
         <div class="rlegend">${SCORES.map((s) => html`<span><${ScoreDot} v=${s.v} size="xs" />${s.label}</span>`)}<span><${ScoreDot} pain=${true} size="xs" />Dolor o símptomes → fisio</span></div>
       </section>`}
 
-      ${profTests.length > 0 && html`<section class="rsec">
+      ${show('perfil') && profTests.length > 0 && html`<section class="rsec">
         <h2 class="rsec-title">Tests complementaris</h2>
         <div class="table-wrap"><table class="table rtable"><thead><tr><th>Test</th><th>Resultat</th></tr></thead>
         <tbody>${profTests.map((t) => {
@@ -178,28 +204,95 @@ function AssessmentReport({ id }) {
         })}</tbody></table></div>
       </section>`}
 
-      ${(a.free || []).some((r) => r.name) && html`<section class="rsec">
+      ${show('altres') && (a.free || []).some((r) => r.name) && html`<section class="rsec">
         <h2 class="rsec-title">Altres mesures</h2>
         <div class="table-wrap"><table class="table rtable"><thead><tr><th>Mesura</th><th>Resultat</th></tr></thead>
         <tbody>${a.free.filter((r) => r.name).map((r) => html`<tr><td>${r.name}</td><td>${[r.d !== '' && r.d != null && `D ${r.d}`, r.e !== '' && r.e != null && `E ${r.e}`, r.v !== '' && r.v != null && r.v].filter(Boolean).join(' · ')} ${r.unit || ''}</td></tr>`)}</tbody></table></div>
       </section>`}
 
-      ${cmp.length > 0 && html`<section class="rsec">
+      ${videos.length > 0 && html`<${ReportVideos} videos=${videos} patient=${p} grouped=${scope === 'tot'} />`}
+
+      ${(cmp.length > 0 || patternsCmp.length > 0) && html`<section class="rsec">
         <h2 class="rsec-title">Evolució des de la valoració anterior</h2>
         <p class="muted">${U.fmtDateLong(prev.date, false)} → ${U.fmtDateLong(a.date, false)}</p>
-        <${CompareTable} rows=${cmp} />
+        ${cmp.length > 0 && html`<${CompareTable} rows=${cmp} />`}
+        ${patternsCmp.length > 0 && html`<h3 class="h3">Patrons de moviment</h3>
+          <div class="table-wrap"><table class="table rtable rpat-cmp"><thead><tr><th>Patró</th><th>${U.fmtDate(prev.date)}</th><th>${U.fmtDate(a.date)}</th></tr></thead>
+          <tbody>${patternsCmp.map((r) => html`<tr><td>${r.pt.name}</td>
+            <td><span class="rscore"><${ScoreDot} v=${r.old} pain=${r.oldP} size="sm" />${r.oldP ? 'Dolor' : Calc.scoreInfo(r.old) ? Calc.scoreInfo(r.old).label : ''}</span></td>
+            <td><span class="rscore"><${ScoreDot} v=${r.cur} pain=${r.curP} size="sm" />${r.curP ? 'Dolor' : Calc.scoreInfo(r.cur) ? Calc.scoreInfo(r.cur).label : ''}</span></td></tr>`)}</tbody></table></div>`}
       </section>`}
 
-      ${(c.plan || a.nextRetest) && html`<section class="rsec rplan">
+      ${scope === 'tot' && (c.plan || a.nextRetest) && html`<section class="rsec rplan">
         <h2 class="rsec-title">Pla de treball</h2>
         ${c.plan && html`<p class="prose">${c.plan}</p>`}
         ${a.nextRetest && html`<p class="rnext"><${Icon} name="calendar" size=${17} />Propera valoració: <strong>${U.fmtDateLong(a.nextRetest, false)}</strong></p>`}
       </section>`}
 
       <footer class="sheet-foot">
-        <span>${Store.settings.centerName || 'EON Life'} · Valoració funcional · ${Store.settings.centerTagline || 'Human Performance'}</span>
+        <span>${Store.settings.centerName || 'EON Life'} · ${scopeSec ? `Informe de ${scopeSec.short.toLowerCase()}` : 'Valoració funcional'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
         <span>${U.fmtDate(a.date)}</span>
       </footer>
     </article>
   </div>`;
+}
+
+// ── Vídeos a l'informe ──
+// A la pantalla: miniatura i reproducció dins de l'informe (Microsoft 365). En paper o PDF: codi QR per obrir-lo.
+function ReportVideos({ videos, patient, grouped }) {
+  const [media, setMedia] = useState({});
+  const [playing, setPlaying] = useState('');
+  const key = videos.map((v) => v.url).join('|');
+  useEffect(() => {
+    let alive = true;
+    if (Store.backend && Store.backend.mediaInfo && patient.folderId) {
+      Store.backend.mediaInfo(patient.folderId, videos.map((v) => v.url)).then((m) => { if (alive) setMedia(m || {}); }).catch(() => {});
+    }
+    return () => { alive = false; };
+  }, [key]);
+  const areaName = (id) => (id === 'tot' ? 'General' : (PROTOCOL.find((s) => s.id === id) || {}).short || '');
+  return html`<section class="rsec rvideos">
+    <h2 class="rsec-title">Vídeos</h2>
+    <p class="muted small no-screen">Escaneja el codi amb la càmera del mòbil per veure cada vídeo.</p>
+    <div class="rvid-grid">${videos.map((vd) => {
+      const m = media[vd.url] || {};
+      const open = () => (m.play ? setPlaying(vd.url) : window.open(vd.url, '_blank', 'noopener'));
+      return html`<figure class="rvid" key=${vd.url}>
+        <div class="rvid-media">
+          ${playing === vd.url && m.play ? html`<video src=${m.play} controls autoplay playsinline preload="metadata"></video>`
+            : html`<button type="button" class="rvid-thumb" onClick=${open} aria-label=${`Mira el vídeo: ${vd.label}`}>
+                ${m.thumb && html`<img src=${m.thumb} alt="" loading="lazy" />`}
+                <span class="rvid-play"><${Icon} name="playfill" size=${22} /></span>
+              </button>`}
+        </div>
+        <figcaption>
+          <span class="rvid-text"><strong>${vd.label}</strong>${grouped && html`<span class="muted small">${areaName(vd.area)}</span>`}
+            <a class="link small no-print" href=${vd.url} target="_blank" rel="noopener">Obre a la carpeta</a></span>
+          <${QrCode} text=${vd.url} size=${76} />
+        </figcaption>
+      </figure>`;
+    })}</div>
+  </section>`;
+}
+
+// Codi QR en SVG (fons blanc sempre, perquè es llegeixi també en tema fosc i imprès).
+function QrCode({ text, size = 80 }) {
+  const d = useMemo(() => {
+    if (typeof qrcode === 'undefined' || !text) return null;
+    try {
+      if (qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+      const q = qrcode(0, 'L');
+      q.addData(String(text), 'Byte');
+      q.make();
+      const n = q.getModuleCount();
+      let path = '';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) path += `M${c + 4},${r + 4}h1v1h-1z`;
+      return { n: n + 8, path };
+    } catch (e) {
+      return null;
+    }
+  }, [text]);
+  if (!d) return null;
+  return html`<svg class="qr" width=${size} height=${size} viewBox=${`0 0 ${d.n} ${d.n}`} role="img" aria-label="Codi QR del vídeo" shape-rendering="crispEdges">
+    <rect width=${d.n} height=${d.n} fill="#ffffff" /><path d=${d.path} fill="#1a1011" /></svg>`;
 }

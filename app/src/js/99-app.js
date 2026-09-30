@@ -51,7 +51,7 @@ function renderRoute(r) {
     case 'client': return html`<${PatientView} id=${a} tab=${b || 'resum'} />`;
     case 'valoracio': return html`<${AssessmentEditor} id=${a} focus=${b} />`;
     case 'dades': return html`<${DatabaseView} table=${a || 'valoracions'} pid=${b || ''} />`;
-    case 'informe': return html`<${AssessmentReport} id=${a} />`;
+    case 'informe': return html`<${AssessmentReport} id=${a} scope=${b || 'tot'} />`;
     case 'sessio': return html`<${SessionEditor} id=${a} />`;
     case 'fitxa': return html`<${SessionSheet} id=${a} />`;
     case 'biblioteca': return html`<${LibraryView} tab=${a || 'exercicis'} />`;

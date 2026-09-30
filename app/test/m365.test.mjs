@@ -198,6 +198,10 @@ test('carpeta del client, llistat de fitxers i pujada de vídeo per trossos', as
   const list = await a.listFiles(f1.folderId);
   assert.equal(list.length, 1);
   assert.equal(list[0].folder, '02 · Vídeos');
+  // Miniatura i adreça de reproducció per a l'informe.
+  const [m] = await a.media([list[0].id]);
+  assert.match(m.play, /download\.mock\.test/);
+  assert.match(m.thumb, /thumb/);
 });
 
 test('sense permís d\'edició: missatge clar', async () => {

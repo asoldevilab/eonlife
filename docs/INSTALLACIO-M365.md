@@ -89,8 +89,9 @@ L'adreça final ha de ser la mateixa que s'ha posat com a URI de redirecció al 
 2. **Inicia la sessió amb Microsoft** amb el compte del centre.
 3. Si cal, enganxeu l'enllaç de la carpeta compartida.
 4. El primer cop per a tot el centre: **Prepara la carpeta**. Es creen l'Excel i la carpeta *EON Life · Clients*.
-5. Afegiu l'app a la pantalla d'inici: a l'iPad, *Compartir › Afegeix a la pantalla d'inici*; a Android,
-   *menú ⋮ › Afegeix a la pantalla d'inici*.
+5. Instal·leu l'app a la tauleta perquè surti com una icona més i s'obri a pantalla completa:
+   a Android (també Xiaomi), amb **Chrome** › *menú ⋮ › Instal·la l'aplicació* (o *Afegeix a la pantalla d'inici*);
+   a l'iPad, amb Safari › *Compartir › Afegeix a la pantalla d'inici*.
 
 A partir d'aquí, cada tauleta recorda la sessió. Per seguretat, Microsoft demana tornar a entrar més o menys un
 cop al dia (normalment és un sol clic). Els canvis que no s'han pogut desar es guarden a la tauleta i s'envien en
@@ -111,9 +112,15 @@ tornar a entrar.
 
 ## Vídeos des de la tauleta
 
-A cada test de la valoració hi ha el botó de **vídeo** › **Grava o puja un vídeo**. S'obre la càmera o la galeria
-de la tauleta, el vídeo es puja directament a *02 · Vídeos* de la carpeta del client i queda enllaçat al test.
+A cada test de la valoració hi ha el botó de **vídeo**:
+
+- **Grava ara** obre la càmera de la tauleta. En acabar de gravar, el vídeo es puja sol a *02 · Vídeos* de la
+  carpeta del client (amb el nom «data · test · client») i queda enllaçat al test. No cal fer res més.
+- **Tria de la galeria** fa el mateix amb un vídeo que ja és a la tauleta.
+
 També es poden pujar amb l'app de OneDrive i triar-los després de la llista *Vídeos de la carpeta*.
+A l'**informe**, els vídeos surten amb la miniatura (es reprodueixen dins de l'informe) i, en paper o PDF, amb un
+codi QR per obrir-los amb el mòbil.
 
 ## Informes de Kinvent (PDF)
 

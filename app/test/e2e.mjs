@@ -98,6 +98,20 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Desa');
     await page.waitForSelector('#sec-fitxers .file-name');
   });
+  await step('vídeo enllaçat i informe només d\'un apartat', async () => {
+    await page.locator('button.mini[title^="Leg extension"]').first().click();
+    await page.fill('#video-url', 'https://eonlife.sharepoint.com/:v:/s/centre/leg-extension.mp4');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.click('#sec-forca >> text=Informe de força');
+    await page.waitForSelector('.report-cover >> text=Informe · Força');
+    await page.waitForSelector('.rvideos svg.qr path');
+    if (await page.locator('.report >> text=Mobilitat i anàlisi postural').count()) throw new Error('surt mobilitat a l\'informe de força');
+    await shot(page, '07b-informe-forca');
+    await page.selectOption('.presentbar select', 'tot');
+    await page.waitForSelector('.report >> text=Resum');
+    await page.click('.presentbar >> text=Torna');
+    await page.waitForSelector('#sec-mobilitat');
+  });
   await step('informe de la valoració', async () => {
     await page.click('.editbar >> text=Informe');
     await page.waitForSelector('.report');
