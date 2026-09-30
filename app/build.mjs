@@ -5,6 +5,7 @@
 //   dist/eonlife.html        → versió independent (mode local / demostració)
 //   apps-script/Index.html   → mateix fitxer, per enganxar a Google Apps Script
 //   dist/m365/index.html     → versió per publicar al web amb Microsoft 365 (codis de app/m365.config.json)
+//   dist/m365/demo/index.html → demostració amb clients ficticis, sense compte (es publica a …/eonlife/demo/)
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -49,6 +50,12 @@ const m365Html = html
 mkdirSync(join(repo, 'dist', 'm365'), { recursive: true });
 writeFileSync(join(repo, 'dist', 'm365', 'index.html'), m365Html);
 console.log(`Microsoft 365: dist/m365/index.html${m365.clientId ? '' : ' (sense codis: es demanaran a la primera connexió)'}`);
+
+// Demostració publicada al costat de l'app: mode local amb clients ficticis, sense iniciar sessió.
+mkdirSync(join(repo, 'dist', 'm365', 'demo'), { recursive: true });
+writeFileSync(join(repo, 'dist', 'm365', 'demo', 'index.html'),
+  html.replace('<meta charset="utf-8">', () => '<meta charset="utf-8">\n<meta name="robots" content="noindex">'));
+console.log('Demostració: dist/m365/demo/index.html');
 
 // Variant per a l'enllaç privat: el visor ja hi posa <html>, <head> i <body>; sense impressió ni descàrregues.
 const ai = process.argv.indexOf('--artifact');

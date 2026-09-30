@@ -101,7 +101,8 @@ function ConnectLogin({ cfg, message }) {
       <${Btn} variant="primary" icon="link" disabled=${busy} onClick=${() => run(() => MsAuth.begin(cfg))}>${busy ? 'Obrint Microsoft…' : 'Inicia la sessió amb Microsoft'}</${Btn}>
       ${!cfg.baked.clientId && html`<${Btn} variant="ghost" onClick=${() => { M365.save({ clientId: '', tenantId: '' }); reconnect(); }}>Canvia els codis de l'app</${Btn}>`}
     </div>
-    ${problem && html`<${RedirectInfo} />`}`;
+    ${problem && html`<${RedirectInfo} />`}
+    <p class="muted small">Només vols veure com funciona? <a class="link" href="demo/">Obre la demostració amb clients ficticis</a> (sense compte).</p>`;
 }
 
 // Pas 2: carpeta compartida (enllaç de «Copia l'enllaç»).
