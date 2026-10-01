@@ -73,19 +73,19 @@ function NewPatientDialog({ onClose }) {
       <${Field} label="Cognoms" id="np-last"><${TextInput} id="np-last" value=${f.lastName} onValue=${set('lastName')} /></${Field}>
       <${Field} label="Data de naixement" id="np-birth"><${TextInput} id="np-birth" type="date" value=${f.birthDate} onValue=${set('birthDate')} /></${Field}>
       <${Field} label="Professional de referència" id="np-prof">
-        <${TextInput} id="np-prof" value=${f.professional} onValue=${set('professional')} list="prof-list" placeholder="Nom del professional" />
+        <${ProfSelect} id="np-prof" value=${f.professional} onValue=${set('professional')} />
       </${Field}>
       <${Field} label="Servei" id="np-service" wide=${true}>
         <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
-    <${ProfessionalsList} />
   </${Dialog}>`;
 }
 
-function ProfessionalsList() {
-  return html`<datalist id="prof-list">${Store.professionals().map((p) => html`<option value=${p}></option>`)}</datalist>`;
+// Desplegable amb l'equip de Configuració (si el registre porta un nom que ja no hi és, es manté).
+function ProfSelect({ id, value, onValue }) {
+  return html`<${Select} id=${id} value=${value} onValue=${onValue} options=${Store.professionals()} placeholder="—" />`;
 }
 
 // Crea (si cal) la carpeta del client (Google Drive o Microsoft 365) i en desa l'enllaç.

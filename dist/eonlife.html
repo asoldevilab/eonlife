@@ -3474,7 +3474,7 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-01 09:19";
+<script>window.EON_BUILD = "2026-10-01 09:34";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7962,19 +7962,19 @@ function NewPatientDialog({ onClose }) {
       <${Field} label="Cognoms" id="np-last"><${TextInput} id="np-last" value=${f.lastName} onValue=${set('lastName')} /></${Field}>
       <${Field} label="Data de naixement" id="np-birth"><${TextInput} id="np-birth" type="date" value=${f.birthDate} onValue=${set('birthDate')} /></${Field}>
       <${Field} label="Professional de referència" id="np-prof">
-        <${TextInput} id="np-prof" value=${f.professional} onValue=${set('professional')} list="prof-list" placeholder="Nom del professional" />
+        <${ProfSelect} id="np-prof" value=${f.professional} onValue=${set('professional')} />
       </${Field}>
       <${Field} label="Servei" id="np-service" wide=${true}>
         <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
-    <${ProfessionalsList} />
   </${Dialog}>`;
 }
 
-function ProfessionalsList() {
-  return html`<datalist id="prof-list">${Store.professionals().map((p) => html`<option value=${p}></option>`)}</datalist>`;
+// Desplegable amb l'equip de Configuració (si el registre porta un nom que ja no hi és, es manté).
+function ProfSelect({ id, value, onValue }) {
+  return html`<${Select} id=${id} value=${value} onValue=${onValue} options=${Store.professionals()} placeholder="—" />`;
 }
 
 // Crea (si cal) la carpeta del client (Google Drive o Microsoft 365) i en desa l'enllaç.
@@ -8438,14 +8438,13 @@ function PatientForm({ p, onRemove }) {
         <${Field} label="Servei" id="pf-service" wide=${true}>
           <${Seg} value=${p.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
         </${Field}>
-        ${F('Professional de referència', 'professional', { list: 'prof-list', placeholder: 'Nom del professional' })}
+        <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
         ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el client?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
         ${F('Antecedents i historial', 'history', { area: true, wide: true, placeholder: 'Lesions, cirurgies, patologies, medicació, esport…' })}
       </div>
-      <${ProfessionalsList} />
     </section>
     <section class="card">
       <div class="card-head"><h2 class="h2">Dates clau</h2><span class="muted">Es compten els dies des de la data</span></div>
@@ -8621,7 +8620,7 @@ function AssessmentEditor({ id, focus }) {
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="as-date"><${TextInput} id="as-date" type="date" value=${a.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Tipus" id="as-type"><${Select} id="as-type" value=${a.type} onValue=${set('type')} options=${OPT.assessmentTypes} /></${Field}>
-        <${Field} label="Professional" id="as-prof"><${TextInput} id="as-prof" value=${a.professional} onValue=${set('professional')} list="prof-list" /></${Field}>
+        <${Field} label="Professional" id="as-prof"><${ProfSelect} id="as-prof" value=${a.professional} onValue=${set('professional')} /></${Field}>
         <${Field} label="Pes" id="as-weight"><${NumInput} id="as-weight" value=${g.weight} onValue=${setGen('weight')} unit="kg" /></${Field}>
         <${Field} label="Alçada" id="as-height"><${NumInput} id="as-height" value=${g.height} onValue=${setGen('height')} unit="cm" /></${Field}>
         <${Field} label="Motiu / objectiu" id="as-goal" wide=${true}><${TextInput} id="as-goal" value=${g.goal} onValue=${setGen('goal')} /></${Field}>
@@ -8629,7 +8628,6 @@ function AssessmentEditor({ id, focus }) {
           <div class="inline"><${VideoButton} url=${g.video} title="Vídeo general" patient=${p} onChange=${setGen('video')} /><span class="muted small">${U.isUrl(g.video) ? 'Enllaç desat' : 'Sense enllaç'}</span></div>
         </${Field}>
       </div>
-      <${ProfessionalsList} />
     </section>
 
     <${AssessmentFiles} a=${a} p=${p} upd=${upd} />
@@ -9481,13 +9479,12 @@ function SessionEditor({ id }) {
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
-        <${Field} label="Professional" id="se-prof"><${TextInput} id="se-prof" value=${s.professional} onValue=${set('professional')} list="prof-list" /></${Field}>
+        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${set('professional')} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
         <${Field} label="Objectiu de la sessió" id="se-goal" wide=${true}>
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
         </${Field}>
       </div>
-      <${ProfessionalsList} />
       <div class="readiness">
         <span class="readiness-title">Com arriba avui?</span>
         <div class="readiness-item"><span>Son</span><${Seg} size="sm" value=${r.sleep || ''} onValue=${setIn('readiness', 'sleep')} options=${['1', '2', '3', '4', '5']} ariaLabel="Son de l'1 al 5" /></div>

@@ -83,13 +83,12 @@ function SessionEditor({ id }) {
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
-        <${Field} label="Professional" id="se-prof"><${TextInput} id="se-prof" value=${s.professional} onValue=${set('professional')} list="prof-list" /></${Field}>
+        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${set('professional')} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
         <${Field} label="Objectiu de la sessió" id="se-goal" wide=${true}>
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
         </${Field}>
       </div>
-      <${ProfessionalsList} />
       <div class="readiness">
         <span class="readiness-title">Com arriba avui?</span>
         <div class="readiness-item"><span>Son</span><${Seg} size="sm" value=${r.sleep || ''} onValue=${setIn('readiness', 'sleep')} options=${['1', '2', '3', '4', '5']} ariaLabel="Son de l'1 al 5" /></div>
