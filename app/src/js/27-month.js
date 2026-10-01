@@ -15,6 +15,19 @@ function MonthView({ p, sessions }) {
   const rpes = done.map((s) => U.num(s.feedback && s.feedback.rpe)).filter((n) => n != null);
   const weeks = Calc.weeks(sessions, gridStart, weeksCount);
   const shift = (n) => setMonth(U.monthKey(U.addMonths(first, n)));
+  // Sessions previstes dels plans d'entrenament que encara no s'han fet (data → [{ plan, n }]).
+  const planned = {};
+  for (const plan of Store.plans(p.id)) {
+    const used = new Set(Store.planSessions(plan).map((s) => U.num(s.planN)));
+    Calc.planDates(plan).forEach((date, i) => {
+      const ps = plan.sessions[i];
+      if (ps && !used.has(ps.n)) (planned[date] = planned[date] || []).push({ plan, ps });
+    });
+  }
+  const fromPlan = (date, x) => {
+    const s = Store.newSession(p.id, { date, mode: 'plan', planId: x.plan.id, planN: x.ps.n });
+    go('sessio', s.id);
+  };
 
   return html`<div class="stack">
     <section class="card">
@@ -50,8 +63,13 @@ function MonthView({ p, sessions }) {
                     ${s.status === 'feta' && html`<span class="cal-s-fb">RPE ${(s.feedback || {}).rpe || '—'} · ${(s.feedback || {}).duration || '—'}′${load != null ? ` · ${U.fmt(load, 0)}` : ''}</span>`}
                   </button>`;
                 })}
-                ${!list.length && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
-                ${!out && !list.length && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openNewSession(p.id, date)}><${Icon} name="plus" size=${15} /></button>`}
+                ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
+                  title=${`Prevista al pla «${x.plan.name}». Toca-la per preparar-la.`}>
+                  <span class="cal-s-n">S${x.ps.n} del pla</span>
+                  <span class="cal-s-goal">${x.ps.goal || x.ps.phase || x.plan.goal || x.plan.name}</span>
+                </button>`)}
+                ${!list.length && !planned[date] && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
+                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openNewSession(p.id, date)}><${Icon} name="plus" size=${15} /></button>`}
               </div>`;
             })}
             <div class="cal-w">
@@ -60,7 +78,7 @@ function MonthView({ p, sessions }) {
             </div>`)}
         </div>
       </div>
-      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió.</p>
+      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió. Les sessions amb vora discontínua són les previstes al pla d'entrenament.</p>
     </section>
 
     <section class="card">

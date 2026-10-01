@@ -6,6 +6,7 @@ function LibraryView({ tab = 'exercicis' }) {
       <div><p class="eyebrow">Metodologia EON · 6 blocs</p><h1 class="h1">Biblioteca</h1></div>
       <div class="page-actions">
         ${tab === 'exercicis' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null)}>Nou exercici</${Btn}>`
+          : tab === 'metodes' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openMethod(null)}>Nou mètode</${Btn}>`
           : html`<${Menu} variant="primary" icon="plus" label="Nova plantilla" title="Nova plantilla" items=${[
             { label: 'Plantilla de sessió (6 blocs)', icon: 'layers', onClick: () => newTemplate('session') },
             { sep: true },
@@ -15,33 +16,62 @@ function LibraryView({ tab = 'exercicis' }) {
     </header>
     <${Tabs} active=${tab} onChange=${(t) => go('biblioteca', t)} tabs=${[
       { id: 'exercicis', label: 'Exercicis', count: Store.exercises().length },
-      { id: 'plantilles', label: 'Plantilles', count: Store.templates().length },
+      { id: 'plantilles', label: 'Plantilles', count: Store.templates().filter((t) => t.kind === 'block' || t.kind === 'session').length },
+      { id: 'metodes', label: 'Mètodes', count: Store.methods().length },
     ]} />
-    ${tab === 'exercicis' ? html`<${ExerciseList} />` : html`<${TemplateList} />`}
+    ${tab === 'exercicis' ? html`<${ExerciseList} />` : tab === 'metodes' ? html`<${MethodList} />` : html`<${TemplateList} />`}
   </div>`;
 }
 
 function ExerciseList() {
   const [q, setQ] = useState('');
   const [blk, setBlk] = useState('');
+  const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.cat} ${e.material} ${e.gm}`).includes(nq)));
+  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq)));
   return html`<section class="card">
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
+      <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
-    ${BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
+    ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
+      : BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(all.filter((e) => e.block === b.key).length, 'exercici', 'exercicis')}</span></div>
       <div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
-        <span class="exrow-name">${e.name}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
-        <span class="exrow-meta">${[e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
+        <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>
     </div>`)}
     ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
   </section>`;
+}
+
+// Progressions: cada família (patró) amb els exercicis del nivell 1 (inicial) al 5 (expert).
+// A la sessió, ▲ i ▼ canvien l'exercici pel del nivell següent o anterior.
+function ProgressionList({ all }) {
+  const ids = new Set(all.map((e) => e.id));
+  const fams = Store.families();
+  const blockOf = (list) => { const k = {}; for (const e of list) k[e.block] = (k[e.block] || 0) + 1; return Object.keys(k).sort((a, b) => k[b] - k[a])[0]; };
+  const rows = Object.entries(fams)
+    .map(([name, list]) => ({ name, block: blockOf(list), list: Store.ladder(name) }))
+    .filter((r) => r.list.some((e) => ids.has(e.id)));
+  const loose = all.filter((e) => !e.family);
+  return html`<div class="stack">
+    <p class="muted small">Cada patró va del nivell 1 (inicial) al 5 (expert). A la sessió, els botons ▲ ▼ de cada exercici el canvien pel nivell següent o l'anterior. Per afegir un exercici a una progressió, obre'l i tria'n la família i el nivell.</p>
+    ${BLOCKS.filter((b) => rows.some((r) => r.block === b.key)).map((b) => html`<div class="libgroup">
+      <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(rows.filter((r) => r.block === b.key).length, 'progressió', 'progressions')}</span></div>
+      ${rows.filter((r) => r.block === b.key).map((r) => html`<div class="ladder">
+        <div class="ladder-name">${r.name}</div>
+        <ol class="ladder-steps">${r.list.map((e) => html`<li><button type="button" class=${U.cls('ladder-step', `lv-${e.level}`)} onClick=${() => openExercise(e)}>
+          <span class="ladder-n">N${e.level || '?'}</span><span class="ladder-ex">${e.name}</span></button></li>`)}</ol>
+      </div>`)}
+    </div>`)}
+    ${loose.length > 0 && html`<p class="muted small">${U.plural(loose.length, 'exercici encara no té', 'exercicis encara no tenen')} família de progressió.</p>`}
+  </div>`;
 }
 
 function openExercise(ex) {
@@ -50,7 +80,7 @@ function openExercise(ex) {
 }
 
 function ExerciseDialog({ ex, onClose }) {
-  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '' });
+  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', family: '', level: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.name.trim()) { UI.toast('Escriu el nom de l\'exercici.', 'bad'); return; }
@@ -80,6 +110,15 @@ function ExerciseDialog({ ex, onClose }) {
       <${Field} label="Posició" id="ex-pos"><${Select} id="ex-pos" value=${f.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
       <${Field} label="Lateralitat" id="ex-lat"><${Select} id="ex-lat" value=${f.lat} onValue=${set('lat')} options=${OPT.lat.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
     </div>
+    <h3 class="h3 mt">Progressió</h3>
+    <div class="form-grid">
+      <${Field} label="Família (patró)" id="ex-family" hint="Exercicis del mateix patró, de més fàcil a més difícil (p. ex. Core · antiextensió)">
+        <${TextInput} id="ex-family" value=${f.family} onValue=${set('family')} list="family-list" placeholder="p. ex. Squat bilateral" /></${Field}>
+      <${Field} label="Nivell" id="ex-level"><${Seg} value=${f.level || ''} onValue=${set('level')} ariaLabel="Nivell"
+        options=${OPT.levels.map((o) => ({ v: o.v, label: `N${o.v}`, title: o.label }))} /></${Field}>
+    </div>
+    ${f.family && html`<p class="muted small">${Store.ladder(f.family).filter((e) => e.id !== f.id).map((e) => `N${e.level} ${e.name}`).join(' → ') || 'Encara no hi ha cap altre exercici en aquesta família.'}</p>`}
+    <datalist id="family-list">${Object.keys(Store.families()).sort().map((x) => html`<option value=${x}></option>`)}</datalist>
     <h3 class="h3 mt">Prescripció per defecte</h3>
     <div class="form-grid form-grid-4">
       <${Field} label="Sèries" id="ex-sets"><${TextInput} id="ex-sets" value=${f.sets} onValue=${set('sets')} /></${Field}>
@@ -175,4 +214,82 @@ function TemplateEditor({ id }) {
 function cloneBlocksKeep(blocks) {
   const byKey = Object.fromEntries((blocks || []).map((b) => [b.key, b]));
   return BLOCKS.map((b) => byKey[b.key] || { key: b.key, focus: '', note: '', items: [] });
+}
+
+// ── Mètodes d'entrenament: els apunts del centre (què és, com es fa, exemple i fonts) ──
+function MethodList() {
+  const all = Store.methods();
+  const [q, setQ] = useState('');
+  const nq = U.norm(q);
+  const list = all.filter((t) => !nq || U.norm(`${t.name} ${t.aim} ${t.how} ${t.notes} ${t.source}`).includes(nq));
+  const inBlock = (k) => list.filter((t) => (t.blocks || [])[0] === k || (!(t.blocks || []).length && k === 'for'));
+  return html`<section class="card">
+    <div class="filters">
+      <label class="search"><${Icon} name="search" size=${17} />
+        <input class="input" type="search" placeholder="Cerca mètodes i apunts…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca mètodes" /></label>
+    </div>
+    <p class="muted small">Els mètodes per no fer sempre el mateix: a cada bloc o subbloc de la sessió es pot triar el mètode i surt a la fitxa del client. Obre'n un per afegir-hi els vostres apunts (cursos, universitat, articles).</p>
+    ${BLOCKS.filter((b) => inBlock(b.key).length).map((b) => html`<div class="libgroup">
+      <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(inBlock(b.key).length, 'mètode', 'mètodes')}</span></div>
+      <div class="methods">${inBlock(b.key).map((t) => html`<button type="button" class="method" onClick=${() => openMethod(t)}>
+        <span class="method-name">${t.name}${t.notes && html` <${Icon} name="note" size=${14} />`}</span>
+        <span class="method-aim">${t.aim}</span>
+        ${t.example && html`<span class="method-ex">${t.example}</span>`}
+      </button>`)}</div>
+    </div>`)}
+    ${!list.length && html`<${Empty} icon="search" title="Cap mètode coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
+  </section>`;
+}
+
+function openMethod(t) {
+  let close = null;
+  close = UI.open(() => html`<${MethodDialog} t=${t} onClose=${() => close()} />`);
+}
+
+function MethodDialog({ t, onClose }) {
+  const [f, setF] = useState(t ? { ...t, blocks: [...(t.blocks || [])] } : { id: U.uid('M'), kind: 'method', name: '', blocks: ['for'], aim: '', how: '', example: '', notes: '', source: '' });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const toggle = (k) => setF({ ...f, blocks: f.blocks.includes(k) ? f.blocks.filter((x) => x !== k) : [...f.blocks, k] });
+  const save = () => {
+    if (!f.name.trim()) { UI.toast('Escriu el nom del mètode.', 'bad'); return; }
+    const rec = { ...f, name: f.name.trim() };
+    delete rec.seed;
+    Store.put('templates', rec, { immediate: true });
+    UI.toast(t ? 'Mètode desat.' : 'Mètode afegit.');
+    onClose();
+  };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: `Treure «${t.name}»?`, text: 'Les sessions que el fan servir el mantenen.', ok: 'Treu', danger: true }))) return;
+    Store.remove('templates', t.id);
+    onClose();
+  };
+  return html`<${Dialog} wide=${true} title=${t ? 'Mètode' : 'Nou mètode'} onClose=${onClose} footer=${html`
+    ${t && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Treu</${Btn}>`}
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
+    <div class="form-grid">
+      <${Field} label="Nom" id="me-name" wide=${true}><${TextInput} id="me-name" value=${f.name} onValue=${set('name')} autoFocus=${!t} placeholder="p. ex. Clúster" /></${Field}>
+      <${Field} label="Blocs on es fa servir" wide=${true}><div class="chips">${BLOCKS.map((b) => html`<${Chip} on=${f.blocks.includes(b.key)} onClick=${() => toggle(b.key)}>${b.num}. ${blockName(b.key)}</${Chip}>`)}</div></${Field}>
+      <${Field} label="Per a què serveix" id="me-aim" wide=${true}><${TextInput} id="me-aim" value=${f.aim} onValue=${set('aim')} /></${Field}>
+      <${Field} label="Com es fa" id="me-how" wide=${true}><${Area} id="me-how" value=${f.how} onValue=${set('how')} /></${Field}>
+      <${Field} label="Exemple de prescripció" id="me-ex" wide=${true}><${TextInput} id="me-ex" value=${f.example} onValue=${set('example')} placeholder=${'p. ex. 4 × (2+2+2) · 20" entre blocs'} /></${Field}>
+      <${Field} label="Apunts" id="me-notes" wide=${true} hint="El que heu après als cursos, a la universitat o als articles: quan fer-lo servir, progressions, errors habituals…">
+        <${Area} id="me-notes" value=${f.notes} onValue=${set('notes')} rows=${6} /></${Field}>
+      <${Field} label="Fonts" id="me-src" wide=${true}><${TextInput} id="me-src" value=${f.source} onValue=${set('source')} placeholder="Curs, llibre, article…" /></${Field}>
+    </div>
+  </${Dialog}>`;
+}
+
+// Desplegable de mètode per a un bloc o un subbloc de la sessió.
+function MethodSelect({ block, value, onPick, ariaLabel }) {
+  const list = Store.methods(block);
+  return html`<${Select} class="method-select" value=${value || ''} ariaLabel=${ariaLabel || 'Mètode'} placeholder="Mètode…"
+    options=${list.map((t) => ({ v: t.id, label: t.name }))}
+    onValue=${(id) => { const t = list.find((x) => x.id === id); onPick(t || null); }} />`;
+}
+
+function methodHint(id) {
+  const t = id ? Store.get('templates', id) : null;
+  return t ? [t.how, t.example && `Exemple: ${t.example}`].filter(Boolean).join(' · ') : '';
 }

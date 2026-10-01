@@ -98,6 +98,12 @@ function migrateDemo(db) {
   if (st && Array.isArray(st.professionals) && st.professionals.every((n) => rename[n])) st.professionals = [...CENTER_PROFESSIONALS];
   const svc = { 'P-DEMO-LAURA': 'membership', 'P-DEMO-JORDI': 'membership', 'P-DEMO-MONTSE': 'membership', 'P-DEMO-ALEX': 'valoracio' };
   for (const [id, v] of Object.entries(svc)) if (db.patients[id] && !db.patients[id].service) db.patients[id].service = v;
+  // Dades de prova d'abans del pla d'entrenament i de l'encoder.
+  for (const s of Object.values(db.sessions || {})) {
+    if (s.patientId !== 'P-DEMO-LAURA' || s.status !== 'feta') continue;
+    for (const b of s.blocks || []) for (const it of b.items || []) if (it.exId === 'X-FOR-01' && !it.vbt && U.num(it.load)) it.vbt = demoVbt(U.num(it.load));
+  }
+  if (typeof addDemoPlan === 'function') addDemoPlan(db, U.today());
 }
 
 const Store = {
@@ -190,6 +196,29 @@ const Store = {
     return out;
   },
   exercise(id) { return this.exercises().find((e) => e.id === id) || null; },
+  methods(block) {
+    const all = this.templates().filter((t) => t.kind === 'method');
+    return block ? all.filter((t) => !(t.blocks || []).length || t.blocks.includes(block)) : all;
+  },
+  // Exercicis d'una família de progressió, del nivell més fàcil al més difícil.
+  ladder(family) {
+    if (!family) return [];
+    const f = U.norm(family);
+    return U.sortBy(this.exercises().filter((e) => e.family && U.norm(e.family) === f), (e) => `${String(U.num(e.level) ?? 9)}#${e.name}`);
+  },
+  families() {
+    const out = {};
+    for (const e of this.exercises()) if (e.family) (out[e.family] = out[e.family] || []).push(e);
+    return out;
+  },
+  // Exercici del nivell següent (dir = 1) o anterior (dir = -1) de la mateixa família.
+  stepLevel(ex, dir) {
+    if (!ex || !ex.family) return null;
+    const list = this.ladder(ex.family);
+    const i = list.findIndex((e) => e.id === ex.id);
+    if (i < 0) return null;
+    return list[i + dir] || null;
+  },
   templates() {
     const stored = this.data.templates;
     const out = [];
@@ -340,8 +369,9 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, mode = 'blank', templateId = null } = {}) {
+  newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
+    let fromPlan = null;
     let blocks = this.emptyBlocks();
     let goal = '';
     let pillar = '';
@@ -351,6 +381,14 @@ const Store = {
         blocks = cloneBlocks(last.blocks, true);
         goal = last.goal || '';
         pillar = last.pillar || '';
+      }
+    } else if (mode === 'plan' && planId) {
+      const plan = this.get('templates', planId);
+      const ps = plan && (plan.sessions || []).find((x) => x.n === U.num(planN));
+      if (ps) {
+        blocks = cloneBlocks(ps.blocks, true);
+        goal = ps.goal || plan.goal || '';
+        fromPlan = { planId, planN: ps.n };
       }
     } else if (mode === 'template' && templateId) {
       const t = this.get('templates', templateId);
@@ -364,8 +402,8 @@ const Store = {
     }
     const s = {
       id: U.uid('S'), patientId: pid, date: date || U.today(), number: this.nextSessionNumber(pid),
-      professional: (p && p.professional) || '', goal, pillar, status: 'planificada',
-      readiness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
+      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      readiness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
     return this.put('sessions', s, { immediate: true });
   },
@@ -377,8 +415,46 @@ const Store = {
       ...U.clone(s), id: U.uid('S'), date: date || U.today(), number: this.nextSessionNumber(s.patientId),
       status: 'planificada', readiness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
     };
-    delete copy.updatedAt; delete copy.updatedBy;
+    delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });
+  },
+
+  // ── Pla d'entrenament: una seqüència de sessions (S1…SN) amb progressió, per a un client ──
+  plans(pid) {
+    return U.sortBy(this.templates().filter((t) => t.kind === 'plan' && (!pid || t.patientId === pid)), (t) => t.start || '', -1);
+  },
+  // Sessions reals fetes (o creades) a partir d'un pla.
+  planSessions(plan) {
+    return plan ? this.byPatient('sessions', plan.patientId).filter((s) => s.planId === plan.id) : [];
+  },
+  // Pròxima sessió del pla que encara no s'ha creat.
+  nextPlanN(plan) {
+    const used = new Set(this.planSessions(plan).map((s) => U.num(s.planN)));
+    const n = (plan.sessions || []).map((x) => x.n).find((k) => !used.has(k));
+    return n || null;
+  },
+  // opts: { name, goal, start, days: [1, 4], count, base: 'last' | 'template' | 'blank', templateId, every }
+  // every = cada quantes sessions puja un nivell cada exercici que té progressió (0 = mai).
+  newPlan(pid, { name, goal = '', start, days = [1, 4], count = 12, base = 'last', templateId = '', every = 0 } = {}) {
+    let first = this.emptyBlocks();
+    if (base === 'last') {
+      const last = this.sessionsOf(pid).pop();
+      if (last) first = cloneBlocks(last.blocks, true);
+    } else if (base === 'template' && templateId) {
+      const t = this.get('templates', templateId);
+      if (t && t.kind === 'session') first = cloneBlocks(t.blocks, true);
+    }
+    const sessions = [];
+    let blocks = first;
+    for (let n = 1; n <= Math.max(1, Math.min(40, U.num(count) || 12)); n++) {
+      if (n > 1) {
+        blocks = cloneBlocks(blocks, true);
+        if (every > 0 && (n - 1) % every === 0) progressBlocks(blocks);
+      }
+      sessions.push({ id: U.uid('PS'), n, phase: '', goal: '', blocks });
+    }
+    const plan = { id: U.uid('PL'), kind: 'plan', patientId: pid, name: name || `Pla de ${sessions.length} sessions`, goal, start: start || U.today(), days, sessions, createdAt: new Date().toISOString() };
+    return this.put('templates', plan, { immediate: true });
   },
 
   saveBlockTemplate(block, name) {
@@ -428,9 +504,44 @@ function cloneItems(items, resetDone) {
   });
 }
 
+// Qui fa servir aquesta tauleta: l'últim professional triat en una sessió. Les sessions noves es fan a nom seu
+// (no del professional de referència del client).
+const ME_KEY = 'eonlife:professional';
+function deviceProfessional(v) {
+  try {
+    if (v === undefined) return window.localStorage.getItem(ME_KEY) || '';
+    if (v) window.localStorage.setItem(ME_KEY, v); else window.localStorage.removeItem(ME_KEY);
+  } catch (e) { /* sense emmagatzematge */ }
+  return v || '';
+}
+
+// Canvia un exercici pel d'un altre nivell de la mateixa família (progressió o regressió).
+// Es mantenen la prescripció i les notes; la càrrega es treu perquè és un altre exercici.
+function progressItem(x, nx, prevMap) {
+  x.name = nx.name;
+  x.exId = nx.id;
+  for (const k of ['gm', 'cont', 'pos', 'lat', 'material', 'tempo']) x[k] = nx[k] || '';
+  for (const k of ['sets', 'reps', 'intensity', 'rest']) if (!x[k]) x[k] = nx[k] || '';
+  const last = prevMap ? prevMap[nx.name] : null;
+  x.load = last && last.load ? last.load : '';
+  delete x.demo;
+  return x;
+}
+
+// Puja un nivell tots els exercicis dels blocs que tenen una progressió.
+function progressBlocks(blocks) {
+  let n = 0;
+  for (const b of blocks || []) for (const it of b.items || []) {
+    const nx = it.exId ? Store.stepLevel(Store.exercise(it.exId), 1) : null;
+    if (nx) { progressItem(it, nx); n++; }
+  }
+  return n;
+}
+
 // Un bloc copiat (focus, nota, subblocs i exercicis).
 function cloneBlock(src, key, resetDone) {
   const b = { key, focus: (src && src.focus) || '', note: (src && src.note) || '', items: cloneItems(src && src.items, resetDone) };
+  if (src && src.method) { b.method = src.method; b.methodName = src.methodName || ''; }
   if (src && src.groups && src.groups.length) b.groups = U.clone(src.groups);
   return b;
 }

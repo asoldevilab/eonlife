@@ -167,9 +167,80 @@ la carpeta del client.
 el client els vegi abans de començar. Amb les fletxes es passa al següent; també es pot tocar el ▶ d'un exercici
 concret.
 
+### Progressions: de l'exercici més bàsic al més avançat
+
+Cada exercici de la biblioteca pot tenir una **família** (un patró: *Squat bilateral*, *Core · antiextensió*,
+*Olímpics · cargolada*, *Canvi de direcció*, *Equilibri*, *Respiració parasimpàtica*…) i un **nivell** de l'1 (inicial)
+al 5 (expert). Per exemple: *Squat a caixa → Goblet squat → Back squat → Front squat → Back squat amb pausa*.
+
+- A la sessió, al costat de cada exercici surt **N3** amb les fletxes **▲ ▼**: ▲ el canvia pel nivell següent i
+  ▼ per l'anterior (també al menú **⋯** de l'exercici: *Progressa* / *Regressa*). Es mantenen les sèries i les
+  repeticions.
+- **Biblioteca › Exercicis › Progressions** mostra totes les famílies amb els seus nivells. Per posar un exercici en
+  una progressió: obre'l i tria'n la *Família* i el *Nivell*.
+- La biblioteca inclou, a més dels exercicis d'abans, progressions d'olímpics (cargolada, arrencada, envia),
+  canvi de direcció, salts unilaterals i reactius, core, equilibri i vestibular (estabilitat de la mirada) i
+  respiració i relaxació, amb l'explicació de cada respiració a les *Consignes*.
+
+### Mètodes (els vostres apunts)
+
+**Biblioteca › Mètodes**: clúster, rest-pause, excèntric accentuat, isomètric, contrast (PAPE), superset,
+VBT, caràcter de l'esforç, gomes i cadenes, Keiser, politja cònica, tempo, ondulant, complex francès, EMOM,
+equilibri progressiu, RAMP i respiració parasimpàtica. Cadascun té *per a què serveix*, *com es fa* i un
+*exemple*, i un camp d'**Apunts** i **Fonts** per anar-hi escrivint el que aprengueu (cursos, universitat,
+articles). Se'n poden crear de nous.
+
+A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en triar-lo surt com es fa i l'exemple, i al
+**Presenta** el client veu el nom del mètode (p. ex. *Bloc 2 · Clúster*). Així no es fa sempre el mateix 3 × 10.
+
+### Professional de la sessió
+
+Les sessions noves es fan a nom del professional que va triar l'última vegada **aquella tauleta** (no del
+professional de referència del client). Si avui el client el porta un altre company, el canvia a dalt de la
+sessió i la tauleta ho recorda per a la propera.
+
+## Pla d'entrenament i progrés
+
+Pestanya **Pla i progrés** de la fitxa del client.
+
+### Crear un pla
+
+**Crea un pla**: nom, objectiu, data d'inici, **dies de la setmana** (p. ex. dilluns i dijous), **nombre de
+sessions** (fins a 40) i d'on surt la sessió 1 (l'última sessió, una plantilla o en blanc). Amb **Progressió dels
+exercicis** l'app puja sola un nivell cada 2, 3, 4 o 6 sessions els exercicis que tenen progressió.
+
+A l'editor del pla:
+
+- La **graella de progressió** té una columna per sessió (S1, S2…) amb la data prevista i la fase, i una fila per
+  exercici de cada bloc. En verd i amb ▲, els exercicis que pugen de nivell respecte a la sessió anterior.
+- Tocant una sessió s'edita a sota amb els mateixos 6 blocs de sempre (subblocs, mètodes, ▲ ▼…), amb la seva
+  **fase** (Adaptació, Força, Potència, Descàrrega…) i objectiu.
+- Menú **⋯** de la sessió: *Copia a la següent i puja un nivell*, *Copia a la següent igual* o *Puja un nivell tots
+  els exercicis*. Menú del pla: afegir o treure sessions al final.
+
+### Fer la sessió del pla
+
+- **Nova sessió** proposa *Del pla d'entrenament* amb la pròxima sessió (es pot triar una altra).
+- Al **Seguiment mensual**, les sessions previstes del pla surten amb vora discontínua; tocant-ne una es prepara
+  aquell dia.
+- La sessió es fa i es tanca com sempre; a dalt hi diu *S5 del pla*.
+
+### Progrés
+
+**Mira el progrés** (o *Progrés* a la targeta del pla) obre una pantalla per ensenyar al client: tries una sessió
+d'abans i una d'ara (per defecte la primera i l'última feta) i surt, bloc per bloc i exercici per exercici:
+
+- l'exercici d'abans i el d'ara amb el **nivell** (p. ex. *Goblet squat N2 → Back squat N3: ▲ 1 nivell*),
+- la **càrrega** (*+10 kg, +25 %*) i, si s'ha fet servir l'encoder, la **velocitat de la 1a repetició**
+  (*+0,30 m/s*),
+- l'**evolució** de cada exercici de potència i força en gràfics (càrrega i velocitat, sessió a sessió).
+
+Es pot posar a pantalla completa o desar en PDF.
+
 ## Seguiment mensual
 
-Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de control):
+Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de control). També hi surten les
+sessions previstes del pla d'entrenament.
 
 - Calendari del mes amb cada sessió: número, objectiu, RPE, minuts i càrrega. Els diumenges sense
   sessió surten com a **OFF**.

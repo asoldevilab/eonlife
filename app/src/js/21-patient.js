@@ -46,6 +46,7 @@ function PatientView({ id, tab = 'resum' }) {
     <${Tabs} active=${tab} onChange=${setTab} tabs=${[
       { id: 'resum', label: 'Resum' },
       { id: 'sessions', label: 'Sessions', count: sessions.length },
+      { id: 'pla', label: 'Pla i progrés', count: Store.plans(p.id).length || undefined },
       { id: 'mes', label: 'Seguiment mensual' },
       { id: 'valoracions', label: 'Valoracions', count: assessments.length },
       { id: 'fitxa', label: 'Fitxa' },
@@ -53,6 +54,7 @@ function PatientView({ id, tab = 'resum' }) {
 
     ${tab === 'resum' && html`<${PatientSummary} p=${p} sessions=${sessions} assessments=${assessments} />`}
     ${tab === 'sessions' && html`<${PatientSessions} p=${p} sessions=${sessions} />`}
+    ${tab === 'pla' && html`<${PatientPlan} p=${p} />`}
     ${tab === 'mes' && html`<${MonthView} p=${p} sessions=${sessions} />`}
     ${tab === 'valoracions' && html`<${PatientAssessments} p=${p} assessments=${assessments} />`}
     ${tab === 'fitxa' && html`<${PatientForm} p=${p} onRemove=${remove} />`}

@@ -56,6 +56,8 @@ function renderRoute(r) {
     case 'fitxa': return html`<${SessionSheet} id=${a} />`;
     case 'biblioteca': return html`<${LibraryView} tab=${a || 'exercicis'} />`;
     case 'plantilla': return html`<${TemplateEditor} id=${a} />`;
+    case 'pla': return html`<${PlanEditor} key=${a} id=${a} n=${b} />`;
+    case 'progres': return html`<${ProgressView} key=${`${a}/${b || ''}`} pid=${a} planId=${b || ''} />`;
     case 'configuracio': return html`<${SettingsView} />`;
     default: return html`<${HomeView} />`;
   }
@@ -89,7 +91,7 @@ function App() {
   }
   if (!Store.ready) return html`<div class="boot"><span class="logo-mark boot-logo" aria-hidden="true"></span><p>Carregant…</p></div>`;
 
-  const present = route.name === 'fitxa' || route.name === 'informe';
+  const present = route.name === 'fitxa' || route.name === 'informe' || route.name === 'progres';
   return html`<div class=${U.cls('shell', present && 'shell-present')}>
     ${!present && html`<${Sidebar} route=${route} open=${menu} onClose=${() => setMenu(false)} />`}
     ${!present && menu && html`<div class="scrim" onClick=${() => setMenu(false)}></div>`}

@@ -195,7 +195,7 @@ function makeDemoData() {
         mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
         act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
         pot: { focus: w >= 3 ? 'Salts verticals' : '', items: w >= 3 ? [['X-POT-01', { sets: '3', reps: '3' }], ['X-POT-04', { sets: '2', reps: '10' }]] : [['X-POT-06', { load: '3' }]] },
-        for: { focus: 'Dominant de genoll', items: [['X-FOR-01', { sets: '3', reps: '6', load: String(sq), intensity: 'RIR 2' }], ['X-FOR-04', { sets: '3', reps: '6/cama', load: String(8 + w * 2), intensity: 'RIR 2' }], ['X-FOR-06', { sets: '3', reps: '6/cama', load: '8', intensity: 'RIR 2' }], ['X-FOR-07', { sets: '3', reps: '8', load: String(80 + w * 10), intensity: 'RIR 2' }]] },
+        for: { focus: 'Dominant de genoll', items: [['X-FOR-01', { sets: '3', reps: '6', load: String(sq), intensity: 'RIR 2', vbt: demoVbt(sq) }], ['X-FOR-04', { sets: '3', reps: '6/cama', load: String(8 + w * 2), intensity: 'RIR 2' }], ['X-FOR-06', { sets: '3', reps: '6/cama', load: '8', intensity: 'RIR 2' }], ['X-FOR-07', { sets: '3', reps: '8', load: String(80 + w * 10), intensity: 'RIR 2' }]] },
         acc: { focus: 'Politja cònica', items: [['X-ACC-01'], ['X-ACC-14', { load: '12' }]] },
         cal: { focus: 'Respiració', items: [['X-CAL-01'], ['X-CAL-06']] },
       } : {
@@ -226,6 +226,8 @@ function makeDemoData() {
     acc: { focus: 'Politja cònica', items: [['X-ACC-01'], ['X-ACC-04'], ['X-ACC-14', { load: '14' }]] },
     cal: { focus: 'Respiració', items: [['X-CAL-01'], ['X-CAL-06']] },
   }, null);
+
+  addDemoPlan(db, today);
 
   // Jordi: dimarts i dijous, 3 setmanes.
   const jw0 = U.addDays(U.weekStart(today), -21);
@@ -290,4 +292,35 @@ function makeDemoData() {
   }, null);
 
   return db;
+}
+
+// Encoder del back squat de la Laura: la velocitat de la 1a repetició millora setmana a setmana.
+function demoVbt(kg) {
+  const v1 = Math.round((0.62 + ((Number(kg) - 40) / 2.5) * 0.035) * 100) / 100;
+  const set = () => ({ kg: String(kg), reps: '6', v1: String(v1).replace('.', ','), vlast: String(Math.round(v1 * 80) / 100).replace('.', ',') });
+  return { mode: 'encoder', sets: [set(), set(), set()] };
+}
+
+// Pla d'exemple per a la Laura: 12 sessions des d'avui, amb la sessió d'avui com a S1 i un nivell més cada 4 sessions.
+function addDemoPlan(db, today) {
+  const pid = 'P-DEMO-LAURA';
+  if (!db.patients[pid] || Object.values(db.templates || {}).some((t) => t.kind === 'plan' && t.patientId === pid)) return;
+  const mine = Object.values(db.sessions).filter((s) => s.patientId === pid).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const s1 = mine.find((s) => s.date >= today) || mine[mine.length - 1];
+  if (!s1) return;
+  const phase = (n) => (n <= 4 ? 'Força' : n <= 8 ? 'Potència' : n <= 11 ? 'Transferència' : 'Descàrrega');
+  const sessions = [];
+  let blocks = cloneBlocks(s1.blocks, true);
+  for (let n = 1; n <= 12; n++) {
+    if (n > 1) {
+      blocks = cloneBlocks(blocks, true);
+      if ((n - 1) % 4 === 0) progressBlocks(blocks);
+    }
+    sessions.push({ id: `PS-DEMO-${n}`, n, phase: phase(n), goal: '', blocks });
+  }
+  db.templates = db.templates || {};
+  db.templates['PL-DEMO-LAURA'] = { id: 'PL-DEMO-LAURA', kind: 'plan', patientId: pid, name: 'Bloc 2 · força i potència', goal: 'Tornar a competir en trail de 42 km',
+    start: s1.date, days: [1, 3, 5], sessions, createdAt: `${s1.date}T08:00:00.000Z` };
+  s1.planId = 'PL-DEMO-LAURA';
+  s1.planN = 1;
 }

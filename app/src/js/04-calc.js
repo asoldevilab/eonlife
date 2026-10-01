@@ -322,6 +322,66 @@ const Calc = {
     return ((s && s.blocks) || []).reduce((n, b) => n + (b.items || []).filter((i) => i.name).length, 0);
   },
 
+  // Quilos d'un exercici: els de l'encoder si n'hi ha; si no, l'últim número de la càrrega («2 × 16 kg» → 16).
+  kg(it) {
+    const v = Calc.vbt(it);
+    if (v && v.load != null) return v.load;
+    const m = String((it && it.load) || '').replace(/,/g, '.').match(/\d+(\.\d+)?/g);
+    return m ? Number(m[m.length - 1]) || null : null;
+  },
+
+  // Progrés entre dues sessions: cada exercici de la sessió nova amb el de la sessió antiga que li correspon
+  // (el mateix exercici; si no, el de la mateixa família de progressió; si no, el de la mateixa posició del bloc).
+  progress(from, to, exercise = () => null) {
+    const named = (s, key) => ((((s && s.blocks) || []).find((b) => b.key === key) || {}).items || []).filter((i) => i.name);
+    const fam = (it) => { const e = it && it.exId ? exercise(it.exId) : null; return e && e.family ? U.norm(e.family) : ''; };
+    const lvl = (it) => { const e = it && it.exId ? exercise(it.exId) : null; return e ? U.num(e.level) : null; };
+    const sum = { rows: 0, levelUp: 0, loadUp: 0, speedUp: 0 };
+    const blocks = [];
+    for (const def of BLOCKS) {
+      const a = named(from, def.key), b = named(to, def.key);
+      if (!b.length) continue;
+      const used = new Set();
+      const rows = b.map((it, i) => {
+        const pick = (fn) => a.find((x, k) => !used.has(k) && fn(x, k));
+        let match = 'name';
+        let prev = pick((x) => U.norm(x.name) === U.norm(it.name));
+        if (!prev && fam(it)) { prev = pick((x) => fam(x) === fam(it)); match = 'family'; }
+        if (!prev) { prev = pick((x, k) => k === i); match = 'pos'; }
+        if (!prev) match = null;
+        else used.add(a.indexOf(prev));
+        const d = (x, y) => (x != null && y != null ? Math.round((y - x) * 1000) / 1000 : null);
+        const level = { a: lvl(prev), b: lvl(it) };
+        level.diff = match === 'family' || match === 'name' ? d(level.a, level.b) : null;
+        const same = match === 'name';
+        const kg = { a: same ? Calc.kg(prev) : null, b: Calc.kg(it) };
+        kg.diff = d(kg.a, kg.b);
+        kg.pct = kg.diff != null && kg.a ? Math.round((kg.diff / kg.a) * 100) : null;
+        const va = same ? Calc.vbt(prev) : null, vb = Calc.vbt(it);
+        const v1 = { a: va && va.v1, b: vb && vb.v1, la: va && va.load, lb: vb && vb.load };
+        v1.diff = d(v1.a, v1.b);
+        sum.rows++;
+        if (level.diff > 0) sum.levelUp++;
+        if (kg.diff > 0) sum.loadUp++;
+        if (v1.diff > 0) sum.speedUp++;
+        return { before: prev || null, now: it, match, level, kg, v1 };
+      });
+      blocks.push({ key: def.key, rows });
+    }
+    return { blocks, summary: sum };
+  },
+
+  // Data prevista de la sessió n d'un pla: a partir de la data d'inici, els dies de la setmana triats.
+  planDate(plan, n) { return Calc.planDates(plan, n)[n - 1] || ''; },
+  planDates(plan, count) {
+    const days = (plan && plan.days && plan.days.length ? plan.days : [1, 4]).map(Number);
+    const total = count || ((plan && plan.sessions) || []).length;
+    const out = [];
+    let d = (plan && plan.start) || U.today();
+    for (let i = 0; i < 800 && out.length < total; i++, d = U.addDays(d, 1)) if (days.includes(U.parse(d).getDay())) out.push(d);
+    return out;
+  },
+
   // Subblocs d'un bloc de la sessió (p. ex. Força principal › Bloc 1, Bloc 2…).
   // Retorna null si el bloc no està dividit; si ho està, cada subbloc amb els seus exercicis
   // ({ it, i } amb i = posició a block.items). Un exercici sense subbloc va al primer.
@@ -534,6 +594,8 @@ const Flat = {
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
+      'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
+      'Sessió del pla': U.num(s.planN) ?? '',
       'Son (1-5)': U.num(r.sleep) ?? '', 'Energia (1-5)': U.num(r.energy) ?? '', 'Dolor previ (0-10)': U.num(r.pain) ?? '',
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
@@ -543,6 +605,7 @@ const Flat = {
       const name = blockName(b.key, settings);
       const gs = Calc.groups(b);
       o[`${name} · focus`] = b.focus || '';
+      o[`${name} · mètode`] = [b.methodName, ...(gs || []).map((x) => x.g.methodName && `${x.label}: ${x.g.methodName}`)].filter(Boolean).join(' · ');
       o[`${name} · exercicis`] = gs
         ? gs.map((x) => ({ x, t: list(x.items.map((y) => y.it)) })).filter((y) => y.t).map((y) => `${y.x.label}: ${y.t}`).join(' ‖ ')
         : list(b.items || []);
@@ -554,11 +617,13 @@ const Flat = {
     const rows = [];
     for (const b of s.blocks || []) {
       const gs = Calc.groups(b);
-      const sub = (it) => { if (!gs) return ''; const x = gs.find((y) => y.items.some((z) => z.it === it)); return x ? x.label : ''; };
+      const grp = (it) => (gs ? gs.find((y) => y.items.some((z) => z.it === it)) : null);
+      const sub = (it) => { const x = grp(it); return x ? x.label : ''; };
+      const meth = (it) => { const x = grp(it); return (x && x.g.methodName) || b.methodName || ''; };
       (b.items || []).filter((i) => i.name).forEach((it, idx) => {
         rows.push({
           'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
-          'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
+          'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Mètode': meth(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
           'Grup muscular': it.gm || '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',
@@ -572,7 +637,7 @@ const Flat = {
 
   exercise(e) {
     return {
-      'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Material': e.material || '',
+      'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
       'Grup muscular': e.gm || '', 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',
@@ -583,7 +648,17 @@ const Flat = {
     const items = t.kind === 'session'
       ? (t.blocks || []).map((b) => `${blockName(b.key)}: ${(b.items || []).map((i) => i.name).join(', ')}`).join(' | ')
       : (t.items || []).map((i) => i.name).join(', ');
-    return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items };
+    if (t.kind === 'method') {
+      return { 'Nom': t.name || '', 'Tipus': 'Mètode', 'Bloc': (t.blocks || []).map((k) => blockName(k)).join(', '), 'Exercicis': t.example || '',
+        'Descripció': [t.aim, t.how, t.notes].filter(Boolean).join(' · '), 'Client': '' };
+    }
+    if (t.kind === 'plan') {
+      const p = t.patientId && typeof Store !== 'undefined' && Store.get ? Store.get('patients', t.patientId) : null;
+      return { 'Nom': t.name || '', 'Tipus': 'Pla', 'Bloc': '', 'Exercicis': `${(t.sessions || []).length} sessions`,
+        'Descripció': [t.goal, t.start && `Inici ${t.start}`].filter(Boolean).join(' · '), 'Client': p ? U.fullName(p) : '' };
+    }
+    return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items,
+      'Descripció': t.desc || t.goal || '', 'Client': '' };
   },
 };
 

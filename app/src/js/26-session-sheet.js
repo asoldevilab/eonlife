@@ -78,7 +78,7 @@ function SessionSheet({ id }) {
           return html`<section class=${U.cls('sblock', `blk-${b.key}`, b.key === 'for' && 'sblock-main')} style=${`--span:${span(b.key)}`}>
             <header class="sblock-head">
               <span class="sblock-num">${def.num}</span>
-              <div class="grow"><h2 class="sblock-name">${blockName(b.key)}</h2>${b.focus && html`<p class="sblock-focus">${b.focus}</p>`}</div>
+              <div class="grow"><h2 class="sblock-name">${blockName(b.key)}</h2>${(b.focus || b.methodName) && html`<p class="sblock-focus">${[b.focus, b.methodName].filter(Boolean).join(' · ')}</p>`}</div>
               ${nVideos > 0 && html`<button type="button" class="sblock-videos no-print" onClick=${() => openBlockVideos(b, 0)}
                 aria-label=${`Mira els vídeos del bloc ${blockName(b.key)}`}><${Icon} name="playfill" size=${15} />${U.plural(nVideos, 'vídeo', 'vídeos')}</button>`}
             </header>
@@ -88,7 +88,7 @@ function SessionSheet({ id }) {
                 const head = g && (i === 0 || gOf(named[i - 1]) !== g);
                 const tags = [it.lat === 'UL' ? 'Unilateral' : '', it.cont ? (OPT.cont.find((o) => o.v === it.cont) || {}).label : '', it.material && !/^(Terra|Pes corporal)$/.test(it.material) ? it.material : ''].filter(Boolean);
                 const withVideo = b.items.filter((x) => x.name && demoOf(x));
-                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
+                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
                   <div class="sx-body">
                     <div class="sx-line"><span class="sx-name">${it.name}${demoOf(it) && html` <button type="button" class="sx-play no-print" title="Mira el vídeo" onClick=${() => openBlockVideos(b, withVideo.indexOf(it))}><${Icon} name="playfill" size=${12} /></button>`}</span><span class="sx-rx">${Calc.presc(it)}</span></div>

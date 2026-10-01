@@ -204,6 +204,20 @@ const step = async (label, fn) => {
     await blk.scrollIntoViewIfNeeded();
     await shot(page, '08c-subblocs', false);
   });
+  await step('progressió d\'un exercici (▲ ▼) i mètode del bloc', async () => {
+    const blk = page.locator('section.block.blk-for');
+    const first = blk.locator('.item').first();
+    if ((await first.locator('.picker-input').inputValue()) !== 'Back squat') throw new Error('el primer exercici no és el back squat');
+    await first.locator('.lvl-btn[aria-label="Progressa un nivell"]').click();
+    await page.waitForFunction(() => document.querySelector('section.block.blk-for .item .picker-input').value === 'Front squat');
+    await first.locator('.lvl-n >> text=N4').waitFor();
+    await first.locator('.lvl-btn[aria-label="Regressa un nivell"]').click();
+    await page.waitForFunction(() => document.querySelector('section.block.blk-for .item .picker-input').value === 'Back squat');
+    await page.selectOption('section.block.blk-for .block-head .method-select', { label: 'Contrast (PAPE)' });
+    await blk.locator('.method-hint >> text=Contrast (PAPE)').first().waitFor();
+    await blk.locator('.sgroup').nth(1).locator('.method-select').selectOption({ label: 'Clúster' });
+    await blk.locator('.sgroup').nth(1).locator('.method-hint >> text=Clúster').waitFor();
+  });
   await step('vídeo de demostració (YouTube) desat a la biblioteca', async () => {
     const item = page.locator('section.block.blk-mob .item').first();
     await item.locator('button.mini[title*="demostració"]').click();
@@ -221,6 +235,8 @@ const step = async (label, fn) => {
     await page.waitForSelector('.sblock.blk-for .sx-group >> text=Bloc 1');
     await page.waitForSelector('.sblock.blk-for .sx-group >> text=Superset · 3 voltes');
     if ((await page.locator('.sblock.blk-for .sx-group').count()) !== 2) throw new Error('subblocs a la fitxa');
+    await page.waitForSelector('.sblock.blk-for .sblock-focus >> text=Contrast (PAPE)');
+    await page.waitForSelector('.sblock.blk-for .sx-group .sx-method >> text=Clúster');
   });
   await step('presenta: vídeos del bloc de mobilitat', async () => {
     await page.click('.sblock.blk-mob .sblock-videos');
@@ -237,6 +253,43 @@ const step = async (label, fn) => {
     await page.waitForSelector('.block');
     const n = await page.locator('.item').count();
     if (n < 10) throw new Error(`només ${n} exercicis`);
+  });
+  await step('pla d\'entrenament: 8 sessions amb progressió cada 2', async () => {
+    await goHash(page, '#/client/P-DEMO-ALEX/pla');
+    await page.click('.card >> text=Crea un pla');
+    await page.fill('#pl-name', 'Pla de pretemporada');
+    await page.fill('#pl-count', '8');
+    await page.selectOption('#pl-every', '2');
+    await shot(page, '11a-pla-nou', false);
+    await page.click('.dialog-foot >> text=Crea el pla');
+    await page.waitForSelector('.plangrid');
+    if ((await page.locator('.pg-col').count()) !== 8) throw new Error('han de ser 8 sessions');
+    if (!(await page.locator('.pg-cell.pg-up').count())) throw new Error('no hi ha cap exercici que pugi de nivell');
+    await page.click('.pg-col >> text=S3');
+    await page.waitForSelector('.plan-cur >> text=Sessió 3 del pla');
+    await shot(page, '11b-pla-editor');
+  });
+  await step('pla: sessions previstes al calendari i sessió del dia des del pla', async () => {
+    await goHash(page, '#/client/P-DEMO-ALEX/mes');
+    await page.waitForSelector('.cal');
+    if (!(await page.locator('.cal-s.ghost').count())) await page.click('.month-nav button[title="Mes següent"]');
+    await page.locator('.cal-s.ghost').first().click();
+    await page.waitForSelector('.plan-pill >> text=S1 del pla');
+    await goHash(page, '#/client/P-DEMO-ALEX/sessions');
+    await page.click('.page .card-head >> text=Nova sessió');
+    await page.waitForSelector('.choice.on >> text=Del pla d\'entrenament');
+    await page.click('.dialog-foot >> text=Crea la sessió');
+    await page.waitForSelector('.plan-pill >> text=S2 del pla');
+  });
+  await step('progrés: sessió d\'abans i d\'ara (càrrega i velocitat de l\'encoder)', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA/pla');
+    await page.click('text=Mira el progrés');
+    await page.waitForSelector('.pv-row');
+    await page.waitForSelector('.pv-chip.up >> text=m/s');
+    await page.waitForSelector('.pv-evo .chart svg');
+    await shot(page, '11c-progres');
+    await page.click('.presentbar >> text=Torna');
+    await page.waitForSelector('.plancard');
   });
   await step('nou client', async () => {
     await goHash(page, '#/inici');
@@ -268,6 +321,19 @@ const step = async (label, fn) => {
     if ((await page.inputValue('#pf-reason')) !== 'dolor lumbar en aixecar pes') throw new Error('motiu');
     if ((await page.inputValue('#pf-surgeryDate')) !== '2022-02-14') throw new Error('data IQ');
     if (!(await page.inputValue('#pf-history')).includes('hèrnia L5-S1')) throw new Error('antecedents');
+  });
+  await step('biblioteca: progressions i apunts d\'un mètode', async () => {
+    await goHash(page, '#/biblioteca');
+    await page.click('.seg >> text=Progressions');
+    await page.waitForSelector('.ladder >> text=Olímpics · cargolada');
+    await page.waitForSelector('.ladder >> text=Equilibri');
+    await shot(page, '10b-progressions', false);
+    await goHash(page, '#/biblioteca/metodes');
+    await page.click('.method >> text=Clúster');
+    await page.fill('#me-notes', 'Apunts del curs: ideal amb l\'encoder per mantenir la velocitat.');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.method:has-text("Clúster") .ic, .method:has-text("Clúster") svg');
+    await shot(page, '10c-metodes', false);
   });
   await step('biblioteca', async () => {
     await goHash(page, '#/biblioteca');

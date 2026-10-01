@@ -66,6 +66,8 @@ function SessionEditor({ id }) {
         <strong>Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
       </div>
+      ${s.planId && Store.get('templates', s.planId) && html`<button type="button" class="pill pill-neutral plan-pill" onClick=${() => go('pla', s.planId, s.planN)}
+        title="Obre el pla d'entrenament"><${Icon} name="layers" size=${13} />S${s.planN} del pla</button>`}
       <${SaveStatus} />
       <${Seg} value=${s.status} onValue=${set('status')} allowEmpty=${false} size="sm" ariaLabel="Estat de la sessió"
         options=${[{ v: 'planificada', label: 'Planificada' }, { v: 'feta', label: 'Feta', tone: 'ok' }]} />
@@ -83,7 +85,7 @@ function SessionEditor({ id }) {
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
-        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${set('professional')} /></${Field}>
+        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
         <${Field} label="Objectiu de la sessió" id="se-goal" wide=${true}>
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
@@ -174,6 +176,10 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
     b.groups = [...b.groups, { id: U.uid('G'), name: '' }];
   });
   const setGroup = (gid, k) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) g[k] = v; });
+  // Mètode (clúster, excèntric, contrast…) del bloc o d'un subbloc.
+  const putMethod = (obj, t) => { if (t) { obj.method = t.id; obj.methodName = t.name; } else { delete obj.method; delete obj.methodName; } };
+  const setMethod = (t) => onChange((b) => putMethod(b, t));
+  const setGroupMethod = (gid, t) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) putMethod(g, t); });
   const removeGroup = async (x) => {
     const n = x.items.filter((y) => y.it.name).length;
     if (n && !(await UI.confirm({ title: `Treure el bloc ${x.n}?`, text: n === 1 ? 'També s\'eliminarà l\'exercici que hi ha.' : `També s'eliminaran els ${n} exercicis que hi ha.`, ok: 'Treu el bloc', danger: true }))) return;
@@ -232,6 +238,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         <${TextInput} value=${block.focus} onValue=${(v) => onChange((b) => { b.focus = v; })} placeholder="Focus del bloc" list=${`focus-${block.key}`} ariaLabel=${`Focus del bloc ${blockName(block.key)}`} />
         <datalist id=${`focus-${block.key}`}>${def.focus.map((x) => html`<option value=${x}></option>`)}</datalist>
       </div>
+      <${MethodSelect} block=${block.key} value=${block.method} onPick=${setMethod} ariaLabel=${`Mètode del bloc ${blockName(block.key)}`} />
       <${Menu} icon="layers" title="Plantilles del bloc" items=${[
         { header: tpls.length ? 'Insereix una plantilla' : 'Encara no hi ha plantilles' },
         ...tpls.map((t) => ({ label: t.name, icon: 'plus', onClick: () => insertTemplate(t) })),
@@ -241,6 +248,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
       ]} />
     </header>
+    ${block.method && html`<p class="method-hint"><strong>${block.methodName}</strong> · ${methodHint(block.method)}</p>`}
     ${items.length > 0 && html`<div class="items-head" aria-hidden="true">
       <span></span>
       <div class="item-line"><span class="ih ih-name">Exercici</span><div class="rx"><span class="ih rx-s">Sèries</span><span class="ih rx-r">Reps / temps</span>
@@ -253,8 +261,10 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
             <span class="sgroup-tag">Bloc ${x.n}</span>
             <input class="input sgroup-name" value=${x.g.name || ''} placeholder="Indicacions: p. ex. Superset · 3 voltes · 2' entre voltes"
               aria-label=${`Indicacions del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'name')(e.currentTarget.value)} />
+            <${MethodSelect} block=${block.key} value=${x.g.method} onPick=${(t) => setGroupMethod(x.g.id, t)} ariaLabel=${`Mètode del bloc ${x.n}`} />
             <button type="button" class="mini" title=${`Treu el bloc ${x.n}`} onClick=${() => removeGroup(x)}><${Icon} name="x" size=${15} /></button>
           </div>
+          ${x.g.method && html`<p class="method-hint"><strong>${x.g.methodName}</strong> · ${methodHint(x.g.method)}</p>`}
           ${x.items.length > 0
             ? html`<div class="items">${x.items.map((y) => row(y.it, y.i, gi))}</div>`
             : html`<p class="muted small sgroup-empty">Encara no hi ha cap exercici en aquest bloc.</p>`}
@@ -297,6 +307,12 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
   const demo = it.demo || (ex && ex.video) || '';
+  // Progressió: el mateix patró, un nivell més difícil (▲) o més fàcil (▼).
+  const up = Store.stepLevel(ex, 1), down = Store.stepLevel(ex, -1);
+  const swap = (nx) => {
+    onChange((x) => progressItem(x, nx, prevMap));
+    UI.toast(`${nx.name} · nivell ${nx.level}`);
+  };
 
   return html`<div class=${U.cls('item', it.done && !templateMode && 'item-done')}>
     <div class="item-num">${num}</div>
@@ -318,6 +334,11 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
           <${Icon} name=${open ? 'up' : 'down'} size=${14} />
         </button>
+        ${ex && ex.family && html`<span class="lvl" title=${`${ex.family} · nivell ${ex.level} de ${Store.ladder(ex.family).length}`}>
+          <button type="button" class="lvl-btn" disabled=${!down} title=${down ? `Regressa: ${down.name}` : 'Ja és el nivell més fàcil'} aria-label="Regressa un nivell" onClick=${() => down && swap(down)}><${Icon} name="down" size=${14} /></button>
+          <span class="lvl-n">N${ex.level}</span>
+          <button type="button" class="lvl-btn" disabled=${!up} title=${up ? `Progressa: ${up.name}` : 'Ja és el nivell més difícil'} aria-label="Progressa un nivell" onClick=${() => up && swap(up)}><${Icon} name="up" size=${14} /></button>
+        </span>`}
         <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
           onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
         ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} onChange=${set('video')} />`}
@@ -343,6 +364,8 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         { label: 'Mou amunt', icon: 'up', disabled: !canUp, onClick: () => onMove(-1) },
         { label: 'Mou avall', icon: 'down', disabled: !canDown, onClick: () => onMove(1) },
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
+        up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
+        down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) } : null,

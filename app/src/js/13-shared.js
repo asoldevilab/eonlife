@@ -147,10 +147,15 @@ function NewSessionDialog({ pid, date, onClose }) {
   const last = sessions.filter((s) => s.date <= (date || U.today())).pop() || sessions[sessions.length - 1];
   const tpls = Store.templates().filter((t) => t.kind === 'session');
   const [d, setD] = useState(date || U.today());
-  const [mode, setMode] = useState(last ? 'last' : 'template');
+  // Si el client té un pla, per defecte es fa la pròxima sessió del pla.
+  const plans = Store.plans(pid).filter((x) => Store.nextPlanN(x));
+  const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
+  const plan = plans.find((x) => x.id === planId) || null;
+  const [planN, setPlanN] = useState(plans[0] ? String(Store.nextPlanN(plans[0])) : '');
+  const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'template');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl });
+    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
     onClose();
     go('sessio', s.id);
   };
@@ -163,6 +168,12 @@ function NewSessionDialog({ pid, date, onClose }) {
     <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
     <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
     <div class="choices">
+      ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,
+        mode === 'plan' && html`<div class="inline mt-s">
+          ${plans.length > 1 && html`<${Select} value=${planId} onValue=${(v) => { setPlanId(v); const x = plans.find((y) => y.id === v); setPlanN(String(Store.nextPlanN(x) || 1)); }} ariaLabel="Pla" options=${plans.map((x) => ({ v: x.id, label: x.name }))} />`}
+          ${plan && html`<${Select} value=${planN} onValue=${setPlanN} ariaLabel="Sessió del pla"
+            options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
+        </div>`)}
       ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
       ${option('template', 'A partir d\'una plantilla', 'Estructura de 6 blocs ja preparada.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}
