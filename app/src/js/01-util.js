@@ -281,5 +281,6 @@ const U = {
     return rows;
   },
 
-  isUrl(s) { return /^https?:\/\/\S+$/i.test(String(s || '').trim()); },
+  // Enllaç web, o fitxer desat a la tauleta en la versió de prova («eonlocal:…», vegeu LocalFiles).
+  isUrl(s) { const t = String(s || '').trim(); return /^https?:\/\/\S+$/i.test(t) || /^eonlocal:[\w-]+$/.test(t); },
 };

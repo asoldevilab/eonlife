@@ -90,6 +90,8 @@ Consells:
   de la tauleta i el desa directament a *02 · Vídeos* de la carpeta del client.
 - **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *01 · Valoracions*
   de la carpeta del client (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
+  A la **versió de prova** (sense Microsoft 365) també es tria el PDF o es grava el vídeo, però es queden només en
+  aquella tauleta: no els veu cap altre aparell.
 - **Importa CSV de My Jump**: exporta el CSV des de My Jump Lab i puja'l; l'app detecta les
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
@@ -139,6 +141,16 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
     (velocitat de la 1a rep, pèrdua de velocitat, potència i altura del salt). La pròxima sessió es veu a *Anterior*.
   - A **Intensitat** hi ha també el caràcter de l'esforç (*CE 6(12)*), la pèrdua de velocitat objectiu (*PV 20 %*)
     i la velocitat objectiu (*V 0,75 m/s*).
+- **Divideix en blocs** (a sota de cada bloc, p. ex. a *Força principal*): el bloc es parteix en **Bloc 1, Bloc 2,
+  Bloc 3…**, cadascun amb els exercicis que vulguis (un de 2 exercicis i un altre de 5 o 6, per exemple).
+  - Els exercicis que ja hi havia queden al Bloc 1. Cada bloc té el seu **Afegeix exercici al bloc N** i un camp
+    d'**indicacions** (*Superset · 3 voltes · 2' entre voltes*).
+  - Per canviar un exercici de bloc: menú **⋯** de l'exercici › *Mou al bloc N*, o *Mou amunt / avall* des del
+    primer o l'últim exercici del bloc.
+  - **Afegeix el bloc N** n'afegeix un altre; la **×** del bloc el treu. *Uneix els blocs en un de sol* (botó de
+    plantilles del bloc) torna a deixar-ho tot junt.
+  - Es veuen a **Presenta** i al PDF, es copien amb *Copia l'última sessió* i les plantilles, i a l'Excel
+    (*Registre_exercicis*) hi ha la columna **Subbloc**.
 - Botó de **plantilles** de cada bloc: insereix un bloc desat o desa el bloc actual com a plantilla.
 - **Com arriba avui?** son, energia i dolor abans de començar.
 - **Tancament**: RPE de la sessió (0–10) i minuts › la **càrrega** (RPE × minuts, UA) es calcula
