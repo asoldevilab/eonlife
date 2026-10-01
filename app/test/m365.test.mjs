@@ -259,3 +259,21 @@ test('informe de Kinvent (PDF) a «01 · Valoracions» del client', async () => 
   assert.deepEqual(mock.childrenOf(dir.id).map((x) => x.name), ['2026-09-29 · Informe Kinvent K-Push · Jordi Vila.pdf']);
   assert.ok(up.url.includes('sharepoint.com'));
 });
+
+test('pla d\'entrenament llarg: es reparteix en més cel·les i es torna a llegir sencer', async () => {
+  const { core, mock, shared, api } = setup();
+  const a = await api();
+  const { Flat } = core;
+  const blocks = () => core.BLOCKS.map((b) => ({ key: b.key, focus: '', note: '', items: Array.from({ length: 4 }, (_, i) => ({ id: `I${b.key}${i}`, name: `Exercici ${i}`, sets: '3', reps: '8', note: 'x'.repeat(1000) })) }));
+  const plan = { id: 'PL-1', kind: 'plan', patientId: 'P-1', name: 'Pla llarg', start: '2026-10-05', days: [1, 4],
+    sessions: Array.from({ length: 8 }, (_, i) => ({ id: `PS${i}`, n: i + 1, phase: 'Força', goal: '', blocks: blocks() })) };
+  const size = JSON.stringify(plan).length;
+  assert.ok(size > 150000, `el pla fa ${size} caràcters`);
+  await a.db.upsert('templates', plan, Flat.template(plan), null, a.user);
+  const row = wbRows(mock, shared, 'tPlantilles').find((r) => r.id === 'PL-1');
+  assert.equal(row.Tipus, 'Pla');
+  assert.ok(String(row.data_json_6).startsWith('~'));
+  const back = (await a.bootstrap()).templates.find((x) => x.id === 'PL-1');
+  assert.equal(back.sessions.length, 8);
+  assert.equal(JSON.stringify(back.sessions), JSON.stringify(plan.sessions));
+});

@@ -307,7 +307,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exerciciâ
     if (!open) return [];
     const nq = U.norm(q ?? '');
     const all = Store.exercises();
-    const match = (e) => !nq || U.norm(`${e.name} ${e.cat} ${e.material} ${e.gm}`).includes(nq);
+    const match = (e) => !nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq);
     const mine = all.filter((e) => e.block === block && match(e));
     const others = nq ? all.filter((e) => e.block !== block && match(e)) : [];
     return [...mine, ...others].slice(0, 40);
@@ -340,8 +340,8 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exerciciâ
         lastBlock = ex.block;
         return html`${head}<button type="button" role="option" aria-selected=${nav && i === hi} class=${U.cls('picker-opt', nav && i === hi && 'hi')}
           onPointerDown=${(e) => e.preventDefault()} onClick=${() => pick(ex)}>
-          <span class="picker-name">${ex.name}</span>
-          <span class="picker-meta">${[ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' Â· ')}</span>
+          <span class="picker-name">${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+          <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' Â· ')}</span>
         </button>`;
       })}
     </div>`}

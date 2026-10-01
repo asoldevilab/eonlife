@@ -26,7 +26,7 @@ const XL = {
   log: 'Registre_exercicis',
   base: ['id', 'patient_id', 'updated_at', 'updated_by', 'deleted', 'data_json'],
   logBase: ['session_id', 'patient_id'],
-  extraChunks: 4, // data_json_2 … data_json_5 ja creades a la plantilla
+  extraChunks: 9, // data_json_2 … data_json_10 ja creades a la plantilla (un pla d'entrenament llarg ocupa ~150.000 caràcters)
   cellLimit: 30000, // Excel admet 32.767 caràcters per cel·la
   table: (sheet) => `t${sheet}`,
 };
@@ -495,6 +495,8 @@ class ExcelDb {
       for (let attempt = 0; ; attempt++) {
         try {
           const lay = await this.layout(sheet);
+          // Un Excel creat amb una plantilla anterior pot tenir menys columnes data_json_*: millor avisar que desar-ne mig.
+          if (chunks.length > 1 + lay.headers.filter((h) => /^data_json_\d+$/.test(h)).length) throw new M365Error('Aquest registre és massa gran per desar-lo a l\'Excel. Si és un pla d\'entrenament, divideix-lo en dos plans més curts.', 'size');
           await this.addColumns(sheet, lay, readable);
           const row = lay.headers.map((h) => {
             if (h === 'id') return rec.id;

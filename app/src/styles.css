@@ -1181,3 +1181,96 @@ tfoot .rpc { font-size: 14px; }
 }
 .localfile-img { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 12px; }
 .localfile-name { margin: 12px 0 4px; overflow-wrap: anywhere; }
+
+/* Nivell de progressió d'un exercici (N1 inicial … N5 expert) */
+.lvl { display: inline-flex; align-items: center; gap: 2px; height: 30px; padding: 0 2px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--surface); }
+.lvl-n { min-width: 26px; text-align: center; font-size: 12.5px; font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lvl-btn { width: 30px; height: 26px; display: grid; place-items: center; border: 0; border-radius: 7px; background: none; color: var(--ink-2); cursor: pointer; }
+.lvl-btn:hover:not(:disabled) { background: var(--surface-3); color: var(--ink); }
+.lvl-btn:disabled { opacity: 0.3; cursor: default; }
+.lvl-chip { display: inline-flex; align-items: center; height: 19px; padding: 0 6px; border-radius: 6px; background: var(--surface-3); color: var(--ink-2); font-size: 11px; font-weight: 800; vertical-align: 1px; }
+.ladder { display: grid; grid-template-columns: minmax(150px, 210px) minmax(0, 1fr); gap: 8px 14px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
+.ladder-name { font-weight: 700; padding-top: 6px; }
+.ladder-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ladder-steps li { display: flex; align-items: center; gap: 6px; }
+.ladder-steps li + li::before { content: '→'; color: var(--ink-3); }
+.ladder-step { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 10px 4px 4px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.ladder-step:hover { border-color: var(--blk, var(--ink-3)); }
+.ladder-n { display: inline-grid; place-items: center; min-width: 30px; height: 26px; border-radius: 7px; background: var(--surface-3); font-size: 12px; font-weight: 800; color: var(--ink-2); }
+.ladder-ex { font-size: 14px; font-weight: 600; }
+@media (max-width: 640px) { .ladder { grid-template-columns: minmax(0, 1fr); } .ladder-name { padding-top: 0; } }
+.methods { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.method { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.method:hover { border-color: var(--line-2); background: var(--surface-2); }
+.method-name { font-weight: 750; }
+.method-aim { font-size: 13.5px; color: var(--ink-2); }
+.method-ex { font-size: 13px; font-weight: 650; color: var(--link); font-variant-numeric: tabular-nums; }
+.method-select { flex: 0 1 220px; min-width: 150px; }
+.method-hint { margin: 8px 0 0; font-size: 13px; color: var(--ink-3); }
+.sgroup-head .method-select { flex: 0 1 200px; }
+.sx-method { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: var(--surface-3); color: var(--ink-2); font-size: 12px; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Pla d'entrenament */
+.mt-s { margin-top: 8px; }
+.plancard-main { border-color: var(--line-2); }
+.planbar { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 8px; }
+.planbar-s { min-width: 34px; height: 30px; padding: 0 6px; border-radius: 8px; border: 1.5px dashed var(--line-2); background: var(--surface); color: var(--ink-3); font-size: 12.5px; font-weight: 750; cursor: pointer; font-variant-numeric: tabular-nums; }
+.planbar-s.made { border-style: solid; border-color: var(--ink-3); color: var(--ink-2); }
+.planbar-s.done { border-style: solid; border-color: var(--ok); background: var(--ok); color: #10200B; }
+.planbar-s.next { border-style: solid; border-color: var(--ink); color: var(--ink); }
+.plan-pill { border: 0; cursor: pointer; gap: 5px; }
+.plangrid-wrap { margin-top: 6px; }
+.plangrid { border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 100%; }
+.plangrid th, .plangrid td { border-bottom: 1px solid var(--line); vertical-align: top; }
+.pg-corner, .pg-rowh { position: sticky; left: 0; z-index: 1; background: var(--surface); text-align: left; padding: 6px 10px 6px 0; white-space: nowrap; }
+.pg-num { color: var(--ink-3); font-weight: 750; font-variant-numeric: tabular-nums; }
+.pg-col { padding: 0 3px 6px; min-width: 132px; }
+.pg-col button { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.pg-col.on button { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.pg-col.done button { background: var(--surface-2); }
+.pg-n { font-weight: 800; }
+.pg-date { font-size: 11.5px; color: var(--ink-3); }
+.pg-phase { font-size: 11px; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+.pg-block th, .pg-block td { padding-top: 10px; border-bottom: 0; }
+.pg-cell { padding: 6px 8px; cursor: pointer; max-width: 170px; }
+.pg-cell.on { background: var(--surface-2); }
+.pg-ex { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 650; line-height: 1.25; }
+.pg-rx { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pg-up .pg-ex { color: var(--ok-ink); }
+.pg-down .pg-ex { color: var(--warn-ink, var(--ink-2)); }
+.pg-swap .pg-ex { font-style: italic; }
+.pg-empty { color: var(--line-2); }
+.cal-s.ghost { background: transparent; border: 1.5px dashed var(--line-2); color: var(--ink-2); }
+
+/* Progrés del client */
+.pv-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 650; color: var(--ink-2); }
+.pv-pick .select { max-width: 220px; }
+.pv-range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 22px 0 18px; font-size: 18px; font-weight: 650; }
+.pv-arrow { color: var(--ink-3); font-weight: 700; }
+.pv-stats { margin-bottom: 26px; }
+.pv-block { margin-top: 18px; padding: 18px 22px 8px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; }
+.pv-rows { display: flex; flex-direction: column; }
+.pv-row { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr) 230px; gap: 6px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.pv-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pv-name { font-size: 16.5px; font-weight: 650; }
+.pv-rx { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pv-row > .pv-side:first-child .pv-name { color: var(--ink-2); font-weight: 600; }
+.pv-delta { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.pv-chip { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border-radius: 8px; background: var(--surface-3); color: var(--ink-2); font-size: 13px; font-weight: 750; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pv-chip.up { background: var(--ok-bg, var(--surface-3)); color: var(--ok-ink); }
+.pv-chip.down { background: var(--warn-bg); color: var(--warn-ink); }
+.pv-chip.muted { background: none; color: var(--ink-3); font-weight: 600; }
+.pv-evo { margin-top: 30px; }
+.pv-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.pv-chart { padding: 14px 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; min-width: 0; }
+.pv-chart-t { margin: 8px 0 2px; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+@media (max-width: 700px) {
+  .pv-row { grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); }
+  .pv-delta { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media print {
+  .pv-block, .pv-chart { padding: 8pt 10pt; }
+  .pv-name { font-size: 10.5pt; }
+  .pv-rx, .pv-chip { font-size: 9pt; }
+}

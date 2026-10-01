@@ -1198,6 +1198,99 @@ tfoot .rpc { font-size: 14px; }
 }
 .localfile-img { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 12px; }
 .localfile-name { margin: 12px 0 4px; overflow-wrap: anywhere; }
+
+/* Nivell de progressió d'un exercici (N1 inicial … N5 expert) */
+.lvl { display: inline-flex; align-items: center; gap: 2px; height: 30px; padding: 0 2px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--surface); }
+.lvl-n { min-width: 26px; text-align: center; font-size: 12.5px; font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lvl-btn { width: 30px; height: 26px; display: grid; place-items: center; border: 0; border-radius: 7px; background: none; color: var(--ink-2); cursor: pointer; }
+.lvl-btn:hover:not(:disabled) { background: var(--surface-3); color: var(--ink); }
+.lvl-btn:disabled { opacity: 0.3; cursor: default; }
+.lvl-chip { display: inline-flex; align-items: center; height: 19px; padding: 0 6px; border-radius: 6px; background: var(--surface-3); color: var(--ink-2); font-size: 11px; font-weight: 800; vertical-align: 1px; }
+.ladder { display: grid; grid-template-columns: minmax(150px, 210px) minmax(0, 1fr); gap: 8px 14px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
+.ladder-name { font-weight: 700; padding-top: 6px; }
+.ladder-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ladder-steps li { display: flex; align-items: center; gap: 6px; }
+.ladder-steps li + li::before { content: '→'; color: var(--ink-3); }
+.ladder-step { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 10px 4px 4px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.ladder-step:hover { border-color: var(--blk, var(--ink-3)); }
+.ladder-n { display: inline-grid; place-items: center; min-width: 30px; height: 26px; border-radius: 7px; background: var(--surface-3); font-size: 12px; font-weight: 800; color: var(--ink-2); }
+.ladder-ex { font-size: 14px; font-weight: 600; }
+@media (max-width: 640px) { .ladder { grid-template-columns: minmax(0, 1fr); } .ladder-name { padding-top: 0; } }
+.methods { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.method { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.method:hover { border-color: var(--line-2); background: var(--surface-2); }
+.method-name { font-weight: 750; }
+.method-aim { font-size: 13.5px; color: var(--ink-2); }
+.method-ex { font-size: 13px; font-weight: 650; color: var(--link); font-variant-numeric: tabular-nums; }
+.method-select { flex: 0 1 220px; min-width: 150px; }
+.method-hint { margin: 8px 0 0; font-size: 13px; color: var(--ink-3); }
+.sgroup-head .method-select { flex: 0 1 200px; }
+.sx-method { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: var(--surface-3); color: var(--ink-2); font-size: 12px; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Pla d'entrenament */
+.mt-s { margin-top: 8px; }
+.plancard-main { border-color: var(--line-2); }
+.planbar { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 8px; }
+.planbar-s { min-width: 34px; height: 30px; padding: 0 6px; border-radius: 8px; border: 1.5px dashed var(--line-2); background: var(--surface); color: var(--ink-3); font-size: 12.5px; font-weight: 750; cursor: pointer; font-variant-numeric: tabular-nums; }
+.planbar-s.made { border-style: solid; border-color: var(--ink-3); color: var(--ink-2); }
+.planbar-s.done { border-style: solid; border-color: var(--ok); background: var(--ok); color: #10200B; }
+.planbar-s.next { border-style: solid; border-color: var(--ink); color: var(--ink); }
+.plan-pill { border: 0; cursor: pointer; gap: 5px; }
+.plangrid-wrap { margin-top: 6px; }
+.plangrid { border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 100%; }
+.plangrid th, .plangrid td { border-bottom: 1px solid var(--line); vertical-align: top; }
+.pg-corner, .pg-rowh { position: sticky; left: 0; z-index: 1; background: var(--surface); text-align: left; padding: 6px 10px 6px 0; white-space: nowrap; }
+.pg-num { color: var(--ink-3); font-weight: 750; font-variant-numeric: tabular-nums; }
+.pg-col { padding: 0 3px 6px; min-width: 132px; }
+.pg-col button { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.pg-col.on button { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.pg-col.done button { background: var(--surface-2); }
+.pg-n { font-weight: 800; }
+.pg-date { font-size: 11.5px; color: var(--ink-3); }
+.pg-phase { font-size: 11px; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+.pg-block th, .pg-block td { padding-top: 10px; border-bottom: 0; }
+.pg-cell { padding: 6px 8px; cursor: pointer; max-width: 170px; }
+.pg-cell.on { background: var(--surface-2); }
+.pg-ex { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 650; line-height: 1.25; }
+.pg-rx { display: block; margin-top: 2px; font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pg-up .pg-ex { color: var(--ok-ink); }
+.pg-down .pg-ex { color: var(--warn-ink, var(--ink-2)); }
+.pg-swap .pg-ex { font-style: italic; }
+.pg-empty { color: var(--line-2); }
+.cal-s.ghost { background: transparent; border: 1.5px dashed var(--line-2); color: var(--ink-2); }
+
+/* Progrés del client */
+.pv-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 650; color: var(--ink-2); }
+.pv-pick .select { max-width: 220px; }
+.pv-range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 22px 0 18px; font-size: 18px; font-weight: 650; }
+.pv-arrow { color: var(--ink-3); font-weight: 700; }
+.pv-stats { margin-bottom: 26px; }
+.pv-block { margin-top: 18px; padding: 18px 22px 8px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; }
+.pv-rows { display: flex; flex-direction: column; }
+.pv-row { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr) 230px; gap: 6px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.pv-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pv-name { font-size: 16.5px; font-weight: 650; }
+.pv-rx { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pv-row > .pv-side:first-child .pv-name { color: var(--ink-2); font-weight: 600; }
+.pv-delta { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.pv-chip { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border-radius: 8px; background: var(--surface-3); color: var(--ink-2); font-size: 13px; font-weight: 750; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pv-chip.up { background: var(--ok-bg, var(--surface-3)); color: var(--ok-ink); }
+.pv-chip.down { background: var(--warn-bg); color: var(--warn-ink); }
+.pv-chip.muted { background: none; color: var(--ink-3); font-weight: 600; }
+.pv-evo { margin-top: 30px; }
+.pv-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.pv-chart { padding: 14px 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; min-width: 0; }
+.pv-chart-t { margin: 8px 0 2px; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+@media (max-width: 700px) {
+  .pv-row { grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); }
+  .pv-delta { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media print {
+  .pv-block, .pv-chart { padding: 8pt 10pt; }
+  .pv-name { font-size: 10.5pt; }
+  .pv-rx, .pv-chip { font-size: 9pt; }
+}
 </style>
 </head>
 <body>
@@ -3505,7 +3598,7 @@ var qrcode = function() {
 }));
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
-window.EON_BUILD = "2026-10-01 10:18";
+window.EON_BUILD = "2026-10-01 11:09";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -3845,6 +3938,14 @@ const OPT = {
     'Encoder', 'Bike', 'Assault bike', 'Skillmill', 'Foam roller', 'Pica', 'Paret', 'Terra', 'Màquina'],
   intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
     'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
+  // Nivell de progressió d'un exercici dins de la seva família (de més fàcil a més difícil).
+  levels: [
+    { v: '1', label: 'Nivell 1 · Inicial' },
+    { v: '2', label: 'Nivell 2 · Bàsic' },
+    { v: '3', label: 'Nivell 3 · Intermedi' },
+    { v: '4', label: 'Nivell 4 · Avançat' },
+    { v: '5', label: 'Nivell 5 · Expert' },
+  ],
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control'],
   // Servei que fa el client al centre.
   services: [
@@ -4247,6 +4348,148 @@ const SEED_EXERCISES = (() => {
   ex('X-CAL-08', 'cal', 'Bike suau + foam roller', 'Recuperació', 'Bike', { pos: 'Sd', sets: '1', reps: '10\'', intensity: 'Suau' });
   ex('X-CAL-09', 'cal', 'Estiraments suaus globals', 'Mobilitat suau', 'Terra', { sets: '1', reps: '5\'' });
 
+  // ── Exercicis afegits per completar les progressions (de més fàcil a més difícil) ──
+  // 1 · Mobilitat
+  ex('X-MOB-15', 'mob', 'Dorsiflexió en estocada amb càrrega', 'Turmell', 'KB', { pos: 'Sa', lat: 'UL', sets: '2', reps: '8/costat', cues: 'La KB sobre el genoll; el genoll avança i el taló no s\'aixeca.' });
+  ex('X-MOB-16', 'mob', 'Squat profund amb pausa', 'Turmell', 'Pes corporal', { pos: 'Bp', sets: '2', reps: '5 × 10 s', cues: 'Talons a terra, tronc llarg i respiració tranquil·la a baix.' });
+  ex('X-MOB-17', 'mob', '90/90 amb lift-off', 'Maluc', 'Terra', { pos: 'Sd', lat: 'UL', sets: '2', reps: '5/costat', cues: 'Aixeca el peu de darrere sense inclinar el tronc.' });
+  ex('X-MOB-18', 'mob', 'Cossack squat amb contrapès', 'Maluc', 'KB', { pos: 'Bp', lat: 'UL', sets: '2', reps: '5/costat' });
+  ex('X-MOB-19', 'mob', 'Couch stretch', 'Maluc', 'Paret', { pos: 'Sa', lat: 'UL', sets: '2', reps: '45 s/costat', cues: 'Retroversió pèlvica i glutis actius; no arquegis la lumbar.' });
+  ex('X-MOB-20', 'mob', 'Rotació toràcica en mig genoll amb pica', 'Columna toràcica', 'Pica', { pos: 'Sa', lat: 'UL', sets: '2', reps: '8/costat' });
+  ex('X-MOB-21', 'mob', 'Wall slide amb lift-off', 'Espatlla', 'Paret', { pos: 'Bp', sets: '2', reps: '8', cues: 'A dalt, separa les mans de la paret sense arquejar l\'esquena.' });
+
+  // 2 · Activació
+  ex('X-ACT-15', 'act', 'Dead bug amb goma (pullover)', 'Core · antiextensió', 'Goma elàstica', { pos: 'Ds', gm: 'Core', lat: 'UL', sets: '2', reps: '8/costat', cues: 'Tensa la goma amb els braços i allarga la cama sense moure la pelvis.' });
+  ex('X-ACT-16', 'act', 'Body saw amb lliscadors', 'Core · antiextensió', 'Lliscadors', { pos: 'Dp', gm: 'Core', sets: '2', reps: '8' });
+  ex('X-ACT-17', 'act', 'Ab wheel rollout', 'Core · antiextensió', 'Roda abdominal', { pos: 'Ag', gm: 'Core', cont: 'ECC', sets: '2', reps: '6', cues: 'Avança només fins on puguis mantenir la pelvis neutra.' });
+  ex('X-ACT-18', 'act', 'Planxa lateral de genolls', 'Core', 'Terra', { pos: 'Dl', gm: 'Core', cont: 'ISO', lat: 'UL', sets: '2', reps: '20 s/costat' });
+  ex('X-ACT-19', 'act', 'Planxa lateral amb abducció de cama', 'Core', 'Terra', { pos: 'Dl', gm: 'GMed', lat: 'UL', sets: '2', reps: '8/costat' });
+  ex('X-ACT-20', 'act', 'Suitcase carry', 'Core', 'KB', { pos: 'Bp', gm: 'Core', lat: 'UL', sets: '2', reps: '20 m/costat', cues: 'Camina recte, sense inclinar-te cap a la càrrega.' });
+  ex('X-ACT-21', 'act', 'Pont de glutis unipodal', 'Glutis', 'Terra', { pos: 'Ds', gm: 'GMax', lat: 'UL', sets: '2', reps: '8/costat' });
+  ex('X-ACT-22', 'act', 'Hip airplane', 'Glutis', 'Pes corporal', { pos: 'Bp', gm: 'GMed', lat: 'UL', sets: '2', reps: '5/costat', cues: 'Rota la pelvis sobre el maluc de suport amb control.' });
+  ex('X-ACT-23', 'act', 'Squeeze isomètric amb pilota', 'Adductors', 'Pilota', { pos: 'Ds', gm: 'Adductors', cont: 'ISO', sets: '3', reps: '10 s' });
+  ex('X-ACT-24', 'act', 'Y-T-W en banc inclinat', 'Escàpules', 'Mancuernes', { pos: 'Dp', gm: 'Escàpula', sets: '2', reps: '6 de cada' });
+
+  // 3 · Potència
+  ex('X-POT-13', 'pot', 'Snap down (aterratge)', 'Salt vertical', 'Pes corporal', { pos: 'Bp', sets: '3', reps: '5', cues: 'Aprèn a aterrar: genolls alineats, maluc enrere i sense soroll.' });
+  ex('X-POT-14', 'pot', 'CMJ unipodal', 'Salt vertical', 'Pes corporal', { pos: 'Bp', lat: 'UL', sets: '3', reps: '3/cama', intensity: 'Màxima intenció', rest: '90 s' });
+  ex('X-POT-15', 'pot', 'Salts sobre tanques baixes', 'Pliometria reactiva', 'Tanques', { pos: 'Bp', sets: '3', reps: '5', cues: 'Contacte curt; rebota com una pilota.' });
+  ex('X-POT-16', 'pot', 'Drop jump unipodal', 'Pliometria reactiva', 'Caixa', { pos: 'Bp', lat: 'UL', sets: '3', reps: '3/cama' });
+  ex('X-POT-17', 'pot', 'Salt horitzontal amb aterratge unipodal', 'Salt horitzontal', 'Pes corporal', { pos: 'Bp', lat: 'UL', sets: '3', reps: '3/cama', cues: 'Aguanta 2 s l\'aterratge sense que el genoll entri.' });
+  ex('X-POT-18', 'pot', 'Bounds (salts unipodals encadenats)', 'Salt horitzontal', 'Pes corporal', { pos: 'Bp', lat: 'UL', sets: '3', reps: '5/cama' });
+  ex('X-POT-19', 'pot', 'Desplaçament lateral amb aturada', 'Canvi de direcció', 'Cons', { pos: 'Bp', lat: 'UL', sets: '3', reps: '4/costat', cues: 'Frena en dos temps; el peu de fora empeny el terra.' });
+  ex('X-POT-20', 'pot', 'Canvi de direcció a 45° preplanificat', 'Canvi de direcció', 'Cons', { pos: 'Bp', lat: 'UL', sets: '3', reps: '4/costat' });
+  ex('X-POT-21', 'pot', '5-0-5 (canvi de direcció de 180°)', 'Canvi de direcció', 'Cons', { pos: 'Bp', lat: 'UL', sets: '3', reps: '3/costat', intensity: 'Màxima intenció', rest: '2\'' });
+  ex('X-POT-22', 'pot', 'Canvi de direcció reactiu (a senyal)', 'Canvi de direcció', 'Cons', { pos: 'Bp', sets: '3', reps: '4', cues: 'Surt cap on indiqui el senyal (llum, so o mà).' });
+  ex('X-POT-23', 'pot', 'Canvi de direcció reactiu en mirall (1 contra 1)', 'Canvi de direcció', 'Cons', { pos: 'Bp', sets: '3', reps: '4 × 8 s' });
+  ex('X-POT-24', 'pot', 'Llançament rotacional amb pas (shot put)', 'Llançament rotacional', 'Med ball', { pos: 'Bp', lat: 'UL', sets: '3', reps: '4/costat', intensity: 'Màxima intenció' });
+  ex('X-POT-25', 'pot', 'Jump shrug', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '4', cues: 'Extensió triple explosiva i encongiment d\'espatlles; braços relaxats.' });
+  ex('X-POT-26', 'pot', 'Hang high pull', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '3', cues: 'Colzes amunt i per fora després de l\'extensió.' });
+  ex('X-POT-27', 'pot', 'Power clean des de terra', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '4', reps: '2', rest: '2\'' });
+  ex('X-POT-28', 'pot', 'Cargolada completa (clean)', 'Olímpic', 'Barra', { pos: 'Bp', sets: '4', reps: '2', rest: '2\'' });
+  ex('X-POT-29', 'pot', 'Overhead squat amb pica', 'Derivat olímpic', 'Pica', { pos: 'Bp', sets: '2', reps: '6', cues: 'Braços bloquejats i pica sobre el centre del peu.' });
+  ex('X-POT-30', 'pot', 'Snatch high pull des de penjat', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '3' });
+  ex('X-POT-31', 'pot', 'Hang power snatch', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '3' });
+  ex('X-POT-32', 'pot', 'Power snatch', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '4', reps: '2', rest: '2\'' });
+  ex('X-POT-33', 'pot', 'Arrencada completa (snatch)', 'Olímpic', 'Barra', { pos: 'Bp', sets: '4', reps: '2', rest: '2\'' });
+  ex('X-POT-34', 'pot', 'Push press', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '4', cues: 'Impuls de cames curt i ràpid; la barra puja en línia recta.' });
+  ex('X-POT-35', 'pot', 'Push jerk', 'Derivat olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '3' });
+  ex('X-POT-36', 'pot', 'Split jerk', 'Olímpic', 'Barra', { pos: 'Bp', sets: '3', reps: '2' });
+  ex('X-POT-37', 'pot', 'Kettlebell swing a una mà', 'Balístic', 'KB', { pos: 'Bp', gm: 'GMax', lat: 'UL', sets: '3', reps: '8/costat' });
+  ex('X-POT-38', 'pot', 'Kettlebell snatch', 'Balístic', 'KB', { pos: 'Bp', lat: 'UL', sets: '3', reps: '5/costat' });
+
+  // 4 · Força principal
+  ex('X-FOR-22', 'for', 'Squat a caixa amb pes corporal', 'Dominant de genoll', 'Caixa', { pos: 'Bp', gm: 'Quàdriceps', sets: '3', reps: '10', cues: 'Seu i aixeca\'t sense deixar-te caure; pes al mig del peu.' });
+  ex('X-FOR-23', 'for', 'Back squat amb pausa', 'Dominant de genoll', 'Barra', { pos: 'Bp', gm: 'Quàdriceps', sets: '4', reps: '3', intensity: 'RIR 2', rest: '2\'30"', tempo: '3-2-X-0', cues: 'Pausa de 2 s a baix sense perdre tensió.' });
+  ex('X-FOR-24', 'for', 'Split squat amb pes corporal', 'Dominant de genoll', 'Pes corporal', { pos: 'Bp', gm: 'Quàdriceps', lat: 'UL', sets: '3', reps: '10/cama' });
+  ex('X-FOR-25', 'for', 'Estocada enrere amb barra', 'Dominant de genoll', 'Barra', { pos: 'Bp', gm: 'Quàdriceps', lat: 'UL', sets: '3', reps: '6/cama', intensity: 'RIR 2' });
+  ex('X-FOR-26', 'for', 'Squat unipodal a caixa (pistol)', 'Dominant de genoll', 'Caixa', { pos: 'Bp', gm: 'Quàdriceps', lat: 'UL', sets: '3', reps: '5/cama' });
+  ex('X-FOR-27', 'for', 'Bisagra de maluc amb pica', 'Dominant de maluc', 'Pica', { pos: 'Bp', gm: 'Isquiotibials', sets: '2', reps: '10', cues: 'La pica toca cap, dors i sacre tota l\'estona.' });
+  ex('X-FOR-28', 'for', 'Pes mort amb KB', 'Dominant de maluc', 'KB', { pos: 'Bp', gm: 'GMax', sets: '3', reps: '10', intensity: 'RIR 3' });
+  ex('X-FOR-29', 'for', 'Hip thrust amb pes corporal', 'Dominant de maluc', 'Banc', { pos: 'Ds', gm: 'GMax', sets: '3', reps: '12' });
+  ex('X-FOR-30', 'for', 'Hip thrust unipodal amb càrrega', 'Dominant de maluc', 'Mancuernes', { pos: 'Ds', gm: 'GMax', lat: 'UL', sets: '3', reps: '8/cama', intensity: 'RIR 2' });
+  ex('X-FOR-31', 'for', 'Flexions inclinades (mans elevades)', 'Empenta', 'Banc', { pos: 'Dp', gm: 'Pectoral', sets: '3', reps: '10' });
+  ex('X-FOR-32', 'for', 'Press de banca amb mancuernes', 'Empenta', 'Mancuernes', { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '8', intensity: 'RIR 2' });
+  ex('X-FOR-33', 'for', 'Press de banca amb pausa', 'Empenta', 'Barra', { pos: 'Ds', gm: 'Pectoral', sets: '4', reps: '3', intensity: 'RIR 2', rest: '2\'30"', cues: 'Pausa d\'1-2 s amb la barra al pit.' });
+  ex('X-FOR-34', 'for', 'Press militar amb barra', 'Empenta', 'Barra', { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '6', intensity: 'RIR 2' });
+  ex('X-FOR-35', 'for', 'Rem Pendlay', 'Tracció', 'Barra', { pos: 'Bp', gm: 'Dorsal', sets: '4', reps: '5', intensity: 'RIR 2' });
+  ex('X-FOR-36', 'for', 'Dominades assistides amb goma', 'Tracció', 'Goma elàstica', { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '6' });
+  ex('X-FOR-37', 'for', 'Dominades amb llast', 'Tracció', 'Cinturó de llast', { pos: 'Bp', gm: 'Dorsal', sets: '4', reps: '4', intensity: 'RIR 2' });
+
+  // 5 · Accessoris
+  ex('X-ACC-18', 'acc', 'Pallof press en unipodal', 'Politges', 'Politja', { pos: 'Bp', gm: 'Core', lat: 'UL', sets: '3', reps: '8/costat' });
+  ex('X-ACC-19', 'acc', 'Copenhagen llarg dinàmic', 'Unilateral', 'Banc', { pos: 'Dl', gm: 'Adductors', lat: 'UL', sets: '3', reps: '6/costat' });
+  ex('X-ACC-20', 'acc', 'Equilibri unipodal ulls oberts', 'Vestibular i equilibri', 'Terra', { pos: 'Bp', lat: 'UL', sets: '3', reps: '30 s/cama', cues: 'Peu actiu (short foot) i pelvis alineada.' });
+  ex('X-ACC-21', 'acc', 'Equilibri unipodal ulls tancats', 'Vestibular i equilibri', 'Terra', { pos: 'Bp', lat: 'UL', sets: '3', reps: '20 s/cama', cues: 'Sense la vista, l\'equilibri depèn del sistema vestibular i dels peus.' });
+  ex('X-ACC-22', 'acc', 'Equilibri unipodal sobre superfície inestable', 'Vestibular i equilibri', 'Coixí d\'equilibri', { pos: 'Bp', lat: 'UL', sets: '3', reps: '30 s/cama' });
+  ex('X-ACC-23', 'acc', 'Equilibri unipodal amb girs de cap', 'Vestibular i equilibri', 'Terra', { pos: 'Bp', lat: 'UL', sets: '3', reps: '20 s/cama', cues: 'Gira el cap a dreta i esquerra mantenint l\'equilibri: estimula el sistema vestibular.' });
+  ex('X-ACC-24', 'acc', 'Equilibri unipodal amb pertorbacions i doble tasca', 'Vestibular i equilibri', 'Med ball', { pos: 'Bp', lat: 'UL', sets: '3', reps: '30 s/cama', cues: 'Rep i llança la pilota o aguanta empentes mentre fa una tasca mental (comptar enrere).' });
+  ex('X-ACC-25', 'acc', 'Estabilització de la mirada (VOR ×1) asseguda', 'Vestibular i equilibri', 'Paret', { pos: 'Sd', sets: '3', reps: '30 s', cues: 'Mira fix una lletra a la paret i mou el cap a dreta i esquerra sense perdre-la. Si et mareja, fes-ho més lent.' });
+  ex('X-ACC-26', 'acc', 'Estabilització de la mirada (VOR ×1) de peu', 'Vestibular i equilibri', 'Paret', { pos: 'Bp', sets: '3', reps: '30 s' });
+  ex('X-ACC-27', 'acc', 'Estabilització de la mirada caminant', 'Vestibular i equilibri', 'Terra', { pos: 'Bp', sets: '3', reps: '10 m', cues: 'Camina girant el cap a banda i banda sense perdre la línia recta.' });
+  ex('X-ACC-28', 'acc', 'Estabilització de la mirada en tàndem', 'Vestibular i equilibri', 'Terra', { pos: 'Bp', sets: '3', reps: '30 s' });
+  ex('X-ACC-29', 'acc', 'Nordic curl assistit amb goma', 'Isquiotibials', 'Goma elàstica', { pos: 'Ag', gm: 'Isquiotibials', cont: 'ECC', sets: '3', reps: '5' });
+  ex('X-ACC-30', 'acc', 'Elevació de talons bipodal', 'Unilateral', 'Pes corporal', { pos: 'Bp', gm: 'Bessons i soli', sets: '3', reps: '15' });
+  ex('X-ACC-31', 'acc', 'Elevació de talons amb genoll flexionat (soli)', 'Unilateral', 'KB', { pos: 'Bp', gm: 'Bessons i soli', lat: 'UL', sets: '3', reps: '12/cama' });
+
+  // 6 · Tornada a la calma
+  ex('X-CAL-10', 'cal', 'Respiració diafragmàtica en decúbit supí', 'Respiració', 'Terra', { pos: 'Ds', sets: '1', reps: '2\'', cues: 'Una mà al pit i l\'altra a l\'abdomen: inspira pel nas i que només pugi la de l\'abdomen. És la base per aprendre a respirar amb el diafragma.' });
+  ex('X-CAL-11', 'cal', 'Respiració 360° asseguda amb goma', 'Respiració', 'Goma elàstica', { pos: 'Sd', sets: '1', reps: '2\'', cues: 'Goma al voltant de les costelles baixes: en inspirar, expandeix-la cap als costats i l\'esquena.' });
+  ex('X-CAL-12', 'cal', 'Exhalació allargada 4-6', 'Parasimpàtic', 'Terra', { pos: 'Sd', sets: '1', reps: '3\'', cues: 'Inspira 4 s i exhala 6 s. Allargar l\'exhalació activa el sistema parasimpàtic (nervi vague) i baixa les pulsacions.' });
+  ex('X-CAL-13', 'cal', 'Respiració coherent (5,5 respiracions per minut)', 'Parasimpàtic', 'Terra', { pos: 'Sd', sets: '1', reps: '5\'', cues: 'Inspira 5,5 s i exhala 5,5 s, sense pauses. És el ritme que fa pujar més la variabilitat de la freqüència cardíaca (VFC).' });
+  ex('X-CAL-14', 'cal', 'Relaxació muscular progressiva (Jacobson)', 'Relaxació', 'Terra', { pos: 'Ds', sets: '1', reps: '5\'', cues: 'Tensa 5 s i deixa anar 10 s cada grup muscular, dels peus al cap.' });
+  ex('X-CAL-15', 'cal', 'Body scan guiat', 'Relaxació', 'Terra', { pos: 'Ds', sets: '1', reps: '5\'', cues: 'Recorre el cos amb l\'atenció, de peus a cap, notant-ne les sensacions sense canviar res.' });
+
+  // ── Famílies de progressió: [família, nivell 1-5] (1 = inicial … 5 = expert) ──
+  const ladders = {
+    'Mobilitat de turmell': ['X-MOB-01', 'X-MOB-12', 'X-MOB-15', 'X-MOB-16'],
+    'Mobilitat de maluc': ['X-MOB-07', 'X-MOB-02', 'X-MOB-17', 'X-MOB-11', 'X-MOB-18'],
+    'Flexors de maluc': ['X-MOB-08', 'X-MOB-19', 'X-MOB-03'],
+    'Mobilitat toràcica': ['X-MOB-04', 'X-MOB-05', 'X-MOB-06', 'X-MOB-20'],
+    'Mobilitat d\'espatlla': ['X-MOB-09', 'X-MOB-10', 'X-MOB-21'],
+    'Core · antiextensió': ['X-ACT-01', 'X-ACT-15', 'X-ACT-08', 'X-ACT-16', 'X-ACT-17'],
+    'Core · antirotació': ['X-ACT-03', 'X-ACT-02', 'X-ACC-09', 'X-ACC-10', 'X-ACC-18'],
+    'Core · antiflexió lateral': ['X-ACT-18', 'X-ACT-09', 'X-ACT-19', 'X-ACT-20'],
+    'Glutis': ['X-ACT-04', 'X-ACT-06', 'X-ACT-05', 'X-ACT-21', 'X-ACT-22'],
+    'Adductors': ['X-ACT-23', 'X-ACT-07', 'X-ACC-15', 'X-ACC-19'],
+    'Escàpula i espatlla': ['X-ACT-10', 'X-ACT-11', 'X-ACT-24'],
+    'Salt vertical': ['X-POT-13', 'X-POT-01', 'X-POT-02', 'X-POT-10', 'X-POT-14'],
+    'Pliometria reactiva': ['X-POT-04', 'X-POT-15', 'X-POT-05', 'X-POT-16'],
+    'Salt horitzontal i unilateral': ['X-POT-03', 'X-POT-17', 'X-POT-11', 'X-POT-18'],
+    'Canvi de direcció': ['X-POT-19', 'X-POT-20', 'X-POT-21', 'X-POT-22', 'X-POT-23'],
+    'Llançaments': ['X-POT-08', 'X-POT-07', 'X-POT-06', 'X-POT-24'],
+    'Olímpics · cargolada': ['X-POT-25', 'X-POT-26', 'X-POT-12', 'X-POT-27', 'X-POT-28'],
+    'Olímpics · arrencada': ['X-POT-29', 'X-POT-30', 'X-POT-31', 'X-POT-32', 'X-POT-33'],
+    'Olímpics · envia': ['X-POT-34', 'X-POT-35', 'X-POT-36'],
+    'Balístic de maluc': ['X-POT-09', 'X-POT-37', 'X-POT-38'],
+    'Squat bilateral': ['X-FOR-22', 'X-FOR-03', 'X-FOR-01', 'X-FOR-02', 'X-FOR-23'],
+    'Squat unilateral': ['X-FOR-24', 'X-FOR-06', 'X-FOR-04', 'X-FOR-25', 'X-FOR-26'],
+    'Bisagra de maluc': ['X-FOR-27', 'X-FOR-28', 'X-FOR-09', 'X-FOR-10', 'X-FOR-11'],
+    'Extensió de maluc': ['X-FOR-29', 'X-FOR-08', 'X-FOR-30'],
+    'Empenta horitzontal': ['X-FOR-31', 'X-FOR-16', 'X-FOR-32', 'X-FOR-13', 'X-FOR-33'],
+    'Empenta vertical': ['X-FOR-15', 'X-FOR-14', 'X-FOR-34'],
+    'Tracció horitzontal': ['X-FOR-21', 'X-FOR-19', 'X-FOR-18', 'X-FOR-35'],
+    'Tracció vertical': ['X-FOR-20', 'X-FOR-36', 'X-FOR-17', 'X-FOR-37'],
+    'Equilibri': ['X-ACC-20', 'X-ACC-21', 'X-ACC-22', 'X-ACC-23', 'X-ACC-24'],
+    'Vestibular · estabilitat de la mirada': ['X-ACC-25', 'X-ACC-26', 'X-ACC-27', 'X-ACC-28'],
+    'Isquiotibials': ['X-ACC-17', 'X-ACC-06', 'X-ACC-29', 'X-ACC-16'],
+    'Turmell i panxell': ['X-ACC-30', 'X-ACC-14', 'X-ACC-31'],
+    'Respiració diafragmàtica': ['X-CAL-10', 'X-CAL-02', 'X-CAL-01', 'X-CAL-11'],
+    'Respiració parasimpàtica': ['X-CAL-05', 'X-CAL-12', 'X-CAL-03', 'X-CAL-04', 'X-CAL-13'],
+    'Relaxació': ['X-CAL-07', 'X-CAL-06', 'X-CAL-14', 'X-CAL-15'],
+  };
+  const byId = Object.fromEntries(list.map((e) => [e.id, e]));
+  for (const [family, ids] of Object.entries(ladders)) {
+    ids.forEach((id, i) => { if (byId[id]) Object.assign(byId[id], { family, level: String(i + 1) }); });
+  }
+  // Explicació de les respiracions que no en tenien.
+  const cues = {
+    'X-CAL-03': 'Inspira 4 s, aguanta 4 s, exhala 4 s i aguanta 4 s. Calma i concentració.',
+    'X-CAL-04': 'Inspira 4 s pel nas, aguanta 7 s i exhala 8 s per la boca. Molt relaxant: ideal per acabar.',
+    'X-CAL-05': 'Dues inspiracions pel nas (la segona curta) i una exhalació llarga per la boca. La manera més ràpida de baixar pulsacions.',
+  };
+  for (const [id, c] of Object.entries(cues)) if (byId[id] && !byId[id].cues) byId[id].cues = c;
+
   return list;
 })();
 
@@ -4304,8 +4547,35 @@ const SEED_TEMPLATES = (() => {
   const session = (id, name, goal, blocks) => ({ id, kind: 'session', name, goal, seed: true,
     blocks: blocks.map((b) => ({ key: b.block, focus: b.focus, note: '', items: b.items })) });
 
+  // Mètodes d'entrenament: què són, com es prescriuen i un exemple. Cada centre hi afegeix els seus apunts.
+  const m = (id, name, blocks, aim, how, example) => ({ id, kind: 'method', name, blocks, aim, how, example, notes: '', source: '', seed: true });
+  const methods = [
+    m('M-01', 'Tradicional (sèries fixes)', ['for', 'acc'], 'Base de força i aprenentatge tècnic.', 'Mateixa càrrega i repeticions a totes les sèries, amb descans complet.', '3 × 6 · RIR 2 · 2\''),
+    m('M-02', 'Piràmide ascendent', ['for'], 'Acostar-se a càrregues altes amb escalfament progressiu.', 'A cada sèrie puja la càrrega i baixa les repeticions.', '10 · 8 · 6 · 4 (RIR 3 → 1)'),
+    m('M-03', 'Clúster', ['for', 'pot'], 'Més velocitat i qualitat amb càrregues altes, amb menys fatiga.', 'Divideix la sèrie en blocs curts amb 15-30 s de pausa entre ells.', '4 × (2+2+2) · 20" entre blocs · 3\' entre sèries'),
+    m('M-04', 'Rest-pause', ['for', 'acc'], 'Molt volum efectiu en poc temps (hipertròfia).', 'Sèrie fins a RIR 0-1, 15-20 s de pausa i unes quantes repeticions més, 2-3 vegades.', '1 × 8 + 3 + 2 · 20"'),
+    m('M-05', 'Excèntric accentuat', ['for', 'acc'], 'Força excèntrica, hipertròfia i adaptació del tendó.', 'Baixada lenta (3-5 s) o excèntrica amb més càrrega que la concèntrica (puja amb dues, baixa amb una; politja cònica).', '4 × 5 · tempo 4-0-1-0'),
+    m('M-06', 'Isomètric', ['for', 'act', 'acc'], 'Força en un angle concret, analgèsia i tendó.', 'Aguantar la posició (yielding) o empènyer contra un objecte que no es mou (overcoming).', '4 × 30 s Spanish squat · 5 × 5 s màxim contra el rack'),
+    m('M-07', 'Contrast (PAPE)', ['for', 'pot'], 'Potència: aprofitar la potenciació d\'un exercici pesat.', 'Exercici pesat seguit d\'un d\'explosiu del mateix patró, amb 1-4\' entre ells.', 'Back squat 3 × 3 RIR 2 + CMJ × 3'),
+    m('M-08', 'Superset agonista-antagonista', ['for', 'acc'], 'Més feina en menys temps sense perdre rendiment.', 'Dos exercicis de músculs oposats seguits; el descans és en acabar tots dos.', 'Press de banca + Rem amb barra · 3 voltes · 2\''),
+    m('M-09', 'Triset o circuit', ['acc', 'act'], 'Densitat i capacitat de treball.', 'Tres o més exercicis seguits, per voltes.', '3 voltes · 40" entre exercicis'),
+    m('M-10', 'Basat en la velocitat (VBT)', ['for', 'pot'], 'Autoregular la càrrega amb l\'encoder.', 'Tria la càrrega per la velocitat objectiu i atura la sèrie quan la pèrdua de velocitat arriba al límit.', 'Squat a 0,75 m/s · PV 20 % · 4 sèries'),
+    m('M-11', 'Caràcter de l\'esforç (CE)', ['for'], 'Controlar quant a prop del fallo es treballa.', 'Repeticions fetes de les possibles: CE 6(12) vol dir 6 repeticions amb una càrrega que en permetria 12.', '3 × CE 6(12)'),
+    m('M-12', 'Resistència variable (gomes o cadenes)', ['for'], 'Accelerar tot el recorregut i sobrecarregar el final.', 'Gomes o cadenes perquè la resistència augmenti on el moviment és més fort.', 'Press de banca 70 % + gomes · 5 × 3'),
+    m('M-13', 'Resistència pneumàtica (Keiser)', ['for', 'pot', 'acc'], 'Potència a velocitats altes sense inèrcia ni impacte.', 'La resistència d\'aire permet moure ràpid tot el recorregut; ideal per a potència i per a gent gran.', 'Leg press 3 × 6 · màxima intenció'),
+    m('M-14', 'Inercial (politja cònica)', ['acc', 'for'], 'Sobrecàrrega excèntrica.', 'L\'energia de la concèntrica torna a l\'excèntrica: frenar-la és la feina.', '4 × 8 · frena l\'excèntrica'),
+    m('M-15', 'Tempo', ['for', 'acc'], 'Control i temps sota tensió.', 'Es controla la durada de cada fase: excèntrica - pausa - concèntrica - pausa.', '3 × 6 · 3-1-X-0'),
+    m('M-16', '1 i 1/4', ['for', 'acc'], 'Més temps a la part difícil del recorregut.', 'Una repetició completa més un quart de recorregut a la part més difícil.', '3 × 6'),
+    m('M-17', 'Ondulant (DUP)', ['for'], 'Variar l\'estímul dins de la setmana.', 'Canvia el volum i la intensitat d\'una sessió a l\'altra: força, hipertròfia, potència.', 'Dl 5 × 3 · Dj 3 × 10 · Ds 6 × 2 explosiu'),
+    m('M-18', 'Complex francès', ['pot'], 'Potència: del pesat a l\'explosiu.', 'Pesat → pliometria → càrrega lleugera explosiva → pliometria assistida.', 'Squat 85 % × 3 + CMJ × 5 + jump squat 20 % × 5 + salts assistits × 5'),
+    m('M-19', 'EMOM', ['pot', 'acc'], 'Qualitat amb descans fix.', 'Cada minut, al principi, unes poques repeticions; descans la resta del minut.', 'EMOM 8\' · 3 salts'),
+    m('M-20', 'Equilibri progressiu', ['acc'], 'Control postural i sistema vestibular.', 'De base estable a inestable, d\'ulls oberts a tancats, i afegint girs de cap i doble tasca.', '3 × 30 s/cama'),
+    m('M-21', 'Escalfament RAMP', ['mob', 'act'], 'Preparar el cos de general a específic.', 'Raise (pujar temperatura), Activate (activar), Mobilise (mobilitzar), Potentiate (potenciar).', '8-12\' abans de la força'),
+    m('M-22', 'Respiració parasimpàtica', ['cal'], 'Baixar pulsacions i començar la recuperació.', 'Exhalació més llarga que la inspiració, 3-5 minuts asseguts o estirats.', '4-6 · 3\''),
+  ];
+
   return [
-    mob, act, pot, forKnee, forHip, acc, cal,
+    mob, act, pot, forKnee, forHip, acc, cal, ...methods,
     session('T-SES-01', 'Sessió tipus · tren inferior (genoll)', 'Força de tren inferior · dominant de genoll', [mob, act, pot, forKnee, acc, cal]),
     session('T-SES-02', 'Sessió tipus · tren inferior (maluc)', 'Força de tren inferior · dominant de maluc', [mob, act, pot, forHip, acc, cal]),
   ];
@@ -4637,6 +4907,66 @@ const Calc = {
     return ((s && s.blocks) || []).reduce((n, b) => n + (b.items || []).filter((i) => i.name).length, 0);
   },
 
+  // Quilos d'un exercici: els de l'encoder si n'hi ha; si no, l'últim número de la càrrega («2 × 16 kg» → 16).
+  kg(it) {
+    const v = Calc.vbt(it);
+    if (v && v.load != null) return v.load;
+    const m = String((it && it.load) || '').replace(/,/g, '.').match(/\d+(\.\d+)?/g);
+    return m ? Number(m[m.length - 1]) || null : null;
+  },
+
+  // Progrés entre dues sessions: cada exercici de la sessió nova amb el de la sessió antiga que li correspon
+  // (el mateix exercici; si no, el de la mateixa família de progressió; si no, el de la mateixa posició del bloc).
+  progress(from, to, exercise = () => null) {
+    const named = (s, key) => ((((s && s.blocks) || []).find((b) => b.key === key) || {}).items || []).filter((i) => i.name);
+    const fam = (it) => { const e = it && it.exId ? exercise(it.exId) : null; return e && e.family ? U.norm(e.family) : ''; };
+    const lvl = (it) => { const e = it && it.exId ? exercise(it.exId) : null; return e ? U.num(e.level) : null; };
+    const sum = { rows: 0, levelUp: 0, loadUp: 0, speedUp: 0 };
+    const blocks = [];
+    for (const def of BLOCKS) {
+      const a = named(from, def.key), b = named(to, def.key);
+      if (!b.length) continue;
+      const used = new Set();
+      const rows = b.map((it, i) => {
+        const pick = (fn) => a.find((x, k) => !used.has(k) && fn(x, k));
+        let match = 'name';
+        let prev = pick((x) => U.norm(x.name) === U.norm(it.name));
+        if (!prev && fam(it)) { prev = pick((x) => fam(x) === fam(it)); match = 'family'; }
+        if (!prev) { prev = pick((x, k) => k === i); match = 'pos'; }
+        if (!prev) match = null;
+        else used.add(a.indexOf(prev));
+        const d = (x, y) => (x != null && y != null ? Math.round((y - x) * 1000) / 1000 : null);
+        const level = { a: lvl(prev), b: lvl(it) };
+        level.diff = match === 'family' || match === 'name' ? d(level.a, level.b) : null;
+        const same = match === 'name';
+        const kg = { a: same ? Calc.kg(prev) : null, b: Calc.kg(it) };
+        kg.diff = d(kg.a, kg.b);
+        kg.pct = kg.diff != null && kg.a ? Math.round((kg.diff / kg.a) * 100) : null;
+        const va = same ? Calc.vbt(prev) : null, vb = Calc.vbt(it);
+        const v1 = { a: va && va.v1, b: vb && vb.v1, la: va && va.load, lb: vb && vb.load };
+        v1.diff = d(v1.a, v1.b);
+        sum.rows++;
+        if (level.diff > 0) sum.levelUp++;
+        if (kg.diff > 0) sum.loadUp++;
+        if (v1.diff > 0) sum.speedUp++;
+        return { before: prev || null, now: it, match, level, kg, v1 };
+      });
+      blocks.push({ key: def.key, rows });
+    }
+    return { blocks, summary: sum };
+  },
+
+  // Data prevista de la sessió n d'un pla: a partir de la data d'inici, els dies de la setmana triats.
+  planDate(plan, n) { return Calc.planDates(plan, n)[n - 1] || ''; },
+  planDates(plan, count) {
+    const days = (plan && plan.days && plan.days.length ? plan.days : [1, 4]).map(Number);
+    const total = count || ((plan && plan.sessions) || []).length;
+    const out = [];
+    let d = (plan && plan.start) || U.today();
+    for (let i = 0; i < 800 && out.length < total; i++, d = U.addDays(d, 1)) if (days.includes(U.parse(d).getDay())) out.push(d);
+    return out;
+  },
+
   // Subblocs d'un bloc de la sessió (p. ex. Força principal › Bloc 1, Bloc 2…).
   // Retorna null si el bloc no està dividit; si ho està, cada subbloc amb els seus exercicis
   // ({ it, i } amb i = posició a block.items). Un exercici sense subbloc va al primer.
@@ -4849,6 +5179,8 @@ const Flat = {
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
+      'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
+      'Sessió del pla': U.num(s.planN) ?? '',
       'Son (1-5)': U.num(r.sleep) ?? '', 'Energia (1-5)': U.num(r.energy) ?? '', 'Dolor previ (0-10)': U.num(r.pain) ?? '',
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
@@ -4858,6 +5190,7 @@ const Flat = {
       const name = blockName(b.key, settings);
       const gs = Calc.groups(b);
       o[`${name} · focus`] = b.focus || '';
+      o[`${name} · mètode`] = [b.methodName, ...(gs || []).map((x) => x.g.methodName && `${x.label}: ${x.g.methodName}`)].filter(Boolean).join(' · ');
       o[`${name} · exercicis`] = gs
         ? gs.map((x) => ({ x, t: list(x.items.map((y) => y.it)) })).filter((y) => y.t).map((y) => `${y.x.label}: ${y.t}`).join(' ‖ ')
         : list(b.items || []);
@@ -4869,11 +5202,13 @@ const Flat = {
     const rows = [];
     for (const b of s.blocks || []) {
       const gs = Calc.groups(b);
-      const sub = (it) => { if (!gs) return ''; const x = gs.find((y) => y.items.some((z) => z.it === it)); return x ? x.label : ''; };
+      const grp = (it) => (gs ? gs.find((y) => y.items.some((z) => z.it === it)) : null);
+      const sub = (it) => { const x = grp(it); return x ? x.label : ''; };
+      const meth = (it) => { const x = grp(it); return (x && x.g.methodName) || b.methodName || ''; };
       (b.items || []).filter((i) => i.name).forEach((it, idx) => {
         rows.push({
           'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
-          'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
+          'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Mètode': meth(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
           'Grup muscular': it.gm || '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',
@@ -4887,7 +5222,7 @@ const Flat = {
 
   exercise(e) {
     return {
-      'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Material': e.material || '',
+      'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
       'Grup muscular': e.gm || '', 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',
@@ -4898,7 +5233,17 @@ const Flat = {
     const items = t.kind === 'session'
       ? (t.blocks || []).map((b) => `${blockName(b.key)}: ${(b.items || []).map((i) => i.name).join(', ')}`).join(' | ')
       : (t.items || []).map((i) => i.name).join(', ');
-    return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items };
+    if (t.kind === 'method') {
+      return { 'Nom': t.name || '', 'Tipus': 'Mètode', 'Bloc': (t.blocks || []).map((k) => blockName(k)).join(', '), 'Exercicis': t.example || '',
+        'Descripció': [t.aim, t.how, t.notes].filter(Boolean).join(' · '), 'Client': '' };
+    }
+    if (t.kind === 'plan') {
+      const p = t.patientId && typeof Store !== 'undefined' && Store.get ? Store.get('patients', t.patientId) : null;
+      return { 'Nom': t.name || '', 'Tipus': 'Pla', 'Bloc': '', 'Exercicis': `${(t.sessions || []).length} sessions`,
+        'Descripció': [t.goal, t.start && `Inici ${t.start}`].filter(Boolean).join(' · '), 'Client': p ? U.fullName(p) : '' };
+    }
+    return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items,
+      'Descripció': t.desc || t.goal || '', 'Client': '' };
   },
 };
 
@@ -5095,6 +5440,12 @@ function migrateDemo(db) {
   if (st && Array.isArray(st.professionals) && st.professionals.every((n) => rename[n])) st.professionals = [...CENTER_PROFESSIONALS];
   const svc = { 'P-DEMO-LAURA': 'membership', 'P-DEMO-JORDI': 'membership', 'P-DEMO-MONTSE': 'membership', 'P-DEMO-ALEX': 'valoracio' };
   for (const [id, v] of Object.entries(svc)) if (db.patients[id] && !db.patients[id].service) db.patients[id].service = v;
+  // Dades de prova d'abans del pla d'entrenament i de l'encoder.
+  for (const s of Object.values(db.sessions || {})) {
+    if (s.patientId !== 'P-DEMO-LAURA' || s.status !== 'feta') continue;
+    for (const b of s.blocks || []) for (const it of b.items || []) if (it.exId === 'X-FOR-01' && !it.vbt && U.num(it.load)) it.vbt = demoVbt(U.num(it.load));
+  }
+  if (typeof addDemoPlan === 'function') addDemoPlan(db, U.today());
 }
 
 const Store = {
@@ -5187,6 +5538,29 @@ const Store = {
     return out;
   },
   exercise(id) { return this.exercises().find((e) => e.id === id) || null; },
+  methods(block) {
+    const all = this.templates().filter((t) => t.kind === 'method');
+    return block ? all.filter((t) => !(t.blocks || []).length || t.blocks.includes(block)) : all;
+  },
+  // Exercicis d'una família de progressió, del nivell més fàcil al més difícil.
+  ladder(family) {
+    if (!family) return [];
+    const f = U.norm(family);
+    return U.sortBy(this.exercises().filter((e) => e.family && U.norm(e.family) === f), (e) => `${String(U.num(e.level) ?? 9)}#${e.name}`);
+  },
+  families() {
+    const out = {};
+    for (const e of this.exercises()) if (e.family) (out[e.family] = out[e.family] || []).push(e);
+    return out;
+  },
+  // Exercici del nivell següent (dir = 1) o anterior (dir = -1) de la mateixa família.
+  stepLevel(ex, dir) {
+    if (!ex || !ex.family) return null;
+    const list = this.ladder(ex.family);
+    const i = list.findIndex((e) => e.id === ex.id);
+    if (i < 0) return null;
+    return list[i + dir] || null;
+  },
   templates() {
     const stored = this.data.templates;
     const out = [];
@@ -5337,8 +5711,9 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, mode = 'blank', templateId = null } = {}) {
+  newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
+    let fromPlan = null;
     let blocks = this.emptyBlocks();
     let goal = '';
     let pillar = '';
@@ -5348,6 +5723,14 @@ const Store = {
         blocks = cloneBlocks(last.blocks, true);
         goal = last.goal || '';
         pillar = last.pillar || '';
+      }
+    } else if (mode === 'plan' && planId) {
+      const plan = this.get('templates', planId);
+      const ps = plan && (plan.sessions || []).find((x) => x.n === U.num(planN));
+      if (ps) {
+        blocks = cloneBlocks(ps.blocks, true);
+        goal = ps.goal || plan.goal || '';
+        fromPlan = { planId, planN: ps.n };
       }
     } else if (mode === 'template' && templateId) {
       const t = this.get('templates', templateId);
@@ -5361,8 +5744,8 @@ const Store = {
     }
     const s = {
       id: U.uid('S'), patientId: pid, date: date || U.today(), number: this.nextSessionNumber(pid),
-      professional: (p && p.professional) || '', goal, pillar, status: 'planificada',
-      readiness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
+      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      readiness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
     return this.put('sessions', s, { immediate: true });
   },
@@ -5374,8 +5757,46 @@ const Store = {
       ...U.clone(s), id: U.uid('S'), date: date || U.today(), number: this.nextSessionNumber(s.patientId),
       status: 'planificada', readiness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
     };
-    delete copy.updatedAt; delete copy.updatedBy;
+    delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });
+  },
+
+  // ── Pla d'entrenament: una seqüència de sessions (S1…SN) amb progressió, per a un client ──
+  plans(pid) {
+    return U.sortBy(this.templates().filter((t) => t.kind === 'plan' && (!pid || t.patientId === pid)), (t) => t.start || '', -1);
+  },
+  // Sessions reals fetes (o creades) a partir d'un pla.
+  planSessions(plan) {
+    return plan ? this.byPatient('sessions', plan.patientId).filter((s) => s.planId === plan.id) : [];
+  },
+  // Pròxima sessió del pla que encara no s'ha creat.
+  nextPlanN(plan) {
+    const used = new Set(this.planSessions(plan).map((s) => U.num(s.planN)));
+    const n = (plan.sessions || []).map((x) => x.n).find((k) => !used.has(k));
+    return n || null;
+  },
+  // opts: { name, goal, start, days: [1, 4], count, base: 'last' | 'template' | 'blank', templateId, every }
+  // every = cada quantes sessions puja un nivell cada exercici que té progressió (0 = mai).
+  newPlan(pid, { name, goal = '', start, days = [1, 4], count = 12, base = 'last', templateId = '', every = 0 } = {}) {
+    let first = this.emptyBlocks();
+    if (base === 'last') {
+      const last = this.sessionsOf(pid).pop();
+      if (last) first = cloneBlocks(last.blocks, true);
+    } else if (base === 'template' && templateId) {
+      const t = this.get('templates', templateId);
+      if (t && t.kind === 'session') first = cloneBlocks(t.blocks, true);
+    }
+    const sessions = [];
+    let blocks = first;
+    for (let n = 1; n <= Math.max(1, Math.min(40, U.num(count) || 12)); n++) {
+      if (n > 1) {
+        blocks = cloneBlocks(blocks, true);
+        if (every > 0 && (n - 1) % every === 0) progressBlocks(blocks);
+      }
+      sessions.push({ id: U.uid('PS'), n, phase: '', goal: '', blocks });
+    }
+    const plan = { id: U.uid('PL'), kind: 'plan', patientId: pid, name: name || `Pla de ${sessions.length} sessions`, goal, start: start || U.today(), days, sessions, createdAt: new Date().toISOString() };
+    return this.put('templates', plan, { immediate: true });
   },
 
   saveBlockTemplate(block, name) {
@@ -5425,9 +5846,44 @@ function cloneItems(items, resetDone) {
   });
 }
 
+// Qui fa servir aquesta tauleta: l'últim professional triat en una sessió. Les sessions noves es fan a nom seu
+// (no del professional de referència del client).
+const ME_KEY = 'eonlife:professional';
+function deviceProfessional(v) {
+  try {
+    if (v === undefined) return window.localStorage.getItem(ME_KEY) || '';
+    if (v) window.localStorage.setItem(ME_KEY, v); else window.localStorage.removeItem(ME_KEY);
+  } catch (e) { /* sense emmagatzematge */ }
+  return v || '';
+}
+
+// Canvia un exercici pel d'un altre nivell de la mateixa família (progressió o regressió).
+// Es mantenen la prescripció i les notes; la càrrega es treu perquè és un altre exercici.
+function progressItem(x, nx, prevMap) {
+  x.name = nx.name;
+  x.exId = nx.id;
+  for (const k of ['gm', 'cont', 'pos', 'lat', 'material', 'tempo']) x[k] = nx[k] || '';
+  for (const k of ['sets', 'reps', 'intensity', 'rest']) if (!x[k]) x[k] = nx[k] || '';
+  const last = prevMap ? prevMap[nx.name] : null;
+  x.load = last && last.load ? last.load : '';
+  delete x.demo;
+  return x;
+}
+
+// Puja un nivell tots els exercicis dels blocs que tenen una progressió.
+function progressBlocks(blocks) {
+  let n = 0;
+  for (const b of blocks || []) for (const it of b.items || []) {
+    const nx = it.exId ? Store.stepLevel(Store.exercise(it.exId), 1) : null;
+    if (nx) { progressItem(it, nx); n++; }
+  }
+  return n;
+}
+
 // Un bloc copiat (focus, nota, subblocs i exercicis).
 function cloneBlock(src, key, resetDone) {
   const b = { key, focus: (src && src.focus) || '', note: (src && src.note) || '', items: cloneItems(src && src.items, resetDone) };
+  if (src && src.method) { b.method = src.method; b.methodName = src.methodName || ''; }
   if (src && src.groups && src.groups.length) b.groups = U.clone(src.groups);
   return b;
 }
@@ -5636,7 +6092,7 @@ function makeDemoData() {
         mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
         act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
         pot: { focus: w >= 3 ? 'Salts verticals' : '', items: w >= 3 ? [['X-POT-01', { sets: '3', reps: '3' }], ['X-POT-04', { sets: '2', reps: '10' }]] : [['X-POT-06', { load: '3' }]] },
-        for: { focus: 'Dominant de genoll', items: [['X-FOR-01', { sets: '3', reps: '6', load: String(sq), intensity: 'RIR 2' }], ['X-FOR-04', { sets: '3', reps: '6/cama', load: String(8 + w * 2), intensity: 'RIR 2' }], ['X-FOR-06', { sets: '3', reps: '6/cama', load: '8', intensity: 'RIR 2' }], ['X-FOR-07', { sets: '3', reps: '8', load: String(80 + w * 10), intensity: 'RIR 2' }]] },
+        for: { focus: 'Dominant de genoll', items: [['X-FOR-01', { sets: '3', reps: '6', load: String(sq), intensity: 'RIR 2', vbt: demoVbt(sq) }], ['X-FOR-04', { sets: '3', reps: '6/cama', load: String(8 + w * 2), intensity: 'RIR 2' }], ['X-FOR-06', { sets: '3', reps: '6/cama', load: '8', intensity: 'RIR 2' }], ['X-FOR-07', { sets: '3', reps: '8', load: String(80 + w * 10), intensity: 'RIR 2' }]] },
         acc: { focus: 'Politja cònica', items: [['X-ACC-01'], ['X-ACC-14', { load: '12' }]] },
         cal: { focus: 'Respiració', items: [['X-CAL-01'], ['X-CAL-06']] },
       } : {
@@ -5667,6 +6123,8 @@ function makeDemoData() {
     acc: { focus: 'Politja cònica', items: [['X-ACC-01'], ['X-ACC-04'], ['X-ACC-14', { load: '14' }]] },
     cal: { focus: 'Respiració', items: [['X-CAL-01'], ['X-CAL-06']] },
   }, null);
+
+  addDemoPlan(db, today);
 
   // Jordi: dimarts i dijous, 3 setmanes.
   const jw0 = U.addDays(U.weekStart(today), -21);
@@ -5731,6 +6189,37 @@ function makeDemoData() {
   }, null);
 
   return db;
+}
+
+// Encoder del back squat de la Laura: la velocitat de la 1a repetició millora setmana a setmana.
+function demoVbt(kg) {
+  const v1 = Math.round((0.62 + ((Number(kg) - 40) / 2.5) * 0.035) * 100) / 100;
+  const set = () => ({ kg: String(kg), reps: '6', v1: String(v1).replace('.', ','), vlast: String(Math.round(v1 * 80) / 100).replace('.', ',') });
+  return { mode: 'encoder', sets: [set(), set(), set()] };
+}
+
+// Pla d'exemple per a la Laura: 12 sessions des d'avui, amb la sessió d'avui com a S1 i un nivell més cada 4 sessions.
+function addDemoPlan(db, today) {
+  const pid = 'P-DEMO-LAURA';
+  if (!db.patients[pid] || Object.values(db.templates || {}).some((t) => t.kind === 'plan' && t.patientId === pid)) return;
+  const mine = Object.values(db.sessions).filter((s) => s.patientId === pid).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const s1 = mine.find((s) => s.date >= today) || mine[mine.length - 1];
+  if (!s1) return;
+  const phase = (n) => (n <= 4 ? 'Força' : n <= 8 ? 'Potència' : n <= 11 ? 'Transferència' : 'Descàrrega');
+  const sessions = [];
+  let blocks = cloneBlocks(s1.blocks, true);
+  for (let n = 1; n <= 12; n++) {
+    if (n > 1) {
+      blocks = cloneBlocks(blocks, true);
+      if ((n - 1) % 4 === 0) progressBlocks(blocks);
+    }
+    sessions.push({ id: `PS-DEMO-${n}`, n, phase: phase(n), goal: '', blocks });
+  }
+  db.templates = db.templates || {};
+  db.templates['PL-DEMO-LAURA'] = { id: 'PL-DEMO-LAURA', kind: 'plan', patientId: pid, name: 'Bloc 2 · força i potència', goal: 'Tornar a competir en trail de 42 km',
+    start: s1.date, days: [1, 3, 5], sessions, createdAt: `${s1.date}T08:00:00.000Z` };
+  s1.planId = 'PL-DEMO-LAURA';
+  s1.planN = 1;
 }
 
 
@@ -6446,7 +6935,7 @@ const XL = {
   log: 'Registre_exercicis',
   base: ['id', 'patient_id', 'updated_at', 'updated_by', 'deleted', 'data_json'],
   logBase: ['session_id', 'patient_id'],
-  extraChunks: 4, // data_json_2 … data_json_5 ja creades a la plantilla
+  extraChunks: 9, // data_json_2 … data_json_10 ja creades a la plantilla (un pla d'entrenament llarg ocupa ~150.000 caràcters)
   cellLimit: 30000, // Excel admet 32.767 caràcters per cel·la
   table: (sheet) => `t${sheet}`,
 };
@@ -6915,6 +7404,8 @@ class ExcelDb {
       for (let attempt = 0; ; attempt++) {
         try {
           const lay = await this.layout(sheet);
+          // Un Excel creat amb una plantilla anterior pot tenir menys columnes data_json_*: millor avisar que desar-ne mig.
+          if (chunks.length > 1 + lay.headers.filter((h) => /^data_json_\d+$/.test(h)).length) throw new M365Error('Aquest registre és massa gran per desar-lo a l\'Excel. Si és un pla d\'entrenament, divideix-lo en dos plans més curts.', 'size');
           await this.addColumns(sheet, lay, readable);
           const row = lay.headers.map((h) => {
             if (h === 'id') return rec.id;
@@ -7611,7 +8102,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
     if (!open) return [];
     const nq = U.norm(q ?? '');
     const all = Store.exercises();
-    const match = (e) => !nq || U.norm(`${e.name} ${e.cat} ${e.material} ${e.gm}`).includes(nq);
+    const match = (e) => !nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq);
     const mine = all.filter((e) => e.block === block && match(e));
     const others = nq ? all.filter((e) => e.block !== block && match(e)) : [];
     return [...mine, ...others].slice(0, 40);
@@ -7644,8 +8135,8 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
         lastBlock = ex.block;
         return html`${head}<button type="button" role="option" aria-selected=${nav && i === hi} class=${U.cls('picker-opt', nav && i === hi && 'hi')}
           onPointerDown=${(e) => e.preventDefault()} onClick=${() => pick(ex)}>
-          <span class="picker-name">${ex.name}</span>
-          <span class="picker-meta">${[ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' · ')}</span>
+          <span class="picker-name">${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+          <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' · ')}</span>
         </button>`;
       })}
     </div>`}
@@ -8196,10 +8687,15 @@ function NewSessionDialog({ pid, date, onClose }) {
   const last = sessions.filter((s) => s.date <= (date || U.today())).pop() || sessions[sessions.length - 1];
   const tpls = Store.templates().filter((t) => t.kind === 'session');
   const [d, setD] = useState(date || U.today());
-  const [mode, setMode] = useState(last ? 'last' : 'template');
+  // Si el client té un pla, per defecte es fa la pròxima sessió del pla.
+  const plans = Store.plans(pid).filter((x) => Store.nextPlanN(x));
+  const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
+  const plan = plans.find((x) => x.id === planId) || null;
+  const [planN, setPlanN] = useState(plans[0] ? String(Store.nextPlanN(plans[0])) : '');
+  const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'template');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl });
+    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
     onClose();
     go('sessio', s.id);
   };
@@ -8212,6 +8708,12 @@ function NewSessionDialog({ pid, date, onClose }) {
     <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
     <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
     <div class="choices">
+      ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,
+        mode === 'plan' && html`<div class="inline mt-s">
+          ${plans.length > 1 && html`<${Select} value=${planId} onValue=${(v) => { setPlanId(v); const x = plans.find((y) => y.id === v); setPlanN(String(Store.nextPlanN(x) || 1)); }} ariaLabel="Pla" options=${plans.map((x) => ({ v: x.id, label: x.name }))} />`}
+          ${plan && html`<${Select} value=${planN} onValue=${setPlanN} ariaLabel="Sessió del pla"
+            options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
+        </div>`)}
       ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
       ${option('template', 'A partir d\'una plantilla', 'Estructura de 6 blocs ja preparada.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}
@@ -8418,6 +8920,7 @@ function PatientView({ id, tab = 'resum' }) {
     <${Tabs} active=${tab} onChange=${setTab} tabs=${[
       { id: 'resum', label: 'Resum' },
       { id: 'sessions', label: 'Sessions', count: sessions.length },
+      { id: 'pla', label: 'Pla i progrés', count: Store.plans(p.id).length || undefined },
       { id: 'mes', label: 'Seguiment mensual' },
       { id: 'valoracions', label: 'Valoracions', count: assessments.length },
       { id: 'fitxa', label: 'Fitxa' },
@@ -8425,6 +8928,7 @@ function PatientView({ id, tab = 'resum' }) {
 
     ${tab === 'resum' && html`<${PatientSummary} p=${p} sessions=${sessions} assessments=${assessments} />`}
     ${tab === 'sessions' && html`<${PatientSessions} p=${p} sessions=${sessions} />`}
+    ${tab === 'pla' && html`<${PatientPlan} p=${p} />`}
     ${tab === 'mes' && html`<${MonthView} p=${p} sessions=${sessions} />`}
     ${tab === 'valoracions' && html`<${PatientAssessments} p=${p} assessments=${assessments} />`}
     ${tab === 'fitxa' && html`<${PatientForm} p=${p} onRemove=${remove} />`}
@@ -9643,6 +10147,8 @@ function SessionEditor({ id }) {
         <strong>Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
       </div>
+      ${s.planId && Store.get('templates', s.planId) && html`<button type="button" class="pill pill-neutral plan-pill" onClick=${() => go('pla', s.planId, s.planN)}
+        title="Obre el pla d'entrenament"><${Icon} name="layers" size=${13} />S${s.planN} del pla</button>`}
       <${SaveStatus} />
       <${Seg} value=${s.status} onValue=${set('status')} allowEmpty=${false} size="sm" ariaLabel="Estat de la sessió"
         options=${[{ v: 'planificada', label: 'Planificada' }, { v: 'feta', label: 'Feta', tone: 'ok' }]} />
@@ -9660,7 +10166,7 @@ function SessionEditor({ id }) {
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
-        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${set('professional')} /></${Field}>
+        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
         <${Field} label="Objectiu de la sessió" id="se-goal" wide=${true}>
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
@@ -9751,6 +10257,10 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
     b.groups = [...b.groups, { id: U.uid('G'), name: '' }];
   });
   const setGroup = (gid, k) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) g[k] = v; });
+  // Mètode (clúster, excèntric, contrast…) del bloc o d'un subbloc.
+  const putMethod = (obj, t) => { if (t) { obj.method = t.id; obj.methodName = t.name; } else { delete obj.method; delete obj.methodName; } };
+  const setMethod = (t) => onChange((b) => putMethod(b, t));
+  const setGroupMethod = (gid, t) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) putMethod(g, t); });
   const removeGroup = async (x) => {
     const n = x.items.filter((y) => y.it.name).length;
     if (n && !(await UI.confirm({ title: `Treure el bloc ${x.n}?`, text: n === 1 ? 'També s\'eliminarà l\'exercici que hi ha.' : `També s'eliminaran els ${n} exercicis que hi ha.`, ok: 'Treu el bloc', danger: true }))) return;
@@ -9809,6 +10319,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         <${TextInput} value=${block.focus} onValue=${(v) => onChange((b) => { b.focus = v; })} placeholder="Focus del bloc" list=${`focus-${block.key}`} ariaLabel=${`Focus del bloc ${blockName(block.key)}`} />
         <datalist id=${`focus-${block.key}`}>${def.focus.map((x) => html`<option value=${x}></option>`)}</datalist>
       </div>
+      <${MethodSelect} block=${block.key} value=${block.method} onPick=${setMethod} ariaLabel=${`Mètode del bloc ${blockName(block.key)}`} />
       <${Menu} icon="layers" title="Plantilles del bloc" items=${[
         { header: tpls.length ? 'Insereix una plantilla' : 'Encara no hi ha plantilles' },
         ...tpls.map((t) => ({ label: t.name, icon: 'plus', onClick: () => insertTemplate(t) })),
@@ -9818,6 +10329,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
       ]} />
     </header>
+    ${block.method && html`<p class="method-hint"><strong>${block.methodName}</strong> · ${methodHint(block.method)}</p>`}
     ${items.length > 0 && html`<div class="items-head" aria-hidden="true">
       <span></span>
       <div class="item-line"><span class="ih ih-name">Exercici</span><div class="rx"><span class="ih rx-s">Sèries</span><span class="ih rx-r">Reps / temps</span>
@@ -9830,8 +10342,10 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
             <span class="sgroup-tag">Bloc ${x.n}</span>
             <input class="input sgroup-name" value=${x.g.name || ''} placeholder="Indicacions: p. ex. Superset · 3 voltes · 2' entre voltes"
               aria-label=${`Indicacions del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'name')(e.currentTarget.value)} />
+            <${MethodSelect} block=${block.key} value=${x.g.method} onPick=${(t) => setGroupMethod(x.g.id, t)} ariaLabel=${`Mètode del bloc ${x.n}`} />
             <button type="button" class="mini" title=${`Treu el bloc ${x.n}`} onClick=${() => removeGroup(x)}><${Icon} name="x" size=${15} /></button>
           </div>
+          ${x.g.method && html`<p class="method-hint"><strong>${x.g.methodName}</strong> · ${methodHint(x.g.method)}</p>`}
           ${x.items.length > 0
             ? html`<div class="items">${x.items.map((y) => row(y.it, y.i, gi))}</div>`
             : html`<p class="muted small sgroup-empty">Encara no hi ha cap exercici en aquest bloc.</p>`}
@@ -9874,6 +10388,12 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
   const demo = it.demo || (ex && ex.video) || '';
+  // Progressió: el mateix patró, un nivell més difícil (▲) o més fàcil (▼).
+  const up = Store.stepLevel(ex, 1), down = Store.stepLevel(ex, -1);
+  const swap = (nx) => {
+    onChange((x) => progressItem(x, nx, prevMap));
+    UI.toast(`${nx.name} · nivell ${nx.level}`);
+  };
 
   return html`<div class=${U.cls('item', it.done && !templateMode && 'item-done')}>
     <div class="item-num">${num}</div>
@@ -9895,6 +10415,11 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
           <${Icon} name=${open ? 'up' : 'down'} size=${14} />
         </button>
+        ${ex && ex.family && html`<span class="lvl" title=${`${ex.family} · nivell ${ex.level} de ${Store.ladder(ex.family).length}`}>
+          <button type="button" class="lvl-btn" disabled=${!down} title=${down ? `Regressa: ${down.name}` : 'Ja és el nivell més fàcil'} aria-label="Regressa un nivell" onClick=${() => down && swap(down)}><${Icon} name="down" size=${14} /></button>
+          <span class="lvl-n">N${ex.level}</span>
+          <button type="button" class="lvl-btn" disabled=${!up} title=${up ? `Progressa: ${up.name}` : 'Ja és el nivell més difícil'} aria-label="Progressa un nivell" onClick=${() => up && swap(up)}><${Icon} name="up" size=${14} /></button>
+        </span>`}
         <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
           onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
         ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} onChange=${set('video')} />`}
@@ -9920,6 +10445,8 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         { label: 'Mou amunt', icon: 'up', disabled: !canUp, onClick: () => onMove(-1) },
         { label: 'Mou avall', icon: 'down', disabled: !canDown, onClick: () => onMove(1) },
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
+        up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
+        down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) } : null,
@@ -10110,7 +10637,7 @@ function SessionSheet({ id }) {
           return html`<section class=${U.cls('sblock', `blk-${b.key}`, b.key === 'for' && 'sblock-main')} style=${`--span:${span(b.key)}`}>
             <header class="sblock-head">
               <span class="sblock-num">${def.num}</span>
-              <div class="grow"><h2 class="sblock-name">${blockName(b.key)}</h2>${b.focus && html`<p class="sblock-focus">${b.focus}</p>`}</div>
+              <div class="grow"><h2 class="sblock-name">${blockName(b.key)}</h2>${(b.focus || b.methodName) && html`<p class="sblock-focus">${[b.focus, b.methodName].filter(Boolean).join(' · ')}</p>`}</div>
               ${nVideos > 0 && html`<button type="button" class="sblock-videos no-print" onClick=${() => openBlockVideos(b, 0)}
                 aria-label=${`Mira els vídeos del bloc ${blockName(b.key)}`}><${Icon} name="playfill" size=${15} />${U.plural(nVideos, 'vídeo', 'vídeos')}</button>`}
             </header>
@@ -10120,7 +10647,7 @@ function SessionSheet({ id }) {
                 const head = g && (i === 0 || gOf(named[i - 1]) !== g);
                 const tags = [it.lat === 'UL' ? 'Unilateral' : '', it.cont ? (OPT.cont.find((o) => o.v === it.cont) || {}).label : '', it.material && !/^(Terra|Pes corporal)$/.test(it.material) ? it.material : ''].filter(Boolean);
                 const withVideo = b.items.filter((x) => x.name && demoOf(x));
-                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
+                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
                   <div class="sx-body">
                     <div class="sx-line"><span class="sx-name">${it.name}${demoOf(it) && html` <button type="button" class="sx-play no-print" title="Mira el vídeo" onClick=${() => openBlockVideos(b, withVideo.indexOf(it))}><${Icon} name="playfill" size=${12} /></button>`}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
@@ -10209,6 +10736,19 @@ function MonthView({ p, sessions }) {
   const rpes = done.map((s) => U.num(s.feedback && s.feedback.rpe)).filter((n) => n != null);
   const weeks = Calc.weeks(sessions, gridStart, weeksCount);
   const shift = (n) => setMonth(U.monthKey(U.addMonths(first, n)));
+  // Sessions previstes dels plans d'entrenament que encara no s'han fet (data → [{ plan, n }]).
+  const planned = {};
+  for (const plan of Store.plans(p.id)) {
+    const used = new Set(Store.planSessions(plan).map((s) => U.num(s.planN)));
+    Calc.planDates(plan).forEach((date, i) => {
+      const ps = plan.sessions[i];
+      if (ps && !used.has(ps.n)) (planned[date] = planned[date] || []).push({ plan, ps });
+    });
+  }
+  const fromPlan = (date, x) => {
+    const s = Store.newSession(p.id, { date, mode: 'plan', planId: x.plan.id, planN: x.ps.n });
+    go('sessio', s.id);
+  };
 
   return html`<div class="stack">
     <section class="card">
@@ -10244,8 +10784,13 @@ function MonthView({ p, sessions }) {
                     ${s.status === 'feta' && html`<span class="cal-s-fb">RPE ${(s.feedback || {}).rpe || '—'} · ${(s.feedback || {}).duration || '—'}′${load != null ? ` · ${U.fmt(load, 0)}` : ''}</span>`}
                   </button>`;
                 })}
-                ${!list.length && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
-                ${!out && !list.length && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openNewSession(p.id, date)}><${Icon} name="plus" size=${15} /></button>`}
+                ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
+                  title=${`Prevista al pla «${x.plan.name}». Toca-la per preparar-la.`}>
+                  <span class="cal-s-n">S${x.ps.n} del pla</span>
+                  <span class="cal-s-goal">${x.ps.goal || x.ps.phase || x.plan.goal || x.plan.name}</span>
+                </button>`)}
+                ${!list.length && !planned[date] && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
+                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openNewSession(p.id, date)}><${Icon} name="plus" size=${15} /></button>`}
               </div>`;
             })}
             <div class="cal-w">
@@ -10254,7 +10799,7 @@ function MonthView({ p, sessions }) {
             </div>`)}
         </div>
       </div>
-      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió.</p>
+      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió. Les sessions amb vora discontínua són les previstes al pla d'entrenament.</p>
     </section>
 
     <section class="card">
@@ -10307,6 +10852,7 @@ function LibraryView({ tab = 'exercicis' }) {
       <div><p class="eyebrow">Metodologia EON · 6 blocs</p><h1 class="h1">Biblioteca</h1></div>
       <div class="page-actions">
         ${tab === 'exercicis' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null)}>Nou exercici</${Btn}>`
+          : tab === 'metodes' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openMethod(null)}>Nou mètode</${Btn}>`
           : html`<${Menu} variant="primary" icon="plus" label="Nova plantilla" title="Nova plantilla" items=${[
             { label: 'Plantilla de sessió (6 blocs)', icon: 'layers', onClick: () => newTemplate('session') },
             { sep: true },
@@ -10316,33 +10862,62 @@ function LibraryView({ tab = 'exercicis' }) {
     </header>
     <${Tabs} active=${tab} onChange=${(t) => go('biblioteca', t)} tabs=${[
       { id: 'exercicis', label: 'Exercicis', count: Store.exercises().length },
-      { id: 'plantilles', label: 'Plantilles', count: Store.templates().length },
+      { id: 'plantilles', label: 'Plantilles', count: Store.templates().filter((t) => t.kind === 'block' || t.kind === 'session').length },
+      { id: 'metodes', label: 'Mètodes', count: Store.methods().length },
     ]} />
-    ${tab === 'exercicis' ? html`<${ExerciseList} />` : html`<${TemplateList} />`}
+    ${tab === 'exercicis' ? html`<${ExerciseList} />` : tab === 'metodes' ? html`<${MethodList} />` : html`<${TemplateList} />`}
   </div>`;
 }
 
 function ExerciseList() {
   const [q, setQ] = useState('');
   const [blk, setBlk] = useState('');
+  const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.cat} ${e.material} ${e.gm}`).includes(nq)));
+  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq)));
   return html`<section class="card">
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
+      <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
-    ${BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
+    ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
+      : BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(all.filter((e) => e.block === b.key).length, 'exercici', 'exercicis')}</span></div>
       <div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
-        <span class="exrow-name">${e.name}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
-        <span class="exrow-meta">${[e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
+        <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>
     </div>`)}
     ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
   </section>`;
+}
+
+// Progressions: cada família (patró) amb els exercicis del nivell 1 (inicial) al 5 (expert).
+// A la sessió, ▲ i ▼ canvien l'exercici pel del nivell següent o anterior.
+function ProgressionList({ all }) {
+  const ids = new Set(all.map((e) => e.id));
+  const fams = Store.families();
+  const blockOf = (list) => { const k = {}; for (const e of list) k[e.block] = (k[e.block] || 0) + 1; return Object.keys(k).sort((a, b) => k[b] - k[a])[0]; };
+  const rows = Object.entries(fams)
+    .map(([name, list]) => ({ name, block: blockOf(list), list: Store.ladder(name) }))
+    .filter((r) => r.list.some((e) => ids.has(e.id)));
+  const loose = all.filter((e) => !e.family);
+  return html`<div class="stack">
+    <p class="muted small">Cada patró va del nivell 1 (inicial) al 5 (expert). A la sessió, els botons ▲ ▼ de cada exercici el canvien pel nivell següent o l'anterior. Per afegir un exercici a una progressió, obre'l i tria'n la família i el nivell.</p>
+    ${BLOCKS.filter((b) => rows.some((r) => r.block === b.key)).map((b) => html`<div class="libgroup">
+      <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(rows.filter((r) => r.block === b.key).length, 'progressió', 'progressions')}</span></div>
+      ${rows.filter((r) => r.block === b.key).map((r) => html`<div class="ladder">
+        <div class="ladder-name">${r.name}</div>
+        <ol class="ladder-steps">${r.list.map((e) => html`<li><button type="button" class=${U.cls('ladder-step', `lv-${e.level}`)} onClick=${() => openExercise(e)}>
+          <span class="ladder-n">N${e.level || '?'}</span><span class="ladder-ex">${e.name}</span></button></li>`)}</ol>
+      </div>`)}
+    </div>`)}
+    ${loose.length > 0 && html`<p class="muted small">${U.plural(loose.length, 'exercici encara no té', 'exercicis encara no tenen')} família de progressió.</p>`}
+  </div>`;
 }
 
 function openExercise(ex) {
@@ -10351,7 +10926,7 @@ function openExercise(ex) {
 }
 
 function ExerciseDialog({ ex, onClose }) {
-  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '' });
+  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', family: '', level: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.name.trim()) { UI.toast('Escriu el nom de l\'exercici.', 'bad'); return; }
@@ -10381,6 +10956,15 @@ function ExerciseDialog({ ex, onClose }) {
       <${Field} label="Posició" id="ex-pos"><${Select} id="ex-pos" value=${f.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
       <${Field} label="Lateralitat" id="ex-lat"><${Select} id="ex-lat" value=${f.lat} onValue=${set('lat')} options=${OPT.lat.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
     </div>
+    <h3 class="h3 mt">Progressió</h3>
+    <div class="form-grid">
+      <${Field} label="Família (patró)" id="ex-family" hint="Exercicis del mateix patró, de més fàcil a més difícil (p. ex. Core · antiextensió)">
+        <${TextInput} id="ex-family" value=${f.family} onValue=${set('family')} list="family-list" placeholder="p. ex. Squat bilateral" /></${Field}>
+      <${Field} label="Nivell" id="ex-level"><${Seg} value=${f.level || ''} onValue=${set('level')} ariaLabel="Nivell"
+        options=${OPT.levels.map((o) => ({ v: o.v, label: `N${o.v}`, title: o.label }))} /></${Field}>
+    </div>
+    ${f.family && html`<p class="muted small">${Store.ladder(f.family).filter((e) => e.id !== f.id).map((e) => `N${e.level} ${e.name}`).join(' → ') || 'Encara no hi ha cap altre exercici en aquesta família.'}</p>`}
+    <datalist id="family-list">${Object.keys(Store.families()).sort().map((x) => html`<option value=${x}></option>`)}</datalist>
     <h3 class="h3 mt">Prescripció per defecte</h3>
     <div class="form-grid form-grid-4">
       <${Field} label="Sèries" id="ex-sets"><${TextInput} id="ex-sets" value=${f.sets} onValue=${set('sets')} /></${Field}>
@@ -10476,6 +11060,84 @@ function TemplateEditor({ id }) {
 function cloneBlocksKeep(blocks) {
   const byKey = Object.fromEntries((blocks || []).map((b) => [b.key, b]));
   return BLOCKS.map((b) => byKey[b.key] || { key: b.key, focus: '', note: '', items: [] });
+}
+
+// ── Mètodes d'entrenament: els apunts del centre (què és, com es fa, exemple i fonts) ──
+function MethodList() {
+  const all = Store.methods();
+  const [q, setQ] = useState('');
+  const nq = U.norm(q);
+  const list = all.filter((t) => !nq || U.norm(`${t.name} ${t.aim} ${t.how} ${t.notes} ${t.source}`).includes(nq));
+  const inBlock = (k) => list.filter((t) => (t.blocks || [])[0] === k || (!(t.blocks || []).length && k === 'for'));
+  return html`<section class="card">
+    <div class="filters">
+      <label class="search"><${Icon} name="search" size=${17} />
+        <input class="input" type="search" placeholder="Cerca mètodes i apunts…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca mètodes" /></label>
+    </div>
+    <p class="muted small">Els mètodes per no fer sempre el mateix: a cada bloc o subbloc de la sessió es pot triar el mètode i surt a la fitxa del client. Obre'n un per afegir-hi els vostres apunts (cursos, universitat, articles).</p>
+    ${BLOCKS.filter((b) => inBlock(b.key).length).map((b) => html`<div class="libgroup">
+      <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(inBlock(b.key).length, 'mètode', 'mètodes')}</span></div>
+      <div class="methods">${inBlock(b.key).map((t) => html`<button type="button" class="method" onClick=${() => openMethod(t)}>
+        <span class="method-name">${t.name}${t.notes && html` <${Icon} name="note" size=${14} />`}</span>
+        <span class="method-aim">${t.aim}</span>
+        ${t.example && html`<span class="method-ex">${t.example}</span>`}
+      </button>`)}</div>
+    </div>`)}
+    ${!list.length && html`<${Empty} icon="search" title="Cap mètode coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
+  </section>`;
+}
+
+function openMethod(t) {
+  let close = null;
+  close = UI.open(() => html`<${MethodDialog} t=${t} onClose=${() => close()} />`);
+}
+
+function MethodDialog({ t, onClose }) {
+  const [f, setF] = useState(t ? { ...t, blocks: [...(t.blocks || [])] } : { id: U.uid('M'), kind: 'method', name: '', blocks: ['for'], aim: '', how: '', example: '', notes: '', source: '' });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const toggle = (k) => setF({ ...f, blocks: f.blocks.includes(k) ? f.blocks.filter((x) => x !== k) : [...f.blocks, k] });
+  const save = () => {
+    if (!f.name.trim()) { UI.toast('Escriu el nom del mètode.', 'bad'); return; }
+    const rec = { ...f, name: f.name.trim() };
+    delete rec.seed;
+    Store.put('templates', rec, { immediate: true });
+    UI.toast(t ? 'Mètode desat.' : 'Mètode afegit.');
+    onClose();
+  };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: `Treure «${t.name}»?`, text: 'Les sessions que el fan servir el mantenen.', ok: 'Treu', danger: true }))) return;
+    Store.remove('templates', t.id);
+    onClose();
+  };
+  return html`<${Dialog} wide=${true} title=${t ? 'Mètode' : 'Nou mètode'} onClose=${onClose} footer=${html`
+    ${t && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Treu</${Btn}>`}
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
+    <div class="form-grid">
+      <${Field} label="Nom" id="me-name" wide=${true}><${TextInput} id="me-name" value=${f.name} onValue=${set('name')} autoFocus=${!t} placeholder="p. ex. Clúster" /></${Field}>
+      <${Field} label="Blocs on es fa servir" wide=${true}><div class="chips">${BLOCKS.map((b) => html`<${Chip} on=${f.blocks.includes(b.key)} onClick=${() => toggle(b.key)}>${b.num}. ${blockName(b.key)}</${Chip}>`)}</div></${Field}>
+      <${Field} label="Per a què serveix" id="me-aim" wide=${true}><${TextInput} id="me-aim" value=${f.aim} onValue=${set('aim')} /></${Field}>
+      <${Field} label="Com es fa" id="me-how" wide=${true}><${Area} id="me-how" value=${f.how} onValue=${set('how')} /></${Field}>
+      <${Field} label="Exemple de prescripció" id="me-ex" wide=${true}><${TextInput} id="me-ex" value=${f.example} onValue=${set('example')} placeholder=${'p. ex. 4 × (2+2+2) · 20" entre blocs'} /></${Field}>
+      <${Field} label="Apunts" id="me-notes" wide=${true} hint="El que heu après als cursos, a la universitat o als articles: quan fer-lo servir, progressions, errors habituals…">
+        <${Area} id="me-notes" value=${f.notes} onValue=${set('notes')} rows=${6} /></${Field}>
+      <${Field} label="Fonts" id="me-src" wide=${true}><${TextInput} id="me-src" value=${f.source} onValue=${set('source')} placeholder="Curs, llibre, article…" /></${Field}>
+    </div>
+  </${Dialog}>`;
+}
+
+// Desplegable de mètode per a un bloc o un subbloc de la sessió.
+function MethodSelect({ block, value, onPick, ariaLabel }) {
+  const list = Store.methods(block);
+  return html`<${Select} class="method-select" value=${value || ''} ariaLabel=${ariaLabel || 'Mètode'} placeholder="Mètode…"
+    options=${list.map((t) => ({ v: t.id, label: t.name }))}
+    onValue=${(id) => { const t = list.find((x) => x.id === id); onPick(t || null); }} />`;
+}
+
+function methodHint(id) {
+  const t = id ? Store.get('templates', id) : null;
+  return t ? [t.how, t.example && `Exemple: ${t.example}`].filter(Boolean).join(' · ') : '';
 }
 
 
@@ -11000,6 +11662,400 @@ function ConnectError({ cfg, message, code }) {
 }
 
 
+/* ── 32-plan.js ── */
+/* EON Life · pla d'entrenament: les sessions d'un client (S1…SN) preparades amb antelació i amb progressió.
+   Cada sessió del pla té els mateixos 6 blocs que una sessió normal. Quan el client ve, «Nova sessió › Del pla»
+   (o el calendari) crea la sessió del dia a partir de la del pla; la sessió es continua omplint com sempre. */
+
+const PLAN_PHASES = ['Adaptació', 'Hipertròfia', 'Força', 'Potència', 'Transferència', 'Descàrrega', 'Manteniment'];
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+function planDaysLabel(days) {
+  return WEEK_ORDER.filter((d) => (days || []).includes(d)).map((d) => WEEKDAYS_SHORT[d]).join(' · ');
+}
+
+// Pestanya «Pla» de la fitxa del client.
+function PatientPlan({ p }) {
+  const plans = Store.plans(p.id);
+  const progress = Store.sessionsOf(p.id).length >= 2 && html`<section class="card">
+    <div class="card-head"><div class="grow"><h2 class="h2">Progrés</h2>
+      <p class="muted">Compara una sessió d'abans amb la d'ara, exercici per exercici: nivell, càrrega i velocitat de l'encoder. Per ensenyar-ho al client.</p></div>
+      <${Btn} icon="chart" onClick=${() => go('progres', p.id)}>Mira el progrés</${Btn}></div>
+  </section>`;
+  if (!plans.length) {
+    return html`<div class="stack"><section class="card"><${Empty} icon="layers" title="Encara no té cap pla d'entrenament"
+      text="Prepara d'una vegada les sessions de les pròximes setmanes (per exemple 12 sessions, dues per setmana), amb la progressió dels exercicis del nivell més bàsic al més avançat.">
+      <${Btn} variant="primary" icon="plus" onClick=${() => openNewPlan(p)}>Crea un pla</${Btn}></${Empty}></section>${progress}</div>`;
+  }
+  return html`<div class="stack">
+    ${plans.map((plan, i) => html`<${PlanCard} key=${plan.id} plan=${plan} p=${p} main=${i === 0} />`)}
+    ${progress}
+    <div><${Btn} icon="plus" onClick=${() => openNewPlan(p)}>Crea un altre pla</${Btn}></div>
+  </div>`;
+}
+
+function PlanCard({ plan, p, main }) {
+  const real = Store.planSessions(plan);
+  const total = (plan.sessions || []).length;
+  const fetes = real.filter((s) => s.status === 'feta').length;
+  const next = Store.nextPlanN(plan);
+  const dates = Calc.planDates(plan);
+  // Sessió del pla ja creada però encara no feta (p. ex. la d'avui).
+  const pending = U.sortBy(real.filter((s) => s.status !== 'feta'), 'date')[0];
+  const start = () => {
+    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: next });
+    go('sessio', s.id);
+  };
+  return html`<section class=${U.cls('card plancard', main && 'plancard-main')}>
+    <div class="card-head">
+      <div class="grow"><h2 class="h2">${plan.name}</h2>
+        <p class="muted">${[plan.goal, `des del ${U.fmtDate(plan.start)}`, planDaysLabel(plan.days)].filter(Boolean).join(' · ')}</p></div>
+      <div class="inline">
+        ${real.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('progres', p.id, plan.id)}>Progrés</${Btn}>`}
+        <${Btn} icon="edit" onClick=${() => go('pla', plan.id)}>Obre el pla</${Btn}>
+      </div>
+    </div>
+    <div class="planbar" aria-label=${`${fetes} de ${total} sessions fetes`}>
+      ${(plan.sessions || []).map((x, i) => {
+        const s = real.find((y) => U.num(y.planN) === x.n);
+        return html`<button type="button" class=${U.cls('planbar-s', s && (s.status === 'feta' ? 'done' : 'made'), x.n === next && 'next')}
+          title=${`S${x.n}${x.phase ? ` · ${x.phase}` : ''} · ${s ? U.fmtDate(s.date) : `prevista ${U.fmtDateShort(dates[i] || '')}`}`}
+          onClick=${() => (s ? go('sessio', s.id) : go('pla', plan.id, x.n))}>${x.n}</button>`;
+      })}
+    </div>
+    <p class="muted small">${fetes} de ${total} sessions fetes${next ? ` · la pròxima és la S${next}${dates[next - 1] ? ` (prevista el ${U.fmtDateShort(dates[next - 1])})` : ''}` : ' · pla acabat'}</p>
+    ${main && (pending
+      ? html`<div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('sessio', pending.id)}>Obre la S${pending.planN} (${U.fmtDateShort(pending.date)})</${Btn}></div>`
+      : next && html`<div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${start}>Fes la sessió ${next} avui</${Btn}></div>`)}
+  </section>`;
+}
+
+function openNewPlan(p) {
+  let close = null;
+  close = UI.open(() => html`<${NewPlanDialog} p=${p} onClose=${() => close()} />`);
+}
+
+function NewPlanDialog({ p, onClose }) {
+  const hasLast = Store.sessionsOf(p.id).length > 0;
+  const tpls = Store.templates().filter((t) => t.kind === 'session');
+  const [f, setF] = useState({ name: '', goal: p.goal || '', start: U.today(), days: [1, 4], count: '12', base: hasLast ? 'last' : 'template', templateId: tpls[0] ? tpls[0].id : '', every: '4' });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const toggleDay = (d) => setF({ ...f, days: f.days.includes(d) ? f.days.filter((x) => x !== d) : [...f.days, d] });
+  const n = Math.max(1, Math.min(40, U.num(f.count) || 12));
+  const end = f.days.length ? Calc.planDate({ start: f.start, days: f.days }, n) : '';
+  const create = () => {
+    if (!f.days.length) { UI.toast('Tria almenys un dia de la setmana.', 'bad'); return; }
+    const plan = Store.newPlan(p.id, { ...f, name: f.name.trim(), count: n, every: U.num(f.every) || 0 });
+    onClose();
+    go('pla', plan.id);
+  };
+  return html`<${Dialog} title="Nou pla d'entrenament" wide=${true} onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${create}>Crea el pla</${Btn}>`}>
+    <div class="form-grid">
+      <${Field} label="Nom del pla" id="pl-name"><${TextInput} id="pl-name" value=${f.name} onValue=${set('name')} placeholder=${`Pla de ${n} sessions`} /></${Field}>
+      <${Field} label="Objectiu" id="pl-goal"><${TextInput} id="pl-goal" value=${f.goal} onValue=${set('goal')} placeholder="p. ex. Tornar a córrer sense dolor" /></${Field}>
+      <${Field} label="Data d'inici" id="pl-start"><${TextInput} id="pl-start" type="date" value=${f.start} onValue=${set('start')} /></${Field}>
+      <${Field} label="Nombre de sessions" id="pl-count" hint="Fins a 40"><${NumInput} id="pl-count" value=${f.count} onValue=${set('count')} /></${Field}>
+      <${Field} label="Dies de la setmana" wide=${true}>
+        <div class="chips">${WEEK_ORDER.map((d) => html`<${Chip} on=${f.days.includes(d)} onClick=${() => toggleDay(d)}>${WEEKDAYS[d]}</${Chip}>`)}</div></${Field}>
+      <${Field} label="La sessió 1 surt de…" wide=${true}>
+        <${Seg} value=${f.base} onValue=${set('base')} allowEmpty=${false} ariaLabel="Punt de partida"
+          options=${[...(hasLast ? [{ v: 'last', label: 'L\'última sessió' }] : []), { v: 'template', label: 'Una plantilla' }, { v: 'blank', label: 'En blanc' }]} />
+        ${f.base === 'template' && html`<div class="mt-s"><${Select} value=${f.templateId} onValue=${set('templateId')} ariaLabel="Plantilla" options=${tpls.map((t) => ({ v: t.id, label: t.name }))} /></div>`}
+      </${Field}>
+      <${Field} label="Progressió dels exercicis" id="pl-every" wide=${true}
+        hint="Els exercicis que tenen progressió a la biblioteca pugen un nivell (p. ex. Goblet squat → Back squat). Després es pot ajustar cada sessió a mà.">
+        <${Select} id="pl-every" value=${f.every} onValue=${set('every')} options=${[
+          { v: '0', label: 'Totes iguals: la progressió la faig jo' },
+          { v: '2', label: 'Puja un nivell cada 2 sessions' },
+          { v: '3', label: 'Puja un nivell cada 3 sessions' },
+          { v: '4', label: 'Puja un nivell cada 4 sessions' },
+          { v: '6', label: 'Puja un nivell cada 6 sessions' },
+        ]} /></${Field}>
+    </div>
+    <p class="muted">${n} sessions${f.days.length ? ` · ${f.days.length} per setmana · de l'${U.fmtDate(f.start)} al ${U.fmtDate(end)}` : ''}</p>
+  </${Dialog}>`;
+}
+
+// ── Editor del pla: graella de progressió (sessions en columnes) i la sessió triada a sota ──
+function PlanEditor({ id, n }) {
+  const plan = Store.get('templates', id);
+  const [sel, setSel] = useState(U.num(n) || 1);
+  if (!plan || plan.kind !== 'plan') {
+    return html`<div class="page"><${Empty} icon="layers" title="No trobo aquest pla"><${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
+  }
+  const p = Store.get('patients', plan.patientId) || {};
+  const upd = (fn) => Store.update('templates', plan.id, fn);
+  const set = (k) => (v) => upd((x) => { x[k] = v; });
+  const real = Store.planSessions(plan);
+  const dates = Calc.planDates(plan);
+  const list = plan.sessions || [];
+  const cur = list.find((x) => x.n === sel) || list[0];
+  const curReal = cur && real.find((s) => U.num(s.planN) === cur.n);
+  const nextPs = cur && list.find((x) => x.n === cur.n + 1);
+  const updCur = (fn) => upd((x) => { const ps = (x.sessions || []).find((y) => y.n === cur.n); if (ps) fn(ps); });
+  const toggleDay = (d) => upd((x) => { const ds = x.days || []; x.days = ds.includes(d) ? ds.filter((y) => y !== d) : [...ds, d]; });
+
+  // La sessió següent passa a ser una còpia d'aquesta (i, si es vol, amb un nivell més).
+  const copyToNext = async (progress) => {
+    if (!nextPs) return;
+    const has = (nextPs.blocks || []).some((b) => (b.items || []).some((i) => i.name));
+    if (has && !(await UI.confirm({ title: `Substituir la sessió ${nextPs.n}?`, text: `Els exercicis de la S${nextPs.n} se substituiran pels de la S${cur.n}${progress ? ' amb un nivell més' : ''}.`, ok: 'Substitueix' }))) return;
+    let ups = 0;
+    upd((x) => {
+      const from = x.sessions.find((y) => y.n === cur.n), to = x.sessions.find((y) => y.n === cur.n + 1);
+      to.blocks = cloneBlocks(from.blocks, true);
+      if (progress) ups = progressBlocks(to.blocks);
+    });
+    setSel(cur.n + 1);
+    UI.toast(progress ? `S${cur.n + 1}: ${U.plural(ups, 'exercici ha pujat', 'exercicis han pujat')} de nivell.` : `S${cur.n} copiada a la S${cur.n + 1}.`);
+  };
+  const levelUpHere = () => {
+    let ups = 0;
+    updCur((ps) => { ups = progressBlocks(ps.blocks); });
+    UI.toast(ups ? `${U.plural(ups, 'exercici ha pujat', 'exercicis han pujat')} un nivell.` : 'Cap exercici d\'aquesta sessió té un nivell més a la biblioteca.');
+  };
+  const addSession = () => {
+    const last = list[list.length - 1];
+    if (list.length >= 40) { UI.toast('Un pla pot tenir fins a 40 sessions. Per continuar, crea un pla nou.', 'bad'); return; }
+    upd((x) => { x.sessions = [...x.sessions, { id: U.uid('PS'), n: last.n + 1, phase: last.phase || '', goal: '', blocks: cloneBlocks(last.blocks, true) }]; });
+    setSel(last.n + 1);
+  };
+  const removeLast = async () => {
+    const last = list[list.length - 1];
+    if (list.length < 2) return;
+    if (real.some((s) => U.num(s.planN) === last.n)) { UI.toast(`La S${last.n} ja s'ha fet: no es pot treure del pla.`, 'bad'); return; }
+    if (!(await UI.confirm({ title: `Treure la sessió ${last.n}?`, text: 'Es treu l\'última sessió del pla.', ok: 'Treu-la', danger: true }))) return;
+    upd((x) => { x.sessions = x.sessions.filter((y) => y.n !== last.n); });
+    setSel(Math.min(sel, last.n - 1));
+  };
+  const startToday = () => {
+    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: cur.n });
+    go('sessio', s.id);
+  };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: `Eliminar «${plan.name}»?`, text: 'Les sessions que ja s\'han fet no s\'esborren.', ok: 'Elimina', danger: true }))) return;
+    Store.remove('templates', plan.id);
+    go('client', plan.patientId, 'pla');
+  };
+
+  return html`<div class="page page-edit">
+    <div class="editbar">
+      <${Btn} variant="ghost" icon="back" title="Torna al client" onClick=${() => go('client', plan.patientId, 'pla')} />
+      <div class="editbar-title"><strong>${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
+      <${SaveStatus} />
+      ${real.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('progres', plan.patientId, plan.id)}>Progrés</${Btn}>`}
+      <${Menu} items=${[
+        { label: 'Afegeix una sessió al final', icon: 'plus', onClick: addSession },
+        list.length > 1 ? { label: `Treu l'última sessió (S${list[list.length - 1].n})`, icon: 'x', onClick: removeLast } : null,
+        { sep: true },
+        { label: 'Elimina el pla', icon: 'trash', danger: true, onClick: remove },
+      ]} />
+    </div>
+
+    <section class="card">
+      <div class="form-grid form-grid-4">
+        <${Field} label="Nom del pla" id="pe-name"><${TextInput} id="pe-name" value=${plan.name} onValue=${set('name')} /></${Field}>
+        <${Field} label="Objectiu" id="pe-goal"><${TextInput} id="pe-goal" value=${plan.goal} onValue=${set('goal')} /></${Field}>
+        <${Field} label="Data d'inici" id="pe-start"><${TextInput} id="pe-start" type="date" value=${plan.start} onValue=${set('start')} /></${Field}>
+        <${Field} label="Dies"><div class="chips">${WEEK_ORDER.map((d) => html`<${Chip} on=${(plan.days || []).includes(d)} onClick=${() => toggleDay(d)}>${WEEKDAYS_SHORT[d]}</${Chip}>`)}</div></${Field}>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Progressió</h2><span class="muted small">Toca una sessió per veure-la i editar-la. ▲ = l'exercici puja de nivell respecte a la sessió anterior.</span></div>
+      <${PlanGrid} plan=${plan} sel=${cur && cur.n} onSel=${setSel} real=${real} dates=${dates} />
+    </section>
+
+    ${cur && html`<section class="card plan-cur">
+      <div class="card-head">
+        <div class="grow"><h2 class="h2">Sessió ${cur.n} del pla</h2>
+          <p class="muted">${curReal ? `Feta el ${U.fmtDate(curReal.date)}` : `Prevista el ${U.fmtDateLong(dates[cur.n - 1] || '', true)}`}</p></div>
+        <div class="inline">
+          ${curReal ? html`<${Btn} icon="edit" onClick=${() => go('sessio', curReal.id)}>Obre la sessió feta</${Btn}>`
+            : html`<${Btn} variant="primary" icon="play" onClick=${startToday}>Fes-la avui</${Btn}>`}
+          <${Menu} items=${[
+            nextPs ? { label: `Copia a la S${nextPs.n} i puja un nivell`, icon: 'up', onClick: () => copyToNext(true) } : null,
+            nextPs ? { label: `Copia a la S${nextPs.n} igual`, icon: 'copy', onClick: () => copyToNext(false) } : null,
+            { label: 'Puja un nivell tots els exercicis', icon: 'up', onClick: levelUpHere },
+          ]} />
+        </div>
+      </div>
+      <div class="form-grid">
+        <${Field} label="Fase" id="ps-phase"><${TextInput} id="ps-phase" value=${cur.phase} onValue=${(v) => updCur((ps) => { ps.phase = v; })} list="phase-list" placeholder="p. ex. Adaptació" /></${Field}>
+        <${Field} label="Objectiu de la sessió" id="ps-goal"><${TextInput} id="ps-goal" value=${cur.goal} onValue=${(v) => updCur((ps) => { ps.goal = v; })} placeholder=${plan.goal || 'p. ex. Força · dominant de genoll'} /></${Field}>
+      </div>
+      <datalist id="phase-list">${PLAN_PHASES.map((x) => html`<option value=${x}></option>`)}</datalist>
+    </section>`}
+    ${cur && (cur.blocks || []).map((b) => html`<${BlockCard} key=${`${cur.id}-${b.key}`} block=${b} templateMode=${true}
+      onChange=${(fn) => updCur((ps) => { const bb = ps.blocks.find((y) => y.key === b.key); if (bb) fn(bb); })} />`)}
+  </div>`;
+}
+
+// Graella: una columna per sessió del pla i una fila per posició d'exercici de cada bloc.
+function PlanGrid({ plan, sel, onSel, real, dates }) {
+  const cols = plan.sessions || [];
+  const named = (ps, key) => (((ps.blocks || []).find((b) => b.key === key) || {}).items || []).filter((i) => i.name);
+  const rows = [];
+  for (const b of BLOCKS) {
+    const max = Math.max(0, ...cols.map((ps) => named(ps, b.key).length));
+    if (max) rows.push({ head: b.key });
+    for (let i = 0; i < max; i++) rows.push({ key: b.key, i });
+  }
+  const lvl = (it) => { const ex = it && it.exId ? Store.exercise(it.exId) : null; return ex ? { level: U.num(ex.level), family: ex.family } : null; };
+  const change = (prev, it) => {
+    if (!prev || !it || prev.name === it.name) return '';
+    const a = lvl(prev), b = lvl(it);
+    if (a && b && a.family && a.family === b.family && a.level != null && b.level != null) return b.level > a.level ? 'up' : b.level < a.level ? 'down' : 'swap';
+    return 'swap';
+  };
+  if (!rows.length) return html`<p class="muted">Encara no hi ha exercicis. Tria la sessió 1 i omple'n els blocs.</p>`;
+  return html`<div class="table-wrap plangrid-wrap"><table class="plangrid">
+    <thead><tr><th class="pg-corner">Sessió</th>${cols.map((ps, k) => {
+      const s = real.find((x) => U.num(x.planN) === ps.n);
+      return html`<th class=${U.cls('pg-col', ps.n === sel && 'on', s && s.status === 'feta' && 'done')}>
+        <button type="button" onClick=${() => onSel(ps.n)} aria-pressed=${ps.n === sel}>
+          <span class="pg-n">S${ps.n}${s && s.status === 'feta' ? ' ✓' : ''}</span>
+          <span class="pg-date">${U.fmtDateShort(s ? s.date : dates[k] || '')}</span>
+          ${ps.phase && html`<span class="pg-phase">${ps.phase}</span>`}
+        </button></th>`;
+    })}</tr></thead>
+    <tbody>${rows.map((r) => (r.head
+      ? html`<tr class="pg-block"><th class="pg-rowh"><${BlockTag} k=${r.head} small=${true} /></th><td colspan=${cols.length}></td></tr>`
+      : html`<tr><th class="pg-rowh pg-num">${blockDef(r.key).num}.${r.i + 1}</th>${cols.map((ps, k) => {
+        const it = named(ps, r.key)[r.i];
+        const prev = k > 0 ? named(cols[k - 1], r.key)[r.i] : null;
+        const ch = change(prev, it);
+        const l = lvl(it);
+        return html`<td class=${U.cls('pg-cell', ps.n === sel && 'on', ch && `pg-${ch}`)} onClick=${() => onSel(ps.n)}>
+          ${it ? html`<span class="pg-ex">${ch === 'up' ? '▲ ' : ch === 'down' ? '▼ ' : ''}${it.name}</span>
+            <span class="pg-rx">${[l && l.level ? `N${l.level}` : '', Calc.presc(it)].filter(Boolean).join(' · ')}</span>` : html`<span class="pg-empty">—</span>`}
+        </td>`;
+      })}</tr>`))}</tbody>
+  </table></div>`;
+}
+
+
+/* ── 33-progress.js ── */
+/* EON Life · progrés del client per ensenyar-l'hi: una sessió d'abans i una d'ara, exercici per exercici
+   (nivell de progressió, càrrega i velocitat de l'encoder), i l'evolució de cada exercici de força. */
+
+function ProgressView({ pid, planId }) {
+  const p = Store.get('patients', pid);
+  const plan = planId ? Store.get('templates', planId) : null;
+  const all = Store.sessionsOf(pid);
+  const inPlan = plan ? all.filter((s) => s.planId === plan.id) : [];
+  const list = inPlan.length >= 2 ? inPlan : all;
+  const done = list.filter((s) => s.status === 'feta');
+  const [fromId, setFrom] = useState(list[0] ? list[0].id : '');
+  const [toId, setTo] = useState((done[done.length - 1] || list[list.length - 1] || {}).id || '');
+  const back = () => go('client', pid, 'pla');
+  if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest client" /></div>`;
+  if (list.length < 2) {
+    return html`<div class="present"><${PresentBar} title="Progrés" onClose=${back} />
+      <article class="sheet"><${Empty} icon="chart" title="Encara no hi ha prou sessions" text="Quan el client tingui almenys dues sessions, aquí es veurà com ha progressat." /></article></div>`;
+  }
+  const from = list.find((s) => s.id === fromId) || list[0];
+  const to = list.find((s) => s.id === toId) || list[list.length - 1];
+  const res = Calc.progress(from, to, (id) => Store.exercise(id));
+  const between = list.filter((s) => s.date >= from.date && s.date <= to.date);
+  const label = (s) => `${s.planN && plan ? `S${s.planN} del pla` : `Sessió ${s.number}`} · ${U.fmtDate(s.date)}`;
+  const anySpeed = res.blocks.some((b) => b.rows.some((r) => r.v1.b != null || r.v1.a != null));
+  const options = list.map((s) => ({ v: s.id, label: `${s.planN && plan ? `S${s.planN}` : `S${s.number}`} · ${U.fmtDateShort(s.date)}${s.status === 'feta' ? '' : ' (prevista)'}` }));
+
+  return html`<div class="present">
+    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back}>
+      <label class="pv-pick"><span>De</span><${Select} value=${from.id} onValue=${setFrom} ariaLabel="Sessió d'abans" options=${options} /></label>
+      <label class="pv-pick"><span>a</span><${Select} value=${to.id} onValue=${setTo} ariaLabel="Sessió d'ara" options=${options} /></label>
+    </${PresentBar}>
+    <article class="sheet pv">
+      <header class="sheet-head">
+        <${BrandMark} />
+        <div class="sheet-id">
+          <p class="eyebrow">${plan ? plan.name : 'Entrenament'}</p>
+          <h1 class="sheet-title">El teu progrés</h1>
+          <p class="sheet-client">${U.fullName(p)}</p>
+        </div>
+      </header>
+      <p class="pv-range"><span>${label(from)}</span><span class="pv-arrow" aria-hidden="true">→</span><span>${label(to)}</span></p>
+
+      <div class="stats pv-stats">
+        <div class="stat"><span class="stat-label">Sessions fetes</span><span class="stat-value">${between.filter((s) => s.status === 'feta').length}</span><span class="stat-sub">en aquest període</span></div>
+        <div class="stat"><span class="stat-label">Exercicis més avançats</span><span class="stat-value">${res.summary.levelUp}</span><span class="stat-sub">han pujat de nivell</span></div>
+        <div class="stat"><span class="stat-label">Més càrrega</span><span class="stat-value">${res.summary.loadUp}</span><span class="stat-sub">exercicis amb més quilos</span></div>
+        ${anySpeed && html`<div class="stat"><span class="stat-label">Més velocitat</span><span class="stat-value">${res.summary.speedUp}</span><span class="stat-sub">segons l'encoder</span></div>`}
+      </div>
+
+      ${res.blocks.map((b) => html`<section class=${`pv-block blk-${b.key}`}>
+        <header class="sblock-head"><span class="sblock-num">${blockDef(b.key).num}</span><h2 class="sblock-name">${blockName(b.key)}</h2></header>
+        <div class="pv-rows">${b.rows.map((r) => html`<${ProgressRow} r=${r} />`)}</div>
+      </section>`)}
+
+      <${ProgressCharts} sessions=${between} to=${to} />
+
+      <footer class="sheet-foot">
+        <span>${Store.settings.centerName || 'EON Life'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
+        <span>${U.fmtDate(U.today())}</span>
+      </footer>
+    </article>
+  </div>`;
+}
+
+function ProgressSide({ it, v1 }) {
+  if (!it) return html`<div class="pv-side pv-none"><span class="muted">—</span></div>`;
+  const ex = it.exId ? Store.exercise(it.exId) : null;
+  return html`<div class="pv-side">
+    <span class="pv-name">${it.name}${ex && ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+    <span class="pv-rx">${[Calc.presc(it), v1 != null && `${U.fmtFixed(v1, 2)} m/s`].filter(Boolean).join(' · ')}</span>
+  </div>`;
+}
+
+function ProgressRow({ r }) {
+  const chips = [];
+  const sign = (n) => (n > 0 ? '+' : n < 0 ? '−' : '');
+  if (r.level.diff) chips.push({ up: r.level.diff > 0, text: `${r.level.diff > 0 ? '▲' : '▼'} ${U.plural(Math.abs(r.level.diff), 'nivell', 'nivells')}` });
+  if (r.kg.diff) chips.push({ up: r.kg.diff > 0, text: `${sign(r.kg.diff)}${U.fmt(Math.abs(r.kg.diff), 1)} kg${r.kg.pct != null ? ` (${sign(r.kg.pct)}${Math.abs(r.kg.pct)} %)` : ''}` });
+  if (r.v1.diff) chips.push({ up: r.v1.diff > 0, text: `${sign(r.v1.diff)}${U.fmtFixed(Math.abs(r.v1.diff), 2)} m/s` });
+  if (!r.before) chips.push({ text: 'Nou' });
+  else if (r.match === 'pos' && !chips.length) chips.push({ text: 'Exercici diferent' });
+  else if (!chips.length) chips.push({ text: 'Igual', muted: true });
+  return html`<div class="pv-row">
+    <${ProgressSide} it=${r.before} v1=${r.v1.a} />
+    <span class="pv-arrow" aria-hidden="true">→</span>
+    <${ProgressSide} it=${r.now} v1=${r.v1.b} />
+    <div class="pv-delta">${chips.map((c) => html`<span class=${U.cls('pv-chip', c.up === true && 'up', c.up === false && 'down', c.muted && 'muted')}>${c.text}</span>`)}</div>
+  </div>`;
+}
+
+// Evolució dels exercicis de potència i força de la sessió d'ara (mateix exercici en almenys dues sessions).
+function ProgressCharts({ sessions, to }) {
+  const names = [];
+  for (const b of to.blocks || []) if (['pot', 'for'].includes(b.key)) for (const it of b.items || []) if (it.name && !names.includes(it.name)) names.push(it.name);
+  const series = names.map((name) => {
+    const kg = [], v = [];
+    for (const s of sessions) for (const b of s.blocks || []) for (const it of b.items || []) {
+      if (it.name !== name) continue;
+      const k = Calc.kg(it), vb = Calc.vbt(it);
+      if (k != null) kg.push({ x: s.date, y: k });
+      if (vb && vb.v1 != null) v.push({ x: s.date, y: vb.v1 });
+    }
+    return { name, kg, v };
+  }).filter((x) => x.kg.length >= 2 || x.v.length >= 2).slice(0, 8);
+  if (!series.length) return null;
+  return html`<section class="pv-evo">
+    <h2 class="rsec-title">Evolució</h2>
+    <div class="pv-charts">${series.map((x) => html`<div class="pv-chart">
+      <h3 class="h3">${x.name}</h3>
+      ${x.kg.length >= 2 && html`<p class="pv-chart-t">Càrrega (kg)</p>
+        <${LineChart} series=${[{ name: 'Càrrega', color: 'var(--series-1)', points: x.kg }]} unit="kg" decimals=${1} height=${170} ariaLabel=${`Càrrega de ${x.name}`} />`}
+      ${x.v.length >= 2 && html`<p class="pv-chart-t">Velocitat de la 1a repetició (m/s)</p>
+        <${LineChart} series=${[{ name: 'Velocitat', color: 'var(--series-1)', points: x.v }]} unit="m/s" decimals=${2} height=${170} ariaLabel=${`Velocitat de ${x.name}`} />`}
+    </div>`)}</div>
+  </section>`;
+}
+
+
 /* ── 99-app.js ── */
 /* EON Life · estructura de l'app i arrencada. */
 
@@ -11059,6 +12115,8 @@ function renderRoute(r) {
     case 'fitxa': return html`<${SessionSheet} id=${a} />`;
     case 'biblioteca': return html`<${LibraryView} tab=${a || 'exercicis'} />`;
     case 'plantilla': return html`<${TemplateEditor} id=${a} />`;
+    case 'pla': return html`<${PlanEditor} key=${a} id=${a} n=${b} />`;
+    case 'progres': return html`<${ProgressView} key=${`${a}/${b || ''}`} pid=${a} planId=${b || ''} />`;
     case 'configuracio': return html`<${SettingsView} />`;
     default: return html`<${HomeView} />`;
   }
@@ -11092,7 +12150,7 @@ function App() {
   }
   if (!Store.ready) return html`<div class="boot"><span class="logo-mark boot-logo" aria-hidden="true"></span><p>Carregant…</p></div>`;
 
-  const present = route.name === 'fitxa' || route.name === 'informe';
+  const present = route.name === 'fitxa' || route.name === 'informe' || route.name === 'progres';
   return html`<div class=${U.cls('shell', present && 'shell-present')}>
     ${!present && html`<${Sidebar} route=${route} open=${menu} onClose=${() => setMenu(false)} />`}
     ${!present && menu && html`<div class="scrim" onClick=${() => setMenu(false)}></div>`}

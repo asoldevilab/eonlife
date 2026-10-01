@@ -47,6 +47,14 @@ const OPT = {
     'Encoder', 'Bike', 'Assault bike', 'Skillmill', 'Foam roller', 'Pica', 'Paret', 'Terra', 'Màquina'],
   intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
     'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
+  // Nivell de progressió d'un exercici dins de la seva família (de més fàcil a més difícil).
+  levels: [
+    { v: '1', label: 'Nivell 1 · Inicial' },
+    { v: '2', label: 'Nivell 2 · Bàsic' },
+    { v: '3', label: 'Nivell 3 · Intermedi' },
+    { v: '4', label: 'Nivell 4 · Avançat' },
+    { v: '5', label: 'Nivell 5 · Expert' },
+  ],
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control'],
   // Servei que fa el client al centre.
   services: [

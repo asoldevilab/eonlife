@@ -299,3 +299,72 @@ test('subblocs d\'un bloc: ordre, Excel i còpia a la sessió següent', () => {
   assert.equal(st.done, false);
   assert.notEqual(st.id, 'b');
 });
+
+test('progressions de la biblioteca, pla d\'entrenament i progrés entre sessions', () => {
+  const { Store, Calc, Flat, progressBlocks, makeDemoData } = loadCore();
+  const ladder = Store.ladder('Squat bilateral');
+  assert.deepEqual(Array.from(ladder, (e) => e.name), ['Squat a caixa amb pes corporal', 'Goblet squat', 'Back squat', 'Front squat', 'Back squat amb pausa']);
+  assert.equal(Store.stepLevel(Store.exercise('X-FOR-03'), 1).name, 'Back squat');
+  assert.equal(Store.stepLevel(Store.exercise('X-FOR-22'), -1), null);
+  // Totes les famílies tenen nivells seguits des de l'1.
+  for (const [name, list] of Object.entries(Store.families())) {
+    assert.deepEqual(Array.from(Store.ladder(name), (e) => e.level), Array.from(list, (_, i) => String(i + 1)), name);
+  }
+
+  // Dates previstes: des de dijous 1/10/2026, dilluns, dimecres i divendres.
+  assert.deepEqual(Array.from(Calc.planDates({ start: '2026-10-01', days: [1, 3, 5] }, 4)), ['2026-10-02', '2026-10-05', '2026-10-07', '2026-10-09']);
+
+  // Pujar un nivell: Goblet squat → Back squat; la prescripció es manté i la càrrega es treu.
+  const blocks = [{ key: 'for', items: [{ id: 'i', exId: 'X-FOR-03', name: 'Goblet squat', sets: '4', reps: '5', load: '24' }, { id: 'j', name: 'Exercici lliure' }] }];
+  assert.equal(progressBlocks(blocks), 1);
+  assert.equal(blocks[0].items[0].name, 'Back squat');
+  assert.equal(blocks[0].items[0].exId, 'X-FOR-01');
+  assert.equal(blocks[0].items[0].reps, '5');
+  assert.equal(blocks[0].items[0].load, '');
+
+  // Pla de la demostració: 12 sessions i el back squat progressa cada 4 sessions.
+  const db = makeDemoData();
+  const plan = db.templates['PL-DEMO-LAURA'];
+  assert.equal(plan.sessions.length, 12);
+  const sq = (n) => plan.sessions[n - 1].blocks.find((b) => b.key === 'for').items[0].name;
+  assert.deepEqual([sq(1), sq(5), sq(9)], ['Back squat', 'Front squat', 'Back squat amb pausa']);
+  assert.equal(Object.values(db.sessions).filter((s) => s.planId === plan.id).length, 1);
+  assert.equal(Flat.template(plan).Tipus, 'Pla');
+
+  // Progrés: mateix exercici (quilos i velocitat) i mateixa família (nivells).
+  const enc = (kg, v1) => ({ mode: 'encoder', sets: [{ kg: String(kg), reps: '5', v1 }] });
+  const from = { blocks: [{ key: 'for', items: [
+    { name: 'Press de banca', exId: 'X-FOR-13', load: '40', vbt: enc(40, '0,50') },
+    { name: 'Goblet squat', exId: 'X-FOR-03', load: '20' },
+    { name: 'Dead bug', exId: 'X-ACT-01' },
+  ] }] };
+  const to = { blocks: [{ key: 'for', items: [
+    { name: 'Press de banca', exId: 'X-FOR-13', load: '40', vbt: enc(40, '0,80') },
+    { name: 'Front squat', exId: 'X-FOR-02', load: '40' },
+    { name: 'Hip thrust', exId: 'X-FOR-08', load: '60' },
+  ] }] };
+  const res = Calc.progress(from, to, (id) => Store.exercise(id));
+  const [bench, squat, hip] = res.blocks[0].rows;
+  assert.equal(bench.match, 'name');
+  assert.equal(bench.v1.diff, 0.3);
+  assert.equal(bench.kg.diff, 0);
+  assert.equal(squat.match, 'family');
+  assert.equal(squat.level.diff, 2);
+  assert.equal(squat.kg.diff, null);
+  assert.equal(hip.match, 'pos');
+  assert.equal(res.summary.levelUp, 1);
+  assert.equal(res.summary.speedUp, 1);
+  assert.equal(Calc.kg({ load: '2 × 16 kg' }), 16);
+});
+
+test('mètodes d\'entrenament al bloc i al subbloc (Excel)', () => {
+  const { Flat, Store } = loadCore();
+  assert.ok(Store.methods('for').some((m) => m.name === 'Clúster'));
+  assert.ok(!Store.methods('cal').some((m) => m.name === 'Clúster'));
+  const b = { key: 'for', method: 'M-07', methodName: 'Contrast (PAPE)', groups: [{ id: 'G1', name: '' }, { id: 'G2', name: '', method: 'M-03', methodName: 'Clúster' }],
+    items: [{ id: 'a', name: 'Back squat', g: 'G1' }, { id: 'b', name: 'Hip thrust', g: 'G2' }] };
+  const log = Flat.sessionLog({ blocks: [b] }, { firstName: 'X' });
+  assert.deepEqual(Array.from(log, (r) => r['Mètode']), ['Contrast (PAPE)', 'Clúster']);
+  assert.equal(Flat.session({ blocks: [b] }, { firstName: 'X' })['Força principal · mètode'], 'Contrast (PAPE) · Bloc 2: Clúster');
+  assert.equal(Flat.template(Store.methods().find((m) => m.id === 'M-03')).Tipus, 'Mètode');
+});
