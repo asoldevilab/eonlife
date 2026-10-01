@@ -55,7 +55,7 @@ function AssessmentEditor({ id, focus }) {
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="as-date"><${TextInput} id="as-date" type="date" value=${a.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Tipus" id="as-type"><${Select} id="as-type" value=${a.type} onValue=${set('type')} options=${OPT.assessmentTypes} /></${Field}>
-        <${Field} label="Professional" id="as-prof"><${TextInput} id="as-prof" value=${a.professional} onValue=${set('professional')} list="prof-list" /></${Field}>
+        <${Field} label="Professional" id="as-prof"><${ProfSelect} id="as-prof" value=${a.professional} onValue=${set('professional')} /></${Field}>
         <${Field} label="Pes" id="as-weight"><${NumInput} id="as-weight" value=${g.weight} onValue=${setGen('weight')} unit="kg" /></${Field}>
         <${Field} label="Alçada" id="as-height"><${NumInput} id="as-height" value=${g.height} onValue=${setGen('height')} unit="cm" /></${Field}>
         <${Field} label="Motiu / objectiu" id="as-goal" wide=${true}><${TextInput} id="as-goal" value=${g.goal} onValue=${setGen('goal')} /></${Field}>
@@ -63,7 +63,6 @@ function AssessmentEditor({ id, focus }) {
           <div class="inline"><${VideoButton} url=${g.video} title="Vídeo general" patient=${p} onChange=${setGen('video')} /><span class="muted small">${U.isUrl(g.video) ? 'Enllaç desat' : 'Sense enllaç'}</span></div>
         </${Field}>
       </div>
-      <${ProfessionalsList} />
     </section>
 
     <${AssessmentFiles} a=${a} p=${p} upd=${upd} />

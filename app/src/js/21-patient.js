@@ -237,14 +237,13 @@ function PatientForm({ p, onRemove }) {
         <${Field} label="Servei" id="pf-service" wide=${true}>
           <${Seg} value=${p.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
         </${Field}>
-        ${F('Professional de referència', 'professional', { list: 'prof-list', placeholder: 'Nom del professional' })}
+        <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
         ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el client?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
         ${F('Antecedents i historial', 'history', { area: true, wide: true, placeholder: 'Lesions, cirurgies, patologies, medicació, esport…' })}
       </div>
-      <${ProfessionalsList} />
     </section>
     <section class="card">
       <div class="card-head"><h2 class="h2">Dates clau</h2><span class="muted">Es compten els dies des de la data</span></div>

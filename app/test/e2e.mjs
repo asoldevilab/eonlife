@@ -198,9 +198,13 @@ const step = async (label, fn) => {
     await page.waitForSelector('[role="radiogroup"][aria-label="Servei"] >> text=Valoració inicial');
     await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Seguiment membership');
     await page.waitForSelector('.phead .eyebrow >> text=Seguiment membership');
-    const profs = await page.$$eval('#prof-list option', (o) => o.map((x) => x.value));
+    const profs = await page.$$eval('#pf-professional option', (o) => o.map((x) => x.value));
     for (const n of ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']) if (!profs.includes(n)) throw new Error(`falta ${n}: ${profs}`);
     if (profs.some((n) => /Pau Roca|Marta Soler/.test(n))) throw new Error(`noms ficticis: ${profs}`);
+    // És un desplegable: amb un nom ja triat s'hi veuen igualment tots els professionals.
+    await page.selectOption('#pf-professional', 'Oriol Pastor (fisioteràpia)');
+    await page.waitForSelector('.phead-meta >> text=Oriol Pastor (fisioteràpia)');
+    await page.selectOption('#pf-professional', 'Arnau');
   });
   await step('informe de la doctora → objectiu, motiu, antecedents i dates', async () => {
     await page.fill('textarea[aria-label="Text de l\'informe de la doctora"]', 'Motiu de consulta: dolor lumbar en aixecar pes\nAntecedents: hèrnia L5-S1 (2021)\nIntervenció quirúrgica: microdiscectomia 14/02/2022\nObjectiu: tornar a entrenar força sense dolor');
