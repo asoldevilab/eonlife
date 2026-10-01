@@ -35,7 +35,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const bike = Calc.bike(a);
   const hq = Calc.hq(a);
   const typeLabel = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
-  const profile = OPT.profiles.find((o) => o.v === p.profile);
+  const service = OPT.services.find((o) => o.v === p.service);
   const age = U.age(p.birthDate, a.date);
 
   const biRows = (ids, perKg) => ids.map((tid) => TEST_INDEX[tid]).map((t) => {
@@ -86,7 +86,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         </div>
         <dl class="report-facts">
           ${age != null && html`<div><dt>Edat</dt><dd>${age} anys</dd></div>`}
-          ${profile && html`<div><dt>Perfil</dt><dd>${profile.label}</dd></div>`}
+          ${service && html`<div><dt>Servei</dt><dd>${service.label}</dd></div>`}
           ${w && html`<div><dt>Pes</dt><dd>${U.fmt(w, 1)} kg</dd></div>`}
           ${(g.goal || p.goal) && html`<div class="wide"><dt>Objectiu</dt><dd>${g.goal || p.goal}</dd></div>`}
         </dl>

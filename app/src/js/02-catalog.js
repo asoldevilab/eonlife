@@ -45,8 +45,14 @@ const OPT = {
   material: ['Pes corporal', 'Barra', 'Barra hexagonal', 'Mancuernes', 'KB', 'Politja', 'Politja cònica',
     'Resistència pneumàtica (Keiser)', 'Goma elàstica', 'Fitball', 'TRX', 'Med ball', 'Caixa', 'Banc', 'Landmine',
     'Encoder', 'Bike', 'Assault bike', 'Skillmill', 'Foam roller', 'Pica', 'Paret', 'Terra', 'Màquina'],
-  intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'Màxima intenció', 'Controlat', 'Suau'],
+  intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
+    'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control'],
+  // Servei que fa el client al centre.
+  services: [
+    { v: 'valoracio', label: 'Valoració inicial', desc: 'Només la valoració funcional i l\'informe' },
+    { v: 'membership', label: 'Seguiment membership', desc: 'Entrenament i seguiment continuat al centre' },
+  ],
   profiles: [
     { v: 'A', label: 'A · Rendiment', desc: 'Esportistes i clients entrenats' },
     { v: 'B', label: 'B · Salut i condició física', desc: 'Adults actius' },
@@ -317,12 +323,15 @@ const TEST_INDEX = (() => {
 })();
 
 // Configuració per defecte (editable a Configuració).
+// Equip del centre (es pot canviar a Configuració).
+const CENTER_PROFESSIONALS = ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
+
 function defaultSettings() {
   return {
     id: 'settings',
     centerName: 'EON Life',
     centerTagline: 'Human Performance',
-    professionals: [],
+    professionals: [...CENTER_PROFESSIONALS],
     blocks: BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc })),
   };
 }

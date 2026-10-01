@@ -30,6 +30,7 @@ async function open(viewport, scheme = 'light') {
     if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(where)) errors.push(`console: ${m.text()}`);
   });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  await page.route(/youtube|ytimg/, (r) => r.abort());
   await page.goto(url);
   await page.waitForSelector('.page, .present');
   return { ctx, page };
@@ -140,10 +141,41 @@ const step = async (label, fn) => {
     await page.fill('#fb-min', '60');
     await page.waitForSelector('.computed >> text=420 UA');
   });
+  await step('encoder ADR a la força principal', async () => {
+    const item = page.locator('section.block.blk-for .item').first();
+    await item.locator('.vbt-btn').click();
+    const ins = item.locator('.vbt-table tbody tr').first().locator('input');
+    await ins.nth(0).fill('80');
+    await ins.nth(1).fill('5');
+    await ins.nth(2).fill('0,80');
+    await ins.nth(3).fill('0,64');
+    await ins.nth(5).fill('820');
+    if ((await ins.nth(4).getAttribute('placeholder')) !== '20') throw new Error('la pèrdua de velocitat no es calcula');
+    await item.locator('.vbt-sum >> text=V 1a rep 0,80 m/s · PV 20 % · 820 W').waitFor();
+    await item.locator('.vbt-head >> text=ADR Jumping').click();
+    await item.locator('.vbt-table >> text=Altura millor').waitFor();
+    await item.locator('.vbt-head >> text=Encoder ADR').click();
+    await shot(page, '08b-encoder');
+  });
+  await step('vídeo de demostració (YouTube) desat a la biblioteca', async () => {
+    const item = page.locator('section.block.blk-mob .item').first();
+    await item.locator('button.mini[title*="demostració"]').click();
+    await page.fill('#demo-url', 'https://youtu.be/dQw4w9WgXcQ');
+    await page.waitForSelector('.dialog .embed iframe[src*="youtube-nocookie.com/embed/dQw4w9WgXcQ"]');
+    await page.click('.dialog-foot >> text=Desa');
+    await item.locator('button.mini.on[title*="demostració"]').waitFor();
+  });
   await step('fitxa per al client', async () => {
     await page.click('.editbar >> text=Presenta');
     await page.waitForSelector('.sheet');
     await shot(page, '09-fitxa-sessio');
+  });
+  await step('presenta: vídeos del bloc de mobilitat', async () => {
+    await page.click('.sblock.blk-mob .sblock-videos');
+    await page.waitForSelector('.bv .embed iframe[src*="youtube-nocookie.com/embed/dQw4w9WgXcQ"]');
+    await shot(page, '09b-videos-bloc');
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.bv', { state: 'detached' });
   });
   await step('nova sessió des de plantilla', async () => {
     await goHash(page, '#/client/P-DEMO-ALEX');
@@ -161,6 +193,25 @@ const step = async (label, fn) => {
     await page.fill('#np-last', 'Automàtica');
     await page.click('.dialog-foot >> text=Crea el client');
     await page.waitForSelector('text=Dades personals');
+  });
+  await step('servei i professionals del centre', async () => {
+    await page.waitForSelector('[role="radiogroup"][aria-label="Servei"] >> text=Valoració inicial');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Seguiment membership');
+    await page.waitForSelector('.phead .eyebrow >> text=Seguiment membership');
+    const profs = await page.$$eval('#prof-list option', (o) => o.map((x) => x.value));
+    for (const n of ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']) if (!profs.includes(n)) throw new Error(`falta ${n}: ${profs}`);
+    if (profs.some((n) => /Pau Roca|Marta Soler/.test(n))) throw new Error(`noms ficticis: ${profs}`);
+  });
+  await step('informe de la doctora → objectiu, motiu, antecedents i dates', async () => {
+    await page.fill('textarea[aria-label="Text de l\'informe de la doctora"]', 'Motiu de consulta: dolor lumbar en aixecar pes\nAntecedents: hèrnia L5-S1 (2021)\nIntervenció quirúrgica: microdiscectomia 14/02/2022\nObjectiu: tornar a entrenar força sense dolor');
+    await page.click('text=Omple les dades del client');
+    await page.waitForSelector('.docmap >> text=Motiu de consulta');
+    await shot(page, '10a-informe-doctora');
+    await page.click('.dialog-foot >> text=Desa a la fitxa');
+    await page.waitForFunction(() => document.querySelector('#pf-goal') && document.querySelector('#pf-goal').value === 'tornar a entrenar força sense dolor');
+    if ((await page.inputValue('#pf-reason')) !== 'dolor lumbar en aixecar pes') throw new Error('motiu');
+    if ((await page.inputValue('#pf-surgeryDate')) !== '2022-02-14') throw new Error('data IQ');
+    if (!(await page.inputValue('#pf-history')).includes('hèrnia L5-S1')) throw new Error('antecedents');
   });
   await step('biblioteca', async () => {
     await goHash(page, '#/biblioteca');

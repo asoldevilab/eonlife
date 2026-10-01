@@ -1118,3 +1118,43 @@ tfoot .rpc { font-size: 14px; }
   .rvid-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .rvid-media { aspect-ratio: 16 / 9; }
 }
+
+/* Informe de la doctora */
+.docmap { display: flex; flex-direction: column; gap: 6px; }
+.docrow { display: grid; grid-template-columns: auto minmax(120px, 200px) minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.docrow input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand); }
+.docrow-k { font-weight: 650; font-size: 14px; }
+.docrow-v { white-space: pre-line; font-size: 14px; color: var(--ink-2); }
+.docrow.off { opacity: 0.5; }
+.medical summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--ink-2); }
+@media (max-width: 640px) { .docrow { grid-template-columns: auto minmax(0, 1fr); } .docrow-v { grid-column: 2; } }
+
+/* Vídeos de demostració */
+.embed { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
+.embed iframe, .embed video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.embed-link { margin: 0; }
+.sblock-videos { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 0; background: var(--blk); color: var(--blk-ink); font-weight: 650; font-size: 13px; cursor: pointer; white-space: nowrap; align-self: center; }
+.sx-play { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: 4px; border-radius: 50%; border: 0; background: var(--surface-3); color: var(--ink-2); cursor: pointer; vertical-align: middle; }
+.sx-play:hover { background: var(--blk); color: var(--blk-ink); }
+.bv { width: min(1100px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 20px; border-radius: 18px; background: var(--surface); border-top: 6px solid var(--blk); box-shadow: var(--shadow-2); }
+.bv-head { display: flex; align-items: center; gap: 12px; }
+.bv-head .sblock-name { margin: 0; }
+.bv-video .embed { border-radius: 14px; }
+.bv-info { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.bv-name { font-size: 20px; }
+.bv-note { margin: 4px 0 0; color: var(--ink-2); }
+.bv-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bv-dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.bv-dot { width: 11px; height: 11px; border-radius: 50%; border: 0; padding: 0; background: var(--line-2); cursor: pointer; }
+.bv-dot.on { background: var(--blk); transform: scale(1.25); }
+
+/* Encoder ADR / ADR Jumping */
+.vbt-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px dashed var(--line-2); background: none; color: var(--ink-3); font-size: 12.5px; font-weight: 650; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.vbt-btn.on { border-style: solid; border-color: var(--blk); color: var(--ink); background: var(--surface-2); }
+.vbt { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.vbt-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vbt-sum { font-weight: 650; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.vbt-table th, .vbt-table td { padding: 4px 6px; }
+.vbt-table th[scope="row"] { width: 44px; color: var(--ink-3); font-weight: 650; }
+.vbt-in { min-height: 38px; min-width: 64px; padding: 6px 8px; font-size: 15px; text-align: right; }
+.vbt-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

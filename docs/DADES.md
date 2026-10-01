@@ -8,10 +8,10 @@ Les dues versions fan servir la mateixa estructura. A Microsoft 365 és l'Excel
 
 | Pestanya | Una fila per… | Columnes llegibles |
 |---|---|---|
-| `Pacients` | client | Nom, cognoms, perfil, professional, estat, objectiu, antecedents, dates IQ i lesió, carpeta del client… |
+| `Pacients` | client | Nom, cognoms, servei (valoració inicial / seguiment membership), perfil, professional, estat, objectiu, antecedents, dates IQ i lesió, carpeta del client… |
 | `Valoracions` | valoració | Una columna per test i costat (`ROM RI maluc D (°)`, `Knee-to-wall E (cm)`, `Força quàdriceps D (N/kg)`, `YBT composite D (%)`, `CMJ millor altura (cm)`, `Squat (puntuació)`…), punts d'atenció i conclusions |
 | `Sessions` | sessió | Data, setmana, nº, professional, objectiu, son/energia/dolor, RPE, minuts, **càrrega (UA)**, observacions, decisió i un resum de cada bloc |
-| `Registre_exercicis` | exercici de cada sessió | Bloc, ordre (4.2), exercici, grup muscular, contracció, posició, lateralitat, material, sèries, reps, càrrega, intensitat, descans, fet |
+| `Registre_exercicis` | exercici de cada sessió | Bloc, ordre (4.2), exercici, grup muscular, contracció, posició, lateralitat, material, sèries, reps, càrrega, intensitat, descans, fet i, si s'ha fet servir, l'encoder ADR (V 1a rep, pèrdua de velocitat, potència) i ADR Jumping (altura del salt) |
 | `Biblioteca` | exercici creat o modificat | Els exercicis de base viuen dins l'app; aquí només hi ha els nous o editats |
 | `Plantilles` | plantilla creada o modificada | Igual que la biblioteca |
 | `Configuracio` | — | Professionals, nom del centre i noms dels blocs |

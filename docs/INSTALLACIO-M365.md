@@ -119,6 +119,10 @@ A cada test de la valoració hi ha el botó de **vídeo**:
 - **Tria de la galeria** fa el mateix amb un vídeo que ja és a la tauleta.
 
 També es poden pujar amb l'app de OneDrive i triar-los després de la llista *Vídeos de la carpeta*.
+
+A les **sessions**, cada exercici té el mateix botó (*Grava el client*): el vídeo va a *02 · Vídeos* i queda
+enllaçat a l'exercici. Els **vídeos de demostració** del professional són enllaços de YouTube (**No llistat**) i es
+desen a la biblioteca; no ocupen espai a la carpeta.
 A l'**informe**, els vídeos surten amb la miniatura (es reprodueixen dins de l'informe) i, en paper o PDF, amb un
 codi QR per obrir-los amb el mòbil.
 
@@ -135,6 +139,13 @@ L'app de Kinvent exporta l'informe en PDF i només l'ofereix a les apps de la ta
 
 Els números de Kinvent (dreta, esquerra) s'escriuen a la valoració, a Mobilitat (K-Move) i Força (K-Push):
 l'app calcula l'asimetria i els N/kg i els posa a les columnes de l'Excel. Un PDF no omple les columnes sol.
+
+## Informe de la doctora
+
+A la fitxa del client, **Informe de la doctora › Desa el PDF a la carpeta** puja l'informe original a
+*03 · Informes*. El text (enganxat o d'un Word) omple l'objectiu, el motiu de consulta, els antecedents i les
+dates de la intervenció i la lesió. Si la política del centre és que la informació clínica només sigui a Nubimed,
+copieu-hi només el que calgui per a l'entrenament.
 
 ## Problemes freqüents
 

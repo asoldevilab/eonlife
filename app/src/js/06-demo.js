@@ -6,7 +6,7 @@ function makeDemoData() {
   const D = (n) => U.addDays(today, n);
   const exById = Object.fromEntries(SEED_EXERCISES.map((e) => [e.id, e]));
   const db = { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {}, demo: true,
-    settings: { ...defaultSettings(), professionals: ['Pau Roca', 'Marta Soler'] } };
+    settings: defaultSettings() };
 
   const patient = (p) => { db.patients[p.id] = { status: 'actiu', email: '', phone: '', folderUrl: '', folderId: '', notes: '', surgeryDate: '', surgeryNote: '', injuryDate: '', injuryNote: '', createdAt: `${p.startDate}T09:00:00.000Z`, ...p }; return p.id; };
 
@@ -28,31 +28,31 @@ function makeDemoData() {
   const patUni = (sd, se, extra = {}) => ({ sd, se, chips: [], note: '', ...extra });
 
   // ── Clients ──
-  const laura = patient({ id: 'P-DEMO-LAURA', firstName: 'Laura', lastName: 'Vidal Serra', birthDate: '1991-04-12', sex: 'D', profile: 'A',
-    professional: 'Pau Roca', startDate: D(-96), email: 'laura.vidal@example.com', phone: '600 000 101',
+  const laura = patient({ id: 'P-DEMO-LAURA', firstName: 'Laura', lastName: 'Vidal Serra', birthDate: '1991-04-12', sex: 'D', profile: 'A', service: 'membership',
+    professional: 'Arnau', startDate: D(-96), email: 'laura.vidal@example.com', phone: '600 000 101',
     goal: 'Tornar a competir en trail de 42 km sense dolor al genoll.',
     reason: 'Dolor femoropatel·lar recurrent a la cama dreta en les baixades.',
     history: 'Condropatia rotuliana dreta (2024). Corredora de muntanya, 4 dies per setmana.' });
-  const jordi = patient({ id: 'P-DEMO-JORDI', firstName: 'Jordi', lastName: 'Puig Ferrer', birthDate: '1974-09-03', sex: 'H', profile: 'B',
-    professional: 'Marta Soler', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
+  const jordi = patient({ id: 'P-DEMO-JORDI', firstName: 'Jordi', lastName: 'Puig Ferrer', birthDate: '1974-09-03', sex: 'H', profile: 'B', service: 'membership',
+    professional: 'Richy', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
     goal: 'Tornar a esquiar la temporada vinent amb seguretat.',
     reason: 'Readaptació després de la reconstrucció del LCA.',
     history: 'Esquiador aficionat. Sense altres lesions rellevants.',
     surgeryDate: D(-84), surgeryNote: 'Reconstrucció del LCA del genoll esquerre (plàstia HTH).' });
-  const montse = patient({ id: 'P-DEMO-MONTSE', firstName: 'Montserrat', lastName: 'Font Riba', birthDate: '1955-01-22', sex: 'D', profile: 'C',
-    professional: 'Marta Soler', startDate: D(-45),
+  const montse = patient({ id: 'P-DEMO-MONTSE', firstName: 'Montserrat', lastName: 'Font Riba', birthDate: '1955-01-22', sex: 'D', profile: 'C', service: 'membership',
+    professional: 'Richy', startDate: D(-45),
     goal: 'Guanyar autonomia i confiança per caminar per la muntanya amb els néts.',
     reason: 'Osteopènia i por a caure.',
     history: 'Osteopènia (2023). Pròtesi de maluc dret (2019).' });
-  const alex = patient({ id: 'P-DEMO-ALEX', firstName: 'Àlex', lastName: 'Martí Soler', birthDate: '1999-06-30', sex: 'H', profile: 'A',
-    professional: 'Pau Roca', startDate: D(-2), email: 'alex.marti@example.com',
+  const alex = patient({ id: 'P-DEMO-ALEX', firstName: 'Àlex', lastName: 'Martí Soler', birthDate: '1999-06-30', sex: 'H', profile: 'A', service: 'valoracio',
+    professional: 'Arnau', startDate: D(-2), email: 'alex.marti@example.com',
     goal: 'Rendiment en futbol semiprofessional i prevenció de recaigudes.',
     reason: 'Valoració de pretemporada.',
     history: 'Distensió d\'adductors esquerre fa 5 mesos.',
     injuryDate: D(-150), injuryNote: 'Distensió d\'adductor llarg esquerre (grau I).' });
 
   // ── Valoracions ──
-  assessment({ patientId: laura, date: D(-95), type: 'inicial', professional: 'Pau Roca',
+  assessment({ patientId: laura, date: D(-95), type: 'inicial', professional: 'Arnau',
     general: { weight: '58', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
@@ -78,7 +78,7 @@ function makeDemoData() {
       plan: 'Mobilitat de turmell diària. Força principal amb dominant de genoll 2 dies per setmana (3 × 6, RIR 2) i excèntric a la politja cònica. Pliometria progressiva a partir de la setmana 4.',
     } });
 
-  assessment({ patientId: laura, date: D(-4), type: 'retest', professional: 'Pau Roca',
+  assessment({ patientId: laura, date: D(-4), type: 'retest', professional: 'Arnau',
     general: { weight: '57.5', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
@@ -103,7 +103,7 @@ function makeDemoData() {
       plan: 'Iniciar fase de potència: pliometria reactiva 2 dies per setmana. Mantenir força principal a 3 × 5 (RIR 1-2).',
     } });
 
-  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Marta Soler',
+  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Richy',
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118), rom_knee_ext: bi(0, -3),
@@ -127,7 +127,7 @@ function makeDemoData() {
       plan: 'Coordinat amb fisioteràpia. Sense impactes fins al criteri del fisio. Força de quàdriceps en cadena oberta i tancada, 2 dies per setmana.',
     } });
 
-  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Marta Soler',
+  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Richy',
     general: { weight: '62', height: '158', goal: 'Autonomia i confiança caminant.' },
     values: {
       rom_hip_ir: bi(22, 25), rom_hip_er: bi(30, 34), rom_sh_ir: bi(48, 50), rom_sh_er: bi(80, 84),
@@ -143,7 +143,7 @@ function makeDemoData() {
       plan: 'Força funcional 2 dies per setmana amb progressió de sit-to-stand, step-up baix i equilibri. Caminades de 30 minuts els dies alterns.',
     } });
 
-  assessment({ patientId: alex, date: D(-2), type: 'inicial', professional: 'Pau Roca',
+  assessment({ patientId: alex, date: D(-2), type: 'inicial', professional: 'Arnau',
     general: { weight: '76', height: '179', goal: 'Rendiment i prevenció de recaigudes.' },
     values: {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
@@ -207,7 +207,7 @@ function makeDemoData() {
         cal: { focus: 'Parasimpàtic', items: [['X-CAL-03'], ['X-CAL-02']] },
       };
       if (date < today) {
-        session(laura, date, 'Pau Roca', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
+        session(laura, date, 'Arnau', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
           rpe: [6, 7, 7, 8, 7][w] + (kneeDay ? 0 : -1), min: [60, 65, 60, 70, 65][w], pain: w < 2 && kneeDay ? 2 : 0,
           sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: w < 2 && kneeDay ? 1 : 0,
           notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : '',
@@ -218,7 +218,7 @@ function makeDemoData() {
     }
   }
   // Sessió d'avui (planificada) per a Laura.
-  session(laura, today, 'Pau Roca', 'Potència i força · dominant de genoll', {
+  session(laura, today, 'Arnau', 'Potència i força · dominant de genoll', {
     mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
     act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
     pot: { focus: 'Salts verticals', items: [['X-POT-01', { sets: '4', reps: '3' }], ['X-POT-05', { sets: '3', reps: '3', note: 'Caixa de 30 cm.' }]] },
@@ -233,7 +233,7 @@ function makeDemoData() {
     for (const off of [1, 3]) {
       const date = U.addDays(jw0, w * 7 + off);
       if (date >= today) continue;
-      session(jordi, date, 'Marta Soler', 'Readaptació LCA · força de quàdriceps', {
+      session(jordi, date, 'Richy', 'Readaptació LCA · força de quàdriceps', {
         mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12'], ['X-MOB-07']] },
         act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
         pot: { focus: '', items: [] },
@@ -245,7 +245,7 @@ function makeDemoData() {
         decision: 'Progressar càrrega del leg press i mantenir profunditat controlada.' });
     }
   }
-  session(jordi, D(1), 'Marta Soler', 'Readaptació LCA · força de quàdriceps', {
+  session(jordi, D(1), 'Richy', 'Readaptació LCA · força de quàdriceps', {
     mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12']] },
     act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
     for: { focus: 'Dominant de genoll', items: [['X-FOR-03', { load: '24' }], ['X-FOR-07', { reps: '10', load: '90', intensity: 'RIR 3' }], ['X-FOR-06', { sets: '3', reps: '8/cama', load: '0', note: 'Caixa de 20 cm.' }]] },
@@ -259,7 +259,7 @@ function makeDemoData() {
     for (const off of [0, 3]) {
       const date = U.addDays(mw0, w * 7 + off);
       if (date >= today) continue;
-      session(montse, date, 'Marta Soler', 'Autonomia · força i equilibri', {
+      session(montse, date, 'Richy', 'Autonomia · força i equilibri', {
         mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
         act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
         pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -270,7 +270,7 @@ function makeDemoData() {
         decision: w > 3 ? 'Afegir exercici d\'equilibri amb ulls tancats.' : '' });
     }
   }
-  session(montse, today, 'Marta Soler', 'Autonomia · força i equilibri', {
+  session(montse, today, 'Richy', 'Autonomia · força i equilibri', {
     mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
     act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
     pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -280,7 +280,7 @@ function makeDemoData() {
   }, null);
 
   // Àlex: primera sessió planificada per demà.
-  session(alex, D(1), 'Pau Roca', 'Sessió 1 · tècnica i adductors', {
+  session(alex, D(1), 'Arnau', 'Sessió 1 · tècnica i adductors', {
     mob: { focus: 'Maluc', items: [['X-MOB-02'], ['X-MOB-11'], ['X-MOB-08']] },
     act: { focus: 'Adductors', items: [['X-ACT-07', { sets: '3', reps: '20 s/costat' }], ['X-ACT-02']] },
     pot: { focus: 'Salts', items: [['X-POT-01'], ['X-POT-11']] },

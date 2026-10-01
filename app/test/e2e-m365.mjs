@@ -272,6 +272,33 @@ let pid = null;
     const log = rows('tRegistre_exercicis');
     if (log.length < 10 || log.some((r) => r.session_id !== s[0].id)) throw new Error(`registre: ${log.length}`);
   });
+  await step('sessió: encoder ADR i vídeo del client → Registre_exercicis i «02 · Vídeos»', async () => {
+    const item = page.locator('section.block.blk-for .item').first();
+    await item.locator('.vbt-btn').click();
+    const ins = item.locator('.vbt-table tbody tr').first().locator('input');
+    await ins.nth(0).fill('80');
+    await ins.nth(1).fill('5');
+    await ins.nth(2).fill('0,80');
+    await ins.nth(3).fill('0,60');
+    await item.locator('.vbt-sum >> text=PV 25 %').waitFor();
+    const [chooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      (async () => { await item.locator('button.mini[title*="afegir enllaç"]').first().click(); await page.click('text=Grava ara'); })(),
+    ]);
+    await chooser.setFiles({ name: 'VID_0007.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(400000, 3) });
+    await page.waitForSelector('.dialog', { state: 'detached', timeout: 15000 });
+    await item.locator('button.mini.on[title*="obrir o canviar"]').waitFor();
+    await page.waitForTimeout(1300);
+    await waitSaved(page);
+    const clients = mock.child(shared.folder.id, 'EON Life · Clients');
+    const folder = mock.childrenOf(clients.id)[0];
+    const vids = mock.childrenOf(mock.child(folder.id, '02 · Vídeos').id).map((v) => v.name);
+    if (vids.length !== 2 || !vids.some((v) => /\.mp4$/.test(v))) throw new Error(`vídeos: ${vids}`);
+    const log = rows('tRegistre_exercicis');
+    const r = log.find((x) => x['Encoder · pèrdua de velocitat (%)'] !== '' && x['Encoder · pèrdua de velocitat (%)'] != null);
+    if (!r || r['Encoder · pèrdua de velocitat (%)'] !== 25 || r['Encoder · V 1a rep millor (m/s)'] !== 0.8) throw new Error(`registre: ${JSON.stringify(r || {}).slice(0, 300)}`);
+    await shot(page, 'm365-08-sessio-encoder');
+  });
   await step('configuració: on són les dades', async () => {
     await page.evaluate(() => { location.hash = '#/configuracio'; });
     await page.waitForSelector('text=Microsoft 365 · carpeta del centre');

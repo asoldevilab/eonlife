@@ -193,3 +193,74 @@ test('base de dades: dinamometria i Y-Balance', async () => {
   const prow = core.DB.rows('patrons').find((r) => r.p.id === 'P-DEMO-JORDI');
   assert.equal(core.DB.csvValue(pcols.find((c) => c.id === 'lunge'), prow), '−−');
 });
+
+test('informe de la doctora: cada apartat al seu camp', () => {
+  const { DoctorReport } = loadCore();
+  const r = DoctorReport.parse(`INFORME MÈDIC
+Pacient: Laura Vidal
+Data: 28/09/2026
+Motiu de consulta: Dolor anterior de genoll dret en córrer.
+ANTECEDENTS
+- Al·lèrgies: no conegudes
+- Esguinç de turmell esquerre (2019)
+Diagnòstic: Síndrome femoropatel·lar
+Intervenció quirúrgica: Artroscòpia de menisc intern dret 12/03/2024
+Lesió: distensió d'isquiotibials, 05-09-26
+Objectiu: Tornar a córrer la marató sense dolor.
+Recomanacions: evitar salts 15 dies.`);
+  assert.equal(r.reason, 'Dolor anterior de genoll dret en córrer.');
+  assert.equal(r.goal, 'Tornar a córrer la marató sense dolor.');
+  assert.match(r.history, /^Diagnòstic: Síndrome femoropatel·lar/);
+  assert.match(r.history, /Al·lèrgies: no conegudes/);
+  assert.doesNotMatch(r.history, /Laura Vidal|INFORME/);
+  assert.equal(r.surgeryDate, '2024-03-12');
+  assert.equal(r.surgeryNote, 'Artroscòpia de menisc intern dret');
+  assert.equal(r.injuryDate, '2026-09-05');
+  assert.match(r.notes, /evitar salts/);
+  // En castellà i amb guions.
+  const e = DoctorReport.parse('Motivo de consulta: lumbalgia\nAntecedentes personales: HTA\nObjetivo - mejorar fuerza');
+  assert.equal(e.reason, 'lumbalgia');
+  assert.equal(e.history, 'HTA');
+  assert.equal(e.goal, 'mejorar fuerza');
+});
+
+test('encoder: pèrdua de velocitat, resum i columnes del registre', () => {
+  const { Calc, Flat } = loadCore();
+  const it = { name: 'Back squat', sets: '3', reps: '5', vbt: { mode: 'encoder', sets: [
+    { kg: '80', reps: '5', v1: '0,80', vlast: '0,64', pmax: '820' },
+    { kg: '85', reps: '5', v1: '0,72', vlast: '0,60', vl: '15' },
+    {},
+  ] } };
+  assert.equal(Math.round(Calc.vl(it.vbt.sets[0])), 20);
+  const v = Calc.vbt(it);
+  assert.equal(v.sets, 2);
+  assert.equal(v.v1, 0.8);
+  assert.equal(v.vl, 17.5);
+  assert.equal(v.pmax, 820);
+  assert.equal(v.text, 'V 1a rep 0,80 m/s · PV 18 % · 820 W');
+  const row = Flat.sessionLog({ blocks: [{ key: 'for', items: [it] }] }, { firstName: 'X' })[0];
+  assert.equal(row['Encoder · V 1a rep millor (m/s)'], 0.8);
+  assert.equal(row['Encoder · pèrdua de velocitat (%)'], 17.5);
+  assert.match(row['Encoder / salts · detall'], /S1: 80 kg ×5 0,80→0,64 m\/s PV 20 % 820 W/);
+  const j = Calc.vbt({ vbt: { mode: 'salts', sets: [{ reps: '3', h: '34,5', hmean: '32', rsi: '1,8' }] } });
+  assert.equal(j.text, 'Salt millor 34,5 cm · mitjana 32 cm · RSI 1,80');
+  assert.equal(Calc.vbt({ name: 'x' }), null);
+});
+
+test('professionals del centre i servei del client', () => {
+  const { Flat, OPT, migrateDemo, makeDemoData } = loadCore();
+  const db = makeDemoData();
+  const profs = new Set(Object.values(db.patients).map((p) => p.professional));
+  assert.ok(!profs.has('Pau Roca') && !profs.has('Marta Soler'));
+  assert.deepEqual(Array.from(db.settings.professionals), ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
+  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Valoració inicial', 'Seguiment membership']);
+  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Seguiment membership');
+  // Dades de prova antigues guardades a la tauleta.
+  const old = { demo: true, patients: { 'P-DEMO-LAURA': { professional: 'Pau Roca' } }, assessments: {}, sessions: { s: { professional: 'Marta Soler' } },
+    settings: { professionals: ['Pau Roca', 'Marta Soler'] } };
+  migrateDemo(old);
+  assert.equal(old.patients['P-DEMO-LAURA'].professional, 'Arnau');
+  assert.equal(old.patients['P-DEMO-LAURA'].service, 'membership');
+  assert.equal(old.sessions.s.professional, 'Richy');
+  assert.deepEqual(Array.from(old.settings.professionals), ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
+});

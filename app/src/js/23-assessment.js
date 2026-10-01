@@ -431,11 +431,15 @@ function PatternCard({ pt, n, v, p, set }) {
 function ProfileBlock({ a, p, setVal }) {
   const [prof, setProf] = useState(p.profile || 'A');
   const list = PROFILE_TESTS.filter((t) => !prof || t.profiles.includes(prof));
+  // El perfil A/B/C de la bateria es desa al client (decideix quins tests surten la propera vegada).
+  const choose = (v) => {
+    setProf(v);
+    if (v && p.id && v !== p.profile) Store.update('patients', p.id, (x) => { x.profile = v; });
+  };
   return html`<div>
     <div class="profile-pick">
-      <span class="field-label">Perfil</span>
-      <${Seg} value=${prof} onValue=${setProf} ariaLabel="Perfil" options=${[...OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc })), { v: '', label: 'Tots' }]} allowEmpty=${false} />
-      ${p.profile && prof !== p.profile && html`<span class="muted small">El client és perfil ${p.profile}.</span>`}
+      <span class="field-label">Bateria del perfil</span>
+      <${Seg} value=${prof} onValue=${choose} ariaLabel="Perfil" options=${[...OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc })), { v: '', label: 'Tots' }]} allowEmpty=${false} />
     </div>
     <div class="trows">${list.map((t) => html`<${TestRow} key=${t.id} t=${TEST_INDEX[t.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>
   </div>`;
