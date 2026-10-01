@@ -104,21 +104,32 @@ async function ensureFolder(p, { silent } = {}) {
   }
 }
 
-// Es poden pujar fitxers des de la tauleta? (Microsoft 365)
-function canUploadFiles() { return Store.cloud() && !!(Store.backend && Store.backend.uploadFile); }
+// Es poden pujar fitxers des de la tauleta? Amb Microsoft 365, a la carpeta del client; a la versió de prova
+// (sense núvol), es desen a la mateixa tauleta.
+function canUploadFiles() {
+  if (!Store.cloud()) return LocalFiles.available();
+  return !!(Store.backend && Store.backend.uploadFile);
+}
+function filesOnDevice() { return !Store.cloud(); }
 
 // Puja un fitxer a una subcarpeta de la carpeta del client (la crea si encara no existeix).
 // Nom: «AAAA-MM-DD · què és · Nom Cognoms.ext», perquè a la carpeta s'ordenin per data.
 async function uploadToClient(patient, file, { label, date, subfolder, onProgress } = {}) {
+  const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || [''])[0].toLowerCase();
+  const name = `${date || U.today()} · ${label} · ${U.fullName(patient)}${ext}`;
+  if (filesOnDevice()) {
+    const res = await LocalFiles.put(file, name);
+    if (onProgress) onProgress(1);
+    return { ...res, folderId: '' };
+  }
   let fid = patient.folderId || '';
   if (!fid) {
     const res = await ensureFolder(Store.get('patients', patient.id) || patient, { silent: true });
     fid = (res && res.folderId) || '';
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
-  const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || [''])[0].toLowerCase();
   const res = await Store.backend.uploadFile(fid, file, {
-    name: `${date || U.today()} · ${label} · ${U.fullName(patient)}${ext}`,
+    name,
     subfolder,
     onProgress,
   });

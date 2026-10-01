@@ -264,3 +264,38 @@ test('professionals del centre i servei del client', () => {
   assert.equal(old.sessions.s.professional, 'Richy');
   assert.deepEqual(Array.from(old.settings.professionals), ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
 });
+
+test('subblocs d\'un bloc: ordre, Excel i còpia a la sessió següent', () => {
+  const { Calc, Flat, cloneBlocks } = loadCore();
+  const b = {
+    key: 'for',
+    groups: [{ id: 'G1', name: '' }, { id: 'G2', name: 'Superset · 3 voltes' }],
+    items: [
+      { id: 'a', name: 'Back squat', sets: '3', reps: '6', g: 'G1' },
+      { id: 'c', name: 'Hip thrust', sets: '3', reps: '8', g: 'G2' },
+      { id: 'b', name: 'Step-up', sets: '3', reps: '6', g: 'G1', video: 'https://x.test/v.mp4', vbt: { mode: 'encoder', sets: [{ v1: '0,8' }] }, done: true },
+      { id: 'd', name: 'Copenhagen', sets: '2', reps: '20"' },
+    ],
+  };
+  Calc.sortByGroups(b);
+  assert.deepEqual(Array.from(b.items, (x) => x.id), ['a', 'b', 'd', 'c']);
+  const gs = Calc.groups(b);
+  assert.deepEqual(Array.from(gs, (x) => x.label), ['Bloc 1', 'Bloc 2 · Superset · 3 voltes']);
+  assert.deepEqual(Array.from(gs, (x) => Array.from(x.items, (y) => y.it.id)), [['a', 'b', 'd'], ['c']]);
+  assert.equal(Calc.groups({ items: [{ name: 'x' }] }), null);
+
+  const log = Flat.sessionLog({ blocks: [b] }, { firstName: 'X' });
+  assert.deepEqual(Array.from(log, (r) => r.Subbloc), ['Bloc 1', 'Bloc 1', 'Bloc 1', 'Bloc 2 · Superset · 3 voltes']);
+  const row = Flat.session({ blocks: [b] }, { firstName: 'X' });
+  assert.match(row['Força principal · exercicis'], /^Bloc 1: Back squat 3 × 6 \| Step-up 3 × 6 \| Copenhagen 2 × 20" ‖ Bloc 2 · Superset · 3 voltes: Hip thrust 3 × 8$/);
+
+  // «Copia l'última sessió»: es mantenen els subblocs, però no el registre de l'encoder ni el vídeo del client.
+  const copy = cloneBlocks([b], true).find((x) => x.key === 'for');
+  assert.deepEqual(Array.from(copy.groups, (g) => g.id), ['G1', 'G2']);
+  assert.deepEqual(Array.from(copy.items, (x) => x.g), ['G1', 'G1', undefined, 'G2']);
+  const st = copy.items.find((x) => x.name === 'Step-up');
+  assert.equal(st.vbt, undefined);
+  assert.equal(st.video, undefined);
+  assert.equal(st.done, false);
+  assert.notEqual(st.id, 'b');
+});

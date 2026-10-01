@@ -299,7 +299,7 @@ function DoctorReportCard({ p }) {
     try {
       const res = await uploadToClient(p, file, { label: 'Informe mèdic', subfolder: '03 · Informes', onProgress: setPct });
       Store.update('patients', p.id, (x) => { x.docs = [...(x.docs || []), { id: U.uid('F'), name: res.name, url: res.url, date: U.today() }]; });
-      UI.toast('Informe desat a la carpeta del client.');
+      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
@@ -316,7 +316,7 @@ function DoctorReportCard({ p }) {
       <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Llegeix un Word</${Btn}>
       ${canUploadFiles() && html`<input type="file" accept=".pdf,application/pdf,image/*,.docx" hidden ref=${pdfRef} onChange=${(e) => uploadPdf(e.currentTarget.files[0])} />
         ${pct != null ? html`<span class="attach-busy"><span class="spinner"></span>Pujant… ${Math.round(pct * 100)} %</span>`
-          : html`<${Btn} icon="folder" onClick=${() => pdfRef.current && pdfRef.current.click()}>Desa el PDF a la carpeta</${Btn}>`}`}
+          : html`<${Btn} icon="folder" onClick=${() => pdfRef.current && pdfRef.current.click()}>${filesOnDevice() ? 'Desa el PDF a la tauleta' : 'Desa el PDF a la carpeta'}</${Btn}>`}`}
     </div>
     ${docs.length > 0 && html`<ul class="files mt">${docs.map((f) => html`<li class="file" key=${f.id}><${Icon} name="note" size=${18} />
       <a class="link file-name" href=${f.url} target="_blank" rel="noopener">${f.name}</a><span class="muted small">${U.fmtDate(f.date)}</span></li>`)}</ul>`}

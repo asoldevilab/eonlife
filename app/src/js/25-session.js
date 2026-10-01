@@ -43,7 +43,7 @@ function SessionEditor({ id }) {
     upd((x) => {
       x.blocks = Store.emptyBlocks().map((b) => {
         const tb = (t.blocks || []).find((y) => y.key === b.key);
-        return tb ? { ...b, focus: tb.focus || '', note: tb.note || '', items: cloneItems(tb.items, true) } : b;
+        return tb ? cloneBlock(tb, b.key, true) : b;
       });
       if (!x.goal) x.goal = t.goal || '';
     });
@@ -123,30 +123,86 @@ function SessionEditor({ id }) {
   </div>`;
 }
 
-// Un bloc de la sessió (també es fa servir per editar plantilles).
+// Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
+// (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 function BlockCard({ block, onChange, prev, patient, templateMode }) {
   const def = blockDef(block.key);
   const items = block.items || [];
+  const groups = Calc.groups(block);
   const [focusId, setFocusId] = useState(null);
   const tpls = Store.templates().filter((t) => t.kind === 'block' && t.block === block.key);
+  const gIndex = (b, it) => Math.max(0, (b.groups || []).findIndex((g) => g.id === it.g));
+  const ungroup = (b) => { for (const it of b.items || []) delete it.g; delete b.groups; };
 
-  const add = () => {
+  const add = (gid) => {
     const it = itemFromExercise(null);
+    if (gid) it.g = gid;
     setFocusId(it.id);
-    onChange((b) => { b.items = [...(b.items || []), it]; });
+    onChange((b) => { b.items = [...(b.items || []), it]; Calc.sortByGroups(b); });
   };
   const setItem = (iid) => (fn) => onChange((b) => { const it = b.items.find((x) => x.id === iid); if (it) fn(it); });
+  // Amunt/avall dins del subbloc; des del primer o l'últim exercici, passa al subbloc del costat.
   const move = (i, dir) => onChange((b) => {
-    const j = i + dir;
-    if (j < 0 || j >= b.items.length) return;
+    const a = b.items[i], c = b.items[i + dir];
+    if (!a) return;
+    if ((b.groups || []).length && (!c || gIndex(b, c) !== gIndex(b, a))) {
+      const k = gIndex(b, a) + dir;
+      if (k >= 0 && k < b.groups.length) a.g = b.groups[k].id;
+      return;
+    }
+    if (!c) return;
     const arr = [...b.items];
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [arr[i], arr[i + dir]] = [arr[i + dir], arr[i]];
     b.items = arr;
+  });
+  const toGroup = (iid, gid) => onChange((b) => {
+    const it = b.items.find((x) => x.id === iid);
+    if (!it) return;
+    it.g = gid;
+    b.items = [...b.items.filter((x) => x.id !== iid), it];
+    Calc.sortByGroups(b);
   });
   const removeItem = (iid) => onChange((b) => { b.items = b.items.filter((x) => x.id !== iid); });
   const dupItem = (i) => onChange((b) => { const arr = [...b.items]; arr.splice(i + 1, 0, { ...U.clone(arr[i]), id: U.uid('I'), done: false }); b.items = arr; });
+  // Divideix el bloc: els exercicis que hi ha queden al Bloc 1 i s'afegeix un Bloc 2 buit.
+  const addGroup = () => onChange((b) => {
+    if (!(b.groups && b.groups.length)) {
+      const g1 = { id: U.uid('G'), name: '' };
+      b.groups = [g1];
+      for (const it of b.items || []) it.g = g1.id;
+    }
+    b.groups = [...b.groups, { id: U.uid('G'), name: '' }];
+  });
+  const setGroup = (gid, k) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) g[k] = v; });
+  const removeGroup = async (x) => {
+    const n = x.items.filter((y) => y.it.name).length;
+    if (n && !(await UI.confirm({ title: `Treure el bloc ${x.n}?`, text: n === 1 ? 'També s\'eliminarà l\'exercici que hi ha.' : `També s'eliminaran els ${n} exercicis que hi ha.`, ok: 'Treu el bloc', danger: true }))) return;
+    const ids = new Set(x.items.map((y) => y.it.id));
+    onChange((b) => {
+      b.items = (b.items || []).filter((it) => !ids.has(it.id));
+      b.groups = (b.groups || []).filter((g) => g.id !== x.g.id);
+      if (b.groups.length < 2) ungroup(b);
+    });
+  };
   const insertTemplate = (t) => onChange((b) => {
-    b.items = [...(b.items || []).filter((x) => x.name), ...cloneItems(t.items, true)];
+    const add = cloneItems(t.items, true);
+    b.items = (b.items || []).filter((x) => x.name);
+    if (t.groups && t.groups.length) {
+      if (!(b.groups && b.groups.length) && b.items.length) {
+        const g0 = { id: U.uid('G'), name: '' };
+        b.groups = [g0];
+        for (const it of b.items) it.g = g0.id;
+      }
+      b.groups = b.groups || [];
+      const map = {};
+      for (const g of t.groups) { map[g.id] = U.uid('G'); b.groups.push({ ...g, id: map[g.id] }); }
+      for (const it of add) it.g = map[it.g] || map[t.groups[0].id];
+    } else if (b.groups && b.groups.length) {
+      for (const it of add) it.g = b.groups[b.groups.length - 1].id;
+    }
+    b.items = [...b.items, ...add];
+    if (b.groups && b.groups.length < 2) ungroup(b);
+    Calc.sortByGroups(b);
     if (!b.focus) b.focus = t.focus || '';
   });
   const saveTemplate = async () => {
@@ -155,8 +211,15 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
     if (name) { Store.saveBlockTemplate(block, name); UI.toast('Plantilla desada.'); }
   };
   const clear = async () => {
-    if (await UI.confirm({ title: `Buidar el bloc ${blockName(block.key)}?`, text: 'Es trauran tots els exercicis del bloc.', ok: 'Buida', danger: true })) onChange((b) => { b.items = []; });
+    if (await UI.confirm({ title: `Buidar el bloc ${blockName(block.key)}?`, text: 'Es trauran tots els exercicis del bloc.', ok: 'Buida', danger: true })) onChange((b) => { b.items = []; delete b.groups; });
   };
+
+  const row = (it, i, gi) => html`<${ItemRow} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`}
+    canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
+    groups=${groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))}
+    onGroup=${(gid) => toGroup(it.id, gid)}
+    block=${block.key} prevMap=${prev} autoFocus=${focusId === it.id} templateMode=${templateMode} patient=${patient}
+    onChange=${setItem(it.id)} onMove=${(dir) => move(i, dir)} onRemove=${() => removeItem(it.id)} onDuplicate=${() => dupItem(i)} />`;
 
   return html`<section class=${`card block blk-${block.key}`} aria-label=${`Bloc ${def.num}: ${blockName(block.key)}`}>
     <header class="block-head">
@@ -174,6 +237,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         ...tpls.map((t) => ({ label: t.name, icon: 'plus', onClick: () => insertTemplate(t) })),
         { sep: true },
         { label: 'Desa el bloc com a plantilla', icon: 'download', onClick: saveTemplate },
+        groups ? { label: 'Uneix els blocs en un de sol', icon: 'layers', onClick: () => onChange(ungroup) } : null,
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
       ]} />
     </header>
@@ -183,20 +247,33 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         <span class="ih rx-l">Càrrega</span><span class="ih rx-i">Intensitat</span><span class="ih rx-d">Descans</span></div></div>
       <span></span>
     </div>`}
-    ${items.length > 0 && html`<div class="items">
-      ${items.map((it, i) => html`<${ItemRow} key=${it.id} it=${it} idx=${i} count=${items.length} num=${`${def.num}.${i + 1}`}
-        block=${block.key} prevMap=${prev} autoFocus=${focusId === it.id} templateMode=${templateMode} patient=${patient}
-        onChange=${setItem(it.id)} onMove=${(dir) => move(i, dir)} onRemove=${() => removeItem(it.id)} onDuplicate=${() => dupItem(i)} />`)}
-    </div>`}
+    ${groups
+      ? groups.map((x, gi) => html`<div class="sgroup" key=${x.g.id} aria-label=${`Bloc ${x.n}`}>
+          <div class="sgroup-head">
+            <span class="sgroup-tag">Bloc ${x.n}</span>
+            <input class="input sgroup-name" value=${x.g.name || ''} placeholder="Indicacions: p. ex. Superset · 3 voltes · 2' entre voltes"
+              aria-label=${`Indicacions del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'name')(e.currentTarget.value)} />
+            <button type="button" class="mini" title=${`Treu el bloc ${x.n}`} onClick=${() => removeGroup(x)}><${Icon} name="x" size=${15} /></button>
+          </div>
+          ${x.items.length > 0
+            ? html`<div class="items">${x.items.map((y) => row(y.it, y.i, gi))}</div>`
+            : html`<p class="muted small sgroup-empty">Encara no hi ha cap exercici en aquest bloc.</p>`}
+          <div class="block-foot">
+            <button type="button" class="add-item" onClick=${() => add(x.g.id)}><${Icon} name="plus" size=${16} />Afegeix exercici al bloc ${x.n}</button>
+          </div>
+        </div>`)
+      : items.length > 0 && html`<div class="items">${items.map((it, i) => row(it, i, 0))}</div>`}
     <div class="block-foot">
-      <button type="button" class="add-item" onClick=${add}><${Icon} name="plus" size=${16} />Afegeix exercici</button>
+      ${!groups && html`<button type="button" class="add-item" onClick=${() => add()}><${Icon} name="plus" size=${16} />Afegeix exercici</button>`}
+      <button type="button" class="add-item add-group" onClick=${addGroup} title="Divideix aquest bloc en blocs més petits (Bloc 1, Bloc 2…), cadascun amb els seus exercicis">
+        <${Icon} name="layers" size=${16} />${groups ? `Afegeix el bloc ${groups.length + 1}` : 'Divideix en blocs'}</button>
       ${!items.length && tpls.length > 0 && html`<span class="muted small">o insereix una plantilla:</span>
         ${tpls.slice(0, 3).map((t) => html`<button type="button" class="chip" onClick=${() => insertTemplate(t)}><${Icon} name="layers" size=${13} />${t.name.replace(`${blockName(block.key)} · `, '')}</button>`)}`}
     </div>
   </section>`;
 }
 
-function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient }) {
+function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient }) {
   const [open, setOpen] = useState(false);
   const [vbtOpen, setVbtOpen] = useState(false);
   const vbtSum = Calc.vbt(it);
@@ -263,8 +340,9 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
       ${!templateMode && html`<button type="button" class=${U.cls('donebtn', it.done && 'on')} aria-pressed=${!!it.done} title=${it.done ? 'Fet' : 'Marca com a fet'}
         onClick=${() => set('done')(!it.done)}><${Icon} name="check" size=${18} /></button>`}
       <${Menu} items=${[
-        { label: 'Mou amunt', icon: 'up', disabled: idx === 0, onClick: () => onMove(-1) },
-        { label: 'Mou avall', icon: 'down', disabled: idx === count - 1, onClick: () => onMove(1) },
+        { label: 'Mou amunt', icon: 'up', disabled: !canUp, onClick: () => onMove(-1) },
+        { label: 'Mou avall', icon: 'down', disabled: !canDown, onClick: () => onMove(1) },
+        ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) } : null,

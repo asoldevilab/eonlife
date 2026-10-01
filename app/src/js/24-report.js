@@ -245,9 +245,16 @@ function ReportVideos({ videos, patient, grouped }) {
   const key = videos.map((v) => v.url).join('|');
   useEffect(() => {
     let alive = true;
+    const merge = (m) => { if (alive) setMedia((cur) => ({ ...cur, ...(m || {}) })); };
     if (Store.backend && Store.backend.mediaInfo && patient.folderId) {
-      Store.backend.mediaInfo(patient.folderId, videos.map((v) => v.url)).then((m) => { if (alive) setMedia(m || {}); }).catch(() => {});
+      Store.backend.mediaInfo(patient.folderId, videos.map((v) => v.url)).then(merge).catch(() => {});
     }
+    // Versió de prova: vídeos desats a la tauleta.
+    Promise.all(videos.filter((v) => LocalFiles.is(v.url)).map(async (v) => {
+      const f = await LocalFiles.get(v.url);
+      const u = f && (await LocalFiles.objectUrl(v.url));
+      return u ? [v.url, /^image\//.test(f.type) ? { thumb: u } : { play: u }] : null;
+    })).then((pairs) => merge(Object.fromEntries(pairs.filter(Boolean)))).catch(() => {});
     return () => { alive = false; };
   }, [key]);
   const areaName = (id) => (id === 'tot' ? 'General' : (PROTOCOL.find((s) => s.id === id) || {}).short || '');
@@ -256,7 +263,8 @@ function ReportVideos({ videos, patient, grouped }) {
     <p class="muted small no-screen">Escaneja el codi amb la càmera del mòbil per veure cada vídeo.</p>
     <div class="rvid-grid">${videos.map((vd) => {
       const m = media[vd.url] || {};
-      const open = () => (m.play ? setPlaying(vd.url) : window.open(vd.url, '_blank', 'noopener'));
+      const local = LocalFiles.is(vd.url);
+      const open = () => (m.play ? setPlaying(vd.url) : local ? LocalFiles.show(vd.url) : window.open(vd.url, '_blank', 'noopener'));
       return html`<figure class="rvid" key=${vd.url}>
         <div class="rvid-media">
           ${playing === vd.url && m.play ? html`<video src=${m.play} controls autoplay playsinline preload="metadata"></video>`
@@ -267,8 +275,8 @@ function ReportVideos({ videos, patient, grouped }) {
         </div>
         <figcaption>
           <span class="rvid-text"><strong>${vd.label}</strong>${grouped && html`<span class="muted small">${areaName(vd.area)}</span>`}
-            <a class="link small no-print" href=${vd.url} target="_blank" rel="noopener">Obre a la carpeta</a></span>
-          <${QrCode} text=${vd.url} size=${76} />
+            <a class="link small no-print" href=${vd.url} target="_blank" rel="noopener">${local ? 'Obre' : 'Obre a la carpeta'}</a></span>
+          ${!local && html`<${QrCode} text=${vd.url} size=${76} />`}
         </figcaption>
       </figure>`;
     })}</div>

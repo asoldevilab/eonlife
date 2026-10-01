@@ -401,7 +401,7 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
       const res = await uploadToClient({ ...patient, folderId }, file, { label: title, onProgress: (pct) => setUp({ pct }) });
       setUp(null);
       setFolderId(res.folderId);
-      UI.toast(`Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
       if (res.url) onSave(res.url);
       else loadFiles(res.folderId);
     } catch (e) {
@@ -419,11 +419,11 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
       <input type="file" accept="video/*" capture="environment" hidden ref=${recRef} data-kind="record" onChange=${(e) => upload(e.currentTarget.files[0])} />
       <input type="file" accept="video/*,image/*" hidden ref=${fileRef} data-kind="gallery" onChange=${(e) => upload(e.currentTarget.files[0])} />
       ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
-          <span class="muted">Pujant el vídeo a la carpeta de ${patient.firstName || 'el client'}… ${Math.round(up.pct * 100)} % · no tanquis aquesta finestra</span>
+          <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el client'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
           <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
         : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
           <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
-          <span class="muted small">Es desa sol a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.</span>`}
+          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del client.' : `Es desa sol a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.`}</span>`}
     </div>`}
     <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
       <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />

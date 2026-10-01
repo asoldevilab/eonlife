@@ -357,7 +357,7 @@ const Store = {
       if (t && t.kind === 'session') {
         blocks = this.emptyBlocks().map((b) => {
           const tb = (t.blocks || []).find((x) => x.key === b.key);
-          return tb ? { ...b, focus: tb.focus || '', note: tb.note || '', items: cloneItems(tb.items) } : b;
+          return tb ? cloneBlock(tb, b.key) : b;
         });
         goal = t.goal || '';
       }
@@ -383,12 +383,13 @@ const Store = {
 
   saveBlockTemplate(block, name) {
     const t = { id: U.uid('T'), kind: 'block', block: block.key, name, focus: block.focus || '', desc: '', items: cloneItems(block.items, true) };
+    if (block.groups && block.groups.length) t.groups = U.clone(block.groups);
     return this.put('templates', t, { immediate: true });
   },
 
   saveSessionTemplate(session, name) {
     const t = { id: U.uid('T'), kind: 'session', name, goal: session.goal || '',
-      blocks: (session.blocks || []).map((b) => ({ key: b.key, focus: b.focus || '', note: b.note || '', items: cloneItems(b.items, true) })) };
+      blocks: (session.blocks || []).map((b) => cloneBlock(b, b.key, true)) };
     return this.put('templates', t, { immediate: true });
   },
 
@@ -417,14 +418,24 @@ const Store = {
   },
 };
 
+// Còpia dels exercicis per a una sessió nova o una plantilla (resetDone): sense «fet», sense el registre
+// de l'encoder i sense el vídeo del client, que són d'aquell dia.
 function cloneItems(items, resetDone) {
-  return (items || []).map((it) => ({ ...U.clone(it), id: U.uid('I'), ...(resetDone ? { done: false } : {}) }));
+  return (items || []).map((it) => {
+    const c = { ...U.clone(it), id: U.uid('I') };
+    if (resetDone) { c.done = false; delete c.vbt; delete c.video; }
+    return c;
+  });
+}
+
+// Un bloc copiat (focus, nota, subblocs i exercicis).
+function cloneBlock(src, key, resetDone) {
+  const b = { key, focus: (src && src.focus) || '', note: (src && src.note) || '', items: cloneItems(src && src.items, resetDone) };
+  if (src && src.groups && src.groups.length) b.groups = U.clone(src.groups);
+  return b;
 }
 
 function cloneBlocks(blocks, resetDone) {
   const byKey = Object.fromEntries((blocks || []).map((b) => [b.key, b]));
-  return BLOCKS.map((b) => {
-    const src = byKey[b.key];
-    return src ? { key: b.key, focus: src.focus || '', note: src.note || '', items: cloneItems(src.items, resetDone) } : { key: b.key, focus: '', note: '', items: [] };
-  });
+  return BLOCKS.map((b) => cloneBlock(byKey[b.key], b.key, resetDone));
 }

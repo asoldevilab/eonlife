@@ -322,6 +322,25 @@ const Calc = {
     return ((s && s.blocks) || []).reduce((n, b) => n + (b.items || []).filter((i) => i.name).length, 0);
   },
 
+  // Subblocs d'un bloc de la sessió (p. ex. Força principal › Bloc 1, Bloc 2…).
+  // Retorna null si el bloc no està dividit; si ho està, cada subbloc amb els seus exercicis
+  // ({ it, i } amb i = posició a block.items). Un exercici sense subbloc va al primer.
+  groups(b) {
+    const gs = (b && b.groups) || [];
+    if (!gs.length) return null;
+    const out = gs.map((g, n) => ({ g, n: n + 1, label: Calc.groupLabel(g, n), items: [] }));
+    (b.items || []).forEach((it, i) => { (out.find((x) => x.g.id === it.g) || out[0]).items.push({ it, i }); });
+    return out;
+  },
+  groupLabel(g, n) { return `Bloc ${n + 1}${g && g.name ? ` · ${g.name}` : ''}`; },
+  // Ordena els exercicis segons l'ordre dels subblocs (manté l'ordre dins de cada subbloc).
+  sortByGroups(b) {
+    const gs = b.groups || [];
+    if (!gs.length) return;
+    const pos = (it) => { const k = gs.findIndex((g) => g.id === it.g); return k < 0 ? 0 : k; };
+    b.items = (b.items || []).map((it, i) => ({ it, i })).sort((x, y) => pos(x.it) - pos(y.it) || x.i - y.i).map((x) => x.it);
+  },
+
   // Resum setmanal (dilluns a diumenge) de sessions fetes.
   weeks(sessions, fromWeek, count) {
     const out = [];
@@ -519,10 +538,14 @@ const Flat = {
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
     };
+    const list = (items) => items.filter((i) => i.name).map((i) => `${i.name} ${Calc.presc(i)}`.trim()).join(' | ');
     for (const b of s.blocks || []) {
       const name = blockName(b.key, settings);
+      const gs = Calc.groups(b);
       o[`${name} · focus`] = b.focus || '';
-      o[`${name} · exercicis`] = (b.items || []).filter((i) => i.name).map((i) => `${i.name} ${Calc.presc(i)}`.trim()).join(' | ');
+      o[`${name} · exercicis`] = gs
+        ? gs.map((x) => ({ x, t: list(x.items.map((y) => y.it)) })).filter((y) => y.t).map((y) => `${y.x.label}: ${y.t}`).join(' ‖ ')
+        : list(b.items || []);
     }
     return o;
   },
@@ -530,10 +553,12 @@ const Flat = {
   sessionLog(s, p, settings) {
     const rows = [];
     for (const b of s.blocks || []) {
+      const gs = Calc.groups(b);
+      const sub = (it) => { if (!gs) return ''; const x = gs.find((y) => y.items.some((z) => z.it === it)); return x ? x.label : ''; };
       (b.items || []).filter((i) => i.name).forEach((it, idx) => {
         rows.push({
           'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
-          'Bloc': blockName(b.key, settings), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
+          'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
           'Grup muscular': it.gm || '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',

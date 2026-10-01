@@ -92,12 +92,34 @@ const step = async (label, fn) => {
     await e.fill('400');
     await page.waitForSelector('text=25 %');
   });
-  await step('informes adjunts: en mode local es pot enganxar l\'enllaç', async () => {
-    await page.waitForSelector('#sec-fitxers >> text=Enllaça l\'informe de Kinvent');
-    await page.click('#sec-fitxers >> text=Enllaça l\'informe de Kinvent');
-    await page.fill('#prompt-input', 'https://eonlife.sharepoint.com/informe.pdf');
-    await page.click('.dialog-foot >> text=Desa');
-    await page.waitForSelector('#sec-fitxers .file-name');
+  await step('versió de prova: el PDF de Kinvent es tria de la tauleta i s\'hi desa', async () => {
+    await page.waitForSelector('#sec-fitxers >> text=Adjunta l\'informe de Kinvent');
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('#sec-fitxers >> text=Adjunta l\'informe de Kinvent')]);
+    await chooser.setFiles({ name: 'Informe_Kinvent.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 prova') });
+    await page.waitForSelector('#sec-fitxers .file-name >> text=Informe Kinvent');
+    const href = await page.getAttribute('#sec-fitxers .file-name', 'href');
+    if (!/^eonlocal:F/.test(href || '')) throw new Error(`enllaç ${href}`);
+    await page.click('#sec-fitxers .file-name');
+    await page.waitForSelector('.dialog >> text=Desat només en aquesta tauleta');
+    await shot(page, '06c-pdf-tauleta', false);
+    await page.click('.dialog-head button[title="Tanca"]');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+  });
+  await step('versió de prova: vídeo gravat a la tauleta i reproduït a l\'informe', async () => {
+    await page.locator('button.mini[title^="Vídeo general"]').click();
+    await page.waitForSelector('.dialog >> text=només en aquesta tauleta');
+    const capture = await page.getAttribute('input[data-kind="record"]', 'capture');
+    if (capture !== 'environment') throw new Error(`capture=${capture}`);
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Grava ara')]);
+    await chooser.setFiles({ name: 'VID_0001.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(2048, 1) });
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    await page.waitForSelector('#sec-dades >> text=Enllaç desat');
+    await page.click('.editbar >> text=Informe');
+    await page.click('.rvid:has-text("Vídeo general") .rvid-thumb');
+    const src = await page.getAttribute('.rvid:has-text("Vídeo general") video', 'src');
+    if (!/^blob:/.test(src || '')) throw new Error(`vídeo ${src}`);
+    await page.click('.presentbar >> text=Torna');
+    await page.waitForSelector('#sec-mobilitat');
   });
   await step('vídeo enllaçat i informe només d\'un apartat', async () => {
     await page.locator('button.mini[title^="Leg extension"]').first().click();
@@ -126,7 +148,7 @@ const step = async (label, fn) => {
   });
   await step('afegir un exercici des de la biblioteca', async () => {
     const blk = page.locator('section.block.blk-acc');
-    await blk.locator('.add-item').click();
+    await blk.locator('.add-item:not(.add-group)').click();
     const input = blk.locator('.picker-input').last();
     await input.fill('face');
     await page.waitForSelector('.picker-opt >> text=Face pull');
@@ -157,6 +179,31 @@ const step = async (label, fn) => {
     await item.locator('.vbt-head >> text=Encoder ADR').click();
     await shot(page, '08b-encoder');
   });
+  await step('força principal dividida en blocs (bloc 1 amb 3 exercicis, bloc 2 amb 2)', async () => {
+    const blk = page.locator('section.block.blk-for');
+    await blk.locator('.add-group >> text=Divideix en blocs').click();
+    await blk.locator('.sgroup').nth(1).waitFor();
+    if ((await blk.locator('.sgroup').nth(0).locator('.item').count()) !== 4) throw new Error('el bloc 1 ha de tenir els 4 exercicis');
+    await blk.locator('.sgroup').nth(1).locator('.sgroup-name').fill('Superset · 3 voltes');
+    // L'últim exercici del bloc 1 passa al bloc 2 (des del menú de l'exercici).
+    await blk.locator('.sgroup').nth(0).locator('.item').last().locator('.item-side .menu button').click();
+    await page.click('.menu-list >> text=Mou al bloc 2');
+    await blk.locator('.sgroup').nth(1).locator('.item').first().waitFor();
+    await blk.locator('.sgroup').nth(1).locator('.add-item >> text=Afegeix exercici al bloc 2').click();
+    await blk.locator('.sgroup').nth(1).locator('.picker-input').last().fill('hip thrust');
+    await page.click('.picker-opt >> text=Hip Thrust >> nth=0');
+    await page.waitForFunction(() => document.querySelectorAll('section.block.blk-for .sgroup')[1].querySelectorAll('.item').length === 2);
+    if ((await blk.locator('.sgroup').nth(0).locator('.item').count()) !== 3) throw new Error('bloc 1');
+    // «Mou amunt» des del primer exercici del bloc 2 el torna al bloc 1.
+    await blk.locator('.sgroup').nth(1).locator('.item').first().locator('.item-side .menu button').click();
+    await page.click('.menu-list >> text=Mou amunt');
+    await page.waitForFunction(() => document.querySelectorAll('section.block.blk-for .sgroup')[0].querySelectorAll('.item').length === 4);
+    await blk.locator('.sgroup').nth(0).locator('.item').last().locator('.item-side .menu button').click();
+    await page.click('.menu-list >> text=Mou avall');
+    await page.waitForFunction(() => document.querySelectorAll('section.block.blk-for .sgroup')[1].querySelectorAll('.item').length === 2);
+    await blk.scrollIntoViewIfNeeded();
+    await shot(page, '08c-subblocs', false);
+  });
   await step('vídeo de demostració (YouTube) desat a la biblioteca', async () => {
     const item = page.locator('section.block.blk-mob .item').first();
     await item.locator('button.mini[title*="demostració"]').click();
@@ -169,6 +216,11 @@ const step = async (label, fn) => {
     await page.click('.editbar >> text=Presenta');
     await page.waitForSelector('.sheet');
     await shot(page, '09-fitxa-sessio');
+  });
+  await step('presenta: subblocs de la força principal', async () => {
+    await page.waitForSelector('.sblock.blk-for .sx-group >> text=Bloc 1');
+    await page.waitForSelector('.sblock.blk-for .sx-group >> text=Superset · 3 voltes');
+    if ((await page.locator('.sblock.blk-for .sx-group').count()) !== 2) throw new Error('subblocs a la fitxa');
   });
   await step('presenta: vídeos del bloc de mobilitat', async () => {
     await page.click('.sblock.blk-mob .sblock-videos');

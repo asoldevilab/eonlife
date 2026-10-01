@@ -487,7 +487,9 @@ function AssessmentFiles({ a, p, upd }) {
         <span class="muted small">${U.fmtDate(f.date)}</span>
         <${Btn} variant="ghost" size="sm" icon="x" title="Treu l'enllaç" onClick=${() => unlink(f)} />
       </li>`)}</ul>`
-      : html`<p class="muted">${canUploadFiles()
+      : html`<p class="muted">${canUploadFiles() && filesOnDevice()
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «01 · Valoracions» de la carpeta del client.'
+        : canUploadFiles()
         ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «01 · Valoracions» de la carpeta del client.'
         : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del client.'}</p>`}
   </section>`;
@@ -504,7 +506,7 @@ function AttachButton({ a, p, upd, label, primary, compact }) {
     try {
       const res = await uploadToClient(p, file, { label, date: a.date, subfolder: M365_NAMES.reports, onProgress: setPct });
       add({ name: res.name, url: res.url, label });
-      UI.toast('Informe desat a la carpeta del client.');
+      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
     } catch (e) {
       UI.toast(e.message, 'bad');
     }

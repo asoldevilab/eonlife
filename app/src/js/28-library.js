@@ -161,8 +161,13 @@ function TemplateEditor({ id }) {
     ${t.kind === 'session'
       ? blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true}
           onChange=${(fn) => upd((x) => { x.blocks = cloneBlocksKeep(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)
-      : html`<${BlockCard} block=${{ key: t.block, focus: t.focus, items: t.items || [] }} templateMode=${true}
-          onChange=${(fn) => upd((x) => { const bb = { key: x.block, focus: x.focus, items: x.items || [] }; fn(bb); x.focus = bb.focus; x.items = bb.items; })} />`}
+      : html`<${BlockCard} block=${{ key: t.block, focus: t.focus, groups: t.groups, items: t.items || [] }} templateMode=${true}
+          onChange=${(fn) => upd((x) => {
+            const bb = { key: x.block, focus: x.focus, groups: x.groups, items: x.items || [] };
+            fn(bb);
+            x.focus = bb.focus; x.items = bb.items;
+            if (bb.groups && bb.groups.length) x.groups = bb.groups; else delete x.groups;
+          })} />`}
   </div>`;
 }
 
