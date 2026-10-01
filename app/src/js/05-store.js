@@ -66,6 +66,7 @@ const LocalBackend = {
       demo = true;
     }
     for (const k of KINDS) db[k] = db[k] || {};
+    if (db.demo) migrateDemo(db);
     this.db = db;
     this.persist();
     return { records: db, meta: { demo: demo || !!db.demo, persistent: this.persistent } };
@@ -86,6 +87,18 @@ const LocalBackend = {
     this.persist();
   },
 };
+
+// Les dades de prova d'abans portaven professionals ficticis: es canvien pels de l'equip.
+function migrateDemo(db) {
+  const rename = { 'Pau Roca': 'Arnau', 'Marta Soler': 'Richy' };
+  for (const k of ['patients', 'assessments', 'sessions']) {
+    for (const r of Object.values(db[k] || {})) if (rename[r.professional]) r.professional = rename[r.professional];
+  }
+  const st = db.settings;
+  if (st && Array.isArray(st.professionals) && st.professionals.every((n) => rename[n])) st.professionals = [...CENTER_PROFESSIONALS];
+  const svc = { 'P-DEMO-LAURA': 'membership', 'P-DEMO-JORDI': 'membership', 'P-DEMO-MONTSE': 'membership', 'P-DEMO-ALEX': 'valoracio' };
+  for (const [id, v] of Object.entries(svc)) if (db.patients[id] && !db.patients[id].service) db.patients[id].service = v;
+}
 
 const Store = {
   backend: null,
@@ -293,7 +306,7 @@ const Store = {
   newPatient(fields = {}) {
     const p = {
       id: U.uid('P'), firstName: '', lastName: '', birthDate: '', sex: '', email: '', phone: '',
-      profile: 'B', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
+      service: 'valoracio', profile: '', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
       goal: '', reason: '', history: '', surgeryDate: '', surgeryNote: '', injuryDate: '', injuryNote: '',
       folderUrl: '', folderId: '', notes: '', createdAt: new Date().toISOString(), ...fields,
     };

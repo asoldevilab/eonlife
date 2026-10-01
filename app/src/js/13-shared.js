@@ -56,7 +56,7 @@ function openNewPatient() {
 }
 
 function NewPatientDialog({ onClose }) {
-  const [f, setF] = useState({ firstName: '', lastName: '', profile: 'B', professional: Store.professionals()[0] || '', birthDate: '' });
+  const [f, setF] = useState({ firstName: '', lastName: '', service: 'valoracio', professional: Store.professionals()[0] || '', birthDate: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del client.', 'bad'); return; }
@@ -75,8 +75,8 @@ function NewPatientDialog({ onClose }) {
       <${Field} label="Professional de referència" id="np-prof">
         <${TextInput} id="np-prof" value=${f.professional} onValue=${set('professional')} list="prof-list" placeholder="Nom del professional" />
       </${Field}>
-      <${Field} label="Perfil" id="np-profile" wide=${true}>
-        <${Seg} value=${f.profile} onValue=${set('profile')} allowEmpty=${false} ariaLabel="Perfil" options=${OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
+      <${Field} label="Servei" id="np-service" wide=${true}>
+        <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>

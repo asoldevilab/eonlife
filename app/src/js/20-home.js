@@ -9,7 +9,7 @@ function HomeView() {
   const today = U.today();
   const [q, setQ] = useState('');
   const [fProf, setFProf] = useState('');
-  const [fProfile, setFProfile] = useState('');
+  const [fService, setFService] = useState('');
   const [fStatus, setFStatus] = useState('actiu');
 
   const patients = Store.patients();
@@ -30,7 +30,7 @@ function HomeView() {
 
   const nq = U.norm(q);
   const list = patients.filter((p) => (!nq || U.norm(`${p.firstName} ${p.lastName} ${p.email}`).includes(nq))
-    && (!fProf || p.professional === fProf) && (!fProfile || p.profile === fProfile) && (!fStatus || p.status === fStatus));
+    && (!fProf || p.professional === fProf) && (!fService || p.service === fService) && (!fStatus || p.status === fStatus));
 
   return html`<div class="page">
     <header class="page-head">
@@ -83,7 +83,7 @@ function HomeView() {
           <input class="input" type="search" placeholder="Cerca per nom…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca clients" />
         </label>
         <${Select} value=${fStatus} onValue=${setFStatus} placeholder="Tots els estats" options=${OPT.status} ariaLabel="Estat" />
-        <${Select} value=${fProfile} onValue=${setFProfile} placeholder="Tots els perfils" options=${OPT.profiles} ariaLabel="Perfil" />
+        <${Select} value=${fService} onValue=${setFService} placeholder="Tots els serveis" options=${OPT.services} ariaLabel="Servei" />
         <${Select} value=${fProf} onValue=${setFProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
       </div>
       ${list.length ? html`<div class="clist">${list.map((p) => html`<${ClientRow} p=${p} sessions=${byPatient[p.id] || []} />`)}</div>`
@@ -106,7 +106,7 @@ function ClientRow({ p, sessions }) {
       <span class="crow-name">${U.fullName(p)}</span>
       <span class="crow-meta">${[age != null && `${age} anys`, p.professional].filter(Boolean).join(' · ')}</span>
     </span>
-    <span class="crow-profile"><${Pill} tone="brand" title=${(OPT.profiles.find((o) => o.v === p.profile) || {}).label}>Perfil ${p.profile || '—'}</${Pill}></span>
+    <span class="crow-profile"><${Pill} tone=${p.service === 'membership' ? 'brand' : 'neutral'}>${(OPT.services.find((o) => o.v === p.service) || {}).label || 'Sense servei'}</${Pill}></span>
     <span class="crow-col"><span class="crow-k">Última sessió</span><span>${done ? U.since(done.date) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Propera</span><span>${next ? (next.date === today ? 'Avui' : U.fmtDateShort(next.date)) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Valoració</span><span>${last ? U.fmtDateShort(last.date) : html`<span class="warn-text">Pendent</span>`}</span></span>

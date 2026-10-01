@@ -456,3 +456,53 @@ function printPage() {
     if (!fired) UI.toast('La impressió no està disponible en aquesta vista. Obre l\'app completa per desar el PDF.', 'bad');
   }, 1200);
 }
+
+// ── Vídeos de demostració (YouTube no llistat, Vimeo o fitxer) ──
+function videoEmbed(url) {
+  const u = String(url || '').trim();
+  let m = u.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})/i);
+  if (m) return { kind: 'youtube', id: m[1], src: `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&modestbranding=1&playsinline=1`, thumb: `https://i.ytimg.com/vi/${m[1]}/hqdefault.jpg` };
+  m = u.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([\da-f]+))?/i);
+  if (m) return { kind: 'vimeo', src: `https://player.vimeo.com/video/${m[1]}${m[2] ? `?h=${m[2]}` : ''}` };
+  if (/^https?:\/\/\S+\.(mp4|m4v|mov|webm)(\?\S*)?$/i.test(u)) return { kind: 'file', src: u };
+  return null;
+}
+
+function VideoEmbed({ url, title = 'Vídeo' }) {
+  const e = videoEmbed(url);
+  if (!e) return U.isUrl(url) ? html`<p class="embed-link"><a class="link" href=${url} target="_blank" rel="noopener"><${Icon} name="video" size=${16} />Obre el vídeo</a></p>` : null;
+  if (e.kind === 'file') return html`<div class="embed"><video src=${e.src} controls playsinline preload="metadata"></video></div>`;
+  return html`<div class="embed"><iframe src=${e.src} title=${title} loading="lazy" allowfullscreen
+    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+}
+
+// Vídeo de demostració d'un exercici (el del professional fent l'exercici). Es pot desar a la biblioteca.
+function openDemoDialog({ it, onSave }) {
+  let close = null;
+  close = UI.open(() => html`<${DemoDialog} it=${it} onSave=${onSave} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function DemoDialog({ it, onSave, onClose }) {
+  const ex = it.exId ? Store.exercise(it.exId) : null;
+  const [v, setV] = useState(it.demo || (ex && ex.video) || '');
+  const [lib, setLib] = useState(!!ex);
+  const save = () => {
+    const url = v.trim();
+    if (url && !U.isUrl(url)) { UI.toast('Enganxa un enllaç complet (https://…).', 'bad'); return; }
+    if (lib && ex) Store.update('exercises', ex.id, (x) => { x.video = url; });
+    onSave(lib && ex ? '' : url);
+    onClose();
+    UI.toast(lib && ex ? `Vídeo desat a la biblioteca: sortirà sempre amb «${ex.name}».` : 'Vídeo desat en aquest exercici.');
+  };
+  return html`<${Dialog} title=${`Demostració · ${it.name || 'Exercici'}`} wide=${true} onClose=${onClose} footer=${html`
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" onClick=${save}>Desa</${Btn}>`}>
+    ${U.isUrl(v) && html`<${VideoEmbed} url=${v} title=${it.name} />`}
+    <${Field} label="Enllaç del vídeo" id="demo-url" hint="YouTube, Vimeo o un fitxer de vídeo. A YouTube, posa'l com a «No llistat» (no «Privat»): els privats no es poden veure fora del teu compte.">
+      <${TextInput} id="demo-url" value=${v} onValue=${setV} placeholder="https://youtu.be/…" autoFocus=${!v} />
+    </${Field}>
+    ${ex && html`<label class="check"><input type="checkbox" checked=${lib} onChange=${(e) => setLib(e.currentTarget.checked)} />
+      Desa'l a la biblioteca: sortirà a totes les sessions amb «${ex.name}»</label>`}
+  </${Dialog}>`;
+}

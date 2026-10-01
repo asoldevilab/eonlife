@@ -37,14 +37,36 @@ client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / P
 ## Clients
 
 - **Inici** mostra les sessions d'avui i dels propers 7 dies, els re-tests pendents
-  (cada 3 mesos) i la llista de clients amb filtres per estat, perfil i professional.
-- **Nou client**: nom, cognoms, perfil i professional. Amb Microsoft 365 o Google es crea automàticament
+  (cada 3 mesos) i la llista de clients amb filtres per estat, servei i professional.
+- **Nou client**: nom, cognoms, servei i professional. Amb Microsoft 365 o Google es crea automàticament
   la carpeta del client (amb *01 · Valoracions*, *02 · Vídeos* i *03 · Informes*).
-- **Perfil A · B · C** (de la plantilla EON):
+- **Servei**: *Valoració inicial* o *Seguiment membership*. Surt a la capçalera de la fitxa, al filtre de l'inici
+  i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
+- **Professional de referència**: Richy, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
+- **Bateria del perfil A · B · C** (de la plantilla EON), dins de la valoració:
   A = rendiment / esportistes · B = salut i condició física · C = autonomia (adults grans).
-  El perfil decideix quins tests complementaris surten a la valoració.
+  Decideix quins tests complementaris surten a la valoració.
 - **Dates clau**: data de la intervenció (IQ) i de la lesió. A la capçalera es veuen els dies i
   setmanes que han passat (com el full *DB* de l'Excel mensual).
+
+### Informe previ de la doctora
+
+A **Fitxa › Informe de la doctora**:
+
+1. Enganxa el text de l'informe (o **Llegeix un Word** si és un fitxer *.docx*).
+2. **Omple les dades del client**: l'app reparteix el text als camps de la fitxa i t'ensenya què va a cada lloc
+   abans de desar-ho:
+   - *Motiu de consulta / Motivo de consulta* › **Motiu de consulta**
+   - *Objectiu / Objetivo* › **Objectiu**
+   - *Antecedents, Diagnòstic, Medicació, Al·lèrgies…* › **Antecedents i historial**
+   - *Intervenció quirúrgica* (amb data) › **Data de la intervenció (IQ)** i **Intervenció**
+   - *Lesió* (amb data) › **Data de la lesió** i **Lesió**
+   - *Recomanacions, Pla, Observacions…* › **Notes internes**
+3. Desmarca el que no vulguis i **Desa a la fitxa**. Els textos s'afegeixen al que ja hi havia; les dates se
+   substitueixen.
+
+Amb Microsoft 365, **Desa el PDF a la carpeta** guarda l'informe original a *03 · Informes* del client.
+Funciona millor si l'informe té els títols (*Motiu de consulta:*, *Antecedents:*…) al començament de cada línia.
 
 ## Valoració funcional
 
@@ -104,6 +126,19 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
 - Una línia per exercici: **sèries × reps/temps · càrrega · intensitat (RIR/RPE) · descans**.
   Exemple: 3 × 6 · 60 kg · RIR 2 · 2'.
 - Sota de cada exercici surt **Anterior**: què va fer el client l'última vegada, per decidir la progressió.
+- **Vídeo de demostració** (icona ▶ de cada exercici): l'enllaç del vídeo de YouTube on el professional fa
+  l'exercici. Es veu allà mateix. Si marques *Desa'l a la biblioteca*, aquell exercici sortirà sempre amb el vídeo.
+  A YouTube, pugeu-lo com a **No llistat** (no *Privat*: un vídeo privat només el pot veure qui l'ha pujat).
+- **Grava el client** (icona de càmera de cada exercici): amb Microsoft 365, **Grava ara** obre la càmera de la
+  tauleta i el vídeo es desa sol a *02 · Vídeos* de la carpeta del client, enllaçat a l'exercici.
+- **Encoder** (a *Potència* i *Força principal*): obre el registre per sèries.
+  - **Encoder ADR**: càrrega, reps, velocitat de la 1a rep, velocitat de l'última rep, pèrdua de velocitat (%)
+    i potència màxima. Si poses la 1a i l'última velocitat, la pèrdua de velocitat es calcula sola.
+  - **ADR Jumping**: salts, altura millor, altura mitjana, RSI i temps de contacte.
+  - Al botó surt el resum (p. ex. *V 1a rep 0,80 m/s · PV 20 % · 820 W*) i a l'Excel, a *Registre_exercicis*
+    (velocitat de la 1a rep, pèrdua de velocitat, potència i altura del salt). La pròxima sessió es veu a *Anterior*.
+  - A **Intensitat** hi ha també el caràcter de l'esforç (*CE 6(12)*), la pèrdua de velocitat objectiu (*PV 20 %*)
+    i la velocitat objectiu (*V 0,75 m/s*).
 - Botó de **plantilles** de cada bloc: insereix un bloc desat o desa el bloc actual com a plantilla.
 - **Com arriba avui?** son, energia i dolor abans de començar.
 - **Tancament**: RPE de la sessió (0–10) i minuts › la **càrrega** (RPE × minuts, UA) es calcula
@@ -114,6 +149,11 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
 Botó **Presenta**: fitxa neta amb el logotip, l'objectiu d'avui, els 6 blocs i cada exercici ben
 escrit. Es pot posar a pantalla completa, en tema fosc, o **Imprimeix / PDF** (A4) per desar-la a
 la carpeta del client.
+
+**Vídeos de cada bloc**: els blocs que tenen vídeos de demostració porten el botó **▶ n vídeos**. En tocar-lo
+(per exemple a *Mobilitat*) es veuen un darrere l'altre tots els vídeos d'aquell bloc, a pantalla gran, perquè
+el client els vegi abans de començar. Amb les fletxes es passa al següent; també es pot tocar el ▶ d'un exercici
+concret.
 
 ## Seguiment mensual
 
@@ -133,7 +173,7 @@ Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de 
 
 ## Configuració
 
-- Professionals de l'equip, nom del centre i noms dels blocs.
+- Professionals de l'equip (Richy, Arnau, Oriol Pastor), nom del centre i noms dels blocs.
 - Exportar a Excel (CSV): valoracions (una fila per valoració, una columna per test) i registre
   d'exercicis. Còpia de seguretat completa i importació.
 - Amb Microsoft 365 o Google, enllaços directes a l'Excel (o full de càlcul) i a les carpetes dels clients. Amb Microsoft 365, també **Tanca la sessió** i **Canvia de carpeta**.

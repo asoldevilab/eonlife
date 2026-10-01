@@ -262,6 +262,33 @@ const Calc = {
     return out;
   },
 
+  // ── Encoder (ADR) i plataforma de salts (ADR Jumping): registre per sèries d'un exercici ──
+  // Pèrdua de velocitat: la que dona l'encoder o, si no, (1a rep − última) / 1a rep.
+  vl(set) {
+    const v = U.num(set.vl);
+    if (v != null) return v;
+    const a = U.num(set.v1), b = U.num(set.vlast);
+    return a && b != null ? ((a - b) / a) * 100 : null;
+  },
+  vbt(it) {
+    const x = it && it.vbt;
+    const sets = ((x && x.sets) || []).filter((st) => Object.entries(st).some(([k, v]) => k !== 'id' && v !== '' && v != null));
+    if (!sets.length) return null;
+    const nums = (k) => sets.map((st) => U.num(st[k])).filter((v) => v != null);
+    const max = (k) => (nums(k).length ? Math.max(...nums(k)) : null);
+    const mean = (arr) => (arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null);
+    const vls = sets.map((st) => Calc.vl(st)).filter((v) => v != null);
+    const mode = x.mode === 'salts' ? 'salts' : 'encoder';
+    const out = { mode, sets: sets.length, load: max('kg'), v1: max('v1'), vl: mean(vls), pmax: max('pmax'), h: max('h'), hmean: mean(nums('hmean')), rsi: max('rsi') };
+    out.text = mode === 'salts'
+      ? [out.h != null && `Salt millor ${U.fmt(out.h, 1)} cm`, out.hmean != null && `mitjana ${U.fmt(out.hmean, 1)} cm`, out.rsi != null && `RSI ${U.fmtFixed(out.rsi, 2)}`].filter(Boolean).join(' · ')
+      : [out.v1 != null && `V 1a rep ${U.fmtFixed(out.v1, 2)} m/s`, out.vl != null && `PV ${U.fmt(out.vl, 0)} %`, out.pmax != null && `${U.fmt(out.pmax, 0)} W`].filter(Boolean).join(' · ');
+    out.detail = sets.map((st, i) => (mode === 'salts'
+      ? `S${i + 1}: ${[st.reps && `${st.reps} salts`, st.h && `${st.h} cm`, st.rsi && `RSI ${st.rsi}`].filter(Boolean).join(' ')}`
+      : `S${i + 1}: ${[st.kg && `${st.kg} kg`, st.reps && `×${st.reps}`, (st.v1 || st.vlast) && `${st.v1 || '—'}→${st.vlast || '—'} m/s`, Calc.vl(st) != null && `PV ${U.fmt(Calc.vl(st), 0)} %`, st.pmax && `${st.pmax} W`].filter(Boolean).join(' ')}`)).join(' | ');
+    return out;
+  },
+
   // ── Sessions ──
   presc(it) {
     if (!it) return '';
@@ -329,6 +356,7 @@ const Flat = {
       'Nom': p.firstName || '', 'Cognoms': p.lastName || '',
       'Data naixement': p.birthDate || '', 'Edat': U.age(p.birthDate) ?? '',
       'Sexe': (OPT.sex.find((o) => o.v === p.sex) || {}).label || '',
+      'Servei': (OPT.services.find((o) => o.v === p.service) || {}).label || '',
       'Perfil': p.profile || '', 'Professional': p.professional || '',
       'Estat': (OPT.status.find((o) => o.v === p.status) || {}).label || '',
       'Data alta': p.startDate || '', 'Email': p.email || '', 'Telèfon': p.phone || '',
@@ -510,6 +538,7 @@ const Flat = {
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',
           'Fet': it.done ? 'Sí' : '', 'Observacions': it.note || '',
+          ...vbtCols(it),
         });
       });
     }
@@ -532,6 +561,16 @@ const Flat = {
     return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items };
   },
 };
+
+// Columnes de l'encoder al registre d'exercicis (sempre les mateixes, encara que estiguin buides).
+function vbtCols(it) {
+  const v = Calc.vbt(it) || {};
+  const n = (x, d) => (x == null ? '' : U.round(x, d));
+  return {
+    'Encoder · V 1a rep millor (m/s)': n(v.v1, 2), 'Encoder · pèrdua de velocitat (%)': n(v.vl, 1), 'Encoder · potència màx. (W)': n(v.pmax, 0),
+    'Salts · altura millor (cm)': n(v.h, 1), 'Encoder / salts · detall': v.detail || '',
+  };
+}
 
 function blockDef(key) { return BLOCKS.find((b) => b.key === key) || BLOCKS[0]; }
 function blockNum(key) { return blockDef(key).num; }

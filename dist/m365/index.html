@@ -1135,6 +1135,46 @@ tfoot .rpc { font-size: 14px; }
   .rvid-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .rvid-media { aspect-ratio: 16 / 9; }
 }
+
+/* Informe de la doctora */
+.docmap { display: flex; flex-direction: column; gap: 6px; }
+.docrow { display: grid; grid-template-columns: auto minmax(120px, 200px) minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.docrow input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand); }
+.docrow-k { font-weight: 650; font-size: 14px; }
+.docrow-v { white-space: pre-line; font-size: 14px; color: var(--ink-2); }
+.docrow.off { opacity: 0.5; }
+.medical summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--ink-2); }
+@media (max-width: 640px) { .docrow { grid-template-columns: auto minmax(0, 1fr); } .docrow-v { grid-column: 2; } }
+
+/* Vídeos de demostració */
+.embed { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
+.embed iframe, .embed video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.embed-link { margin: 0; }
+.sblock-videos { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 0; background: var(--blk); color: var(--blk-ink); font-weight: 650; font-size: 13px; cursor: pointer; white-space: nowrap; align-self: center; }
+.sx-play { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: 4px; border-radius: 50%; border: 0; background: var(--surface-3); color: var(--ink-2); cursor: pointer; vertical-align: middle; }
+.sx-play:hover { background: var(--blk); color: var(--blk-ink); }
+.bv { width: min(1100px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 20px; border-radius: 18px; background: var(--surface); border-top: 6px solid var(--blk); box-shadow: var(--shadow-2); }
+.bv-head { display: flex; align-items: center; gap: 12px; }
+.bv-head .sblock-name { margin: 0; }
+.bv-video .embed { border-radius: 14px; }
+.bv-info { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.bv-name { font-size: 20px; }
+.bv-note { margin: 4px 0 0; color: var(--ink-2); }
+.bv-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bv-dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.bv-dot { width: 11px; height: 11px; border-radius: 50%; border: 0; padding: 0; background: var(--line-2); cursor: pointer; }
+.bv-dot.on { background: var(--blk); transform: scale(1.25); }
+
+/* Encoder ADR / ADR Jumping */
+.vbt-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px dashed var(--line-2); background: none; color: var(--ink-3); font-size: 12.5px; font-weight: 650; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.vbt-btn.on { border-style: solid; border-color: var(--blk); color: var(--ink); background: var(--surface-2); }
+.vbt { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.vbt-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vbt-sum { font-weight: 650; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.vbt-table th, .vbt-table td { padding: 4px 6px; }
+.vbt-table th[scope="row"] { width: 44px; color: var(--ink-3); font-weight: 650; }
+.vbt-in { min-height: 38px; min-width: 64px; padding: 6px 8px; font-size: 15px; text-align: right; }
+.vbt-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -3442,7 +3482,7 @@ var qrcode = function() {
 }));
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
-window.EON_BUILD = "2026-09-30 11:51";
+window.EON_BUILD = "2026-10-01 09:19";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -3779,8 +3819,14 @@ const OPT = {
   material: ['Pes corporal', 'Barra', 'Barra hexagonal', 'Mancuernes', 'KB', 'Politja', 'Politja cònica',
     'Resistència pneumàtica (Keiser)', 'Goma elàstica', 'Fitball', 'TRX', 'Med ball', 'Caixa', 'Banc', 'Landmine',
     'Encoder', 'Bike', 'Assault bike', 'Skillmill', 'Foam roller', 'Pica', 'Paret', 'Terra', 'Màquina'],
-  intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'Màxima intenció', 'Controlat', 'Suau'],
+  intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
+    'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control'],
+  // Servei que fa el client al centre.
+  services: [
+    { v: 'valoracio', label: 'Valoració inicial', desc: 'Només la valoració funcional i l\'informe' },
+    { v: 'membership', label: 'Seguiment membership', desc: 'Entrenament i seguiment continuat al centre' },
+  ],
   profiles: [
     { v: 'A', label: 'A · Rendiment', desc: 'Esportistes i clients entrenats' },
     { v: 'B', label: 'B · Salut i condició física', desc: 'Adults actius' },
@@ -4051,12 +4097,15 @@ const TEST_INDEX = (() => {
 })();
 
 // Configuració per defecte (editable a Configuració).
+// Equip del centre (es pot canviar a Configuració).
+const CENTER_PROFESSIONALS = ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
+
 function defaultSettings() {
   return {
     id: 'settings',
     centerName: 'EON Life',
     centerTagline: 'Human Performance',
-    professionals: [],
+    professionals: [...CENTER_PROFESSIONALS],
     blocks: BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc })),
   };
 }
@@ -4504,6 +4553,33 @@ const Calc = {
     return out;
   },
 
+  // ── Encoder (ADR) i plataforma de salts (ADR Jumping): registre per sèries d'un exercici ──
+  // Pèrdua de velocitat: la que dona l'encoder o, si no, (1a rep − última) / 1a rep.
+  vl(set) {
+    const v = U.num(set.vl);
+    if (v != null) return v;
+    const a = U.num(set.v1), b = U.num(set.vlast);
+    return a && b != null ? ((a - b) / a) * 100 : null;
+  },
+  vbt(it) {
+    const x = it && it.vbt;
+    const sets = ((x && x.sets) || []).filter((st) => Object.entries(st).some(([k, v]) => k !== 'id' && v !== '' && v != null));
+    if (!sets.length) return null;
+    const nums = (k) => sets.map((st) => U.num(st[k])).filter((v) => v != null);
+    const max = (k) => (nums(k).length ? Math.max(...nums(k)) : null);
+    const mean = (arr) => (arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null);
+    const vls = sets.map((st) => Calc.vl(st)).filter((v) => v != null);
+    const mode = x.mode === 'salts' ? 'salts' : 'encoder';
+    const out = { mode, sets: sets.length, load: max('kg'), v1: max('v1'), vl: mean(vls), pmax: max('pmax'), h: max('h'), hmean: mean(nums('hmean')), rsi: max('rsi') };
+    out.text = mode === 'salts'
+      ? [out.h != null && `Salt millor ${U.fmt(out.h, 1)} cm`, out.hmean != null && `mitjana ${U.fmt(out.hmean, 1)} cm`, out.rsi != null && `RSI ${U.fmtFixed(out.rsi, 2)}`].filter(Boolean).join(' · ')
+      : [out.v1 != null && `V 1a rep ${U.fmtFixed(out.v1, 2)} m/s`, out.vl != null && `PV ${U.fmt(out.vl, 0)} %`, out.pmax != null && `${U.fmt(out.pmax, 0)} W`].filter(Boolean).join(' · ');
+    out.detail = sets.map((st, i) => (mode === 'salts'
+      ? `S${i + 1}: ${[st.reps && `${st.reps} salts`, st.h && `${st.h} cm`, st.rsi && `RSI ${st.rsi}`].filter(Boolean).join(' ')}`
+      : `S${i + 1}: ${[st.kg && `${st.kg} kg`, st.reps && `×${st.reps}`, (st.v1 || st.vlast) && `${st.v1 || '—'}→${st.vlast || '—'} m/s`, Calc.vl(st) != null && `PV ${U.fmt(Calc.vl(st), 0)} %`, st.pmax && `${st.pmax} W`].filter(Boolean).join(' ')}`)).join(' | ');
+    return out;
+  },
+
   // ── Sessions ──
   presc(it) {
     if (!it) return '';
@@ -4571,6 +4647,7 @@ const Flat = {
       'Nom': p.firstName || '', 'Cognoms': p.lastName || '',
       'Data naixement': p.birthDate || '', 'Edat': U.age(p.birthDate) ?? '',
       'Sexe': (OPT.sex.find((o) => o.v === p.sex) || {}).label || '',
+      'Servei': (OPT.services.find((o) => o.v === p.service) || {}).label || '',
       'Perfil': p.profile || '', 'Professional': p.professional || '',
       'Estat': (OPT.status.find((o) => o.v === p.status) || {}).label || '',
       'Data alta': p.startDate || '', 'Email': p.email || '', 'Telèfon': p.phone || '',
@@ -4752,6 +4829,7 @@ const Flat = {
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',
           'Fet': it.done ? 'Sí' : '', 'Observacions': it.note || '',
+          ...vbtCols(it),
         });
       });
     }
@@ -4774,6 +4852,16 @@ const Flat = {
     return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items };
   },
 };
+
+// Columnes de l'encoder al registre d'exercicis (sempre les mateixes, encara que estiguin buides).
+function vbtCols(it) {
+  const v = Calc.vbt(it) || {};
+  const n = (x, d) => (x == null ? '' : U.round(x, d));
+  return {
+    'Encoder · V 1a rep millor (m/s)': n(v.v1, 2), 'Encoder · pèrdua de velocitat (%)': n(v.vl, 1), 'Encoder · potència màx. (W)': n(v.pmax, 0),
+    'Salts · altura millor (cm)': n(v.h, 1), 'Encoder / salts · detall': v.detail || '',
+  };
+}
 
 function blockDef(key) { return BLOCKS.find((b) => b.key === key) || BLOCKS[0]; }
 function blockNum(key) { return blockDef(key).num; }
@@ -4926,6 +5014,7 @@ const LocalBackend = {
       demo = true;
     }
     for (const k of KINDS) db[k] = db[k] || {};
+    if (db.demo) migrateDemo(db);
     this.db = db;
     this.persist();
     return { records: db, meta: { demo: demo || !!db.demo, persistent: this.persistent } };
@@ -4946,6 +5035,18 @@ const LocalBackend = {
     this.persist();
   },
 };
+
+// Les dades de prova d'abans portaven professionals ficticis: es canvien pels de l'equip.
+function migrateDemo(db) {
+  const rename = { 'Pau Roca': 'Arnau', 'Marta Soler': 'Richy' };
+  for (const k of ['patients', 'assessments', 'sessions']) {
+    for (const r of Object.values(db[k] || {})) if (rename[r.professional]) r.professional = rename[r.professional];
+  }
+  const st = db.settings;
+  if (st && Array.isArray(st.professionals) && st.professionals.every((n) => rename[n])) st.professionals = [...CENTER_PROFESSIONALS];
+  const svc = { 'P-DEMO-LAURA': 'membership', 'P-DEMO-JORDI': 'membership', 'P-DEMO-MONTSE': 'membership', 'P-DEMO-ALEX': 'valoracio' };
+  for (const [id, v] of Object.entries(svc)) if (db.patients[id] && !db.patients[id].service) db.patients[id].service = v;
+}
 
 const Store = {
   backend: null,
@@ -5153,7 +5254,7 @@ const Store = {
   newPatient(fields = {}) {
     const p = {
       id: U.uid('P'), firstName: '', lastName: '', birthDate: '', sex: '', email: '', phone: '',
-      profile: 'B', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
+      service: 'valoracio', profile: '', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
       goal: '', reason: '', history: '', surgeryDate: '', surgeryNote: '', injuryDate: '', injuryNote: '',
       folderUrl: '', folderId: '', notes: '', createdAt: new Date().toISOString(), ...fields,
     };
@@ -5286,7 +5387,7 @@ function makeDemoData() {
   const D = (n) => U.addDays(today, n);
   const exById = Object.fromEntries(SEED_EXERCISES.map((e) => [e.id, e]));
   const db = { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {}, demo: true,
-    settings: { ...defaultSettings(), professionals: ['Pau Roca', 'Marta Soler'] } };
+    settings: defaultSettings() };
 
   const patient = (p) => { db.patients[p.id] = { status: 'actiu', email: '', phone: '', folderUrl: '', folderId: '', notes: '', surgeryDate: '', surgeryNote: '', injuryDate: '', injuryNote: '', createdAt: `${p.startDate}T09:00:00.000Z`, ...p }; return p.id; };
 
@@ -5308,31 +5409,31 @@ function makeDemoData() {
   const patUni = (sd, se, extra = {}) => ({ sd, se, chips: [], note: '', ...extra });
 
   // ── Clients ──
-  const laura = patient({ id: 'P-DEMO-LAURA', firstName: 'Laura', lastName: 'Vidal Serra', birthDate: '1991-04-12', sex: 'D', profile: 'A',
-    professional: 'Pau Roca', startDate: D(-96), email: 'laura.vidal@example.com', phone: '600 000 101',
+  const laura = patient({ id: 'P-DEMO-LAURA', firstName: 'Laura', lastName: 'Vidal Serra', birthDate: '1991-04-12', sex: 'D', profile: 'A', service: 'membership',
+    professional: 'Arnau', startDate: D(-96), email: 'laura.vidal@example.com', phone: '600 000 101',
     goal: 'Tornar a competir en trail de 42 km sense dolor al genoll.',
     reason: 'Dolor femoropatel·lar recurrent a la cama dreta en les baixades.',
     history: 'Condropatia rotuliana dreta (2024). Corredora de muntanya, 4 dies per setmana.' });
-  const jordi = patient({ id: 'P-DEMO-JORDI', firstName: 'Jordi', lastName: 'Puig Ferrer', birthDate: '1974-09-03', sex: 'H', profile: 'B',
-    professional: 'Marta Soler', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
+  const jordi = patient({ id: 'P-DEMO-JORDI', firstName: 'Jordi', lastName: 'Puig Ferrer', birthDate: '1974-09-03', sex: 'H', profile: 'B', service: 'membership',
+    professional: 'Richy', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
     goal: 'Tornar a esquiar la temporada vinent amb seguretat.',
     reason: 'Readaptació després de la reconstrucció del LCA.',
     history: 'Esquiador aficionat. Sense altres lesions rellevants.',
     surgeryDate: D(-84), surgeryNote: 'Reconstrucció del LCA del genoll esquerre (plàstia HTH).' });
-  const montse = patient({ id: 'P-DEMO-MONTSE', firstName: 'Montserrat', lastName: 'Font Riba', birthDate: '1955-01-22', sex: 'D', profile: 'C',
-    professional: 'Marta Soler', startDate: D(-45),
+  const montse = patient({ id: 'P-DEMO-MONTSE', firstName: 'Montserrat', lastName: 'Font Riba', birthDate: '1955-01-22', sex: 'D', profile: 'C', service: 'membership',
+    professional: 'Richy', startDate: D(-45),
     goal: 'Guanyar autonomia i confiança per caminar per la muntanya amb els néts.',
     reason: 'Osteopènia i por a caure.',
     history: 'Osteopènia (2023). Pròtesi de maluc dret (2019).' });
-  const alex = patient({ id: 'P-DEMO-ALEX', firstName: 'Àlex', lastName: 'Martí Soler', birthDate: '1999-06-30', sex: 'H', profile: 'A',
-    professional: 'Pau Roca', startDate: D(-2), email: 'alex.marti@example.com',
+  const alex = patient({ id: 'P-DEMO-ALEX', firstName: 'Àlex', lastName: 'Martí Soler', birthDate: '1999-06-30', sex: 'H', profile: 'A', service: 'valoracio',
+    professional: 'Arnau', startDate: D(-2), email: 'alex.marti@example.com',
     goal: 'Rendiment en futbol semiprofessional i prevenció de recaigudes.',
     reason: 'Valoració de pretemporada.',
     history: 'Distensió d\'adductors esquerre fa 5 mesos.',
     injuryDate: D(-150), injuryNote: 'Distensió d\'adductor llarg esquerre (grau I).' });
 
   // ── Valoracions ──
-  assessment({ patientId: laura, date: D(-95), type: 'inicial', professional: 'Pau Roca',
+  assessment({ patientId: laura, date: D(-95), type: 'inicial', professional: 'Arnau',
     general: { weight: '58', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
@@ -5358,7 +5459,7 @@ function makeDemoData() {
       plan: 'Mobilitat de turmell diària. Força principal amb dominant de genoll 2 dies per setmana (3 × 6, RIR 2) i excèntric a la politja cònica. Pliometria progressiva a partir de la setmana 4.',
     } });
 
-  assessment({ patientId: laura, date: D(-4), type: 'retest', professional: 'Pau Roca',
+  assessment({ patientId: laura, date: D(-4), type: 'retest', professional: 'Arnau',
     general: { weight: '57.5', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
@@ -5383,7 +5484,7 @@ function makeDemoData() {
       plan: 'Iniciar fase de potència: pliometria reactiva 2 dies per setmana. Mantenir força principal a 3 × 5 (RIR 1-2).',
     } });
 
-  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Marta Soler',
+  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Richy',
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118), rom_knee_ext: bi(0, -3),
@@ -5407,7 +5508,7 @@ function makeDemoData() {
       plan: 'Coordinat amb fisioteràpia. Sense impactes fins al criteri del fisio. Força de quàdriceps en cadena oberta i tancada, 2 dies per setmana.',
     } });
 
-  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Marta Soler',
+  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Richy',
     general: { weight: '62', height: '158', goal: 'Autonomia i confiança caminant.' },
     values: {
       rom_hip_ir: bi(22, 25), rom_hip_er: bi(30, 34), rom_sh_ir: bi(48, 50), rom_sh_er: bi(80, 84),
@@ -5423,7 +5524,7 @@ function makeDemoData() {
       plan: 'Força funcional 2 dies per setmana amb progressió de sit-to-stand, step-up baix i equilibri. Caminades de 30 minuts els dies alterns.',
     } });
 
-  assessment({ patientId: alex, date: D(-2), type: 'inicial', professional: 'Pau Roca',
+  assessment({ patientId: alex, date: D(-2), type: 'inicial', professional: 'Arnau',
     general: { weight: '76', height: '179', goal: 'Rendiment i prevenció de recaigudes.' },
     values: {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
@@ -5487,7 +5588,7 @@ function makeDemoData() {
         cal: { focus: 'Parasimpàtic', items: [['X-CAL-03'], ['X-CAL-02']] },
       };
       if (date < today) {
-        session(laura, date, 'Pau Roca', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
+        session(laura, date, 'Arnau', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
           rpe: [6, 7, 7, 8, 7][w] + (kneeDay ? 0 : -1), min: [60, 65, 60, 70, 65][w], pain: w < 2 && kneeDay ? 2 : 0,
           sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: w < 2 && kneeDay ? 1 : 0,
           notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : '',
@@ -5498,7 +5599,7 @@ function makeDemoData() {
     }
   }
   // Sessió d'avui (planificada) per a Laura.
-  session(laura, today, 'Pau Roca', 'Potència i força · dominant de genoll', {
+  session(laura, today, 'Arnau', 'Potència i força · dominant de genoll', {
     mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
     act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
     pot: { focus: 'Salts verticals', items: [['X-POT-01', { sets: '4', reps: '3' }], ['X-POT-05', { sets: '3', reps: '3', note: 'Caixa de 30 cm.' }]] },
@@ -5513,7 +5614,7 @@ function makeDemoData() {
     for (const off of [1, 3]) {
       const date = U.addDays(jw0, w * 7 + off);
       if (date >= today) continue;
-      session(jordi, date, 'Marta Soler', 'Readaptació LCA · força de quàdriceps', {
+      session(jordi, date, 'Richy', 'Readaptació LCA · força de quàdriceps', {
         mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12'], ['X-MOB-07']] },
         act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
         pot: { focus: '', items: [] },
@@ -5525,7 +5626,7 @@ function makeDemoData() {
         decision: 'Progressar càrrega del leg press i mantenir profunditat controlada.' });
     }
   }
-  session(jordi, D(1), 'Marta Soler', 'Readaptació LCA · força de quàdriceps', {
+  session(jordi, D(1), 'Richy', 'Readaptació LCA · força de quàdriceps', {
     mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12']] },
     act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
     for: { focus: 'Dominant de genoll', items: [['X-FOR-03', { load: '24' }], ['X-FOR-07', { reps: '10', load: '90', intensity: 'RIR 3' }], ['X-FOR-06', { sets: '3', reps: '8/cama', load: '0', note: 'Caixa de 20 cm.' }]] },
@@ -5539,7 +5640,7 @@ function makeDemoData() {
     for (const off of [0, 3]) {
       const date = U.addDays(mw0, w * 7 + off);
       if (date >= today) continue;
-      session(montse, date, 'Marta Soler', 'Autonomia · força i equilibri', {
+      session(montse, date, 'Richy', 'Autonomia · força i equilibri', {
         mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
         act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
         pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -5550,7 +5651,7 @@ function makeDemoData() {
         decision: w > 3 ? 'Afegir exercici d\'equilibri amb ulls tancats.' : '' });
     }
   }
-  session(montse, today, 'Marta Soler', 'Autonomia · força i equilibri', {
+  session(montse, today, 'Richy', 'Autonomia · força i equilibri', {
     mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
     act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
     pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -5560,7 +5661,7 @@ function makeDemoData() {
   }, null);
 
   // Àlex: primera sessió planificada per demà.
-  session(alex, D(1), 'Pau Roca', 'Sessió 1 · tècnica i adductors', {
+  session(alex, D(1), 'Arnau', 'Sessió 1 · tècnica i adductors', {
     mob: { focus: 'Maluc', items: [['X-MOB-02'], ['X-MOB-11'], ['X-MOB-08']] },
     act: { focus: 'Adductors', items: [['X-ACT-07', { sets: '3', reps: '20 s/costat' }], ['X-ACT-02']] },
     pot: { focus: 'Salts', items: [['X-POT-01'], ['X-POT-11']] },
@@ -5666,7 +5767,7 @@ const DB = (() => {
     clients: () => [
       { id: 'client', label: 'Client', kind: 'client', get: (r) => U.fullName(r.p) },
       { id: 'age', label: 'Edat', kind: 'num', dec: 0, get: (r) => U.age(r.p.birthDate) },
-      { id: 'profile', label: 'Perfil', kind: 'text', get: (r) => r.p.profile || '' },
+      { id: 'service', label: 'Servei', kind: 'text', get: (r) => (OPT.services.find((o) => o.v === r.p.service) || {}).label || '' },
       { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.p.professional || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (OPT.status.find((o) => o.v === r.p.status) || {}).label || '' },
       { id: 'start', label: 'Alta', kind: 'date', get: (r) => r.p.startDate || '' },
@@ -5869,6 +5970,143 @@ const DB = (() => {
   }
 
   return { COLUMNS, rows, withData, sortRows, header, csvValue, empty };
+})();
+
+
+/* ── 07-doctor.js ── */
+/* EON Life · informe previ de la doctora → dades del client.
+   Es llegeix el text (enganxat, o d'un fitxer Word o de text) i es reparteix per apartats segons els títols
+   habituals (en català o castellà): objectiu, motiu de consulta, antecedents, diagnòstic, intervenció, lesió
+   i recomanacions. El que no té títol va a antecedents. */
+
+const DoctorReport = (() => {
+  // Títols reconeguts (sense accents i en minúscules).
+  const SECTIONS = [
+    { key: 'goal', re: /^(objectius?|objetivos?|metas?|objectiu del (pacient|client)|objetivo del (paciente|cliente)|objectius terapeutics|objetivos terapeuticos)$/ },
+    { key: 'reason', re: /^(motiu|motivo|motiu de (la )?consulta|motivo de (la )?consulta|rao de (la )?consulta|consulta|demanda|derivacio|derivacion|motiu de derivacio|motivo de derivacion)$/ },
+    { key: 'diagnosis', re: /^(diagnostics?|diagnosticos?|judici clinic|juicio clinico|jc|impressio diagnostica|impresion diagnostica)$/ },
+    { key: 'history', re: /^(antecedents?( personals| medics| clinics| familiars)?|antecedentes?( personales| medicos| clinicos| familiares)?|ap|historial( clinic| clinico| medic| medico)?|historia clinica|anamnesis?|patologies|patologias|medicacio|medicacion|tractament actual|tratamiento actual|al.?lergies|alergias|habits|habitos|esport|deporte|activitat fisica|actividad fisica|exploracio|exploracion|proves complementaries|pruebas complementarias)$/ },
+    { key: 'surgery', re: /^(intervencio( quirurgica)?|intervencion( quirurgica)?|intervencions|intervenciones|cirurgia|cirugia|cirurgies|cirugias|iq|operacio|operacion|data (de la )?intervencio|fecha (de la )?intervencion)$/ },
+    { key: 'injury', re: /^(lesio|lesion|lesions|lesiones|data (de la )?lesio|fecha (de la )?lesion|lesio actual|lesion actual)$/ },
+    // Capçalera de l'informe: no s'aprofita (ja tenim el nom i la data del client).
+    { key: 'skip', re: /^(pacient|paciente|nom|nombre|cognoms|apellidos|data|fecha|data de naixement|fecha de nacimiento|edat|edad|dni|nif|nhc|cip|tis|historia|metge|metgessa|medico|medica|doctor|doctora|dr|dra|signatura|firma|col.?legiat|colegiado|centre|centro)$/ },
+    { key: 'notes', re: /^(recomanacions|recomendaciones|pla|plan|pla terapeutic|plan terapeutico|tractament|tratamiento|indicacions|indicaciones|pautes|pautas|observacions|observaciones|conclusions?|conclusiones?|contraindicacions|contraindicaciones|precaucions|precauciones)$/ },
+  ];
+  const LABELS = {
+    goal: 'Objectiu', reason: 'Motiu de consulta', history: 'Antecedents i historial',
+    surgeryDate: 'Data de la intervenció (IQ)', surgeryNote: 'Intervenció', injuryDate: 'Data de la lesió', injuryNote: 'Lesió',
+    notes: 'Notes internes (recomanacions de la doctora)',
+  };
+
+  const clean = (s) => s.replace(/\s+/g, ' ').trim();
+  const sectionOf = (label) => {
+    const n = U.norm(label).replace(/\s+/g, ' ').replace(/[.:\-–]+$/, '').trim();
+    const found = SECTIONS.find((s) => s.re.test(n));
+    return found ? found.key : null;
+  };
+
+  // "12/03/2024", "12-3-24", "2024-03-12" → "2024-03-12"
+  function findDate(text) {
+    let m = String(text).match(/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/);
+    if (m) return iso(+m[1], +m[2], +m[3]);
+    m = String(text).match(/\b(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2,4})\b/);
+    if (m) {
+      let y = +m[3];
+      if (y < 100) y += y > 50 ? 1900 : 2000;
+      return iso(y, +m[2], +m[1]);
+    }
+    return '';
+  }
+  function iso(y, mo, d) {
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return '';
+    return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  }
+  const withoutDate = (t) => clean(String(t).replace(/\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/.\-]\d{1,2}[/.\-]\d{2,4}\b/g, '').replace(/^[\s,;:.\-–]+|[\s,;:\-–]+$/g, '').replace(/\(\s*\)/g, ''));
+
+  function parse(text) {
+    const buckets = {};
+    let current = null;
+    const push = (key, line) => {
+      const v = line.trim();
+      if (!v) return;
+      (buckets[key] = buckets[key] || []).push(v);
+    };
+    for (const raw of String(text || '').replace(/\r\n?/g, '\n').split('\n')) {
+      const line = raw.replace(/^\s*[-•*·▪●]\s*/, '').trim();
+      if (!line) continue;
+      // «Títol: text» o «Títol - text»
+      const m = line.match(/^([A-Za-zÀ-ÿ·'’.\s]{2,45}?)\s*[:：]\s*(.*)$/) || line.match(/^([A-Za-zÀ-ÿ·'’.\s]{2,45}?)\s+[–-]\s+(.*)$/);
+      const key = m ? sectionOf(m[1]) : null;
+      if (key === 'skip') continue;
+      if (key) {
+        current = key;
+        // Dins dels antecedents es manté el subtítol: «Al·lèrgies: no conegudes».
+        const main = /^(antecedent|historial|historia clinica|anamnes|ap$)/.test(U.norm(m[1]).trim());
+        push(key, key === 'history' && !main && m[2] ? `${m[1].trim()}: ${m[2]}` : m[2]);
+        continue;
+      }
+      // Títol sol en una línia (sovint en majúscules)
+      const alone = sectionOf(line);
+      if (alone && line.length <= 45) { current = alone === 'skip' ? current : alone; continue; }
+      // Abans del primer apartat, els títols en majúscules («INFORME MÈDIC») no són contingut.
+      if (!current && line.length <= 60 && line === line.toUpperCase() && /[A-ZÀ-Ý]/.test(line)) continue;
+      push(current || 'history', line);
+    }
+    const join = (k) => (buckets[k] || []).join('\n');
+    const out = {};
+    if (buckets.goal) out.goal = join('goal');
+    if (buckets.reason) out.reason = join('reason');
+    const hist = [buckets.diagnosis && `Diagnòstic: ${join('diagnosis')}`, buckets.history && join('history')].filter(Boolean);
+    if (hist.length) out.history = hist.join('\n');
+    for (const [k, date, note] of [['surgery', 'surgeryDate', 'surgeryNote'], ['injury', 'injuryDate', 'injuryNote']]) {
+      if (!buckets[k]) continue;
+      const t = join(k);
+      const d = findDate(t);
+      if (d) out[date] = d;
+      const rest = withoutDate(t.split('\n').join(' · '));
+      if (rest) out[note] = rest;
+    }
+    if (buckets.notes) out.notes = `Recomanacions de la doctora: ${join('notes')}`;
+    return out;
+  }
+
+  // Text d'un fitxer .docx (Word): es descomprimeix word/document.xml amb l'API del navegador.
+  async function docxText(buffer) {
+    const b = new DataView(buffer);
+    let eocd = -1;
+    for (let i = buffer.byteLength - 22; i >= Math.max(0, buffer.byteLength - 66000); i--) {
+      if (b.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error('El fitxer no és un document de Word (.docx).');
+    const count = b.getUint16(eocd + 10, true);
+    let p = b.getUint32(eocd + 16, true);
+    const dec = new TextDecoder();
+    for (let n = 0; n < count; n++) {
+      const method = b.getUint16(p + 10, true);
+      const size = b.getUint32(p + 20, true);
+      const nameLen = b.getUint16(p + 28, true), extraLen = b.getUint16(p + 30, true), commentLen = b.getUint16(p + 32, true);
+      const local = b.getUint32(p + 42, true);
+      const name = dec.decode(new Uint8Array(buffer, p + 46, nameLen));
+      p += 46 + nameLen + extraLen + commentLen;
+      if (name !== 'word/document.xml') continue;
+      const start = local + 30 + b.getUint16(local + 26, true) + b.getUint16(local + 28, true);
+      const data = new Uint8Array(buffer, start, size);
+      let xml;
+      if (method === 0) xml = dec.decode(data);
+      else if (method === 8 && typeof DecompressionStream !== 'undefined') {
+        const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        xml = await new Response(stream).text();
+      } else throw new Error('Aquest navegador no pot llegir el fitxer de Word. Copia\'n el text i enganxa\'l.');
+      return xml
+        .replace(/<w:tab\/>/g, '\t').replace(/<w:br\/>/g, '\n').replace(/<\/w:p>/g, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&')
+        .replace(/\n{3,}/g, '\n\n').trim();
+    }
+    throw new Error('No s\'ha trobat el text dins del document de Word.');
+  }
+
+  return { parse, docxText, findDate, LABELS };
 })();
 
 
@@ -7371,6 +7609,56 @@ function printPage() {
   }, 1200);
 }
 
+// ── Vídeos de demostració (YouTube no llistat, Vimeo o fitxer) ──
+function videoEmbed(url) {
+  const u = String(url || '').trim();
+  let m = u.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})/i);
+  if (m) return { kind: 'youtube', id: m[1], src: `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&modestbranding=1&playsinline=1`, thumb: `https://i.ytimg.com/vi/${m[1]}/hqdefault.jpg` };
+  m = u.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([\da-f]+))?/i);
+  if (m) return { kind: 'vimeo', src: `https://player.vimeo.com/video/${m[1]}${m[2] ? `?h=${m[2]}` : ''}` };
+  if (/^https?:\/\/\S+\.(mp4|m4v|mov|webm)(\?\S*)?$/i.test(u)) return { kind: 'file', src: u };
+  return null;
+}
+
+function VideoEmbed({ url, title = 'Vídeo' }) {
+  const e = videoEmbed(url);
+  if (!e) return U.isUrl(url) ? html`<p class="embed-link"><a class="link" href=${url} target="_blank" rel="noopener"><${Icon} name="video" size=${16} />Obre el vídeo</a></p>` : null;
+  if (e.kind === 'file') return html`<div class="embed"><video src=${e.src} controls playsinline preload="metadata"></video></div>`;
+  return html`<div class="embed"><iframe src=${e.src} title=${title} loading="lazy" allowfullscreen
+    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+}
+
+// Vídeo de demostració d'un exercici (el del professional fent l'exercici). Es pot desar a la biblioteca.
+function openDemoDialog({ it, onSave }) {
+  let close = null;
+  close = UI.open(() => html`<${DemoDialog} it=${it} onSave=${onSave} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function DemoDialog({ it, onSave, onClose }) {
+  const ex = it.exId ? Store.exercise(it.exId) : null;
+  const [v, setV] = useState(it.demo || (ex && ex.video) || '');
+  const [lib, setLib] = useState(!!ex);
+  const save = () => {
+    const url = v.trim();
+    if (url && !U.isUrl(url)) { UI.toast('Enganxa un enllaç complet (https://…).', 'bad'); return; }
+    if (lib && ex) Store.update('exercises', ex.id, (x) => { x.video = url; });
+    onSave(lib && ex ? '' : url);
+    onClose();
+    UI.toast(lib && ex ? `Vídeo desat a la biblioteca: sortirà sempre amb «${ex.name}».` : 'Vídeo desat en aquest exercici.');
+  };
+  return html`<${Dialog} title=${`Demostració · ${it.name || 'Exercici'}`} wide=${true} onClose=${onClose} footer=${html`
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" onClick=${save}>Desa</${Btn}>`}>
+    ${U.isUrl(v) && html`<${VideoEmbed} url=${v} title=${it.name} />`}
+    <${Field} label="Enllaç del vídeo" id="demo-url" hint="YouTube, Vimeo o un fitxer de vídeo. A YouTube, posa'l com a «No llistat» (no «Privat»): els privats no es poden veure fora del teu compte.">
+      <${TextInput} id="demo-url" value=${v} onValue=${setV} placeholder="https://youtu.be/…" autoFocus=${!v} />
+    </${Field}>
+    ${ex && html`<label class="check"><input type="checkbox" checked=${lib} onChange=${(e) => setLib(e.currentTarget.checked)} />
+      Desa'l a la biblioteca: sortirà a totes les sessions amb «${ex.name}»</label>`}
+  </${Dialog}>`;
+}
+
 
 /* ── 11-charts.js ── */
 /* EON Life · gràfics (SVG i HTML, sense llibreries externes).
@@ -7665,7 +7953,7 @@ function openNewPatient() {
 }
 
 function NewPatientDialog({ onClose }) {
-  const [f, setF] = useState({ firstName: '', lastName: '', profile: 'B', professional: Store.professionals()[0] || '', birthDate: '' });
+  const [f, setF] = useState({ firstName: '', lastName: '', service: 'valoracio', professional: Store.professionals()[0] || '', birthDate: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del client.', 'bad'); return; }
@@ -7684,8 +7972,8 @@ function NewPatientDialog({ onClose }) {
       <${Field} label="Professional de referència" id="np-prof">
         <${TextInput} id="np-prof" value=${f.professional} onValue=${set('professional')} list="prof-list" placeholder="Nom del professional" />
       </${Field}>
-      <${Field} label="Perfil" id="np-profile" wide=${true}>
-        <${Seg} value=${f.profile} onValue=${set('profile')} allowEmpty=${false} ariaLabel="Perfil" options=${OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
+      <${Field} label="Servei" id="np-service" wide=${true}>
+        <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
@@ -7804,7 +8092,7 @@ function HomeView() {
   const today = U.today();
   const [q, setQ] = useState('');
   const [fProf, setFProf] = useState('');
-  const [fProfile, setFProfile] = useState('');
+  const [fService, setFService] = useState('');
   const [fStatus, setFStatus] = useState('actiu');
 
   const patients = Store.patients();
@@ -7825,7 +8113,7 @@ function HomeView() {
 
   const nq = U.norm(q);
   const list = patients.filter((p) => (!nq || U.norm(`${p.firstName} ${p.lastName} ${p.email}`).includes(nq))
-    && (!fProf || p.professional === fProf) && (!fProfile || p.profile === fProfile) && (!fStatus || p.status === fStatus));
+    && (!fProf || p.professional === fProf) && (!fService || p.service === fService) && (!fStatus || p.status === fStatus));
 
   return html`<div class="page">
     <header class="page-head">
@@ -7878,7 +8166,7 @@ function HomeView() {
           <input class="input" type="search" placeholder="Cerca per nom…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca clients" />
         </label>
         <${Select} value=${fStatus} onValue=${setFStatus} placeholder="Tots els estats" options=${OPT.status} ariaLabel="Estat" />
-        <${Select} value=${fProfile} onValue=${setFProfile} placeholder="Tots els perfils" options=${OPT.profiles} ariaLabel="Perfil" />
+        <${Select} value=${fService} onValue=${setFService} placeholder="Tots els serveis" options=${OPT.services} ariaLabel="Servei" />
         <${Select} value=${fProf} onValue=${setFProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
       </div>
       ${list.length ? html`<div class="clist">${list.map((p) => html`<${ClientRow} p=${p} sessions=${byPatient[p.id] || []} />`)}</div>`
@@ -7901,7 +8189,7 @@ function ClientRow({ p, sessions }) {
       <span class="crow-name">${U.fullName(p)}</span>
       <span class="crow-meta">${[age != null && `${age} anys`, p.professional].filter(Boolean).join(' · ')}</span>
     </span>
-    <span class="crow-profile"><${Pill} tone="brand" title=${(OPT.profiles.find((o) => o.v === p.profile) || {}).label}>Perfil ${p.profile || '—'}</${Pill}></span>
+    <span class="crow-profile"><${Pill} tone=${p.service === 'membership' ? 'brand' : 'neutral'}>${(OPT.services.find((o) => o.v === p.service) || {}).label || 'Sense servei'}</${Pill}></span>
     <span class="crow-col"><span class="crow-k">Última sessió</span><span>${done ? U.since(done.date) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Propera</span><span>${next ? (next.date === today ? 'Avui' : U.fmtDateShort(next.date)) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Valoració</span><span>${last ? U.fmtDateShort(last.date) : html`<span class="warn-text">Pendent</span>`}</span></span>
@@ -7928,7 +8216,7 @@ function PatientView({ id, tab = 'resum' }) {
   const sessions = Store.sessionsOf(id);
   const assessments = Store.assessmentsOf(id);
   const setTab = (t) => go('client', id, t);
-  const profile = OPT.profiles.find((o) => o.v === p.profile);
+  const service = OPT.services.find((o) => o.v === p.service);
   const age = U.age(p.birthDate);
   const status = OPT.status.find((o) => o.v === p.status);
 
@@ -7945,7 +8233,7 @@ function PatientView({ id, tab = 'resum' }) {
     <header class="phead">
       <${Avatar} p=${p} size="lg" />
       <div class="phead-main">
-        <p class="eyebrow">${profile ? `Perfil ${profile.label}` : 'Sense perfil'}${status && status.v !== 'actiu' ? ` · ${status.label}` : ''}</p>
+        <p class="eyebrow">${service ? service.label : 'Sense servei'}${status && status.v !== 'actiu' ? ` · ${status.label}` : ''}</p>
         <h1 class="h1">${U.fullName(p)}</h1>
         <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Client des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
@@ -8151,11 +8439,12 @@ function PatientForm({ p, onRemove }) {
         ${F('Correu electrònic', 'email', { type: 'email' })}${F('Telèfon', 'phone', { type: 'tel' })}
       </div>
     </section>
+    <${DoctorReportCard} p=${p} />
     <section class="card">
       <div class="card-head"><h2 class="h2">Seguiment al centre</h2></div>
       <div class="form-grid">
-        <${Field} label="Perfil" id="pf-profile" wide=${true}>
-          <${Seg} value=${p.profile} onValue=${set('profile')} allowEmpty=${false} ariaLabel="Perfil" options=${OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
+        <${Field} label="Servei" id="pf-service" wide=${true}>
+          <${Seg} value=${p.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
         </${Field}>
         ${F('Professional de referència', 'professional', { list: 'prof-list', placeholder: 'Nom del professional' })}
         ${F('Estat', 'status', { options: OPT.status })}
@@ -8192,6 +8481,93 @@ function PatientForm({ p, onRemove }) {
       <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el client</${Btn}>
     </div>
   </div>`;
+}
+
+// ── Informe previ de la doctora ──
+// S'enganxa el text (o es tria un Word o un .txt) i es reparteix pels camps del client, amb una vista prèvia.
+function DoctorReportCard({ p }) {
+  const [text, setText] = useState('');
+  const [pct, setPct] = useState(null);
+  const fileRef = useRef(null);
+  const pdfRef = useRef(null);
+  const docs = p.docs || [];
+  const readFile = async (file) => {
+    if (fileRef.current) fileRef.current.value = '';
+    if (!file) return;
+    try {
+      const t = /\.docx$/i.test(file.name) ? await DoctorReport.docxText(await file.arrayBuffer()) : await U.readFile(file);
+      setText(t);
+      openDoctorPreview(p, t);
+    } catch (e) {
+      UI.toast(e.message || 'No s\'ha pogut llegir el fitxer.', 'bad');
+    }
+  };
+  const uploadPdf = async (file) => {
+    if (pdfRef.current) pdfRef.current.value = '';
+    if (!file) return;
+    setPct(0);
+    try {
+      const res = await uploadToClient(p, file, { label: 'Informe mèdic', subfolder: '03 · Informes', onProgress: setPct });
+      Store.update('patients', p.id, (x) => { x.docs = [...(x.docs || []), { id: U.uid('F'), name: res.name, url: res.url, date: U.today() }]; });
+      UI.toast('Informe desat a la carpeta del client.');
+    } catch (e) {
+      UI.toast(e.message, 'bad');
+    }
+    setPct(null);
+  };
+  return html`<section class="card" id="doctor-report">
+    <div class="card-head"><h2 class="h2">Informe de la doctora</h2></div>
+    <p class="muted">Enganxa el text de l'informe previ (o tria'n el fitxer de Word) i l'app omple l'objectiu, el motiu de consulta, els antecedents i les dates de la intervenció i la lesió. Abans de desar-ho veuràs què va a cada lloc.</p>
+    <${Area} value=${text} onValue=${setText} rows=${4} ariaLabel="Text de l'informe de la doctora"
+      placeholder=${'Motiu de consulta: …\nAntecedents: …\nDiagnòstic: …\nObjectiu: …'} />
+    <div class="row-actions">
+      <${Btn} variant="primary" icon="check" disabled=${!text.trim()} onClick=${() => openDoctorPreview(p, text)}>Omple les dades del client</${Btn}>
+      <input type="file" accept=".docx,.txt,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden ref=${fileRef} onChange=${(e) => readFile(e.currentTarget.files[0])} />
+      <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Llegeix un Word</${Btn}>
+      ${canUploadFiles() && html`<input type="file" accept=".pdf,application/pdf,image/*,.docx" hidden ref=${pdfRef} onChange=${(e) => uploadPdf(e.currentTarget.files[0])} />
+        ${pct != null ? html`<span class="attach-busy"><span class="spinner"></span>Pujant… ${Math.round(pct * 100)} %</span>`
+          : html`<${Btn} icon="folder" onClick=${() => pdfRef.current && pdfRef.current.click()}>Desa el PDF a la carpeta</${Btn}>`}`}
+    </div>
+    ${docs.length > 0 && html`<ul class="files mt">${docs.map((f) => html`<li class="file" key=${f.id}><${Icon} name="note" size=${18} />
+      <a class="link file-name" href=${f.url} target="_blank" rel="noopener">${f.name}</a><span class="muted small">${U.fmtDate(f.date)}</span></li>`)}</ul>`}
+    ${p.medical && html`<details class="medical mt"><summary>Últim informe aplicat${p.medicalDate ? ` · ${U.fmtDate(p.medicalDate)}` : ''}</summary><p class="prose small">${p.medical}</p></details>`}
+  </section>`;
+}
+
+function openDoctorPreview(p, text) {
+  const found = DoctorReport.parse(text);
+  const keys = Object.keys(found);
+  if (!keys.length) { UI.toast('No he trobat cap dada a l\'informe.', 'bad'); return; }
+  let close = null;
+  close = UI.open(() => html`<${DoctorPreview} p=${p} text=${text} found=${found} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function DoctorPreview({ p, text, found, onClose }) {
+  const [on, setOn] = useState(Object.fromEntries(Object.keys(found).map((k) => [k, true])));
+  const apply = () => {
+    Store.update('patients', p.id, (x) => {
+      for (const [k, v] of Object.entries(found)) {
+        if (!on[k]) continue;
+        const cur = String(x[k] || '').trim();
+        // Les dates se substitueixen; els textos s'afegeixen al que ja hi havia.
+        x[k] = /Date$/.test(k) || !cur ? v : cur.includes(v) ? cur : `${cur}\n${v}`;
+      }
+      x.medical = text.trim();
+      x.medicalDate = U.today();
+    });
+    onClose();
+    UI.toast('Dades del client actualitzades amb l\'informe de la doctora.');
+  };
+  return html`<${Dialog} title="Informe de la doctora" wide=${true} onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${apply} disabled=${!Object.values(on).some(Boolean)}>Desa a la fitxa</${Btn}>`}>
+    <p class="dialog-text">Això és el que he trobat. Desmarca el que no vulguis desar. Els textos s'afegeixen al que ja hi ha i les dates se substitueixen.</p>
+    <div class="docmap">${Object.entries(found).map(([k, v]) => html`<label class=${U.cls('docrow', !on[k] && 'off')} key=${k}>
+      <input type="checkbox" checked=${on[k]} onChange=${(e) => setOn({ ...on, [k]: e.currentTarget.checked })} />
+      <span class="docrow-k">${DoctorReport.LABELS[k] || k}${p[k] && !/Date$/.test(k) ? html`<span class="muted small"> · s'afegeix</span>` : ''}</span>
+      <span class="docrow-v">${/Date$/.test(k) ? U.fmtDate(v) : v}</span>
+    </label>`)}</div>
+  </${Dialog}>`;
 }
 
 
@@ -8629,11 +9005,15 @@ function PatternCard({ pt, n, v, p, set }) {
 function ProfileBlock({ a, p, setVal }) {
   const [prof, setProf] = useState(p.profile || 'A');
   const list = PROFILE_TESTS.filter((t) => !prof || t.profiles.includes(prof));
+  // El perfil A/B/C de la bateria es desa al client (decideix quins tests surten la propera vegada).
+  const choose = (v) => {
+    setProf(v);
+    if (v && p.id && v !== p.profile) Store.update('patients', p.id, (x) => { x.profile = v; });
+  };
   return html`<div>
     <div class="profile-pick">
-      <span class="field-label">Perfil</span>
-      <${Seg} value=${prof} onValue=${setProf} ariaLabel="Perfil" options=${[...OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc })), { v: '', label: 'Tots' }]} allowEmpty=${false} />
-      ${p.profile && prof !== p.profile && html`<span class="muted small">El client és perfil ${p.profile}.</span>`}
+      <span class="field-label">Bateria del perfil</span>
+      <${Seg} value=${prof} onValue=${choose} ariaLabel="Perfil" options=${[...OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc })), { v: '', label: 'Tots' }]} allowEmpty=${false} />
     </div>
     <div class="trows">${list.map((t) => html`<${TestRow} key=${t.id} t=${TEST_INDEX[t.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>
   </div>`;
@@ -8760,7 +9140,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const bike = Calc.bike(a);
   const hq = Calc.hq(a);
   const typeLabel = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
-  const profile = OPT.profiles.find((o) => o.v === p.profile);
+  const service = OPT.services.find((o) => o.v === p.service);
   const age = U.age(p.birthDate, a.date);
 
   const biRows = (ids, perKg) => ids.map((tid) => TEST_INDEX[tid]).map((t) => {
@@ -8811,7 +9191,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         </div>
         <dl class="report-facts">
           ${age != null && html`<div><dt>Edat</dt><dd>${age} anys</dd></div>`}
-          ${profile && html`<div><dt>Perfil</dt><dd>${profile.label}</dd></div>`}
+          ${service && html`<div><dt>Servei</dt><dd>${service.label}</dd></div>`}
           ${w && html`<div><dt>Pes</dt><dd>${U.fmt(w, 1)} kg</dd></div>`}
           ${(g.goal || p.goal) && html`<div class="wide"><dt>Objectiu</dt><dd>${g.goal || p.goal}</dd></div>`}
         </dl>
@@ -9225,6 +9605,10 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
 
 function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient }) {
   const [open, setOpen] = useState(false);
+  const [vbtOpen, setVbtOpen] = useState(false);
+  const vbtSum = Calc.vbt(it);
+  // Registre de l'encoder: a Potència i Força principal (o a qualsevol exercici que ja en tingui).
+  const vbtOn = !templateMode && (['pot', 'for'].includes(block) || !!vbtSum);
   const prev = prevMap && it.name ? prevMap[it.name] : null;
   const set = (k) => (v) => onChange((x) => { x[k] = v; });
   const pick = (ex) => onChange((x) => {
@@ -9242,7 +9626,7 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
     it.material, it.gm, it.tempo && `Tempo ${it.tempo}`,
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
-  const video = it.video || (ex && ex.video) || '';
+  const demo = it.demo || (ex && ex.video) || '';
 
   return html`<div class=${U.cls('item', it.done && !templateMode && 'item-done')}>
     <div class="item-num">${num}</div>
@@ -9264,10 +9648,15 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
           <${Icon} name=${open ? 'up' : 'down'} size=${14} />
         </button>
-        ${video && html`<a class="mini on" href=${video} target="_blank" rel="noopener" title="Vídeo de l'exercici"><${Icon} name="video" size=${15} /></a>`}
+        <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
+          onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
+        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} onChange=${set('video')} />`}
+        ${vbtOn && html`<button type="button" class=${U.cls('vbt-btn', (vbtOpen || vbtSum) && 'on')} aria-expanded=${vbtOpen} onClick=${() => setVbtOpen(!vbtOpen)}
+          title="Registre per sèries de l'encoder ADR o de l'ADR Jumping"><${Icon} name="chart" size=${15} /><span>${vbtSum && vbtSum.text ? vbtSum.text : 'Encoder'}</span></button>`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}</div>`}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}</div>`}
+      ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} />`}
       ${open && html`<div class="item-details">
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Posició</span><${Select} value=${it.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
@@ -9284,7 +9673,8 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
         { label: 'Mou amunt', icon: 'up', disabled: idx === 0, onClick: () => onMove(-1) },
         { label: 'Mou avall', icon: 'down', disabled: idx === count - 1, onClick: () => onMove(1) },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
-        { label: 'Vídeo de l\'exercici', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) },
+        { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
+        !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />
@@ -9331,6 +9721,63 @@ function pickSessionTemplate() {
         : html`<${Empty} icon="layers" title="No hi ha plantilles de sessió" text="Desa qualsevol sessió com a plantilla des del menú de la sessió." />`}
     </${Dialog}>`, { onDismiss: () => done(null) });
   });
+}
+
+// ── Registre per sèries: encoder ADR (velocitat) o ADR Jumping (salts) ──
+const VBT_COLS = {
+  encoder: [
+    { k: 'kg', label: 'Càrrega', unit: 'kg' },
+    { k: 'reps', label: 'Reps', unit: '' },
+    { k: 'v1', label: 'V 1a rep', unit: 'm/s' },
+    { k: 'vlast', label: 'V última', unit: 'm/s' },
+    { k: 'vl', label: 'Pèrdua vel.', unit: '%', auto: true },
+    { k: 'pmax', label: 'Pot. màx.', unit: 'W' },
+  ],
+  salts: [
+    { k: 'reps', label: 'Salts', unit: '' },
+    { k: 'h', label: 'Altura millor', unit: 'cm' },
+    { k: 'hmean', label: 'Altura mitjana', unit: 'cm' },
+    { k: 'rsi', label: 'RSI', unit: '' },
+    { k: 'tc', label: 'T. contacte', unit: 'ms' },
+  ],
+};
+
+function VbtPanel({ it, onChange }) {
+  const v = it.vbt || {};
+  const mode = v.mode || (/salt|jump|cmj|drop|bot|pogo|hop/i.test(it.name || '') ? 'salts' : 'encoder');
+  const n = Math.min(12, Math.max(1, U.num(it.sets) || 1));
+  const sets = v.sets && v.sets.length ? v.sets : Array.from({ length: n }, () => ({}));
+  const cols = VBT_COLS[mode];
+  const save = (fn) => onChange((x) => {
+    const cur = x.vbt || {};
+    const ss = cur.sets && cur.sets.length ? cur.sets.map((st) => ({ ...st })) : Array.from({ length: n }, () => ({}));
+    x.vbt = { mode: cur.mode || mode, sets: ss };
+    fn(x.vbt);
+  });
+  const setCell = (i, k, val) => save((t) => { t.sets[i] = { ...t.sets[i], [k]: val }; });
+  const addSet = () => save((t) => { const last = t.sets[t.sets.length - 1] || {}; t.sets.push(t.mode === 'salts' ? {} : { kg: last.kg || '' }); });
+  const delSet = (i) => save((t) => { t.sets.splice(i, 1); });
+  const sum = Calc.vbt(it);
+  return html`<div class="vbt">
+    <div class="vbt-head">
+      <${Seg} value=${mode} onValue=${(m) => save((t) => { t.mode = m; })} allowEmpty=${false} size="sm" ariaLabel="Dispositiu"
+        options=${[{ v: 'encoder', label: 'Encoder ADR' }, { v: 'salts', label: 'ADR Jumping' }]} />
+      ${sum && sum.text && html`<span class="vbt-sum">${sum.text}</span>`}
+    </div>
+    <div class="table-wrap"><table class="table vbt-table">
+      <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th></th></tr></thead>
+      <tbody>${sets.map((st, i) => html`<tr key=${i}>
+        <th scope="row">${i + 1}</th>
+        ${cols.map((c) => html`<td><input class="input input-num vbt-in" inputmode="decimal" value=${st[c.k] || ''} aria-label=${`${c.label} · sèrie ${i + 1}`}
+          placeholder=${c.auto && !st.vl && Calc.vl(st) != null ? U.fmt(Calc.vl(st), 0) : ''} onInput=${(e) => setCell(i, c.k, e.currentTarget.value)} /></td>`)}
+        <td>${sets.length > 1 && html`<button type="button" class="mini" title="Treu la sèrie" onClick=${() => delSet(i)}><${Icon} name="x" size=${14} /></button>`}</td>
+      </tr>`)}</tbody>
+    </table></div>
+    <div class="vbt-foot">
+      <button type="button" class="add-item" onClick=${addSet}><${Icon} name="plus" size=${15} />Sèrie</button>
+      <span class="muted small">${mode === 'salts' ? 'Apunta el que et dona l\'ADR Jumping a cada sèrie.' : 'Apunta el que et dona l\'encoder a cada sèrie. Si poses la velocitat de la 1a i de l\'última rep, la pèrdua de velocitat es calcula sola.'}</span>
+    </div>
+  </div>`;
 }
 
 
@@ -9408,18 +9855,22 @@ function SessionSheet({ id }) {
       ${blocks.length ? html`<div class="sheet-blocks">
         ${blocks.map((b) => {
           const def = blockDef(b.key);
+          const nVideos = b.items.filter((i) => i.name && demoOf(i)).length;
           return html`<section class=${U.cls('sblock', `blk-${b.key}`, b.key === 'for' && 'sblock-main')} style=${`--span:${span(b.key)}`}>
             <header class="sblock-head">
               <span class="sblock-num">${def.num}</span>
-              <div><h2 class="sblock-name">${blockName(b.key)}</h2>${b.focus && html`<p class="sblock-focus">${b.focus}</p>`}</div>
+              <div class="grow"><h2 class="sblock-name">${blockName(b.key)}</h2>${b.focus && html`<p class="sblock-focus">${b.focus}</p>`}</div>
+              ${nVideos > 0 && html`<button type="button" class="sblock-videos no-print" onClick=${() => openBlockVideos(b, 0)}
+                aria-label=${`Mira els vídeos del bloc ${blockName(b.key)}`}><${Icon} name="playfill" size=${15} />${U.plural(nVideos, 'vídeo', 'vídeos')}</button>`}
             </header>
             <ol class="sx">
               ${b.items.filter((i) => i.name).map((it, i) => {
                 const tags = [it.lat === 'UL' ? 'Unilateral' : '', it.cont ? (OPT.cont.find((o) => o.v === it.cont) || {}).label : '', it.material && !/^(Terra|Pes corporal)$/.test(it.material) ? it.material : ''].filter(Boolean);
+                const withVideo = b.items.filter((x) => x.name && demoOf(x));
                 return html`<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
                   <div class="sx-body">
-                    <div class="sx-line"><span class="sx-name">${it.name}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
+                    <div class="sx-line"><span class="sx-name">${it.name}${demoOf(it) && html` <button type="button" class="sx-play no-print" title="Mira el vídeo" onClick=${() => openBlockVideos(b, withVideo.indexOf(it))}><${Icon} name="playfill" size=${12} /></button>`}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
                     ${(tags.length > 0 || it.note) && html`<div class="sx-meta">${tags.map((t) => html`<span class="tag">${t}</span>`)}${it.note && html`<span class="sx-note">${it.note}</span>`}</div>`}
                   </div>
                 </li>`;
@@ -9434,6 +9885,55 @@ function SessionSheet({ id }) {
         <span>${U.plural(total, 'exercici', 'exercicis')} · ${U.fmtDate(s.date)}</span>
       </footer>
     </article>
+  </div>`;
+}
+
+// Vídeo de demostració d'un exercici: el de la sessió o, si no n'hi ha, el de la biblioteca.
+function demoOf(it) {
+  if (it.demo) return it.demo;
+  const ex = it.exId ? Store.exercise(it.exId) : null;
+  return (ex && ex.video) || '';
+}
+
+// Vídeos d'un bloc a pantalla gran, un darrere l'altre, per ensenyar-los al client abans de començar.
+function openBlockVideos(block, start = 0) {
+  let close = null;
+  close = UI.open(() => html`<${BlockVideos} block=${block} start=${Math.max(0, start)} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function BlockVideos({ block, start, onClose }) {
+  const def = blockDef(block.key);
+  const list = block.items.filter((i) => i.name).map((it, i) => ({ it, n: `${def.num}.${i + 1}`, url: demoOf(it) })).filter((x) => x.url);
+  const [k, setK] = useState(Math.min(start, list.length - 1));
+  useEffect(() => {
+    const key = (e) => {
+      if (e.key === 'ArrowRight') setK((x) => Math.min(list.length - 1, x + 1));
+      else if (e.key === 'ArrowLeft') setK((x) => Math.max(0, x - 1));
+      else if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, []);
+  const cur = list[k];
+  if (!cur) return null;
+  return html`<div class=${`bv blk-${block.key}`} role="dialog" aria-modal="true" aria-label=${`Vídeos del bloc ${blockName(block.key)}`}>
+    <header class="bv-head">
+      <span class="sblock-num">${def.num}</span>
+      <div class="grow"><h2 class="sblock-name">${blockName(block.key)}</h2>${block.focus && html`<p class="sblock-focus">${block.focus}</p>`}</div>
+      <span class="muted">${k + 1} / ${list.length}</span>
+      <${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} />
+    </header>
+    <div class="bv-video" key=${cur.url}><${VideoEmbed} url=${cur.url} title=${cur.it.name} /></div>
+    <div class="bv-info">
+      <span class="sx-n">${cur.n}</span>
+      <div class="grow"><strong class="bv-name">${cur.it.name}</strong>${cur.it.note && html`<p class="bv-note">${cur.it.note}</p>`}</div>
+      <span class="sx-rx">${Calc.presc(cur.it)}</span>
+    </div>
+    ${list.length > 1 && html`<nav class="bv-nav">
+      <${Btn} icon="left" disabled=${k === 0} onClick=${() => setK(k - 1)}>Anterior</${Btn}>
+      <div class="bv-dots">${list.map((x, i) => html`<button type="button" class=${U.cls('bv-dot', i === k && 'on')} aria-label=${x.it.name} title=${x.it.name} onClick=${() => setK(i)}></button>`)}</div>
+      <${Btn} iconRight="right" disabled=${k === list.length - 1} onClick=${() => setK(k + 1)}>Següent</${Btn}>
+    </nav>`}
   </div>`;
 }
 

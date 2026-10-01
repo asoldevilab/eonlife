@@ -199,6 +199,10 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
 
 function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient }) {
   const [open, setOpen] = useState(false);
+  const [vbtOpen, setVbtOpen] = useState(false);
+  const vbtSum = Calc.vbt(it);
+  // Registre de l'encoder: a Potència i Força principal (o a qualsevol exercici que ja en tingui).
+  const vbtOn = !templateMode && (['pot', 'for'].includes(block) || !!vbtSum);
   const prev = prevMap && it.name ? prevMap[it.name] : null;
   const set = (k) => (v) => onChange((x) => { x[k] = v; });
   const pick = (ex) => onChange((x) => {
@@ -216,7 +220,7 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
     it.material, it.gm, it.tempo && `Tempo ${it.tempo}`,
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
-  const video = it.video || (ex && ex.video) || '';
+  const demo = it.demo || (ex && ex.video) || '';
 
   return html`<div class=${U.cls('item', it.done && !templateMode && 'item-done')}>
     <div class="item-num">${num}</div>
@@ -238,10 +242,15 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
           <${Icon} name=${open ? 'up' : 'down'} size=${14} />
         </button>
-        ${video && html`<a class="mini on" href=${video} target="_blank" rel="noopener" title="Vídeo de l'exercici"><${Icon} name="video" size=${15} /></a>`}
+        <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
+          onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
+        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} onChange=${set('video')} />`}
+        ${vbtOn && html`<button type="button" class=${U.cls('vbt-btn', (vbtOpen || vbtSum) && 'on')} aria-expanded=${vbtOpen} onClick=${() => setVbtOpen(!vbtOpen)}
+          title="Registre per sèries de l'encoder ADR o de l'ADR Jumping"><${Icon} name="chart" size=${15} /><span>${vbtSum && vbtSum.text ? vbtSum.text : 'Encoder'}</span></button>`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}</div>`}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}</div>`}
+      ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} />`}
       ${open && html`<div class="item-details">
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Posició</span><${Select} value=${it.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
@@ -258,7 +267,8 @@ function ItemRow({ it, idx, count, num, block, prevMap, onChange, onMove, onRemo
         { label: 'Mou amunt', icon: 'up', disabled: idx === 0, onClick: () => onMove(-1) },
         { label: 'Mou avall', icon: 'down', disabled: idx === count - 1, onClick: () => onMove(1) },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
-        { label: 'Vídeo de l\'exercici', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) },
+        { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
+        !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />
@@ -305,4 +315,61 @@ function pickSessionTemplate() {
         : html`<${Empty} icon="layers" title="No hi ha plantilles de sessió" text="Desa qualsevol sessió com a plantilla des del menú de la sessió." />`}
     </${Dialog}>`, { onDismiss: () => done(null) });
   });
+}
+
+// ── Registre per sèries: encoder ADR (velocitat) o ADR Jumping (salts) ──
+const VBT_COLS = {
+  encoder: [
+    { k: 'kg', label: 'Càrrega', unit: 'kg' },
+    { k: 'reps', label: 'Reps', unit: '' },
+    { k: 'v1', label: 'V 1a rep', unit: 'm/s' },
+    { k: 'vlast', label: 'V última', unit: 'm/s' },
+    { k: 'vl', label: 'Pèrdua vel.', unit: '%', auto: true },
+    { k: 'pmax', label: 'Pot. màx.', unit: 'W' },
+  ],
+  salts: [
+    { k: 'reps', label: 'Salts', unit: '' },
+    { k: 'h', label: 'Altura millor', unit: 'cm' },
+    { k: 'hmean', label: 'Altura mitjana', unit: 'cm' },
+    { k: 'rsi', label: 'RSI', unit: '' },
+    { k: 'tc', label: 'T. contacte', unit: 'ms' },
+  ],
+};
+
+function VbtPanel({ it, onChange }) {
+  const v = it.vbt || {};
+  const mode = v.mode || (/salt|jump|cmj|drop|bot|pogo|hop/i.test(it.name || '') ? 'salts' : 'encoder');
+  const n = Math.min(12, Math.max(1, U.num(it.sets) || 1));
+  const sets = v.sets && v.sets.length ? v.sets : Array.from({ length: n }, () => ({}));
+  const cols = VBT_COLS[mode];
+  const save = (fn) => onChange((x) => {
+    const cur = x.vbt || {};
+    const ss = cur.sets && cur.sets.length ? cur.sets.map((st) => ({ ...st })) : Array.from({ length: n }, () => ({}));
+    x.vbt = { mode: cur.mode || mode, sets: ss };
+    fn(x.vbt);
+  });
+  const setCell = (i, k, val) => save((t) => { t.sets[i] = { ...t.sets[i], [k]: val }; });
+  const addSet = () => save((t) => { const last = t.sets[t.sets.length - 1] || {}; t.sets.push(t.mode === 'salts' ? {} : { kg: last.kg || '' }); });
+  const delSet = (i) => save((t) => { t.sets.splice(i, 1); });
+  const sum = Calc.vbt(it);
+  return html`<div class="vbt">
+    <div class="vbt-head">
+      <${Seg} value=${mode} onValue=${(m) => save((t) => { t.mode = m; })} allowEmpty=${false} size="sm" ariaLabel="Dispositiu"
+        options=${[{ v: 'encoder', label: 'Encoder ADR' }, { v: 'salts', label: 'ADR Jumping' }]} />
+      ${sum && sum.text && html`<span class="vbt-sum">${sum.text}</span>`}
+    </div>
+    <div class="table-wrap"><table class="table vbt-table">
+      <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th></th></tr></thead>
+      <tbody>${sets.map((st, i) => html`<tr key=${i}>
+        <th scope="row">${i + 1}</th>
+        ${cols.map((c) => html`<td><input class="input input-num vbt-in" inputmode="decimal" value=${st[c.k] || ''} aria-label=${`${c.label} · sèrie ${i + 1}`}
+          placeholder=${c.auto && !st.vl && Calc.vl(st) != null ? U.fmt(Calc.vl(st), 0) : ''} onInput=${(e) => setCell(i, c.k, e.currentTarget.value)} /></td>`)}
+        <td>${sets.length > 1 && html`<button type="button" class="mini" title="Treu la sèrie" onClick=${() => delSet(i)}><${Icon} name="x" size=${14} /></button>`}</td>
+      </tr>`)}</tbody>
+    </table></div>
+    <div class="vbt-foot">
+      <button type="button" class="add-item" onClick=${addSet}><${Icon} name="plus" size=${15} />Sèrie</button>
+      <span class="muted small">${mode === 'salts' ? 'Apunta el que et dona l\'ADR Jumping a cada sèrie.' : 'Apunta el que et dona l\'encoder a cada sèrie. Si poses la velocitat de la 1a i de l\'última rep, la pèrdua de velocitat es calcula sola.'}</span>
+    </div>
+  </div>`;
 }

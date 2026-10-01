@@ -90,7 +90,7 @@ const DB = (() => {
     clients: () => [
       { id: 'client', label: 'Client', kind: 'client', get: (r) => U.fullName(r.p) },
       { id: 'age', label: 'Edat', kind: 'num', dec: 0, get: (r) => U.age(r.p.birthDate) },
-      { id: 'profile', label: 'Perfil', kind: 'text', get: (r) => r.p.profile || '' },
+      { id: 'service', label: 'Servei', kind: 'text', get: (r) => (OPT.services.find((o) => o.v === r.p.service) || {}).label || '' },
       { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.p.professional || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (OPT.status.find((o) => o.v === r.p.status) || {}).label || '' },
       { id: 'start', label: 'Alta', kind: 'date', get: (r) => r.p.startDate || '' },

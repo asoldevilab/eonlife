@@ -7,7 +7,7 @@ function PatientView({ id, tab = 'resum' }) {
   const sessions = Store.sessionsOf(id);
   const assessments = Store.assessmentsOf(id);
   const setTab = (t) => go('client', id, t);
-  const profile = OPT.profiles.find((o) => o.v === p.profile);
+  const service = OPT.services.find((o) => o.v === p.service);
   const age = U.age(p.birthDate);
   const status = OPT.status.find((o) => o.v === p.status);
 
@@ -24,7 +24,7 @@ function PatientView({ id, tab = 'resum' }) {
     <header class="phead">
       <${Avatar} p=${p} size="lg" />
       <div class="phead-main">
-        <p class="eyebrow">${profile ? `Perfil ${profile.label}` : 'Sense perfil'}${status && status.v !== 'actiu' ? ` · ${status.label}` : ''}</p>
+        <p class="eyebrow">${service ? service.label : 'Sense servei'}${status && status.v !== 'actiu' ? ` · ${status.label}` : ''}</p>
         <h1 class="h1">${U.fullName(p)}</h1>
         <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Client des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
@@ -230,11 +230,12 @@ function PatientForm({ p, onRemove }) {
         ${F('Correu electrònic', 'email', { type: 'email' })}${F('Telèfon', 'phone', { type: 'tel' })}
       </div>
     </section>
+    <${DoctorReportCard} p=${p} />
     <section class="card">
       <div class="card-head"><h2 class="h2">Seguiment al centre</h2></div>
       <div class="form-grid">
-        <${Field} label="Perfil" id="pf-profile" wide=${true}>
-          <${Seg} value=${p.profile} onValue=${set('profile')} allowEmpty=${false} ariaLabel="Perfil" options=${OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
+        <${Field} label="Servei" id="pf-service" wide=${true}>
+          <${Seg} value=${p.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
         </${Field}>
         ${F('Professional de referència', 'professional', { list: 'prof-list', placeholder: 'Nom del professional' })}
         ${F('Estat', 'status', { options: OPT.status })}
@@ -271,4 +272,91 @@ function PatientForm({ p, onRemove }) {
       <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el client</${Btn}>
     </div>
   </div>`;
+}
+
+// ── Informe previ de la doctora ──
+// S'enganxa el text (o es tria un Word o un .txt) i es reparteix pels camps del client, amb una vista prèvia.
+function DoctorReportCard({ p }) {
+  const [text, setText] = useState('');
+  const [pct, setPct] = useState(null);
+  const fileRef = useRef(null);
+  const pdfRef = useRef(null);
+  const docs = p.docs || [];
+  const readFile = async (file) => {
+    if (fileRef.current) fileRef.current.value = '';
+    if (!file) return;
+    try {
+      const t = /\.docx$/i.test(file.name) ? await DoctorReport.docxText(await file.arrayBuffer()) : await U.readFile(file);
+      setText(t);
+      openDoctorPreview(p, t);
+    } catch (e) {
+      UI.toast(e.message || 'No s\'ha pogut llegir el fitxer.', 'bad');
+    }
+  };
+  const uploadPdf = async (file) => {
+    if (pdfRef.current) pdfRef.current.value = '';
+    if (!file) return;
+    setPct(0);
+    try {
+      const res = await uploadToClient(p, file, { label: 'Informe mèdic', subfolder: '03 · Informes', onProgress: setPct });
+      Store.update('patients', p.id, (x) => { x.docs = [...(x.docs || []), { id: U.uid('F'), name: res.name, url: res.url, date: U.today() }]; });
+      UI.toast('Informe desat a la carpeta del client.');
+    } catch (e) {
+      UI.toast(e.message, 'bad');
+    }
+    setPct(null);
+  };
+  return html`<section class="card" id="doctor-report">
+    <div class="card-head"><h2 class="h2">Informe de la doctora</h2></div>
+    <p class="muted">Enganxa el text de l'informe previ (o tria'n el fitxer de Word) i l'app omple l'objectiu, el motiu de consulta, els antecedents i les dates de la intervenció i la lesió. Abans de desar-ho veuràs què va a cada lloc.</p>
+    <${Area} value=${text} onValue=${setText} rows=${4} ariaLabel="Text de l'informe de la doctora"
+      placeholder=${'Motiu de consulta: …\nAntecedents: …\nDiagnòstic: …\nObjectiu: …'} />
+    <div class="row-actions">
+      <${Btn} variant="primary" icon="check" disabled=${!text.trim()} onClick=${() => openDoctorPreview(p, text)}>Omple les dades del client</${Btn}>
+      <input type="file" accept=".docx,.txt,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden ref=${fileRef} onChange=${(e) => readFile(e.currentTarget.files[0])} />
+      <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Llegeix un Word</${Btn}>
+      ${canUploadFiles() && html`<input type="file" accept=".pdf,application/pdf,image/*,.docx" hidden ref=${pdfRef} onChange=${(e) => uploadPdf(e.currentTarget.files[0])} />
+        ${pct != null ? html`<span class="attach-busy"><span class="spinner"></span>Pujant… ${Math.round(pct * 100)} %</span>`
+          : html`<${Btn} icon="folder" onClick=${() => pdfRef.current && pdfRef.current.click()}>Desa el PDF a la carpeta</${Btn}>`}`}
+    </div>
+    ${docs.length > 0 && html`<ul class="files mt">${docs.map((f) => html`<li class="file" key=${f.id}><${Icon} name="note" size=${18} />
+      <a class="link file-name" href=${f.url} target="_blank" rel="noopener">${f.name}</a><span class="muted small">${U.fmtDate(f.date)}</span></li>`)}</ul>`}
+    ${p.medical && html`<details class="medical mt"><summary>Últim informe aplicat${p.medicalDate ? ` · ${U.fmtDate(p.medicalDate)}` : ''}</summary><p class="prose small">${p.medical}</p></details>`}
+  </section>`;
+}
+
+function openDoctorPreview(p, text) {
+  const found = DoctorReport.parse(text);
+  const keys = Object.keys(found);
+  if (!keys.length) { UI.toast('No he trobat cap dada a l\'informe.', 'bad'); return; }
+  let close = null;
+  close = UI.open(() => html`<${DoctorPreview} p=${p} text=${text} found=${found} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function DoctorPreview({ p, text, found, onClose }) {
+  const [on, setOn] = useState(Object.fromEntries(Object.keys(found).map((k) => [k, true])));
+  const apply = () => {
+    Store.update('patients', p.id, (x) => {
+      for (const [k, v] of Object.entries(found)) {
+        if (!on[k]) continue;
+        const cur = String(x[k] || '').trim();
+        // Les dates se substitueixen; els textos s'afegeixen al que ja hi havia.
+        x[k] = /Date$/.test(k) || !cur ? v : cur.includes(v) ? cur : `${cur}\n${v}`;
+      }
+      x.medical = text.trim();
+      x.medicalDate = U.today();
+    });
+    onClose();
+    UI.toast('Dades del client actualitzades amb l\'informe de la doctora.');
+  };
+  return html`<${Dialog} title="Informe de la doctora" wide=${true} onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${apply} disabled=${!Object.values(on).some(Boolean)}>Desa a la fitxa</${Btn}>`}>
+    <p class="dialog-text">Això és el que he trobat. Desmarca el que no vulguis desar. Els textos s'afegeixen al que ja hi ha i les dates se substitueixen.</p>
+    <div class="docmap">${Object.entries(found).map(([k, v]) => html`<label class=${U.cls('docrow', !on[k] && 'off')} key=${k}>
+      <input type="checkbox" checked=${on[k]} onChange=${(e) => setOn({ ...on, [k]: e.currentTarget.checked })} />
+      <span class="docrow-k">${DoctorReport.LABELS[k] || k}${p[k] && !/Date$/.test(k) ? html`<span class="muted small"> · s'afegeix</span>` : ''}</span>
+      <span class="docrow-v">${/Date$/.test(k) ? U.fmtDate(v) : v}</span>
+    </label>`)}</div>
+  </${Dialog}>`;
 }

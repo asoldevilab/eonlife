@@ -71,18 +71,22 @@ function SessionSheet({ id }) {
       ${blocks.length ? html`<div class="sheet-blocks">
         ${blocks.map((b) => {
           const def = blockDef(b.key);
+          const nVideos = b.items.filter((i) => i.name && demoOf(i)).length;
           return html`<section class=${U.cls('sblock', `blk-${b.key}`, b.key === 'for' && 'sblock-main')} style=${`--span:${span(b.key)}`}>
             <header class="sblock-head">
               <span class="sblock-num">${def.num}</span>
-              <div><h2 class="sblock-name">${blockName(b.key)}</h2>${b.focus && html`<p class="sblock-focus">${b.focus}</p>`}</div>
+              <div class="grow"><h2 class="sblock-name">${blockName(b.key)}</h2>${b.focus && html`<p class="sblock-focus">${b.focus}</p>`}</div>
+              ${nVideos > 0 && html`<button type="button" class="sblock-videos no-print" onClick=${() => openBlockVideos(b, 0)}
+                aria-label=${`Mira els vídeos del bloc ${blockName(b.key)}`}><${Icon} name="playfill" size=${15} />${U.plural(nVideos, 'vídeo', 'vídeos')}</button>`}
             </header>
             <ol class="sx">
               ${b.items.filter((i) => i.name).map((it, i) => {
                 const tags = [it.lat === 'UL' ? 'Unilateral' : '', it.cont ? (OPT.cont.find((o) => o.v === it.cont) || {}).label : '', it.material && !/^(Terra|Pes corporal)$/.test(it.material) ? it.material : ''].filter(Boolean);
+                const withVideo = b.items.filter((x) => x.name && demoOf(x));
                 return html`<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
                   <div class="sx-body">
-                    <div class="sx-line"><span class="sx-name">${it.name}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
+                    <div class="sx-line"><span class="sx-name">${it.name}${demoOf(it) && html` <button type="button" class="sx-play no-print" title="Mira el vídeo" onClick=${() => openBlockVideos(b, withVideo.indexOf(it))}><${Icon} name="playfill" size=${12} /></button>`}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
                     ${(tags.length > 0 || it.note) && html`<div class="sx-meta">${tags.map((t) => html`<span class="tag">${t}</span>`)}${it.note && html`<span class="sx-note">${it.note}</span>`}</div>`}
                   </div>
                 </li>`;
@@ -97,5 +101,54 @@ function SessionSheet({ id }) {
         <span>${U.plural(total, 'exercici', 'exercicis')} · ${U.fmtDate(s.date)}</span>
       </footer>
     </article>
+  </div>`;
+}
+
+// Vídeo de demostració d'un exercici: el de la sessió o, si no n'hi ha, el de la biblioteca.
+function demoOf(it) {
+  if (it.demo) return it.demo;
+  const ex = it.exId ? Store.exercise(it.exId) : null;
+  return (ex && ex.video) || '';
+}
+
+// Vídeos d'un bloc a pantalla gran, un darrere l'altre, per ensenyar-los al client abans de començar.
+function openBlockVideos(block, start = 0) {
+  let close = null;
+  close = UI.open(() => html`<${BlockVideos} block=${block} start=${Math.max(0, start)} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function BlockVideos({ block, start, onClose }) {
+  const def = blockDef(block.key);
+  const list = block.items.filter((i) => i.name).map((it, i) => ({ it, n: `${def.num}.${i + 1}`, url: demoOf(it) })).filter((x) => x.url);
+  const [k, setK] = useState(Math.min(start, list.length - 1));
+  useEffect(() => {
+    const key = (e) => {
+      if (e.key === 'ArrowRight') setK((x) => Math.min(list.length - 1, x + 1));
+      else if (e.key === 'ArrowLeft') setK((x) => Math.max(0, x - 1));
+      else if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, []);
+  const cur = list[k];
+  if (!cur) return null;
+  return html`<div class=${`bv blk-${block.key}`} role="dialog" aria-modal="true" aria-label=${`Vídeos del bloc ${blockName(block.key)}`}>
+    <header class="bv-head">
+      <span class="sblock-num">${def.num}</span>
+      <div class="grow"><h2 class="sblock-name">${blockName(block.key)}</h2>${block.focus && html`<p class="sblock-focus">${block.focus}</p>`}</div>
+      <span class="muted">${k + 1} / ${list.length}</span>
+      <${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} />
+    </header>
+    <div class="bv-video" key=${cur.url}><${VideoEmbed} url=${cur.url} title=${cur.it.name} /></div>
+    <div class="bv-info">
+      <span class="sx-n">${cur.n}</span>
+      <div class="grow"><strong class="bv-name">${cur.it.name}</strong>${cur.it.note && html`<p class="bv-note">${cur.it.note}</p>`}</div>
+      <span class="sx-rx">${Calc.presc(cur.it)}</span>
+    </div>
+    ${list.length > 1 && html`<nav class="bv-nav">
+      <${Btn} icon="left" disabled=${k === 0} onClick=${() => setK(k - 1)}>Anterior</${Btn}>
+      <div class="bv-dots">${list.map((x, i) => html`<button type="button" class=${U.cls('bv-dot', i === k && 'on')} aria-label=${x.it.name} title=${x.it.name} onClick=${() => setK(i)}></button>`)}</div>
+      <${Btn} iconRight="right" disabled=${k === list.length - 1} onClick=${() => setK(k + 1)}>Següent</${Btn}>
+    </nav>`}
   </div>`;
 }
