@@ -500,3 +500,26 @@ test('informe de Kinvent: imatges del PDF, targetes, correcció amb l\'asimetria
   assert.equal(KinventPdf.target('Rotación interna de cadera', 'force'), 'dyn_hip_ir');
   assert.equal(KinventPdf.target('Hip external rotation', 'angle'), 'rom_hip_er');
 });
+
+test('fitxa del client: perfil físic, pes i alçada lligats a les valoracions, i columnes de l\'Excel', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const { Store, Calc, Flat } = core;
+  const p = { id: 'P-PROVA', firstName: 'Prova', height: '170', weight: '65', dominance: 'E', activityLevel: 'molt', limitations: 'Sense salts', emergency: 'Pare · 600' };
+  const f = Flat.patient(p);
+  assert.equal(f['Alçada (cm)'], 170);
+  assert.equal(f['Dominància'], 'Esquerra');
+  assert.equal(f['Nivell d\'activitat'], 'Molt actiu (3 o més dies)');
+  assert.equal(f['Limitacions per entrenar'], 'Sense salts');
+  assert.equal(Math.round(Calc.bmi('65', '170') * 10) / 10, 22.5);
+  // Sense pes a la fitxa: el de l'última valoració que en tingui.
+  const b = Calc.body({}, [{ date: '2026-01-01', general: { weight: '70' } }, { date: '2026-03-01', general: { weight: '' } }]);
+  assert.deepEqual([b.weight.v, b.weight.date, b.height.v], [70, '2026-01-01', null]);
+  // Una valoració nova agafa el pes i l'alçada de la fitxa.
+  Store.put('patients', p, { immediate: true });
+  const a = Store.newAssessment('P-PROVA', { date: '2026-10-01' });
+  assert.deepEqual([a.general.weight, a.general.height], ['65', '170']);
+  // Els demos tenen el perfil omplert (dades inventades).
+  assert.equal(Store.get('patients', 'P-DEMO-JORDI').dominance, 'D');
+  assert.ok(Store.get('patients', 'P-DEMO-MONTSE').limitations);
+});

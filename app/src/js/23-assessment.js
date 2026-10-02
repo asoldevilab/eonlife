@@ -20,7 +20,12 @@ function AssessmentEditor({ id, focus }) {
   const p = Store.get('patients', a.patientId) || {};
   const upd = (fn) => Store.update('assessments', a.id, fn);
   const set = (k) => (v) => upd((x) => { x[k] = v; });
-  const setGen = (k) => (v) => upd((x) => { x.general = { ...(x.general || {}), [k]: v }; });
+  const setGen = (k) => (v) => {
+    upd((x) => { x.general = { ...(x.general || {}), [k]: v }; });
+    // El pes i l'alçada de la valoració més recent són els de la fitxa del client.
+    const list = Store.assessmentsOf(a.patientId);
+    if ((k === 'weight' || k === 'height') && list.length && list[list.length - 1].id === a.id) Store.update('patients', a.patientId, (x) => { x[k] = v; });
+  };
   const setCon = (k) => (v) => upd((x) => { x.conclusions = { ...(x.conclusions || {}), [k]: v }; });
   const setVal = (tid, k, v) => upd((x) => { x.values = x.values || {}; x.values[tid] = { ...(x.values[tid] || {}), [k]: v }; });
   const g = a.general || {}, c = a.conclusions || {};
@@ -179,6 +184,8 @@ function TestRow({ t, a, p, setVal }) {
       const as = Calc.asym(d, e);
       if (as) pills.push(html`<${Pill} tone=${Calc.asymTone(as.pct)} title="Asimetria |D − E| / màxim">${U.fmt(as.pct, 0)} %</${Pill}>`);
     }
+    // Valor d'abans, quan la prova es mesurava sense separar dreta i esquerra (p. ex. el squeeze).
+    if (d == null && e == null && U.num(x.v) != null) pills.push(html`<${Pill} tone="neutral" title="Valor desat abans, sense dreta ni esquerra">Abans: ${x.v} ${t.unit}</${Pill}>`);
     if (t.perKg) {
       const w = Calc.weight(a);
       const dk = Calc.perKg(d, w), ek = Calc.perKg(e, w);

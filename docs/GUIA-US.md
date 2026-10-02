@@ -48,6 +48,16 @@ client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / P
   Decideix quins tests complementaris surten a la valoració.
 - **Dates clau**: data de la intervenció (IQ) i de la lesió. A la capçalera es veuen els dies i
   setmanes que han passat (com el full *DB* de l'Excel mensual).
+- **Fitxa del client** (pestanya *Fitxa*), a més de les dades personals i el contacte d'emergència:
+  - **Perfil físic i activitat**: alçada, pes, dominància (dreta/esquerra), nivell d'activitat, esport, professió
+    i disponibilitat. El pes i l'alçada es posen sols a les valoracions noves, i si es canvien a la valoració més
+    recent també s'actualitzen aquí.
+  - **Salut, lesions i precaucions**: limitacions i precaucions per entrenar, condicions de salut, antecedents i
+    lesions i medicació rellevant. Només el que cal per entrenar: la informació clínica completa és a Nubimed.
+  - **Observacions**: només per a l'equip; no surten als informes.
+- **Resum**: a dalt de tot hi ha el **Perfil del client**: edat, alçada, pes, IMC, dominància i activitat; les
+  limitacions per entrenar ben visibles (en groc); l'esport, la professió, la disponibilitat, la salut i les
+  lesions, i les observacions.
 
 ### Informe previ de la doctora
 
@@ -106,7 +116,6 @@ Consells:
   - Hi ha l'esquerra i la dreta, que es poden corregir.
   - La força es passa de kg a newtons (× 9,81).
   - Cada número es comprova amb l'asimetria de l'informe: «Quadra» si coincideix; si no, «Revisa».
-  - Al *squeeze* (un sol valor) s'hi posa el valor més alt, i l'esquerra i la dreta van a la nota.
 
   Amb *Adjunta també el PDF*, el PDF també queda desat a la valoració. Està provat amb l'informe en castellà, que és
   el que feu servir.

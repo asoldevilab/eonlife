@@ -69,7 +69,8 @@ function PatientSummary({ p, sessions, assessments }) {
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
-  return html`<section class="card quickadd">
+  return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
+  <section class="card quickadd">
     <div class="quickadd-head"><h2 class="h2">Registrar mesures</h2><span class="muted small">Obre el formulari directament a l'apartat</span></div>
     <div class="quickadd-chips">
       ${quick.map(([f, label]) => html`<button type="button" class="chip" onClick=${() => openAddMeasurement(f, p.id)}><${Icon} name="plus" size=${14} />${label}</button>`)}
@@ -120,6 +121,45 @@ function PatientSummary({ p, sessions, assessments }) {
       <${EvolutionCard} assessments=${assessments} />
     </section>
   </div>`;
+}
+
+// Perfil del client al Resum: dades físiques, activitat, salut i observacions (tot el que hi ha a la fitxa).
+function ClientProfileCard({ p, assessments }) {
+  const body = Calc.body(p, assessments);
+  const age = U.age(p.birthDate);
+  const label = (list, v) => (list.find((o) => o.v === v) || {}).label || '';
+  const from = (x) => (x.date ? ` · valoració ${U.fmtDate(x.date)}` : '');
+  const facts = [
+    age != null && { k: 'Edat', v: `${age} anys` },
+    body.height.v != null && { k: 'Alçada', v: `${U.fmt(body.height.v, 0)} cm`, t: from(body.height) },
+    body.weight.v != null && { k: 'Pes', v: `${U.fmt(body.weight.v, 1)} kg`, t: from(body.weight) },
+    body.bmi != null && { k: 'IMC', v: U.fmt(body.bmi, 1) },
+    p.dominance && { k: 'Dominància', v: label(OPT.dominance, p.dominance) },
+    p.activityLevel && { k: 'Activitat', v: label(OPT.activityLevels, p.activityLevel).replace(/ \(.*\)$/, '') },
+  ].filter(Boolean);
+  const info = [
+    ['Esport o activitat', p.sport], ['Professió', p.occupation], ['Disponibilitat', p.availability],
+    ['Motiu de consulta', p.reason], ['Contacte d\'emergència', p.emergency],
+  ].filter(([, v]) => v);
+  const health = [
+    ['Condicions de salut', p.conditions], ['Antecedents i lesions', p.history], ['Medicació', p.medication],
+    p.injuryNote && ['Lesió', `${p.injuryNote}${p.injuryDate ? ` (${U.fmtDate(p.injuryDate)})` : ''}`],
+    p.surgeryNote && ['Intervenció', `${p.surgeryNote}${p.surgeryDate ? ` (${U.fmtDate(p.surgeryDate)})` : ''}`],
+  ].filter((x) => x && x[1]);
+  const empty = !facts.filter((f) => f.k !== 'Edat').length && !info.length && !health.length && !p.limitations && !p.notes;
+  return html`<section class="card cprof">
+    <div class="card-head"><h2 class="h2">Perfil del client</h2>
+      <${Btn} size="sm" variant="ghost" icon="edit" onClick=${() => go('client', p.id, 'fitxa')}>${empty ? 'Completa la fitxa' : 'Edita'}</${Btn}></div>
+    ${facts.length > 0 && html`<div class="cprof-facts">${facts.map((f) => html`<div class="cprof-fact" title=${f.t ? f.t.slice(3) : ''}>
+      <span class="cprof-k">${f.k}</span><strong>${f.v}</strong>${f.t && html`<span class="muted small">${f.t.slice(3)}</span>`}</div>`)}</div>`}
+    ${p.limitations && html`<div class="cprof-limits"><${Icon} name="alert" size=${18} /><div><strong>Limitacions i precaucions</strong><p>${p.limitations}</p></div></div>`}
+    ${(info.length > 0 || health.length > 0) && html`<div class="cprof-cols">
+      ${info.length > 0 && html`<dl class="cprof-dl">${info.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
+      ${health.length > 0 && html`<dl class="cprof-dl">${health.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
+    </div>`}
+    ${p.notes && html`<div class="cprof-notes"><span class="cprof-k">Observacions</span><p>${p.notes}</p></div>`}
+    ${empty && html`<p class="muted">Encara no hi ha dades del client: alçada, pes, activitat, salut, limitacions per entrenar i observacions. Afegeix-les a la fitxa.</p>`}
+  </section>`;
 }
 
 function EvolutionCard({ assessments, compact }) {
@@ -230,6 +270,32 @@ function PatientForm({ p, onRemove }) {
         ${F('Nom', 'firstName')}${F('Cognoms', 'lastName')}
         ${F('Data de naixement', 'birthDate', { type: 'date' })}${F('Sexe', 'sex', { options: OPT.sex, empty: '—' })}
         ${F('Correu electrònic', 'email', { type: 'email' })}${F('Telèfon', 'phone', { type: 'tel' })}
+        ${F('Contacte d\'emergència', 'emergency', { wide: true, placeholder: 'Nom, relació i telèfon' })}
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Perfil físic i activitat</h2></div>
+      <div class="form-grid form-grid-4">
+        <${Field} label="Alçada" id="pf-height"><${NumInput} id="pf-height" value=${p.height} onValue=${set('height')} unit="cm" /></${Field}>
+        <${Field} label="Pes" id="pf-weight"><${NumInput} id="pf-weight" value=${p.weight} onValue=${set('weight')} unit="kg" /></${Field}>
+        ${F('Dominància', 'dominance', { options: OPT.dominance, empty: '—' })}
+        ${F('Nivell d\'activitat', 'activityLevel', { options: OPT.activityLevels, empty: '—' })}
+      </div>
+      <p class="muted small">El pes i l'alçada s'actualitzen sols quan es canvien a la valoració més recent, i les valoracions noves els agafen d'aquí.</p>
+      <div class="form-grid">
+        ${F('Esport o activitat', 'sport', { placeholder: 'p. ex. Trail running 3 dies/setmana, pàdel' })}
+        ${F('Professió', 'occupation', { placeholder: 'p. ex. Oficina (assegut), infermera (de peu)' })}
+        ${F('Disponibilitat', 'availability', { wide: true, placeholder: 'p. ex. Dimarts i dijous a partir de les 18 h' })}
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Salut, lesions i precaucions</h2></div>
+      <p class="muted small">Només el que cal saber per entrenar. La informació clínica completa es guarda a Nubimed.</p>
+      <div class="form-grid">
+        ${F('Limitacions i precaucions per entrenar', 'limitations', { area: true, wide: true, placeholder: 'p. ex. Evitar impacte al genoll esquerre; no carregar per sobre del cap' })}
+        ${F('Condicions de salut', 'conditions', { area: true, wide: true, placeholder: 'p. ex. Hipertensió controlada, asma, embaràs…' })}
+        ${F('Antecedents i lesions', 'history', { area: true, wide: true, placeholder: 'Lesions, cirurgies, patologies, esport…' })}
+        ${F('Medicació rellevant', 'medication', { wide: true, placeholder: 'Només si afecta l\'entrenament (p. ex. betablocadors)' })}
       </div>
     </section>
     <${DoctorReportCard} p=${p} />
@@ -244,7 +310,6 @@ function PatientForm({ p, onRemove }) {
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
         ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el client?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
-        ${F('Antecedents i historial', 'history', { area: true, wide: true, placeholder: 'Lesions, cirurgies, patologies, medicació, esport…' })}
       </div>
     </section>
     <section class="card">
@@ -266,8 +331,8 @@ function PatientForm({ p, onRemove }) {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><h2 class="h2">Notes internes</h2></div>
-      <${Area} value=${p.notes} onValue=${set('notes')} placeholder="Només per a l'equip. No surten als informes." rows=${3} ariaLabel="Notes internes" />
+      <div class="card-head"><h2 class="h2">Observacions</h2><span class="muted">Només per a l'equip; no surten als informes</span></div>
+      <${Area} value=${p.notes} onValue=${set('notes')} placeholder="Com és el client, què li agrada, què li costa, acords…" rows=${3} ariaLabel="Observacions" />
     </section>
     <div class="danger-zone">
       <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el client</${Btn}>

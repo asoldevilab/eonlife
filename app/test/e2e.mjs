@@ -460,8 +460,25 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Omple 8 proves');
     await page.waitForSelector('.dialog', { state: 'detached' });
     const v = await page.evaluate((id) => Store.get('assessments', id), aid);
-    if (v.values.rom_sh_er.e !== '76,2' || v.values.dyn_knee_ext.e !== '182' || v.values.dyn_squeeze.v !== '79') throw new Error(JSON.stringify(v.values.dyn_squeeze));
+    if (v.values.rom_sh_er.e !== '76,2' || v.values.dyn_knee_ext.e !== '182' || v.values.dyn_squeeze.d !== '79' || v.values.dyn_squeeze.e !== '71') throw new Error(JSON.stringify(v.values.dyn_squeeze));
     if (!(v.files || []).some((f) => f.label === 'Informe Kinvent')) throw new Error('no s\'ha adjuntat el PDF');
+  });
+  await step('fitxa del client: perfil i limitacions al resum; el pes de la valoració actualitza la fitxa', async () => {
+    await goHash(page, '#/client/P-DEMO-ALEX/fitxa');
+    await page.fill('#pf-height input, input#pf-height', '183');
+    await page.fill('#pf-limitations', 'Sense salts unipodals aquesta setmana');
+    await page.waitForTimeout(300);
+    await goHash(page, '#/client/P-DEMO-ALEX');
+    await page.waitForSelector('.cprof-limits >> text=Sense salts unipodals aquesta setmana');
+    await page.waitForSelector('.cprof-fact >> text=183 cm');
+    await page.waitForSelector('.cprof-fact >> text=IMC');
+    await shot(page, '02b-client-perfil', false);
+    const aid = await page.evaluate(() => { const l = Store.assessmentsOf('P-DEMO-ALEX'); return l[l.length - 1].id; });
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.fill('#as-weight', '78');
+    await page.waitForTimeout(300);
+    const w = await page.evaluate(() => Store.get('patients', 'P-DEMO-ALEX').weight);
+    if (w !== '78') throw new Error(`pes de la fitxa: ${w}`);
   });
   await step('configuració', async () => {
     await goHash(page, '#/configuracio');

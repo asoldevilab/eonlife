@@ -1402,6 +1402,22 @@ tfoot .rpc { font-size: 14px; }
   .kvi-target, .kvi-vals { grid-column: 2 / -1; }
   .kvi-state { grid-column: 3; grid-row: 1; }
 }
+
+/* Perfil del client al Resum */
+.cprof { display: flex; flex-direction: column; gap: 14px; }
+.cprof .card-head { margin-bottom: 0; }
+.cprof-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.cprof-fact { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.cprof-fact strong { font-size: 18px; font-variant-numeric: tabular-nums; }
+.cprof-k { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.cprof-limits { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); }
+.cprof-limits .ic { flex: none; margin-top: 2px; }
+.cprof-limits p { margin: 2px 0 0; color: var(--ink); white-space: pre-line; }
+.cprof-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 24px; }
+.cprof-dl { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.cprof-dl dt { font-size: 12.5px; font-weight: 700; color: var(--ink-3); }
+.cprof-dl dd { margin: 2px 0 0; white-space: pre-line; }
+.cprof-notes p { margin: 4px 0 0; white-space: pre-line; }
 </style>
 </head>
 <body>
@@ -3709,7 +3725,7 @@ var qrcode = function() {
 }));
 </script>
 <script>window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-02 11:53";
+window.EON_BUILD = "2026-10-02 14:33";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4074,6 +4090,18 @@ const OPT = {
     { v: 'pausa', label: 'En pausa' },
     { v: 'alta', label: 'Alta' },
   ],
+  dominance: [
+    { v: 'D', label: 'Dreta' },
+    { v: 'E', label: 'Esquerra' },
+    { v: 'A', label: 'Ambidextre' },
+  ],
+  activityLevels: [
+    { v: 'sedentari', label: 'Sedentari' },
+    { v: 'actiu', label: 'Actiu (1–2 dies/setmana)' },
+    { v: 'molt', label: 'Molt actiu (3 o més dies)' },
+    { v: 'amateur', label: 'Esportista amateur / competició' },
+    { v: 'pro', label: 'Esportista professional' },
+  ],
   sex: [
     { v: 'D', label: 'Dona' },
     { v: 'H', label: 'Home' },
@@ -4248,7 +4276,7 @@ const PROTOCOL = [
           { id: 'dyn_knee_ext', name: 'Leg extension · quàdriceps', short: 'Quàdriceps' },
           { id: 'dyn_curl_90', name: 'Leg curl 90/90', short: 'Curl 90/90' },
           { id: 'dyn_curl_30', name: 'Leg curl 30/30', short: 'Curl 30/30' },
-          { id: 'dyn_squeeze', name: 'Squeeze test · adductors', short: 'Squeeze', kind: 'single' },
+          { id: 'dyn_squeeze', name: 'Squeeze test · adductors', short: 'Squeeze' },
           { id: 'dyn_hip_ir', name: 'Rotadors interns de maluc', short: 'RI maluc' },
           { id: 'dyn_hip_er', name: 'Rotadors externs de maluc', short: 'RE maluc' },
           { id: 'dyn_sh_er', name: 'Rotadors externs d\'espatlla', short: 'RE espatlla', optional: true },
@@ -5051,6 +5079,21 @@ const Calc = {
   },
 
   weight(a) { return U.num(a && a.general && a.general.weight); },
+  bmi(weight, height) {
+    const w = U.num(weight), h = U.num(height);
+    return w && h ? w / ((h / 100) ** 2) : null;
+  },
+  // Pes i alçada del client: els de la fitxa i, si no n'hi ha, els de l'última valoració que en tingui.
+  body(p, assessments) {
+    const withG = (k) => [...(assessments || [])].reverse().find((a) => U.num(a.general && a.general[k]) != null);
+    const pick = (k) => {
+      if (U.num(p && p[k]) != null) return { v: U.num(p[k]), date: null };
+      const a = withG(k);
+      return a ? { v: U.num(a.general[k]), date: a.date } : { v: null, date: null };
+    };
+    const weight = pick('weight'), height = pick('height');
+    return { weight, height, bmi: Calc.bmi(weight.v, height.v) };
+  },
 
   // Y-Balance: composite = (ANT + PM + PL) / (3 × longitud de cama) × 100
   ybt(a) {
@@ -5235,7 +5278,7 @@ const Calc = {
 
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
-  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
+  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
     'rom_hip_ir', 'rom_hip_er', 'chair30', 'tug', 'walk6', 'cod505'],
 
   compare(cur, prev, onlyKey = false) {
@@ -5467,6 +5510,12 @@ const Flat = {
       'Data IQ': p.surgeryDate || '', 'IQ': p.surgeryNote || '',
       'Data lesió': p.injuryDate || '', 'Lesió': p.injuryNote || '',
       'Carpeta del client': p.folderUrl || '', 'Notes': p.notes || '',
+      'Alçada (cm)': U.num(p.height) ?? '', 'Pes (kg)': U.num(p.weight) ?? '',
+      'Dominància': (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || '',
+      'Nivell d\'activitat': (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '',
+      'Esport o activitat': p.sport || '', 'Professió': p.occupation || '', 'Disponibilitat': p.availability || '',
+      'Condicions de salut': p.conditions || '', 'Limitacions per entrenar': p.limitations || '', 'Medicació': p.medication || '',
+      'Contacte d\'emergència': p.emergency || '',
     };
   },
 
@@ -5885,6 +5934,7 @@ function migrateDemo(db) {
     for (const b of s.blocks || []) for (const it of b.items || []) if (it.exId === 'X-FOR-01' && !it.vbt && U.num(it.load)) it.vbt = demoVbt(U.num(it.load));
   }
   if (typeof addDemoPlan === 'function') addDemoPlan(db, U.today());
+  if (typeof addDemoProfiles === 'function') addDemoProfiles(db);
 }
 
 const Store = {
@@ -6136,7 +6186,8 @@ const Store = {
     const a = {
       id: U.uid('V'), patientId: pid, date, type: opts.type || (prev.length ? 'retest' : 'inicial'),
       professional: (p && p.professional) || '',
-      general: { weight: last && last.general ? last.general.weight : '', height: last && last.general ? last.general.height : '', goal: (p && p.goal) || '' },
+      // Pes i alçada: els de la fitxa del client (o, si no n'hi ha, els de l'última valoració).
+      general: { weight: (p && p.weight) || (last && last.general ? last.general.weight : '') || '', height: (p && p.height) || (last && last.general ? last.general.height : '') || '', goal: (p && p.goal) || '' },
       values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
       encoder: { rows: [{ id: U.uid('R'), name: 'Squat' }, { id: U.uid('R'), name: 'RDL' }, { id: U.uid('R'), name: 'Hip Thrust' }] },
       bike: {}, patterns: {}, free: [], conclusions: {},
@@ -6410,7 +6461,7 @@ function makeDemoData() {
       rom_knee_flex: bi(138, 142), rom_knee_ext: bi(0, 1),
       wblt: bi(7, 11), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Positiu · recte anterior', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_curl_30: bi(220, 236), dyn_squeeze: one(260),
+      dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_curl_30: bi(220, 236), dyn_squeeze: bi(255, 268),
       dyn_hip_ir: bi(150, 158), dyn_hip_er: bi(142, 150),
       sls: { sd: '-', se: '0', chips: ['Valg de genoll', 'Caiguda de pelvis'], note: 'Valg dinàmic a la cama dreta a partir de la 2a repetició.' },
       lsd: { sd: '-', se: '0', chips: ['Valg de genoll'] }, cod505: bi(2.62, 2.55), ckcuest: one(22),
@@ -6436,7 +6487,7 @@ function makeDemoData() {
       rom_knee_flex: bi(141, 142), rom_knee_ext: bi(0, 1),
       wblt: bi(9.5, 11.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_curl_30: bi(232, 240), dyn_squeeze: one(285),
+      dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_curl_30: bi(232, 240), dyn_squeeze: bi(281, 290),
       dyn_hip_ir: bi(158, 161), dyn_hip_er: bi(150, 154),
       sls: { sd: '0', se: '0', chips: [] }, lsd: { sd: '0', se: '0' }, cod505: bi(2.51, 2.49), ckcuest: one(24),
     },
@@ -6460,7 +6511,7 @@ function makeDemoData() {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118), rom_knee_ext: bi(0, -3),
       wblt: bi(10, 8.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_curl_30: bi(290, 250), dyn_squeeze: one(310),
+      dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_curl_30: bi(290, 250), dyn_squeeze: bi(322, 298),
       dyn_hip_ir: bi(170, 165), dyn_hip_er: bi(165, 160),
       sls: { sd: '0', se: '--', chips: ['Valg de genoll', 'Rotació de tronc'], note: 'Evita carregar la cama esquerra.' },
       squat_ref: one(15), pushup_ref: one(18), sl_stance: bi(30, 18), step3: one(132),
@@ -6483,7 +6534,7 @@ function makeDemoData() {
     values: {
       rom_hip_ir: bi(22, 25), rom_hip_er: bi(30, 34), rom_sh_ir: bi(48, 50), rom_sh_er: bi(80, 84),
       wblt: bi(6, 7), adams: one('Positiu'),
-      dyn_knee_ext: bi(210, 225), dyn_curl_90: bi(120, 128), dyn_squeeze: one(160),
+      dyn_knee_ext: bi(210, 225), dyn_curl_90: bi(120, 128), dyn_squeeze: bi(152, 168),
       chair30: one(11), tug: one(11.2), armcurl: bi(14, 13), ankle_seat: bi(12, 10), sh_flex_seat: bi(150, 145),
       stage4: one('Etapa 3 · tàndem'), reach_seat: one(28), walk6: one(455),
     },
@@ -6500,7 +6551,7 @@ function makeDemoData() {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
       rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       thomas: { d: 'Negatiu', e: 'Positiu · psoes ilíac' },
-      dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_curl_30: bi(335, 330), dyn_squeeze: one(420),
+      dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_curl_30: bi(335, 330), dyn_squeeze: bi(415, 426),
       dyn_hip_ir: bi(190, 185), dyn_hip_er: bi(180, 158),
       sls: { sd: '0', se: '0' }, lsd: { sd: '0', se: '-' }, cod505: bi(2.31, 2.40), ckcuest: one(27),
     },
@@ -6579,6 +6630,7 @@ function makeDemoData() {
   }, null);
 
   addDemoPlan(db, today);
+  addDemoProfiles(db);
 
   // Jordi: dimarts i dijous, 3 setmanes.
   const jw0 = U.addDays(U.weekStart(today), -21);
@@ -6653,6 +6705,32 @@ function demoVbt(kg) {
 }
 
 // Pla d'exemple per a la Laura: 12 sessions des d'avui, amb la sessió d'avui com a S1 i un nivell més cada 4 sessions.
+// Perfil dels clients de prova (dades inventades): alçada, pes, activitat, salut i observacions.
+const DEMO_PROFILES = {
+  'P-DEMO-LAURA': { height: '167', weight: '58', dominance: 'D', activityLevel: 'amateur', sport: 'Trail running, 4 dies per setmana',
+    occupation: 'Mestra (moltes hores de peu)', availability: 'Dilluns i dijous a les 19 h', emergency: 'Marc (parella) · 600 000 111',
+    limitations: 'Evitar baixades i salts amb molt d\'impacte a la cama dreta mentre el dolor sigui de més de 3/10.',
+    notes: 'Molt constant. Li costa reduir el volum de carrera quan té dolor.' },
+  'P-DEMO-JORDI': { height: '178', weight: '84', dominance: 'D', activityLevel: 'actiu', sport: 'Esquí a la temporada i bicicleta',
+    occupation: 'Oficina (assegut)', availability: 'Dimarts i divendres a les 8 h', emergency: 'Anna (germana) · 600 000 222',
+    limitations: 'Plàstia de LCA del genoll esquerre: sense pivots ni salts fins a l\'alta de la fase 3.',
+    conditions: 'Hipertensió controlada.', medication: 'Antihipertensiu (enalapril).' },
+  'P-DEMO-MONTSE': { height: '158', weight: '61', dominance: 'D', activityLevel: 'sedentari', sport: 'Caminar',
+    occupation: 'Jubilada', availability: 'Matins', conditions: 'Osteopènia.', medication: 'Calci i vitamina D.',
+    limitations: 'Pròtesi de maluc dreta: evitar flexió de maluc de més de 90° amb rotació interna. Sempre amb un suport a prop.',
+    notes: 'Li agrada entrenar amb música; s\'atabala si li donem massa indicacions alhora.' },
+  'P-DEMO-ALEX': { height: '182', weight: '76', dominance: 'E', activityLevel: 'amateur', sport: 'Futbol semiprofessional (lateral esquerre)',
+    occupation: 'Estudiant', availability: 'Tardes', limitations: 'Adductor esquerre: progressar el Copenhagen només si no fa mal.' },
+};
+function addDemoProfiles(db) {
+  for (const [id, prof] of Object.entries(DEMO_PROFILES)) {
+    const p = db.patients && db.patients[id];
+    if (!p || p.profileDemo) continue;
+    for (const [k, v] of Object.entries(prof)) if (!p[k]) p[k] = v;
+    p.profileDemo = true;
+  }
+}
+
 function addDemoPlan(db, today) {
   const pid = 'P-DEMO-LAURA';
   if (!db.patients[pid] || Object.values(db.templates || {}).some((t) => t.kind === 'plan' && t.patientId === pid)) return;
@@ -6810,9 +6888,9 @@ const DB = (() => {
     dinamometria: () => [
       ...lead(),
       { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
-      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
-      { ...singleCol('dyn_squeeze', 'Squeeze'), group: 'Squeeze', label: 'N' },
-      { id: 'squeezekg', group: 'Squeeze', label: 'N/kg', kind: 'num', dec: 1, get: (r) => Calc.perKg(V(r.a, 'dyn_squeeze').v, Calc.weight(r.a)) },
+      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
+      // Squeeze d'abans (un sol valor, sense dreta ni esquerra).
+      { id: 'squeezeold', group: 'Squeeze', label: 'Total (abans)', unit: 'N', kind: 'num', dec: 0, get: (r) => U.num(V(r.a, 'dyn_squeeze').v) },
       { id: 'hqd', group: 'Ràtio isquios/quàdriceps', label: 'D', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).d },
       { id: 'hqe', group: 'Ràtio isquios/quàdriceps', label: 'E', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).e },
     ],
@@ -10325,7 +10403,8 @@ function PatientSummary({ p, sessions, assessments }) {
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
-  return html`<section class="card quickadd">
+  return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
+  <section class="card quickadd">
     <div class="quickadd-head"><h2 class="h2">Registrar mesures</h2><span class="muted small">Obre el formulari directament a l'apartat</span></div>
     <div class="quickadd-chips">
       ${quick.map(([f, label]) => html`<button type="button" class="chip" onClick=${() => openAddMeasurement(f, p.id)}><${Icon} name="plus" size=${14} />${label}</button>`)}
@@ -10376,6 +10455,45 @@ function PatientSummary({ p, sessions, assessments }) {
       <${EvolutionCard} assessments=${assessments} />
     </section>
   </div>`;
+}
+
+// Perfil del client al Resum: dades físiques, activitat, salut i observacions (tot el que hi ha a la fitxa).
+function ClientProfileCard({ p, assessments }) {
+  const body = Calc.body(p, assessments);
+  const age = U.age(p.birthDate);
+  const label = (list, v) => (list.find((o) => o.v === v) || {}).label || '';
+  const from = (x) => (x.date ? ` · valoració ${U.fmtDate(x.date)}` : '');
+  const facts = [
+    age != null && { k: 'Edat', v: `${age} anys` },
+    body.height.v != null && { k: 'Alçada', v: `${U.fmt(body.height.v, 0)} cm`, t: from(body.height) },
+    body.weight.v != null && { k: 'Pes', v: `${U.fmt(body.weight.v, 1)} kg`, t: from(body.weight) },
+    body.bmi != null && { k: 'IMC', v: U.fmt(body.bmi, 1) },
+    p.dominance && { k: 'Dominància', v: label(OPT.dominance, p.dominance) },
+    p.activityLevel && { k: 'Activitat', v: label(OPT.activityLevels, p.activityLevel).replace(/ \(.*\)$/, '') },
+  ].filter(Boolean);
+  const info = [
+    ['Esport o activitat', p.sport], ['Professió', p.occupation], ['Disponibilitat', p.availability],
+    ['Motiu de consulta', p.reason], ['Contacte d\'emergència', p.emergency],
+  ].filter(([, v]) => v);
+  const health = [
+    ['Condicions de salut', p.conditions], ['Antecedents i lesions', p.history], ['Medicació', p.medication],
+    p.injuryNote && ['Lesió', `${p.injuryNote}${p.injuryDate ? ` (${U.fmtDate(p.injuryDate)})` : ''}`],
+    p.surgeryNote && ['Intervenció', `${p.surgeryNote}${p.surgeryDate ? ` (${U.fmtDate(p.surgeryDate)})` : ''}`],
+  ].filter((x) => x && x[1]);
+  const empty = !facts.filter((f) => f.k !== 'Edat').length && !info.length && !health.length && !p.limitations && !p.notes;
+  return html`<section class="card cprof">
+    <div class="card-head"><h2 class="h2">Perfil del client</h2>
+      <${Btn} size="sm" variant="ghost" icon="edit" onClick=${() => go('client', p.id, 'fitxa')}>${empty ? 'Completa la fitxa' : 'Edita'}</${Btn}></div>
+    ${facts.length > 0 && html`<div class="cprof-facts">${facts.map((f) => html`<div class="cprof-fact" title=${f.t ? f.t.slice(3) : ''}>
+      <span class="cprof-k">${f.k}</span><strong>${f.v}</strong>${f.t && html`<span class="muted small">${f.t.slice(3)}</span>`}</div>`)}</div>`}
+    ${p.limitations && html`<div class="cprof-limits"><${Icon} name="alert" size=${18} /><div><strong>Limitacions i precaucions</strong><p>${p.limitations}</p></div></div>`}
+    ${(info.length > 0 || health.length > 0) && html`<div class="cprof-cols">
+      ${info.length > 0 && html`<dl class="cprof-dl">${info.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
+      ${health.length > 0 && html`<dl class="cprof-dl">${health.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
+    </div>`}
+    ${p.notes && html`<div class="cprof-notes"><span class="cprof-k">Observacions</span><p>${p.notes}</p></div>`}
+    ${empty && html`<p class="muted">Encara no hi ha dades del client: alçada, pes, activitat, salut, limitacions per entrenar i observacions. Afegeix-les a la fitxa.</p>`}
+  </section>`;
 }
 
 function EvolutionCard({ assessments, compact }) {
@@ -10486,6 +10604,32 @@ function PatientForm({ p, onRemove }) {
         ${F('Nom', 'firstName')}${F('Cognoms', 'lastName')}
         ${F('Data de naixement', 'birthDate', { type: 'date' })}${F('Sexe', 'sex', { options: OPT.sex, empty: '—' })}
         ${F('Correu electrònic', 'email', { type: 'email' })}${F('Telèfon', 'phone', { type: 'tel' })}
+        ${F('Contacte d\'emergència', 'emergency', { wide: true, placeholder: 'Nom, relació i telèfon' })}
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Perfil físic i activitat</h2></div>
+      <div class="form-grid form-grid-4">
+        <${Field} label="Alçada" id="pf-height"><${NumInput} id="pf-height" value=${p.height} onValue=${set('height')} unit="cm" /></${Field}>
+        <${Field} label="Pes" id="pf-weight"><${NumInput} id="pf-weight" value=${p.weight} onValue=${set('weight')} unit="kg" /></${Field}>
+        ${F('Dominància', 'dominance', { options: OPT.dominance, empty: '—' })}
+        ${F('Nivell d\'activitat', 'activityLevel', { options: OPT.activityLevels, empty: '—' })}
+      </div>
+      <p class="muted small">El pes i l'alçada s'actualitzen sols quan es canvien a la valoració més recent, i les valoracions noves els agafen d'aquí.</p>
+      <div class="form-grid">
+        ${F('Esport o activitat', 'sport', { placeholder: 'p. ex. Trail running 3 dies/setmana, pàdel' })}
+        ${F('Professió', 'occupation', { placeholder: 'p. ex. Oficina (assegut), infermera (de peu)' })}
+        ${F('Disponibilitat', 'availability', { wide: true, placeholder: 'p. ex. Dimarts i dijous a partir de les 18 h' })}
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Salut, lesions i precaucions</h2></div>
+      <p class="muted small">Només el que cal saber per entrenar. La informació clínica completa es guarda a Nubimed.</p>
+      <div class="form-grid">
+        ${F('Limitacions i precaucions per entrenar', 'limitations', { area: true, wide: true, placeholder: 'p. ex. Evitar impacte al genoll esquerre; no carregar per sobre del cap' })}
+        ${F('Condicions de salut', 'conditions', { area: true, wide: true, placeholder: 'p. ex. Hipertensió controlada, asma, embaràs…' })}
+        ${F('Antecedents i lesions', 'history', { area: true, wide: true, placeholder: 'Lesions, cirurgies, patologies, esport…' })}
+        ${F('Medicació rellevant', 'medication', { wide: true, placeholder: 'Només si afecta l\'entrenament (p. ex. betablocadors)' })}
       </div>
     </section>
     <${DoctorReportCard} p=${p} />
@@ -10500,7 +10644,6 @@ function PatientForm({ p, onRemove }) {
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
         ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el client?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
-        ${F('Antecedents i historial', 'history', { area: true, wide: true, placeholder: 'Lesions, cirurgies, patologies, medicació, esport…' })}
       </div>
     </section>
     <section class="card">
@@ -10522,8 +10665,8 @@ function PatientForm({ p, onRemove }) {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><h2 class="h2">Notes internes</h2></div>
-      <${Area} value=${p.notes} onValue=${set('notes')} placeholder="Només per a l'equip. No surten als informes." rows=${3} ariaLabel="Notes internes" />
+      <div class="card-head"><h2 class="h2">Observacions</h2><span class="muted">Només per a l'equip; no surten als informes</span></div>
+      <${Area} value=${p.notes} onValue=${set('notes')} placeholder="Com és el client, què li agrada, què li costa, acords…" rows=${3} ariaLabel="Observacions" />
     </section>
     <div class="danger-zone">
       <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el client</${Btn}>
@@ -10642,7 +10785,12 @@ function AssessmentEditor({ id, focus }) {
   const p = Store.get('patients', a.patientId) || {};
   const upd = (fn) => Store.update('assessments', a.id, fn);
   const set = (k) => (v) => upd((x) => { x[k] = v; });
-  const setGen = (k) => (v) => upd((x) => { x.general = { ...(x.general || {}), [k]: v }; });
+  const setGen = (k) => (v) => {
+    upd((x) => { x.general = { ...(x.general || {}), [k]: v }; });
+    // El pes i l'alçada de la valoració més recent són els de la fitxa del client.
+    const list = Store.assessmentsOf(a.patientId);
+    if ((k === 'weight' || k === 'height') && list.length && list[list.length - 1].id === a.id) Store.update('patients', a.patientId, (x) => { x[k] = v; });
+  };
   const setCon = (k) => (v) => upd((x) => { x.conclusions = { ...(x.conclusions || {}), [k]: v }; });
   const setVal = (tid, k, v) => upd((x) => { x.values = x.values || {}; x.values[tid] = { ...(x.values[tid] || {}), [k]: v }; });
   const g = a.general || {}, c = a.conclusions || {};
@@ -10801,6 +10949,8 @@ function TestRow({ t, a, p, setVal }) {
       const as = Calc.asym(d, e);
       if (as) pills.push(html`<${Pill} tone=${Calc.asymTone(as.pct)} title="Asimetria |D − E| / màxim">${U.fmt(as.pct, 0)} %</${Pill}>`);
     }
+    // Valor d'abans, quan la prova es mesurava sense separar dreta i esquerra (p. ex. el squeeze).
+    if (d == null && e == null && U.num(x.v) != null) pills.push(html`<${Pill} tone="neutral" title="Valor desat abans, sense dreta ni esquerra">Abans: ${x.v} ${t.unit}</${Pill}>`);
     if (t.perKg) {
       const w = Calc.weight(a);
       const dk = Calc.perKg(d, w), ek = Calc.perKg(e, w);
@@ -11425,8 +11575,9 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const rom = biRows(['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex']);
   const kneeExt = biRows(['rom_knee_ext'])[0];
   const wblt = biRows(['wblt']);
-  const dyn = biRows(['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'], true);
-  const squeeze = U.num((v.dyn_squeeze || {}).v);
+  const dyn = biRows(['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'], true);
+  // Squeeze d'abans: un sol valor (ara es mesura cada costat).
+  const squeeze = (v.dyn_squeeze || {}).d || (v.dyn_squeeze || {}).e ? null : U.num((v.dyn_squeeze || {}).v);
   const clin = ['slump', 'pkb', 'adams', 'thomas', 'windlass'].map((tid) => ({ t: TEST_INDEX[tid], x: v[tid] || {} }))
     .filter(({ x }) => x.d || x.e || x.v);
   const sls = v.sls || {};

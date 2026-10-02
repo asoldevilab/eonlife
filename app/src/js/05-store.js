@@ -104,6 +104,7 @@ function migrateDemo(db) {
     for (const b of s.blocks || []) for (const it of b.items || []) if (it.exId === 'X-FOR-01' && !it.vbt && U.num(it.load)) it.vbt = demoVbt(U.num(it.load));
   }
   if (typeof addDemoPlan === 'function') addDemoPlan(db, U.today());
+  if (typeof addDemoProfiles === 'function') addDemoProfiles(db);
 }
 
 const Store = {
@@ -355,7 +356,8 @@ const Store = {
     const a = {
       id: U.uid('V'), patientId: pid, date, type: opts.type || (prev.length ? 'retest' : 'inicial'),
       professional: (p && p.professional) || '',
-      general: { weight: last && last.general ? last.general.weight : '', height: last && last.general ? last.general.height : '', goal: (p && p.goal) || '' },
+      // Pes i alçada: els de la fitxa del client (o, si no n'hi ha, els de l'última valoració).
+      general: { weight: (p && p.weight) || (last && last.general ? last.general.weight : '') || '', height: (p && p.height) || (last && last.general ? last.general.height : '') || '', goal: (p && p.goal) || '' },
       values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
       encoder: { rows: [{ id: U.uid('R'), name: 'Squat' }, { id: U.uid('R'), name: 'RDL' }, { id: U.uid('R'), name: 'Hip Thrust' }] },
       bike: {}, patterns: {}, free: [], conclusions: {},
