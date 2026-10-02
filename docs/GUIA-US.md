@@ -123,8 +123,17 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
 ### Omplir-la
 
 - A cada bloc: **focus** (p. ex. *Dominant de genoll*) i els exercicis.
-- **Afegeix exercici** › escriu i tria de la biblioteca: s'omplen sols el material, la
-  contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la prescripció per defecte.
+- **Afegeix exercici** obre les carpetes de la biblioteca:
+  1. **Grup muscular**: *Tronc superior* (pectoral, dorsal, deltoides, bíceps, tríceps, trapezi…), *Tronc inferior*
+     (quàdriceps, isquiotibials, glutis, adductors, bessons…), *Core* i *Cos sencer i altres*. Un exercici surt a la
+     carpeta de cada múscul principal que treballa (el press de banca, a Pectoral i a Tríceps).
+  2. **Exercici**: amb el nivell (N1–N5), els músculs i la prescripció per defecte.
+  3. **Amb quin material?**: el material del centre amb què es pot fer (barra olímpica, mancuernes Technogym,
+     kettlebell, kBox, Keiser, cònica, politja…).
+  A dalt hi ha el cercador (nom, múscul o material) i *Tots els blocs*. A Força principal i Accessoris surten els
+  exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
+  S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la
+  prescripció per defecte. El material i el grup muscular es poden canviar als *Detalls* de l'exercici.
 - Una línia per exercici: **sèries × reps/temps · càrrega · intensitat (RIR/RPE) · descans**.
   Exemple: 3 × 6 · 60 kg · RIR 2 · 2'.
 - Sota de cada exercici surt **Anterior**: què va fer el client l'última vegada, per decidir la progressió.
@@ -249,14 +258,20 @@ sessions previstes del pla d'entrenament.
 
 ## Biblioteca
 
-- **Exercicis** per bloc (més de 80 de base, amb els dels vostres Excel: Hip Thrust, RDL, Split
-  Squat, Sumo Squat, HE, Dead Bug, Bike + Foam…). Es poden editar, afegir-hi vídeo de demostració,
+- **Exercicis** per bloc, **per grup muscular** (les mateixes carpetes de tronc superior i inferior) o per
+  **progressions**. A cada exercici: múscul principal, altres músculs implicats i el material amb què es pot fer.
+- Més de 190 exercicis de base, amb els dels vostres Excel (Hip Thrust, RDL, Split Squat, Sumo Squat, HE,
+  Dead Bug, Bike + Foam…) i els de les màquines del centre. Es poden editar, afegir-hi vídeo de demostració,
   consignes i prescripció per defecte.
 - **Plantilles** de bloc i de sessió. Qualsevol sessió es pot desar com a plantilla des del seu menú.
 
 ## Configuració
 
 - Professionals de l'equip (Richy, Arnau, Oriol Pastor), nom del centre i noms dels blocs.
+- **Material del centre**: barra olímpica, cònica isoinercial, Keiser, mancuernes Technogym, kettlebell, Skillmill,
+  AlterG, leg extension, premsa, lower back bench, GHD, politja Technogym, Biostrength, abductor/adductor 700,
+  Pulley Pro C2, kBox Lite, mobility ball, gomes, Flowin, bike i Skill Up. És el que surt primer en triar el material
+  d'un exercici; se'n pot afegir o treure.
 - Exportar a Excel (CSV): valoracions (una fila per valoració, una columna per test) i registre
   d'exercicis. Còpia de seguretat completa i importació.
 - Amb Microsoft 365 o Google, enllaços directes a l'Excel (o full de càlcul) i a les carpetes dels clients. Amb Microsoft 365, també **Tanca la sessió** i **Canvia de carpeta**.

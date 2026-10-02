@@ -35,9 +35,11 @@ function ExerciseList() {
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
-        options=${[{ v: 'llista', label: 'Llista' }, { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tronc superior, tronc inferior i core, múscul per múscul' },
+          { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
     ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
+      : view === 'musculs' ? html`<${MuscleFolders} all=${all} />`
       : BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(all.filter((e) => e.block === b.key).length, 'exercici', 'exercicis')}</span></div>
       <div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
@@ -48,6 +50,21 @@ function ExerciseList() {
     </div>`)}
     ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
   </section>`;
+}
+
+// Carpetes per grup muscular: tronc superior, tronc inferior, core i cos sencer; dins, cada múscul.
+function MuscleFolders({ all }) {
+  return html`<div class="stack">${exerciseFolders(all).map((z) => html`<div class="libgroup">
+    <div class="libgroup-head"><strong>${z.label}</strong><span class="muted">${U.plural(z.count, 'exercici', 'exercicis')}</span></div>
+    ${z.list.map((f) => html`<details class="mfolder">
+      <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
+      <div class="exlist">${f.items.map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
+        <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
+        <span class="exrow-meta">${[blockName(e.block), (e.materials || [e.material]).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')}</span>
+        <span class="exrow-rx">${Calc.presc(e)}</span>
+      </button>`)}</div>
+    </details>`)}
+  </div>`)}</div>`;
 }
 
 // Progressions: cada família (patró) amb els exercicis del nivell 1 (inicial) al 5 (expert).
@@ -104,12 +121,19 @@ function ExerciseDialog({ ex, onClose }) {
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
-      <${Field} label="Material" id="ex-mat"><${TextInput} id="ex-mat" value=${f.material} onValue=${set('material')} list="mat-list" /></${Field}>
-      <${Field} label="Grup muscular" id="ex-gm"><${TextInput} id="ex-gm" value=${f.gm} onValue=${set('gm')} list="gm-list" /></${Field}>
+      <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>
+      <${Field} label="Múscul principal" id="ex-gm"><${MuscleSelect} id="ex-gm" value=${f.gm} onValue=${set('gm')} /></${Field}>
       <${Field} label="Contracció" id="ex-cont"><${Select} id="ex-cont" value=${f.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
       <${Field} label="Posició" id="ex-pos"><${Select} id="ex-pos" value=${f.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
       <${Field} label="Lateralitat" id="ex-lat"><${Select} id="ex-lat" value=${f.lat} onValue=${set('lat')} options=${OPT.lat.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
     </div>
+    <h3 class="h3 mt">Altres músculs implicats</h3>
+    <div class="chips">${MUSCLE_ZONES.flatMap((z) => z.muscles).filter((m) => m !== f.gm).map((m) => html`<${Chip} on=${(f.muscles || []).includes(m)}
+      onClick=${() => setF({ ...f, muscles: (f.muscles || []).includes(m) ? f.muscles.filter((x) => x !== m) : [...(f.muscles || []), m] })}>${muscleLabel(m)}</${Chip}>`)}</div>
+    <h3 class="h3 mt">Material amb què es pot fer</h3>
+    <p class="muted small">Surt quan tries l'exercici a la sessió («Amb quin material?»).</p>
+    <div class="chips">${[...new Set([...Store.materials().center, ...(f.materials || [])])].map((m) => html`<${Chip} on=${(f.materials || []).includes(m)}
+      onClick=${() => setF({ ...f, materials: (f.materials || []).includes(m) ? f.materials.filter((x) => x !== m) : [...(f.materials || []), m] })}>${m}</${Chip}>`)}</div>
     <h3 class="h3 mt">Progressió</h3>
     <div class="form-grid">
       <${Field} label="Família (patró)" id="ex-family" hint="Exercicis del mateix patró, de més fàcil a més difícil (p. ex. Core · antiextensió)">

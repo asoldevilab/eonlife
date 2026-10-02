@@ -13,6 +13,15 @@ function SettingsView() {
     setNewProf('');
   };
   const delProf = (name) => Store.saveSettings({ professionals: (st.professionals || []).filter((x) => x !== name) });
+  const [newMat, setNewMat] = useState('');
+  const mats = Store.materials().center;
+  const addMat = () => {
+    const name = newMat.trim();
+    if (!name) return;
+    if (!mats.includes(name)) Store.saveSettings({ materials: [...mats, name] });
+    setNewMat('');
+  };
+  const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
 
   const exportJson = () => {
     const ok = U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
@@ -112,6 +121,17 @@ function SettingsView() {
       </div>
       <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addProf(); }}>
         <${TextInput} value=${newProf} onValue=${setNewProf} placeholder="Nom i cognom" ariaLabel="Nou professional" />
+        <${Btn} type="submit" icon="plus">Afegeix</${Btn}>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Material del centre</h2><span class="muted">Surt primer en triar el material d'un exercici</span></div>
+      <div class="proflist">
+        ${mats.map((name) => html`<span class="profchip">${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
+      </div>
+      <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addMat(); }}>
+        <${TextInput} value=${newMat} onValue=${setNewMat} placeholder="p. ex. Trineu" ariaLabel="Material nou" />
         <${Btn} type="submit" icon="plus">Afegeix</${Btn}>
       </form>
     </section>

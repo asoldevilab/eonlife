@@ -230,6 +230,11 @@ const Store = {
     for (const s of Object.values(stored)) if (!s.deleted && !SEED_TEMPLATES.some((t) => t.id === s.id)) out.push(s);
     return out;
   },
+  // Material: el del centre (Configuració) i després el petit material general.
+  materials() {
+    const center = this.settings.materials && this.settings.materials.length ? this.settings.materials : CENTER_MATERIALS;
+    return { center: [...center], other: OPT.material.filter((m) => !center.includes(m)) };
+  },
   professionals() {
     const set = new Set(this.settings.professionals || []);
     for (const p of this.all('patients')) if (p.professional) set.add(p.professional);

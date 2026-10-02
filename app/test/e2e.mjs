@@ -146,17 +146,36 @@ const step = async (label, fn) => {
     await page.waitForSelector('.block');
     await shot(page, '08-sessio');
   });
-  await step('afegir un exercici des de la biblioteca', async () => {
+  await step('afegir un exercici: cerca i material', async () => {
     const blk = page.locator('section.block.blk-acc');
     await blk.locator('.add-item:not(.add-group)').click();
-    const input = blk.locator('.picker-input').last();
-    await input.fill('face');
-    await page.waitForSelector('.picker-opt >> text=Face pull');
-    await page.click('.picker-opt >> text=Face pull');
+    await page.waitForSelector('.dialog .xb-zones');
+    await page.fill('.dialog input[aria-label="Cerca exercicis"]', 'face');
+    await page.click('.xb-ex >> text=Face pull');
+    await page.click('.xb-matbtn >> text=Politja Technogym');
+    await page.waitForSelector('.dialog', { state: 'detached' });
     const val = await blk.locator('.picker-input').last().inputValue();
     if (val !== 'Face pull') throw new Error(`picker value = ${val}`);
     const sets = await blk.locator('.item').last().locator('.rx-s input').inputValue();
     if (sets !== '3') throw new Error(`sèries per defecte = ${sets}`);
+    await blk.locator('.item').last().locator('.tag >> text=Politja Technogym').waitFor();
+  });
+  await step('afegir un exercici per carpetes: tronc superior → bíceps → material', async () => {
+    const blk = page.locator('section.block.blk-for');
+    await blk.locator('.add-item:not(.add-group)').click();
+    await page.click('.xb-zone >> text=Tronc superior');
+    await page.waitForSelector('.xb-folder >> text=Bíceps');
+    await shot(page, '08d-carpetes', false);
+    await page.click('.xb-folder >> text=Bíceps');
+    await page.click('.xb-ex >> text=Curl martell');
+    await page.waitForSelector('.xb-mat >> text=Amb quin material?');
+    await page.click('.xb-matbtn >> text=Goma elàstica');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    const item = blk.locator('.item').last();
+    if ((await item.locator('.picker-input').inputValue()) !== 'Curl martell') throw new Error('no s\'ha afegit el curl martell');
+    await item.locator('.tag >> text=Goma elàstica').waitFor();
+    await item.locator('.item-side .menu button').click();
+    await page.click('.menu-list >> text=Elimina');
   });
   await step('tancament: RPE i durada → càrrega', async () => {
     await page.click('.seg-rpe >> text=7');
@@ -190,8 +209,11 @@ const step = async (label, fn) => {
     await page.click('.menu-list >> text=Mou al bloc 2');
     await blk.locator('.sgroup').nth(1).locator('.item').first().waitFor();
     await blk.locator('.sgroup').nth(1).locator('.add-item >> text=Afegeix exercici al bloc 2').click();
-    await blk.locator('.sgroup').nth(1).locator('.picker-input').last().fill('hip thrust');
-    await page.click('.picker-opt >> text=Hip Thrust >> nth=0');
+    await page.waitForSelector('.dialog-title >> text=Bloc 2');
+    await page.click('.xb-zone >> text=Tronc inferior');
+    await page.click('.xb-folder >> text=Gluti major (GMax)');
+    await page.click('.xb-ex-name >> text=/^Hip thrust\\s*N\\d$/');
+    await page.click('.xb-matbtn >> text=Barra olímpica');
     await page.waitForFunction(() => document.querySelectorAll('section.block.blk-for .sgroup')[1].querySelectorAll('.item').length === 2);
     if ((await blk.locator('.sgroup').nth(0).locator('.item').count()) !== 3) throw new Error('bloc 1');
     // «Mou amunt» des del primer exercici del bloc 2 el torna al bloc 1.
@@ -341,6 +363,17 @@ const step = async (label, fn) => {
     await shot(page, '10-biblioteca', false);
     await goHash(page, '#/biblioteca/plantilles');
     await page.waitForSelector('.trow-tpl');
+  });
+  await step('biblioteca per grup muscular i material del centre', async () => {
+    await goHash(page, '#/biblioteca');
+    await page.click('.seg >> text=Per grup muscular');
+    await page.click('.mfolder summary >> text=Tríceps');
+    await page.waitForSelector('.mfolder[open] .exrow >> text=Extensió de tríceps a la politja');
+    await goHash(page, '#/configuracio');
+    await page.waitForSelector('.profchip >> text=kBox Lite Exxentric');
+    await page.fill('input[aria-label="Material nou"]', 'Trineu');
+    await page.click('form:has(input[aria-label="Material nou"]) >> text=Afegeix');
+    await page.waitForSelector('.profchip >> text=Trineu');
   });
   await step('configuració', async () => {
     await goHash(page, '#/configuracio');

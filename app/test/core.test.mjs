@@ -368,3 +368,21 @@ test('mètodes d\'entrenament al bloc i al subbloc (Excel)', () => {
   assert.equal(Flat.session({ blocks: [b] }, { firstName: 'X' })['Força principal · mètode'], 'Contrast (PAPE) · Bloc 2: Clúster');
   assert.equal(Flat.template(Store.methods().find((m) => m.id === 'M-03')).Tipus, 'Mètode');
 });
+
+test('material del centre i músculs de la biblioteca', () => {
+  const { SEED_EXERCISES, OPT, Store } = loadCore();
+  const muscles = new Set(OPT.gm);
+  for (const e of SEED_EXERCISES) {
+    if (e.gm) assert.ok(muscles.has(e.gm), `${e.name}: múscul ${e.gm}`);
+    for (const m of e.muscles || []) assert.ok(muscles.has(m), `${e.name}: múscul ${m}`);
+    assert.equal(e.materials[0], e.material, `${e.name}: el material per defecte va primer`);
+    assert.ok(!['Barra', 'KB', 'Mancuernes', 'Politja'].includes(e.material), `${e.name}: material antic ${e.material}`);
+  }
+  const byGm = (m) => SEED_EXERCISES.filter((e) => e.gm === m || (e.muscles || []).includes(m)).length;
+  for (const m of ['Bíceps', 'Tríceps', 'Deltoides', 'Pectoral', 'Dorsal', 'Quàdriceps', 'Isquiotibials', 'Bessons i soli']) assert.ok(byGm(m) >= 3, m);
+  const center = Store.materials().center;
+  for (const m of ['Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'kBox Lite Exxentric', 'Banc GHD', 'AlterG']) assert.ok(center.includes(m), m);
+  assert.ok(!Store.materials().other.includes('Barra olímpica (20-25 kg)'));
+  const squat = SEED_EXERCISES.find((e) => e.id === 'X-FOR-01');
+  assert.deepEqual(Array.from(squat.materials).slice(0, 3), ['Barra olímpica (20-25 kg)', 'Mancuernes Technogym', 'Kettlebell']);
+});

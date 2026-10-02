@@ -1274,3 +1274,38 @@ tfoot .rpc { font-size: 14px; }
   .pv-name { font-size: 10.5pt; }
   .pv-rx, .pv-chip { font-size: 9pt; }
 }
+
+/* Carpetes d'exercicis: grup muscular → exercici → material */
+.xb-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 12px; }
+.xb-top .search { flex: 1 1 260px; }
+.xb-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; font-size: 14px; }
+.xb-crumbs .link { font-weight: 650; }
+.xb-back { display: inline-flex; align-items: center; gap: 4px; margin-right: 8px; }
+.xb-sep { color: var(--ink-3); }
+.xb-zones { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.xb-zone { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 120px; padding: 16px; border-radius: 16px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.xb-zone:hover { background: var(--surface-2); }
+.xb-zone .ic { color: var(--ink-3); }
+.xb-zone-name { font-size: 19px; font-weight: 750; }
+.xb-zone-sub { font-size: 13px; color: var(--ink-2); line-height: 1.35; }
+.xb-folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.xb-folder { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.xb-folder:hover { background: var(--surface-2); }
+.xb-folder .ic { color: var(--ink-3); flex: none; }
+.xb-folder-name { flex: 1; font-weight: 650; }
+.xb-folder-n { font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.xb-matbtn { min-height: 58px; }
+.xb-list { display: flex; flex-direction: column; border-top: 1px solid var(--line); max-height: 55vh; overflow: auto; }
+.xb-ex { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 4px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); text-align: left; cursor: pointer; }
+.xb-ex:hover { background: var(--surface-2); }
+.xb-ex-name { font-weight: 650; }
+.xb-ex-meta { grid-column: 1; font-size: 12.5px; color: var(--ink-3); }
+.xb-ex-mat { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.xb-mat .h3 { margin: 10px 0; }
+.mfolder { border-top: 1px solid var(--line); }
+.mfolder summary { display: flex; align-items: center; gap: 10px; min-height: 46px; cursor: pointer; list-style: none; font-weight: 650; }
+.mfolder summary::-webkit-details-marker { display: none; }
+.mfolder summary .ic { color: var(--ink-3); }
+.mfolder-name { flex: 1; }
+.mfolder[open] summary { color: var(--ink); }
+.mfolder .exlist { margin: 0 0 10px 26px; }
