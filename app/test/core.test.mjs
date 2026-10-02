@@ -397,3 +397,16 @@ test('exercicis de la loop band de Technogym', () => {
     ['Crunch with knees raised - band at knees', 'Crunch with knees raised - band at ankles', 'Crunch with knee tuck - band at ankles', 'Bicycle crunch', 'Crunch with raised straight legs - band at ankles']);
   assert.ok(Store.materials().center.includes('Loop band Technogym'));
 });
+
+test('exercicis de kettlebell, mobility ball i Power Personal de Technogym', () => {
+  const { SEED_EXERCISES, Store } = loadCore();
+  const count = (m) => SEED_EXERCISES.filter((e) => e.material === m);
+  assert.equal(count('Kettlebell').filter((e) => e.id.startsWith('X-KB-')).length, 50);
+  assert.equal(count('Mobility ball Technogym').filter((e) => e.id.startsWith('X-MB-')).length, 9);
+  assert.equal(count('Power Personal Technogym').filter((e) => e.id.startsWith('X-PP-')).length, 38);
+  const tg = SEED_EXERCISES.filter((e) => /^X-(KB|MB|PP)-/.test(e.id));
+  assert.ok(tg.every((e) => e.tg && e.gm && e.materials[0] === e.material));
+  assert.ok(tg.filter((e) => e.id.startsWith('X-MB-')).every((e) => e.block === 'mob'));
+  assert.equal(new Set(SEED_EXERCISES.map((e) => e.name)).size, SEED_EXERCISES.length);
+  assert.ok(Store.materials().center.includes('Power Personal Technogym'));
+});

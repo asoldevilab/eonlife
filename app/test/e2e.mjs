@@ -175,6 +175,13 @@ const step = async (label, fn) => {
     await blk.locator('.add-item:not(.add-group)').click();
     await page.fill('.dialog input[aria-label="Cerca exercicis"]', 'monster walks - band at knees');
     await page.waitForSelector('.xb-ex >> text=Monster walk · banda als genolls');
+    // Kettlebell, Power Personal i mobility ball de l'app de Technogym.
+    await page.fill('.dialog input[aria-label="Cerca exercicis"]', 'russian swing');
+    await page.waitForSelector('.xb-ex >> text=Swing rus amb kettlebell');
+    await page.fill('.dialog input[aria-label="Cerca exercicis"]', 'Power Personal');
+    await page.waitForSelector('.xb-ex >> text=Ocells al Power Personal');
+    await page.fill('.dialog input[aria-label="Cerca exercicis"]', 'Mobility ball');
+    if ((await page.locator('.xb-ex').count()) < 9) throw new Error('falten exercicis de la mobility ball');
     await page.click('.dialog-head button[title="Tanca"]');
     await item.locator('.item-side .menu button').click();
     await page.click('.menu-list >> text=Elimina');
