@@ -49,8 +49,9 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const rom = biRows(['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex']);
   const kneeExt = biRows(['rom_knee_ext'])[0];
   const wblt = biRows(['wblt']);
-  const dyn = biRows(['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'], true);
-  const squeeze = U.num((v.dyn_squeeze || {}).v);
+  const dyn = biRows(['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'], true);
+  // Squeeze d'abans: un sol valor (ara es mesura cada costat).
+  const squeeze = (v.dyn_squeeze || {}).d || (v.dyn_squeeze || {}).e ? null : U.num((v.dyn_squeeze || {}).v);
   const clin = ['slump', 'pkb', 'adams', 'thomas', 'windlass'].map((tid) => ({ t: TEST_INDEX[tid], x: v[tid] || {} }))
     .filter(({ x }) => x.d || x.e || x.v);
   const sls = v.sls || {};

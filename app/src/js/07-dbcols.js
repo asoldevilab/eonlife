@@ -130,9 +130,9 @@ const DB = (() => {
     dinamometria: () => [
       ...lead(),
       { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
-      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
-      { ...singleCol('dyn_squeeze', 'Squeeze'), group: 'Squeeze', label: 'N' },
-      { id: 'squeezekg', group: 'Squeeze', label: 'N/kg', kind: 'num', dec: 1, get: (r) => Calc.perKg(V(r.a, 'dyn_squeeze').v, Calc.weight(r.a)) },
+      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
+      // Squeeze d'abans (un sol valor, sense dreta ni esquerra).
+      { id: 'squeezeold', group: 'Squeeze', label: 'Total (abans)', unit: 'N', kind: 'num', dec: 0, get: (r) => U.num(V(r.a, 'dyn_squeeze').v) },
       { id: 'hqd', group: 'Ràtio isquios/quàdriceps', label: 'D', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).d },
       { id: 'hqe', group: 'Ràtio isquios/quàdriceps', label: 'E', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).e },
     ],

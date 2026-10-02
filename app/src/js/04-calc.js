@@ -27,6 +27,21 @@ const Calc = {
   },
 
   weight(a) { return U.num(a && a.general && a.general.weight); },
+  bmi(weight, height) {
+    const w = U.num(weight), h = U.num(height);
+    return w && h ? w / ((h / 100) ** 2) : null;
+  },
+  // Pes i alçada del client: els de la fitxa i, si no n'hi ha, els de l'última valoració que en tingui.
+  body(p, assessments) {
+    const withG = (k) => [...(assessments || [])].reverse().find((a) => U.num(a.general && a.general[k]) != null);
+    const pick = (k) => {
+      if (U.num(p && p[k]) != null) return { v: U.num(p[k]), date: null };
+      const a = withG(k);
+      return a ? { v: U.num(a.general[k]), date: a.date } : { v: null, date: null };
+    };
+    const weight = pick('weight'), height = pick('height');
+    return { weight, height, bmi: Calc.bmi(weight.v, height.v) };
+  },
 
   // Y-Balance: composite = (ANT + PM + PL) / (3 × longitud de cama) × 100
   ybt(a) {
@@ -211,7 +226,7 @@ const Calc = {
 
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
-  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
+  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
     'rom_hip_ir', 'rom_hip_er', 'chair30', 'tug', 'walk6', 'cod505'],
 
   compare(cur, prev, onlyKey = false) {
@@ -443,6 +458,12 @@ const Flat = {
       'Data IQ': p.surgeryDate || '', 'IQ': p.surgeryNote || '',
       'Data lesió': p.injuryDate || '', 'Lesió': p.injuryNote || '',
       'Carpeta del client': p.folderUrl || '', 'Notes': p.notes || '',
+      'Alçada (cm)': U.num(p.height) ?? '', 'Pes (kg)': U.num(p.weight) ?? '',
+      'Dominància': (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || '',
+      'Nivell d\'activitat': (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '',
+      'Esport o activitat': p.sport || '', 'Professió': p.occupation || '', 'Disponibilitat': p.availability || '',
+      'Condicions de salut': p.conditions || '', 'Limitacions per entrenar': p.limitations || '', 'Medicació': p.medication || '',
+      'Contacte d\'emergència': p.emergency || '',
     };
   },
 

@@ -59,7 +59,7 @@ function makeDemoData() {
       rom_knee_flex: bi(138, 142), rom_knee_ext: bi(0, 1),
       wblt: bi(7, 11), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Positiu · recte anterior', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_curl_30: bi(220, 236), dyn_squeeze: one(260),
+      dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_curl_30: bi(220, 236), dyn_squeeze: bi(255, 268),
       dyn_hip_ir: bi(150, 158), dyn_hip_er: bi(142, 150),
       sls: { sd: '-', se: '0', chips: ['Valg de genoll', 'Caiguda de pelvis'], note: 'Valg dinàmic a la cama dreta a partir de la 2a repetició.' },
       lsd: { sd: '-', se: '0', chips: ['Valg de genoll'] }, cod505: bi(2.62, 2.55), ckcuest: one(22),
@@ -85,7 +85,7 @@ function makeDemoData() {
       rom_knee_flex: bi(141, 142), rom_knee_ext: bi(0, 1),
       wblt: bi(9.5, 11.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_curl_30: bi(232, 240), dyn_squeeze: one(285),
+      dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_curl_30: bi(232, 240), dyn_squeeze: bi(281, 290),
       dyn_hip_ir: bi(158, 161), dyn_hip_er: bi(150, 154),
       sls: { sd: '0', se: '0', chips: [] }, lsd: { sd: '0', se: '0' }, cod505: bi(2.51, 2.49), ckcuest: one(24),
     },
@@ -109,7 +109,7 @@ function makeDemoData() {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118), rom_knee_ext: bi(0, -3),
       wblt: bi(10, 8.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_curl_30: bi(290, 250), dyn_squeeze: one(310),
+      dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_curl_30: bi(290, 250), dyn_squeeze: bi(322, 298),
       dyn_hip_ir: bi(170, 165), dyn_hip_er: bi(165, 160),
       sls: { sd: '0', se: '--', chips: ['Valg de genoll', 'Rotació de tronc'], note: 'Evita carregar la cama esquerra.' },
       squat_ref: one(15), pushup_ref: one(18), sl_stance: bi(30, 18), step3: one(132),
@@ -132,7 +132,7 @@ function makeDemoData() {
     values: {
       rom_hip_ir: bi(22, 25), rom_hip_er: bi(30, 34), rom_sh_ir: bi(48, 50), rom_sh_er: bi(80, 84),
       wblt: bi(6, 7), adams: one('Positiu'),
-      dyn_knee_ext: bi(210, 225), dyn_curl_90: bi(120, 128), dyn_squeeze: one(160),
+      dyn_knee_ext: bi(210, 225), dyn_curl_90: bi(120, 128), dyn_squeeze: bi(152, 168),
       chair30: one(11), tug: one(11.2), armcurl: bi(14, 13), ankle_seat: bi(12, 10), sh_flex_seat: bi(150, 145),
       stage4: one('Etapa 3 · tàndem'), reach_seat: one(28), walk6: one(455),
     },
@@ -149,7 +149,7 @@ function makeDemoData() {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
       rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       thomas: { d: 'Negatiu', e: 'Positiu · psoes ilíac' },
-      dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_curl_30: bi(335, 330), dyn_squeeze: one(420),
+      dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_curl_30: bi(335, 330), dyn_squeeze: bi(415, 426),
       dyn_hip_ir: bi(190, 185), dyn_hip_er: bi(180, 158),
       sls: { sd: '0', se: '0' }, lsd: { sd: '0', se: '-' }, cod505: bi(2.31, 2.40), ckcuest: one(27),
     },
@@ -228,6 +228,7 @@ function makeDemoData() {
   }, null);
 
   addDemoPlan(db, today);
+  addDemoProfiles(db);
 
   // Jordi: dimarts i dijous, 3 setmanes.
   const jw0 = U.addDays(U.weekStart(today), -21);
@@ -302,6 +303,32 @@ function demoVbt(kg) {
 }
 
 // Pla d'exemple per a la Laura: 12 sessions des d'avui, amb la sessió d'avui com a S1 i un nivell més cada 4 sessions.
+// Perfil dels clients de prova (dades inventades): alçada, pes, activitat, salut i observacions.
+const DEMO_PROFILES = {
+  'P-DEMO-LAURA': { height: '167', weight: '58', dominance: 'D', activityLevel: 'amateur', sport: 'Trail running, 4 dies per setmana',
+    occupation: 'Mestra (moltes hores de peu)', availability: 'Dilluns i dijous a les 19 h', emergency: 'Marc (parella) · 600 000 111',
+    limitations: 'Evitar baixades i salts amb molt d\'impacte a la cama dreta mentre el dolor sigui de més de 3/10.',
+    notes: 'Molt constant. Li costa reduir el volum de carrera quan té dolor.' },
+  'P-DEMO-JORDI': { height: '178', weight: '84', dominance: 'D', activityLevel: 'actiu', sport: 'Esquí a la temporada i bicicleta',
+    occupation: 'Oficina (assegut)', availability: 'Dimarts i divendres a les 8 h', emergency: 'Anna (germana) · 600 000 222',
+    limitations: 'Plàstia de LCA del genoll esquerre: sense pivots ni salts fins a l\'alta de la fase 3.',
+    conditions: 'Hipertensió controlada.', medication: 'Antihipertensiu (enalapril).' },
+  'P-DEMO-MONTSE': { height: '158', weight: '61', dominance: 'D', activityLevel: 'sedentari', sport: 'Caminar',
+    occupation: 'Jubilada', availability: 'Matins', conditions: 'Osteopènia.', medication: 'Calci i vitamina D.',
+    limitations: 'Pròtesi de maluc dreta: evitar flexió de maluc de més de 90° amb rotació interna. Sempre amb un suport a prop.',
+    notes: 'Li agrada entrenar amb música; s\'atabala si li donem massa indicacions alhora.' },
+  'P-DEMO-ALEX': { height: '182', weight: '76', dominance: 'E', activityLevel: 'amateur', sport: 'Futbol semiprofessional (lateral esquerre)',
+    occupation: 'Estudiant', availability: 'Tardes', limitations: 'Adductor esquerre: progressar el Copenhagen només si no fa mal.' },
+};
+function addDemoProfiles(db) {
+  for (const [id, prof] of Object.entries(DEMO_PROFILES)) {
+    const p = db.patients && db.patients[id];
+    if (!p || p.profileDemo) continue;
+    for (const [k, v] of Object.entries(prof)) if (!p[k]) p[k] = v;
+    p.profileDemo = true;
+  }
+}
+
 function addDemoPlan(db, today) {
   const pid = 'P-DEMO-LAURA';
   if (!db.patients[pid] || Object.values(db.templates || {}).some((t) => t.kind === 'plan' && t.patientId === pid)) return;

@@ -72,6 +72,18 @@ const OPT = {
     { v: 'pausa', label: 'En pausa' },
     { v: 'alta', label: 'Alta' },
   ],
+  dominance: [
+    { v: 'D', label: 'Dreta' },
+    { v: 'E', label: 'Esquerra' },
+    { v: 'A', label: 'Ambidextre' },
+  ],
+  activityLevels: [
+    { v: 'sedentari', label: 'Sedentari' },
+    { v: 'actiu', label: 'Actiu (1–2 dies/setmana)' },
+    { v: 'molt', label: 'Molt actiu (3 o més dies)' },
+    { v: 'amateur', label: 'Esportista amateur / competició' },
+    { v: 'pro', label: 'Esportista professional' },
+  ],
   sex: [
     { v: 'D', label: 'Dona' },
     { v: 'H', label: 'Home' },
@@ -246,7 +258,7 @@ const PROTOCOL = [
           { id: 'dyn_knee_ext', name: 'Leg extension · quàdriceps', short: 'Quàdriceps' },
           { id: 'dyn_curl_90', name: 'Leg curl 90/90', short: 'Curl 90/90' },
           { id: 'dyn_curl_30', name: 'Leg curl 30/30', short: 'Curl 30/30' },
-          { id: 'dyn_squeeze', name: 'Squeeze test · adductors', short: 'Squeeze', kind: 'single' },
+          { id: 'dyn_squeeze', name: 'Squeeze test · adductors', short: 'Squeeze' },
           { id: 'dyn_hip_ir', name: 'Rotadors interns de maluc', short: 'RI maluc' },
           { id: 'dyn_hip_er', name: 'Rotadors externs de maluc', short: 'RE maluc' },
           { id: 'dyn_sh_er', name: 'Rotadors externs d\'espatlla', short: 'RE espatlla', optional: true },
