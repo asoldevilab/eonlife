@@ -3633,7 +3633,7 @@ var qrcode = function() {
 }));
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
-window.EON_BUILD = "2026-10-02 09:31";
+window.EON_BUILD = "2026-10-02 09:54";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4266,7 +4266,7 @@ const CENTER_MATERIALS = [
   'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
   'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
   'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
-  'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up',
+  'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym',
 ];
 
 // Grups musculars en carpetes: tronc superior, tronc inferior, core i cos sencer.
@@ -4577,6 +4577,70 @@ const SEED_EXERCISES = (() => {
   add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
   add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
   add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+
+  // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
+  const LB = 'Loop band Technogym';
+  const lb = (n, block, name, tg, gm, extra = {}) => add(`X-LB-${String(n).padStart(2, '0')}`, block, name, 'Loop band', LB,
+    { tg, gm, pos: 'Bp', sets: '2', reps: '12', materials: [LB, G], ...extra });
+  lb(1, 'pot', 'Salts endavant amb rotació', 'Rotating forward jumps', 'Tren inferior', { sets: '3', reps: '6', intensity: 'Màxima intenció' });
+  lb(2, 'act', 'Abducció de maluc en mig squat', 'Hips abduction - half squat', 'GMed', { muscles: ['Quàdriceps'] });
+  lb(3, 'act', 'Pont de glutis amb loop band', 'Glute bridge', 'GMax', { muscles: ['GMed'], pos: 'Ds' });
+  lb(4, 'act', 'Extensió de maluc dempeus', 'Hip extension', 'GMax', { lat: 'UL', reps: '10/costat' });
+  lb(5, 'act', 'Passes laterals en mig squat · banda als turmells', 'Lateral half squat walks - band at ankles', 'GMed', { reps: '10 passes/costat' });
+  lb(6, 'act', 'Passes laterals en mig squat · banda als genolls', 'Lateral half squat walks - band at knees', 'GMed', { reps: '10 passes/costat' });
+  lb(7, 'act', 'Abducció de maluc dempeus · banda als turmells', 'Hip abduction - band at ankles', 'GMed', { lat: 'UL', reps: '12/costat' });
+  lb(8, 'act', 'Squat amb loop band', 'Squat', 'Quàdriceps', { muscles: ['GMax', 'GMed'] });
+  lb(9, 'act', 'Passes laterals en squat · banda als turmells', 'Lateral squat walks - band at ankles', 'GMed', { muscles: ['Quàdriceps'], reps: '10 passes/costat' });
+  lb(10, 'act', 'Clamshell amb loop band', 'Clam shells', 'GMed', { pos: 'Dl', lat: 'UL', reps: '12/costat' });
+  lb(11, 'act', 'Passes laterals en planxa', 'Lateral plank walks', 'Core', { muscles: ['Deltoides', 'GMed'], pos: 'Dp', reps: '6 passes/costat' });
+  lb(12, 'pot', 'Desplaçament lateral ràpid (shuffle)', 'Lateral shuffle', 'GMed', { muscles: ['Quàdriceps'], sets: '3', reps: '4 × 5 m', intensity: 'Màxima intenció' });
+  lb(13, 'act', 'Monster walk · banda als turmells', 'Monster walks - band at ankles', 'GMed', { muscles: ['GMax'], reps: '10 passes' });
+  lb(14, 'act', 'Abducció de maluc dempeus · banda als genolls', 'Hip abduction - band at knees', 'GMed', { lat: 'UL', reps: '12/costat' });
+  lb(15, 'act', 'Skipping · banda als genolls', 'High knees - band at knees', 'Flexors de maluc', { muscles: ['Core'], reps: '20 s' });
+  lb(16, 'act', 'Flexió amb passes laterals de mans', 'Push up with lateral hand walk - alternated', 'Pectoral', { muscles: ['Tríceps', 'Core'], pos: 'Dp', reps: '6' });
+  lb(17, 'act', 'Passes laterals amb rotació de tronc · banda als genolls', 'Lateral walks with trunk rotation - band at knees', 'GMed', { muscles: ['Oblics'], reps: '10 passes/costat' });
+  lb(18, 'act', 'Abducció de maluc estirat de costat · banda als turmells', 'Hip abduction lying on side - band at ankles', 'GMed', { pos: 'Dl', lat: 'UL', reps: '12/costat' });
+  lb(19, 'act', 'Flexió de maluc alterna · banda als peus', 'Alternating hip flexion - band at feet', 'Flexors de maluc', { muscles: ['Core'], reps: '10/costat' });
+  lb(20, 'act', 'Abducció de maluc estirat de costat · banda als genolls', 'Hip abduction lying on side - band at knees', 'GMed', { pos: 'Dl', lat: 'UL', reps: '12/costat' });
+  lb(21, 'act', 'Monster walk · banda als genolls', 'Monster walks - band at knees', 'GMed', { muscles: ['GMax'], reps: '10 passes' });
+  lb(22, 'act', 'Abducció de maluc recolzat al colze · banda als turmells', 'Hip abduction lying on elbow - band at ankles', 'GMed', { muscles: ['Oblics'], pos: 'Dl', lat: 'UL', reps: '10/costat' });
+  lb(23, 'act', 'Crunch amb genolls elevats · banda als genolls', 'Crunch with knees raised - band at knees', 'Core', { pos: 'Ds' });
+  lb(24, 'act', 'Squat sumo amb loop band', 'Sumo squat', 'Quàdriceps', { muscles: ['Adductors', 'GMax'] });
+  lb(25, 'act', 'Abducció de maluc en planxa lateral · banda als turmells', 'Hip abduction in side plank - band at ankles', 'GMed', { muscles: ['Oblics'], pos: 'Dl', lat: 'UL', reps: '8/costat' });
+  lb(26, 'act', 'Abducció de maluc alterna en planxa de braços estirats · banda als genolls', 'Alternating hip abduction in straight arm plank - band at knees', 'Core', { muscles: ['GMed'], pos: 'Dp', reps: '8/costat' });
+  lb(27, 'act', 'Abducció de maluc i curl de cama estirat de costat · banda als turmells', 'Hip abduction and leg curl - on side - band at ankles', 'GMed', { muscles: ['Isquiotibials'], pos: 'Dl', lat: 'UL', reps: '10/costat' });
+  lb(28, 'act', 'Crunch bicicleta amb loop band', 'Bicycle crunch', 'Core', { muscles: ['Oblics'], pos: 'Ds', reps: '10/costat' });
+  lb(29, 'act', 'Abducció de braços en posició de barca', 'Arm abduction - boat pose', 'Core', { muscles: ['Deltoides'], pos: 'Sd' });
+  lb(30, 'act', 'Planxa jack de braços estirats', 'Straight arm plank jack', 'Core', { muscles: ['GMed'], pos: 'Dp', reps: '20 s' });
+  lb(31, 'act', 'Abducció de maluc en quadrupèdia · banda als genolls', 'Quadruped hip abduction - band at knees', 'GMed', { pos: 'Qd', lat: 'UL', reps: '12/costat' });
+  lb(32, 'act', 'Flexió de maluc alterna amb braços estirats', 'Alternating hip flexion - straight arms', 'Flexors de maluc', { muscles: ['Core'], reps: '10/costat' });
+  lb(33, 'act', 'Abducció de maluc en posició de superman', 'Hip abduction - superman position', 'GMed', { muscles: ['GMax', 'Lumbar'], pos: 'Dp' });
+  lb(34, 'act', 'Flexió de maluc alterna en planxa invertida', 'Hip flexion alternated - reverse plank', 'Flexors de maluc', { muscles: ['Core', 'GMax'], pos: 'Sd', reps: '8/costat' });
+  lb(35, 'act', 'Crunch amb genolls elevats · banda als turmells', 'Crunch with knees raised - band at ankles', 'Core', { pos: 'Ds' });
+  lb(36, 'act', 'Crunch amb cames estirades elevades · banda als turmells', 'Crunch with raised straight legs - band at ankles', 'Core', { pos: 'Ds' });
+  lb(37, 'act', 'Flexions de maluc alternes en planxa · banda als peus', 'Alternate hip flexions in plank - band at feet', 'Core', { muscles: ['Flexors de maluc'], pos: 'Dp', reps: '8/costat' });
+  lb(38, 'act', 'Mountain climbers amb loop band', 'Mountain climbers', 'Core', { muscles: ['Flexors de maluc'], pos: 'Dp', reps: '20 s' });
+  lb(39, 'act', 'Kickback en quadrupèdia', 'Quadruped kickback', 'GMax', { pos: 'Qd', lat: 'UL', reps: '12/costat' });
+  lb(40, 'act', 'Abducció i flexió de maluc en planxa lateral · banda als turmells', 'Hip abduction and flexion in side plank - band at ankles', 'GMed', { muscles: ['Oblics', 'Flexors de maluc'], pos: 'Dl', lat: 'UL', reps: '8/costat' });
+  lb(41, 'act', 'Flutter kicks en posició de barca', 'Flutter kicks - boat pose', 'Core', { muscles: ['Flexors de maluc'], pos: 'Sd', reps: '20 s' });
+  lb(42, 'act', 'Passes laterals en quadrupèdia', 'Lateral steps - quadruped', 'Core', { muscles: ['GMed'], pos: 'Qd', reps: '6 passes/costat' });
+  lb(43, 'act', 'Crunch amb recollida de genolls · banda als turmells', 'Crunch with knee tuck - band at ankles', 'Core', { pos: 'Sd' });
+  lb(44, 'act', 'Planxa de braços estirats · banda als turmells', 'Straight arm plank - band at ankles', 'Core', { pos: 'Dp', cont: 'ISO', reps: '30 s' });
+  lb(45, 'act', 'Pas enrere altern i squat', 'Alternating back step and squat', 'Quàdriceps', { muscles: ['GMax'], reps: '8/costat' });
+  lb(46, 'act', 'Pas enrere altern i squat · banda als genolls', 'Alternating back step and squat - band at knees', 'Quàdriceps', { muscles: ['GMax', 'GMed'], reps: '8/costat' });
+  lb(47, 'acc', 'Extensió de tríceps amb loop band', 'Triceps extension', 'Tríceps', { lat: 'UL', reps: '12/costat' });
+  lb(48, 'act', 'Abducció de maluc alterna en quadrupèdia · banda als genolls', 'Quadruped alternating hip abduction - band at knees', 'GMed', { muscles: ['Core'], pos: 'Qd', reps: '10/costat' });
+  lb(49, 'act', 'Flexió de maluc en planxa invertida', 'Hip flexion - reverse plank', 'Flexors de maluc', { muscles: ['Core', 'GMax'], pos: 'Sd', reps: '8/costat' });
+  lb(50, 'act', 'Kickback altern en quadrupèdia', 'Quadruped alternating kickback', 'GMax', { muscles: ['Core'], pos: 'Qd', reps: '10/costat' });
+  const lbLadders = {
+    'Loop band · abducció de maluc de costat': [10, 20, 18, 25, 40],
+    'Loop band · passes laterals': [6, 5, 9, 13, 12],
+    'Loop band · core en planxa': [44, 37, 38, 30, 26],
+    'Loop band · crunch': [23, 35, 43, 28, 36],
+  };
+  for (const [family, ns] of Object.entries(lbLadders)) {
+    ns.forEach((n, i) => Object.assign(byId[`X-LB-${String(n).padStart(2, '0')}`], { family, level: String(i + 1) }));
+  }
 
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
@@ -5361,7 +5425,7 @@ const Flat = {
 
   exercise(e) {
     return {
-      'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
+      'Nom': e.name || '', 'Nom Technogym': e.tg || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
       'Grup muscular': e.gm || '', 'Altres músculs': (e.muscles || []).join(', '), 'Materials possibles': (e.materials || []).join(', '), 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',
@@ -8921,6 +8985,18 @@ function exerciseFolders(list) {
   return zones.filter((z) => z.count);
 }
 
+// Carpetes per material: cada material del centre amb els exercicis que s'hi poden fer.
+function materialFolders(list) {
+  const { center, other } = Store.materials();
+  const order = [...center, ...other];
+  const pos = (m) => { const i = order.indexOf(m); return i < 0 ? 999 : i; };
+  const by = {};
+  for (const e of list) for (const m of (e.materials && e.materials.length ? e.materials : [e.material]).filter(Boolean)) (by[m] = by[m] || []).push(e);
+  const names = Object.keys(by).sort((a, b) => pos(a) - pos(b) || a.localeCompare(b, 'ca'));
+  return { key: 'mat', label: 'Per material', count: list.length,
+    list: names.map((name) => ({ name, label: name, items: U.sortBy(by[name], (e) => `${e.family || 'ZZ'}#${String(U.num(e.level) ?? 9)}#${e.name}`) })) };
+}
+
 function openExerciseBrowser({ block, title, onPick, onBlank }) {
   let close = null;
   close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
@@ -8937,15 +9013,16 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
   const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
-  const zones = exerciseFolders(pool);
+  const zones = [...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
   const found = nq ? Store.exercises().filter((e) => (!scope || scope.includes(e.block) || nq.length > 2)
-    && U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 60) : null;
-  const choose = (e) => ((e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
+    && U.norm(`${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 80) : null;
+  // Si s'hi arriba des d'una carpeta de material, el material ja està triat.
+  const choose = (e) => (zone === 'mat' && folder ? onPick(e, folder) : (e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
   const crumb = [
-    { label: 'Grups musculars', go: () => { setZone(null); setFolder(null); setEx(null); } },
+    { label: 'Carpetes', go: () => { setZone(null); setFolder(null); setEx(null); } },
     z && { label: z.label, go: () => { setFolder(null); setEx(null); } },
     f && { label: f.label, go: () => setEx(null) },
     ex && { label: ex.name },
@@ -8953,7 +9030,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const back = () => (ex ? setEx(null) : folder ? setFolder(null) : setZone(null));
   const row = (e) => html`<button type="button" class="xb-ex" onClick=${() => choose(e)}>
     <span class="xb-ex-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
-    <span class="xb-ex-meta">${[exerciseMuscles(e).map(muscleLabel).join(' · '), Calc.presc(e)].filter(Boolean).join(' — ')}</span>
+    <span class="xb-ex-meta">${[exerciseMuscles(e).map(muscleLabel).join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}</span>
     <span class="xb-ex-mat">${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''}</span>
   </button>`;
 
@@ -8980,7 +9057,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
         : f ? html`<div class="xb-list">${f.items.map(row)}</div>`
         : z ? html`<div class="xb-folders">${z.list.map((x) => html`<button type="button" class="xb-folder" onClick=${() => setFolder(x.name)}>
             <${Icon} name="folder" size=${18} /><span class="xb-folder-name">${x.label}</span><span class="xb-folder-n">${x.items.length}</span></button>`)}</div>`
-        : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-${x.key}`} onClick=${() => setZone(x.key)}>
+        : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-z-${x.key}`} onClick=${() => setZone(x.key)}>
             <${Icon} name="folder" size=${22} />
             <span class="xb-zone-name">${x.label}</span>
             <span class="xb-zone-sub">${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}</span>
@@ -11167,7 +11244,7 @@ function ExerciseList() {
   const [blk, setBlk] = useState('');
   const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq)));
+  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
   return html`<section class="card">
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
@@ -11193,7 +11270,7 @@ function ExerciseList() {
 
 // Carpetes per grup muscular: tronc superior, tronc inferior, core i cos sencer; dins, cada múscul.
 function MuscleFolders({ all }) {
-  return html`<div class="stack">${exerciseFolders(all).map((z) => html`<div class="libgroup">
+  return html`<div class="stack">${[...exerciseFolders(all), materialFolders(all)].map((z) => html`<div class="libgroup">
     <div class="libgroup-head"><strong>${z.label}</strong><span class="muted">${U.plural(z.count, 'exercici', 'exercicis')}</span></div>
     ${z.list.map((f) => html`<details class="mfolder">
       <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
@@ -11258,6 +11335,7 @@ function ExerciseDialog({ ex, onClose }) {
     <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
+      <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
       <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>

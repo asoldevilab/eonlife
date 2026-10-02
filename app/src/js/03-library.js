@@ -279,6 +279,70 @@ const SEED_EXERCISES = (() => {
   add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
   add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
 
+  // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
+  const LB = 'Loop band Technogym';
+  const lb = (n, block, name, tg, gm, extra = {}) => add(`X-LB-${String(n).padStart(2, '0')}`, block, name, 'Loop band', LB,
+    { tg, gm, pos: 'Bp', sets: '2', reps: '12', materials: [LB, G], ...extra });
+  lb(1, 'pot', 'Salts endavant amb rotació', 'Rotating forward jumps', 'Tren inferior', { sets: '3', reps: '6', intensity: 'Màxima intenció' });
+  lb(2, 'act', 'Abducció de maluc en mig squat', 'Hips abduction - half squat', 'GMed', { muscles: ['Quàdriceps'] });
+  lb(3, 'act', 'Pont de glutis amb loop band', 'Glute bridge', 'GMax', { muscles: ['GMed'], pos: 'Ds' });
+  lb(4, 'act', 'Extensió de maluc dempeus', 'Hip extension', 'GMax', { lat: 'UL', reps: '10/costat' });
+  lb(5, 'act', 'Passes laterals en mig squat · banda als turmells', 'Lateral half squat walks - band at ankles', 'GMed', { reps: '10 passes/costat' });
+  lb(6, 'act', 'Passes laterals en mig squat · banda als genolls', 'Lateral half squat walks - band at knees', 'GMed', { reps: '10 passes/costat' });
+  lb(7, 'act', 'Abducció de maluc dempeus · banda als turmells', 'Hip abduction - band at ankles', 'GMed', { lat: 'UL', reps: '12/costat' });
+  lb(8, 'act', 'Squat amb loop band', 'Squat', 'Quàdriceps', { muscles: ['GMax', 'GMed'] });
+  lb(9, 'act', 'Passes laterals en squat · banda als turmells', 'Lateral squat walks - band at ankles', 'GMed', { muscles: ['Quàdriceps'], reps: '10 passes/costat' });
+  lb(10, 'act', 'Clamshell amb loop band', 'Clam shells', 'GMed', { pos: 'Dl', lat: 'UL', reps: '12/costat' });
+  lb(11, 'act', 'Passes laterals en planxa', 'Lateral plank walks', 'Core', { muscles: ['Deltoides', 'GMed'], pos: 'Dp', reps: '6 passes/costat' });
+  lb(12, 'pot', 'Desplaçament lateral ràpid (shuffle)', 'Lateral shuffle', 'GMed', { muscles: ['Quàdriceps'], sets: '3', reps: '4 × 5 m', intensity: 'Màxima intenció' });
+  lb(13, 'act', 'Monster walk · banda als turmells', 'Monster walks - band at ankles', 'GMed', { muscles: ['GMax'], reps: '10 passes' });
+  lb(14, 'act', 'Abducció de maluc dempeus · banda als genolls', 'Hip abduction - band at knees', 'GMed', { lat: 'UL', reps: '12/costat' });
+  lb(15, 'act', 'Skipping · banda als genolls', 'High knees - band at knees', 'Flexors de maluc', { muscles: ['Core'], reps: '20 s' });
+  lb(16, 'act', 'Flexió amb passes laterals de mans', 'Push up with lateral hand walk - alternated', 'Pectoral', { muscles: ['Tríceps', 'Core'], pos: 'Dp', reps: '6' });
+  lb(17, 'act', 'Passes laterals amb rotació de tronc · banda als genolls', 'Lateral walks with trunk rotation - band at knees', 'GMed', { muscles: ['Oblics'], reps: '10 passes/costat' });
+  lb(18, 'act', 'Abducció de maluc estirat de costat · banda als turmells', 'Hip abduction lying on side - band at ankles', 'GMed', { pos: 'Dl', lat: 'UL', reps: '12/costat' });
+  lb(19, 'act', 'Flexió de maluc alterna · banda als peus', 'Alternating hip flexion - band at feet', 'Flexors de maluc', { muscles: ['Core'], reps: '10/costat' });
+  lb(20, 'act', 'Abducció de maluc estirat de costat · banda als genolls', 'Hip abduction lying on side - band at knees', 'GMed', { pos: 'Dl', lat: 'UL', reps: '12/costat' });
+  lb(21, 'act', 'Monster walk · banda als genolls', 'Monster walks - band at knees', 'GMed', { muscles: ['GMax'], reps: '10 passes' });
+  lb(22, 'act', 'Abducció de maluc recolzat al colze · banda als turmells', 'Hip abduction lying on elbow - band at ankles', 'GMed', { muscles: ['Oblics'], pos: 'Dl', lat: 'UL', reps: '10/costat' });
+  lb(23, 'act', 'Crunch amb genolls elevats · banda als genolls', 'Crunch with knees raised - band at knees', 'Core', { pos: 'Ds' });
+  lb(24, 'act', 'Squat sumo amb loop band', 'Sumo squat', 'Quàdriceps', { muscles: ['Adductors', 'GMax'] });
+  lb(25, 'act', 'Abducció de maluc en planxa lateral · banda als turmells', 'Hip abduction in side plank - band at ankles', 'GMed', { muscles: ['Oblics'], pos: 'Dl', lat: 'UL', reps: '8/costat' });
+  lb(26, 'act', 'Abducció de maluc alterna en planxa de braços estirats · banda als genolls', 'Alternating hip abduction in straight arm plank - band at knees', 'Core', { muscles: ['GMed'], pos: 'Dp', reps: '8/costat' });
+  lb(27, 'act', 'Abducció de maluc i curl de cama estirat de costat · banda als turmells', 'Hip abduction and leg curl - on side - band at ankles', 'GMed', { muscles: ['Isquiotibials'], pos: 'Dl', lat: 'UL', reps: '10/costat' });
+  lb(28, 'act', 'Crunch bicicleta amb loop band', 'Bicycle crunch', 'Core', { muscles: ['Oblics'], pos: 'Ds', reps: '10/costat' });
+  lb(29, 'act', 'Abducció de braços en posició de barca', 'Arm abduction - boat pose', 'Core', { muscles: ['Deltoides'], pos: 'Sd' });
+  lb(30, 'act', 'Planxa jack de braços estirats', 'Straight arm plank jack', 'Core', { muscles: ['GMed'], pos: 'Dp', reps: '20 s' });
+  lb(31, 'act', 'Abducció de maluc en quadrupèdia · banda als genolls', 'Quadruped hip abduction - band at knees', 'GMed', { pos: 'Qd', lat: 'UL', reps: '12/costat' });
+  lb(32, 'act', 'Flexió de maluc alterna amb braços estirats', 'Alternating hip flexion - straight arms', 'Flexors de maluc', { muscles: ['Core'], reps: '10/costat' });
+  lb(33, 'act', 'Abducció de maluc en posició de superman', 'Hip abduction - superman position', 'GMed', { muscles: ['GMax', 'Lumbar'], pos: 'Dp' });
+  lb(34, 'act', 'Flexió de maluc alterna en planxa invertida', 'Hip flexion alternated - reverse plank', 'Flexors de maluc', { muscles: ['Core', 'GMax'], pos: 'Sd', reps: '8/costat' });
+  lb(35, 'act', 'Crunch amb genolls elevats · banda als turmells', 'Crunch with knees raised - band at ankles', 'Core', { pos: 'Ds' });
+  lb(36, 'act', 'Crunch amb cames estirades elevades · banda als turmells', 'Crunch with raised straight legs - band at ankles', 'Core', { pos: 'Ds' });
+  lb(37, 'act', 'Flexions de maluc alternes en planxa · banda als peus', 'Alternate hip flexions in plank - band at feet', 'Core', { muscles: ['Flexors de maluc'], pos: 'Dp', reps: '8/costat' });
+  lb(38, 'act', 'Mountain climbers amb loop band', 'Mountain climbers', 'Core', { muscles: ['Flexors de maluc'], pos: 'Dp', reps: '20 s' });
+  lb(39, 'act', 'Kickback en quadrupèdia', 'Quadruped kickback', 'GMax', { pos: 'Qd', lat: 'UL', reps: '12/costat' });
+  lb(40, 'act', 'Abducció i flexió de maluc en planxa lateral · banda als turmells', 'Hip abduction and flexion in side plank - band at ankles', 'GMed', { muscles: ['Oblics', 'Flexors de maluc'], pos: 'Dl', lat: 'UL', reps: '8/costat' });
+  lb(41, 'act', 'Flutter kicks en posició de barca', 'Flutter kicks - boat pose', 'Core', { muscles: ['Flexors de maluc'], pos: 'Sd', reps: '20 s' });
+  lb(42, 'act', 'Passes laterals en quadrupèdia', 'Lateral steps - quadruped', 'Core', { muscles: ['GMed'], pos: 'Qd', reps: '6 passes/costat' });
+  lb(43, 'act', 'Crunch amb recollida de genolls · banda als turmells', 'Crunch with knee tuck - band at ankles', 'Core', { pos: 'Sd' });
+  lb(44, 'act', 'Planxa de braços estirats · banda als turmells', 'Straight arm plank - band at ankles', 'Core', { pos: 'Dp', cont: 'ISO', reps: '30 s' });
+  lb(45, 'act', 'Pas enrere altern i squat', 'Alternating back step and squat', 'Quàdriceps', { muscles: ['GMax'], reps: '8/costat' });
+  lb(46, 'act', 'Pas enrere altern i squat · banda als genolls', 'Alternating back step and squat - band at knees', 'Quàdriceps', { muscles: ['GMax', 'GMed'], reps: '8/costat' });
+  lb(47, 'acc', 'Extensió de tríceps amb loop band', 'Triceps extension', 'Tríceps', { lat: 'UL', reps: '12/costat' });
+  lb(48, 'act', 'Abducció de maluc alterna en quadrupèdia · banda als genolls', 'Quadruped alternating hip abduction - band at knees', 'GMed', { muscles: ['Core'], pos: 'Qd', reps: '10/costat' });
+  lb(49, 'act', 'Flexió de maluc en planxa invertida', 'Hip flexion - reverse plank', 'Flexors de maluc', { muscles: ['Core', 'GMax'], pos: 'Sd', reps: '8/costat' });
+  lb(50, 'act', 'Kickback altern en quadrupèdia', 'Quadruped alternating kickback', 'GMax', { muscles: ['Core'], pos: 'Qd', reps: '10/costat' });
+  const lbLadders = {
+    'Loop band · abducció de maluc de costat': [10, 20, 18, 25, 40],
+    'Loop band · passes laterals': [6, 5, 9, 13, 12],
+    'Loop band · core en planxa': [44, 37, 38, 30, 26],
+    'Loop band · crunch': [23, 35, 43, 28, 36],
+  };
+  for (const [family, ns] of Object.entries(lbLadders)) {
+    ns.forEach((n, i) => Object.assign(byId[`X-LB-${String(n).padStart(2, '0')}`], { family, level: String(i + 1) }));
+  }
+
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
   for (const e of list) if (rename[e.material]) e.material = rename[e.material];

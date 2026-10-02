@@ -386,3 +386,14 @@ test('material del centre i músculs de la biblioteca', () => {
   const squat = SEED_EXERCISES.find((e) => e.id === 'X-FOR-01');
   assert.deepEqual(Array.from(squat.materials).slice(0, 3), ['Barra olímpica (20-25 kg)', 'Mancuernes Technogym', 'Kettlebell']);
 });
+
+test('exercicis de la loop band de Technogym', () => {
+  const { SEED_EXERCISES, Store } = loadCore();
+  const lb = SEED_EXERCISES.filter((e) => e.material === 'Loop band Technogym');
+  assert.equal(lb.length, 50);
+  assert.equal(new Set(lb.map((e) => e.tg)).size, 50);
+  assert.ok(lb.every((e) => e.gm && e.tg && e.materials.includes('Goma elàstica')));
+  assert.deepEqual(Array.from(Store.ladder('Loop band · crunch'), (e) => e.tg),
+    ['Crunch with knees raised - band at knees', 'Crunch with knees raised - band at ankles', 'Crunch with knee tuck - band at ankles', 'Bicycle crunch', 'Crunch with raised straight legs - band at ankles']);
+  assert.ok(Store.materials().center.includes('Loop band Technogym'));
+});

@@ -637,7 +637,7 @@ const Flat = {
 
   exercise(e) {
     return {
-      'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
+      'Nom': e.name || '', 'Nom Technogym': e.tg || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
       'Grup muscular': e.gm || '', 'Altres músculs': (e.muscles || []).join(', '), 'Materials possibles': (e.materials || []).join(', '), 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',

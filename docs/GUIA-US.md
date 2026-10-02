@@ -130,7 +130,9 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
   2. **Exercici**: amb el nivell (N1–N5), els músculs i la prescripció per defecte.
   3. **Amb quin material?**: el material del centre amb què es pot fer (barra olímpica, mancuernes Technogym,
      kettlebell, kBox, Keiser, cònica, politja…).
-  A dalt hi ha el cercador (nom, múscul o material) i *Tots els blocs*. A Força principal i Accessoris surten els
+  També hi ha la carpeta **Per material** (p. ex. *Loop band Technogym* amb els seus 50 exercicis): triant
+  l'exercici des d'aquí ja queda posat el material.
+  A dalt hi ha el cercador (nom, múscul, material o el nom en anglès de l'app de Technogym) i *Tots els blocs*. A Força principal i Accessoris surten els
   exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
   S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la
   prescripció per defecte. El material i el grup muscular es poden canviar als *Detalls* de l'exercici.

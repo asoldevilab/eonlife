@@ -29,6 +29,18 @@ function exerciseFolders(list) {
   return zones.filter((z) => z.count);
 }
 
+// Carpetes per material: cada material del centre amb els exercicis que s'hi poden fer.
+function materialFolders(list) {
+  const { center, other } = Store.materials();
+  const order = [...center, ...other];
+  const pos = (m) => { const i = order.indexOf(m); return i < 0 ? 999 : i; };
+  const by = {};
+  for (const e of list) for (const m of (e.materials && e.materials.length ? e.materials : [e.material]).filter(Boolean)) (by[m] = by[m] || []).push(e);
+  const names = Object.keys(by).sort((a, b) => pos(a) - pos(b) || a.localeCompare(b, 'ca'));
+  return { key: 'mat', label: 'Per material', count: list.length,
+    list: names.map((name) => ({ name, label: name, items: U.sortBy(by[name], (e) => `${e.family || 'ZZ'}#${String(U.num(e.level) ?? 9)}#${e.name}`) })) };
+}
+
 function openExerciseBrowser({ block, title, onPick, onBlank }) {
   let close = null;
   close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
@@ -45,15 +57,16 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
   const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
-  const zones = exerciseFolders(pool);
+  const zones = [...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
   const found = nq ? Store.exercises().filter((e) => (!scope || scope.includes(e.block) || nq.length > 2)
-    && U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 60) : null;
-  const choose = (e) => ((e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
+    && U.norm(`${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 80) : null;
+  // Si s'hi arriba des d'una carpeta de material, el material ja està triat.
+  const choose = (e) => (zone === 'mat' && folder ? onPick(e, folder) : (e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
   const crumb = [
-    { label: 'Grups musculars', go: () => { setZone(null); setFolder(null); setEx(null); } },
+    { label: 'Carpetes', go: () => { setZone(null); setFolder(null); setEx(null); } },
     z && { label: z.label, go: () => { setFolder(null); setEx(null); } },
     f && { label: f.label, go: () => setEx(null) },
     ex && { label: ex.name },
@@ -61,7 +74,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const back = () => (ex ? setEx(null) : folder ? setFolder(null) : setZone(null));
   const row = (e) => html`<button type="button" class="xb-ex" onClick=${() => choose(e)}>
     <span class="xb-ex-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
-    <span class="xb-ex-meta">${[exerciseMuscles(e).map(muscleLabel).join(' · '), Calc.presc(e)].filter(Boolean).join(' — ')}</span>
+    <span class="xb-ex-meta">${[exerciseMuscles(e).map(muscleLabel).join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}</span>
     <span class="xb-ex-mat">${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''}</span>
   </button>`;
 
@@ -88,7 +101,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
         : f ? html`<div class="xb-list">${f.items.map(row)}</div>`
         : z ? html`<div class="xb-folders">${z.list.map((x) => html`<button type="button" class="xb-folder" onClick=${() => setFolder(x.name)}>
             <${Icon} name="folder" size=${18} /><span class="xb-folder-name">${x.label}</span><span class="xb-folder-n">${x.items.length}</span></button>`)}</div>`
-        : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-${x.key}`} onClick=${() => setZone(x.key)}>
+        : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-z-${x.key}`} onClick=${() => setZone(x.key)}>
             <${Icon} name="folder" size=${22} />
             <span class="xb-zone-name">${x.label}</span>
             <span class="xb-zone-sub">${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}</span>

@@ -160,6 +160,25 @@ const step = async (label, fn) => {
     if (sets !== '3') throw new Error(`sèries per defecte = ${sets}`);
     await blk.locator('.item').last().locator('.tag >> text=Politja Technogym').waitFor();
   });
+  await step('afegir un exercici per material: Loop band Technogym', async () => {
+    const blk = page.locator('section.block.blk-act');
+    await blk.locator('.add-item:not(.add-group)').click();
+    await page.click('.xb-zone >> text=Per material');
+    await page.click('.xb-folder >> text=Loop band Technogym');
+    if ((await page.locator('.xb-ex').count()) < 40) throw new Error('falten exercicis de la loop band');
+    await page.click('.xb-ex >> text=Pont de glutis amb loop band');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    const item = blk.locator('.item').last();
+    if ((await item.locator('.picker-input').inputValue()) !== 'Pont de glutis amb loop band') throw new Error('no s\'ha afegit');
+    await item.locator('.tag >> text=Loop band Technogym').waitFor();
+    // També es troba pel nom anglès de l'app de Technogym.
+    await blk.locator('.add-item:not(.add-group)').click();
+    await page.fill('.dialog input[aria-label="Cerca exercicis"]', 'monster walks - band at knees');
+    await page.waitForSelector('.xb-ex >> text=Monster walk · banda als genolls');
+    await page.click('.dialog-head button[title="Tanca"]');
+    await item.locator('.item-side .menu button').click();
+    await page.click('.menu-list >> text=Elimina');
+  });
   await step('afegir un exercici per carpetes: tronc superior → bíceps → material', async () => {
     const blk = page.locator('section.block.blk-for');
     await blk.locator('.add-item:not(.add-group)').click();
