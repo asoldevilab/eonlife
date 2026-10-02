@@ -100,6 +100,7 @@ function App() {
       ${renderRoute(route)}
     </div>
     <${SharedLists} />
+    <${UpdateBanner} />
     <${ModalHost} />
   </div>`;
 }
@@ -108,7 +109,11 @@ function App() {
   Router.init();
   render(html`<${App} />`, document.getElementById('app'));
   Store.init();
-  // Desa els canvis pendents si l'app passa a segon pla (tauleta).
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushAll(); });
+  AppUpdate.start();
+  // Desa els canvis pendents si l'app passa a segon pla (tauleta); en tornar, mira si hi ha una versió nova.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') Store.flushAll();
+    else AppUpdate.check();
+  });
   window.addEventListener('pagehide', () => Store.flushAll());
 }());

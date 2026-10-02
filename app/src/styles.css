@@ -1309,3 +1309,7 @@ tfoot .rpc { font-size: 14px; }
 .mfolder-name { flex: 1; }
 .mfolder[open] summary { color: var(--ink); }
 .mfolder .exlist { margin: 0 0 10px 26px; }
+
+/* Avís de versió nova */
+.updbar { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 90; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 8px 8px 8px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); font-weight: 650; font-size: 14px; }
+.updbar .btn-ghost { color: var(--bg); }

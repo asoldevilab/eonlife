@@ -54,12 +54,16 @@ const installable = [
   '<meta name="mobile-web-app-capable" content="yes">',
   '<meta name="apple-mobile-web-app-title" content="EON Life">',
 ].join('\n');
-const m365Html = html
+// Les versions publicades miren version.json per actualitzar-se soles (vegeu 98-update.js).
+const updatable = (h) => h.replace('window.EON_BUILD =', () => 'window.EON_UPDATE = true;\nwindow.EON_BUILD =');
+const version = JSON.stringify({ build: stamp });
+const m365Html = updatable(html
   .replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${installable}`)
-  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_BUILD =`);
+  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_BUILD =`));
 const m365Dir = join(repo, 'dist', 'm365');
 mkdirSync(m365Dir, { recursive: true });
 writeFileSync(join(m365Dir, 'index.html'), m365Html);
+writeFileSync(join(m365Dir, 'version.json'), version);
 for (const f of readdirSync(join(src, 'assets', 'icons'))) copyFileSync(join(src, 'assets', 'icons', f), join(m365Dir, f));
 writeFileSync(join(m365Dir, 'manifest.webmanifest'), JSON.stringify({
   name: 'EON Life · Human Performance',
@@ -81,9 +85,31 @@ writeFileSync(join(m365Dir, 'manifest.webmanifest'), JSON.stringify({
 console.log(`Microsoft 365: dist/m365/index.html${m365.clientId ? '' : ' (sense codis: es demanaran a la primera connexió)'}`);
 
 // Demostració publicada al costat de l'app: mode local amb clients ficticis, sense iniciar sessió.
-mkdirSync(join(repo, 'dist', 'm365', 'demo'), { recursive: true });
-writeFileSync(join(repo, 'dist', 'm365', 'demo', 'index.html'),
-  html.replace('<meta charset="utf-8">', () => '<meta charset="utf-8">\n<meta name="robots" content="noindex">'));
+// També s'instal·la a la tauleta (com una app a part, «EON Life demo») i s'actualitza sola.
+const demoDir = join(repo, 'dist', 'm365', 'demo');
+mkdirSync(demoDir, { recursive: true });
+const demoHead = installable
+  .replace('href="icon-192.png"', 'href="../icon-192.png"').replace('href="apple-touch-icon.png"', 'href="../apple-touch-icon.png"')
+  .replace('content="EON Life">', 'content="EON Life demo">');
+writeFileSync(join(demoDir, 'index.html'), updatable(html.replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${demoHead}`)));
+writeFileSync(join(demoDir, 'version.json'), version);
+writeFileSync(join(demoDir, 'manifest.webmanifest'), JSON.stringify({
+  name: 'EON Life · demostració',
+  short_name: 'EON Life demo',
+  description: 'Demostració amb clients ficticis (les dades queden en aquest aparell).',
+  lang: 'ca',
+  start_url: './',
+  scope: './',
+  display: 'standalone',
+  orientation: 'any',
+  background_color: '#F3F0EC',
+  theme_color: '#421215',
+  icons: [
+    { src: '../icon-192.png', sizes: '192x192', type: 'image/png' },
+    { src: '../icon-512.png', sizes: '512x512', type: 'image/png' },
+    { src: '../icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+}, null, 2));
 console.log('Demostració: dist/m365/demo/index.html');
 
 // Variant per a l'enllaç privat: el visor ja hi posa <html>, <head> i <body>; sense impressió ni descàrregues.
