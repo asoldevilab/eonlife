@@ -624,7 +624,7 @@ const Flat = {
         rows.push({
           'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
           'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Mètode': meth(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
-          'Grup muscular': it.gm || '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
+          'Grup muscular': it.gm || '', 'Zona corporal': it.gm ? (MUSCLE_ZONES.find((z) => z.key === muscleZone(it.gm)) || {}).label || '' : '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',
           'Fet': it.done ? 'Sí' : '', 'Observacions': it.note || '',
@@ -638,7 +638,7 @@ const Flat = {
   exercise(e) {
     return {
       'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
-      'Grup muscular': e.gm || '', 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
+      'Grup muscular': e.gm || '', 'Altres músculs': (e.muscles || []).join(', '), 'Materials possibles': (e.materials || []).join(', '), 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',
     };

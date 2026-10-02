@@ -136,11 +136,26 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
   const gIndex = (b, it) => Math.max(0, (b.groups || []).findIndex((g) => g.id === it.g));
   const ungroup = (b) => { for (const it of b.items || []) delete it.g; delete b.groups; };
 
+  // «Afegeix exercici» obre les carpetes: grup muscular → exercici → material (o un exercici en blanc).
   const add = (gid) => {
-    const it = itemFromExercise(null);
-    if (gid) it.g = gid;
-    setFocusId(it.id);
-    onChange((b) => { b.items = [...(b.items || []), it]; Calc.sortByGroups(b); });
+    const put = (it, focus) => {
+      if (gid) it.g = gid;
+      if (focus) setFocusId(it.id);
+      onChange((b) => { b.items = [...(b.items || []), it]; Calc.sortByGroups(b); });
+    };
+    const n = gid && groups ? groups.findIndex((x) => x.g.id === gid) + 1 : 0;
+    openExerciseBrowser({
+      block: block.key,
+      title: `Afegeix exercici · ${blockName(block.key)}${n ? ` · Bloc ${n}` : ''}`,
+      onPick: (ex, mat) => {
+        const it = itemFromExercise(ex, { material: mat || ex.material || '' });
+        const last = prev ? prev[ex.name] : null;
+        if (last && last.load) it.load = last.load;
+        put(it, false);
+        UI.toast(`${ex.name}${mat ? ` · ${mat}` : ''}`);
+      },
+      onBlank: () => put(itemFromExercise(null), true),
+    });
   };
   const setItem = (iid) => (fn) => onChange((b) => { const it = b.items.find((x) => x.id === iid); if (it) fn(it); });
   // Amunt/avall dins del subbloc; des del primer o l'últim exercici, passa al subbloc del costat.
@@ -352,8 +367,8 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Posició</span><${Select} value=${it.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Lateralitat</span><${Select} value=${it.lat} onValue=${set('lat')} options=${OPT.lat.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
-        <label class="rx-f"><span>Material</span><input class="input" value=${it.material} list="mat-list" onInput=${(e) => set('material')(e.currentTarget.value)} /></label>
-        <label class="rx-f"><span>Grup muscular</span><input class="input" value=${it.gm} list="gm-list" onInput=${(e) => set('gm')(e.currentTarget.value)} /></label>
+        <label class="rx-f"><span>Material</span><${MaterialSelect} value=${it.material} exercise=${ex} onValue=${set('material')} /></label>
+        <label class="rx-f"><span>Grup muscular</span><${MuscleSelect} value=${it.gm} onValue=${set('gm')} /></label>
         <label class="rx-f"><span>Tempo</span><input class="input" value=${it.tempo} placeholder="3-1-1-0" onInput=${(e) => set('tempo')(e.currentTarget.value)} /></label>
       </div>`}
     </div>
@@ -380,8 +395,6 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
 function SharedLists() {
   return html`<div hidden>
     <datalist id="int-list">${OPT.intensity.map((x) => html`<option value=${x}></option>`)}</datalist>
-    <datalist id="mat-list">${OPT.material.map((x) => html`<option value=${x}></option>`)}</datalist>
-    <datalist id="gm-list">${OPT.gm.map((x) => html`<option value=${x}></option>`)}</datalist>
   </div>`;
 }
 

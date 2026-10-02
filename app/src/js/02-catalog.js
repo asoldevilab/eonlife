@@ -40,11 +40,12 @@ const OPT = {
     { v: 'BL', label: 'Bilateral' },
     { v: 'UL', label: 'Unilateral' },
   ],
-  gm: ['GMax', 'GMed', 'Quàdriceps', 'Isquiotibials', 'Adductors', 'Bessons i soli', 'Core', 'Dorsal', 'Pectoral',
-    'Deltoides', 'Manegot rotador', 'Escàpula', 'Tren inferior', 'Tren superior', 'Global'],
-  material: ['Pes corporal', 'Barra', 'Barra hexagonal', 'Mancuernes', 'KB', 'Politja', 'Politja cònica',
-    'Resistència pneumàtica (Keiser)', 'Goma elàstica', 'Fitball', 'TRX', 'Med ball', 'Caixa', 'Banc', 'Landmine',
-    'Encoder', 'Bike', 'Assault bike', 'Skillmill', 'Foam roller', 'Pica', 'Paret', 'Terra', 'Màquina'],
+  gm: ['GMax', 'GMed', 'Quàdriceps', 'Isquiotibials', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc',
+    'Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç',
+    'Core', 'Oblics', 'Lumbar', 'Tren inferior', 'Tren superior', 'Global'],
+  // Petit material i material general (a més del material del centre, que es configura a Configuració).
+  material: ['Pes corporal', 'Banc', 'Caixa', 'Pica', 'Paret', 'Terra', 'Fitball', 'Med ball', 'Foam roller', 'TRX', 'Landmine',
+    'Barra hexagonal', 'Cons', 'Tanques', 'Coixí d\'equilibri', 'Roda abdominal', 'Cinturó de llast', 'Pilota', 'Encoder', 'Assault bike'],
   intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
     'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
   // Nivell de progressió d'un exercici dins de la seva família (de més fàcil a més difícil).
@@ -334,12 +335,36 @@ const TEST_INDEX = (() => {
 // Equip del centre (es pot canviar a Configuració).
 const CENTER_PROFESSIONALS = ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
 
+// Material del centre (es pot canviar a Configuració).
+const CENTER_MATERIALS = [
+  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
+  'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
+  'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
+  'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up',
+];
+
+// Grups musculars en carpetes: tronc superior, tronc inferior, core i cos sencer.
+const MUSCLE_ZONES = [
+  { key: 'sup', label: 'Tronc superior', muscles: ['Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç'] },
+  { key: 'inf', label: 'Tronc inferior', muscles: ['Quàdriceps', 'Isquiotibials', 'GMax', 'GMed', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc'] },
+  { key: 'core', label: 'Core', muscles: ['Core', 'Oblics', 'Lumbar'] },
+  { key: 'tot', label: 'Cos sencer i altres', muscles: ['Tren superior', 'Tren inferior', 'Global'] },
+];
+const MUSCLE_LABELS = { GMax: 'Gluti major (GMax)', GMed: 'Gluti mitjà (GMed)', 'Tren superior': 'Tren superior (global)', 'Tren inferior': 'Tren inferior (global)' };
+const muscleLabel = (m) => MUSCLE_LABELS[m] || m;
+// Zona d'un múscul (sup, inf, core o tot).
+function muscleZone(m) {
+  const z = MUSCLE_ZONES.find((x) => x.muscles.includes(m));
+  return z ? z.key : 'tot';
+}
+
 function defaultSettings() {
   return {
     id: 'settings',
     centerName: 'EON Life',
     centerTagline: 'Human Performance',
     professionals: [...CENTER_PROFESSIONALS],
+    materials: [...CENTER_MATERIALS],
     blocks: BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc })),
   };
 }

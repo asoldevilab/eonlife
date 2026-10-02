@@ -243,6 +243,85 @@ const SEED_EXERCISES = (() => {
   for (const [family, ids] of Object.entries(ladders)) {
     ids.forEach((id, i) => { if (byId[id]) Object.assign(byId[id], { family, level: String(i + 1) }); });
   }
+  // ── Exercicis amb el material del centre i de tronc superior per grup muscular ──
+  const add = (id, block, name, cat, material, extra) => { ex(id, block, name, cat, material, extra); byId[id] = list[list.length - 1]; };
+  const B = 'Barra olímpica (20-25 kg)', M = 'Mancuernes Technogym', K = 'Kettlebell', KS = 'Keiser (pneumàtica)', CO = 'Politja cònica isoinercial',
+    PT = 'Politja Technogym', KX = 'kBox Lite Exxentric', G = 'Goma elàstica', F = 'Lliscadors Flowin', PC = 'Pes corporal';
+  add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
+  add('X-ACC-33', 'acc', 'Curl martell', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
+  add('X-ACC-34', 'acc', 'Curl de bíceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-35', 'acc', 'Extensió de tríceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-36', 'acc', 'Extensió de tríceps per sobre del cap', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-37', 'acc', 'Press francès amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Tríceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B] });
+  add('X-ACC-38', 'acc', 'Fons de tríceps al banc', 'Tronc superior', 'Banc', { pos: 'Sd', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '10', materials: ['Banc', PC] });
+  add('X-ACC-39', 'acc', 'Elevacions laterals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, KS, G] });
+  add('X-ACC-40', 'acc', 'Elevacions frontals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-41', 'acc', 'Ocells (deltoides posterior)', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
+  add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tronc superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
+  add('X-ACC-46', 'acc', 'Leg extension', 'Tronc inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
+  add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-49', 'acc', 'Elevació de talons a la premsa', 'Tronc inferior', 'Premsa Technogym', { pos: 'Sd', gm: 'Bessons i soli', sets: '3', reps: '15', materials: ['Premsa Technogym', 'Leg press Biostrength', M] });
+  add('X-ACC-50', 'acc', 'Curl femoral amb lliscadors Flowin', 'Isquiotibials', F, { pos: 'Ds', gm: 'Isquiotibials', muscles: ['GMax'], cont: 'ECC', sets: '3', reps: '8', materials: [F, 'Fitball'] });
+  add('X-FOR-38', 'for', 'Leg press Biostrength', 'Dominant de genoll', 'Leg press Biostrength', { pos: 'Sd', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8', intensity: 'RIR 2', materials: ['Leg press Biostrength', 'Premsa Technogym', KS] });
+  add('X-FOR-39', 'for', 'Squat a la kBox', 'Dominant de genoll', KX, { pos: 'Bp', gm: 'Quàdriceps', muscles: ['GMax'], cont: 'ECC', sets: '4', reps: '8', intensity: 'Màxima intenció', cues: 'Concèntrica tan ràpida com puguis; frena l\'excèntrica al final.', materials: [KX] });
+  add('X-FOR-40', 'for', 'RDL a la kBox', 'Dominant de maluc', KX, { pos: 'Bp', gm: 'Isquiotibials', muscles: ['GMax'], cont: 'ECC', sets: '4', reps: '8', materials: [KX] });
+  add('X-FOR-41', 'for', 'Glute-ham raise (GHD)', 'Dominant de maluc', 'Banc GHD', { pos: 'Ag', gm: 'Isquiotibials', muscles: ['GMax'], sets: '3', reps: '6', materials: ['Banc GHD'] });
+  add('X-FOR-42', 'for', 'Hiperextensió de maluc al lower back bench', 'Dominant de maluc', 'Lower back bench', { pos: 'Dp', gm: 'GMax', muscles: ['Isquiotibials', 'Lumbar'], sets: '3', reps: '12', materials: ['Lower back bench', 'Banc GHD'] });
+  add('X-FOR-43', 'for', 'Press de banca tancat', 'Empenta', B, { pos: 'Ds', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '8', intensity: 'RIR 2', materials: [B, M] });
+  add('X-FOR-44', 'for', 'Rem assegut a la politja', 'Tracció', PT, { pos: 'Sd', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [PT, CO, KS, G] });
+  add('X-ACT-25', 'act', 'GHD sit-up', 'Core', 'Banc GHD', { pos: 'Sd', gm: 'Core', sets: '2', reps: '10', materials: ['Banc GHD'] });
+  add('X-MOB-22', 'mob', 'Carrera a l\'AlterG amb descàrrega', 'Escalfament', 'AlterG', { pos: 'Bp', sets: '1', reps: '10\'', intensity: '70 % del pes', cues: 'Pes corporal reduït per córrer sense dolor; es puja el percentatge setmana a setmana.' });
+  add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
+  add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
+  add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+
+  // Material del centre als exercicis d'abans.
+  const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
+  for (const e of list) if (rename[e.material]) e.material = rename[e.material];
+  byId['X-FOR-07'].material = 'Premsa Technogym';
+  for (const e of list) if (e.block === 'pot' && e.material === PC && /salt|jump|cmj|pogo|bound|snap|skater/i.test(`${e.name} ${e.cat}`)) e.material = 'Pliometria';
+
+  // Músculs implicats (a més del principal) als exercicis de força.
+  const muscles = {
+    'X-FOR-01': ['GMax', 'Adductors'], 'X-FOR-02': ['GMax'], 'X-FOR-03': ['GMax'], 'X-FOR-04': ['GMax', 'Adductors'], 'X-FOR-05': ['Quàdriceps', 'GMax'],
+    'X-FOR-06': ['GMax'], 'X-FOR-07': ['GMax'], 'X-FOR-08': ['Isquiotibials'], 'X-FOR-09': ['GMax', 'Lumbar'], 'X-FOR-10': ['Quàdriceps', 'Isquiotibials'],
+    'X-FOR-11': ['Isquiotibials', 'Lumbar'], 'X-FOR-12': ['GMax', 'Lumbar'], 'X-FOR-13': ['Tríceps', 'Deltoides'], 'X-FOR-14': ['Tríceps'],
+    'X-FOR-15': ['Tríceps', 'Pectoral'], 'X-FOR-16': ['Tríceps', 'Deltoides'], 'X-FOR-17': ['Bíceps'], 'X-FOR-18': ['Bíceps', 'Escàpula'],
+    'X-FOR-19': ['Bíceps'], 'X-FOR-20': ['Bíceps'], 'X-FOR-21': ['Bíceps', 'Escàpula'], 'X-FOR-22': ['GMax'], 'X-FOR-23': ['GMax', 'Adductors'],
+    'X-FOR-24': ['GMax'], 'X-FOR-25': ['GMax'], 'X-FOR-26': ['GMax'], 'X-FOR-28': ['Isquiotibials'], 'X-FOR-29': ['Isquiotibials'],
+    'X-FOR-30': ['Isquiotibials'], 'X-FOR-31': ['Tríceps'], 'X-FOR-32': ['Tríceps', 'Deltoides'], 'X-FOR-33': ['Tríceps', 'Deltoides'],
+    'X-FOR-34': ['Tríceps', 'Trapezi'], 'X-FOR-35': ['Bíceps', 'Escàpula'], 'X-FOR-36': ['Bíceps'], 'X-FOR-37': ['Bíceps'],
+    'X-ACC-13': ['GMax'], 'X-ACC-04': ['GMax'], 'X-ACC-07': ['Tríceps'], 'X-ACC-02': ['Bíceps'],
+  };
+  for (const [id, m] of Object.entries(muscles)) if (byId[id] && !byId[id].muscles) byId[id].muscles = m;
+  for (const e of list) if (!e.gm && /^Olímpics|^Balístic/.test(e.family || '')) e.gm = 'Global';
+
+  // Materials amb què es pot fer cada exercici (el primer és el de per defecte).
+  const byFamily = {
+    'Squat bilateral': [B, M, K, KX, KS, G], 'Squat unilateral': [M, K, B, CO, KS, F, PC], 'Bisagra de maluc': [B, M, K, KX, PT, G],
+    'Extensió de maluc': [B, M, G, KS], 'Empenta horitzontal': [B, M, PT, KS, G, PC], 'Empenta vertical': [B, M, K, KS, PT, G],
+    'Tracció horitzontal': [B, M, PT, CO, KS, G], 'Tracció vertical': [PT, G, PC], 'Olímpics · cargolada': [B, M, K],
+    'Olímpics · arrencada': [B, M, K], 'Olímpics · envia': [B, M, K], 'Balístic de maluc': [K, M], 'Salt vertical': ['Pliometria', KS, M, KX],
+    'Pliometria reactiva': ['Pliometria'], 'Salt horitzontal i unilateral': ['Pliometria'], 'Llançaments': ['Med ball', KS],
+    'Core · antiextensió': [F, 'Roda abdominal', G, 'Fitball'], 'Core · antirotació': [PT, KS, G, CO], 'Core · antiflexió lateral': [K, M, PT],
+    'Glutis': [G, PC, PT], 'Adductors': ['Abductor/adductor 700 Technogym', PT, G, F, 'Banc'], 'Isquiotibials': [KS, F, 'Banc GHD', 'Fitball', PC],
+    'Turmell i panxell': [M, K, 'Premsa Technogym', PC],
+  };
+  const byExercise = {
+    'X-FOR-07': ['Premsa Technogym', 'Leg press Biostrength', KS], 'X-FOR-05': [K, M, B, KX], 'X-FOR-12': [B, G],
+    'X-ACC-01': [CO, KX], 'X-ACC-02': [CO, PT, KS], 'X-ACC-03': [CO, F, PT], 'X-ACC-04': [KS, 'Premsa Technogym', 'Leg press Biostrength'],
+    'X-ACC-05': [KS, 'Leg extension Technogym'], 'X-ACC-07': [KS, PT], 'X-ACC-08': [PT, G, KS], 'X-ACC-11': [PT, G, KS], 'X-ACC-13': [K, M, PT, CO],
+    'X-MOB-14': ['Bike Technogym', 'AlterG', 'Skillmill'], 'X-CAL-08': ['Bike Technogym'],
+  };
+  for (const e of list) {
+    const alt = e.materials || byExercise[e.id] || byFamily[e.family] || [];
+    e.materials = [...new Set([e.material, ...alt].filter(Boolean))];
+  }
+
   // Explicació de les respiracions que no en tenien.
   const cues = {
     'X-CAL-03': 'Inspira 4 s, aguanta 4 s, exhala 4 s i aguanta 4 s. Calma i concentració.',

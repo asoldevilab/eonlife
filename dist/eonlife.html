@@ -1284,6 +1284,41 @@ tfoot .rpc { font-size: 14px; }
   .pv-name { font-size: 10.5pt; }
   .pv-rx, .pv-chip { font-size: 9pt; }
 }
+
+/* Carpetes d'exercicis: grup muscular → exercici → material */
+.xb-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 12px; }
+.xb-top .search { flex: 1 1 260px; }
+.xb-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; font-size: 14px; }
+.xb-crumbs .link { font-weight: 650; }
+.xb-back { display: inline-flex; align-items: center; gap: 4px; margin-right: 8px; }
+.xb-sep { color: var(--ink-3); }
+.xb-zones { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.xb-zone { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 120px; padding: 16px; border-radius: 16px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.xb-zone:hover { background: var(--surface-2); }
+.xb-zone .ic { color: var(--ink-3); }
+.xb-zone-name { font-size: 19px; font-weight: 750; }
+.xb-zone-sub { font-size: 13px; color: var(--ink-2); line-height: 1.35; }
+.xb-folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.xb-folder { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.xb-folder:hover { background: var(--surface-2); }
+.xb-folder .ic { color: var(--ink-3); flex: none; }
+.xb-folder-name { flex: 1; font-weight: 650; }
+.xb-folder-n { font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.xb-matbtn { min-height: 58px; }
+.xb-list { display: flex; flex-direction: column; border-top: 1px solid var(--line); max-height: 55vh; overflow: auto; }
+.xb-ex { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 4px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); text-align: left; cursor: pointer; }
+.xb-ex:hover { background: var(--surface-2); }
+.xb-ex-name { font-weight: 650; }
+.xb-ex-meta { grid-column: 1; font-size: 12.5px; color: var(--ink-3); }
+.xb-ex-mat { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.xb-mat .h3 { margin: 10px 0; }
+.mfolder { border-top: 1px solid var(--line); }
+.mfolder summary { display: flex; align-items: center; gap: 10px; min-height: 46px; cursor: pointer; list-style: none; font-weight: 650; }
+.mfolder summary::-webkit-details-marker { display: none; }
+.mfolder summary .ic { color: var(--ink-3); }
+.mfolder-name { flex: 1; }
+.mfolder[open] summary { color: var(--ink); }
+.mfolder .exlist { margin: 0 0 10px 26px; }
 </style>
 </head>
 <body>
@@ -3590,7 +3625,7 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-01 11:09";
+<script>window.EON_BUILD = "2026-10-02 09:31";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -3923,11 +3958,12 @@ const OPT = {
     { v: 'BL', label: 'Bilateral' },
     { v: 'UL', label: 'Unilateral' },
   ],
-  gm: ['GMax', 'GMed', 'Quàdriceps', 'Isquiotibials', 'Adductors', 'Bessons i soli', 'Core', 'Dorsal', 'Pectoral',
-    'Deltoides', 'Manegot rotador', 'Escàpula', 'Tren inferior', 'Tren superior', 'Global'],
-  material: ['Pes corporal', 'Barra', 'Barra hexagonal', 'Mancuernes', 'KB', 'Politja', 'Politja cònica',
-    'Resistència pneumàtica (Keiser)', 'Goma elàstica', 'Fitball', 'TRX', 'Med ball', 'Caixa', 'Banc', 'Landmine',
-    'Encoder', 'Bike', 'Assault bike', 'Skillmill', 'Foam roller', 'Pica', 'Paret', 'Terra', 'Màquina'],
+  gm: ['GMax', 'GMed', 'Quàdriceps', 'Isquiotibials', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc',
+    'Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç',
+    'Core', 'Oblics', 'Lumbar', 'Tren inferior', 'Tren superior', 'Global'],
+  // Petit material i material general (a més del material del centre, que es configura a Configuració).
+  material: ['Pes corporal', 'Banc', 'Caixa', 'Pica', 'Paret', 'Terra', 'Fitball', 'Med ball', 'Foam roller', 'TRX', 'Landmine',
+    'Barra hexagonal', 'Cons', 'Tanques', 'Coixí d\'equilibri', 'Roda abdominal', 'Cinturó de llast', 'Pilota', 'Encoder', 'Assault bike'],
   intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
     'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
   // Nivell de progressió d'un exercici dins de la seva família (de més fàcil a més difícil).
@@ -4217,12 +4253,36 @@ const TEST_INDEX = (() => {
 // Equip del centre (es pot canviar a Configuració).
 const CENTER_PROFESSIONALS = ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
 
+// Material del centre (es pot canviar a Configuració).
+const CENTER_MATERIALS = [
+  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
+  'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
+  'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
+  'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up',
+];
+
+// Grups musculars en carpetes: tronc superior, tronc inferior, core i cos sencer.
+const MUSCLE_ZONES = [
+  { key: 'sup', label: 'Tronc superior', muscles: ['Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç'] },
+  { key: 'inf', label: 'Tronc inferior', muscles: ['Quàdriceps', 'Isquiotibials', 'GMax', 'GMed', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc'] },
+  { key: 'core', label: 'Core', muscles: ['Core', 'Oblics', 'Lumbar'] },
+  { key: 'tot', label: 'Cos sencer i altres', muscles: ['Tren superior', 'Tren inferior', 'Global'] },
+];
+const MUSCLE_LABELS = { GMax: 'Gluti major (GMax)', GMed: 'Gluti mitjà (GMed)', 'Tren superior': 'Tren superior (global)', 'Tren inferior': 'Tren inferior (global)' };
+const muscleLabel = (m) => MUSCLE_LABELS[m] || m;
+// Zona d'un múscul (sup, inf, core o tot).
+function muscleZone(m) {
+  const z = MUSCLE_ZONES.find((x) => x.muscles.includes(m));
+  return z ? z.key : 'tot';
+}
+
 function defaultSettings() {
   return {
     id: 'settings',
     centerName: 'EON Life',
     centerTagline: 'Human Performance',
     professionals: [...CENTER_PROFESSIONALS],
+    materials: [...CENTER_MATERIALS],
     blocks: BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc })),
   };
 }
@@ -4474,6 +4534,85 @@ const SEED_EXERCISES = (() => {
   for (const [family, ids] of Object.entries(ladders)) {
     ids.forEach((id, i) => { if (byId[id]) Object.assign(byId[id], { family, level: String(i + 1) }); });
   }
+  // ── Exercicis amb el material del centre i de tronc superior per grup muscular ──
+  const add = (id, block, name, cat, material, extra) => { ex(id, block, name, cat, material, extra); byId[id] = list[list.length - 1]; };
+  const B = 'Barra olímpica (20-25 kg)', M = 'Mancuernes Technogym', K = 'Kettlebell', KS = 'Keiser (pneumàtica)', CO = 'Politja cònica isoinercial',
+    PT = 'Politja Technogym', KX = 'kBox Lite Exxentric', G = 'Goma elàstica', F = 'Lliscadors Flowin', PC = 'Pes corporal';
+  add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
+  add('X-ACC-33', 'acc', 'Curl martell', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
+  add('X-ACC-34', 'acc', 'Curl de bíceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-35', 'acc', 'Extensió de tríceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-36', 'acc', 'Extensió de tríceps per sobre del cap', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-37', 'acc', 'Press francès amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Tríceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B] });
+  add('X-ACC-38', 'acc', 'Fons de tríceps al banc', 'Tronc superior', 'Banc', { pos: 'Sd', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '10', materials: ['Banc', PC] });
+  add('X-ACC-39', 'acc', 'Elevacions laterals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, KS, G] });
+  add('X-ACC-40', 'acc', 'Elevacions frontals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-41', 'acc', 'Ocells (deltoides posterior)', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
+  add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tronc superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
+  add('X-ACC-46', 'acc', 'Leg extension', 'Tronc inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
+  add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-49', 'acc', 'Elevació de talons a la premsa', 'Tronc inferior', 'Premsa Technogym', { pos: 'Sd', gm: 'Bessons i soli', sets: '3', reps: '15', materials: ['Premsa Technogym', 'Leg press Biostrength', M] });
+  add('X-ACC-50', 'acc', 'Curl femoral amb lliscadors Flowin', 'Isquiotibials', F, { pos: 'Ds', gm: 'Isquiotibials', muscles: ['GMax'], cont: 'ECC', sets: '3', reps: '8', materials: [F, 'Fitball'] });
+  add('X-FOR-38', 'for', 'Leg press Biostrength', 'Dominant de genoll', 'Leg press Biostrength', { pos: 'Sd', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8', intensity: 'RIR 2', materials: ['Leg press Biostrength', 'Premsa Technogym', KS] });
+  add('X-FOR-39', 'for', 'Squat a la kBox', 'Dominant de genoll', KX, { pos: 'Bp', gm: 'Quàdriceps', muscles: ['GMax'], cont: 'ECC', sets: '4', reps: '8', intensity: 'Màxima intenció', cues: 'Concèntrica tan ràpida com puguis; frena l\'excèntrica al final.', materials: [KX] });
+  add('X-FOR-40', 'for', 'RDL a la kBox', 'Dominant de maluc', KX, { pos: 'Bp', gm: 'Isquiotibials', muscles: ['GMax'], cont: 'ECC', sets: '4', reps: '8', materials: [KX] });
+  add('X-FOR-41', 'for', 'Glute-ham raise (GHD)', 'Dominant de maluc', 'Banc GHD', { pos: 'Ag', gm: 'Isquiotibials', muscles: ['GMax'], sets: '3', reps: '6', materials: ['Banc GHD'] });
+  add('X-FOR-42', 'for', 'Hiperextensió de maluc al lower back bench', 'Dominant de maluc', 'Lower back bench', { pos: 'Dp', gm: 'GMax', muscles: ['Isquiotibials', 'Lumbar'], sets: '3', reps: '12', materials: ['Lower back bench', 'Banc GHD'] });
+  add('X-FOR-43', 'for', 'Press de banca tancat', 'Empenta', B, { pos: 'Ds', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '8', intensity: 'RIR 2', materials: [B, M] });
+  add('X-FOR-44', 'for', 'Rem assegut a la politja', 'Tracció', PT, { pos: 'Sd', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [PT, CO, KS, G] });
+  add('X-ACT-25', 'act', 'GHD sit-up', 'Core', 'Banc GHD', { pos: 'Sd', gm: 'Core', sets: '2', reps: '10', materials: ['Banc GHD'] });
+  add('X-MOB-22', 'mob', 'Carrera a l\'AlterG amb descàrrega', 'Escalfament', 'AlterG', { pos: 'Bp', sets: '1', reps: '10\'', intensity: '70 % del pes', cues: 'Pes corporal reduït per córrer sense dolor; es puja el percentatge setmana a setmana.' });
+  add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
+  add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
+  add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+
+  // Material del centre als exercicis d'abans.
+  const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
+  for (const e of list) if (rename[e.material]) e.material = rename[e.material];
+  byId['X-FOR-07'].material = 'Premsa Technogym';
+  for (const e of list) if (e.block === 'pot' && e.material === PC && /salt|jump|cmj|pogo|bound|snap|skater/i.test(`${e.name} ${e.cat}`)) e.material = 'Pliometria';
+
+  // Músculs implicats (a més del principal) als exercicis de força.
+  const muscles = {
+    'X-FOR-01': ['GMax', 'Adductors'], 'X-FOR-02': ['GMax'], 'X-FOR-03': ['GMax'], 'X-FOR-04': ['GMax', 'Adductors'], 'X-FOR-05': ['Quàdriceps', 'GMax'],
+    'X-FOR-06': ['GMax'], 'X-FOR-07': ['GMax'], 'X-FOR-08': ['Isquiotibials'], 'X-FOR-09': ['GMax', 'Lumbar'], 'X-FOR-10': ['Quàdriceps', 'Isquiotibials'],
+    'X-FOR-11': ['Isquiotibials', 'Lumbar'], 'X-FOR-12': ['GMax', 'Lumbar'], 'X-FOR-13': ['Tríceps', 'Deltoides'], 'X-FOR-14': ['Tríceps'],
+    'X-FOR-15': ['Tríceps', 'Pectoral'], 'X-FOR-16': ['Tríceps', 'Deltoides'], 'X-FOR-17': ['Bíceps'], 'X-FOR-18': ['Bíceps', 'Escàpula'],
+    'X-FOR-19': ['Bíceps'], 'X-FOR-20': ['Bíceps'], 'X-FOR-21': ['Bíceps', 'Escàpula'], 'X-FOR-22': ['GMax'], 'X-FOR-23': ['GMax', 'Adductors'],
+    'X-FOR-24': ['GMax'], 'X-FOR-25': ['GMax'], 'X-FOR-26': ['GMax'], 'X-FOR-28': ['Isquiotibials'], 'X-FOR-29': ['Isquiotibials'],
+    'X-FOR-30': ['Isquiotibials'], 'X-FOR-31': ['Tríceps'], 'X-FOR-32': ['Tríceps', 'Deltoides'], 'X-FOR-33': ['Tríceps', 'Deltoides'],
+    'X-FOR-34': ['Tríceps', 'Trapezi'], 'X-FOR-35': ['Bíceps', 'Escàpula'], 'X-FOR-36': ['Bíceps'], 'X-FOR-37': ['Bíceps'],
+    'X-ACC-13': ['GMax'], 'X-ACC-04': ['GMax'], 'X-ACC-07': ['Tríceps'], 'X-ACC-02': ['Bíceps'],
+  };
+  for (const [id, m] of Object.entries(muscles)) if (byId[id] && !byId[id].muscles) byId[id].muscles = m;
+  for (const e of list) if (!e.gm && /^Olímpics|^Balístic/.test(e.family || '')) e.gm = 'Global';
+
+  // Materials amb què es pot fer cada exercici (el primer és el de per defecte).
+  const byFamily = {
+    'Squat bilateral': [B, M, K, KX, KS, G], 'Squat unilateral': [M, K, B, CO, KS, F, PC], 'Bisagra de maluc': [B, M, K, KX, PT, G],
+    'Extensió de maluc': [B, M, G, KS], 'Empenta horitzontal': [B, M, PT, KS, G, PC], 'Empenta vertical': [B, M, K, KS, PT, G],
+    'Tracció horitzontal': [B, M, PT, CO, KS, G], 'Tracció vertical': [PT, G, PC], 'Olímpics · cargolada': [B, M, K],
+    'Olímpics · arrencada': [B, M, K], 'Olímpics · envia': [B, M, K], 'Balístic de maluc': [K, M], 'Salt vertical': ['Pliometria', KS, M, KX],
+    'Pliometria reactiva': ['Pliometria'], 'Salt horitzontal i unilateral': ['Pliometria'], 'Llançaments': ['Med ball', KS],
+    'Core · antiextensió': [F, 'Roda abdominal', G, 'Fitball'], 'Core · antirotació': [PT, KS, G, CO], 'Core · antiflexió lateral': [K, M, PT],
+    'Glutis': [G, PC, PT], 'Adductors': ['Abductor/adductor 700 Technogym', PT, G, F, 'Banc'], 'Isquiotibials': [KS, F, 'Banc GHD', 'Fitball', PC],
+    'Turmell i panxell': [M, K, 'Premsa Technogym', PC],
+  };
+  const byExercise = {
+    'X-FOR-07': ['Premsa Technogym', 'Leg press Biostrength', KS], 'X-FOR-05': [K, M, B, KX], 'X-FOR-12': [B, G],
+    'X-ACC-01': [CO, KX], 'X-ACC-02': [CO, PT, KS], 'X-ACC-03': [CO, F, PT], 'X-ACC-04': [KS, 'Premsa Technogym', 'Leg press Biostrength'],
+    'X-ACC-05': [KS, 'Leg extension Technogym'], 'X-ACC-07': [KS, PT], 'X-ACC-08': [PT, G, KS], 'X-ACC-11': [PT, G, KS], 'X-ACC-13': [K, M, PT, CO],
+    'X-MOB-14': ['Bike Technogym', 'AlterG', 'Skillmill'], 'X-CAL-08': ['Bike Technogym'],
+  };
+  for (const e of list) {
+    const alt = e.materials || byExercise[e.id] || byFamily[e.family] || [];
+    e.materials = [...new Set([e.material, ...alt].filter(Boolean))];
+  }
+
   // Explicació de les respiracions que no en tenien.
   const cues = {
     'X-CAL-03': 'Inspira 4 s, aguanta 4 s, exhala 4 s i aguanta 4 s. Calma i concentració.',
@@ -5201,7 +5340,7 @@ const Flat = {
         rows.push({
           'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
           'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Mètode': meth(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
-          'Grup muscular': it.gm || '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
+          'Grup muscular': it.gm || '', 'Zona corporal': it.gm ? (MUSCLE_ZONES.find((z) => z.key === muscleZone(it.gm)) || {}).label || '' : '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
           'Càrrega': it.load || '', 'Intensitat': it.intensity || '', 'Descans': it.rest || '', 'Tempo': it.tempo || '',
           'Fet': it.done ? 'Sí' : '', 'Observacions': it.note || '',
@@ -5215,7 +5354,7 @@ const Flat = {
   exercise(e) {
     return {
       'Nom': e.name || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
-      'Grup muscular': e.gm || '', 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
+      'Grup muscular': e.gm || '', 'Altres músculs': (e.muscles || []).join(', '), 'Materials possibles': (e.materials || []).join(', '), 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',
     };
@@ -5563,6 +5702,11 @@ const Store = {
     }
     for (const s of Object.values(stored)) if (!s.deleted && !SEED_TEMPLATES.some((t) => t.id === s.id)) out.push(s);
     return out;
+  },
+  // Material: el del centre (Configuració) i després el petit material general.
+  materials() {
+    const center = this.settings.materials && this.settings.materials.length ? this.settings.materials : CENTER_MATERIALS;
+    return { center: [...center], other: OPT.material.filter((m) => !center.includes(m)) };
   },
   professionals() {
     const set = new Set(this.settings.professionals || []);
@@ -8737,6 +8881,142 @@ function KeyDates({ p }) {
 }
 
 
+/* ── 14-exbrowser.js ── */
+/* EON Life · triar exercicis per carpetes: grup muscular (tronc superior, tronc inferior, core…) → múscul →
+   exercici → material del centre amb què es fa. També els desplegables de múscul i de material. */
+
+// Músculs d'un exercici: el principal i els altres implicats.
+function exerciseMuscles(e) {
+  return [...new Set([e && e.gm, ...((e && e.muscles) || [])].filter(Boolean))];
+}
+
+// Carpetes d'una llista d'exercicis: zona → subcarpeta (múscul o, a «Cos sencer i altres», categoria) → exercicis.
+// Un exercici surt a la carpeta de cada múscul que treballa.
+function exerciseFolders(list) {
+  const zones = MUSCLE_ZONES.map((z) => ({ ...z, folders: {}, ids: new Set() }));
+  const put = (z, name, e) => { (z.folders[name] = z.folders[name] || []).push(e); z.ids.add(e.id); };
+  for (const e of list) {
+    const ms = exerciseMuscles(e);
+    let placed = false;
+    for (const z of zones) {
+      if (z.key === 'tot') continue;
+      for (const m of ms) if (z.muscles.includes(m)) { put(z, m, e); placed = true; }
+    }
+    if (!placed) put(zones.find((z) => z.key === 'tot'), ms.find((m) => muscleZone(m) === 'tot' && m !== 'Global') || e.cat || 'Altres', e);
+  }
+  for (const z of zones) {
+    const order = (name) => { const i = z.muscles.indexOf(name); return i < 0 ? 99 : i; };
+    z.list = Object.keys(z.folders).sort((a, b) => order(a) - order(b) || a.localeCompare(b, 'ca'))
+      .map((name) => ({ name, label: muscleLabel(name), items: U.sortBy(z.folders[name], (e) => `${e.family || 'ZZ'}#${String(U.num(e.level) ?? 9)}#${e.name}`) }));
+    z.count = z.ids.size;
+  }
+  return zones.filter((z) => z.count);
+}
+
+function openExerciseBrowser({ block, title, onPick, onBlank }) {
+  let close = null;
+  close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
+    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${() => { close(); onBlank(); }} onClose=${() => close()} />`,
+  { onDismiss: () => close() });
+}
+
+function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
+  const [all, setAll] = useState(false);
+  const [q, setQ] = useState('');
+  const [zone, setZone] = useState(null);
+  const [folder, setFolder] = useState(null);
+  const [ex, setEx] = useState(null);
+  // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
+  const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
+  const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
+  const zones = exerciseFolders(pool);
+  const z = zone && zones.find((x) => x.key === zone);
+  const f = z && folder && z.list.find((x) => x.name === folder);
+  const nq = U.norm(q.trim());
+  const found = nq ? Store.exercises().filter((e) => (!scope || scope.includes(e.block) || nq.length > 2)
+    && U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 60) : null;
+  const choose = (e) => ((e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
+  const crumb = [
+    { label: 'Grups musculars', go: () => { setZone(null); setFolder(null); setEx(null); } },
+    z && { label: z.label, go: () => { setFolder(null); setEx(null); } },
+    f && { label: f.label, go: () => setEx(null) },
+    ex && { label: ex.name },
+  ].filter(Boolean);
+  const back = () => (ex ? setEx(null) : folder ? setFolder(null) : setZone(null));
+  const row = (e) => html`<button type="button" class="xb-ex" onClick=${() => choose(e)}>
+    <span class="xb-ex-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
+    <span class="xb-ex-meta">${[exerciseMuscles(e).map(muscleLabel).join(' · '), Calc.presc(e)].filter(Boolean).join(' — ')}</span>
+    <span class="xb-ex-mat">${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''}</span>
+  </button>`;
+
+  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici · ${blockName(block)}`} onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>`}>
+    <div class="xb-top">
+      <label class="search"><${Icon} name="search" size=${17} />
+        <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
+      <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
+    </div>
+    ${found && !ex ? html`<div class="xb-list">${found.length ? found.map(row) : html`<p class="muted">Cap exercici coincideix. Pots afegir-lo en blanc i escriure'l.</p>`}</div>`
+      : html`<nav class="xb-crumbs" aria-label="Carpetes">
+          ${(zone || ex) && html`<button type="button" class="link xb-back" onClick=${back}><${Icon} name="back" size=${15} />Enrere</button>`}
+          ${found ? html`<strong>${ex.name}</strong>` : crumb.map((c, i) => html`${i > 0 && html`<span class="xb-sep">›</span>`}${c.go && i < crumb.length - 1 ? html`<button type="button" class="link" onClick=${c.go}>${c.label}</button>` : html`<strong>${c.label}</strong>`}`)}
+        </nav>
+        ${ex ? html`<div class="xb-mat">
+            <p class="muted">${[exerciseMuscles(ex).map(muscleLabel).join(' · '), Calc.presc(ex)].filter(Boolean).join(' — ')}</p>
+            <h3 class="h3">Amb quin material?</h3>
+            <div class="xb-folders">${ex.materials.map((m, i) => html`<button type="button" class="xb-folder xb-matbtn" onClick=${() => onPick(ex, m)}>
+              <${Icon} name="dumbbell" size=${18} /><span class="xb-folder-name">${m}</span>${i === 0 && html`<span class="xb-folder-n">per defecte</span>`}</button>`)}</div>
+          </div>`
+        : f ? html`<div class="xb-list">${f.items.map(row)}</div>`
+        : z ? html`<div class="xb-folders">${z.list.map((x) => html`<button type="button" class="xb-folder" onClick=${() => setFolder(x.name)}>
+            <${Icon} name="folder" size=${18} /><span class="xb-folder-name">${x.label}</span><span class="xb-folder-n">${x.items.length}</span></button>`)}</div>`
+        : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-${x.key}`} onClick=${() => setZone(x.key)}>
+            <${Icon} name="folder" size=${22} />
+            <span class="xb-zone-name">${x.label}</span>
+            <span class="xb-zone-sub">${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}</span>
+            <span class="xb-folder-n">${U.plural(x.count, 'exercici', 'exercicis')}</span></button>`)}</div>`}`}
+  </${Dialog}>`;
+}
+
+// Desplegable de múscul principal, agrupat per zona.
+function MuscleSelect({ id, value, onValue, ariaLabel = 'Grup muscular' }) {
+  const known = MUSCLE_ZONES.some((z) => z.muscles.includes(value));
+  return html`<select id=${id} class="input select" value=${value || ''} aria-label=${ariaLabel} onChange=${(e) => onValue(e.currentTarget.value)}>
+    <option value="">—</option>
+    ${value && !known && html`<option value=${value}>${value}</option>`}
+    ${MUSCLE_ZONES.map((z) => html`<optgroup label=${z.label}>${z.muscles.map((m) => html`<option value=${m}>${muscleLabel(m)}</option>`)}</optgroup>`)}
+  </select>`;
+}
+
+// Desplegable de material: primer els de l'exercici, després el material del centre i el petit material.
+// «Un altre…» permet escriure'n un de nou (i afegir-lo al material del centre).
+function MaterialSelect({ id, value, onValue, exercise, ariaLabel = 'Material' }) {
+  const { center, other } = Store.materials();
+  const mine = ((exercise && exercise.materials) || []).filter(Boolean);
+  const all = [...mine, ...center, ...other];
+  const onChange = async (e) => {
+    const v = e.currentTarget.value;
+    if (v !== '__altre') { onValue(v); return; }
+    e.currentTarget.value = value || '';
+    const name = await UI.prompt({ title: 'Un altre material', label: 'Nom del material', placeholder: 'p. ex. Trineu' });
+    if (!name || !name.trim()) return;
+    const n = name.trim();
+    if (!center.includes(n) && !other.includes(n)) Store.saveSettings({ materials: [...center, n] });
+    onValue(n);
+  };
+  return html`<select id=${id} class="input select" value=${value || ''} aria-label=${ariaLabel} onChange=${onChange}>
+    <option value="">—</option>
+    ${value && !all.includes(value) && html`<option value=${value}>${value}</option>`}
+    ${mine.length > 0 && html`<optgroup label="Per a aquest exercici">${mine.map((m) => html`<option value=${m}>${m}</option>`)}</optgroup>`}
+    <optgroup label="Material del centre">${center.filter((m) => !mine.includes(m)).map((m) => html`<option value=${m}>${m}</option>`)}</optgroup>
+    <optgroup label="Petit material">${other.filter((m) => !mine.includes(m)).map((m) => html`<option value=${m}>${m}</option>`)}</optgroup>
+    <option value="__altre">Un altre…</option>
+  </select>`;
+}
+
+
 /* ── 20-home.js ── */
 /* EON Life · pantalla d'inici: sessions d'avui, re-tests pendents i llista de clients. */
 
@@ -10209,11 +10489,26 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
   const gIndex = (b, it) => Math.max(0, (b.groups || []).findIndex((g) => g.id === it.g));
   const ungroup = (b) => { for (const it of b.items || []) delete it.g; delete b.groups; };
 
+  // «Afegeix exercici» obre les carpetes: grup muscular → exercici → material (o un exercici en blanc).
   const add = (gid) => {
-    const it = itemFromExercise(null);
-    if (gid) it.g = gid;
-    setFocusId(it.id);
-    onChange((b) => { b.items = [...(b.items || []), it]; Calc.sortByGroups(b); });
+    const put = (it, focus) => {
+      if (gid) it.g = gid;
+      if (focus) setFocusId(it.id);
+      onChange((b) => { b.items = [...(b.items || []), it]; Calc.sortByGroups(b); });
+    };
+    const n = gid && groups ? groups.findIndex((x) => x.g.id === gid) + 1 : 0;
+    openExerciseBrowser({
+      block: block.key,
+      title: `Afegeix exercici · ${blockName(block.key)}${n ? ` · Bloc ${n}` : ''}`,
+      onPick: (ex, mat) => {
+        const it = itemFromExercise(ex, { material: mat || ex.material || '' });
+        const last = prev ? prev[ex.name] : null;
+        if (last && last.load) it.load = last.load;
+        put(it, false);
+        UI.toast(`${ex.name}${mat ? ` · ${mat}` : ''}`);
+      },
+      onBlank: () => put(itemFromExercise(null), true),
+    });
   };
   const setItem = (iid) => (fn) => onChange((b) => { const it = b.items.find((x) => x.id === iid); if (it) fn(it); });
   // Amunt/avall dins del subbloc; des del primer o l'últim exercici, passa al subbloc del costat.
@@ -10425,8 +10720,8 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Posició</span><${Select} value=${it.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Lateralitat</span><${Select} value=${it.lat} onValue=${set('lat')} options=${OPT.lat.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
-        <label class="rx-f"><span>Material</span><input class="input" value=${it.material} list="mat-list" onInput=${(e) => set('material')(e.currentTarget.value)} /></label>
-        <label class="rx-f"><span>Grup muscular</span><input class="input" value=${it.gm} list="gm-list" onInput=${(e) => set('gm')(e.currentTarget.value)} /></label>
+        <label class="rx-f"><span>Material</span><${MaterialSelect} value=${it.material} exercise=${ex} onValue=${set('material')} /></label>
+        <label class="rx-f"><span>Grup muscular</span><${MuscleSelect} value=${it.gm} onValue=${set('gm')} /></label>
         <label class="rx-f"><span>Tempo</span><input class="input" value=${it.tempo} placeholder="3-1-1-0" onInput=${(e) => set('tempo')(e.currentTarget.value)} /></label>
       </div>`}
     </div>
@@ -10453,8 +10748,6 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
 function SharedLists() {
   return html`<div hidden>
     <datalist id="int-list">${OPT.intensity.map((x) => html`<option value=${x}></option>`)}</datalist>
-    <datalist id="mat-list">${OPT.material.map((x) => html`<option value=${x}></option>`)}</datalist>
-    <datalist id="gm-list">${OPT.gm.map((x) => html`<option value=${x}></option>`)}</datalist>
   </div>`;
 }
 
@@ -10873,9 +11166,11 @@ function ExerciseList() {
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
-        options=${[{ v: 'llista', label: 'Llista' }, { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tronc superior, tronc inferior i core, múscul per múscul' },
+          { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
     ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
+      : view === 'musculs' ? html`<${MuscleFolders} all=${all} />`
       : BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(all.filter((e) => e.block === b.key).length, 'exercici', 'exercicis')}</span></div>
       <div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
@@ -10886,6 +11181,21 @@ function ExerciseList() {
     </div>`)}
     ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
   </section>`;
+}
+
+// Carpetes per grup muscular: tronc superior, tronc inferior, core i cos sencer; dins, cada múscul.
+function MuscleFolders({ all }) {
+  return html`<div class="stack">${exerciseFolders(all).map((z) => html`<div class="libgroup">
+    <div class="libgroup-head"><strong>${z.label}</strong><span class="muted">${U.plural(z.count, 'exercici', 'exercicis')}</span></div>
+    ${z.list.map((f) => html`<details class="mfolder">
+      <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
+      <div class="exlist">${f.items.map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
+        <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
+        <span class="exrow-meta">${[blockName(e.block), (e.materials || [e.material]).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')}</span>
+        <span class="exrow-rx">${Calc.presc(e)}</span>
+      </button>`)}</div>
+    </details>`)}
+  </div>`)}</div>`;
 }
 
 // Progressions: cada família (patró) amb els exercicis del nivell 1 (inicial) al 5 (expert).
@@ -10942,12 +11252,19 @@ function ExerciseDialog({ ex, onClose }) {
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
-      <${Field} label="Material" id="ex-mat"><${TextInput} id="ex-mat" value=${f.material} onValue=${set('material')} list="mat-list" /></${Field}>
-      <${Field} label="Grup muscular" id="ex-gm"><${TextInput} id="ex-gm" value=${f.gm} onValue=${set('gm')} list="gm-list" /></${Field}>
+      <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>
+      <${Field} label="Múscul principal" id="ex-gm"><${MuscleSelect} id="ex-gm" value=${f.gm} onValue=${set('gm')} /></${Field}>
       <${Field} label="Contracció" id="ex-cont"><${Select} id="ex-cont" value=${f.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
       <${Field} label="Posició" id="ex-pos"><${Select} id="ex-pos" value=${f.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
       <${Field} label="Lateralitat" id="ex-lat"><${Select} id="ex-lat" value=${f.lat} onValue=${set('lat')} options=${OPT.lat.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></${Field}>
     </div>
+    <h3 class="h3 mt">Altres músculs implicats</h3>
+    <div class="chips">${MUSCLE_ZONES.flatMap((z) => z.muscles).filter((m) => m !== f.gm).map((m) => html`<${Chip} on=${(f.muscles || []).includes(m)}
+      onClick=${() => setF({ ...f, muscles: (f.muscles || []).includes(m) ? f.muscles.filter((x) => x !== m) : [...(f.muscles || []), m] })}>${muscleLabel(m)}</${Chip}>`)}</div>
+    <h3 class="h3 mt">Material amb què es pot fer</h3>
+    <p class="muted small">Surt quan tries l'exercici a la sessió («Amb quin material?»).</p>
+    <div class="chips">${[...new Set([...Store.materials().center, ...(f.materials || [])])].map((m) => html`<${Chip} on=${(f.materials || []).includes(m)}
+      onClick=${() => setF({ ...f, materials: (f.materials || []).includes(m) ? f.materials.filter((x) => x !== m) : [...(f.materials || []), m] })}>${m}</${Chip}>`)}</div>
     <h3 class="h3 mt">Progressió</h3>
     <div class="form-grid">
       <${Field} label="Família (patró)" id="ex-family" hint="Exercicis del mateix patró, de més fàcil a més difícil (p. ex. Core · antiextensió)">
@@ -11149,6 +11466,15 @@ function SettingsView() {
     setNewProf('');
   };
   const delProf = (name) => Store.saveSettings({ professionals: (st.professionals || []).filter((x) => x !== name) });
+  const [newMat, setNewMat] = useState('');
+  const mats = Store.materials().center;
+  const addMat = () => {
+    const name = newMat.trim();
+    if (!name) return;
+    if (!mats.includes(name)) Store.saveSettings({ materials: [...mats, name] });
+    setNewMat('');
+  };
+  const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
 
   const exportJson = () => {
     const ok = U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
@@ -11248,6 +11574,17 @@ function SettingsView() {
       </div>
       <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addProf(); }}>
         <${TextInput} value=${newProf} onValue=${setNewProf} placeholder="Nom i cognom" ariaLabel="Nou professional" />
+        <${Btn} type="submit" icon="plus">Afegeix</${Btn}>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Material del centre</h2><span class="muted">Surt primer en triar el material d'un exercici</span></div>
+      <div class="proflist">
+        ${mats.map((name) => html`<span class="profchip">${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
+      </div>
+      <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addMat(); }}>
+        <${TextInput} value=${newMat} onValue=${setNewMat} placeholder="p. ex. Trineu" ariaLabel="Material nou" />
         <${Btn} type="submit" icon="plus">Afegeix</${Btn}>
       </form>
     </section>
