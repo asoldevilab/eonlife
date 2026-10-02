@@ -186,10 +186,10 @@ const step = async (label, fn) => {
     await item.locator('.item-side .menu button').click();
     await page.click('.menu-list >> text=Elimina');
   });
-  await step('afegir un exercici per carpetes: tronc superior → bíceps → material', async () => {
+  await step('afegir un exercici per carpetes: tren superior → bíceps → material', async () => {
     const blk = page.locator('section.block.blk-for');
     await blk.locator('.add-item:not(.add-group)').click();
-    await page.click('.xb-zone >> text=Tronc superior');
+    await page.click('.xb-zone >> text=Tren superior');
     await page.waitForSelector('.xb-folder >> text=Bíceps');
     await shot(page, '08d-carpetes', false);
     await page.click('.xb-folder >> text=Bíceps');
@@ -236,7 +236,7 @@ const step = async (label, fn) => {
     await blk.locator('.sgroup').nth(1).locator('.item').first().waitFor();
     await blk.locator('.sgroup').nth(1).locator('.add-item >> text=Afegeix exercici al bloc 2').click();
     await page.waitForSelector('.dialog-title >> text=Bloc 2');
-    await page.click('.xb-zone >> text=Tronc inferior');
+    await page.click('.xb-zone >> text=Tren inferior');
     await page.click('.xb-folder >> text=Gluti major (GMax)');
     await page.click('.xb-ex-name >> text="Hip thrust"');
     await page.click('.xb-matbtn >> text=Barra olímpica');
@@ -302,6 +302,25 @@ const step = async (label, fn) => {
     await page.waitForSelector('.block');
     const n = await page.locator('.item').count();
     if (n < 10) throw new Error(`només ${n} exercicis`);
+  });
+  await step('sessió en blanc: sense blocs i afegits a mà', async () => {
+    await goHash(page, '#/client/P-DEMO-ALEX');
+    await page.click('.phead-actions >> text=Nova sessió');
+    await page.click('.choice >> text=Sessió en blanc');
+    await page.click('.dialog-foot >> text=Crea la sessió');
+    await page.waitForSelector('.addblocks-empty');
+    if (await page.locator('section.block').count()) throw new Error('la sessió en blanc no ha de tenir blocs');
+    await page.click('.addblock >> text=Força principal');
+    await page.waitForSelector('section.block.blk-for');
+    await page.click('.addblock >> text=Mobilitat');
+    await page.waitForSelector('section.block.blk-mob');
+    const keys = await page.$$eval('section.block', (els) => els.map((e) => [...e.classList].find((c) => c.startsWith('blk-'))));
+    if (keys.join() !== 'blk-mob,blk-for') throw new Error(`ordre dels blocs: ${keys}`);
+    if ((await page.locator('.addblock').count()) !== 4) throw new Error('han de quedar 4 blocs per afegir');
+    await shot(page, '08e-sessio-blocs-a-ma');
+    await page.locator('section.block.blk-mob .block-head button[title="Plantilles del bloc"]').click();
+    await page.click('.menu-list >> text=Treu el bloc de la sessió');
+    await page.waitForSelector('section.block.blk-mob', { state: 'detached' });
   });
   await step('pla d\'entrenament: 8 sessions amb progressió cada 2', async () => {
     await goHash(page, '#/client/P-DEMO-ALEX/pla');

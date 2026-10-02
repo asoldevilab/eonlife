@@ -108,23 +108,31 @@ Consells:
 
 ## Sessions de 6 blocs
 
-Cada sessió té sempre els mateixos blocs, en aquest ordre:
+La metodologia té 6 blocs, sempre en aquest ordre:
 
 1. **Mobilitat** 2. **Activació** 3. **Potència** 4. **Força principal** 5. **Accessoris** 6. **Tornada a la calma**
+
+Cada sessió té només els blocs que necessita el client: no cal que hi siguin tots sis.
 
 ### Crear-ne una
 
 **Nova sessió** a la fitxa del client (o toca un dia buit del *Seguiment mensual*) i tria:
 
 - **Copia l'última sessió** — la manera més ràpida de progressar setmana a setmana.
-- **A partir d'una plantilla** — p. ex. *Sessió tipus · tren inferior (genoll)*.
-- **Sessió en blanc**.
+- **Sessió en blanc** — sense cap bloc (és l'opció de sortida per a un client nou). A la sessió surten els botons
+  **1 Mobilitat, 2 Activació…** per afegir només els blocs que calguin; es col·loquen sols en l'ordre de la
+  metodologia. Mentre se'n puguin afegir més, al final de la sessió hi ha **Afegeix un bloc**.
+- **A partir d'una plantilla** — p. ex. *Sessió tipus · tren inferior (genoll)*. Porta només els blocs que la
+  plantilla té omplerts.
+
+Per treure un bloc d'una sessió: menú del bloc (icona de capes) › **Treu el bloc de la sessió**. Copiant l'última
+sessió o fent la del pla, també només hi passen els blocs que tenen alguna cosa.
 
 ### Omplir-la
 
 - A cada bloc: **focus** (p. ex. *Dominant de genoll*) i els exercicis.
 - **Afegeix exercici** obre les carpetes de la biblioteca:
-  1. **Grup muscular**: *Tronc superior* (pectoral, dorsal, deltoides, bíceps, tríceps, trapezi…), *Tronc inferior*
+  1. **Grup muscular**: *Tren superior* (pectoral, dorsal, deltoides, bíceps, tríceps, trapezi…), *Tren inferior*
      (quàdriceps, isquiotibials, glutis, adductors, bessons…), *Core* i *Cos sencer i altres*. Un exercici surt a la
      carpeta de cada múscul principal que treballa (el press de banca, a Pectoral i a Tríceps).
   2. **Exercici**: targetes amb la miniatura (el dibuix o la foto), el nivell (N1–N5) i els músculs.
@@ -132,7 +140,8 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
      kettlebell, kBox, Keiser, cònica, politja…).
   També hi ha la carpeta **Per material**: triant l'exercici des d'aquí ja queda posat el material. Hi ha els
   exercicis de l'app de Technogym: *Loop band Technogym* (50), *Kettlebell* (50), *Power Personal Technogym* (38)
-  i *Mobility ball Technogym* (9, al bloc de mobilitat). Són una proposta de nom i bloc: es poden editar a la biblioteca.
+  *Mobility ball Technogym* (9, al bloc de mobilitat) i *Mancuernes Technogym* (51, de les manuelles i les manuelles
+  hexagonals). Són una proposta de nom i bloc: es poden editar a la biblioteca.
   A dalt hi ha el cercador (nom, múscul, material o el nom en anglès de l'app de Technogym) i *Tots els blocs*. A Força principal i Accessoris surten els
   exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
   S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la
@@ -261,7 +270,7 @@ sessions previstes del pla d'entrenament.
 
 ## Biblioteca
 
-- **Exercicis** per bloc, **per grup muscular** (les mateixes carpetes de tronc superior i inferior) o per
+- **Exercicis** per bloc, **per grup muscular** (les mateixes carpetes de tren superior i inferior) o per
   **progressions**. A cada exercici: múscul principal, altres músculs implicats i el material amb què es pot fer.
 - Més de 190 exercicis de base, amb els dels vostres Excel (Hip Thrust, RDL, Split Squat, Sumo Squat, HE,
   Dead Bug, Bike + Foam…) i els de les màquines del centre. Es poden editar, afegir-hi vídeo de demostració,

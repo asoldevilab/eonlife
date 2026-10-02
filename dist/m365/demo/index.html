@@ -1371,6 +1371,18 @@ tfoot .rpc { font-size: 14px; }
 .picopt-name { font-size: 12px; line-height: 1.25; text-align: center; color: var(--ink-2); }
 @media (max-width: 640px) { .thumbedit { align-items: flex-start; } .thumbedit .exthumb { --thumb: 84px !important; } }
 @media print { .exthumb { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+
+/* Blocs de la sessió afegits a mà */
+.addblocks { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.addblocks-empty { flex-direction: column; align-items: stretch; }
+.addblocks-empty .h2 { margin: 0 0 4px; }
+.addblocks-empty p { margin: 0; }
+.addblocks-label { font-weight: 700; color: var(--ink-2); }
+.addblocks-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.addblock { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 14px 0 7px; border-radius: 12px; border: 1.5px dashed var(--line-2); background: var(--surface); color: var(--ink); font-weight: 650; cursor: pointer; }
+.addblock:hover { border-color: var(--blk); border-style: solid; }
+.addblock .ic { color: var(--ink-3); }
+.addblock-num { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 18px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -3678,7 +3690,7 @@ var qrcode = function() {
 }));
 </script>
 <script>window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-02 11:21";
+window.EON_BUILD = "2026-10-02 11:36";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4314,12 +4326,12 @@ const CENTER_MATERIALS = [
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
 ];
 
-// Grups musculars en carpetes: tronc superior, tronc inferior, core i cos sencer.
+// Grups musculars en carpetes: tren superior, tren inferior, core i cos sencer.
 const MUSCLE_ZONES = [
-  { key: 'sup', label: 'Tronc superior', muscles: ['Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç'] },
-  { key: 'inf', label: 'Tronc inferior', muscles: ['Quàdriceps', 'Isquiotibials', 'GMax', 'GMed', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc'] },
+  { key: 'sup', label: 'Tren superior', muscles: ['Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç', 'Tren superior'] },
+  { key: 'inf', label: 'Tren inferior', muscles: ['Quàdriceps', 'Isquiotibials', 'GMax', 'GMed', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc', 'Tren inferior'] },
   { key: 'core', label: 'Core', muscles: ['Core', 'Oblics', 'Lumbar'] },
-  { key: 'tot', label: 'Cos sencer i altres', muscles: ['Tren superior', 'Tren inferior', 'Global'] },
+  { key: 'tot', label: 'Cos sencer i altres', muscles: ['Global'] },
 ];
 const MUSCLE_LABELS = { GMax: 'Gluti major (GMax)', GMed: 'Gluti mitjà (GMed)', 'Tren superior': 'Tren superior (global)', 'Tren inferior': 'Tren inferior (global)' };
 const muscleLabel = (m) => MUSCLE_LABELS[m] || m;
@@ -4587,28 +4599,28 @@ const SEED_EXERCISES = (() => {
   for (const [family, ids] of Object.entries(ladders)) {
     ids.forEach((id, i) => { if (byId[id]) Object.assign(byId[id], { family, level: String(i + 1) }); });
   }
-  // ── Exercicis amb el material del centre i de tronc superior per grup muscular ──
+  // ── Exercicis amb el material del centre i de tren superior per grup muscular ──
   const add = (id, block, name, cat, material, extra) => { ex(id, block, name, cat, material, extra); byId[id] = list[list.length - 1]; };
   const B = 'Barra olímpica (20-25 kg)', M = 'Mancuernes Technogym', K = 'Kettlebell', KS = 'Keiser (pneumàtica)', CO = 'Politja cònica isoinercial',
     PT = 'Politja Technogym', KX = 'kBox Lite Exxentric', G = 'Goma elàstica', F = 'Lliscadors Flowin', PC = 'Pes corporal';
-  add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
-  add('X-ACC-33', 'acc', 'Curl martell', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
-  add('X-ACC-34', 'acc', 'Curl de bíceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '12', materials: [PT, KS, G] });
-  add('X-ACC-35', 'acc', 'Extensió de tríceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, KS, G] });
-  add('X-ACC-36', 'acc', 'Extensió de tríceps per sobre del cap', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, M, G] });
-  add('X-ACC-37', 'acc', 'Press francès amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Tríceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B] });
-  add('X-ACC-38', 'acc', 'Fons de tríceps al banc', 'Tronc superior', 'Banc', { pos: 'Sd', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '10', materials: ['Banc', PC] });
-  add('X-ACC-39', 'acc', 'Elevacions laterals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, KS, G] });
-  add('X-ACC-40', 'acc', 'Elevacions frontals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, G] });
-  add('X-ACC-41', 'acc', 'Ocells (deltoides posterior)', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, PT, G] });
-  add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
-  add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
-  add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
-  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tronc superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
-  add('X-ACC-46', 'acc', 'Leg extension', 'Tronc inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
-  add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
-  add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
-  add('X-ACC-49', 'acc', 'Elevació de talons a la premsa', 'Tronc inferior', 'Premsa Technogym', { pos: 'Sd', gm: 'Bessons i soli', sets: '3', reps: '15', materials: ['Premsa Technogym', 'Leg press Biostrength', M] });
+  add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tren superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
+  add('X-ACC-33', 'acc', 'Curl martell', 'Tren superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
+  add('X-ACC-34', 'acc', 'Curl de bíceps a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-35', 'acc', 'Extensió de tríceps a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-36', 'acc', 'Extensió de tríceps per sobre del cap', 'Tren superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-37', 'acc', 'Press francès amb mancuernes', 'Tren superior', M, { pos: 'Ds', gm: 'Tríceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B] });
+  add('X-ACC-38', 'acc', 'Fons de tríceps al banc', 'Tren superior', 'Banc', { pos: 'Sd', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '10', materials: ['Banc', PC] });
+  add('X-ACC-39', 'acc', 'Elevacions laterals', 'Tren superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, KS, G] });
+  add('X-ACC-40', 'acc', 'Elevacions frontals', 'Tren superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-41', 'acc', 'Ocells (deltoides posterior)', 'Tren superior', M, { pos: 'Bp', gm: 'Deltoides', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tren superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
+  add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tren superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
+  add('X-ACC-46', 'acc', 'Leg extension', 'Tren inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
+  add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tren inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tren inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-49', 'acc', 'Elevació de talons a la premsa', 'Tren inferior', 'Premsa Technogym', { pos: 'Sd', gm: 'Bessons i soli', sets: '3', reps: '15', materials: ['Premsa Technogym', 'Leg press Biostrength', M] });
   add('X-ACC-50', 'acc', 'Curl femoral amb lliscadors Flowin', 'Isquiotibials', F, { pos: 'Ds', gm: 'Isquiotibials', muscles: ['GMax'], cont: 'ECC', sets: '3', reps: '8', materials: [F, 'Fitball'] });
   add('X-FOR-38', 'for', 'Leg press Biostrength', 'Dominant de genoll', 'Leg press Biostrength', { pos: 'Sd', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8', intensity: 'RIR 2', materials: ['Leg press Biostrength', 'Premsa Technogym', KS] });
   add('X-FOR-39', 'for', 'Squat a la kBox', 'Dominant de genoll', KX, { pos: 'Bp', gm: 'Quàdriceps', muscles: ['GMax'], cont: 'ECC', sets: '4', reps: '8', intensity: 'Màxima intenció', cues: 'Concèntrica tan ràpida com puguis; frena l\'excèntrica al final.', materials: [KX] });
@@ -4792,6 +4804,60 @@ const SEED_EXERCISES = (() => {
   tgEx('PP', 36, "for", "Pes mort romanès al Power Personal", "Romanian deadlift", "Isquiotibials", 'Power Personal', PPT, [PPT], { muscles: ["GMax", "Lumbar"], sets: "3", reps: "8", intensity: "RIR 2" });
   tgEx('PP', 37, "acc", "Elevacions laterals assegut al Power Personal", "Lateral raise - seated", "Deltoides", 'Power Personal', PPT, [PPT], { pos: "Sd", sets: "3", reps: "12" });
   tgEx('PP', 38, "for", "Dominades amb presa ampla al Power Personal", "Wide grip chin-up", "Dorsal", 'Power Personal', PPT, [PPT], { muscles: ["Bíceps"], sets: "3", reps: "6", intensity: "RIR 2" });
+
+  // ── Mancuernes Technogym (51 exercicis de l'app de Technogym: «Dumbbells» i, del 48 al 51, «Hexagon dumbbells») ──
+  const db = (n, block, name, tg, gm, extra = {}) => tgEx('DB', n, block, name, tg, gm, 'Mancuernes', M, [M, KBT], extra);
+  db(1, 'acc', "Elevacions laterals amb mancuernes", "Lateral raises", 'Deltoides', { sets: '3', reps: '12' });
+  db(2, 'for', "Press d'espatlles assegut amb mancuernes", "Overhead press - seated on bench", 'Deltoides', { muscles: ['Tríceps'], pos: 'Sd', sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(3, 'for', "Press inclinat amb mancuernes", "Chest press - incline bench", 'Pectoral', { muscles: ['Deltoides', 'Tríceps'], pos: 'Ds', sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(4, 'for', "Press de pit en banc pla amb mancuernes", "Chest press - flat bench", 'Pectoral', { muscles: ['Tríceps', 'Deltoides'], pos: 'Ds', sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(5, 'for', "Rem a una mà amb mancuerna", "Single arm row", 'Dorsal', { muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '10/costat', lat: 'UL' });
+  db(6, 'acc', "Curl alterne amb rotació amb mancuernes", "Twisting arm curl - alternated", 'Bíceps', { muscles: ['Avantbraç'], reps: '10/braç' });
+  db(7, 'acc', "Curl amb rotació amb mancuernes", "Arm curl - twisting", 'Bíceps', { muscles: ['Avantbraç'] });
+  db(8, 'for', "Estocada endavant alterna amb mancuernes", "Forward lunge - alternated", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
+  db(9, 'for', "Goblet squat amb mancuerna", "Goblet squat", 'Quàdriceps', { muscles: ['GMax', 'Core'], sets: '3', reps: '10' });
+  db(10, 'for', "Squat sumo amb mancuernes", "Sumo squat", 'Quàdriceps', { muscles: ['Adductors', 'GMax'], sets: '3', reps: '10' });
+  db(11, 'acc', "Press francès estirat amb mancuernes", "French press - supine", 'Tríceps', { pos: 'Ds' });
+  db(12, 'acc', "Curl martell amb mancuernes", "Hammer curl", 'Bíceps', { muscles: ['Avantbraç'] });
+  db(13, 'for', "Estocada enrere alterna amb mancuernes", "Backward lunge - alternated", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
+  db(14, 'acc', "Obertures en banc pla amb mancuernes", "Chest fly - flat bench", 'Pectoral', { muscles: ['Deltoides'], pos: 'Ds' });
+  db(15, 'for', "Pes mort amb cames rígides amb mancuernes", "Stiff leg deadlift", 'Isquiotibials', { muscles: ['GMax', 'Lumbar'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(16, 'acc', "Obertures en banc inclinat amb mancuernes", "Chest fly - incline bench", 'Pectoral', { muscles: ['Deltoides'], pos: 'Ds' });
+  db(17, 'acc', "Curl assegut amb mancuernes", "Arm curl - seated", 'Bíceps', { pos: 'Sd' });
+  db(18, 'acc', "Elevacions frontals amb mancuernes", "Front raise", 'Deltoides', { muscles: ['Pectoral'] });
+  db(19, 'acc', "Elevacions frontals alternes amb mancuernes", "Front raise - alternated", 'Deltoides', { muscles: ['Pectoral'], reps: '10/braç' });
+  db(20, 'for', "Press per sobre del cap amb mancuernes", "Overhead press", 'Deltoides', { muscles: ['Tríceps', 'Core'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(21, 'for', "Squat búlgar amb mancuernes", "Bulgarian split squat", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
+  db(22, 'acc', "Elevacions laterals assegut amb mancuernes", "Lateral raise - seated", 'Deltoides', { pos: 'Sd' });
+  db(23, 'for', "Rem inclinat amb mancuernes", "Bent over row", 'Dorsal', { muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(24, 'acc', "Pullover estirat amb mancuerna", "Pull over - supine", 'Dorsal', { muscles: ['Pectoral', 'Tríceps'], pos: 'Ds' });
+  db(25, 'acc', "Ocells en banc inclinat amb mancuernes", "Reverse fly - incline bench", 'Deltoides', { muscles: ['Escàpula', 'Trapezi'], pos: 'Dp' });
+  db(26, 'act', "Sit-up amb mancuerna per sobre del cap", "Overhead sit up", 'Core', { muscles: ['Flexors de maluc'], pos: 'Ds', reps: '10' });
+  db(27, 'acc', "Kickback de tríceps a una mà amb mancuerna", "Triceps kick back - single arm", 'Tríceps', { reps: '12/braç', lat: 'UL' });
+  db(28, 'act', "Flexió lateral del tronc amb mancuerna", "Side bend", 'Oblics', { muscles: ['Core'], reps: '12/costat' });
+  db(29, 'acc', "Ocells inclinat amb mancuernes", "Reverse fly - bent over", 'Deltoides', { muscles: ['Escàpula', 'Trapezi'] });
+  db(30, 'for', "Squat sumo amb una mancuerna", "Sumo squat - single dumbbell", 'Quàdriceps', { muscles: ['Adductors', 'GMax'], sets: '3', reps: '10' });
+  db(31, 'for', "Pes mort amb mancuernes", "Deadlift", 'GMax', { muscles: ['Isquiotibials', 'Quàdriceps'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(32, 'acc', "Ocells assegut amb mancuernes", "Reverse fly - seated", 'Deltoides', { muscles: ['Escàpula', 'Trapezi'], pos: 'Sd' });
+  db(33, 'for', "Press Arnold amb mancuernes", "Arnold press", 'Deltoides', { muscles: ['Tríceps'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(34, 'acc', "Encongiments amb mancuernes", "Shrug", 'Trapezi', { sets: '3', reps: '12' });
+  db(35, 'acc', "Curl alterne assegut amb mancuernes", "Alternated arm curl - seated", 'Bíceps', { pos: 'Sd', reps: '10/braç' });
+  db(36, 'for', "Squat amb mancuernes", "Squat", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '10' });
+  db(37, 'acc', "Extensió de tríceps per sobre del cap a una mà amb mancuerna", "Overhead arm extension - single arm", 'Tríceps', { reps: '12/braç', lat: 'UL' });
+  db(38, 'acc', "Curl concentrat amb mancuerna", "Concentration curl", 'Bíceps', { pos: 'Sd', reps: '10/braç', lat: 'UL' });
+  db(39, 'acc', "Kickback de tríceps amb mancuernes", "Triceps kick back", 'Tríceps', {});
+  db(40, 'acc', "Curl martell i press per sobre del cap amb mancuernes", "Hammer curl to overhead press", 'Bíceps', { muscles: ['Deltoides', 'Tríceps'] });
+  db(41, 'for', "Pes mort amb una mancuerna", "Deadlift - single dumbbell", 'GMax', { muscles: ['Isquiotibials'], sets: '3', reps: '10' });
+  db(42, 'acc', "Curl martell recíproc amb mancuernes", "Hammer curl - reciprocal", 'Bíceps', { muscles: ['Avantbraç'], reps: '10/braç' });
+  db(43, 'acc', "Curl recíproc amb mancuernes", "Arm curl - reciprocal", 'Bíceps', { reps: '10/braç' });
+  db(44, 'acc', "Rem vertical amb mancuernes", "Upright row", 'Deltoides', { muscles: ['Trapezi'] });
+  db(45, 'pot', "Thruster amb mancuernes", "Thruster", 'Quàdriceps', { muscles: ['Deltoides', 'GMax'], sets: '3', reps: '8' });
+  db(46, 'acc', "Scaption amb mancuernes", "Scaption", 'Deltoides', { muscles: ['Escàpula', 'Manegot rotador'] });
+  db(47, 'acc', "Elevació de talons amb mancuernes", "Calf raise", 'Bessons i soli', { sets: '3', reps: '15' });
+  db(48, 'acc', "Extensió de tríceps per sobre del cap a dues mans amb mancuerna", "Arm extension overhead - two arms", 'Tríceps', {});
+  db(49, 'acc', "Kickback de tríceps simultani amb mancuernes", "Triceps kick back - two arms", 'Tríceps', {});
+  db(50, 'for', "Front squat amb una mancuerna", "Front squat - one dumbbell", 'Quàdriceps', { muscles: ['Core', 'GMax'], sets: '3', reps: '10' });
+  db(51, 'for', "Estocada endavant amb mancuernes", "Forward lunge", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
 
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
@@ -6062,7 +6128,19 @@ const Store = {
     return this.put('assessments', a, { immediate: true });
   },
 
-  emptyBlocks() { return BLOCKS.map((b) => ({ key: b.key, focus: '', note: '', items: [] })); },
+  emptyBlocks() { return BLOCKS.map((b) => this.blankBlock(b.key)); },
+  blankBlock(key) { return { key, focus: '', note: '', items: [] }; },
+  // Només els blocs que ja tenen alguna cosa (exercicis, focus, mètode o subblocs); la resta s'afegeixen a mà.
+  usedBlocks(blocks) {
+    return (blocks || []).filter((b) => (b.items || []).some((i) => i.name) || b.focus || b.method || (b.groups || []).length);
+  },
+  // Blocs d'una plantilla de sessió per posar en una sessió (només els que la plantilla omple).
+  templateBlocks(t, resetDone) {
+    return this.usedBlocks(BLOCKS.map((b) => {
+      const tb = ((t && t.blocks) || []).find((x) => x.key === b.key);
+      return tb ? cloneBlock(tb, b.key, resetDone) : this.blankBlock(b.key);
+    }));
+  },
 
   nextSessionNumber(pid) {
     const nums = this.byPatient('sessions', pid).map((s) => U.num(s.number)).filter((n) => n != null);
@@ -6073,13 +6151,14 @@ const Store = {
   newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
-    let blocks = this.emptyBlocks();
+    // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
+    let blocks = [];
     let goal = '';
     let pillar = '';
     if (mode === 'last') {
       const last = this.sessionsOf(pid).filter((s) => s.date <= (date || U.today())).pop() || this.sessionsOf(pid).pop();
       if (last) {
-        blocks = cloneBlocks(last.blocks, true);
+        blocks = this.usedBlocks(cloneBlocks(last.blocks, true));
         goal = last.goal || '';
         pillar = last.pillar || '';
       }
@@ -6087,17 +6166,14 @@ const Store = {
       const plan = this.get('templates', planId);
       const ps = plan && (plan.sessions || []).find((x) => x.n === U.num(planN));
       if (ps) {
-        blocks = cloneBlocks(ps.blocks, true);
+        blocks = this.usedBlocks(cloneBlocks(ps.blocks, true));
         goal = ps.goal || plan.goal || '';
         fromPlan = { planId, planN: ps.n };
       }
     } else if (mode === 'template' && templateId) {
       const t = this.get('templates', templateId);
       if (t && t.kind === 'session') {
-        blocks = this.emptyBlocks().map((b) => {
-          const tb = (t.blocks || []).find((x) => x.key === b.key);
-          return tb ? cloneBlock(tb, b.key) : b;
-        });
+        blocks = this.templateBlocks(t);
         goal = t.goal || '';
       }
     }
@@ -9054,7 +9130,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
   const plan = plans.find((x) => x.id === planId) || null;
   const [planN, setPlanN] = useState(plans[0] ? String(Store.nextPlanN(plans[0])) : '');
-  const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'template');
+  const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
     const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
@@ -9077,9 +9153,9 @@ function NewSessionDialog({ pid, date, onClose }) {
             options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
         </div>`)}
       ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
-      ${option('template', 'A partir d\'una plantilla', 'Estructura de 6 blocs ja preparada.', false,
+      ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el client (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
+      ${option('template', 'A partir d\'una plantilla', 'Els blocs i els exercicis d\'una sessió tipus.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}
-      ${option('blank', 'Sessió en blanc', 'Els 6 blocs buits: mobilitat, activació, potència, força principal, accessoris i tornada a la calma.', false)}
     </div>
   </${Dialog}>`;
 }
@@ -9108,7 +9184,7 @@ function KeyDates({ p }) {
 
 
 /* ── 14-exbrowser.js ── */
-/* EON Life · triar exercicis per carpetes: grup muscular (tronc superior, tronc inferior, core…) → múscul →
+/* EON Life · triar exercicis per carpetes: grup muscular (tren superior, tren inferior, core…) → múscul →
    exercici → material del centre amb què es fa. També els desplegables de múscul i de material. */
 
 // Músculs d'un exercici: el principal i els altres implicats.
@@ -9504,6 +9580,9 @@ const PICS = {
     props: (B) => picRect(B.a[2][0] + 1, B.a[2][1] - 6, 5, 8, 'pg', 1) + PROP.bench(B.p[0] - 10, B.p[0] + 12, B.p[1] + 3) },
   tgu: { label: 'Turkish get-up', t: -125, hd: 12, l: [-40, 58, 0], m: [-2, 0, -80], a: [-92, -92], b: [138, 100], grip: 'hands' },
   windmill: { label: 'Windmill', front: true, t: -140, l: [62, 80], m: [112, 102], a: [-92, -92], b: [100, 100], grip: 'near' },
+  side_bend: { label: 'Flexió lateral', front: true, t: -106, l: [86, 90], m: [96, 90], a: [100, 96], b: [-150, 30], grip: 'near' },
+  pullover_supine: { label: 'Pullover estirat', t: 180, hd: -4, l: [26, 92, 0], a: [-150, -170], lift: 0, grip: 'chest',
+    props: (B) => PROP.bench(B.n[0] - 6, B.p[0] + 4, B.p[1] + 4) },
   stretch_stand: { label: 'Estirament dempeus', front: true, t: -98, l: [86, 90], m: [96, 90], a: [-105, -110], b: [-110, -100] },
   wall_slide: { label: 'Wall slide', t: -90, a: [-150, -96], b: [-150, -96], props: (B) => PROP.wall(B.p[0] - 7) },
   incline_prone: { label: 'Estirat sobre banc inclinat', t: -36, hd: -4, l: [116, 98, 0], a: [-26, -24],
@@ -9652,8 +9731,12 @@ const PIC_RULES = [
   [/equilibri/, (t) => (/inestable/.test(t) ? 'balance_dome' : 'balance')],
   [/hip airplane/, 'hinge_sl'],
   [/dead bug/, 'deadbug'],
-  [/mcgill|curl-up|sit-up al|crunch tocant|toe touch/, (t) => (/tocant|toe/.test(t) ? 'toe_touch' : 'crunch')],
   [/ghd sit-up/, 'ghd_situp'],
+  [/mcgill|curl-up|sit-up|crunch tocant|toe touch/, (t) => (/tocant|toe/.test(t) ? 'toe_touch' : 'crunch')],
+  [/flexio lateral|side bend/, 'side_bend'],
+  [/thruster/, 'squat_oh'],
+  [/scaption/, 'front_raise'],
+  [/pullover estirat|pull over - supine/, 'pullover_supine'],
   [/crunch invers en planxa|flexio i crunch invers/, 'plank_high'],
   [/crunch/, (t) => (/genolls elevats|recollida|cames (estirades )?elevades|bicicleta|bicycle/.test(t) ? 'crunch_legs' : 'crunch')],
   [/barca|russian twist|flutter|v-sit/, 'boat'],
@@ -9718,6 +9801,7 @@ const PIC_RULES = [
   [/press inclinat|incline press/, 'bench_incline'],
   [/press de banca|bench press|obertures|press de pit/, 'bench'],
   [/fons de triceps|\bdips?\b/, 'dip'],
+  [/press frances estirat|french press - supine/, 'bench'],
   [/triceps|press frances/, (t) => (/per sobre del cap|press frances|a una ma amb kb/.test(t) ? 'triceps_oh' : 'pushdown')],
   [/curl/, 'curl'],
   [/elevacions laterals|lateral raise/, 'lat_raise'],
@@ -11222,12 +11306,25 @@ function SessionEditor({ id }) {
     const hasItems = Calc.itemCount(s) > 0;
     if (hasItems && !(await UI.confirm({ title: 'Substituir els blocs?', text: `Els exercicis actuals se substituiran pels de «${t.name}».`, ok: 'Substitueix' }))) return;
     upd((x) => {
-      x.blocks = Store.emptyBlocks().map((b) => {
-        const tb = (t.blocks || []).find((y) => y.key === b.key);
-        return tb ? cloneBlock(tb, b.key, true) : b;
-      });
+      x.blocks = Store.templateBlocks(t, true);
       if (!x.goal) x.goal = t.goal || '';
     });
+  };
+  // Els blocs s'afegeixen a mà (no totes les sessions tenen els 6) i es col·loquen en l'ordre de la metodologia.
+  const addBlock = (key) => {
+    upd((x) => {
+      x.blocks = [...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)].sort((a, b) => blockDef(a.key).num - blockDef(b.key).num);
+    });
+    setTimeout(() => {
+      const el = document.querySelector(`section.block.blk-${key}`);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
+  const removeBlock = async (key) => {
+    const b = (s.blocks || []).find((x) => x.key === key);
+    const n = b ? (b.items || []).filter((i) => i.name).length : 0;
+    if (n && !(await UI.confirm({ title: `Treure el bloc ${blockName(key)}?`, text: `Té ${U.plural(n, 'exercici', 'exercicis')}, que es trauran d'aquesta sessió.`, ok: 'Treu el bloc', danger: true }))) return;
+    upd((x) => { x.blocks = (x.blocks || []).filter((y) => y.key !== key); });
   };
   const remove = async () => {
     if (!(await UI.confirm({ title: 'Eliminar la sessió?', text: `Sessió ${s.number} del ${U.fmtDate(s.date)}.`, ok: 'Elimina', danger: true }))) return;
@@ -11237,7 +11334,7 @@ function SessionEditor({ id }) {
   };
   const markDone = () => upd((x) => {
     x.status = 'feta';
-    for (const b of x.blocks) for (const it of b.items) if (it.name) it.done = true;
+    for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
   });
 
   return html`<div class="page page-edit">
@@ -11280,8 +11377,10 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    ${s.blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}
-      onChange=${(fn) => setBlock(b.key, fn)} />`)}
+    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}
+      onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
+    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
 
     <section class="card feedback">
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>
@@ -11308,7 +11407,21 @@ function SessionEditor({ id }) {
 
 // Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
-function BlockCard({ block, onChange, prev, patient, templateMode }) {
+// Botons per afegir a la sessió els blocs que encara no hi són.
+function AddBlocks({ blocks, onAdd }) {
+  const missing = BLOCKS.filter((b) => !(blocks || []).some((x) => x.key === b.key));
+  if (!missing.length) return null;
+  const empty = !(blocks || []).length;
+  return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label="Afegeix blocs a la sessió">
+    ${empty ? html`<div><h2 class="h2">Blocs de la sessió</h2>
+        <p class="muted">Afegeix només els blocs que necessiti aquest client. Es posen sols en l'ordre de la metodologia.</p></div>`
+      : html`<span class="addblocks-label">Afegeix un bloc</span>`}
+    <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
+      <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
+  </section>`;
+}
+
+function BlockCard({ block, onChange, prev, patient, templateMode, onRemove }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -11442,6 +11555,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         { label: 'Desa el bloc com a plantilla', icon: 'download', onClick: saveTemplate },
         groups ? { label: 'Uneix els blocs en un de sol', icon: 'layers', onClick: () => onChange(ungroup) } : null,
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
+        onRemove ? { label: 'Treu el bloc de la sessió', icon: 'x', danger: true, onClick: onRemove } : null,
       ]} />
     </header>
     ${block.method && html`<p class="method-hint"><strong>${block.methodName}</strong> · ${methodHint(block.method)}</p>`}
@@ -11995,7 +12109,7 @@ function ExerciseList() {
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
-        options=${[{ v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tronc superior, tronc inferior i core, múscul per múscul' },
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tren superior, tren inferior i core, múscul per múscul' },
           { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
     ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
@@ -12014,7 +12128,7 @@ function ExerciseList() {
   </section>`;
 }
 
-// Carpetes per grup muscular: tronc superior, tronc inferior, core i cos sencer; dins, cada múscul.
+// Carpetes per grup muscular: tren superior, tren inferior, core i cos sencer; dins, cada múscul.
 function MuscleFolders({ all }) {
   return html`<div class="stack">${[...exerciseFolders(all), materialFolders(all)].map((z) => html`<div class="libgroup">
     <div class="libgroup-head"><strong>${z.label}</strong><span class="muted">${U.plural(z.count, 'exercici', 'exercicis')}</span></div>

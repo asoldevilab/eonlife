@@ -152,7 +152,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
   const plan = plans.find((x) => x.id === planId) || null;
   const [planN, setPlanN] = useState(plans[0] ? String(Store.nextPlanN(plans[0])) : '');
-  const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'template');
+  const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
     const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
@@ -175,9 +175,9 @@ function NewSessionDialog({ pid, date, onClose }) {
             options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
         </div>`)}
       ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
-      ${option('template', 'A partir d\'una plantilla', 'Estructura de 6 blocs ja preparada.', false,
+      ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el client (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
+      ${option('template', 'A partir d\'una plantilla', 'Els blocs i els exercicis d\'una sessió tipus.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}
-      ${option('blank', 'Sessió en blanc', 'Els 6 blocs buits: mobilitat, activació, potència, força principal, accessoris i tornada a la calma.', false)}
     </div>
   </${Dialog}>`;
 }

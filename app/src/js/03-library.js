@@ -243,28 +243,28 @@ const SEED_EXERCISES = (() => {
   for (const [family, ids] of Object.entries(ladders)) {
     ids.forEach((id, i) => { if (byId[id]) Object.assign(byId[id], { family, level: String(i + 1) }); });
   }
-  // ── Exercicis amb el material del centre i de tronc superior per grup muscular ──
+  // ── Exercicis amb el material del centre i de tren superior per grup muscular ──
   const add = (id, block, name, cat, material, extra) => { ex(id, block, name, cat, material, extra); byId[id] = list[list.length - 1]; };
   const B = 'Barra olímpica (20-25 kg)', M = 'Mancuernes Technogym', K = 'Kettlebell', KS = 'Keiser (pneumàtica)', CO = 'Politja cònica isoinercial',
     PT = 'Politja Technogym', KX = 'kBox Lite Exxentric', G = 'Goma elàstica', F = 'Lliscadors Flowin', PC = 'Pes corporal';
-  add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
-  add('X-ACC-33', 'acc', 'Curl martell', 'Tronc superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
-  add('X-ACC-34', 'acc', 'Curl de bíceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '12', materials: [PT, KS, G] });
-  add('X-ACC-35', 'acc', 'Extensió de tríceps a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, KS, G] });
-  add('X-ACC-36', 'acc', 'Extensió de tríceps per sobre del cap', 'Tronc superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, M, G] });
-  add('X-ACC-37', 'acc', 'Press francès amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Tríceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B] });
-  add('X-ACC-38', 'acc', 'Fons de tríceps al banc', 'Tronc superior', 'Banc', { pos: 'Sd', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '10', materials: ['Banc', PC] });
-  add('X-ACC-39', 'acc', 'Elevacions laterals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, KS, G] });
-  add('X-ACC-40', 'acc', 'Elevacions frontals', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, G] });
-  add('X-ACC-41', 'acc', 'Ocells (deltoides posterior)', 'Tronc superior', M, { pos: 'Bp', gm: 'Deltoides', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, PT, G] });
-  add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tronc superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
-  add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
-  add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tronc superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
-  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tronc superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
-  add('X-ACC-46', 'acc', 'Leg extension', 'Tronc inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
-  add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
-  add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tronc inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
-  add('X-ACC-49', 'acc', 'Elevació de talons a la premsa', 'Tronc inferior', 'Premsa Technogym', { pos: 'Sd', gm: 'Bessons i soli', sets: '3', reps: '15', materials: ['Premsa Technogym', 'Leg press Biostrength', M] });
+  add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tren superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
+  add('X-ACC-33', 'acc', 'Curl martell', 'Tren superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
+  add('X-ACC-34', 'acc', 'Curl de bíceps a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-35', 'acc', 'Extensió de tríceps a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-36', 'acc', 'Extensió de tríceps per sobre del cap', 'Tren superior', PT, { pos: 'Bp', gm: 'Tríceps', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-37', 'acc', 'Press francès amb mancuernes', 'Tren superior', M, { pos: 'Ds', gm: 'Tríceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B] });
+  add('X-ACC-38', 'acc', 'Fons de tríceps al banc', 'Tren superior', 'Banc', { pos: 'Sd', gm: 'Tríceps', muscles: ['Pectoral'], sets: '3', reps: '10', materials: ['Banc', PC] });
+  add('X-ACC-39', 'acc', 'Elevacions laterals', 'Tren superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, KS, G] });
+  add('X-ACC-40', 'acc', 'Elevacions frontals', 'Tren superior', M, { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-41', 'acc', 'Ocells (deltoides posterior)', 'Tren superior', M, { pos: 'Bp', gm: 'Deltoides', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, PT, G] });
+  add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tren superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
+  add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
+  add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
+  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tren superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
+  add('X-ACC-46', 'acc', 'Leg extension', 'Tren inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
+  add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tren inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tren inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
+  add('X-ACC-49', 'acc', 'Elevació de talons a la premsa', 'Tren inferior', 'Premsa Technogym', { pos: 'Sd', gm: 'Bessons i soli', sets: '3', reps: '15', materials: ['Premsa Technogym', 'Leg press Biostrength', M] });
   add('X-ACC-50', 'acc', 'Curl femoral amb lliscadors Flowin', 'Isquiotibials', F, { pos: 'Ds', gm: 'Isquiotibials', muscles: ['GMax'], cont: 'ECC', sets: '3', reps: '8', materials: [F, 'Fitball'] });
   add('X-FOR-38', 'for', 'Leg press Biostrength', 'Dominant de genoll', 'Leg press Biostrength', { pos: 'Sd', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8', intensity: 'RIR 2', materials: ['Leg press Biostrength', 'Premsa Technogym', KS] });
   add('X-FOR-39', 'for', 'Squat a la kBox', 'Dominant de genoll', KX, { pos: 'Bp', gm: 'Quàdriceps', muscles: ['GMax'], cont: 'ECC', sets: '4', reps: '8', intensity: 'Màxima intenció', cues: 'Concèntrica tan ràpida com puguis; frena l\'excèntrica al final.', materials: [KX] });
@@ -448,6 +448,60 @@ const SEED_EXERCISES = (() => {
   tgEx('PP', 36, "for", "Pes mort romanès al Power Personal", "Romanian deadlift", "Isquiotibials", 'Power Personal', PPT, [PPT], { muscles: ["GMax", "Lumbar"], sets: "3", reps: "8", intensity: "RIR 2" });
   tgEx('PP', 37, "acc", "Elevacions laterals assegut al Power Personal", "Lateral raise - seated", "Deltoides", 'Power Personal', PPT, [PPT], { pos: "Sd", sets: "3", reps: "12" });
   tgEx('PP', 38, "for", "Dominades amb presa ampla al Power Personal", "Wide grip chin-up", "Dorsal", 'Power Personal', PPT, [PPT], { muscles: ["Bíceps"], sets: "3", reps: "6", intensity: "RIR 2" });
+
+  // ── Mancuernes Technogym (51 exercicis de l'app de Technogym: «Dumbbells» i, del 48 al 51, «Hexagon dumbbells») ──
+  const db = (n, block, name, tg, gm, extra = {}) => tgEx('DB', n, block, name, tg, gm, 'Mancuernes', M, [M, KBT], extra);
+  db(1, 'acc', "Elevacions laterals amb mancuernes", "Lateral raises", 'Deltoides', { sets: '3', reps: '12' });
+  db(2, 'for', "Press d'espatlles assegut amb mancuernes", "Overhead press - seated on bench", 'Deltoides', { muscles: ['Tríceps'], pos: 'Sd', sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(3, 'for', "Press inclinat amb mancuernes", "Chest press - incline bench", 'Pectoral', { muscles: ['Deltoides', 'Tríceps'], pos: 'Ds', sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(4, 'for', "Press de pit en banc pla amb mancuernes", "Chest press - flat bench", 'Pectoral', { muscles: ['Tríceps', 'Deltoides'], pos: 'Ds', sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(5, 'for', "Rem a una mà amb mancuerna", "Single arm row", 'Dorsal', { muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '10/costat', lat: 'UL' });
+  db(6, 'acc', "Curl alterne amb rotació amb mancuernes", "Twisting arm curl - alternated", 'Bíceps', { muscles: ['Avantbraç'], reps: '10/braç' });
+  db(7, 'acc', "Curl amb rotació amb mancuernes", "Arm curl - twisting", 'Bíceps', { muscles: ['Avantbraç'] });
+  db(8, 'for', "Estocada endavant alterna amb mancuernes", "Forward lunge - alternated", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
+  db(9, 'for', "Goblet squat amb mancuerna", "Goblet squat", 'Quàdriceps', { muscles: ['GMax', 'Core'], sets: '3', reps: '10' });
+  db(10, 'for', "Squat sumo amb mancuernes", "Sumo squat", 'Quàdriceps', { muscles: ['Adductors', 'GMax'], sets: '3', reps: '10' });
+  db(11, 'acc', "Press francès estirat amb mancuernes", "French press - supine", 'Tríceps', { pos: 'Ds' });
+  db(12, 'acc', "Curl martell amb mancuernes", "Hammer curl", 'Bíceps', { muscles: ['Avantbraç'] });
+  db(13, 'for', "Estocada enrere alterna amb mancuernes", "Backward lunge - alternated", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
+  db(14, 'acc', "Obertures en banc pla amb mancuernes", "Chest fly - flat bench", 'Pectoral', { muscles: ['Deltoides'], pos: 'Ds' });
+  db(15, 'for', "Pes mort amb cames rígides amb mancuernes", "Stiff leg deadlift", 'Isquiotibials', { muscles: ['GMax', 'Lumbar'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(16, 'acc', "Obertures en banc inclinat amb mancuernes", "Chest fly - incline bench", 'Pectoral', { muscles: ['Deltoides'], pos: 'Ds' });
+  db(17, 'acc', "Curl assegut amb mancuernes", "Arm curl - seated", 'Bíceps', { pos: 'Sd' });
+  db(18, 'acc', "Elevacions frontals amb mancuernes", "Front raise", 'Deltoides', { muscles: ['Pectoral'] });
+  db(19, 'acc', "Elevacions frontals alternes amb mancuernes", "Front raise - alternated", 'Deltoides', { muscles: ['Pectoral'], reps: '10/braç' });
+  db(20, 'for', "Press per sobre del cap amb mancuernes", "Overhead press", 'Deltoides', { muscles: ['Tríceps', 'Core'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(21, 'for', "Squat búlgar amb mancuernes", "Bulgarian split squat", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
+  db(22, 'acc', "Elevacions laterals assegut amb mancuernes", "Lateral raise - seated", 'Deltoides', { pos: 'Sd' });
+  db(23, 'for', "Rem inclinat amb mancuernes", "Bent over row", 'Dorsal', { muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(24, 'acc', "Pullover estirat amb mancuerna", "Pull over - supine", 'Dorsal', { muscles: ['Pectoral', 'Tríceps'], pos: 'Ds' });
+  db(25, 'acc', "Ocells en banc inclinat amb mancuernes", "Reverse fly - incline bench", 'Deltoides', { muscles: ['Escàpula', 'Trapezi'], pos: 'Dp' });
+  db(26, 'act', "Sit-up amb mancuerna per sobre del cap", "Overhead sit up", 'Core', { muscles: ['Flexors de maluc'], pos: 'Ds', reps: '10' });
+  db(27, 'acc', "Kickback de tríceps a una mà amb mancuerna", "Triceps kick back - single arm", 'Tríceps', { reps: '12/braç', lat: 'UL' });
+  db(28, 'act', "Flexió lateral del tronc amb mancuerna", "Side bend", 'Oblics', { muscles: ['Core'], reps: '12/costat' });
+  db(29, 'acc', "Ocells inclinat amb mancuernes", "Reverse fly - bent over", 'Deltoides', { muscles: ['Escàpula', 'Trapezi'] });
+  db(30, 'for', "Squat sumo amb una mancuerna", "Sumo squat - single dumbbell", 'Quàdriceps', { muscles: ['Adductors', 'GMax'], sets: '3', reps: '10' });
+  db(31, 'for', "Pes mort amb mancuernes", "Deadlift", 'GMax', { muscles: ['Isquiotibials', 'Quàdriceps'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(32, 'acc', "Ocells assegut amb mancuernes", "Reverse fly - seated", 'Deltoides', { muscles: ['Escàpula', 'Trapezi'], pos: 'Sd' });
+  db(33, 'for', "Press Arnold amb mancuernes", "Arnold press", 'Deltoides', { muscles: ['Tríceps'], sets: '3', reps: '10', intensity: 'RIR 2' });
+  db(34, 'acc', "Encongiments amb mancuernes", "Shrug", 'Trapezi', { sets: '3', reps: '12' });
+  db(35, 'acc', "Curl alterne assegut amb mancuernes", "Alternated arm curl - seated", 'Bíceps', { pos: 'Sd', reps: '10/braç' });
+  db(36, 'for', "Squat amb mancuernes", "Squat", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '10' });
+  db(37, 'acc', "Extensió de tríceps per sobre del cap a una mà amb mancuerna", "Overhead arm extension - single arm", 'Tríceps', { reps: '12/braç', lat: 'UL' });
+  db(38, 'acc', "Curl concentrat amb mancuerna", "Concentration curl", 'Bíceps', { pos: 'Sd', reps: '10/braç', lat: 'UL' });
+  db(39, 'acc', "Kickback de tríceps amb mancuernes", "Triceps kick back", 'Tríceps', {});
+  db(40, 'acc', "Curl martell i press per sobre del cap amb mancuernes", "Hammer curl to overhead press", 'Bíceps', { muscles: ['Deltoides', 'Tríceps'] });
+  db(41, 'for', "Pes mort amb una mancuerna", "Deadlift - single dumbbell", 'GMax', { muscles: ['Isquiotibials'], sets: '3', reps: '10' });
+  db(42, 'acc', "Curl martell recíproc amb mancuernes", "Hammer curl - reciprocal", 'Bíceps', { muscles: ['Avantbraç'], reps: '10/braç' });
+  db(43, 'acc', "Curl recíproc amb mancuernes", "Arm curl - reciprocal", 'Bíceps', { reps: '10/braç' });
+  db(44, 'acc', "Rem vertical amb mancuernes", "Upright row", 'Deltoides', { muscles: ['Trapezi'] });
+  db(45, 'pot', "Thruster amb mancuernes", "Thruster", 'Quàdriceps', { muscles: ['Deltoides', 'GMax'], sets: '3', reps: '8' });
+  db(46, 'acc', "Scaption amb mancuernes", "Scaption", 'Deltoides', { muscles: ['Escàpula', 'Manegot rotador'] });
+  db(47, 'acc', "Elevació de talons amb mancuernes", "Calf raise", 'Bessons i soli', { sets: '3', reps: '15' });
+  db(48, 'acc', "Extensió de tríceps per sobre del cap a dues mans amb mancuerna", "Arm extension overhead - two arms", 'Tríceps', {});
+  db(49, 'acc', "Kickback de tríceps simultani amb mancuernes", "Triceps kick back - two arms", 'Tríceps', {});
+  db(50, 'for', "Front squat amb una mancuerna", "Front squat - one dumbbell", 'Quàdriceps', { muscles: ['Core', 'GMax'], sets: '3', reps: '10' });
+  db(51, 'for', "Estocada endavant amb mancuernes", "Forward lunge", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
 
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };

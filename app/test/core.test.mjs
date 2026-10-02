@@ -398,13 +398,14 @@ test('exercicis de la loop band de Technogym', () => {
   assert.ok(Store.materials().center.includes('Loop band Technogym'));
 });
 
-test('exercicis de kettlebell, mobility ball i Power Personal de Technogym', () => {
+test('exercicis de kettlebell, mobility ball, Power Personal i mancuernes de Technogym', () => {
   const { SEED_EXERCISES, Store } = loadCore();
   const count = (m) => SEED_EXERCISES.filter((e) => e.material === m);
   assert.equal(count('Kettlebell').filter((e) => e.id.startsWith('X-KB-')).length, 50);
   assert.equal(count('Mobility ball Technogym').filter((e) => e.id.startsWith('X-MB-')).length, 9);
   assert.equal(count('Power Personal Technogym').filter((e) => e.id.startsWith('X-PP-')).length, 38);
-  const tg = SEED_EXERCISES.filter((e) => /^X-(KB|MB|PP)-/.test(e.id));
+  assert.equal(SEED_EXERCISES.filter((e) => e.id.startsWith('X-DB-') && e.material === 'Mancuernes Technogym').length, 51);
+  const tg = SEED_EXERCISES.filter((e) => /^X-(KB|MB|PP|DB)-/.test(e.id));
   assert.ok(tg.every((e) => e.tg && e.gm && e.materials[0] === e.material));
   assert.ok(tg.filter((e) => e.id.startsWith('X-MB-')).every((e) => e.block === 'mob'));
   assert.equal(new Set(SEED_EXERCISES.map((e) => e.name)).size, SEED_EXERCISES.length);
@@ -440,4 +441,23 @@ test('miniatures: cada exercici té un pictograma propi amb el material', async 
   assert.equal(P.picGearOf({ name: 'Monster walk · banda als genolls', material: 'Loop band Technogym' }, 'side_step').at, 'knees');
   assert.equal(P.picGearOf({ name: 'Rem inclinat al Power Personal', material: 'Power Personal Technogym' }, 'row').kind, 'bar');
   assert.equal(P.picGearOf({ name: 'Sit-up al Power Personal', material: 'Power Personal Technogym' }, 'crunch').kind, '');
+});
+
+test('sessió en blanc sense blocs; plantilla i última sessió només amb els blocs que tenen alguna cosa', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const { Store } = core;
+  const blank = Store.newSession('P-DEMO-LAURA', { date: '2026-10-05', mode: 'blank' });
+  assert.equal(blank.blocks.length, 0);
+  const t = { id: 'T-X', kind: 'session', name: 'Prova', blocks: [
+    { key: 'cal', items: [{ id: 'i1', name: 'Respiració 90/90' }] },
+    { key: 'mob', items: [{ id: 'i2', name: 'Cat-camel' }] },
+    { key: 'pot', items: [] },
+  ] };
+  Store.put('templates', t, { immediate: true });
+  const fromTpl = Store.newSession('P-DEMO-LAURA', { date: '2026-10-06', mode: 'template', templateId: 'T-X' });
+  assert.deepEqual(Array.from(fromTpl.blocks, (b) => b.key), ['mob', 'cal']);
+  Store.update('sessions', fromTpl.id, (x) => { x.blocks.push({ key: 'acc', focus: '', note: '', items: [] }); });
+  const fromLast = Store.newSession('P-DEMO-LAURA', { date: '2026-10-07', mode: 'last' });
+  assert.deepEqual(Array.from(fromLast.blocks, (b) => b.key), ['mob', 'cal']);
 });

@@ -1,4 +1,4 @@
-/* EON Life · triar exercicis per carpetes: grup muscular (tronc superior, tronc inferior, core…) → múscul →
+/* EON Life · triar exercicis per carpetes: grup muscular (tren superior, tren inferior, core…) → múscul →
    exercici → material del centre amb què es fa. També els desplegables de múscul i de material. */
 
 // Músculs d'un exercici: el principal i els altres implicats.

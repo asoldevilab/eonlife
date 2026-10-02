@@ -35,7 +35,7 @@ function ExerciseList() {
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
-        options=${[{ v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tronc superior, tronc inferior i core, múscul per múscul' },
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tren superior, tren inferior i core, múscul per múscul' },
           { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
     ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
@@ -54,7 +54,7 @@ function ExerciseList() {
   </section>`;
 }
 
-// Carpetes per grup muscular: tronc superior, tronc inferior, core i cos sencer; dins, cada múscul.
+// Carpetes per grup muscular: tren superior, tren inferior, core i cos sencer; dins, cada múscul.
 function MuscleFolders({ all }) {
   return html`<div class="stack">${[...exerciseFolders(all), materialFolders(all)].map((z) => html`<div class="libgroup">
     <div class="libgroup-head"><strong>${z.label}</strong><span class="muted">${U.plural(z.count, 'exercici', 'exercicis')}</span></div>
