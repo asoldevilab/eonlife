@@ -410,3 +410,34 @@ test('exercicis de kettlebell, mobility ball i Power Personal de Technogym', () 
   assert.equal(new Set(SEED_EXERCISES.map((e) => e.name)).size, SEED_EXERCISES.length);
   assert.ok(Store.materials().center.includes('Power Personal Technogym'));
 });
+
+test('miniatures: cada exercici té un pictograma propi amb el material', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES } = loadCore();
+  const P = new Function('U', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg };`)(U);
+  const keyOf = (name, extra = {}) => P.picKeyOf({ name, ...extra });
+  for (const e of SEED_EXERCISES) {
+    const k = P.picKeyOf(e);
+    assert.ok(P.PICS[k], `${e.name} → ${k}`);
+    const svg = P.exercisePicSvg(e);
+    assert.ok(svg.startsWith('<svg') && !/NaN|undefined/.test(svg), e.name);
+  }
+  assert.equal(keyOf('Back squat'), 'squat_back');
+  assert.equal(keyOf('Front squat al Power Personal'), 'squat');
+  assert.equal(keyOf('Press de banca'), 'bench');
+  assert.equal(keyOf('Dominades'), 'pullup');
+  assert.equal(keyOf('Dead bug'), 'deadbug');
+  assert.equal(keyOf('Kettlebell swing'), 'swing');
+  assert.equal(keyOf('Pont de glutis amb loop band'), 'bridge');
+  assert.equal(keyOf('Flexions de maluc alternes en planxa · banda als peus'), 'climber');
+  assert.equal(keyOf('Crunch bicicleta amb loop band'), 'crunch_legs');
+  assert.equal(keyOf('Bike suau'), 'bike');
+  assert.equal(keyOf('Alliberament miofascial del quàdriceps · cercles'), 'roll_prone');
+  assert.equal(keyOf('Exercici nou', { gm: 'Bíceps' }), 'curl');
+  assert.equal(keyOf('Back squat', { pic: 'bench' }), 'bench');
+  assert.equal(P.picGearOf({ name: 'Goblet squat', material: 'Kettlebell' }, 'squat').kind, 'kb');
+  assert.equal(P.picGearOf({ name: 'Monster walk · banda als genolls', material: 'Loop band Technogym' }, 'side_step').at, 'knees');
+  assert.equal(P.picGearOf({ name: 'Rem inclinat al Power Personal', material: 'Power Personal Technogym' }, 'row').kind, 'bar');
+  assert.equal(P.picGearOf({ name: 'Sit-up al Power Personal', material: 'Power Personal Technogym' }, 'crunch').kind, '');
+});

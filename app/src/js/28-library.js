@@ -35,18 +35,20 @@ function ExerciseList() {
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
-        options=${[{ v: 'llista', label: 'Llista' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tronc superior, tronc inferior i core, múscul per múscul' },
+        options=${[{ v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tronc superior, tronc inferior i core, múscul per múscul' },
           { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
     ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
       : view === 'musculs' ? html`<${MuscleFolders} all=${all} />`
       : BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(all.filter((e) => e.block === b.key).length, 'exercici', 'exercicis')}</span></div>
-      <div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
+      ${view === 'graella' ? html`<div class="xb-grid xb-grid-lib">${all.filter((e) => e.block === b.key).map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.material || ''} />`)}</div>`
+      : html`<div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
+        <${ExThumb} ex=${e} size=${44} />
         <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
         <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
-      </button>`)}</div>
+      </button>`)}</div>`}
     </div>`)}
     ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
   </section>`;
@@ -59,6 +61,7 @@ function MuscleFolders({ all }) {
     ${z.list.map((f) => html`<details class="mfolder">
       <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
       <div class="exlist">${f.items.map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
+        <${ExThumb} ex=${e} size=${44} />
         <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
         <span class="exrow-meta">${[blockName(e.block), (e.materials || [e.material]).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
@@ -84,7 +87,7 @@ function ProgressionList({ all }) {
       ${rows.filter((r) => r.block === b.key).map((r) => html`<div class="ladder">
         <div class="ladder-name">${r.name}</div>
         <ol class="ladder-steps">${r.list.map((e) => html`<li><button type="button" class=${U.cls('ladder-step', `lv-${e.level}`)} onClick=${() => openExercise(e)}>
-          <span class="ladder-n">N${e.level || '?'}</span><span class="ladder-ex">${e.name}</span></button></li>`)}</ol>
+          <${ExThumb} ex=${e} size=${34} /><span class="ladder-n">N${e.level || '?'}</span><span class="ladder-ex">${e.name}</span></button></li>`)}</ol>
       </div>`)}
     </div>`)}
     ${loose.length > 0 && html`<p class="muted small">${U.plural(loose.length, 'exercici encara no té', 'exercicis encara no tenen')} família de progressió.</p>`}
@@ -117,6 +120,7 @@ function ExerciseDialog({ ex, onClose }) {
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
+    <${ThumbEditor} f=${f} setF=${setF} />
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>
