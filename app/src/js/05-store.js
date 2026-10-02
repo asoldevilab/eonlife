@@ -366,7 +366,19 @@ const Store = {
     return this.put('assessments', a, { immediate: true });
   },
 
-  emptyBlocks() { return BLOCKS.map((b) => ({ key: b.key, focus: '', note: '', items: [] })); },
+  emptyBlocks() { return BLOCKS.map((b) => this.blankBlock(b.key)); },
+  blankBlock(key) { return { key, focus: '', note: '', items: [] }; },
+  // Només els blocs que ja tenen alguna cosa (exercicis, focus, mètode o subblocs); la resta s'afegeixen a mà.
+  usedBlocks(blocks) {
+    return (blocks || []).filter((b) => (b.items || []).some((i) => i.name) || b.focus || b.method || (b.groups || []).length);
+  },
+  // Blocs d'una plantilla de sessió per posar en una sessió (només els que la plantilla omple).
+  templateBlocks(t, resetDone) {
+    return this.usedBlocks(BLOCKS.map((b) => {
+      const tb = ((t && t.blocks) || []).find((x) => x.key === b.key);
+      return tb ? cloneBlock(tb, b.key, resetDone) : this.blankBlock(b.key);
+    }));
+  },
 
   nextSessionNumber(pid) {
     const nums = this.byPatient('sessions', pid).map((s) => U.num(s.number)).filter((n) => n != null);
@@ -377,13 +389,14 @@ const Store = {
   newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
-    let blocks = this.emptyBlocks();
+    // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
+    let blocks = [];
     let goal = '';
     let pillar = '';
     if (mode === 'last') {
       const last = this.sessionsOf(pid).filter((s) => s.date <= (date || U.today())).pop() || this.sessionsOf(pid).pop();
       if (last) {
-        blocks = cloneBlocks(last.blocks, true);
+        blocks = this.usedBlocks(cloneBlocks(last.blocks, true));
         goal = last.goal || '';
         pillar = last.pillar || '';
       }
@@ -391,17 +404,14 @@ const Store = {
       const plan = this.get('templates', planId);
       const ps = plan && (plan.sessions || []).find((x) => x.n === U.num(planN));
       if (ps) {
-        blocks = cloneBlocks(ps.blocks, true);
+        blocks = this.usedBlocks(cloneBlocks(ps.blocks, true));
         goal = ps.goal || plan.goal || '';
         fromPlan = { planId, planN: ps.n };
       }
     } else if (mode === 'template' && templateId) {
       const t = this.get('templates', templateId);
       if (t && t.kind === 'session') {
-        blocks = this.emptyBlocks().map((b) => {
-          const tb = (t.blocks || []).find((x) => x.key === b.key);
-          return tb ? cloneBlock(tb, b.key) : b;
-        });
+        blocks = this.templateBlocks(t);
         goal = t.goal || '';
       }
     }

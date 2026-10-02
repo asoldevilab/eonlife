@@ -343,12 +343,12 @@ const CENTER_MATERIALS = [
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
 ];
 
-// Grups musculars en carpetes: tronc superior, tronc inferior, core i cos sencer.
+// Grups musculars en carpetes: tren superior, tren inferior, core i cos sencer.
 const MUSCLE_ZONES = [
-  { key: 'sup', label: 'Tronc superior', muscles: ['Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç'] },
-  { key: 'inf', label: 'Tronc inferior', muscles: ['Quàdriceps', 'Isquiotibials', 'GMax', 'GMed', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc'] },
+  { key: 'sup', label: 'Tren superior', muscles: ['Pectoral', 'Dorsal', 'Deltoides', 'Bíceps', 'Tríceps', 'Trapezi', 'Escàpula', 'Manegot rotador', 'Avantbraç', 'Tren superior'] },
+  { key: 'inf', label: 'Tren inferior', muscles: ['Quàdriceps', 'Isquiotibials', 'GMax', 'GMed', 'Adductors', 'Abductors', 'Bessons i soli', 'Tibial anterior', 'Flexors de maluc', 'Tren inferior'] },
   { key: 'core', label: 'Core', muscles: ['Core', 'Oblics', 'Lumbar'] },
-  { key: 'tot', label: 'Cos sencer i altres', muscles: ['Tren superior', 'Tren inferior', 'Global'] },
+  { key: 'tot', label: 'Cos sencer i altres', muscles: ['Global'] },
 ];
 const MUSCLE_LABELS = { GMax: 'Gluti major (GMax)', GMed: 'Gluti mitjà (GMed)', 'Tren superior': 'Tren superior (global)', 'Tren inferior': 'Tren inferior (global)' };
 const muscleLabel = (m) => MUSCLE_LABELS[m] || m;

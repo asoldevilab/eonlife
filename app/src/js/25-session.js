@@ -41,12 +41,25 @@ function SessionEditor({ id }) {
     const hasItems = Calc.itemCount(s) > 0;
     if (hasItems && !(await UI.confirm({ title: 'Substituir els blocs?', text: `Els exercicis actuals se substituiran pels de «${t.name}».`, ok: 'Substitueix' }))) return;
     upd((x) => {
-      x.blocks = Store.emptyBlocks().map((b) => {
-        const tb = (t.blocks || []).find((y) => y.key === b.key);
-        return tb ? cloneBlock(tb, b.key, true) : b;
-      });
+      x.blocks = Store.templateBlocks(t, true);
       if (!x.goal) x.goal = t.goal || '';
     });
+  };
+  // Els blocs s'afegeixen a mà (no totes les sessions tenen els 6) i es col·loquen en l'ordre de la metodologia.
+  const addBlock = (key) => {
+    upd((x) => {
+      x.blocks = [...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)].sort((a, b) => blockDef(a.key).num - blockDef(b.key).num);
+    });
+    setTimeout(() => {
+      const el = document.querySelector(`section.block.blk-${key}`);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
+  const removeBlock = async (key) => {
+    const b = (s.blocks || []).find((x) => x.key === key);
+    const n = b ? (b.items || []).filter((i) => i.name).length : 0;
+    if (n && !(await UI.confirm({ title: `Treure el bloc ${blockName(key)}?`, text: `Té ${U.plural(n, 'exercici', 'exercicis')}, que es trauran d'aquesta sessió.`, ok: 'Treu el bloc', danger: true }))) return;
+    upd((x) => { x.blocks = (x.blocks || []).filter((y) => y.key !== key); });
   };
   const remove = async () => {
     if (!(await UI.confirm({ title: 'Eliminar la sessió?', text: `Sessió ${s.number} del ${U.fmtDate(s.date)}.`, ok: 'Elimina', danger: true }))) return;
@@ -56,7 +69,7 @@ function SessionEditor({ id }) {
   };
   const markDone = () => upd((x) => {
     x.status = 'feta';
-    for (const b of x.blocks) for (const it of b.items) if (it.name) it.done = true;
+    for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
   });
 
   return html`<div class="page page-edit">
@@ -99,8 +112,10 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    ${s.blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}
-      onChange=${(fn) => setBlock(b.key, fn)} />`)}
+    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}
+      onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
+    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
 
     <section class="card feedback">
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>
@@ -127,7 +142,21 @@ function SessionEditor({ id }) {
 
 // Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
-function BlockCard({ block, onChange, prev, patient, templateMode }) {
+// Botons per afegir a la sessió els blocs que encara no hi són.
+function AddBlocks({ blocks, onAdd }) {
+  const missing = BLOCKS.filter((b) => !(blocks || []).some((x) => x.key === b.key));
+  if (!missing.length) return null;
+  const empty = !(blocks || []).length;
+  return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label="Afegeix blocs a la sessió">
+    ${empty ? html`<div><h2 class="h2">Blocs de la sessió</h2>
+        <p class="muted">Afegeix només els blocs que necessiti aquest client. Es posen sols en l'ordre de la metodologia.</p></div>`
+      : html`<span class="addblocks-label">Afegeix un bloc</span>`}
+    <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
+      <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
+  </section>`;
+}
+
+function BlockCard({ block, onChange, prev, patient, templateMode, onRemove }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -261,6 +290,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode }) {
         { label: 'Desa el bloc com a plantilla', icon: 'download', onClick: saveTemplate },
         groups ? { label: 'Uneix els blocs en un de sol', icon: 'layers', onClick: () => onChange(ungroup) } : null,
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
+        onRemove ? { label: 'Treu el bloc de la sessió', icon: 'x', danger: true, onClick: onRemove } : null,
       ]} />
     </header>
     ${block.method && html`<p class="method-hint"><strong>${block.methodName}</strong> · ${methodHint(block.method)}</p>`}
