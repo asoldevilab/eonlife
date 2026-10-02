@@ -267,6 +267,15 @@ sessions previstes del pla d'entrenament.
   consignes i prescripció per defecte.
 - **Plantilles** de bloc i de sessió. Qualsevol sessió es pot desar com a plantilla des del seu menú.
 
+## Actualitzacions de l'app
+
+Cada cop que s'obre l'app (també des de la icona de la tauleta) i cada cop que torna a primer pla, mira si s'ha
+publicat una versió nova. Si n'hi ha una i l'acabes d'obrir, s'actualitza sola; si ja hi estaves treballant, surt
+l'avís **Hi ha una versió nova · Actualitza** (els canvis es desen abans de recarregar). A **Configuració › Versió de
+l'app** es veu quina versió tens i hi ha el botó *Comprova si hi ha una versió nova*.
+
+La demostració (`…/eonlife/demo/`) també es pot instal·lar a la tauleta: surt com una app a part, *EON Life demo*.
+
 ## Configuració
 
 - Professionals de l'equip (Richy, Arnau, Oriol Pastor), nom del centre i noms dels blocs.

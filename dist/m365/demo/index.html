@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="EON Life demo">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#421215">
 <title>EON Life · Human Performance</title>
@@ -1320,6 +1326,10 @@ tfoot .rpc { font-size: 14px; }
 .mfolder-name { flex: 1; }
 .mfolder[open] summary { color: var(--ink); }
 .mfolder .exlist { margin: 0 0 10px 26px; }
+
+/* Avís de versió nova */
+.updbar { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 90; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 8px 8px 8px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); font-weight: 650; font-size: 14px; }
+.updbar .btn-ghost { color: var(--bg); }
 </style>
 </head>
 <body>
@@ -3626,7 +3636,8 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-02 09:54";
+<script>window.EON_UPDATE = true;
+window.EON_BUILD = "2026-10-02 10:05";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -11622,6 +11633,15 @@ function SettingsView() {
           </div>`}
     </section>
 
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Versió de l'app</h2><span class="muted">${window.EON_BUILD || ''}</span></div>
+      ${AppUpdate.enabled() ? html`<p class="muted">L'app mira sola si n'hi ha una versió nova cada cop que s'obre. Si veus alguna cosa antiga, comprova-ho aquí.</p>
+        <div class="row-actions"><${Btn} icon="refresh" onClick=${async () => {
+          const v = await AppUpdate.check(true);
+          if (v) AppUpdate.apply(); else UI.toast('Ja tens la versió més nova.');
+        }}>Comprova si hi ha una versió nova</${Btn}></div>` : html`<p class="muted">Aquesta còpia no s'actualitza sola.</p>`}
+    </section>
+
     ${IS_ARTIFACT ? html`<section class="card">
       <div class="card-head"><h2 class="h2">Exportar i còpies de seguretat</h2></div>
       <p class="muted">En aquest enllaç de prova no es poden descarregar fitxers ni imprimir. A la versió instal·lada a Google, les dades ja són al full de càlcul i els informes es desen en PDF.</p>
@@ -12464,6 +12484,85 @@ function ProgressCharts({ sessions, to }) {
 }
 
 
+/* ── 98-update.js ── */
+/* EON Life · versió nova de l'app.
+   La tauleta guarda la pàgina una estona i, oberta des de la icona, pot ensenyar la versió d'abans. En obrir l'app
+   (i cada cop que torna a primer pla) es mira version.json: si hi ha una versió nova, en obrir-la s'actualitza sola
+   i, si ja s'hi està treballant, surt l'avís «Actualitza». */
+
+const AppUpdate = {
+  latest: null,
+  lastCheck: 0,
+  listeners: new Set(),
+  key: 'eonlife:update',
+
+  enabled() {
+    try { return !!window.EON_UPDATE && !IS_ARTIFACT && /^https?:$/.test(window.location.protocol); } catch (e) { return false; }
+  },
+  emit() { for (const fn of this.listeners) fn(); },
+
+  async check(force) {
+    if (!this.enabled()) return null;
+    if (!force && Date.now() - this.lastCheck < 120000) return this.latest;
+    this.lastCheck = Date.now();
+    try {
+      const r = await fetch(`version.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!r.ok) return null;
+      const v = await r.json();
+      this.latest = v && v.build && v.build !== window.EON_BUILD ? String(v.build) : null;
+    } catch (e) {
+      return null;
+    }
+    this.emit();
+    return this.latest;
+  },
+
+  // Es carrega l'adreça amb ?v=… perquè ni la tauleta ni el servidor tornin la còpia antiga.
+  apply() {
+    const target = this.latest || String(Date.now());
+    try { window.sessionStorage.setItem(this.key, target); } catch (e) { /* res */ }
+    Store.flushAll();
+    const goNew = () => window.location.replace(`${window.location.pathname}?v=${encodeURIComponent(target)}${window.location.hash}`);
+    if (Store.pending()) setTimeout(goNew, 1500); else goNew();
+  },
+
+  async start() {
+    if (!this.enabled()) return;
+    const t0 = Date.now();
+    let tried = '';
+    try { tried = window.sessionStorage.getItem(this.key) || ''; } catch (e) { /* res */ }
+    if (tried && tried === window.EON_BUILD) { try { window.sessionStorage.removeItem(this.key); } catch (e) { /* res */ } }
+    const v = await this.check(true);
+    if (!v) return;
+    if (tried === v) {
+      // Ja s'ha provat i el servidor encara dona la versió anterior (s'està publicant).
+      UI.toast('La versió nova encara s\'està publicant. Torna-ho a provar d\'aquí a uns minuts.');
+      return;
+    }
+    // Acabada d'obrir i sense res pendent de desar: s'actualitza sola (mai enmig de l'inici de sessió de Microsoft).
+    const signingIn = /[?&](code|state|error)=/.test(window.location.search);
+    if (Date.now() - t0 < 5000 && !Store.pending() && !signingIn) this.apply();
+  },
+};
+
+function UpdateBanner() {
+  const [, setN] = useState(0);
+  const [hidden, setHidden] = useState('');
+  useEffect(() => {
+    const fn = () => setN((n) => n + 1);
+    AppUpdate.listeners.add(fn);
+    return () => AppUpdate.listeners.delete(fn);
+  }, []);
+  if (!AppUpdate.latest || hidden === AppUpdate.latest) return null;
+  return html`<div class="updbar no-print" role="status">
+    <${Icon} name="refresh" size=${17} />
+    <span>Hi ha una versió nova de l'app.</span>
+    <${Btn} variant="primary" size="sm" onClick=${() => AppUpdate.apply()}>Actualitza</${Btn}>
+    <${Btn} variant="ghost" size="sm" icon="x" title="Més tard" onClick=${() => setHidden(AppUpdate.latest)} />
+  </div>`;
+}
+
+
 /* ── 99-app.js ── */
 /* EON Life · estructura de l'app i arrencada. */
 
@@ -12567,6 +12666,7 @@ function App() {
       ${renderRoute(route)}
     </div>
     <${SharedLists} />
+    <${UpdateBanner} />
     <${ModalHost} />
   </div>`;
 }
@@ -12575,8 +12675,12 @@ function App() {
   Router.init();
   render(html`<${App} />`, document.getElementById('app'));
   Store.init();
-  // Desa els canvis pendents si l'app passa a segon pla (tauleta).
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushAll(); });
+  AppUpdate.start();
+  // Desa els canvis pendents si l'app passa a segon pla (tauleta); en tornar, mira si hi ha una versió nova.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') Store.flushAll();
+    else AppUpdate.check();
+  });
   window.addEventListener('pagehide', () => Store.flushAll());
 }());
 </script>

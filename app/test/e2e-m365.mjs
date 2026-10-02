@@ -24,7 +24,10 @@ const TENANT_ID = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 const html = readFileSync(join(root, 'dist', 'm365', 'index.html'), 'utf8')
   .replace(/window\.EON_M365 = \{[^\n]*\};/, `window.EON_M365 = ${JSON.stringify({ clientId: CLIENT_ID, tenantId: TENANT_ID, folderUrl: '' })};`);
 
+// version.json: la mateixa versió que la pàgina, tret que la prova en publiqui una de «nova».
+const served = { build: (html.match(/window\.EON_BUILD = "([^"]+)"/) || [])[1] };
 const server = createServer((req, res) => {
+  if (req.url.startsWith('/eon/version.json')) { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ build: served.build })); return; }
   if (req.url.startsWith('/eon/')) { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(html); return; }
   res.writeHead(404); res.end();
 });
@@ -375,6 +378,19 @@ let pid = null;
     await waitSaved(page);
     const r = rows('tPacients');
     if (r.length !== 1 || r[0].updated_by !== 'pau@eonlife.test') throw new Error(JSON.stringify(r).slice(0, 200));
+  });
+  await step('versió nova publicada: avís «Actualitza» i recàrrega sense perdre la sessió', async () => {
+    const before = served.build;
+    served.build = '2099-01-01 00:00';
+    await page.evaluate(() => AppUpdate.check(true));
+    await page.waitForSelector('.updbar >> text=Hi ha una versió nova');
+    await shot(page, 'm365-10-actualitza');
+    await page.click('.updbar >> text=Actualitza');
+    await page.waitForURL(/\?v=2099/);
+    // El servidor encara dona la pàgina d'abans: no torna a recarregar i ho diu.
+    await page.waitForSelector('text=encara s\'està publicant');
+    await page.waitForSelector('.sidebar-mode >> text=Microsoft 365');
+    served.build = before;
   });
   await step('mòbil/tauleta vertical: pantalla de connexió sense desbordar', async () => {
     const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

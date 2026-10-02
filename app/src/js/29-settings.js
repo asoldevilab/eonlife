@@ -90,6 +90,15 @@ function SettingsView() {
           </div>`}
     </section>
 
+    <section class="card">
+      <div class="card-head"><h2 class="h2">Versió de l'app</h2><span class="muted">${window.EON_BUILD || ''}</span></div>
+      ${AppUpdate.enabled() ? html`<p class="muted">L'app mira sola si n'hi ha una versió nova cada cop que s'obre. Si veus alguna cosa antiga, comprova-ho aquí.</p>
+        <div class="row-actions"><${Btn} icon="refresh" onClick=${async () => {
+          const v = await AppUpdate.check(true);
+          if (v) AppUpdate.apply(); else UI.toast('Ja tens la versió més nova.');
+        }}>Comprova si hi ha una versió nova</${Btn}></div>` : html`<p class="muted">Aquesta còpia no s'actualitza sola.</p>`}
+    </section>
+
     ${IS_ARTIFACT ? html`<section class="card">
       <div class="card-head"><h2 class="h2">Exportar i còpies de seguretat</h2></div>
       <p class="muted">En aquest enllaç de prova no es poden descarregar fitxers ni imprimir. A la versió instal·lada a Google, les dades ja són al full de càlcul i els informes es desen en PDF.</p>
