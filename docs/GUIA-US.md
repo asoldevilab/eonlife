@@ -130,8 +130,9 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
   2. **Exercici**: amb el nivell (N1–N5), els músculs i la prescripció per defecte.
   3. **Amb quin material?**: el material del centre amb què es pot fer (barra olímpica, mancuernes Technogym,
      kettlebell, kBox, Keiser, cònica, politja…).
-  També hi ha la carpeta **Per material** (p. ex. *Loop band Technogym* amb els seus 50 exercicis): triant
-  l'exercici des d'aquí ja queda posat el material.
+  També hi ha la carpeta **Per material**: triant l'exercici des d'aquí ja queda posat el material. Hi ha els
+  exercicis de l'app de Technogym: *Loop band Technogym* (50), *Kettlebell* (50), *Power Personal Technogym* (38)
+  i *Mobility ball Technogym* (9, al bloc de mobilitat). Són una proposta de nom i bloc: es poden editar a la biblioteca.
   A dalt hi ha el cercador (nom, múscul, material o el nom en anglès de l'app de Technogym) i *Tots els blocs*. A Força principal i Accessoris surten els
   exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
   S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la
@@ -281,8 +282,8 @@ La demostració (`…/eonlife/demo/`) també es pot instal·lar a la tauleta: su
 - Professionals de l'equip (Richy, Arnau, Oriol Pastor), nom del centre i noms dels blocs.
 - **Material del centre**: barra olímpica, cònica isoinercial, Keiser, mancuernes Technogym, kettlebell, Skillmill,
   AlterG, leg extension, premsa, lower back bench, GHD, politja Technogym, Biostrength, abductor/adductor 700,
-  Pulley Pro C2, kBox Lite, mobility ball, gomes, Flowin, bike i Skill Up. És el que surt primer en triar el material
-  d'un exercici; se'n pot afegir o treure.
+  Pulley Pro C2, kBox Lite, mobility ball, gomes, Flowin, bike, Skill Up, loop band i Power Personal. És el que surt
+  primer en triar el material d'un exercici; se'n pot afegir o treure.
 - Exportar a Excel (CSV): valoracions (una fila per valoració, una columna per test) i registre
   d'exercicis. Còpia de seguretat completa i importació.
 - Amb Microsoft 365 o Google, enllaços directes a l'Excel (o full de càlcul) i a les carpetes dels clients. Amb Microsoft 365, també **Tanca la sessió** i **Canvia de carpeta**.
