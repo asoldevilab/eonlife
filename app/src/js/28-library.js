@@ -28,7 +28,7 @@ function ExerciseList() {
   const [blk, setBlk] = useState('');
   const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq)));
+  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
   return html`<section class="card">
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
@@ -54,7 +54,7 @@ function ExerciseList() {
 
 // Carpetes per grup muscular: tronc superior, tronc inferior, core i cos sencer; dins, cada múscul.
 function MuscleFolders({ all }) {
-  return html`<div class="stack">${exerciseFolders(all).map((z) => html`<div class="libgroup">
+  return html`<div class="stack">${[...exerciseFolders(all), materialFolders(all)].map((z) => html`<div class="libgroup">
     <div class="libgroup-head"><strong>${z.label}</strong><span class="muted">${U.plural(z.count, 'exercici', 'exercicis')}</span></div>
     ${z.list.map((f) => html`<details class="mfolder">
       <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
@@ -119,6 +119,7 @@ function ExerciseDialog({ ex, onClose }) {
     <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
+      <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
       <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>
