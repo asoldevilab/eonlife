@@ -5,7 +5,7 @@
 import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 let playwright;
@@ -439,6 +439,29 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Desa');
     await page.waitForSelector('.dialog', { state: 'detached' });
     await page.waitForSelector('.exrow >> nth=0 >> .exthumb img');
+  });
+  await step('valoració: llegir l\'informe PDF de Kinvent (OCR simulat amb la lectura real d\'un informe)', async () => {
+    // Sense internet als tests: el lector (Tesseract) es substitueix per un que torna el que va llegir d'un informe de prova.
+    const fx = JSON.parse(readFileSync(join(root, 'app', 'test', 'fixtures', 'kinvent-ocr.json'), 'utf8'));
+    const fake = `window.__kv = ${JSON.stringify({ pages: fx.pages, values: fx.values.rawTesseract })};
+      window.Tesseract = { createWorker: async () => { let ps = {}; return {
+        setParameters: async (p) => { ps = p; },
+        recognize: async () => (ps.tessedit_pageseg_mode === '7' ? { data: { text: window.__kv.values.shift() || '' } }
+          : { data: { blocks: [{ paragraphs: [{ lines: window.__kv.pages.shift() || [] }] }] } }),
+        terminate: async () => {} }; } };`;
+    await page.route(/cdn\.jsdelivr\.net\/npm\/tesseract\.js@/, (r) => r.fulfill({ body: fake, contentType: 'text/javascript' }));
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-JORDI').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.locator('input[aria-label="Informe de Kinvent per llegir"]').first().setInputFiles(join(root, 'app', 'test', 'fixtures', 'kinvent-blank.pdf'));
+    await page.waitForSelector('.kvi-row >> nth=7');
+    const first = await page.locator('.kvi-row').first().locator('.kvi-val input').evaluateAll((els) => els.map((e) => e.value));
+    if (first.join() !== '76,2,92,7') throw new Error(`valors corregits: ${first}`);
+    await shot(page, '06d-kinvent', false);
+    await page.click('.dialog-foot >> text=Omple 8 proves');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    const v = await page.evaluate((id) => Store.get('assessments', id), aid);
+    if (v.values.rom_sh_er.e !== '76,2' || v.values.dyn_knee_ext.e !== '182' || v.values.dyn_squeeze.v !== '79') throw new Error(JSON.stringify(v.values.dyn_squeeze));
+    if (!(v.files || []).some((f) => f.label === 'Informe Kinvent')) throw new Error('no s\'ha adjuntat el PDF');
   });
   await step('configuració', async () => {
     await goHash(page, '#/configuracio');

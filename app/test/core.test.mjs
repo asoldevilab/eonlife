@@ -461,3 +461,42 @@ test('sessió en blanc sense blocs; plantilla i última sessió només amb els b
   const fromLast = Store.newSession('P-DEMO-LAURA', { date: '2026-10-07', mode: 'last' });
   assert.deepEqual(Array.from(fromLast.blocks, (b) => b.key), ['mob', 'cal']);
 });
+
+test('informe de Kinvent: imatges del PDF, targetes, correcció amb l\'asimetria i camps', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { KinventPdf } = loadCore('07', {});
+  // PDF mínim amb una imatge JPEG (com els de Kinvent Physio, que són pàgines fetes d'imatges).
+  const jpg = [0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0xff, 0xd9];
+  const enc = (s) => Array.from(s, (c) => c.charCodeAt(0));
+  const pdf = new Uint8Array([...enc('%PDF-1.7\n5 0 obj\n<< /Type /XObject /Subtype /Image /Filter /DCTDecode /Length 8 >>\nstream\n'), ...jpg,
+    ...enc('\nendstream\nendobj\n6 0 obj\n<< /Length 5 >>\nstream\nBT ET\nendstream\nendobj\n')]);
+  const imgs = KinventPdf.jpegs(pdf);
+  assert.equal(imgs.length, 1);
+  assert.deepEqual(Array.from(imgs[0]), jpg);
+
+  const fx = JSON.parse(readFileSync(new URL('./fixtures/kinvent-ocr.json', import.meta.url), 'utf8'));
+  const cards = fx.pages.flatMap((lines) => KinventPdf.cards(lines));
+  assert.deepEqual(cards.map((c) => c.title), [
+    'Rotadores externos en sedestación con abducción de 90° (R3)', 'Rotadores internos en sedestación con abducción de 90°',
+    'Rotación externa de cadera en sedestación', 'Rotación interna de cadera en sedestación', 'Flexión de la rodilla',
+    'Flexión de la rodilla en decúbito prono con flexión de 90°', 'Aducción de cadera en decúbito supino',
+    'Extensión de rodilla en sedestación con flexión de 90°']);
+  assert.deepEqual(cards.map((c) => c.measure), ['angle', 'angle', 'angle', 'angle', 'angle', 'force', 'force', 'force']);
+  assert.deepEqual(cards.map((c) => c.asym), [17.9, 3.9, 45, 9.2, 1.4, 35.9, 11.9, 3.9]);
+  assert.ok(cards.every((c) => c.left && c.right && c.left.x1 < c.right.x0));
+  assert.deepEqual(cards.map((c) => KinventPdf.target(c.title, c.measure)),
+    ['rom_sh_er', 'rom_sh_ir', 'rom_hip_er', 'rom_hip_ir', 'rom_knee_flex', 'dyn_curl_90', 'dyn_squeeze', 'dyn_knee_ext']);
+
+  // Lectures reals de l'OCR (un 6 llegit com a 0 i un punt perdut) → corregides amb l'asimetria.
+  const raw = fx.values.rawTesseract, exp = fx.values.expected.map(Number);
+  cards.forEach((c, i) => {
+    const r = KinventPdf.fixPair(raw[i * 2], raw[i * 2 + 1], c.asym, c.measure);
+    assert.equal(r.ok, true, c.title);
+    assert.deepEqual([r.e, r.d], [exp[i * 2], exp[i * 2 + 1]], c.title);
+  });
+  assert.equal(KinventPdf.fixPair('70.2', '92.7', 17.9, 'angle').fixed, true);
+  assert.equal(KinventPdf.fixPair('50.0', '92.7', 17.9, 'angle').ok, false);
+  assert.equal(KinventPdf.toN(18.6), 182);
+  assert.equal(KinventPdf.target('Rotación interna de cadera', 'force'), 'dyn_hip_ir');
+  assert.equal(KinventPdf.target('Hip external rotation', 'angle'), 'rom_hip_er');
+});

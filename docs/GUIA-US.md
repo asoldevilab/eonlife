@@ -92,6 +92,24 @@ Consells:
   de la carpeta del client (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
   A la **versió de prova** (sense Microsoft 365) també es tria el PDF o es grava el vídeo, però es queden només en
   aquella tauleta: no els veu cap altre aparell.
+- **Llegeix el PDF** (a *Goniometria* i a *Dinamometria*): tria l'informe PDF de Kinvent Physio i l'app en llegeix
+  els valors i omple els camps:
+  - **K-Move** (angle màxim): rotació interna i externa de maluc i d'espatlla, flexió d'espatlla, flexió i extensió
+    de genoll.
+  - **K-Push** (força màxima): leg extension, leg curl 90/90 i 30/30, adductors (squeeze), rotadors de maluc i
+    rotadors externs d'espatlla.
+
+  Com que l'informe de Kinvent són imatges, l'app el llegeix amb reconeixement de text (OCR) a la mateixa tauleta:
+  el PDF no s'envia enlloc. La primera vegada es descarrega el lector (uns 6 MB, cal internet) i després ja queda
+  guardat. Abans d'omplir res surt la llista de proves trobades:
+  - Per a cada prova hi ha el camp de la valoració on va, que es pot canviar o deixar sense omplir.
+  - Hi ha l'esquerra i la dreta, que es poden corregir.
+  - La força es passa de kg a newtons (× 9,81).
+  - Cada número es comprova amb l'asimetria de l'informe: «Quadra» si coincideix; si no, «Revisa».
+  - Al *squeeze* (un sol valor) s'hi posa el valor més alt, i l'esquerra i la dreta van a la nota.
+
+  Amb *Adjunta també el PDF*, el PDF també queda desat a la valoració. Està provat amb l'informe en castellà, que és
+  el que feu servir.
 - **Importa CSV de My Jump**: exporta el CSV des de My Jump Lab i puja'l; l'app detecta les
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
