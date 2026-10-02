@@ -1366,3 +1366,22 @@ tfoot .rpc { font-size: 14px; }
 .addblock:hover { border-color: var(--blk); border-style: solid; }
 .addblock .ic { color: var(--ink-3); }
 .addblock-num { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+
+/* Lectura de l'informe de Kinvent */
+.kvi-busy { display: flex; align-items: center; gap: 12px; padding: 18px 4px; font-weight: 600; }
+.kvi-err { color: var(--bad-ink); font-weight: 600; }
+.kvi-rows { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.kvi-row { display: grid; grid-template-columns: 28px minmax(0, 1.2fr) minmax(190px, 1fr) auto auto; gap: 10px 14px; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+.kvi-row.off { opacity: 0.55; }
+.kvi-on input { width: 20px; height: 20px; }
+.kvi-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kvi-target { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kvi-vals { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.kvi-val { display: inline-flex; align-items: center; gap: 6px; }
+.kvi-val .numin { width: 96px; }
+.kvi-kg { flex-basis: 100%; }
+@media (max-width: 760px) {
+  .kvi-row { grid-template-columns: 28px minmax(0, 1fr) auto; }
+  .kvi-target, .kvi-vals { grid-column: 2 / -1; }
+  .kvi-state { grid-column: 3; grid-row: 1; }
+}

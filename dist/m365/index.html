@@ -1383,6 +1383,25 @@ tfoot .rpc { font-size: 14px; }
 .addblock:hover { border-color: var(--blk); border-style: solid; }
 .addblock .ic { color: var(--ink-3); }
 .addblock-num { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+
+/* Lectura de l'informe de Kinvent */
+.kvi-busy { display: flex; align-items: center; gap: 12px; padding: 18px 4px; font-weight: 600; }
+.kvi-err { color: var(--bad-ink); font-weight: 600; }
+.kvi-rows { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.kvi-row { display: grid; grid-template-columns: 28px minmax(0, 1.2fr) minmax(190px, 1fr) auto auto; gap: 10px 14px; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+.kvi-row.off { opacity: 0.55; }
+.kvi-on input { width: 20px; height: 20px; }
+.kvi-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kvi-target { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kvi-vals { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.kvi-val { display: inline-flex; align-items: center; gap: 6px; }
+.kvi-val .numin { width: 96px; }
+.kvi-kg { flex-basis: 100%; }
+@media (max-width: 760px) {
+  .kvi-row { grid-template-columns: 28px minmax(0, 1fr) auto; }
+  .kvi-target, .kvi-vals { grid-column: 2 / -1; }
+  .kvi-state { grid-column: 3; grid-row: 1; }
+}
 </style>
 </head>
 <body>
@@ -3691,7 +3710,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-02 11:36";
+window.EON_BUILD = "2026-10-02 11:53";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7095,6 +7114,184 @@ const DoctorReport = (() => {
 })();
 
 
+/* ── 07-kinvent.js ── */
+/* EON Life · informe PDF de Kinvent (K-Move i K-Push) → valors de la valoració.
+   El PDF de Kinvent Physio no porta text: cada pàgina és una imatge. L'app en treu les imatges, les llegeix amb OCR
+   (Tesseract, a 23-kinvent.js) i aquí s'interpreta el que s'ha llegit: cada targeta de prova té el títol, «Ángulo
+   máximo» o «Fuerza máxima», «Izquierda» i «Derecha» amb el valor a sota, i l'asimetria. L'asimetria serveix per
+   comprovar (i corregir) els números llegits, que són grans i prims i de vegades l'OCR confon (6 ↔ 0, punt perdut). */
+
+const KinventPdf = (() => {
+  const enc = (s) => Array.from(s, (c) => c.charCodeAt(0));
+  const STREAM = enc('stream');
+  const ENDSTREAM = enc('endstream');
+  const at = (b, i, pat) => pat.every((c, k) => b[i + k] === c);
+  const find = (b, pat, from) => {
+    for (let i = from; i <= b.length - pat.length; i++) if (b[i] === pat[0] && at(b, i, pat)) return i;
+    return -1;
+  };
+
+  // Imatges JPEG del PDF (una per pàgina en els informes de Kinvent), en l'ordre en què hi són.
+  function jpegs(bytes) {
+    const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    const out = [];
+    let i = 0;
+    while ((i = find(b, STREAM, i)) >= 0) {
+      let j = i + STREAM.length;
+      if (b[j] === 0x0d) j++;
+      if (b[j] === 0x0a) j++;
+      if (b[j] === 0xff && b[j + 1] === 0xd8 && b[j + 2] === 0xff) {
+        const k = find(b, ENDSTREAM, j);
+        if (k < 0) break;
+        let end = k;
+        while (end > j && (b[end - 1] === 0x0a || b[end - 1] === 0x0d)) end--;
+        out.push(b.subarray(j, end));
+        i = k + ENDSTREAM.length;
+      } else {
+        i = j;
+      }
+    }
+    return out;
+  }
+
+  const norm = (s) => U.norm(s).replace(/[*"”″º]/g, '°').replace(/\s+/g, ' ').trim();
+  const HEAD = /^(angulo maximo|fuerza maxima|angle maxim|forca maxima|max(imum)? angle|max(imum)? force|peak force|angle max|force max)/;
+  const LEFT = /^(izquierda|esquerra|left|gauche)$/;
+  const RIGHT = /^(derecha|dreta|right|droite)$/;
+
+  // Títol net: sense la icona del dispositiu que l'OCR llegeix com a lletres soltes («WEN», «|»…).
+  function cleanTitle(s) {
+    const words = String(s || '').replace(/[|]/g, ' ').trim().split(/\s+/);
+    while (words.length > 1 && !/^[A-ZÁÉÍÓÚÀÈÒÇ][a-záéíóúàèòïüç]/.test(words[0])) words.shift();
+    return words.join(' ').replace(/(\d)\s*[*"”″º](?=\s|\)|$)/g, '$1°').replace(/\s+/g, ' ').trim();
+  }
+
+  // Targetes d'una pàgina a partir de les línies de l'OCR ({ text, bbox, words: [{ text, bbox }] }).
+  function cards(lines) {
+    const list = (lines || []).filter((l) => l && String(l.text || '').trim());
+    const out = [];
+    list.forEach((l, i) => {
+      const n = norm(l.text);
+      if (!HEAD.test(n)) return;
+      let t = i - 1;
+      while (t >= 0 && norm(list[t].text).replace(/[^a-z]/g, '').length < 6) t--;
+      if (t < 0) return;
+      out.push({ title: cleanTitle(list[t].text), measure: /^(fuerza|forca|max(imum)? force|peak force|force)/.test(n) ? 'force' : 'angle', from: i });
+    });
+    out.forEach((c, k) => {
+      const until = k + 1 < out.length ? out[k + 1].from : list.length;
+      for (let i = c.from + 1; i < until; i++) {
+        const l = list[i];
+        for (const w of l.words || []) {
+          const wn = norm(w.text).replace(/[^a-z]/g, '');
+          if (!c.left && LEFT.test(wn)) c.left = w.bbox;
+          else if (!c.right && RIGHT.test(wn)) c.right = w.bbox;
+        }
+        const m = norm(l.text).match(/(\d+(?:[.,]\d+)?)\s*%\s*(asimetr|asymmetr)/);
+        if (m && c.asym == null) c.asym = U.num(m[1]);
+      }
+      delete c.from;
+    });
+    return out;
+  }
+
+  // On es llegeix el valor: just a sota de l'etiqueta «Izquierda» o «Derecha», centrat i una mica més ample.
+  function valueBox(b) {
+    const h = b.y1 - b.y0, w = b.x1 - b.x0, cx = (b.x0 + b.x1) / 2;
+    return { x0: cx - w * 0.85, y0: b.y1 + h * 0.3, x1: cx + w * 0.85, y1: b.y1 + h * 3 };
+  }
+
+  // Possibles lectures d'un número, amb el «cost» de cada correcció.
+  const CONFUSE = { 0: '689', 1: '7', 2: '7', 3: '8', 4: '1', 5: '63', 6: '058', 7: '12', 8: '3609', 9: '80' };
+  const PLAUSIBLE = { angle: [0, 220], force: [0, 200] };
+  function candidates(raw, measure) {
+    let s = String(raw || '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[^\d.]/g, '');
+    const dot = s.indexOf('.');
+    if (dot >= 0) s = s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, '');
+    s = s.replace(/^\.+|\.+$/g, '');
+    if (!s) return [];
+    const out = new Map();
+    const [lo, hi] = PLAUSIBLE[measure] || [0, 1000];
+    const add = (str, cost) => {
+      const v = Number(str);
+      if (!Number.isFinite(v) || v <= lo || v > hi) return;
+      // Kinvent escriu una xifra decimal per sota de 100 i cap a partir de 100.
+      const fmtCost = (str.includes('.') ? v >= 100 : v < 100) ? 0.6 : 0;
+      const c = cost + fmtCost;
+      if (!out.has(v) || out.get(v).cost > c) out.set(v, { v, cost: c, dec: str.includes('.') });
+    };
+    const bases = [[s, 0]];
+    if (!s.includes('.') && s.length >= 2) bases.push([`${s.slice(0, -1)}.${s.slice(-1)}`, 0.5]);
+    for (const [b, c] of bases) {
+      add(b, c);
+      for (let i = 0; i < b.length; i++) {
+        for (const alt of CONFUSE[b[i]] || '') add(b.slice(0, i) + alt + b.slice(i + 1), c + 1);
+      }
+    }
+    return [...out.values()].sort((a, b) => a.cost - b.cost);
+  }
+
+  // L'asimetria de Kinvent és |E − D| / el més alt. Es té en compte l'arrodoniment dels valors mostrats.
+  function asymOk(e, d, asym) {
+    if (asym == null) return true;
+    const half = (x) => (x.dec || x.v < 100 ? 0.05 : 0.5);
+    let min = Infinity, max = -Infinity;
+    for (const a of [e.v - half(e), e.v + half(e)]) for (const b of [d.v - half(d), d.v + half(d)]) {
+      const p = (Math.abs(a - b) / Math.max(a, b)) * 100;
+      min = Math.min(min, p); max = Math.max(max, p);
+    }
+    return asym >= min - 0.15 && asym <= max + 0.15;
+  }
+
+  // Tria els valors esquerra/dreta: tal com s'han llegit si quadren amb l'asimetria; si no, la correcció mínima que hi quadri.
+  function fixPair(rawE, rawD, asym, measure) {
+    const ce = candidates(rawE, measure), cd = candidates(rawD, measure);
+    if (!ce.length || !cd.length) {
+      return { e: ce[0] ? ce[0].v : null, d: cd[0] ? cd[0].v : null, ok: false, fixed: false };
+    }
+    let best = null;
+    for (const e of ce) for (const d of cd) {
+      if (!asymOk(e, d, asym)) continue;
+      const cost = e.cost + d.cost;
+      if (!best || cost < best.cost) best = { e, d, cost };
+    }
+    if (!best) return { e: ce[0].v, d: cd[0].v, ok: asym == null, fixed: false };
+    return { e: best.e.v, d: best.d.v, ok: true, fixed: best.cost >= 1 };
+  }
+
+  // A quin camp de la valoració va cada prova (pel títol, en castellà, català o anglès).
+  const has = (t, ...res) => res.every((re) => re.test(t));
+  const HIP = /cadera|maluc|hip/, KNEE = /rodilla|genoll|knee/, SHOULDER = /hombro|espatlla|shoulder|abducci[oó]n de 90|abduccio de 90|90° abduction/;
+  const EXT_ROT = /extern|external/, INT_ROT = /intern|internal/;
+  function target(title, measure) {
+    const t = norm(title);
+    if (measure === 'angle') {
+      if (has(t, HIP, EXT_ROT)) return 'rom_hip_er';
+      if (has(t, HIP, INT_ROT)) return 'rom_hip_ir';
+      if (has(t, SHOULDER, EXT_ROT)) return 'rom_sh_er';
+      if (has(t, SHOULDER, INT_ROT)) return 'rom_sh_ir';
+      if (has(t, /flexi|flex/, /hombro|espatlla|shoulder/)) return 'rom_sh_flex';
+      if (has(t, /extensi|extens/, KNEE)) return 'rom_knee_ext';
+      if (has(t, /flexi|flex/, KNEE)) return 'rom_knee_flex';
+      return '';
+    }
+    if (has(t, /extensi|extens/, KNEE)) return 'dyn_knee_ext';
+    if (has(t, /flexi|flex|curl/, KNEE)) return /\b30\b/.test(t) ? 'dyn_curl_30' : 'dyn_curl_90';
+    if (/aducci|adducci|adduct|squeeze/.test(t)) return 'dyn_squeeze';
+    if (has(t, HIP, EXT_ROT)) return 'dyn_hip_er';
+    if (has(t, HIP, INT_ROT)) return 'dyn_hip_ir';
+    if (has(t, SHOULDER, EXT_ROT)) return 'dyn_sh_er';
+    return '';
+  }
+
+  // Kinvent dona la força en kg; la valoració la guarda en newtons.
+  const KG_TO_N = 9.80665;
+  const toN = (kg) => (kg == null ? null : Math.round(kg * KG_TO_N));
+
+  return { jpegs, cards, cleanTitle, valueBox, candidates, fixPair, target, toN, KG_TO_N };
+})();
+
+
 /* ── 08-localfiles.js ── */
 /* EON Life · fitxers desats a la tauleta (versió de prova, sense Microsoft 365).
    Sense Microsoft 365 no hi ha carpeta del client: el PDF de Kinvent, l'informe de la doctora i els vídeos que
@@ -8256,6 +8453,7 @@ const ICONS = {
   folder: html`<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>`,
   video: html`<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>`,
   camera: html`<path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>`,
+  scan: html`<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/>`,
   grid: html`<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>`,
   link: html`<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>`,
   calendar: html`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>`,
@@ -10552,7 +10750,8 @@ function GroupCard({ g, a, p, upd, setVal }) {
     <div class="group-head">
       <h3 class="group-title">${title}</h3>
       ${g.device && html`<${Pill} tone=${g.device === 'Fase 2' ? 'warn' : 'neutral'}>${g.device}</${Pill}>`}
-      ${/Kinvent/.test(g.device || '') && html`<${AttachButton} a=${a} p=${p} upd=${upd} label=${`Informe ${g.device.replace(' · ', ' ')}`} compact=${true} />`}
+      ${/Kinvent/.test(g.device || '') && html`<${KinventReadButton} a=${a} p=${p} upd=${upd} />
+        <${AttachButton} a=${a} p=${p} upd=${upd} label=${`Informe ${g.device.replace(' · ', ' ')}`} compact=${true} />`}
       ${(g.info || g.ref) && html`<button type="button" class=${U.cls('link', 'group-info-btn')} onClick=${() => setInfo(!info)} aria-expanded=${info}>
         <${Icon} name="info" size=${15} />Protocol</button>`}
     </div>
@@ -10951,6 +11150,227 @@ function AttachButton({ a, p, upd, label, primary, compact }) {
     <${Btn} variant=${primary ? 'primary' : compact ? 'ghost' : 'secondary'} size=${compact ? 'sm' : undefined} icon="upload"
       onClick=${() => (upOk ? ref.current && ref.current.click() : addLink())}>${upOk ? text : compact ? 'Enllaç del PDF' : text.replace('Adjunta', 'Enllaça')}</${Btn}>
   </span>`;
+}
+
+
+/* ── 23-kinvent.js ── */
+/* EON Life · «Llegeix el PDF» de Kinvent a la valoració.
+   L'informe de Kinvent Physio són imatges: es llegeixen amb Tesseract (OCR) a la mateixa tauleta, sense enviar-les
+   enlloc. El lector es descarrega la primera vegada (uns 6 MB) i després queda guardat al navegador. Abans d'omplir
+   res, es mostren els valors trobats per revisar-los. */
+
+const KinventOcr = {
+  lib: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+  paths: {
+    workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+    corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',
+    langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/spa/4.0.0_best_int',
+  },
+  loading: null,
+
+  load() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (!this.loading) {
+      this.loading = new Promise((ok, ko) => {
+        const s = document.createElement('script');
+        s.src = this.lib;
+        s.async = true;
+        s.onload = () => (window.Tesseract ? ok(window.Tesseract) : ko(new Error('net')));
+        s.onerror = () => { this.loading = null; ko(new Error('net')); };
+        document.head.appendChild(s);
+      });
+    }
+    return this.loading;
+  },
+
+  canvas(w, h) {
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w));
+    c.height = Math.max(1, Math.round(h));
+    const cx = c.getContext('2d', { willReadFrequently: true });
+    cx.fillStyle = '#fff';
+    cx.fillRect(0, 0, c.width, c.height);
+    return { c, cx };
+  },
+
+  // Blanc i negre: el color (els números taronja i blaus) passa a negre i el fons, a blanc.
+  binarize({ c, cx }, thr) {
+    const im = cx.getImageData(0, 0, c.width, c.height);
+    const d = im.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = Math.min(d[i], d[i + 1], d[i + 2]) < thr ? 0 : 255;
+      d[i] = v; d[i + 1] = v; d[i + 2] = v; d[i + 3] = 255;
+    }
+    cx.putImageData(im, 0, 0);
+    return c;
+  },
+
+  // PDF (o foto de l'informe) → targetes amb els valors llegits i corregits.
+  async read(file, onStep) {
+    onStep('Carregant el lector de text…');
+    const T = await this.load();
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const isPdf = bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+    const images = isPdf ? KinventPdf.jpegs(bytes).map((b) => new Blob([b], { type: 'image/jpeg' })) : [file];
+    if (!images.length) throw new Error('Aquest PDF no té el format de l\'informe de Kinvent.');
+    onStep('Preparant el lector (la primera vegada es descarrega i pot trigar una mica)…');
+    const page = await T.createWorker('spa', 1, this.paths);
+    const num = await T.createWorker('spa', 1, this.paths);
+    await num.setParameters({ tessedit_pageseg_mode: '7', tessedit_char_whitelist: '0123456789.,' });
+    const found = [];
+    try {
+      for (let p = 0; p < images.length; p++) {
+        onStep(`Llegint la pàgina ${p + 1} de ${images.length}…`);
+        const bmp = await createImageBitmap(images[p]);
+        if (bmp.width < 600) continue;
+        // Només la part esquerra de la pàgina (els valors); la dreta són les gràfiques, amb números que confondrien.
+        const sw = bmp.width * 0.6, k = 1400 / sw;
+        const pg = this.canvas(1400, bmp.height * k);
+        pg.cx.drawImage(bmp, 0, 0, sw, bmp.height, 0, 0, pg.c.width, pg.c.height);
+        const { data } = await page.recognize(this.binarize(pg, 160), {}, { blocks: true });
+        const lines = [];
+        for (const b of data.blocks || []) for (const pa of b.paragraphs || []) for (const l of pa.lines || []) {
+          lines.push({ text: l.text, bbox: l.bbox, words: (l.words || []).map((w) => ({ text: w.text, bbox: w.bbox })) });
+        }
+        for (const card of KinventPdf.cards(lines)) {
+          const raw = {};
+          for (const side of ['left', 'right']) {
+            if (!card[side]) continue;
+            const r = KinventPdf.valueBox(card[side]);
+            const W = (r.x1 - r.x0) * 2, H = (r.y1 - r.y0) * 2;
+            const v = this.canvas(W + 60, H + 60);
+            v.cx.imageSmoothingQuality = 'high';
+            v.cx.drawImage(bmp, r.x0 / k, r.y0 / k, (r.x1 - r.x0) / k, (r.y1 - r.y0) / k, 30, 30, W, H);
+            raw[side] = String((await num.recognize(this.binarize(v, 200))).data.text || '').trim();
+          }
+          found.push({ ...card, page: p + 1, rawE: raw.left || '', rawD: raw.right || '' });
+        }
+        if (bmp.close) bmp.close();
+      }
+    } finally {
+      await page.terminate();
+      await num.terminate();
+    }
+    return found.map((c) => ({ ...c, ...KinventPdf.fixPair(c.rawE, c.rawD, c.asym, c.measure), target: KinventPdf.target(c.title, c.measure) }));
+  },
+};
+
+// Proves de la valoració on pot anar cada mesura de Kinvent.
+const kinventTargets = (measure) => Object.values(TEST_INDEX).filter((t) => t.group === (measure === 'force' ? 'dyn' : 'rom'));
+const kvNum = (v, dec) => (v == null ? '' : String(dec ? Math.round(v * 10) / 10 : v).replace('.', ','));
+
+function KinventReadButton({ a, p, upd }) {
+  const ref = useRef(null);
+  const pick = (file) => {
+    if (ref.current) ref.current.value = '';
+    if (!file) return;
+    let close = null;
+    close = UI.open(() => html`<${KinventImport} file=${file} a=${a} p=${p} upd=${upd} onClose=${() => close()} />`);
+  };
+  return html`<span class="attach">
+    <input type="file" accept=".pdf,application/pdf,image/*" hidden ref=${ref} onChange=${(e) => pick(e.currentTarget.files[0])} aria-label="Informe de Kinvent per llegir" />
+    <${Btn} variant="ghost" size="sm" icon="scan" title="Llegeix els valors de l'informe PDF de Kinvent i omple la valoració"
+      onClick=${() => ref.current && ref.current.click()}>Llegeix el PDF</${Btn}>
+  </span>`;
+}
+
+function KinventImport({ file, a, p, upd, onClose }) {
+  const [step, setStep] = useState('Carregant el lector de text…');
+  const [rows, setRows] = useState(null);
+  const [err, setErr] = useState('');
+  const [attach, setAttach] = useState(canUploadFiles());
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    KinventOcr.read(file, (s) => alive && setStep(s)).then((list) => {
+      if (!alive) return;
+      setRows(list.map((c, i) => {
+        const force = c.measure === 'force';
+        return { id: i, title: c.title, measure: c.measure, page: c.page, target: c.target, on: !!c.target, ok: c.ok, fixed: c.fixed, asym: c.asym,
+          kgE: force ? c.e : null, kgD: force ? c.d : null,
+          e: kvNum(force ? KinventPdf.toN(c.e) : c.e, !force), d: kvNum(force ? KinventPdf.toN(c.d) : c.d, !force) };
+      }));
+    }).catch((e) => {
+      if (alive) setErr(e.message === 'net' ? 'No s\'ha pogut carregar el lector de text. La primera vegada cal connexió a internet.' : `No s'ha pogut llegir l'informe: ${e.message}`);
+    });
+    return () => { alive = false; };
+  }, []);
+  const setRow = (id, k) => (v) => setRows(rows.map((r) => (r.id === id ? { ...r, [k]: v, ...(k === 'target' ? { on: !!v } : {}) } : r)));
+  const chosen = (rows || []).filter((r) => r.on && r.target);
+
+  const apply = async () => {
+    setBusy(true);
+    upd((x) => {
+      x.values = x.values || {};
+      for (const r of chosen) {
+        const t = TEST_INDEX[r.target];
+        const cur = { ...(x.values[r.target] || {}) };
+        if (t.kind === 'single') {
+          const best = Math.max(U.num(r.e) ?? 0, U.num(r.d) ?? 0);
+          if (best) cur.v = kvNum(best, false);
+          const side = r.kgE != null ? `E ${kvNum(r.kgE, true)} kg · D ${kvNum(r.kgD, true)} kg` : `E ${r.e} · D ${r.d}`;
+          cur.note = [cur.note, `Kinvent: ${side}`].filter(Boolean).join(' · ');
+        } else {
+          if (r.e !== '') cur.e = r.e;
+          if (r.d !== '') cur.d = r.d;
+        }
+        x.values[r.target] = cur;
+      }
+    });
+    if (attach) {
+      try {
+        const label = 'Informe Kinvent';
+        const res = await uploadToClient(p, file, { label, date: a.date, subfolder: M365_NAMES.reports });
+        upd((x) => { x.files = [...(x.files || []), { id: U.uid('F'), date: U.today(), name: res.name, url: res.url, label }]; });
+      } catch (e) {
+        UI.toast(`Valors omplerts, però el PDF no s'ha pogut adjuntar: ${e.message}`, 'bad');
+      }
+    }
+    UI.toast(`${U.plural(chosen.length, 'prova omplerta', 'proves omplertes')} amb l'informe de Kinvent.`);
+    onClose();
+  };
+
+  const current = (id) => {
+    const x = (a.values || {})[id];
+    if (!x) return '';
+    const t = TEST_INDEX[id];
+    return t.kind === 'single' ? (x.v ? `ara ${x.v}` : '') : x.d || x.e ? `ara D ${x.d || '—'} · E ${x.e || '—'}` : '';
+  };
+
+  return html`<${Dialog} wide=${true} title="Valors de l'informe de Kinvent" onClose=${onClose} footer=${rows ? html`
+    ${canUploadFiles() && html`<label class="check"><input type="checkbox" checked=${attach} onChange=${(e) => setAttach(e.currentTarget.checked)} /> Adjunta també el PDF a la valoració</label>`}
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" disabled=${!chosen.length || busy} onClick=${apply}>Omple ${U.plural(chosen.length, 'prova', 'proves')}</${Btn}>`
+    : html`<span class="grow"></span><${Btn} variant="ghost" onClick=${onClose}>${err ? 'Tanca' : 'Cancel·la'}</${Btn}>`}>
+    ${err ? html`<p class="kvi-err">${err}</p>`
+      : !rows ? html`<div class="kvi-busy" role="status"><span class="spinner"></span><span>${step}</span></div>`
+      : !rows.length ? html`<p class="muted">No he trobat cap prova a l'informe. Comprova que sigui l'informe PDF de Kinvent Physio.</p>`
+      : html`<p class="muted small">Revisa els valors abans d'omplir: la força es passa de kg a newtons. Els números es comproven amb l'asimetria de l'informe;
+          si alguna cosa no quadra, surt «Revisa» i el pots corregir aquí.</p>
+        <div class="kvi-rows">${rows.map((r) => {
+          const t = r.target && TEST_INDEX[r.target];
+          const unit = r.measure === 'force' ? 'N' : '°';
+          return html`<div class=${U.cls('kvi-row', !r.on && 'off')}>
+            <label class="kvi-on"><input type="checkbox" checked=${r.on} disabled=${!r.target} onChange=${(e) => setRow(r.id, 'on')(e.currentTarget.checked)} aria-label=${`Omple ${r.title}`} /></label>
+            <div class="kvi-title"><strong>${r.title}</strong>
+              <span class="muted small">${r.measure === 'force' ? 'Força màxima' : 'Angle màxim'} · pàg. ${r.page}${r.asym != null ? ` · asimetria ${kvNum(r.asym, true)} %` : ''}</span></div>
+            <div class="kvi-target">
+              <${Select} value=${r.target} onValue=${setRow(r.id, 'target')} ariaLabel=${`Camp per a ${r.title}`} placeholder="No l'omplis"
+                options=${kinventTargets(r.measure).map((x) => ({ v: x.id, label: x.name }))} />
+              ${r.target && current(r.target) && html`<span class="muted small">${current(r.target)} (es substitueix)</span>`}
+            </div>
+            <div class="kvi-vals">
+              <label class="kvi-val"><span class="side-k" title="Esquerra">E</span><${NumInput} value=${r.e} onValue=${setRow(r.id, 'e')} unit=${unit} ariaLabel=${`${r.title} esquerra`} /></label>
+              <label class="kvi-val"><span class="side-k" title="Dreta">D</span><${NumInput} value=${r.d} onValue=${setRow(r.id, 'd')} unit=${unit} ariaLabel=${`${r.title} dreta`} /></label>
+              ${r.kgE != null && html`<span class="muted small kvi-kg">${kvNum(r.kgE, true)} kg · ${kvNum(r.kgD, true)} kg</span>`}
+              ${t && t.kind === 'single' && html`<span class="muted small kvi-kg">${t.name}: s'hi posa el valor més alt i E i D, a la nota.</span>`}
+            </div>
+            <div class="kvi-state">${r.ok ? html`<${Pill} tone="ok" title="Els valors quadren amb l'asimetria de l'informe">${r.fixed ? 'Corregit' : 'Quadra'}</${Pill}>`
+              : html`<${Pill} tone="warn" title="Els valors llegits no quadren amb l'asimetria: revisa'ls amb el PDF">Revisa</${Pill}>`}</div>
+          </div>`;
+        })}</div>`}
+  </${Dialog}>`;
 }
 
 

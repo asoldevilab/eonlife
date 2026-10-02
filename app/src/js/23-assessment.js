@@ -127,7 +127,8 @@ function GroupCard({ g, a, p, upd, setVal }) {
     <div class="group-head">
       <h3 class="group-title">${title}</h3>
       ${g.device && html`<${Pill} tone=${g.device === 'Fase 2' ? 'warn' : 'neutral'}>${g.device}</${Pill}>`}
-      ${/Kinvent/.test(g.device || '') && html`<${AttachButton} a=${a} p=${p} upd=${upd} label=${`Informe ${g.device.replace(' · ', ' ')}`} compact=${true} />`}
+      ${/Kinvent/.test(g.device || '') && html`<${KinventReadButton} a=${a} p=${p} upd=${upd} />
+        <${AttachButton} a=${a} p=${p} upd=${upd} label=${`Informe ${g.device.replace(' · ', ' ')}`} compact=${true} />`}
       ${(g.info || g.ref) && html`<button type="button" class=${U.cls('link', 'group-info-btn')} onClick=${() => setInfo(!info)} aria-expanded=${info}>
         <${Icon} name="info" size=${15} />Protocol</button>`}
     </div>
