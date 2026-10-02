@@ -90,6 +90,7 @@ function SessionSheet({ id }) {
                 const withVideo = b.items.filter((x) => x.name && demoOf(x));
                 return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
+                  <${ExThumb} it=${it} block=${b.key} size=${52} class="sx-thumb" />
                   <div class="sx-body">
                     <div class="sx-line"><span class="sx-name">${it.name}${demoOf(it) && html` <button type="button" class="sx-play no-print" title="Mira el vídeo" onClick=${() => openBlockVideos(b, withVideo.indexOf(it))}><${Icon} name="playfill" size=${12} /></button>`}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
                     ${(tags.length > 0 || it.note) && html`<div class="sx-meta">${tags.map((t) => html`<span class="tag">${t}</span>`)}${it.note && html`<span class="sx-note">${it.note}</span>`}</div>`}

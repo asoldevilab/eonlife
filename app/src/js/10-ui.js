@@ -24,6 +24,8 @@ const ICONS = {
   x: html`<path d="M6 6l12 12M18 6 6 18"/>`,
   folder: html`<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>`,
   video: html`<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>`,
+  camera: html`<path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>`,
+  grid: html`<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>`,
   link: html`<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>`,
   calendar: html`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>`,
   chart: html`<path d="M4 20V4"/><path d="M4 20h16"/><path d="m7 15 4-5 3 3 5-6"/>`,
@@ -340,8 +342,9 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
         lastBlock = ex.block;
         return html`${head}<button type="button" role="option" aria-selected=${nav && i === hi} class=${U.cls('picker-opt', nav && i === hi && 'hi')}
           onPointerDown=${(e) => e.preventDefault()} onClick=${() => pick(ex)}>
-          <span class="picker-name">${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
-          <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' · ')}</span>
+          <${ExThumb} ex=${ex} size=${40} />
+          <span class="picker-txt"><span class="picker-name">${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+          <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' · ')}</span></span>
         </button>`;
       })}
     </div>`}

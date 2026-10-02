@@ -330,7 +330,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
   };
 
   return html`<div class=${U.cls('item', it.done && !templateMode && 'item-done')}>
-    <div class="item-num">${num}</div>
+    <div class="item-num">${num}${it.name && html`<${ExThumb} it=${it} block=${block} size=${46} class="item-thumb" />`}</div>
     <div class="item-body">
       <div class="item-line">
         <div class="item-name">

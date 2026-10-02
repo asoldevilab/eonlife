@@ -127,7 +127,7 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
   1. **Grup muscular**: *Tronc superior* (pectoral, dorsal, deltoides, bíceps, tríceps, trapezi…), *Tronc inferior*
      (quàdriceps, isquiotibials, glutis, adductors, bessons…), *Core* i *Cos sencer i altres*. Un exercici surt a la
      carpeta de cada múscul principal que treballa (el press de banca, a Pectoral i a Tríceps).
-  2. **Exercici**: amb el nivell (N1–N5), els músculs i la prescripció per defecte.
+  2. **Exercici**: targetes amb la miniatura (el dibuix o la foto), el nivell (N1–N5) i els músculs.
   3. **Amb quin material?**: el material del centre amb què es pot fer (barra olímpica, mancuernes Technogym,
      kettlebell, kBox, Keiser, cònica, politja…).
   També hi ha la carpeta **Per material**: triant l'exercici des d'aquí ja queda posat el material. Hi ha els
@@ -171,7 +171,7 @@ Cada sessió té sempre els mateixos blocs, en aquest ordre:
 ### Presentar-la al client
 
 Botó **Presenta**: fitxa neta amb el logotip, l'objectiu d'avui, els 6 blocs i cada exercici ben
-escrit. Es pot posar a pantalla completa, en tema fosc, o **Imprimeix / PDF** (A4) per desar-la a
+escrit, amb la seva miniatura. Es pot posar a pantalla completa, en tema fosc, o **Imprimeix / PDF** (A4) per desar-la a
 la carpeta del client.
 
 **Vídeos de cada bloc**: els blocs que tenen vídeos de demostració porten el botó **▶ n vídeos**. En tocar-lo
@@ -267,6 +267,22 @@ sessions previstes del pla d'entrenament.
   Dead Bug, Bike + Foam…) i els de les màquines del centre. Es poden editar, afegir-hi vídeo de demostració,
   consignes i prescripció per defecte.
 - **Plantilles** de bloc i de sessió. Qualsevol sessió es pot desar com a plantilla des del seu menú.
+
+### Miniatures dels exercicis
+
+Cada exercici té una miniatura: un **dibuix propi** de la postura (squat, pes mort, planxa, rem, salt…) amb el
+material en el color del bloc (barra, mancuernes, kettlebell, goma als genolls, politja…). Es posa sol segons el nom
+de l'exercici i, a la sessió, segons el material triat. Surt a «Afegeix exercici», a la biblioteca (vista
+**Miniatures**, a la llista i a les progressions), a l'editor de la sessió i a la fitxa del client.
+
+Per canviar-la, obre l'exercici a la biblioteca:
+- **Canvia el dibuix**: tria'n un altre d'entre tots els dibuixos.
+- **Foto pròpia**: fes una foto amb la tauleta (o tria-la de la galeria). Es retalla en quadrat i es guarda petita
+  amb l'exercici, i llavors és la miniatura a tot arreu. Ha de ser d'un entrenador fent l'exercici, mai d'un client.
+- **Imatge del vídeo**: si l'exercici té un vídeo de demostració de YouTube, en fa servir la imatge.
+- **Treu la foto** torna al dibuix.
+
+Els dibuixos són propis de l'app; no són imatges de Technogym ni de cap altra aplicació.
 
 ## Actualitzacions de l'app
 

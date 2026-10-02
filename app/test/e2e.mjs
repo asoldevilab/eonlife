@@ -238,7 +238,7 @@ const step = async (label, fn) => {
     await page.waitForSelector('.dialog-title >> text=Bloc 2');
     await page.click('.xb-zone >> text=Tronc inferior');
     await page.click('.xb-folder >> text=Gluti major (GMax)');
-    await page.click('.xb-ex-name >> text=/^Hip thrust\\s*N\\d$/');
+    await page.click('.xb-ex-name >> text="Hip thrust"');
     await page.click('.xb-matbtn >> text=Barra olímpica');
     await page.waitForFunction(() => document.querySelectorAll('section.block.blk-for .sgroup')[1].querySelectorAll('.item').length === 2);
     if ((await blk.locator('.sgroup').nth(0).locator('.item').count()) !== 3) throw new Error('bloc 1');
@@ -277,6 +277,7 @@ const step = async (label, fn) => {
   await step('fitxa per al client', async () => {
     await page.click('.editbar >> text=Presenta');
     await page.waitForSelector('.sheet');
+    await page.waitForSelector('.sblock.blk-for .sx-thumb svg.pic');
     await shot(page, '09-fitxa-sessio');
   });
   await step('presenta: subblocs de la força principal', async () => {
@@ -400,6 +401,25 @@ const step = async (label, fn) => {
     await page.fill('input[aria-label="Material nou"]', 'Trineu');
     await page.click('form:has(input[aria-label="Material nou"]) >> text=Afegeix');
     await page.waitForSelector('.profchip >> text=Trineu');
+  });
+  await step('miniatures: dibuix i foto pròpia d\'un exercici', async () => {
+    await goHash(page, '#/biblioteca');
+    await page.click('.seg >> text=Miniatures');
+    await page.waitForSelector('.xb-grid .xb-ex .exthumb svg.pic');
+    await shot(page, '36-biblioteca-miniatures', false);
+    await page.click('.seg >> text=Llista');
+    await page.fill('input[aria-label="Cerca exercicis"]', 'Hip thrust');
+    await page.click('.exrow >> nth=0');
+    await page.waitForSelector('.thumbedit >> text=Dibuix: Hip thrust (automàtic)');
+    await page.click('.thumbedit >> text=Canvia el dibuix');
+    await page.click('.picopt-name >> text="Pont de glutis"');
+    await page.waitForSelector('.thumbedit >> text=Dibuix: Pont de glutis');
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+    await page.setInputFiles('.thumbedit input[type=file]', { name: 'foto.png', mimeType: 'image/png', buffer: png });
+    await page.waitForSelector('.thumbedit .exthumb img[src^="data:image/jpeg"]');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    await page.waitForSelector('.exrow >> nth=0 >> .exthumb img');
   });
   await step('configuració', async () => {
     await goHash(page, '#/configuracio');

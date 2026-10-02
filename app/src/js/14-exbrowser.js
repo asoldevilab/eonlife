@@ -41,6 +41,18 @@ function materialFolders(list) {
     list: names.map((name) => ({ name, label: name, items: U.sortBy(by[name], (e) => `${e.family || 'ZZ'}#${String(U.num(e.level) ?? 9)}#${e.name}`) })) };
 }
 
+// Targeta d'un exercici amb la miniatura (cercador d'exercicis i biblioteca en graella).
+function ExCard({ e, onClick, sub }) {
+  const muscles = exerciseMuscles(e).map(muscleLabel);
+  return html`<button type="button" class="xb-ex" onClick=${onClick}
+    title=${[e.name, muscles.join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}>
+    <${ExThumb} ex=${e} size=${96} />
+    <span class="xb-ex-name">${e.name}</span>
+    <span class="xb-ex-meta">${e.level && html`<span class="lvl-chip">N${e.level}</span> `}${muscles.slice(0, 2).join(' · ')}</span>
+    ${sub && html`<span class="xb-ex-mat">${sub}</span>`}
+  </button>`;
+}
+
 function openExerciseBrowser({ block, title, onPick, onBlank }) {
   let close = null;
   close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
@@ -72,11 +84,8 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
     ex && { label: ex.name },
   ].filter(Boolean);
   const back = () => (ex ? setEx(null) : folder ? setFolder(null) : setZone(null));
-  const row = (e) => html`<button type="button" class="xb-ex" onClick=${() => choose(e)}>
-    <span class="xb-ex-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
-    <span class="xb-ex-meta">${[exerciseMuscles(e).map(muscleLabel).join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}</span>
-    <span class="xb-ex-mat">${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''}</span>
-  </button>`;
+  const row = (e) => html`<${ExCard} e=${e} onClick=${() => choose(e)}
+    sub=${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
 
   return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici · ${blockName(block)}`} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>
@@ -87,18 +96,18 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
     </div>
-    ${found && !ex ? html`<div class="xb-list">${found.length ? found.map(row) : html`<p class="muted">Cap exercici coincideix. Pots afegir-lo en blanc i escriure'l.</p>`}</div>`
+    ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<p class="muted xb-none">Cap exercici coincideix. Pots afegir-lo en blanc i escriure'l.</p>`}</div>`
       : html`<nav class="xb-crumbs" aria-label="Carpetes">
           ${(zone || ex) && html`<button type="button" class="link xb-back" onClick=${back}><${Icon} name="back" size=${15} />Enrere</button>`}
           ${found ? html`<strong>${ex.name}</strong>` : crumb.map((c, i) => html`${i > 0 && html`<span class="xb-sep">›</span>`}${c.go && i < crumb.length - 1 ? html`<button type="button" class="link" onClick=${c.go}>${c.label}</button>` : html`<strong>${c.label}</strong>`}`)}
         </nav>
         ${ex ? html`<div class="xb-mat">
-            <p class="muted">${[exerciseMuscles(ex).map(muscleLabel).join(' · '), Calc.presc(ex)].filter(Boolean).join(' — ')}</p>
+            <div class="xb-mat-head"><${ExThumb} ex=${ex} size=${72} /><p class="muted">${[exerciseMuscles(ex).map(muscleLabel).join(' · '), Calc.presc(ex)].filter(Boolean).join(' — ')}</p></div>
             <h3 class="h3">Amb quin material?</h3>
             <div class="xb-folders">${ex.materials.map((m, i) => html`<button type="button" class="xb-folder xb-matbtn" onClick=${() => onPick(ex, m)}>
               <${Icon} name="dumbbell" size=${18} /><span class="xb-folder-name">${m}</span>${i === 0 && html`<span class="xb-folder-n">per defecte</span>`}</button>`)}</div>
           </div>`
-        : f ? html`<div class="xb-list">${f.items.map(row)}</div>`
+        : f ? html`<div class="xb-grid">${f.items.map(row)}</div>`
         : z ? html`<div class="xb-folders">${z.list.map((x) => html`<button type="button" class="xb-folder" onClick=${() => setFolder(x.name)}>
             <${Icon} name="folder" size=${18} /><span class="xb-folder-name">${x.label}</span><span class="xb-folder-n">${x.items.length}</span></button>`)}</div>`
         : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-z-${x.key}`} onClick=${() => setZone(x.key)}>
