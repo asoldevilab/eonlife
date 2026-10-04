@@ -27,6 +27,20 @@ const Calc = {
   },
 
   weight(a) { return U.num(a && a.general && a.general.weight); },
+  // Codi dels exercicis EON (gravats pel centre): «1.3» = bloc 1 (mobilitat), número 3.
+  codeKey(code) {
+    const m = String(code || '').trim().match(/^(\d+)\.(\d+)$/);
+    return m ? [Number(m[1]), Number(m[2])] : null;
+  },
+  byCode(a, b) {
+    const x = Calc.codeKey(a.code) || [99, 999], y = Calc.codeKey(b.code) || [99, 999];
+    return x[0] - y[0] || x[1] - y[1] || String(a.name || '').localeCompare(String(b.name || ''), 'ca');
+  },
+  // Següent número lliure d'un bloc: després del més alt (si no n'hi ha cap, el .0).
+  nextCode(list, num) {
+    const used = (list || []).map((e) => Calc.codeKey(e.code)).filter((k) => k && k[0] === num).map((k) => k[1]);
+    return `${num}.${used.length ? Math.max(...used) + 1 : 0}`;
+  },
   bmi(weight, height) {
     const w = U.num(weight), h = U.num(height);
     return w && h ? w / ((h / 100) ** 2) : null;
@@ -658,7 +672,7 @@ const Flat = {
 
   exercise(e) {
     return {
-      'Nom': e.name || '', 'Nom Technogym': e.tg || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
+      'Codi EON': e.code || '', 'Nom': e.name || '', 'Nom Technogym': e.tg || '', 'Bloc': blockName(e.block), 'Categoria': e.cat || '', 'Família de progressió': e.family || '', 'Nivell': U.num(e.level) ?? '', 'Material': e.material || '',
       'Grup muscular': e.gm || '', 'Altres músculs': (e.muscles || []).join(', '), 'Materials possibles': (e.materials || []).join(', '), 'Contracció': e.cont || '', 'Posició': e.pos || '', 'Lateralitat': e.lat || '',
       'Sèries': e.sets || '', 'Reps / temps': e.reps || '', 'Intensitat': e.intensity || '', 'Descans': e.rest || '',
       'Consignes': e.cues || '', 'Vídeo': e.video || '',

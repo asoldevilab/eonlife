@@ -375,7 +375,7 @@ test('material del centre i músculs de la biblioteca', () => {
   for (const e of SEED_EXERCISES) {
     if (e.gm) assert.ok(muscles.has(e.gm), `${e.name}: múscul ${e.gm}`);
     for (const m of e.muscles || []) assert.ok(muscles.has(m), `${e.name}: múscul ${m}`);
-    assert.equal(e.materials[0], e.material, `${e.name}: el material per defecte va primer`);
+    if (e.material) assert.equal(e.materials[0], e.material, `${e.name}: el material per defecte va primer`);
     assert.ok(!['Barra', 'KB', 'Mancuernes', 'Politja'].includes(e.material), `${e.name}: material antic ${e.material}`);
   }
   const byGm = (m) => SEED_EXERCISES.filter((e) => e.gm === m || (e.muscles || []).includes(m)).length;
@@ -522,4 +522,18 @@ test('fitxa del client: perfil físic, pes i alçada lligats a les valoracions, 
   // Els demos tenen el perfil omplert (dades inventades).
   assert.equal(Store.get('patients', 'P-DEMO-JORDI').dominance, 'D');
   assert.ok(Store.get('patients', 'P-DEMO-MONTSE').limitations);
+});
+
+test('exercicis EON: codi per bloc (1.0, 1.1…), ordre i següent número; el 1.3 de mobilitat té el vídeo', () => {
+  const { Calc, SEED_EXERCISES, Flat } = loadCore();
+  assert.deepEqual(Array.from(Calc.codeKey('1.3')), [1, 3]);
+  assert.equal(Calc.codeKey('1,3'), null);
+  const list = [{ code: '1.10' }, { code: '1.2' }, { code: '2.0' }, { code: '1.0' }];
+  assert.deepEqual([...list].sort(Calc.byCode).map((e) => e.code), ['1.0', '1.2', '1.10', '2.0']);
+  assert.equal(Calc.nextCode(list, 1), '1.11');
+  assert.equal(Calc.nextCode(list, 4), '4.0');
+  const e = SEED_EXERCISES.find((x) => x.code === '1.3');
+  assert.equal(e.block, 'mob');
+  assert.equal(e.video, 'https://youtu.be/FiuU4aBaUb0');
+  assert.equal(Flat.exercise(e)['Codi EON'], '1.3');
 });

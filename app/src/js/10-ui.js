@@ -310,7 +310,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exerciciâ
     if (!open) return [];
     const nq = U.norm(q ?? '');
     const all = Store.exercises();
-    const match = (e) => !nq || U.norm(`${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq);
+    const match = (e) => !nq || U.norm(`${e.code || ''} ${e.name} ${e.cat} ${e.family || ''} ${e.material} ${e.gm}`).includes(nq);
     const mine = all.filter((e) => e.block === block && match(e));
     const others = nq ? all.filter((e) => e.block !== block && match(e)) : [];
     return [...mine, ...others].slice(0, 40);
@@ -344,7 +344,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exerciciâ
         return html`${head}<button type="button" role="option" aria-selected=${nav && i === hi} class=${U.cls('picker-opt', nav && i === hi && 'hi')}
           onPointerDown=${(e) => e.preventDefault()} onClick=${() => pick(ex)}>
           <${ExThumb} ex=${ex} size=${40} />
-          <span class="picker-txt"><span class="picker-name">${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+          <span class="picker-txt"><span class="picker-name">${ex.code && html`<span class="code-chip">${ex.code}</span> `}${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
           <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' Â· ')}</span></span>
         </button>`;
       })}
