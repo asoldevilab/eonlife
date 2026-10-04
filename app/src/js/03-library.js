@@ -503,6 +503,13 @@ const SEED_EXERCISES = (() => {
   db(50, 'for', "Front squat amb una mancuerna", "Front squat - one dumbbell", 'Quàdriceps', { muscles: ['Core', 'GMax'], sets: '3', reps: '10' });
   db(51, 'for', "Estocada endavant amb mancuernes", "Forward lunge", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
 
+  // ── Exercicis EON: gravats pel centre (vídeo a YouTube), numerats per bloc: 1.0, 1.1… de mobilitat; 2.0… d'activació… ──
+  const eon = (code, block, name, video, extra = {}) => {
+    const [b, n] = code.split('.');
+    add(`X-EON-${b}-${n.padStart(2, '0')}`, block, name, 'Exercicis EON', '', { code, video, materials: [], sets: '2', ...extra });
+  };
+  eon('1.3', 'mob', 'Mobilitat 1.3', 'https://youtu.be/FiuU4aBaUb0');
+
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
   for (const e of list) if (rename[e.material]) e.material = rename[e.material];

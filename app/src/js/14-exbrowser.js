@@ -47,10 +47,18 @@ function ExCard({ e, onClick, sub }) {
   return html`<button type="button" class="xb-ex" onClick=${onClick}
     title=${[e.name, muscles.join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}>
     <${ExThumb} ex=${e} size=${96} />
-    <span class="xb-ex-name">${e.name}</span>
+    <span class="xb-ex-name">${e.code && html`<span class="code-chip">${e.code}</span> `}${e.name}</span>
     <span class="xb-ex-meta">${e.level && html`<span class="lvl-chip">N${e.level}</span> `}${muscles.slice(0, 2).join(' · ')}</span>
     ${sub && html`<span class="xb-ex-mat">${sub}</span>`}
   </button>`;
+}
+
+// Exercicis EON (gravats pel centre), en una carpeta per bloc i per ordre de codi: 1.0, 1.1, 1.2…
+function eonFolders(list) {
+  const mine = list.filter((e) => Calc.codeKey(e.code));
+  const list2 = BLOCKS.map((b) => ({ name: `eon-${b.key}`, label: `${b.num} · ${blockName(b.key)}`, items: mine.filter((e) => e.block === b.key).sort(Calc.byCode) }))
+    .filter((f) => f.items.length);
+  return { key: 'eon', label: 'Exercicis EON', count: mine.length, list: list2 };
 }
 
 function openExerciseBrowser({ block, title, onPick, onBlank }) {
@@ -69,12 +77,13 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
   const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
-  const zones = [...exerciseFolders(pool), materialFolders(pool)];
+  const eon = eonFolders(pool);
+  const zones = [...(eon.count ? [eon] : []), ...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
   const found = nq ? Store.exercises().filter((e) => (!scope || scope.includes(e.block) || nq.length > 2)
-    && U.norm(`${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 80) : null;
+    && U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 80) : null;
   // Si s'hi arriba des d'una carpeta de material, el material ja està triat.
   const choose = (e) => (zone === 'mat' && folder ? onPick(e, folder) : (e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
   const crumb = [
@@ -114,7 +123,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
         : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-z-${x.key}`} onClick=${() => setZone(x.key)}>
             <${Icon} name="folder" size=${22} />
             <span class="xb-zone-name">${x.label}</span>
-            <span class="xb-zone-sub">${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}</span>
+            <span class="xb-zone-sub">${x.key === 'eon' ? 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' : `${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}`}</span>
             <span class="xb-folder-n">${U.plural(x.count, 'exercici', 'exercicis')}</span></button>`)}</div>`}`}
   </${Dialog}>`;
 }

@@ -28,32 +28,55 @@ function ExerciseList() {
   const [blk, setBlk] = useState('');
   const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
+  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
   return html`<section class="card">
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
-        options=${[{ v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tren superior, tren inferior i core, múscul per múscul' },
+        options=${[{ v: 'eon', label: 'Exercicis EON', title: 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' }, { v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tren superior, tren inferior i core, múscul per múscul' },
           { v: 'progressions', label: 'Progressions', title: 'Cada patró de més fàcil (nivell 1) a més difícil (nivell 5)' }]} />
     </div>
-    ${view === 'progressions' ? html`<${ProgressionList} all=${all} />`
+    ${view === 'eon' ? html`<${EonList} all=${all} blk=${blk} q=${nq} />`
+      : view === 'progressions' ? html`<${ProgressionList} all=${all} />`
       : view === 'musculs' ? html`<${MuscleFolders} all=${all} />`
       : BLOCKS.filter((b) => all.some((e) => e.block === b.key)).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(all.filter((e) => e.block === b.key).length, 'exercici', 'exercicis')}</span></div>
       ${view === 'graella' ? html`<div class="xb-grid xb-grid-lib">${all.filter((e) => e.block === b.key).map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.material || ''} />`)}</div>`
       : html`<div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-name">${e.code && html`<span class="code-chip">${e.code}</span>`}${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
         <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
     </div>`)}
-    ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Si no és a la biblioteca, crea'l: hi pots posar el vídeo de YouTube i en serà la miniatura.">
+    ${!all.length && view !== 'eon' && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Si no és a la biblioteca, crea'l: hi pots posar el vídeo de YouTube i en serà la miniatura.">
       <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: blk || 'for' })}>${q.trim() ? `Crea «${q.trim()}»` : 'Nou exercici'}</${Btn}>
     </${Empty}>`}
   </section>`;
+}
+
+// Exercicis EON: els gravats pel centre, una carpeta per bloc amb els números 1.0, 1.1, 1.2… i el botó per afegir el següent.
+function EonList({ all, blk, q }) {
+  const coded = Store.exercises().filter((e) => Calc.codeKey(e.code));
+  const shown = new Set(all.map((e) => e.id));
+  return html`<div class="stack">
+    <p class="muted small">Cada bloc té els seus números: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6 (tornada a la calma).
+      Enganxeu l'enllaç del vídeo de YouTube (públic o «no llistat») a cada exercici: en serà la miniatura i es podrà veure a la sessió.</p>
+    ${BLOCKS.filter((b) => !blk || b.key === blk).map((b) => {
+      const items = coded.filter((e) => e.block === b.key && shown.has(e.id)).sort(Calc.byCode);
+      const next = Calc.nextCode(coded, b.num);
+      if (q && !items.length) return null;
+      return html`<div class="libgroup eon-group">
+        <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(items.length, 'exercici', 'exercicis')}</span>
+          <span class="grow"></span>
+          <${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, { block: b.key, code: next, name: `${blockName(b.key)} ${next}`, cat: 'Exercicis EON', materials: [] })}>Afegeix el ${next}</${Btn}></div>
+        ${items.length ? html`<div class="xb-grid xb-grid-lib">${items.map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.video ? 'Amb vídeo' : 'Sense vídeo'} />`)}</div>`
+          : html`<p class="muted small">Encara no n'hi ha cap. El primer serà el ${next}.</p>`}
+      </div>`;
+    })}
+  </div>`;
 }
 
 // Carpetes per grup muscular: tren superior, tren inferior, core i cos sencer; dins, cada múscul.
@@ -64,7 +87,7 @@ function MuscleFolders({ all }) {
       <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
       <div class="exlist">${f.items.map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name">${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
+        <span class="exrow-name">${e.code && html`<span class="code-chip">${e.code}</span>`}${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
         <span class="exrow-meta">${[blockName(e.block), (e.materials || [e.material]).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>
@@ -129,6 +152,12 @@ function ExerciseDialog({ ex, init, onClose }) {
       <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>
       <${Field} label="Vídeo de demostració" id="ex-video" wide=${true} hint="Enllaç de YouTube (públic o «no llistat») o d'un vídeo. La miniatura serà la imatge del vídeo.">
         <${TextInput} id="ex-video" value=${f.video} onValue=${set('video')} placeholder="https://youtu.be/…" /></${Field}>
+      <${Field} label="Codi EON" id="ex-code" hint="Per als exercicis gravats pel centre: bloc i número (1.3 = mobilitat, número 3). Deixeu-ho buit per a la resta.">
+        <${TextInput} id="ex-code" value=${f.code} placeholder="p. ex. 1.3" onValue=${(v) => {
+          const k = Calc.codeKey(v);
+          const b = k && BLOCKS.find((x) => x.num === k[0]);
+          setF({ ...f, code: v.trim(), ...(b ? { block: b.key } : {}) });
+        }} /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
       <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>

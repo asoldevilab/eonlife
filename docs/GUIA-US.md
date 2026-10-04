@@ -302,6 +302,11 @@ sessions previstes del pla d'entrenament.
 - Més de 190 exercicis de base, amb els dels vostres Excel (Hip Thrust, RDL, Split Squat, Sumo Squat, HE,
   Dead Bug, Bike + Foam…) i els de les màquines del centre. Es poden editar, afegir-hi vídeo de demostració,
   consignes i prescripció per defecte.
+- **Exercicis EON** (els que graveu vosaltres): a la biblioteca, vista **Exercicis EON**, hi ha una carpeta per
+  bloc amb els exercicis numerats: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6. Amb
+  **Afegeix el 1.4** es crea el següent (amb el codi i el bloc ja posats): poseu-hi el nom i l'enllaç de YouTube.
+  A la sessió, **Afegeix exercici › Exercicis EON** és la primera carpeta, i el codi (p. ex. «1.3») també es pot
+  escriure al cercador. Qualsevol exercici pot tenir codi EON (camp *Codi EON* de la fitxa de l'exercici).
 - **Un exercici que no hi és** (per exemple un que heu gravat): cerqueu-lo i, si no surt, toqueu **Crea «…»**.
   S'obre la fitxa de l'exercici nou amb el nom ja escrit: trieu el bloc, el múscul i el material, i enganxeu
   l'enllaç de YouTube a **Vídeo de demostració**. La miniatura serà la imatge del vídeo. També es pot crear des
