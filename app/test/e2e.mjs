@@ -19,6 +19,8 @@ if (shots) mkdirSync(shots, { recursive: true });
 
 const errors = [];
 const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+// Imatge de YouTube de prova: 320 × 180, com les de veritat (la grisa de «sense imatge» en fa 120).
+const YT_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAABkUlEQVR42u3TAQkAAAjAMDWmSYxoLHMIW4TDc6cD+KkkAAMDBgYMDAYGDAwYGDAwGBgwMGBgMDBgYMDAgIHBwICBAQMDBgYDAwYGDAwGBgwMGBgwMBgYMDBgYMDAYGDAwICBwcCAgQEDAwYGAwMGBgwMBgYMDBgYMDAYGDAwYGDAwGBgwMCAgcHAgIEBAwMGBgMDBgYMDBgYDAwYGDAwGBgwMGBgwMBgYMDAgIEBA4OBAQMDBgYDAwYGDAwYGAwMGBgwMBgYMDBgYMDAYGDAwICBAQODgQEDAwYGAwMGBgwMGBgMDBgYMDBgYDAwYGDAwGBgwMCAgQEDg4EBAwMGBgwMBgYMDBgYDAwYGDAwYGAwMGBgwMBgYMDAgIEBA4OBAQMDBgYMDAYGDAwYGAwMGBgwMGBgMDBgYMDAgIHBwICBAQODgQEDAwYGDAwGBgwMGBgMDBgYMDBgYDAwYGDAwICBwcCAgQEDg4EBAwMGBgwMBgYMDBgYMDAYGDAwYGAwMGBgwMCAgcHAgIEBAwMGht8ORS4DAmPlJXEAAAAASUVORK5CYII=', 'base64');
 const browser = await chromium.launch();
 
 async function open(viewport, scheme = 'light') {
@@ -28,11 +30,11 @@ async function open(viewport, scheme = 'light') {
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   page.on('console', (m) => {
     const where = `${m.text()} ${(m.location() || {}).url || ''}`;
-    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(where)) errors.push(`console: ${m.text()}`);
+    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|ytimg\.com/.test(where)) errors.push(`console: ${m.text()}`);
   });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   await page.route(/youtube/, (r) => r.abort());
-  await page.route(/ytimg/, (r) => r.fulfill({ body: TINY_PNG, contentType: 'image/png' }));
+  await page.route(/ytimg/, (r) => r.fulfill({ body: YT_PNG, contentType: 'image/png' }));
   await page.goto(url);
   await page.waitForSelector('.page, .present');
   return { ctx, page };
@@ -495,6 +497,14 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Desa');
     await page.waitForSelector('.dialog', { state: 'detached' });
     await page.waitForSelector('.exrow:has-text("Exercici gravat al centre") .exthumb img[src="https://i.ytimg.com/vi/FiuU4aBaUb0/mqdefault.jpg"]');
+    // Un vídeo privat (YouTube no en dona la imatge): avís i dibuix.
+    await page.route(/ytimg\.com\/vi\/PrivatVid00/, (r) => r.fulfill({ status: 404, body: '' }));
+    await page.click('.page-actions >> text=Nou exercici');
+    await page.fill('#ex-name', 'Prova de vídeo privat');
+    await page.fill('#ex-video', 'https://youtu.be/PrivatVid00');
+    await page.waitForSelector('.thumbedit-warn >> text=potser és privat');
+    await page.waitForSelector('.thumbedit .exthumb svg.pic');
+    await page.click('.dialog-foot >> text=Cancel·la');
   });
   await step('exercicis EON: carpeta per blocs, 1.3 de mobilitat amb el vídeo i «Afegeix el 1.4»', async () => {
     await goHash(page, '#/biblioteca');

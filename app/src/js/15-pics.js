@@ -524,7 +524,8 @@ function ExThumb({ ex, it, block, size = 52, class: c }) {
   // Foto pròpia > imatge del vídeo de YouTube > dibuix. Si la imatge no carrega (sense internet, vídeo privat…), el dibuix.
   const src = (lib && lib.photo) || exerciseVideoThumb(lib);
   return html`<span class=${U.cls('exthumb', k && `blk-${k}`, c)} style=${`--thumb:${size}px`} aria-hidden="true">
-    ${src && failed !== src ? html`<img src=${src} alt="" loading="lazy" onError=${() => setFailed(src)} />`
+    ${src && failed !== src ? html`<img src=${src} alt="" loading="lazy" onError=${() => setFailed(src)}
+        onLoad=${(ev) => { if (src.includes('ytimg.com') && ev.currentTarget.naturalWidth <= 120) setFailed(src); }} />`
       : html`<span class="exthumb-pic" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e) }}></span>`}
   </span>`;
 }
@@ -550,10 +551,29 @@ async function picPhotoFromFile(file) {
 }
 
 // Miniatura a la fitxa de l'exercici: dibuix automàtic, un altre dibuix, foto pròpia o la imatge del vídeo.
+// Imatge del vídeo de YouTube: es comprova si carrega. YouTube torna una imatge grisa de 120 px quan no n'hi ha
+// (vídeo privat, esborrat o encara processant-se).
+function useVideoThumbState(src) {
+  const [state, setState] = useState('');
+  useEffect(() => {
+    if (!src) { setState(''); return undefined; }
+    let alive = true;
+    setState('loading');
+    const im = new Image();
+    im.onload = () => { if (alive) setState(im.naturalWidth > 120 ? 'ok' : 'bad'); };
+    im.onerror = () => { if (alive) setState('bad'); };
+    im.src = src;
+    return () => { alive = false; };
+  }, [src]);
+  return state;
+}
+
 function ThumbEditor({ f, setF }) {
   const fileRef = useRef(null);
   const yt = videoEmbed(f.video);
   const auto = picKeyOf({ ...f, pic: '' });
+  const vthumb = f.photo ? '' : exerciseVideoThumb(f);
+  const vstate = useVideoThumbState(vthumb);
   const onFile = async (ev) => {
     const file = ev.currentTarget.files && ev.currentTarget.files[0];
     ev.currentTarget.value = '';
@@ -571,7 +591,9 @@ function ThumbEditor({ f, setF }) {
   return html`<div class="thumbedit">
     <${ExThumb} ex=${f} size=${112} />
     <div class="thumbedit-body">
-      <p class="thumbedit-what">${f.photo ? 'Foto pròpia' : exerciseVideoThumb(f) ? 'Imatge del vídeo de YouTube' : `Dibuix: ${(PICS[f.pic || auto] || PICS.stand).label}${f.pic ? '' : ' (automàtic)'}`}</p>
+      <p class="thumbedit-what">${f.photo ? 'Foto pròpia' : vthumb && vstate !== 'bad' ? 'Imatge del vídeo de YouTube' : `Dibuix: ${(PICS[f.pic || auto] || PICS.stand).label}${f.pic ? '' : ' (automàtic)'}`}</p>
+      ${vthumb && vstate === 'bad' && html`<p class="thumbedit-warn">No es pot carregar la imatge d'aquest vídeo de YouTube: potser és privat, encara s'està
+        processant o no hi ha connexió. Mentrestant surt el dibuix. Per posar-hi la vostra foto, toqueu «Foto pròpia».</p>`}
       <div class="inline wrap">
         <${Btn} size="sm" icon="edit" onClick=${choose}>Canvia el dibuix</${Btn}>
         <${Btn} size="sm" icon="camera" onClick=${() => fileRef.current && fileRef.current.click()}>${f.photo ? 'Una altra foto' : 'Foto pròpia'}</${Btn}>
