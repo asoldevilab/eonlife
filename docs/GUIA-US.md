@@ -302,6 +302,10 @@ sessions previstes del pla d'entrenament.
 - Més de 190 exercicis de base, amb els dels vostres Excel (Hip Thrust, RDL, Split Squat, Sumo Squat, HE,
   Dead Bug, Bike + Foam…) i els de les màquines del centre. Es poden editar, afegir-hi vídeo de demostració,
   consignes i prescripció per defecte.
+- **Un exercici que no hi és** (per exemple un que heu gravat): cerqueu-lo i, si no surt, toqueu **Crea «…»**.
+  S'obre la fitxa de l'exercici nou amb el nom ja escrit: trieu el bloc, el múscul i el material, i enganxeu
+  l'enllaç de YouTube a **Vídeo de demostració**. La miniatura serà la imatge del vídeo. També es pot crear des
+  d'«Afegeix exercici» a la sessió.
 - **Plantilles** de bloc i de sessió. Qualsevol sessió es pot desar com a plantilla des del seu menú.
 
 ### Miniatures dels exercicis

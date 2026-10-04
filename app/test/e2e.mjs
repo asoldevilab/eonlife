@@ -484,6 +484,18 @@ const step = async (label, fn) => {
     const w = await page.evaluate(() => Store.get('patients', 'P-DEMO-ALEX').weight);
     if (w !== '78') throw new Error(`pes de la fitxa: ${w}`);
   });
+  await step('biblioteca: crear un exercici que no hi és, amb el vídeo de YouTube com a miniatura', async () => {
+    await goHash(page, '#/biblioteca');
+    await page.click('.seg >> text=Llista');
+    await page.fill('input[aria-label="Cerca exercicis"]', 'Exercici gravat al centre');
+    await page.click('text=Crea «Exercici gravat al centre»');
+    if ((await page.inputValue('#ex-name')) !== 'Exercici gravat al centre') throw new Error('el nom no ve de la cerca');
+    await page.fill('#ex-video', 'https://youtu.be/FiuU4aBaUb0');
+    await page.waitForSelector('.thumbedit >> text=Imatge del vídeo de YouTube');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    await page.waitForSelector('.exrow:has-text("Exercici gravat al centre") .exthumb img[src="https://i.ytimg.com/vi/FiuU4aBaUb0/mqdefault.jpg"]');
+  });
   await step('configuració', async () => {
     await goHash(page, '#/configuracio');
     await page.waitForSelector('text=On es guarden les dades');
