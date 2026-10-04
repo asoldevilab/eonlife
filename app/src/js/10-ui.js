@@ -289,6 +289,12 @@ function ModalHost() {
       <${Icon} name=${t.tone === 'bad' ? 'alert' : 'check'} size=${16} />${t.text}</div>`)}</div>`;
 }
 
+// Codi EON d'un exercici (1.3…), davant del nom. Si el nom ja és el codi, no es repeteix.
+function CodeChip({ e }) {
+  if (!e || !e.code || String(e.name || '').trim() === String(e.code).trim()) return null;
+  return html`<span class="code-chip">${e.code}</span>`;
+}
+
 // Selector d'exercicis de la biblioteca (amb text lliure).
 function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici…', autoFocus, id }) {
   const [open, setOpen] = useState(false);
@@ -344,7 +350,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
         return html`${head}<button type="button" role="option" aria-selected=${nav && i === hi} class=${U.cls('picker-opt', nav && i === hi && 'hi')}
           onPointerDown=${(e) => e.preventDefault()} onClick=${() => pick(ex)}>
           <${ExThumb} ex=${ex} size=${40} />
-          <span class="picker-txt"><span class="picker-name">${ex.code && html`<span class="code-chip">${ex.code}</span> `}${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+          <span class="picker-txt"><span class="picker-name"><${CodeChip} e=${ex} />${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
           <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' · ')}</span></span>
         </button>`;
       })}

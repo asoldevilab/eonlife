@@ -508,7 +508,7 @@ const SEED_EXERCISES = (() => {
     const [b, n] = code.split('.');
     add(`X-EON-${b}-${n.padStart(2, '0')}`, block, name, 'Exercicis EON', '', { code, video, materials: [], sets: '2', ...extra });
   };
-  eon('1.3', 'mob', 'Mobilitat 1.3', 'https://youtu.be/FiuU4aBaUb0');
+  eon('1.3', 'mob', '1.3', 'https://youtu.be/RaKob2IOfqk');
 
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };

@@ -47,7 +47,7 @@ function ExCard({ e, onClick, sub }) {
   return html`<button type="button" class="xb-ex" onClick=${onClick}
     title=${[e.name, muscles.join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}>
     <${ExThumb} ex=${e} size=${96} />
-    <span class="xb-ex-name">${e.code && html`<span class="code-chip">${e.code}</span> `}${e.name}</span>
+    <span class="xb-ex-name"><${CodeChip} e=${e} />${e.name}</span>
     <span class="xb-ex-meta">${e.level && html`<span class="lvl-chip">N${e.level}</span> `}${muscles.slice(0, 2).join(' · ')}</span>
     ${sub && html`<span class="xb-ex-mat">${sub}</span>`}
   </button>`;

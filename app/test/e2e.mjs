@@ -500,11 +500,10 @@ const step = async (label, fn) => {
     await goHash(page, '#/biblioteca');
     await page.fill('input[aria-label="Cerca exercicis"]', '');
     await page.click('.seg >> text=Exercicis EON');
-    await page.waitForSelector('.eon-group .xb-ex:has-text("1.3") .exthumb img[src="https://i.ytimg.com/vi/FiuU4aBaUb0/mqdefault.jpg"]');
+    await page.waitForSelector('.eon-group .xb-ex:has-text("1.3") .exthumb img[src="https://i.ytimg.com/vi/RaKob2IOfqk/mqdefault.jpg"]');
     await shot(page, '10d-exercicis-eon', false);
     await page.click('.eon-group:has-text("Mobilitat") >> text=Afegeix el 1.4');
-    if ((await page.inputValue('#ex-code')) !== '1.4') throw new Error('codi del següent');
-    await page.fill('#ex-name', 'Mobilitat de maluc EON');
+    if ((await page.inputValue('#ex-code')) !== '1.4' || (await page.inputValue('#ex-name')) !== '1.4') throw new Error('codi i nom del següent');
     await page.click('.dialog-foot >> text=Desa');
     await page.waitForSelector('.dialog', { state: 'detached' });
     await page.waitForSelector('.eon-group:has-text("Mobilitat") >> text=Afegeix el 1.5');
@@ -514,8 +513,8 @@ const step = async (label, fn) => {
     await page.locator('section.block.blk-mob .add-item:not(.add-group)').click();
     await page.click('.xb-zone >> text=Exercicis EON');
     await page.click('.xb-folder >> text=1 · Mobilitat');
-    const codes = await page.locator('.xb-ex .code-chip').allTextContents();
-    if (codes.join() !== '1.3,1.4') throw new Error(`codis: ${codes}`);
+    const names = await page.locator('.xb-ex .xb-ex-name').allTextContents();
+    if (names.map((x) => x.trim()).join() !== '1.3,1.4') throw new Error(`exercicis: ${names}`);
     await page.click('.dialog-head button[title="Tanca"]');
   });
   await step('configuració', async () => {

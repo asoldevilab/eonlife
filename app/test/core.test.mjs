@@ -534,6 +534,7 @@ test('exercicis EON: codi per bloc (1.0, 1.1…), ordre i següent número; el 1
   assert.equal(Calc.nextCode(list, 4), '4.0');
   const e = SEED_EXERCISES.find((x) => x.code === '1.3');
   assert.equal(e.block, 'mob');
-  assert.equal(e.video, 'https://youtu.be/FiuU4aBaUb0');
+  assert.equal(e.name, '1.3');
+  assert.equal(e.video, 'https://youtu.be/RaKob2IOfqk');
   assert.equal(Flat.exercise(e)['Codi EON'], '1.3');
 });
