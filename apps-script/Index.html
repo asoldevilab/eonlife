@@ -3723,7 +3723,7 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-04 18:06";
+<script>window.EON_BUILD = "2026-10-04 18:11";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4909,7 +4909,7 @@ const SEED_EXERCISES = (() => {
     const [b, n] = code.split('.');
     add(`X-EON-${b}-${n.padStart(2, '0')}`, block, name, 'Exercicis EON', '', { code, video, materials: [], sets: '2', ...extra });
   };
-  eon('1.3', 'mob', 'Mobilitat 1.3', 'https://youtu.be/FiuU4aBaUb0');
+  eon('1.3', 'mob', '1.3', 'https://youtu.be/RaKob2IOfqk');
 
   // Material del centre als exercicis d'abans.
   const rename = { 'Barra': B, 'Mancuernes': M, 'KB': K, 'Politja': PT, 'Politja cònica': CO, 'Resistència pneumàtica (Keiser)': KS, 'Bike': 'Bike Technogym', 'Lliscadors': F };
@@ -8813,6 +8813,12 @@ function ModalHost() {
       <${Icon} name=${t.tone === 'bad' ? 'alert' : 'check'} size=${16} />${t.text}</div>`)}</div>`;
 }
 
+// Codi EON d'un exercici (1.3…), davant del nom. Si el nom ja és el codi, no es repeteix.
+function CodeChip({ e }) {
+  if (!e || !e.code || String(e.name || '').trim() === String(e.code).trim()) return null;
+  return html`<span class="code-chip">${e.code}</span>`;
+}
+
 // Selector d'exercicis de la biblioteca (amb text lliure).
 function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici…', autoFocus, id }) {
   const [open, setOpen] = useState(false);
@@ -8868,7 +8874,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
         return html`${head}<button type="button" role="option" aria-selected=${nav && i === hi} class=${U.cls('picker-opt', nav && i === hi && 'hi')}
           onPointerDown=${(e) => e.preventDefault()} onClick=${() => pick(ex)}>
           <${ExThumb} ex=${ex} size=${40} />
-          <span class="picker-txt"><span class="picker-name">${ex.code && html`<span class="code-chip">${ex.code}</span> `}${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
+          <span class="picker-txt"><span class="picker-name"><${CodeChip} e=${ex} />${ex.name}${ex.level && html` <span class="lvl-chip">N${ex.level}</span>`}</span>
           <span class="picker-meta">${[ex.family || ex.cat, ex.material, Calc.presc(ex)].filter(Boolean).join(' · ')}</span></span>
         </button>`;
       })}
@@ -9528,7 +9534,7 @@ function ExCard({ e, onClick, sub }) {
   return html`<button type="button" class="xb-ex" onClick=${onClick}
     title=${[e.name, muscles.join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}>
     <${ExThumb} ex=${e} size=${96} />
-    <span class="xb-ex-name">${e.code && html`<span class="code-chip">${e.code}</span> `}${e.name}</span>
+    <span class="xb-ex-name"><${CodeChip} e=${e} />${e.name}</span>
     <span class="xb-ex-meta">${e.level && html`<span class="lvl-chip">N${e.level}</span> `}${muscles.slice(0, 2).join(' · ')}</span>
     ${sub && html`<span class="xb-ex-mat">${sub}</span>`}
   </button>`;
@@ -12730,7 +12736,7 @@ function ExerciseList() {
       ${view === 'graella' ? html`<div class="xb-grid xb-grid-lib">${all.filter((e) => e.block === b.key).map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.material || ''} />`)}</div>`
       : html`<div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name">${e.code && html`<span class="code-chip">${e.code}</span>`}${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
         <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
@@ -12755,7 +12761,7 @@ function EonList({ all, blk, q }) {
       return html`<div class="libgroup eon-group">
         <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(items.length, 'exercici', 'exercicis')}</span>
           <span class="grow"></span>
-          <${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, { block: b.key, code: next, name: `${blockName(b.key)} ${next}`, cat: 'Exercicis EON', materials: [] })}>Afegeix el ${next}</${Btn}></div>
+          <${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, { block: b.key, code: next, name: next, cat: 'Exercicis EON', materials: [] })}>Afegeix el ${next}</${Btn}></div>
         ${items.length ? html`<div class="xb-grid xb-grid-lib">${items.map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.video ? 'Amb vídeo' : 'Sense vídeo'} />`)}</div>`
           : html`<p class="muted small">Encara no n'hi ha cap. El primer serà el ${next}.</p>`}
       </div>`;
@@ -12771,7 +12777,7 @@ function MuscleFolders({ all }) {
       <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
       <div class="exlist">${f.items.map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name">${e.code && html`<span class="code-chip">${e.code}</span>`}${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
+        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
         <span class="exrow-meta">${[blockName(e.block), (e.materials || [e.material]).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>

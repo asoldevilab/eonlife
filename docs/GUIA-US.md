@@ -304,7 +304,8 @@ sessions previstes del pla d'entrenament.
   consignes i prescripció per defecte.
 - **Exercicis EON** (els que graveu vosaltres): a la biblioteca, vista **Exercicis EON**, hi ha una carpeta per
   bloc amb els exercicis numerats: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6. Amb
-  **Afegeix el 1.4** es crea el següent (amb el codi i el bloc ja posats): poseu-hi el nom i l'enllaç de YouTube.
+  **Afegeix el 1.4** es crea el següent, amb el codi, el bloc i el nom («1.4») ja posats: només cal enganxar
+  l'enllaç de YouTube (el nom es pot canviar).
   A la sessió, **Afegeix exercici › Exercicis EON** és la primera carpeta, i el codi (p. ex. «1.3») també es pot
   escriure al cercador. Qualsevol exercici pot tenir codi EON (camp *Codi EON* de la fitxa de l'exercici).
 - **Un exercici que no hi és** (per exemple un que heu gravat): cerqueu-lo i, si no surt, toqueu **Crea «…»**.

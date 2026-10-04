@@ -46,7 +46,7 @@ function ExerciseList() {
       ${view === 'graella' ? html`<div class="xb-grid xb-grid-lib">${all.filter((e) => e.block === b.key).map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.material || ''} />`)}</div>`
       : html`<div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name">${e.code && html`<span class="code-chip">${e.code}</span>`}${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
         <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
@@ -71,7 +71,7 @@ function EonList({ all, blk, q }) {
       return html`<div class="libgroup eon-group">
         <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(items.length, 'exercici', 'exercicis')}</span>
           <span class="grow"></span>
-          <${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, { block: b.key, code: next, name: `${blockName(b.key)} ${next}`, cat: 'Exercicis EON', materials: [] })}>Afegeix el ${next}</${Btn}></div>
+          <${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, { block: b.key, code: next, name: next, cat: 'Exercicis EON', materials: [] })}>Afegeix el ${next}</${Btn}></div>
         ${items.length ? html`<div class="xb-grid xb-grid-lib">${items.map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.video ? 'Amb vídeo' : 'Sense vídeo'} />`)}</div>`
           : html`<p class="muted small">Encara no n'hi ha cap. El primer serà el ${next}.</p>`}
       </div>`;
@@ -87,7 +87,7 @@ function MuscleFolders({ all }) {
       <summary><${Icon} name="folder" size=${16} /><span class="mfolder-name">${f.label}</span><span class="muted">${f.items.length}</span></summary>
       <div class="exlist">${f.items.map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name">${e.code && html`<span class="code-chip">${e.code}</span>`}${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
+        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}</span>
         <span class="exrow-meta">${[blockName(e.block), (e.materials || [e.material]).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>
