@@ -3725,7 +3725,7 @@ var qrcode = function() {
 }));
 </script>
 <script>window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-04 17:52";
+window.EON_BUILD = "2026-10-04 17:59";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -9558,7 +9558,8 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
     </div>
-    ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<p class="muted xb-none">Cap exercici coincideix. Pots afegir-lo en blanc i escriure'l.</p>`}</div>`
+    ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<div class="xb-none"><p class="muted">Cap exercici coincideix. Crea'l a la biblioteca (amb el vídeo, si en tens) i després tria'l aquí, o afegeix-lo en blanc només en aquesta sessió.</p>
+          <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: block || 'for' })}>Crea «${q.trim()}» a la biblioteca</${Btn}></div>`}</div>`
       : html`<nav class="xb-crumbs" aria-label="Carpetes">
           ${(zone || ex) && html`<button type="button" class="link xb-back" onClick=${back}><${Icon} name="back" size=${15} />Enrere</button>`}
           ${found ? html`<strong>${ex.name}</strong>` : crumb.map((c, i) => html`${i > 0 && html`<span class="xb-sep">›</span>`}${c.go && i < crumb.length - 1 ? html`<button type="button" class="link" onClick=${c.go}>${c.label}</button>` : html`<strong>${c.label}</strong>`}`)}
@@ -12705,7 +12706,9 @@ function ExerciseList() {
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
     </div>`)}
-    ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
+    ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Si no és a la biblioteca, crea'l: hi pots posar el vídeo de YouTube i en serà la miniatura.">
+      <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: blk || 'for' })}>${q.trim() ? `Crea «${q.trim()}»` : 'Nou exercici'}</${Btn}>
+    </${Empty}>`}
   </section>`;
 }
 
@@ -12749,13 +12752,14 @@ function ProgressionList({ all }) {
   </div>`;
 }
 
-function openExercise(ex) {
+// ex: exercici de la biblioteca (o null per a un de nou); init: dades de sortida d'un exercici nou (p. ex. el nom cercat).
+function openExercise(ex, init) {
   let close = null;
-  close = UI.open(() => html`<${ExerciseDialog} ex=${ex} onClose=${() => close()} />`);
+  close = UI.open(() => html`<${ExerciseDialog} ex=${ex} init=${init} onClose=${() => close()} />`);
 }
 
-function ExerciseDialog({ ex, onClose }) {
-  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', family: '', level: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '' });
+function ExerciseDialog({ ex, init, onClose }) {
+  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', family: '', level: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '', ...(init || {}) });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.name.trim()) { UI.toast('Escriu el nom de l\'exercici.', 'bad'); return; }
@@ -12779,6 +12783,8 @@ function ExerciseDialog({ ex, onClose }) {
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>
+      <${Field} label="Vídeo de demostració" id="ex-video" wide=${true} hint="Enllaç de YouTube (públic o «no llistat») o d'un vídeo. La miniatura serà la imatge del vídeo.">
+        <${TextInput} id="ex-video" value=${f.video} onValue=${set('video')} placeholder="https://youtu.be/…" /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
       <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>
@@ -12812,7 +12818,6 @@ function ExerciseDialog({ ex, onClose }) {
     </div>
     <div class="form-grid mt">
       <${Field} label="Consignes" id="ex-cues" wide=${true}><${Area} id="ex-cues" value=${f.cues} onValue=${set('cues')} placeholder="Què ha de sentir o controlar el client" /></${Field}>
-      <${Field} label="Vídeo de demostració" id="ex-video" wide=${true}><${TextInput} id="ex-video" value=${f.video} onValue=${set('video')} placeholder="https://…" /></${Field}>
     </div>
     ${BLOCKS.map((b) => html`<datalist id=${`focus-${b.key}`}>${b.focus.map((x) => html`<option value=${x}></option>`)}</datalist>`)}
   </${Dialog}>`;

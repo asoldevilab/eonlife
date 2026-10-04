@@ -50,7 +50,9 @@ function ExerciseList() {
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
     </div>`)}
-    ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Prova amb una altra paraula o crea'n un de nou." />`}
+    ${!all.length && html`<${Empty} icon="search" title="Cap exercici coincideix" text="Si no és a la biblioteca, crea'l: hi pots posar el vídeo de YouTube i en serà la miniatura.">
+      <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: blk || 'for' })}>${q.trim() ? `Crea «${q.trim()}»` : 'Nou exercici'}</${Btn}>
+    </${Empty}>`}
   </section>`;
 }
 
@@ -94,13 +96,14 @@ function ProgressionList({ all }) {
   </div>`;
 }
 
-function openExercise(ex) {
+// ex: exercici de la biblioteca (o null per a un de nou); init: dades de sortida d'un exercici nou (p. ex. el nom cercat).
+function openExercise(ex, init) {
   let close = null;
-  close = UI.open(() => html`<${ExerciseDialog} ex=${ex} onClose=${() => close()} />`);
+  close = UI.open(() => html`<${ExerciseDialog} ex=${ex} init=${init} onClose=${() => close()} />`);
 }
 
-function ExerciseDialog({ ex, onClose }) {
-  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', family: '', level: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '' });
+function ExerciseDialog({ ex, init, onClose }) {
+  const [f, setF] = useState(ex ? { ...ex } : { id: U.uid('X'), block: 'for', name: '', cat: '', family: '', level: '', material: '', gm: '', cont: '', pos: '', lat: 'BL', sets: '', reps: '', load: '', intensity: '', rest: '', tempo: '', cues: '', video: '', ...(init || {}) });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.name.trim()) { UI.toast('Escriu el nom de l\'exercici.', 'bad'); return; }
@@ -124,6 +127,8 @@ function ExerciseDialog({ ex, onClose }) {
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>
+      <${Field} label="Vídeo de demostració" id="ex-video" wide=${true} hint="Enllaç de YouTube (públic o «no llistat») o d'un vídeo. La miniatura serà la imatge del vídeo.">
+        <${TextInput} id="ex-video" value=${f.video} onValue=${set('video')} placeholder="https://youtu.be/…" /></${Field}>
       <${Field} label="Bloc" id="ex-block" wide=${true}><${Seg} value=${f.block} onValue=${set('block')} allowEmpty=${false} ariaLabel="Bloc" class="seg-wrap" options=${BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))} /></${Field}>
       <${Field} label="Categoria / patró" id="ex-cat"><${TextInput} id="ex-cat" value=${f.cat} onValue=${set('cat')} list=${`focus-${f.block}`} placeholder="p. ex. Dominant de genoll" /></${Field}>
       <${Field} label="Material per defecte" id="ex-mat"><${MaterialSelect} id="ex-mat" value=${f.material} exercise=${f} onValue=${(v) => setF({ ...f, material: v, materials: [...new Set([v, ...(f.materials || [])].filter(Boolean))] })} /></${Field}>
@@ -157,7 +162,6 @@ function ExerciseDialog({ ex, onClose }) {
     </div>
     <div class="form-grid mt">
       <${Field} label="Consignes" id="ex-cues" wide=${true}><${Area} id="ex-cues" value=${f.cues} onValue=${set('cues')} placeholder="Què ha de sentir o controlar el client" /></${Field}>
-      <${Field} label="Vídeo de demostració" id="ex-video" wide=${true}><${TextInput} id="ex-video" value=${f.video} onValue=${set('video')} placeholder="https://…" /></${Field}>
     </div>
     ${BLOCKS.map((b) => html`<datalist id=${`focus-${b.key}`}>${b.focus.map((x) => html`<option value=${x}></option>`)}</datalist>`)}
   </${Dialog}>`;

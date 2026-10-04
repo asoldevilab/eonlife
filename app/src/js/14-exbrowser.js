@@ -96,7 +96,8 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
       <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
     </div>
-    ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<p class="muted xb-none">Cap exercici coincideix. Pots afegir-lo en blanc i escriure'l.</p>`}</div>`
+    ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<div class="xb-none"><p class="muted">Cap exercici coincideix. Crea'l a la biblioteca (amb el vídeo, si en tens) i després tria'l aquí, o afegeix-lo en blanc només en aquesta sessió.</p>
+          <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: block || 'for' })}>Crea «${q.trim()}» a la biblioteca</${Btn}></div>`}</div>`
       : html`<nav class="xb-crumbs" aria-label="Carpetes">
           ${(zone || ex) && html`<button type="button" class="link xb-back" onClick=${back}><${Icon} name="back" size=${15} />Enrere</button>`}
           ${found ? html`<strong>${ex.name}</strong>` : crumb.map((c, i) => html`${i > 0 && html`<span class="xb-sep">›</span>`}${c.go && i < crumb.length - 1 ? html`<button type="button" class="link" onClick=${c.go}>${c.label}</button>` : html`<strong>${c.label}</strong>`}`)}
