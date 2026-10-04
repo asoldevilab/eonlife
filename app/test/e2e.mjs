@@ -18,6 +18,7 @@ const shots = process.argv[2] || null;
 if (shots) mkdirSync(shots, { recursive: true });
 
 const errors = [];
+const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 const browser = await chromium.launch();
 
 async function open(viewport, scheme = 'light') {
@@ -30,7 +31,8 @@ async function open(viewport, scheme = 'light') {
     if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(where)) errors.push(`console: ${m.text()}`);
   });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
-  await page.route(/youtube|ytimg/, (r) => r.abort());
+  await page.route(/youtube/, (r) => r.abort());
+  await page.route(/ytimg/, (r) => r.fulfill({ body: TINY_PNG, contentType: 'image/png' }));
   await page.goto(url);
   await page.waitForSelector('.page, .present');
   return { ctx, page };
@@ -278,6 +280,8 @@ const step = async (label, fn) => {
     await page.click('.editbar >> text=Presenta');
     await page.waitForSelector('.sheet');
     await page.waitForSelector('.sblock.blk-for .sx-thumb svg.pic');
+    // L'exercici amb vídeo de YouTube té de miniatura la imatge del vídeo.
+    await page.waitForSelector('.sblock.blk-mob .sx-thumb img[src="https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"]');
     await shot(page, '09-fitxa-sessio');
   });
   await step('presenta: subblocs de la força principal', async () => {

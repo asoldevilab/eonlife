@@ -315,7 +315,8 @@ Per canviar-la, obre l'exercici a la biblioteca:
 - **Canvia el dibuix**: tria'n un altre d'entre tots els dibuixos.
 - **Foto pròpia**: fes una foto amb la tauleta (o tria-la de la galeria). Es retalla en quadrat i es guarda petita
   amb l'exercici, i llavors és la miniatura a tot arreu. Ha de ser d'un entrenador fent l'exercici, mai d'un client.
-- **Imatge del vídeo**: si l'exercici té un vídeo de demostració de YouTube, en fa servir la imatge.
+- **Imatge del vídeo**: si l'exercici té un vídeo de demostració de YouTube (públic o «no llistat», no privat), la
+  miniatura passa a ser sola la imatge del vídeo. Si no carrega (sense internet), surt el dibuix.
 - **Treu la foto** torna al dibuix.
 
 Els dibuixos són propis de l'app; no són imatges de Technogym ni de cap altra aplicació.

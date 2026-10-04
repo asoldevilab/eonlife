@@ -3717,7 +3717,7 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-02 14:33";
+<script>window.EON_BUILD = "2026-10-04 17:52";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -10121,13 +10121,23 @@ function exercisePicSvg(e, keyOverride) {
 // ── A la interfície ──
 // Miniatura d'un exercici de la biblioteca (ex) o d'una línia de sessió (it): la foto pròpia si en té, si no el
 // pictograma amb el material triat. El color és el del bloc.
+// Imatge del vídeo de demostració de YouTube de l'exercici (si no s'hi ha triat un dibuix concret).
+function exerciseVideoThumb(e) {
+  if (!e || !e.video || e.pic) return '';
+  const v = videoEmbed(e.video);
+  return v && v.kind === 'youtube' ? `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg` : '';
+}
+
 function ExThumb({ ex, it, block, size = 52, class: c }) {
+  const [failed, setFailed] = useState('');
   const lib = ex || (it && it.exId ? Store.exercise(it.exId) : null);
   const e = it ? (lib ? { ...lib, material: it.material || lib.material } : { name: it.name, material: it.material, block }) : lib;
   const k = block || (e && e.block) || '';
-  const photo = lib && lib.photo;
+  // Foto pròpia > imatge del vídeo de YouTube > dibuix. Si la imatge no carrega (sense internet, vídeo privat…), el dibuix.
+  const src = (lib && lib.photo) || exerciseVideoThumb(lib);
   return html`<span class=${U.cls('exthumb', k && `blk-${k}`, c)} style=${`--thumb:${size}px`} aria-hidden="true">
-    ${photo ? html`<img src=${photo} alt="" loading="lazy" />` : html`<span class="exthumb-pic" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e) }}></span>`}
+    ${src && failed !== src ? html`<img src=${src} alt="" loading="lazy" onError=${() => setFailed(src)} />`
+      : html`<span class="exthumb-pic" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e) }}></span>`}
   </span>`;
 }
 
@@ -10173,14 +10183,14 @@ function ThumbEditor({ f, setF }) {
   return html`<div class="thumbedit">
     <${ExThumb} ex=${f} size=${112} />
     <div class="thumbedit-body">
-      <p class="thumbedit-what">${f.photo ? 'Foto pròpia' : `Dibuix: ${(PICS[f.pic || auto] || PICS.stand).label}${f.pic ? '' : ' (automàtic)'}`}</p>
+      <p class="thumbedit-what">${f.photo ? 'Foto pròpia' : exerciseVideoThumb(f) ? 'Imatge del vídeo de YouTube' : `Dibuix: ${(PICS[f.pic || auto] || PICS.stand).label}${f.pic ? '' : ' (automàtic)'}`}</p>
       <div class="inline wrap">
         <${Btn} size="sm" icon="edit" onClick=${choose}>Canvia el dibuix</${Btn}>
         <${Btn} size="sm" icon="camera" onClick=${() => fileRef.current && fileRef.current.click()}>${f.photo ? 'Una altra foto' : 'Foto pròpia'}</${Btn}>
-        ${yt && yt.thumb && !f.photo && html`<${Btn} size="sm" variant="ghost" icon="video" onClick=${() => setF({ ...f, photo: `https://i.ytimg.com/vi/${yt.id}/mqdefault.jpg` })}>Imatge del vídeo</${Btn}>`}
+        ${yt && yt.kind === 'youtube' && !f.photo && f.pic && html`<${Btn} size="sm" variant="ghost" icon="video" onClick=${() => setF({ ...f, pic: '' })}>Imatge del vídeo</${Btn}>`}
         ${f.photo && html`<${Btn} size="sm" variant="ghost" icon="x" onClick=${() => setF({ ...f, photo: '' })}>Treu la foto</${Btn}>`}
       </div>
-      <p class="muted small">La foto, d'un entrenador fent l'exercici (mai d'un client). Si no n'hi ha, surt el dibuix.</p>
+      <p class="muted small">La foto, d'un entrenador fent l'exercici (mai d'un client). Si l'exercici té un vídeo de YouTube, la miniatura és la imatge del vídeo; si no, el dibuix.</p>
       <input ref=${fileRef} type="file" accept="image/*" hidden onChange=${onFile} aria-label="Foto de l'exercici" />
     </div>
   </div>`;
