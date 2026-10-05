@@ -474,6 +474,55 @@ const step = async (label, fn) => {
     if (v.values.rom_sh_er.e !== '76,2' || v.values.dyn_knee_ext.e !== '182' || v.values.dyn_squeeze.d !== '79' || v.values.dyn_squeeze.e !== '71') throw new Error(JSON.stringify(v.values.dyn_squeeze));
     if (!(v.files || []).some((f) => f.label === 'Informe Kinvent')) throw new Error('no s\'ha adjuntat el PDF');
   });
+  await step('valoració: fotos del test de Thomas (dreta i esquerra) i de flexió de tronc; vídeos del single leg squat per costat', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-JORDI').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    const thomas = page.locator('.trow', { hasText: 'Test de Thomas' });
+    await thomas.locator('.tphoto', { hasText: 'Foto dreta' }).waitFor();
+    if (await thomas.locator('.trow-tools button[title*="Test de Thomas"]').count()) throw new Error('el test de Thomas encara té el botó de vídeo');
+    // Foto feta amb la càmera (dreta) i triada de la galeria (esquerra).
+    await thomas.locator('.tphoto', { hasText: 'Foto dreta' }).locator('input[data-kind="camera"]').setInputFiles({ name: 'IMG_0001.png', mimeType: 'image/png', buffer: TINY_PNG });
+    await thomas.locator('.tphoto.has', { hasText: 'Foto dreta' }).locator('.tphoto-img img').waitFor();
+    await thomas.locator('.tphoto', { hasText: 'Foto esquerra' }).locator('input[data-kind="gallery"]').setInputFiles({ name: 'IMG_0002.png', mimeType: 'image/png', buffer: TINY_PNG });
+    await thomas.locator('.tphoto.has', { hasText: 'Foto esquerra' }).locator('.tphoto-img img').waitFor();
+    const adams = page.locator('.trow', { hasText: 'Test de flexió de tronc' });
+    if ((await adams.locator('.tphoto').count()) !== 1) throw new Error('la flexió de tronc ha de tenir una sola foto');
+    await adams.locator('input[data-kind="camera"]').setInputFiles({ name: 'IMG_0003.png', mimeType: 'image/png', buffer: TINY_PNG });
+    await adams.locator('.tphoto.has .tphoto-img img').waitFor();
+    // Single leg squat: un vídeo per costat.
+    const sls = page.locator('.trow', { hasText: 'Single leg squat' });
+    if ((await sls.locator('.tvideo').count()) !== 2) throw new Error('el single leg squat ha de tenir dos vídeos');
+    await sls.locator('.tvideo', { hasText: 'Vídeo dreta' }).locator('input[data-kind="record"]').setInputFiles({ name: 'sls-d.mp4', mimeType: 'video/mp4', buffer: Buffer.from('video dreta') });
+    await sls.locator('.tvideo.has', { hasText: 'Vídeo dreta' }).waitFor();
+    await sls.locator('.tvideo', { hasText: 'Vídeo esquerra' }).locator('input[data-kind="gallery"]').setInputFiles({ name: 'sls-e.mp4', mimeType: 'video/mp4', buffer: Buffer.from('video esquerra') });
+    await sls.locator('.tvideo.has', { hasText: 'Vídeo esquerra' }).waitFor();
+    // Y-Balance: les 3 mesures i la longitud per cama, i un vídeo per cama.
+    const ybt = page.locator('#grp-ybt');
+    if ((await ybt.locator('.ybt-table tbody tr').count()) !== 5) throw new Error('files del Y-Balance');
+    await ybt.locator('.tvideo', { hasText: 'Vídeo dreta' }).locator('input[data-kind="record"]').setInputFiles({ name: 'ybt-d.mp4', mimeType: 'video/mp4', buffer: Buffer.from('ybt dreta') });
+    await ybt.locator('.tvideo.has', { hasText: 'Vídeo dreta' }).waitFor();
+    await ybt.locator('.tvideo', { hasText: 'Vídeo esquerra' }).locator('input[data-kind="gallery"]').setInputFiles({ name: 'ybt-e.mp4', mimeType: 'video/mp4', buffer: Buffer.from('ybt esquerra') });
+    await ybt.locator('.tvideo.has', { hasText: 'Vídeo esquerra' }).waitFor();
+    await page.waitForTimeout(300);
+    const all = await page.evaluate((id) => Store.get('assessments', id), aid);
+    const v = all.values;
+    for (const [t, k] of [['thomas', 'photoD'], ['thomas', 'photoE'], ['adams', 'photo'], ['sls', 'videoD'], ['sls', 'videoE']]) {
+      if (!/^eonlocal:/.test((v[t] || {})[k] || '')) throw new Error(`${t}.${k}: ${JSON.stringify(v[t])}`);
+    }
+    if (!/^eonlocal:/.test(all.ybt.videoD || '') || !/^eonlocal:/.test(all.ybt.videoE || '')) throw new Error(`ybt: ${JSON.stringify(all.ybt)}`);
+    await thomas.scrollIntoViewIfNeeded();
+    await shot(page, '06e-fotos-videos', false);
+    // A l'informe: les tres fotos amb el nom del test i el costat, i els dos vídeos del single leg squat.
+    await page.click('.editbar >> text=Informe');
+    await page.waitForSelector('.rphoto figcaption >> text=Test de Thomas · dreta');
+    if ((await page.locator('.rphoto').count()) !== 3) throw new Error('fotos a l\'informe');
+    await page.waitForSelector('.rphoto img');
+    await page.waitForSelector('.rvid >> text=Single leg squat · esquerra');
+    await page.waitForSelector('.rvid >> text=Y-Balance Test · dreta');
+    // Excel: enllaços a les fotos i als vídeos.
+    const flat = await page.evaluate((id) => { const a = Store.get('assessments', id); return Flat.assessment(a, Store.get('patients', a.patientId)); }, aid);
+    if (!/^eonlocal:/.test(flat['Test de Thomas foto D']) || !/^eonlocal:/.test(flat['Single leg squat vídeo E'])) throw new Error('columnes de l\'Excel');
+  });
   await step('fitxa del client: perfil i limitacions al resum; el pes de la valoració actualitza la fitxa', async () => {
     await goHash(page, '#/client/P-DEMO-ALEX/fitxa');
     await page.fill('#pf-height input, input#pf-height', '183');

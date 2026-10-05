@@ -278,8 +278,15 @@ const Calc = {
     add('tot', 'Vídeo general', (a.general || {}).video);
     for (const sec of PROTOCOL) {
       for (const g of sec.groups) {
-        for (const t of g.tests || []) add(sec.id, TEST_INDEX[t.id].name, (v[t.id] || {}).video);
-        if (g.kind === 'ybt') add(sec.id, 'Y-Balance Test', (a.ybt || {}).video);
+        for (const t0 of g.tests || []) {
+          const t = TEST_INDEX[t0.id], x = v[t.id] || {};
+          add(sec.id, t.name, x.video);
+          for (const m of t.videos || []) add(sec.id, `${t.name} · ${m.label.toLowerCase()}`, x[m.k]);
+        }
+        if (g.kind === 'ybt') {
+          add(sec.id, 'Y-Balance Test', (a.ybt || {}).video);
+          for (const m of YBT_VIDEOS) add(sec.id, `Y-Balance Test · ${m.label.toLowerCase()}`, (a.ybt || {})[m.k]);
+        }
         if (g.kind === 'jumps') add(sec.id, 'Salts · CMJ', (a.jumps || {}).video);
         if (g.kind === 'patterns') for (const pt of PATTERNS) add(sec.id, pt.name, ((a.patterns || {})[pt.id] || {}).video);
       }
@@ -529,6 +536,10 @@ const Flat = {
             o[`${label} (pitjor)`] = Flat.sym(Calc.patternScore(x, true));
             o[`${label} P`] = x.pain ? 'P' : '';
           }
+          // Enllaços a les fotos i als vídeos de cada costat (carpeta del client).
+          const side = (m) => (m.k.endsWith('D') ? ' D' : m.k.endsWith('E') ? ' E' : '');
+          for (const m of t.photos || []) o[`${label} foto${side(m)}`] = x[m.k] || '';
+          for (const m of t.videos || []) o[`${label} vídeo${side(m)}`] = x[m.k] || '';
         }
         if (g.kind === 'ybt') {
           const y = Calc.ybt(a);
@@ -541,6 +552,8 @@ const Flat = {
             o[`YBT composite ${S} (%)`] = n(y[s].comp);
           }
           o['YBT diferència anterior (cm)'] = n(y.antDiff);
+          o['YBT vídeo D'] = (a.ybt || {}).videoD || '';
+          o['YBT vídeo E'] = (a.ybt || {}).videoE || '';
         }
         if (g.kind === 'jumps') {
           const j = Calc.jumps(a);

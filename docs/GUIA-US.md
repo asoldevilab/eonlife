@@ -94,6 +94,18 @@ Consells:
 - La icona de **nota** obre un camp d'observacions per a cada test; la de **vídeo** enllaça el
   vídeo de la carpeta del client. Amb Microsoft 365, **Grava o puja un vídeo** obre la càmera o la galeria
   de la tauleta i el desa directament a *02 · Vídeos* de la carpeta del client.
+- **Fotos i vídeos per costat**: alguns tests tenen, a sota, el seu espai per a fotos o vídeos en lloc de la
+  icona de vídeo. A cada espai, **Fes la foto** / **Grava** obre la càmera i **Tria'n una** / **Tria'n un** agafa
+  una foto o un vídeo que ja tingueu a la tauleta. Es desen sols: les fotos a *01 · Valoracions* i els vídeos a
+  *02 · Vídeos* de la carpeta del client (a la versió local, a la mateixa tauleta).
+  - **Test de Thomas**: dues fotos, la de la dreta i la de l'esquerra.
+  - **Test de flexió de tronc (Adams)**: una foto.
+  - **Single Leg Squat**: dos vídeos, el de la dreta i el de l'esquerra.
+  - **Y-Balance**: dos vídeos, un per cama, a sota de les 3 mesures de cada cama (anterior, posteromedial i
+    posterolateral) i la longitud de la cama.
+
+  Les fotos surten a l'informe, al costat de l'anàlisi postural, i els vídeos, a l'apartat de vídeos, amb el
+  costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
 - **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *01 · Valoracions*
   de la carpeta del client (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
   A la **versió de prova** (sense Microsoft 365) també es tria el PDF o es grava el vídeo, però es queden només en

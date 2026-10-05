@@ -53,7 +53,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   // Squeeze d'abans: un sol valor (ara es mesura cada costat).
   const squeeze = (v.dyn_squeeze || {}).d || (v.dyn_squeeze || {}).e ? null : U.num((v.dyn_squeeze || {}).v);
   const clin = ['slump', 'pkb', 'adams', 'thomas', 'windlass'].map((tid) => ({ t: TEST_INDEX[tid], x: v[tid] || {} }))
-    .filter(({ x }) => x.d || x.e || x.v);
+    .filter(({ x }) => x.d || x.e || x.v || x.photo || x.photoD || x.photoE);
   const sls = v.sls || {};
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
   const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
@@ -124,7 +124,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         ${clin.length > 0 && html`<h3 class="h3">Neurodinàmia i anàlisi postural</h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Test</th><th>Dreta</th><th>Esquerra</th></tr></thead>
           <tbody>${clin.map(({ t, x }) => html`<tr><td>${t.name}${notes && x.note && html`<div class="rnote">${x.note}</div>`}</td>
-            ${t.kind === 'select' ? html`<td colspan="2">${x.v || '—'}</td>` : html`<td>${x.d || '—'}</td><td>${x.e || '—'}</td>`}</tr>`)}</tbody></table></div>`}
+            ${t.kind === 'select' ? html`<td colspan="2">${x.v || '—'}</td>` : html`<td>${x.d || '—'}</td><td>${x.e || '—'}</td>`}</tr>`)}</tbody></table></div>
+          <${ReportPhotos} a=${a} p=${p} tests=${clin.map(({ t }) => t.id)} />`}
       </section>`}
 
       ${show('forca') && (dyn.length > 0 || squeeze != null || sls.sd || sls.se || ybt.d.comp != null || ybt.e.comp != null) && html`<section class="rsec">
