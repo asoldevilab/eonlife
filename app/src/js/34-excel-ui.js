@@ -23,10 +23,16 @@ async function syncNow(pid, force) {
   }
 }
 
+// Avís després de baixar un fitxer: res si qui ho feia ho ha rebutjat al visor.
+function savedToast(status, okText) {
+  if (status === 'declined') return;
+  UI.toast(status === 'saved' ? okText : 'No s\'ha pogut descarregar en aquesta vista.', status === 'saved' ? 'ok' : 'bad');
+}
+
 async function downloadExcel(pid, key) {
   try {
-    const name = await Exports.download(pid, key);
-    UI.toast(name ? `Excel descarregat: ${name}` : 'No s\'ha pogut descarregar en aquesta vista.', name ? 'ok' : 'bad');
+    const { name, status } = await Exports.download(pid, key);
+    savedToast(status, `Excel descarregat: ${name}`);
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -34,8 +40,8 @@ async function downloadExcel(pid, key) {
 
 async function downloadExcelZip(pid) {
   try {
-    const name = await Exports.downloadZip(pid);
-    UI.toast(name ? `Descarregat: ${name} (carpetes Valoracions i Sessions).` : 'No s\'ha pogut descarregar en aquesta vista.', name ? 'ok' : 'bad');
+    const { name, status } = await Exports.downloadZip(pid);
+    savedToast(status, `Descarregat: ${name} (carpetes Valoracions i Sessions).`);
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -75,7 +81,7 @@ function excelMenuItems(pid) {
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
   }
-  if (!IS_ARTIFACT) {
+  if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
     items.push({ label: 'Descarrega l\'Excel de visió general', icon: 'download', onClick: () => downloadExcel(pid, 'O:overview') });
     items.push({ label: 'Descarrega tots els Excel (ZIP)', icon: 'download', onClick: () => downloadExcelZip(pid) });

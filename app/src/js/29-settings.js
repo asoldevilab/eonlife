@@ -23,9 +23,9 @@ function SettingsView() {
   };
   const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
 
-  const exportJson = () => {
-    const ok = U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
-    UI.toast(ok ? 'Còpia descarregada.' : 'No s\'ha pogut descarregar en aquesta vista.', ok ? 'ok' : 'bad');
+  const exportJson = async () => {
+    const status = await U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
+    if (status !== 'declined') UI.toast(status === 'saved' ? 'Còpia descarregada.' : 'No s\'ha pogut descarregar en aquesta vista.', status === 'saved' ? 'ok' : 'bad');
   };
   const importJson = async (file) => {
     if (!file) return;
@@ -40,17 +40,18 @@ function SettingsView() {
       if (fileRef.current) fileRef.current.value = '';
     }
   };
-  const exportAssessments = () => {
+  const csvDone = (status) => { if (status === 'failed') UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad'); };
+  const exportAssessments = async () => {
     const rows = Store.all('assessments').map((a) => Flat.assessment(a, Store.get('patients', a.patientId)));
     if (!rows.length) { UI.toast('No hi ha valoracions per exportar.', 'bad'); return; }
     const headers = [...new Set(rows.flatMap((r) => Object.keys(r)))];
-    U.download(`eonlife-valoracions-${U.today()}.csv`, U.toCsv(U.sortBy(rows, 'Data'), headers), 'text/csv');
+    csvDone(await U.download(`eonlife-valoracions-${U.today()}.csv`, U.toCsv(U.sortBy(rows, 'Data'), headers), 'text/csv'));
   };
-  const exportSessions = () => {
+  const exportSessions = async () => {
     const rows = [];
     for (const s of U.sortBy(Store.all('sessions'), 'date')) rows.push(...Flat.sessionLog(s, Store.get('patients', s.patientId)));
     if (!rows.length) { UI.toast('No hi ha sessions per exportar.', 'bad'); return; }
-    U.download(`eonlife-registre-exercicis-${U.today()}.csv`, U.toCsv(rows, Object.keys(rows[0])), 'text/csv');
+    csvDone(await U.download(`eonlife-registre-exercicis-${U.today()}.csv`, U.toCsv(rows, Object.keys(rows[0])), 'text/csv'));
   };
   const resetLocal = async (withDemo) => {
     const ok = await UI.confirm({
@@ -101,7 +102,7 @@ function SettingsView() {
         }}>Comprova si hi ha una versió nova</${Btn}></div>` : html`<p class="muted">Aquesta còpia no s'actualitza sola.</p>`}
     </section>
 
-    ${IS_ARTIFACT ? html`<section class="card">
+    ${!U.canDownload() ? html`<section class="card">
       <div class="card-head"><h2 class="h2">Exportar i còpies de seguretat</h2></div>
       <p class="muted">En aquest enllaç de prova no es poden descarregar fitxers ni imprimir. A la versió instal·lada a Google, les dades ja són al full de càlcul i els informes es desen en PDF.</p>
     </section>` : html`<section class="card">
@@ -111,8 +112,8 @@ function SettingsView() {
         <${Btn} icon="download" onClick=${exportAssessments}>Valoracions a Excel (CSV)</${Btn}>
         <${Btn} icon="download" onClick=${exportSessions}>Registre d'exercicis a Excel (CSV)</${Btn}>
         <${Btn} icon="download" onClick=${exportJson}>Còpia de seguretat completa</${Btn}>
-        <input type="file" accept=".json,application/json" hidden ref=${fileRef} onChange=${(e) => importJson(e.currentTarget.files[0])} />
-        <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa una còpia</${Btn}>
+        ${!IS_ARTIFACT && html`<input type="file" accept=".json,application/json" hidden ref=${fileRef} onChange=${(e) => importJson(e.currentTarget.files[0])} />
+        <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa una còpia</${Btn}>`}
       </div>
     </section>`}
 

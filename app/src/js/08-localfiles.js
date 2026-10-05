@@ -77,7 +77,11 @@ const LocalFiles = (() => {
       const title = kind === 'video' ? 'Vídeo' : kind === 'image' ? 'Foto' : 'Fitxer';
       let close = null;
       close = UI.open(() => html`<${Dialog} title=${title} wide=${kind !== 'file'} onClose=${() => close()} footer=${html`
-        <a class="btn btn-secondary" href=${src} download=${f.name}><${Icon} name="download" size=${16} /><span>Desa'l</span></a>
+        <a class="btn btn-secondary" href=${src} download=${f.name} onClick=${(e) => {
+          if (!U.viewer) return; // al visor de claude.ai el fitxer s'ofereix a través seu
+          e.preventDefault();
+          U.saveFile(f.name, f.blob, f.type).then((st) => { if (st === 'failed') UI.toast('Aquest tipus de fitxer no es pot descarregar des d\'aquí.', 'bad'); });
+        }}><${Icon} name="download" size=${16} /><span>Desa'l</span></a>
         ${kind === 'file' && html`<a class="btn btn-primary" href=${src} target="_blank" rel="noopener"><${Icon} name="note" size=${16} /><span>Obre</span></a>`}`}>
         ${kind === 'video' ? html`<div class="embed"><video src=${src} controls autoplay playsinline></video></div>`
           : kind === 'image' ? html`<img class="localfile-img" src=${src} alt=${f.name} />` : null}

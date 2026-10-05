@@ -95,7 +95,7 @@ function SessionEditor({ id }) {
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
         { sep: true },
         ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
-        ...(IS_ARTIFACT ? [] : [{ label: 'Descarrega l\'Excel d\'aquesta sessió', icon: 'download', onClick: () => downloadExcel(s.patientId, `S:${s.id}`) }]),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel d\'aquesta sessió', icon: 'download', onClick: () => downloadExcel(s.patientId, `S:${s.id}`) }] : []),
         { sep: true },
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />

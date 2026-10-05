@@ -3755,14 +3755,14 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-05 19:13";
+<script>window.EON_BUILD = "2026-10-05 19:21";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
 
 const { h, render, html, useState, useEffect, useMemo, useRef, useCallback, useLayoutEffect } = window.htmPreact;
 
-// Dins del visor d'enllaços privats de claude.ai no es pot imprimir ni descarregar fitxers.
+// Dins del visor d'enllaços privats de claude.ai no es pot imprimir, i els fitxers només es baixen a través del visor (U.saveFile).
 const IS_ARTIFACT = window.EON_ENV === 'artifact';
 // L'app de les tauletes (mode local amb clients reals): comença buida i treu els clients de prova d'abans.
 const NO_DEMO = window.EON_NO_DEMO === true;
@@ -3975,9 +3975,18 @@ const U = {
   },
 
   // ── Fitxers ──
-  download(filename, text, mime = 'text/plain') {
+  // Al visor de claude.ai (enllaç privat de prova) el navegador no deixa baixar res directament: allà el fitxer
+  // s'ofereix al visor, que ho confirma. A la resta (GitHub Pages, tauleta, ordinador) és un enllaç de descàrrega.
+  viewer: null, // espai «downloads» del visor, quan hi és
+  canDownload() { return !IS_ARTIFACT || !!U.viewer; },
+
+  // Desa un fitxer (text, bytes o Blob). Resol 'saved', 'declined' (qui ho feia ha dit que no) o 'failed'.
+  async saveFile(filename, data, mime = 'application/octet-stream') {
+    if (U.viewer) {
+      try { await U.viewer.save({ filename, data }); return 'saved'; } catch (e) { return e && e.code === 'declined' ? 'declined' : 'failed'; }
+    }
     try {
-      const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+      const blob = data instanceof Blob ? data : new Blob([data], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -3985,28 +3994,17 @@ const U = {
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-      return true;
+      return 'saved';
     } catch (e) {
-      return false;
+      return 'failed';
     }
   },
 
+  // Descarrega un text (CSV, còpia de seguretat…).
+  download(filename, text, mime = 'text/plain') { return U.saveFile(filename, text, `${mime};charset=utf-8`); },
+
   // Descarrega un fitxer binari (Excel, ZIP…).
-  downloadBytes(filename, bytes, mime = 'application/octet-stream') {
-    try {
-      const blob = new Blob([bytes], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
+  downloadBytes(filename, bytes, mime = 'application/octet-stream') { return U.saveFile(filename, bytes, mime); },
 
   readFile(file) {
     return new Promise((resolve, reject) => {
@@ -4062,6 +4060,18 @@ const U = {
   // Enllaç web, o fitxer desat a la tauleta en la versió de prova («eonlocal:…», vegeu LocalFiles).
   isUrl(s) { const t = String(s || '').trim(); return /^https?:\/\/\S+$/i.test(t) || /^eonlocal:[\w-]+$/.test(t); },
 };
+
+// El visor de claude.ai hi posa `window.claude`: si ofereix les descàrregues, els Excel i els CSV es poden baixar des de l'enllaç de prova.
+(function viewerDownloads() {
+  try {
+    if (!IS_ARTIFACT || !window.claude || typeof window.claude.use !== 'function') return;
+    window.claude.use('downloads').then((d) => {
+      if (!d || typeof d.save !== 'function') return;
+      U.viewer = d;
+      if (typeof Store !== 'undefined' && Store.emit) Store.emit(); // perquè surtin els botons de descàrrega
+    }).catch(() => {});
+  } catch (e) { /* fora del visor */ }
+}());
 
 
 /* ── 02-catalog.js ── */
@@ -7892,7 +7902,11 @@ const LocalFiles = (() => {
       const title = kind === 'video' ? 'Vídeo' : kind === 'image' ? 'Foto' : 'Fitxer';
       let close = null;
       close = UI.open(() => html`<${Dialog} title=${title} wide=${kind !== 'file'} onClose=${() => close()} footer=${html`
-        <a class="btn btn-secondary" href=${src} download=${f.name}><${Icon} name="download" size=${16} /><span>Desa'l</span></a>
+        <a class="btn btn-secondary" href=${src} download=${f.name} onClick=${(e) => {
+          if (!U.viewer) return; // al visor de claude.ai el fitxer s'ofereix a través seu
+          e.preventDefault();
+          U.saveFile(f.name, f.blob, f.type).then((st) => { if (st === 'failed') UI.toast('Aquest tipus de fitxer no es pot descarregar des d\'aquí.', 'bad'); });
+        }}><${Icon} name="download" size=${16} /><span>Desa'l</span></a>
         ${kind === 'file' && html`<a class="btn btn-primary" href=${src} target="_blank" rel="noopener"><${Icon} name="note" size=${16} /><span>Obre</span></a>`}`}>
         ${kind === 'video' ? html`<div class="embed"><video src=${src} controls autoplay playsinline></video></div>`
           : kind === 'image' ? html`<img class="localfile-img" src=${src} alt=${f.name} />` : null}
@@ -11247,9 +11261,10 @@ const Exports = {
     return { name: f.name, bytes };
   },
 
+  // Retorna { name, status } (status: 'saved', 'declined' o 'failed', vegeu U.saveFile).
   async download(pid, key) {
     const { name, bytes } = await this.file(pid, key);
-    return U.downloadBytes(name, bytes, XlsxDoc.XLSX_MIME) ? name : '';
+    return { name, status: await U.downloadBytes(name, bytes, XlsxDoc.XLSX_MIME) };
   },
 
   // ZIP amb les carpetes Valoracions/ i Sessions/ tal com queden al núvol.
@@ -11269,7 +11284,7 @@ const Exports = {
 
   async downloadZip(pid) {
     const { name, bytes } = await this.zip(pid);
-    return U.downloadBytes(name, bytes, 'application/zip') ? name : '';
+    return { name, status: await U.downloadBytes(name, bytes, 'application/zip') };
   },
 };
 
@@ -13886,7 +13901,7 @@ function AssessmentEditor({ id, focus }) {
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
         ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
-        ...(IS_ARTIFACT ? [] : [{ label: 'Descarrega l\'Excel d\'aquesta valoració', icon: 'download', onClick: () => downloadExcel(a.patientId, `A:${a.id}`) }, { sep: true }]),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel d\'aquesta valoració', icon: 'download', onClick: () => downloadExcel(a.patientId, `A:${a.id}`) }, { sep: true }] : []),
         { label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove },
       ]} />
       <nav class="secnav" aria-label="Seccions de la valoració">
@@ -15012,7 +15027,7 @@ function SessionEditor({ id }) {
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
         { sep: true },
         ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
-        ...(IS_ARTIFACT ? [] : [{ label: 'Descarrega l\'Excel d\'aquesta sessió', icon: 'download', onClick: () => downloadExcel(s.patientId, `S:${s.id}`) }]),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel d\'aquesta sessió', icon: 'download', onClick: () => downloadExcel(s.patientId, `S:${s.id}`) }] : []),
         { sep: true },
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />
@@ -16116,9 +16131,9 @@ function SettingsView() {
   };
   const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
 
-  const exportJson = () => {
-    const ok = U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
-    UI.toast(ok ? 'Còpia descarregada.' : 'No s\'ha pogut descarregar en aquesta vista.', ok ? 'ok' : 'bad');
+  const exportJson = async () => {
+    const status = await U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
+    if (status !== 'declined') UI.toast(status === 'saved' ? 'Còpia descarregada.' : 'No s\'ha pogut descarregar en aquesta vista.', status === 'saved' ? 'ok' : 'bad');
   };
   const importJson = async (file) => {
     if (!file) return;
@@ -16133,17 +16148,18 @@ function SettingsView() {
       if (fileRef.current) fileRef.current.value = '';
     }
   };
-  const exportAssessments = () => {
+  const csvDone = (status) => { if (status === 'failed') UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad'); };
+  const exportAssessments = async () => {
     const rows = Store.all('assessments').map((a) => Flat.assessment(a, Store.get('patients', a.patientId)));
     if (!rows.length) { UI.toast('No hi ha valoracions per exportar.', 'bad'); return; }
     const headers = [...new Set(rows.flatMap((r) => Object.keys(r)))];
-    U.download(`eonlife-valoracions-${U.today()}.csv`, U.toCsv(U.sortBy(rows, 'Data'), headers), 'text/csv');
+    csvDone(await U.download(`eonlife-valoracions-${U.today()}.csv`, U.toCsv(U.sortBy(rows, 'Data'), headers), 'text/csv'));
   };
-  const exportSessions = () => {
+  const exportSessions = async () => {
     const rows = [];
     for (const s of U.sortBy(Store.all('sessions'), 'date')) rows.push(...Flat.sessionLog(s, Store.get('patients', s.patientId)));
     if (!rows.length) { UI.toast('No hi ha sessions per exportar.', 'bad'); return; }
-    U.download(`eonlife-registre-exercicis-${U.today()}.csv`, U.toCsv(rows, Object.keys(rows[0])), 'text/csv');
+    csvDone(await U.download(`eonlife-registre-exercicis-${U.today()}.csv`, U.toCsv(rows, Object.keys(rows[0])), 'text/csv'));
   };
   const resetLocal = async (withDemo) => {
     const ok = await UI.confirm({
@@ -16194,7 +16210,7 @@ function SettingsView() {
         }}>Comprova si hi ha una versió nova</${Btn}></div>` : html`<p class="muted">Aquesta còpia no s'actualitza sola.</p>`}
     </section>
 
-    ${IS_ARTIFACT ? html`<section class="card">
+    ${!U.canDownload() ? html`<section class="card">
       <div class="card-head"><h2 class="h2">Exportar i còpies de seguretat</h2></div>
       <p class="muted">En aquest enllaç de prova no es poden descarregar fitxers ni imprimir. A la versió instal·lada a Google, les dades ja són al full de càlcul i els informes es desen en PDF.</p>
     </section>` : html`<section class="card">
@@ -16204,8 +16220,8 @@ function SettingsView() {
         <${Btn} icon="download" onClick=${exportAssessments}>Valoracions a Excel (CSV)</${Btn}>
         <${Btn} icon="download" onClick=${exportSessions}>Registre d'exercicis a Excel (CSV)</${Btn}>
         <${Btn} icon="download" onClick=${exportJson}>Còpia de seguretat completa</${Btn}>
-        <input type="file" accept=".json,application/json" hidden ref=${fileRef} onChange=${(e) => importJson(e.currentTarget.files[0])} />
-        <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa una còpia</${Btn}>
+        ${!IS_ARTIFACT && html`<input type="file" accept=".json,application/json" hidden ref=${fileRef} onChange=${(e) => importJson(e.currentTarget.files[0])} />
+        <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa una còpia</${Btn}>`}
       </div>
     </section>`}
 
@@ -16336,18 +16352,18 @@ function DatabaseView({ table = 'valoracions', pid = '' }) {
     if (def.kind === 'patients') openNewPatient();
     else if (def.kind === 'assessments') openAddMeasurement(def.focus, client);
   };
-  const exportCsv = () => {
+  const exportCsv = async () => {
     const headers = cols.map(DB.header);
     const data = list.map((r) => Object.fromEntries(cols.map((c, i) => [headers[i], DB.csvValue(c, r)])));
-    const ok = U.download(`eonlife-${def.id}-${U.today()}.csv`, U.toCsv(data, headers), 'text/csv');
-    if (!ok) UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad');
+    const status = await U.download(`eonlife-${def.id}-${U.today()}.csv`, U.toCsv(data, headers), 'text/csv');
+    if (status === 'failed') UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad');
   };
 
   return html`<div class="page page-wide">
     <header class="page-head">
       <div><p class="eyebrow">Totes les dades dels clients</p><h1 class="h1">Base de dades</h1></div>
       <div class="page-actions">
-        ${!IS_ARTIFACT && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
+        ${U.canDownload() && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
         ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
       </div>
     </header>
@@ -17062,10 +17078,16 @@ async function syncNow(pid, force) {
   }
 }
 
+// Avís després de baixar un fitxer: res si qui ho feia ho ha rebutjat al visor.
+function savedToast(status, okText) {
+  if (status === 'declined') return;
+  UI.toast(status === 'saved' ? okText : 'No s\'ha pogut descarregar en aquesta vista.', status === 'saved' ? 'ok' : 'bad');
+}
+
 async function downloadExcel(pid, key) {
   try {
-    const name = await Exports.download(pid, key);
-    UI.toast(name ? `Excel descarregat: ${name}` : 'No s\'ha pogut descarregar en aquesta vista.', name ? 'ok' : 'bad');
+    const { name, status } = await Exports.download(pid, key);
+    savedToast(status, `Excel descarregat: ${name}`);
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -17073,8 +17095,8 @@ async function downloadExcel(pid, key) {
 
 async function downloadExcelZip(pid) {
   try {
-    const name = await Exports.downloadZip(pid);
-    UI.toast(name ? `Descarregat: ${name} (carpetes Valoracions i Sessions).` : 'No s\'ha pogut descarregar en aquesta vista.', name ? 'ok' : 'bad');
+    const { name, status } = await Exports.downloadZip(pid);
+    savedToast(status, `Descarregat: ${name} (carpetes Valoracions i Sessions).`);
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -17114,7 +17136,7 @@ function excelMenuItems(pid) {
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
   }
-  if (!IS_ARTIFACT) {
+  if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
     items.push({ label: 'Descarrega l\'Excel de visió general', icon: 'download', onClick: () => downloadExcel(pid, 'O:overview') });
     items.push({ label: 'Descarrega tots els Excel (ZIP)', icon: 'download', onClick: () => downloadExcelZip(pid) });
