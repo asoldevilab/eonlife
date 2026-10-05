@@ -339,6 +339,12 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
         if (/["*:<>?/\\|]/.test(body.name)) throw httpError(400, 'invalidRequest', 'Invalid name');
         return { status: 201, body: view(addItem(driveId, itemId, body.name, { folder: {} })) };
       }
+      if (rest === '' && method === 'DELETE') {
+        if (readOnly.has(user.email)) throw httpError(403, 'accessDenied', 'Access denied');
+        const kill = (x) => { x.deleted = true; for (const c of items.values()) if (c.parentId === x.id) kill(c); };
+        kill(it);
+        return { status: 204 };
+      }
       if (rest === '' && method === 'GET') {
         const body = view(it);
         if (it.file) body['@microsoft.graph.downloadUrl'] = `https://download.mock.test/${it.id}`;

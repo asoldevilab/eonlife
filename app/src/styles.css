@@ -1434,3 +1434,8 @@ tfoot .rpc { font-size: 14px; }
 .eon-group .libgroup-head { align-items: center; }
 
 .thumbedit-warn { margin: 0; font-size: 13px; color: var(--warn-ink); background: var(--warn-bg); padding: 6px 10px; border-radius: 8px; }
+
+/* Estat de la pujada dels Excel a la fitxa del client */
+.syncbadge { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
+.syncbadge .link { font-size: 13px; }
+.cal-w-copy { font-size: 12px; margin-top: 4px; }

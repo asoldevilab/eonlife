@@ -372,19 +372,20 @@ function SaveStatus() {
 }
 
 // Enllaç de vídeo d'un test o exercici (carpeta del client, YouTube…).
-function VideoButton({ url, onChange, title = 'Vídeo', patient }) {
+// date i where diuen a quina data i carpeta del client va el vídeo que es gravi (vegeu uploadToClient).
+function VideoButton({ url, onChange, title = 'Vídeo', patient, date, where }) {
   const has = U.isUrl(url);
   return html`<button type="button" class=${U.cls('mini', has && 'on')} title=${has ? `${title}: obrir o canviar l'enllaç` : `${title}: afegir enllaç`}
-    onClick=${() => openVideoDialog({ url, onChange, title, patient })}><${Icon} name="video" size=${16} /></button>`;
+    onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where })}><${Icon} name="video" size=${16} /></button>`;
 }
 
-function openVideoDialog({ url, onChange, title, patient }) {
+function openVideoDialog({ url, onChange, title, patient, date, where }) {
   let close = null;
-  close = UI.open(() => html`<${VideoDialog} url=${url} title=${title} patient=${patient}
+  close = UI.open(() => html`<${VideoDialog} url=${url} title=${title} patient=${patient} date=${date} where=${where}
     onSave=${(v) => { onChange(v); close(); }} onClose=${() => close()} />`);
 }
 
-function VideoDialog({ url, title, patient, onSave, onClose }) {
+function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSave, onClose }) {
   const [v, setV] = useState(url || '');
   const [files, setFiles] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -401,14 +402,14 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
     setLoading(false);
   };
   useEffect(() => { if (cloud && folderId) loadFiles(); }, []);
-  // Grava (càmera) o tria un vídeo de la tauleta: es puja a «02 · Vídeos» de la carpeta del client
-  // i queda enllaçat al test sense haver de fer res més.
+  // Grava (càmera) o tria un vídeo de la tauleta: es puja a la carpeta de vídeos del client (segons where)
+  // i queda enllaçat al test o a l'exercici sense haver de fer res més.
   const upload = async (file) => {
     for (const r of [recRef, fileRef]) if (r.current) r.current.value = '';
     if (!file) return;
     setUp({ pct: 0 });
     try {
-      const res = await uploadToClient({ ...patient, folderId }, file, { label: title, onProgress: (pct) => setUp({ pct }) });
+      const res = await uploadToClient({ ...patient, folderId }, file, { label: title, date, where, onProgress: (pct) => setUp({ pct }) });
       setUp(null);
       setFolderId(res.folderId);
       UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
@@ -433,7 +434,7 @@ function VideoDialog({ url, title, patient, onSave, onClose }) {
           <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
         : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
           <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
-          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del client.' : `Es desa sol a «02 · Vídeos» de la carpeta de ${patient.firstName || 'el client'}.`}</span>`}
+          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del client.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el client'}.`}</span>`}
     </div>`}
     <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
       <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />

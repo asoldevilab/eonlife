@@ -112,12 +112,23 @@ function canUploadFiles() {
 }
 function filesOnDevice() { return !Store.cloud(); }
 
-// Puja un fitxer a una subcarpeta de la carpeta del client (la crea si encara no existeix).
-// Nom: «AAAA-MM-DD · què és · Nom Cognoms.ext», perquè a la carpeta s'ordenin per data.
-async function uploadToClient(patient, file, { label, date, subfolder, onProgress } = {}) {
-  const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || [''])[0].toLowerCase();
-  const name = `${date || U.today()} · ${label} · ${U.fullName(patient)}${ext}`;
+// Extensió d'un fitxer pujat (la del nom o, si no en té, la que correspon al tipus).
+function fileExt(file) {
+  const e = Names.ext(file.name);
+  if (e) return e;
+  const kinds = { 'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov', 'image/jpeg': '.jpg', 'image/png': '.png', 'image/heic': '.heic', 'image/webp': '.webp', 'application/pdf': '.pdf' };
+  return kinds[String(file.type || '').toLowerCase()] || '';
+}
+
+// Puja un fitxer a una carpeta del client (la crea si encara no existeix).
+//   where: 'assess' (Valoracions: PDF de Kinvent, informe mèdic, fotos…) · 'assessVideos' (Valoracions › Vídeos valoracions)
+//          'sessions' (Sessions) · 'sessionVideos' (Sessions › Vídeos sessions d'entrenament, per defecte)
+// Nom: etiqueta_nomcognoms_aaaammdd_01.ext (hipthrust_lauravidalserra_20261002_01.mp4); el número de sèrie és el següent lliure.
+async function uploadToClient(patient, file, { label, date, where = 'sessionVideos', onProgress } = {}) {
+  const ext = fileExt(file);
+  const stem = Names.stem(label, patient, date || U.today());
   if (filesOnDevice()) {
+    const name = `${stem}_${Names.serial(LocalFiles.serial(stem))}${ext}`;
     const res = await LocalFiles.put(file, name);
     if (onProgress) onProgress(1);
     return { ...res, folderId: '' };
@@ -128,11 +139,15 @@ async function uploadToClient(patient, file, { label, date, subfolder, onProgres
     fid = (res && res.folderId) || '';
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
-  const res = await Store.backend.uploadFile(fid, file, {
-    name,
-    subfolder,
-    onProgress,
-  });
+  let res;
+  try {
+    res = await Store.backend.uploadFile(fid, file, { stem, ext, path: EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos, onProgress });
+  } catch (e) {
+    // Si algú ha mogut o esborrat una carpeta, es torna a provar un cop amb les carpetes refetes.
+    if (!(e && e.status === 404)) throw e;
+    if (Store.backend.forgetPaths) Store.backend.forgetPaths();
+    res = await Store.backend.uploadFile(fid, file, { stem, ext, path: EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos, onProgress });
+  }
   return { ...res, folderId: fid };
 }
 

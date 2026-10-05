@@ -173,6 +173,7 @@ const Store = {
       this.settings.blocks = BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc, ...((this.settings.blocks || []).find((x) => x.key === b.key) || {}) }));
       this.ready = true;
       this.replayOutbox();
+      if (typeof Sync !== 'undefined') Sync.resume();
       if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els clients de prova. Ja podeu afegir els vostres.'), 400);
     } catch (err) {
       this.error = err.message || String(err);
@@ -272,6 +273,8 @@ const Store = {
     this.data[kind][rec.id] = rec;
     this.emit();
     this.queue(kind, rec.id, opts.immediate ? 0 : 900);
+    // Els Excel del client (sessions, valoracions i visió general) es refan sols (09-sync.js).
+    if (typeof Sync !== 'undefined') Sync.onChange(kind, rec);
     return rec;
   },
   update(kind, id, fn) {
@@ -458,6 +461,83 @@ const Store = {
     };
     delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });
+  },
+
+  // ── Planificar per endavant: sessions futures (un mes sencer, o una setmana copiada a les següents) ──
+  // Crea una sessió planificada amb aquests blocs.
+  addPlanned(pid, { date, blocks, goal = '', pillar = '' }) {
+    const p = this.get('patients', pid);
+    const s = {
+      id: U.uid('S'), patientId: pid, date, number: this.nextSessionNumber(pid),
+      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
+    };
+    return this.put('sessions', s, { immediate: true });
+  },
+
+  // Dates d'un mes (AAAA-MM) que cauen en aquests dies de la setmana (0 = diumenge … 6 = dissabte).
+  monthDates(month, days) {
+    const first = `${month}-01`;
+    const last = U.addDays(U.addMonths(first, 1), -1);
+    const out = [];
+    for (let d = first; d <= last; d = U.addDays(d, 1)) if ((days || []).map(Number).includes(U.parse(d).getDay())) out.push(d);
+    return out;
+  },
+
+  // Planifica un mes: una sessió per cada dia triat. bases[dia de la setmana] = { mode: 'last' | 'template' | 'blank', templateId }:
+  //   'last' = còpia de l'última sessió d'aquell dia de la setmana (o, si no n'hi ha, de l'última sessió del client).
+  // every = cada quantes setmanes puja un nivell cada exercici que té progressió (0 = mai).
+  planMonth(pid, { month, days, bases = {}, every = 0, skipExisting = true }) {
+    const sessions = this.sessionsOf(pid);
+    const taken = new Set(sessions.map((s) => s.date));
+    const filled = (s) => (s.blocks || []).some((b) => (b.items || []).some((i) => i.name));
+    const lastOn = (wd) => [...sessions].reverse().find((s) => filled(s) && U.parse(s.date).getDay() === wd)
+      || [...sessions].reverse().find(filled) || null;
+    const chain = {}; // dia de la setmana → { blocks, goal, pillar } de l'última sessió creada
+    const seen = {};  // dia de la setmana → quantes se n'han creat en aquest mes
+    const created = [], skipped = [];
+    for (const date of this.monthDates(month, days)) {
+      const wd = U.parse(date).getDay();
+      if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
+      let blocks, goal = '', pillar = '';
+      if (chain[wd]) {
+        blocks = cloneBlocks(chain[wd].blocks, true);
+        goal = chain[wd].goal; pillar = chain[wd].pillar;
+        if (every > 0 && seen[wd] % every === 0) progressBlocks(blocks);
+      } else {
+        const base = bases[wd] || { mode: 'last' };
+        const tpl = base.mode === 'template' ? this.get('templates', base.templateId) : null;
+        const src = base.mode === 'last' ? lastOn(wd) : null;
+        if (tpl && tpl.kind === 'session') { blocks = this.templateBlocks(tpl); goal = tpl.goal || ''; }
+        else if (src) { blocks = this.usedBlocks(cloneBlocks(src.blocks, true)); goal = src.goal || ''; pillar = src.pillar || ''; }
+        else blocks = [];
+      }
+      seen[wd] = (seen[wd] || 0) + 1;
+      chain[wd] = { blocks, goal, pillar };
+      created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
+    }
+    return { created, skipped };
+  },
+
+  // Copia les sessions d'una setmana (dilluns = weekStart) a les setmanes següents; amb progress, cada setmana puja un nivell.
+  copyWeek(pid, weekStart, { weeks = 1, progress = false, skipExisting = true } = {}) {
+    const end = U.addDays(weekStart, 6);
+    const src = this.sessionsOf(pid).filter((s) => s.date >= weekStart && s.date <= end);
+    const taken = new Set(this.sessionsOf(pid).map((s) => s.date));
+    const created = [], skipped = [];
+    const cur = Object.fromEntries(src.map((s) => [s.id, s.blocks]));
+    for (let k = 1; k <= weeks; k++) {
+      for (const s of src) {
+        const date = U.addDays(s.date, 7 * k);
+        const blocks = cloneBlocks(cur[s.id], true);
+        if (progress) progressBlocks(blocks);
+        cur[s.id] = blocks;
+        if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
+        taken.add(date);
+        created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
+      }
+    }
+    return { created, skipped };
   },
 
   // ── Pla d'entrenament: una seqüència de sessions (S1…SN) amb progressió, per a un client ──

@@ -3,7 +3,8 @@
    de Microsoft i les dades es desen a la carpeta compartida de OneDrive/SharePoint:
    · «EON Life · Base de dades.xlsx» → la base de dades: un full per tipus de dada (Pacients, Valoracions,
      Sessions…), una fila per registre i una columna per test. Columna oculta data_json = registre complet.
-   · «EON Life · Clients» → una carpeta per client amb 01 · Valoracions, 02 · Vídeos i 03 · Informes.
+   · «EON Life · Clients» → una carpeta per client («Cognoms, Nom · P-xxxx») amb Valoracions (i Vídeos valoracions)
+     i Sessions (i Vídeos sessions d'entrenament): vegeu 09-names.js.
    Mateixa estructura que la versió de Google (apps-script/Code.gs). */
 
 const M365_KEYS = {
@@ -13,12 +14,11 @@ const M365_KEYS = {
   outbox: 'eonlife:m365:outbox',
 };
 
+// Les subcarpetes de cada client són a EXPORT_FOLDERS (09-names.js): Valoracions, Vídeos valoracions, Sessions i
+// Vídeos sessions d'entrenament.
 const M365_NAMES = {
   workbook: 'EON Life · Base de dades.xlsx',
   clients: 'EON Life · Clients',
-  subfolders: ['01 · Valoracions', '02 · Vídeos', '03 · Informes'],
-  videos: '02 · Vídeos',
-  reports: '01 · Valoracions',
 };
 
 const XL = {
@@ -738,19 +738,33 @@ class M365Api {
     if (existing) return { folderId: existing.id, folderUrl: existing.webUrl };
     const name = safeName([[p.lastName, p.firstName].filter(Boolean).join(', ') || 'Client', p.id].join(' · '));
     const folder = await this.ensureChildFolder(this.clientsItem.id, name);
-    for (const sub of M365_NAMES.subfolders) await this.ensureChildFolder(folder.id, sub);
+    for (const path of [EXPORT_FOLDERS.assessVideos, EXPORT_FOLDERS.sessionVideos]) await this.ensurePath(folder.id, path);
     return { folderId: folder.id, folderUrl: folder.webUrl };
   }
 
+  // Carpeta d'una ruta dins d'una carpeta (la crea, nivell a nivell, si cal): ['Valoracions', 'Vídeos valoracions'].
+  async ensurePath(rootId, path) {
+    this.paths = this.paths || new Map();
+    const key = `${rootId}/${path.join('/')}`;
+    if (this.paths.has(key)) return this.paths.get(key);
+    let cur = { id: rootId };
+    for (const name of path) cur = await this.ensureChildFolder(cur.id, name);
+    this.paths.set(key, cur);
+    return cur;
+  }
+
+  // Tots els fitxers de la carpeta d'un client (fins a dos nivells de subcarpetes: Valoracions › Vídeos valoracions…).
   async listFiles(folderId) {
     if (!folderId) return [];
     const out = [];
-    const add = (f, where) => out.push({ id: f.id, name: f.name, url: f.webUrl, mimeType: (f.file && f.file.mimeType) || '', folder: where, updated: f.lastModifiedDateTime || '' });
-    const items = await this.children(folderId);
-    for (const it of items) if (it.file) add(it, '');
-    for (const sub of items.filter((x) => x.folder)) {
-      for (const it of await this.children(sub.id)) if (it.file && out.length < 300) add(it, sub.name);
-    }
+    const walk = async (id, rel, depth) => {
+      const items = await this.children(id);
+      for (const it of items) {
+        if (it.file && out.length < 400) out.push({ id: it.id, name: it.name, url: it.webUrl, mimeType: (it.file && it.file.mimeType) || '', folder: rel, updated: it.lastModifiedDateTime || '' });
+      }
+      if (depth < 2) for (const sub of items.filter((x) => x.folder)) await walk(sub.id, rel ? `${rel}/${sub.name}` : sub.name, depth + 1);
+    };
+    await walk(folderId, '', 0);
     return out.sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : 0));
   }
 
@@ -765,16 +779,27 @@ class M365Api {
     });
   }
 
-  // Puja un fitxer de la tauleta a una subcarpeta del client (per defecte «02 · Vídeos»), per trossos i amb progrés.
-  async uploadFile(folderId, file, { name, onProgress, subfolder = M365_NAMES.videos } = {}) {
+  // Puja un fitxer de la tauleta a una carpeta del client (path = ['Valoracions', 'Vídeos valoracions']), per trossos i amb progrés.
+  // El nom és etiqueta_client_data_NN.ext: amb { stem, ext } el número de sèrie (_01, _02…) és el següent lliure de la carpeta.
+  async uploadFile(folderId, file, { name, stem, ext, onProgress, path = EXPORT_FOLDERS.sessionVideos } = {}) {
     if (!file || !file.size) throw new M365Error('El fitxer és buit.', 'upload');
-    const target = await this.ensureChildFolder(folderId, subfolder);
-    const fileName = safeName(name || file.name) || 'video.mp4';
-    const session = await this.g.req('POST', `${this.childPath(target.id, fileName)}:/createUploadSession`, {
-      body: { item: { '@microsoft.graph.conflictBehavior': 'rename', name: fileName } },
+    const target = await this.ensurePath(folderId, path);
+    let fileName = name;
+    if (stem) {
+      const taken = (await this.children(target.id)).map((x) => x.name);
+      fileName = `${stem}_${Names.serial(Names.nextSerial(taken, stem, ext || ''))}${ext || ''}`;
+    }
+    fileName = safeName(fileName || file.name) || 'fitxer';
+    return this.uploadBlob(target.id, fileName, file, { conflict: 'rename', onProgress });
+  }
+
+  // Puja un fitxer per trossos (sessió de pujada de Graph) i en retorna { id, name, url }.
+  async uploadBlob(parentId, fileName, file, { conflict = 'rename', onProgress } = {}) {
+    const size = file.size;
+    const session = await this.g.req('POST', `${this.childPath(parentId, fileName)}:/createUploadSession`, {
+      body: { item: { '@microsoft.graph.conflictBehavior': conflict, name: fileName } },
     });
     const CHUNK = 327680 * 16; // 5 MB (múltiple de 320 KiB)
-    const size = file.size;
     let item = null;
     for (let start = 0; start < size; start += CHUNK) {
       const end = Math.min(size, start + CHUNK);
@@ -790,13 +815,34 @@ class M365Api {
           else if (res.status !== 202) throw new M365Error(`No s'ha pogut pujar el fitxer (error ${res.status}).`, 'upload', res.status);
           break;
         } catch (e) {
-          if (attempt >= 3) throw e.code ? e : new M365Error('S\'ha tallat la connexió mentre es pujava el vídeo.', 'network');
+          if (attempt >= 3) throw e.code ? e : new M365Error('S\'ha tallat la connexió mentre es pujava el fitxer.', 'network');
           await sleep(1500 * (attempt + 1));
         }
       }
       if (onProgress) onProgress(end / size);
     }
     return { id: item && item.id, name: (item && item.name) || fileName, url: (item && item.webUrl) || '' };
+  }
+
+  // Desa un fitxer generat per l'app (els Excel de cada sessió, valoració i visió general), substituint el que hi hagi amb el mateix nom.
+  async putFile(parentId, fileName, bytes, { mime = XlsxDoc.XLSX_MIME } = {}) {
+    const name = safeName(fileName);
+    if (bytes.length > 3.5 * 1024 * 1024) return this.uploadBlob(parentId, name, new Blob([bytes], { type: mime }), { conflict: 'replace' });
+    const item = await this.g.req('PUT', `${this.childPath(parentId, name)}:/content?@microsoft.graph.conflictBehavior=replace`, {
+      body: new Blob([bytes], { type: mime }),
+      binary: true,
+      headers: { 'Content-Type': mime },
+    });
+    return { id: item && item.id, name: (item && item.name) || name, url: (item && item.webUrl) || '' };
+  }
+
+  // Esborra un fitxer (va a la paperera de reciclatge de OneDrive/SharePoint, es pot recuperar).
+  async removeItem(itemId) {
+    try {
+      await this.g.req('DELETE', `${this.drive}/items/${itemId}`);
+    } catch (e) {
+      if (e.status !== 404) throw e;
+    }
   }
 }
 
@@ -871,6 +917,12 @@ const M365Backend = {
   ensureFolder(p) { return this.api.ensureFolder(p); },
   listFiles(folderId) { return this.api.listFiles(folderId); },
   uploadFile(folderId, file, opts) { return this.api.uploadFile(folderId, file, opts); },
+  // Fitxers generats per l'app (Excel): vegeu 09-sync.js.
+  ensurePath(rootId, path) { return this.api.ensurePath(rootId, path); },
+  children(folderId) { return this.api.children(folderId); },
+  putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
+  removeItem(itemId) { return this.api.removeItem(itemId); },
+  forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
   // { enllaç del vídeo → { thumb, play } } per als vídeos que són a la carpeta del client.
   async mediaInfo(folderId, urls) {
     const files = await this.api.listFiles(folderId);

@@ -2,7 +2,7 @@
    - Fotos: els tests que es documenten amb una foto i no amb vídeo (test de Thomas, dreta i esquerra; flexió de tronc).
    - Vídeos per costat: el single leg squat, amb un vídeo de la dreta i un de l'esquerra.
    Es fan amb la càmera de la tauleta o es trien de la galeria. Amb Microsoft 365 van a la carpeta del client (fotos a
-   «01 · Valoracions», vídeos a «02 · Vídeos»); a la versió local, a la mateixa tauleta. Al registre hi queda l'enllaç. */
+   «Valoracions», vídeos a «Valoracions › Vídeos valoracions»); a la versió local, a la mateixa tauleta. Al registre hi queda l'enllaç. */
 
 // Foto més lleugera abans de desar-la: costat llarg de 1600 px en JPEG. L'<img> ja la gira segons l'EXIF de la càmera.
 async function preparePhoto(file, max = 1600) {
@@ -99,7 +99,7 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
     if (!file) return;
     setUp(0);
     try {
-      const res = await uploadToClient(patient, file, { label: title, date, onProgress: (pct) => setUp(pct) });
+      const res = await uploadToClient(patient, file, { label: title, date, where: 'assessVideos', onProgress: (pct) => setUp(pct) });
       if (!res.url) throw new Error('No s\'ha pogut desar el vídeo.');
       onChange(res.url);
       UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
@@ -123,7 +123,7 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
                 onClick=${() => recRef.current && recRef.current.click()}>${has ? '' : 'Grava'}</${Btn}>
               <${Btn} size="sm" variant="ghost" icon="upload" title="Tria un vídeo de la galeria" onClick=${() => galRef.current && galRef.current.click()}>${has ? '' : 'Tria\'n un'}</${Btn}>`}
             <${Btn} size="sm" variant="ghost" icon="link" title="Enllaç al vídeo (carpeta del client, YouTube…)"
-              onClick=${() => openVideoDialog({ url, onChange, title, patient })}>${can ? '' : 'Enllaç'}</${Btn}>
+              onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where: 'assessVideos' })}>${can ? '' : 'Enllaç'}</${Btn}>
           </div>`}
     </div>
   </div>`;
@@ -141,7 +141,7 @@ function PhotoSlot({ url, label, title, patient, date, onChange }) {
     setBusy(true);
     try {
       const photo = await preparePhoto(file);
-      const res = await uploadToClient(patient, photo, { label: title, date, subfolder: M365_NAMES.reports });
+      const res = await uploadToClient(patient, photo, { label: title, date, where: 'assess' });
       if (!res.url) throw new Error('No s\'ha pogut desar la foto.');
       PhotoSrc.set(res.url, URL.createObjectURL(photo));
       onChange(res.url);

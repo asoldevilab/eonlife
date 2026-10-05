@@ -112,8 +112,9 @@ function App() {
   AppUpdate.start();
   // Desa els canvis pendents si l'app passa a segon pla (tauleta); en tornar, mira si hi ha una versió nova.
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') Store.flushAll();
+    if (document.visibilityState === 'hidden') { Store.flushAll(); Sync.kick(); }
     else AppUpdate.check();
   });
   window.addEventListener('pagehide', () => Store.flushAll());
+  window.addEventListener('online', () => { Sync.kick(); });
 }());

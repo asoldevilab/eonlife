@@ -133,7 +133,7 @@ function ConnectSetup({ cfg }) {
     <p>És el primer cop que s'hi connecta l'app. Només cal fer-ho una vegada per a tot el centre. S'hi crearan:</p>
     <ul class="connect-list">
       <li><${Icon} name="table" size=${18} /><span><strong>EON Life · Base de dades</strong> (Excel): una pestanya per a clients, valoracions, sessions i registre d'exercicis. Cada test és una columna i cada valoració o sessió, una fila.</span></li>
-      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per client amb <em>01 · Valoracions</em>, <em>02 · Vídeos</em> i <em>03 · Informes</em>.</span></li>
+      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per client amb <em>Valoracions</em> i <em>Sessions</em> (i els seus vídeos): hi van els Excel que l'app fa sola, els vídeos, les fotos i els PDF.</span></li>
     </ul>
     ${err && html`<${ConnectNote}>${err}</${ConnectNote}>`}
     <div class="connect-actions">

@@ -67,14 +67,18 @@ function SessionEditor({ id }) {
     UI.toast('Sessió eliminada.');
     go('client', s.patientId, 'sessions');
   };
-  const markDone = () => upd((x) => {
-    x.status = 'feta';
-    for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
-  });
+  const markDone = () => {
+    upd((x) => {
+      x.status = 'feta';
+      for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
+    });
+    Sync.soon(s.patientId); // l'Excel de la sessió acabada es puja de seguida
+  };
+  const leave = () => { Sync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${() => go('client', s.patientId, 'sessions')} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${leave} />
       <div class="editbar-title">
         <strong>Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
@@ -89,6 +93,9 @@ function SessionEditor({ id }) {
         { label: 'Duplica la sessió', icon: 'copy', onClick: duplicate },
         { label: 'Aplica una plantilla de sessió', icon: 'layers', onClick: applyTemplate },
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
+        { sep: true },
+        ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
+        ...(IS_ARTIFACT ? [] : [{ label: 'Descarrega l\'Excel d\'aquesta sessió', icon: 'download', onClick: () => downloadExcel(s.patientId, `S:${s.id}`) }]),
         { sep: true },
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />
@@ -109,7 +116,7 @@ function SessionEditor({ id }) {
     <${WellnessCard} id="se-wellness" value=${s.wellness} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
-    ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}
+    ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
     ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
 
@@ -152,7 +159,7 @@ function AddBlocks({ blocks, onAdd }) {
   </section>`;
 }
 
-function BlockCard({ block, onChange, prev, patient, templateMode, onRemove }) {
+function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -264,7 +271,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode, onRemove }) {
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
     groups=${groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))}
     onGroup=${(gid) => toGroup(it.id, gid)}
-    block=${block.key} prevMap=${prev} autoFocus=${focusId === it.id} templateMode=${templateMode} patient=${patient}
+    block=${block.key} prevMap=${prev} autoFocus=${focusId === it.id} templateMode=${templateMode} patient=${patient} date=${date}
     onChange=${setItem(it.id)} onMove=${(dir) => move(i, dir)} onRemove=${() => removeItem(it.id)} onDuplicate=${() => dupItem(i)} />`;
 
   return html`<section class=${`card block blk-${block.key}`} aria-label=${`Bloc ${def.num}: ${blockName(block.key)}`}>
@@ -324,7 +331,7 @@ function BlockCard({ block, onChange, prev, patient, templateMode, onRemove }) {
   </section>`;
 }
 
-function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient }) {
+function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
   const [open, setOpen] = useState(false);
   const [vbtOpen, setVbtOpen] = useState(false);
   const vbtSum = Calc.vbt(it);
@@ -382,7 +389,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         </span>`}
         <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
           onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
-        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} onChange=${set('video')} />`}
+        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} date=${date} where="sessionVideos" onChange=${set('video')} />`}
         ${vbtOn && html`<button type="button" class=${U.cls('vbt-btn', (vbtOpen || vbtSum) && 'on')} aria-expanded=${vbtOpen} onClick=${() => setVbtOpen(!vbtOpen)}
           title="Registre per sèries de l'encoder ADR o de l'ADR Jumping"><${Icon} name="chart" size=${15} /><span>${vbtSum && vbtSum.text ? vbtSum.text : 'Encoder'}</span></button>`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
@@ -409,7 +416,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
-        !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, onChange: set('video') }) } : null,
+        !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />

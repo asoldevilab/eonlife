@@ -102,7 +102,8 @@ const step = async (label, fn) => {
     await page.waitForSelector('#sec-fitxers >> text=Adjunta l\'informe de Kinvent');
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('#sec-fitxers >> text=Adjunta l\'informe de Kinvent')]);
     await chooser.setFiles({ name: 'Informe_Kinvent.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 prova') });
-    await page.waitForSelector('#sec-fitxers .file-name >> text=Informe Kinvent');
+    // Nom acordat: etiqueta_nomcognoms_aaaammdd_01.ext
+    await page.waitForSelector('#sec-fitxers .file-name >> text=/^informekinvent_[a-z0-9]+_\\d{8}_01\\.pdf$/');
     const href = await page.getAttribute('#sec-fitxers .file-name', 'href');
     if (!/^eonlocal:F/.test(href || '')) throw new Error(`enllaç ${href}`);
     await page.click('#sec-fitxers .file-name');

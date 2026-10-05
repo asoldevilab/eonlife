@@ -187,7 +187,7 @@ function KinventImport({ file, a, p, upd, onClose }) {
     if (attach) {
       try {
         const label = 'Informe Kinvent';
-        const res = await uploadToClient(p, file, { label, date: a.date, subfolder: M365_NAMES.reports });
+        const res = await uploadToClient(p, file, { label, date: a.date, where: 'assess' });
         upd((x) => { x.files = [...(x.files || []), { id: U.uid('F'), date: U.today(), name: res.name, url: res.url, label }]; });
       } catch (e) {
         UI.toast(`Valors omplerts, però el PDF no s'ha pogut adjuntar: ${e.message}`, 'bad');

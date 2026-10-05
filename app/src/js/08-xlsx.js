@@ -29,7 +29,9 @@ const Xlsx = (() => {
     return (c ^ 0xFFFFFFFF) >>> 0;
   };
 
-  function zip(files) {
+  // entries: [{ name, bytes, crc, size, method }] · method 0 = sense compressió, 8 = deflate (bytes ja comprimits);
+  // size = mida del contingut sense comprimir.
+  function zipRaw(entries) {
     const enc = new TextEncoder();
     const parts = [];
     const central = [];
@@ -37,23 +39,30 @@ const Xlsx = (() => {
     const u16 = (v) => [v & 0xFF, (v >>> 8) & 0xFF];
     const u32 = (v) => [v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF];
     const DOS_TIME = 0, DOS_DATE = ((2024 - 1980) << 9) | (1 << 5) | 1;
-    for (const f of files) {
+    for (const f of entries) {
       const name = enc.encode(f.name);
-      const data = typeof f.data === 'string' ? enc.encode(f.data) : f.data;
-      const crc = crc32(data);
-      const common = [...u16(20), ...u16(0x0800), ...u16(0), ...u16(DOS_TIME), ...u16(DOS_DATE), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0)];
+      const data = f.bytes;
+      const common = [...u16(20), ...u16(0x0800), ...u16(f.method), ...u16(DOS_TIME), ...u16(DOS_DATE), ...u32(f.crc), ...u32(data.length), ...u32(f.size), ...u16(name.length), ...u16(0)];
       const local = new Uint8Array([...u32(0x04034b50), ...common]);
       parts.push(local, name, data);
       central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...common, ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)]), name);
       offset += local.length + name.length + data.length;
     }
     const cdSize = central.reduce((n, p) => n + p.length, 0);
-    const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
+    const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(entries.length), ...u16(entries.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
     const all = [...parts, ...central, end];
     const out = new Uint8Array(all.reduce((n, p) => n + p.length, 0));
     let pos = 0;
     for (const p of all) { out.set(p, pos); pos += p.length; }
     return out;
+  }
+
+  function zip(files) {
+    const enc = new TextEncoder();
+    return zipRaw(files.map((f) => {
+      const data = typeof f.data === 'string' ? enc.encode(f.data) : f.data;
+      return { name: f.name, bytes: data, crc: crc32(data), size: data.length, method: 0 };
+    }));
   }
 
   // ── Llibre ──
@@ -148,5 +157,5 @@ const Xlsx = (() => {
     return zip(files);
   }
 
-  return { workbook, colName, zip, crc32 };
+  return { workbook, colName, zip, zipRaw, crc32 };
 })();
