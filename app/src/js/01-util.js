@@ -5,6 +5,8 @@ const { h, render, html, useState, useEffect, useMemo, useRef, useCallback, useL
 
 // Dins del visor d'enllaços privats de claude.ai no es pot imprimir ni descarregar fitxers.
 const IS_ARTIFACT = window.EON_ENV === 'artifact';
+// L'app de les tauletes (mode local amb clients reals): comença buida i treu els clients de prova d'abans.
+const NO_DEMO = window.EON_NO_DEMO === true;
 
 const MONTHS = ['gener', 'febrer', 'març', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
 const MONTHS_SHORT = ['gen.', 'febr.', 'març', 'abr.', 'maig', 'juny', 'jul.', 'ag.', 'set.', 'oct.', 'nov.', 'des.'];

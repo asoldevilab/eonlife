@@ -1,7 +1,7 @@
 {
   "name": "EON Life · demostració",
   "short_name": "EON Life demo",
-  "description": "Demostració amb clients ficticis (les dades queden en aquest aparell).",
+  "description": "Versió local: les dades queden en aquest aparell.",
   "lang": "ca",
   "start_url": "./",
   "scope": "./",

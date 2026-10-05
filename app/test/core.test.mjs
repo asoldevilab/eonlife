@@ -60,7 +60,7 @@ test('patrons: unilaterals es queden amb el pitjor costat', () => {
 
 test('punts d\'atenció', () => {
   const alerts = Calc.alerts({
-    values: { wblt: { d: '7', e: '11' }, dyn_knee_ext: { d: '312', e: '368' }, rom_knee_ext: { d: '0', e: '1' }, thomas: { d: 'Positiu · psoes ilíac', e: 'Negatiu' }, tug: { v: '12,4' } },
+    values: { wblt: { d: '7', e: '11' }, dyn_knee_ext: { d: '312', e: '368' }, rom_knee_ext: { d: '0', e: '1' }, thomas: { d: 'Positiu · psoes ilíac', e: 'Negatiu' } },
     ybt: { d: { ant: '58' }, e: { ant: '63' } },
     patterns: { copenhagen: { sd: '0', se: '0', pain: true } },
   });
@@ -71,7 +71,6 @@ test('punts d\'atenció', () => {
   assert.match(text, /Y-Balance: diferència de 5 cm/);
   assert.match(text, /Copenhagen Plank: dolor/);
   assert.match(text, /Test de Thomas positiu \(dreta\)/);
-  assert.match(text, /Timed Up and Go de 12,4 s/);
   assert.doesNotMatch(text, /Extensió de genoll/); // només diferència, no percentatge
   assert.equal(alerts[0].tone, 'bad');
 });
@@ -537,4 +536,50 @@ test('exercicis EON: codi per bloc (1.0, 1.1…), ordre i següent número; el 1
   assert.equal(e.name, '1.3');
   assert.equal(e.video, 'https://youtu.be/RaKob2IOfqk');
   assert.equal(Flat.exercise(e)['Codi EON'], '1.3');
+});
+
+test('app de les tauletes: treu els clients de prova i manté la resta; si es tornen a carregar, es queden', async () => {
+  const { makeDemoData, removeDemoClients } = loadCore();
+  const db = makeDemoData();
+  db.patients['P-REAL'] = { id: 'P-REAL', firstName: 'Client', lastName: 'Real' };
+  db.sessions['S-REAL'] = { id: 'S-REAL', patientId: 'P-REAL', blocks: [] };
+  db.templates['T-MEVA'] = { id: 'T-MEVA', name: 'Plantilla pròpia', blocks: [] };
+  db.exercises['X-MEU'] = { id: 'X-MEU', name: 'Exercici propi', block: 'mob', photo: 'data:image/jpeg;base64,AAA' };
+  db.settings.centerName = 'EON Life Andorra';
+  assert.equal(removeDemoClients(db), 4);
+  assert.deepEqual(Object.keys(db.patients), ['P-REAL']);
+  assert.deepEqual(Object.keys(db.sessions), ['S-REAL']);
+  assert.equal(Object.keys(db.assessments).length, 0);
+  assert.ok(db.templates['T-MEVA'] && !db.templates['PL-DEMO-LAURA']);
+  assert.ok(db.exercises['X-MEU'].photo);
+  assert.equal(db.settings.centerName, 'EON Life Andorra');
+  assert.equal(db.demo, false);
+
+  // A la tauleta: les dades d'abans (amb els clients de prova) es netegen en obrir l'app nova.
+  const core = loadCore('07', { window: { EON_NO_DEMO: true } });
+  const old = core.makeDemoData();
+  old.patients['P-REAL'] = { id: 'P-REAL', firstName: 'Client', lastName: 'Real' };
+  core.__storage.set('eonlife:data:v1', JSON.stringify(old));
+  let r = await core.LocalBackend.init();
+  assert.deepEqual(Object.keys(r.records.patients), ['P-REAL']);
+  assert.equal(r.meta.demo, false);
+  assert.equal(r.meta.demoRemoved, 4);
+  assert.deepEqual(Object.keys(JSON.parse(core.__storage.get('eonlife:data:v1')).patients), ['P-REAL']);
+  r = await core.LocalBackend.init();
+  assert.equal(r.meta.demoRemoved, 0);
+  // Un aparell nou comença buit.
+  core.__storage.clear();
+  r = await core.LocalBackend.init();
+  assert.equal(Object.keys(r.records.patients).length, 0);
+  assert.equal(r.meta.demo, false);
+  // Si algú torna a carregar els clients de prova des de Configuració, no s'esborren sols.
+  core.LocalBackend.reset(true);
+  r = await core.LocalBackend.init();
+  assert.equal(Object.keys(r.records.patients).length, 4);
+  assert.equal(r.meta.demoRemoved, 0);
+  // Les altres versions (enllaç de prova, fitxer) segueixen començant amb els clients de prova.
+  const demo = loadCore();
+  r = await demo.LocalBackend.init();
+  assert.equal(Object.keys(r.records.patients).length, 4);
+  assert.equal(r.meta.demo, true);
 });

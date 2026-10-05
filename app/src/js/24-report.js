@@ -55,10 +55,6 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const clin = ['slump', 'pkb', 'adams', 'thomas', 'windlass'].map((tid) => ({ t: TEST_INDEX[tid], x: v[tid] || {} }))
     .filter(({ x }) => x.d || x.e || x.v);
   const sls = v.sls || {};
-  const profTests = PROFILE_TESTS.filter((t) => {
-    const x = v[t.id] || {};
-    return x.d || x.e || x.v || x.sd || x.se;
-  });
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
   const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
   const hasPatterns = pc.scored > 0 || pc.counts.P > 0;
@@ -190,19 +186,6 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           <tfoot><tr><td colspan="6"><span class="rpc">Resum · ${['0', '-', '--'].map((k) => html`<span><${ScoreDot} v=${k} size="xs" />${pc.counts[k]}</span>`)}<span><${ScoreDot} pain=${true} size="xs" />${pc.counts.P}</span></span></td></tr></tfoot>
         </table></div>
         <div class="rlegend">${SCORES.map((s) => html`<span><${ScoreDot} v=${s.v} size="xs" />${s.label}</span>`)}<span><${ScoreDot} pain=${true} size="xs" />Dolor o símptomes → fisio</span></div>
-      </section>`}
-
-      ${show('perfil') && profTests.length > 0 && html`<section class="rsec">
-        <h2 class="rsec-title">Tests complementaris</h2>
-        <div class="table-wrap"><table class="table rtable"><thead><tr><th>Test</th><th>Resultat</th></tr></thead>
-        <tbody>${profTests.map((t) => {
-          const x = v[t.id] || {};
-          const val = t.kind === 'bi' ? `D ${U.fmt(U.num(x.d), 1)} · E ${U.fmt(U.num(x.e), 1)} ${t.unit}`
-            : t.kind === 'single' ? `${U.fmt(U.num(x.v), 1)} ${t.unit}`
-            : t.kind === 'scoreBi' ? html`D <${ScoreDot} v=${x.sd} size="xs" /> · E <${ScoreDot} v=${x.se} size="xs" />`
-            : x.v;
-          return html`<tr><td>${t.name}</td><td>${val}${notes && x.note && html`<div class="rnote">${x.note}</div>`}</td></tr>`;
-        })}</tbody></table></div>
       </section>`}
 
       ${show('altres') && (a.free || []).some((r) => r.name) && html`<section class="rsec">

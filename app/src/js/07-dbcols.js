@@ -13,7 +13,6 @@ const DB_TABLES = [
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
   { id: 'rendiment', label: 'Encoder i bike', kind: 'assessments', focus: 'encoder', add: 'Afegeix encoder o bike', hint: 'Velocitat d\'execució i Assault bike 30 s.' },
   { id: 'patrons', label: 'Patrons', kind: 'assessments', focus: 'patterns', add: 'Afegeix patrons', hint: 'Sessió 1 · puntuació 0 / − / −− i P (dolor).' },
-  { id: 'perfil', label: 'Tests per perfil', kind: 'assessments', focus: 'profile', add: 'Afegeix tests de perfil', hint: 'Tests complementaris dels perfils A, B i C.' },
   { id: 'sessions', label: 'Sessions', kind: 'sessions', hint: 'Una fila per sessió: RPE, minuts i càrrega.' },
   { id: 'exercicis', label: 'Registre d\'exercicis', kind: 'log', hint: 'Una fila per exercici de cada sessió.' },
 ];
@@ -190,17 +189,6 @@ const DB = (() => {
       { id: 'c1', group: 'Resum', label: '−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['-'] : null) },
       { id: 'c2', group: 'Resum', label: '−−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['--'] : null), tone: (r, v) => (v ? 'bad' : '') },
       { id: 'cp', group: 'Resum', label: 'P', kind: 'num', dec: 0, get: (r) => (patterns(r).scored || patterns(r).counts.P ? patterns(r).counts.P : null), tone: (r, v) => (v ? 'bad' : '') },
-    ],
-
-    perfil: () => [
-      ...lead(),
-      { id: 'profile', label: 'Perfil', kind: 'text', get: (r) => r.p.profile || '' },
-      ...PROFILE_TESTS.flatMap((t) => {
-        if (t.kind === 'bi') return biCols(t.id, t.name).filter((c) => !c.id.endsWith('.asym'));
-        if (t.kind === 'single') return [singleCol(t.id, t.name)];
-        if (t.kind === 'scoreBi') return scoreBiCols(t.id).filter((c) => !c.id.endsWith('.p'));
-        return [{ id: t.id, label: t.name, kind: 'text', get: (r) => V(r.a, t.id).v || '' }];
-      }),
     ],
 
     sessions: () => [
