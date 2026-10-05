@@ -784,7 +784,6 @@ input[type="search"].input { -webkit-appearance: none; }
 .pcard-score { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .pcard-dec { display: flex; flex-direction: column; gap: 4px; }
 .pcard-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.profile-pick { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
 
 /* Seguiment mensual */
 .month-head { align-items: flex-start; }

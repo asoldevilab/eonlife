@@ -16,7 +16,7 @@ Menú **Base de dades**: totes les dades de tots els clients en taules, una per 
 pestanyes del full de càlcul):
 
 **Clients · Valoracions · Mobilitat (K-Move) · Neurodinàmia i postural · Dinamometria (K-Push) ·
-Y-Balance · Salts (My Jump) · Encoder i bike · Patrons · Tests per perfil · Sessions · Registre d'exercicis**
+Y-Balance · Salts (My Jump) · Encoder i bike · Patrons · Sessions · Registre d'exercicis**
 
 - Cada fila és una mesura d'un client en una data. Toca-la per obrir-la i editar-la.
 - Filtres per client i professional, cerca per nom, **Només l'última de cada client**, i ordenació
@@ -43,9 +43,6 @@ client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / P
 - **Servei**: *Valoració inicial* o *Seguiment membership*. Surt a la capçalera de la fitxa, al filtre de l'inici
   i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
 - **Professional de referència**: Richy, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
-- **Bateria del perfil A · B · C** (de la plantilla EON), dins de la valoració:
-  A = rendiment / esportistes · B = salut i condició física · C = autonomia (adults grans).
-  Decideix quins tests complementaris surten a la valoració.
 - **Dates clau**: data de la intervenció (IQ) i de la lesió. A la capçalera es veuen els dies i
   setmanes que han passat (com el full *DB* de l'Excel mensual).
 - **Fitxa del client** (pestanya *Fitxa*), a més de les dades personals i el contacte d'emergència:
@@ -89,7 +86,6 @@ Botó **Nova valoració** a la fitxa del client. Les seccions segueixen el docum
 | Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i 30/30, squeeze, rotadors de maluc), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
 | Rendiment | CMJ (My Jump), encoder (squat, RDL, hip thrust), Assault bike 30 s (fase 2) | Millor salt, mitjana, W/kg, RSI-mod, índex de fatiga |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
-| Perfil | Tests A/B/C: 5-0-5, lateral step down, chair stand, TUG, 6MWT, 4 Stage Balance… | Alertes de risc de caiguda (TUG ≥ 12 s, no manté el tàndem) |
 | Altres mesures | Qualsevol mesura nova | Es desa també al full |
 
 Consells:
@@ -123,7 +119,7 @@ Consells:
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
   les prioritats, les decisions i la data del re-test (per defecte, 3 mesos després).
-- **Informe per apartat**: al costat del títol de cada apartat (Mobilitat, Força, Rendiment, Patrons, Perfil) hi ha
+- **Informe per apartat**: al costat del títol de cada apartat (Mobilitat, Força, Rendiment, Patrons) hi ha
   *Informe de …*: només aquell apartat, els seus vídeos i la comparació amb l'última vegada que es va mesurar.
   Quan es repeteix un apartat (per exemple, els patrons al cap d'un mes), es fa amb **Afegeix mesures** i el seu
   informe ja surt comparat amb l'anterior. A la barra de l'informe es pot canviar entre *Informe complet* i cada apartat.
@@ -338,7 +334,12 @@ publicat una versió nova. Si n'hi ha una i l'acabes d'obrir, s'actualitza sola;
 l'avís **Hi ha una versió nova · Actualitza** (els canvis es desen abans de recarregar). A **Configuració › Versió de
 l'app** es veu quina versió tens i hi ha el botó *Comprova si hi ha una versió nova*.
 
-La demostració (`…/eonlife/demo/`) també es pot instal·lar a la tauleta: surt com una app a part, *EON Life demo*.
+La versió local (`…/eonlife/demo/`) també es pot instal·lar a la tauleta: surt com una app a part, *EON Life demo*.
+És la que es fa servir mentre l'app no està connectada al Microsoft 365 de la clínica: comença **sense clients de
+prova** (els de les versions anteriors s'han esborrat sols; la biblioteca, les plantilles i la configuració es
+queden) i les dades es guarden **només en aquell aparell**: el que s'afegeix a la tauleta no surt a l'ordinador.
+Obriu-la sempre des de la icona i descarregueu sovint una còpia (**Configuració › Còpia de seguretat completa**; amb *Importa una còpia* es pot passar a un altre aparell). Si cal
+ensenyar l'app amb clients ficticis, **Configuració › Carrega els clients de prova**.
 
 ## Configuració
 

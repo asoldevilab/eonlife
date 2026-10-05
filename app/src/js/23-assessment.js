@@ -107,10 +107,7 @@ function sectionProgress(a, sec, p) {
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
     else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null) done++; }
-    else if (g.kind === 'profile') {
-      const list = PROFILE_TESTS.filter((t) => !p.profile || t.profiles.includes(p.profile));
-      total += list.length; done += list.filter((t) => has((a.values || {})[t.id])).length;
-    } else if (g.kind === 'free') { /* opcional */ }
+    else if (g.kind === 'free') { /* opcional */ }
     else for (const t of g.tests || []) { if (t.optional) continue; total++; if (has((a.values || {})[t.id])) done++; }
   }
   return { done, total };
@@ -124,10 +121,9 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'jumps') body = html`<${JumpsBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} upd=${upd} />`;
-  else if (g.kind === 'profile') body = html`<${ProfileBlock} a=${a} p=${p} setVal=${setVal} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
   else body = html`<div class="trows">${(g.tests || []).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
-  const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'profile' ? 'Bateria segons el perfil del client' : g.kind === 'free' ? 'Mesures addicionals' : '');
+  const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'free' ? 'Mesures addicionals' : '');
   return html`<div class="card group" id=${`grp-${g.id}`}>
     <div class="group-head">
       <h3 class="group-title">${title}</h3>
@@ -432,23 +428,6 @@ function PatternCard({ pt, n, v, p, set }) {
       <${Tools} x=${v} title=${pt.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)} />
     </div>
     ${noteOpen && html`<${Area} value=${v.note} onValue=${(x) => set('note', x)} placeholder="Compensacions observades" rows=${1} />`}
-  </div>`;
-}
-
-function ProfileBlock({ a, p, setVal }) {
-  const [prof, setProf] = useState(p.profile || 'A');
-  const list = PROFILE_TESTS.filter((t) => !prof || t.profiles.includes(prof));
-  // El perfil A/B/C de la bateria es desa al client (decideix quins tests surten la propera vegada).
-  const choose = (v) => {
-    setProf(v);
-    if (v && p.id && v !== p.profile) Store.update('patients', p.id, (x) => { x.profile = v; });
-  };
-  return html`<div>
-    <div class="profile-pick">
-      <span class="field-label">Bateria del perfil</span>
-      <${Seg} value=${prof} onValue=${choose} ariaLabel="Perfil" options=${[...OPT.profiles.map((o) => ({ v: o.v, label: o.label, title: o.desc })), { v: '', label: 'Tots' }]} allowEmpty=${false} />
-    </div>
-    <div class="trows">${list.map((t) => html`<${TestRow} key=${t.id} t=${TEST_INDEX[t.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>
   </div>`;
 }
 

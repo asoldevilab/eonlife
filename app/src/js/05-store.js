@@ -61,15 +61,21 @@ const LocalBackend = {
   async init() {
     let db = this.load();
     let demo = false;
+    let demoRemoved = 0;
     if (!db) {
-      db = makeDemoData();
-      demo = true;
+      db = NO_DEMO ? emptyLocalDb() : makeDemoData();
+      demo = !NO_DEMO;
     }
     for (const k of KINDS) db[k] = db[k] || {};
+    // Els clients de prova que s'havien carregat sols marxen; si algú els torna a carregar des de Configuració, es queden.
+    if (NO_DEMO && db.demo && !db.demoLoaded) demoRemoved = removeDemoClients(db);
     if (db.demo) migrateDemo(db);
     this.db = db;
     this.persist();
-    return { records: db, meta: { demo: demo || !!db.demo, persistent: this.persistent } };
+    if (NO_DEMO) {
+      try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* res */ }
+    }
+    return { records: db, meta: { demo: demo || !!db.demo, persistent: this.persistent, demoRemoved } };
   },
   async save(kind, record) {
     const now = new Date().toISOString();
@@ -82,11 +88,28 @@ const LocalBackend = {
   async ensureFolder() { return null; },
   async listFiles() { return []; },
   reset(withDemo) {
-    this.db = withDemo ? makeDemoData() : { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {}, settings: null, demo: false };
+    this.db = withDemo ? { ...makeDemoData(), demoLoaded: true } : emptyLocalDb();
     for (const k of KINDS) this.db[k] = this.db[k] || {};
     this.persist();
   },
 };
+
+function emptyLocalDb() {
+  return { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {}, settings: null, demo: false };
+}
+
+// Treu els clients ficticis (P-DEMO-…) i el que hi penja: valoracions, sessions i plans. La biblioteca
+// d'exercicis, les plantilles, la configuració i els clients reals es queden. Torna quants clients ha tret.
+function removeDemoClients(db) {
+  const isDemo = (id) => /^P-DEMO-/.test(String(id || ''));
+  let n = 0;
+  for (const id of Object.keys(db.patients || {})) if (isDemo(id)) { delete db.patients[id]; n++; }
+  for (const k of ['assessments', 'sessions', 'templates']) {
+    for (const [id, r] of Object.entries(db[k] || {})) if (r && isDemo(r.patientId)) delete db[k][id];
+  }
+  db.demo = false;
+  return n;
+}
 
 // Les dades de prova d'abans portaven professionals ficticis: es canvien pels de l'equip.
 function migrateDemo(db) {
@@ -150,6 +173,7 @@ const Store = {
       this.settings.blocks = BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc, ...((this.settings.blocks || []).find((x) => x.key === b.key) || {}) }));
       this.ready = true;
       this.replayOutbox();
+      if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els clients de prova. Ja podeu afegir els vostres.'), 400);
     } catch (err) {
       this.error = err.message || String(err);
       this.errorCode = err.code || '';
@@ -341,7 +365,7 @@ const Store = {
   newPatient(fields = {}) {
     const p = {
       id: U.uid('P'), firstName: '', lastName: '', birthDate: '', sex: '', email: '', phone: '',
-      service: 'valoracio', profile: '', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
+      service: 'valoracio', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
       goal: '', reason: '', history: '', surgeryDate: '', surgeryNote: '', injuryDate: '', injuryNote: '',
       folderUrl: '', folderId: '', notes: '', createdAt: new Date().toISOString(), ...fields,
     };

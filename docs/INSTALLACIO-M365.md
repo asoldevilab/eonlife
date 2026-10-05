@@ -16,7 +16,7 @@ L'app és la mateixa, però les dades es desen a la **carpeta compartida** de l'
 
 **L'Excel** té una pestanya per a cada tipus de dada: *Pacients*, *Valoracions*, *Sessions*,
 *Registre_exercicis*, *Biblioteca*, *Plantilles* i *Configuracio*. Cada valoració o sessió és una fila i cada test,
-una columna: dinamometria (K-Push), mobilitat (K-Move), Y-Balance, salts (My Jump), patrons, tests per perfil…
+una columna: dinamometria (K-Push), mobilitat (K-Move), Y-Balance, salts (My Jump), patrons…
 S'omple sol mentre l'equip treballa amb l'app a la tauleta.
 
 Tothom qui tingui accés a la carpeta pot obrir l'Excel per mirar-lo, filtrar-lo o descarregar-lo.

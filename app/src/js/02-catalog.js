@@ -1,7 +1,6 @@
 /* EON Life · catàleg: blocs de sessió, protocol de valoració funcional i opcions.
    El protocol reprodueix el document "Valoració funcional · Human Performance"
-   (Mobilitat · Força · Rendiment · Sessió 1 de patrons) i els tests per perfil A/B/C
-   de la plantilla de sessió. Per afegir o treure tests, edita PROTOCOL o PROFILE_TESTS. */
+   (Mobilitat · Força · Rendiment · Sessió 1 de patrons). Per afegir o treure tests, edita PROTOCOL. */
 
 // Els 6 blocs de cada sessió (l'ordre és l'ordre real de la sessió).
 const BLOCKS = [
@@ -61,11 +60,6 @@ const OPT = {
   services: [
     { v: 'valoracio', label: 'Valoració inicial', desc: 'Només la valoració funcional i l\'informe' },
     { v: 'membership', label: 'Seguiment membership', desc: 'Entrenament i seguiment continuat al centre' },
-  ],
-  profiles: [
-    { v: 'A', label: 'A · Rendiment', desc: 'Esportistes i clients entrenats' },
-    { v: 'B', label: 'B · Salut i condició física', desc: 'Adults actius' },
-    { v: 'C', label: 'C · Autonomia', desc: 'Adults grans, funcionalitat i equilibri' },
   ],
   status: [
     { v: 'actiu', label: 'Actiu' },
@@ -211,7 +205,7 @@ const RECORDING_RULES = [
 
 // Protocol de valoració funcional. Tipus de test:
 //   bi (dreta/esquerra numèric) · single (un valor) · biSelect · select · scoreBi (0/−/−− per costat)
-//   grups especials: ybt · jumps · encoder · bike · patterns · profile · free
+//   grups especials: ybt · jumps · encoder · bike · patterns · free
 const PROTOCOL = [
   {
     id: 'mobilitat', title: 'Mobilitat i anàlisi postural', short: 'Mobilitat',
@@ -291,38 +285,9 @@ const PROTOCOL = [
       ref: 'McKeown I, et al. Int J Sports Phys Ther. 2014;9(7):862-873 · Bennett H, et al. Int J Sports Phys Ther. 2019;14(3):424-435.' }],
   },
   {
-    id: 'perfil', title: 'Tests complementaris per perfil', short: 'Perfil',
-    groups: [{ id: 'profile', kind: 'profile' }],
-  },
-  {
     id: 'altres', title: 'Altres mesures', short: 'Altres',
     groups: [{ id: 'free', kind: 'free' }],
   },
-];
-
-// Tests per perfil (llista de la plantilla de sessió EON).
-const PROFILE_TESTS = [
-  { id: 'lsd', name: 'Lateral step down', profiles: ['A'], kind: 'scoreBi',
-    chips: ['Valg de genoll', 'Caiguda de pelvis', 'Inclinació de tronc', 'Pèrdua d\'equilibri'] },
-  { id: 'cod505', name: 'Canvi de direcció 5-0-5', profiles: ['A'], kind: 'bi', unit: 's', lowerBetter: true, sideHint: 'cama de gir' },
-  { id: 'ckcuest', name: 'Control superior en cadena tancada', profiles: ['A', 'B'], kind: 'single', unit: 'tocs' },
-  { id: 'cardio', name: 'Test cardiovascular específic', profiles: ['A'], kind: 'text', placeholder: 'Protocol i resultat' },
-  { id: 'squat_ref', name: 'Sentadeta a referència', profiles: ['B'], kind: 'single', unit: 'reps' },
-  { id: 'split_ctrl', name: 'Split squat controlat', profiles: ['B'], kind: 'scoreBi',
-    chips: ['Valg de genoll', 'Caiguda de pelvis', 'Inclinació de tronc', 'Pèrdua d\'equilibri'] },
-  { id: 'pushup_ref', name: 'Flexió de braços a referència', profiles: ['B'], kind: 'single', unit: 'reps' },
-  { id: 'sl_stance', name: 'Suport monopodal', profiles: ['B'], kind: 'bi', unit: 's' },
-  { id: 'step3', name: 'Step test submàxim · 3 minuts', profiles: ['B'], kind: 'single', unit: 'bpm', lowerBetter: true, hint: 'FC en acabar' },
-  { id: 'chair30', name: '30 Second Chair Stand', profiles: ['C'], kind: 'single', unit: 'reps' },
-  { id: 'tug', name: 'Timed Up and Go', profiles: ['C'], kind: 'single', unit: 's', lowerBetter: true },
-  { id: 'armcurl', name: 'Flexió de colze · 30 segons', profiles: ['C'], kind: 'bi', unit: 'reps' },
-  { id: 'kpush_c', name: 'Força dirigida · K-Push', profiles: ['C'], kind: 'single', unit: 'N' },
-  { id: 'ankle_seat', name: 'Turmell assegut · K-Move', profiles: ['C'], kind: 'bi', unit: '°' },
-  { id: 'sh_flex_seat', name: 'Flexió d\'espatlla asseguda · K-Move', profiles: ['C'], kind: 'bi', unit: '°' },
-  { id: 'stage4', name: '4 Stage Balance Test', profiles: ['C'], kind: 'select',
-    options: ['No supera l\'etapa 1', 'Etapa 1 · peus junts', 'Etapa 2 · semitàndem', 'Etapa 3 · tàndem', 'Etapa 4 · monopodal'] },
-  { id: 'reach_seat', name: 'Abast funcional assegut', profiles: ['C'], kind: 'single', unit: 'cm' },
-  { id: 'walk6', name: '6 Minute Walk Test', profiles: ['C'], kind: 'single', unit: 'm' },
 ];
 
 // Índex de tots els tests simples (per id) amb la seva unitat i grup.
@@ -339,7 +304,6 @@ const TEST_INDEX = (() => {
       }
     }
   }
-  for (const t of PROFILE_TESTS) idx[t.id] = { ...t, col: t.name, group: 'profile', section: 'perfil', groupTitle: 'Tests per perfil' };
   return idx;
 })();
 

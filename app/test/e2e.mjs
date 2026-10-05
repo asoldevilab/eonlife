@@ -87,6 +87,8 @@ const step = async (label, fn) => {
   await step('editor de valoració', async () => {
     await page.click('.arow-main >> nth=0');
     await page.waitForSelector('#sec-mobilitat');
+    // Els tests complementaris per perfil (A/B/C) ja no es fan servir.
+    if (await page.$('#sec-perfil') || await page.$('text=Bateria del perfil')) throw new Error('encara hi ha els tests per perfil');
     await shot(page, '06-valoracio');
   });
   await step('omplir un test i veure l\'asimetria', async () => {
@@ -142,6 +144,7 @@ const step = async (label, fn) => {
   await step('informe de la valoració', async () => {
     await page.click('.editbar >> text=Informe');
     await page.waitForSelector('.report');
+    if (await page.$('.rsec-title >> text=Tests complementaris')) throw new Error('l\'informe encara té els tests per perfil');
     await shot(page, '07-informe');
   });
   await step('editor de sessió', async () => {
@@ -636,6 +639,66 @@ const step = async (label, fn) => {
     await shot(page, '17-mobil-valoracio', false);
     const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (over > 1) throw new Error(`desbordament horitzontal de ${over}px`);
+  });
+  await ctx.close();
+}
+
+// ── App de les tauletes (/demo/): sense clients de prova ──
+{
+  const { ctx, page } = await open({ width: 1180, height: 820 });
+  await step('tauleta: en actualitzar, marxen els clients de prova i es queden els reals i la biblioteca', async () => {
+    // Dades d'abans: els clients de prova, un client real i un exercici propi.
+    await page.evaluate(() => {
+      const db = JSON.parse(localStorage.getItem('eonlife:data:v1'));
+      db.patients['P-REAL'] = { id: 'P-REAL', firstName: 'Client', lastName: 'De Veritat', status: 'actiu', service: 'membership' };
+      db.exercises['X-PROPI'] = { id: 'X-PROPI', name: 'Exercici propi', block: 'mob', cat: 'Exercicis EON', materials: [] };
+      localStorage.setItem('eonlife:data:v1', JSON.stringify(db));
+    });
+    await ctx.addInitScript(() => { window.EON_NO_DEMO = true; });
+    await page.reload();
+    await page.waitForSelector('.crow');
+    await page.waitForSelector('.toast >> text=S\'han esborrat els clients de prova');
+    const names = await page.$$eval('.crow-name', (n) => n.map((x) => x.textContent));
+    if (names.join('|') !== 'Client De Veritat') throw new Error(`clients: ${names}`);
+    if (await page.$('.banner >> text=clients ficticis')) throw new Error('encara surt l\'avís de prova');
+    await shot(page, '60-tauleta-sense-clients-prova', false);
+    await goHash(page, '#/biblioteca');
+    await page.fill('.page input[type="search"]', 'Exercici propi');
+    await page.waitForSelector('text=Exercici propi');
+    // En tornar a obrir, no torna a avisar.
+    await page.reload();
+    await page.waitForSelector('.page');
+    await page.waitForTimeout(700);
+    if (await page.$('.toast >> text=clients de prova')) throw new Error('avisa cada cop');
+  });
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1 });
+  await ctx.addInitScript(() => { window.EON_NO_DEMO = true; });
+  const page = await ctx.newPage();
+  page.setDefaultTimeout(8000);
+  page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
+  await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  await step('tauleta nova: l\'app comença buida i es pot crear el primer client', async () => {
+    await page.goto(url);
+    await page.waitForSelector('.page');
+    if (await page.$('.crow')) throw new Error('hi ha clients');
+    await shot(page, '61-tauleta-buida', false);
+    await page.click('.page-actions >> text=Nou client');
+    await page.fill('#np-first', 'Primer');
+    await page.fill('#np-last', 'Client');
+    await page.click('.dialog-foot >> text=Crea el client');
+    await page.waitForSelector('text=Dades personals');
+    await goHash(page, '#/inici');
+    await page.waitForSelector('.crow-name >> text=Primer Client');
+    // Els clients de prova es poden tornar a carregar a mà des de Configuració.
+    await goHash(page, '#/configuracio');
+    await page.click('text=Carrega els clients de prova');
+    await page.click('.dialog-foot >> text=Carrega la demo');
+    await page.waitForSelector('.crow-name >> text=Laura Vidal Serra');
+    await page.reload();
+    await page.waitForSelector('.crow-name >> text=Laura Vidal Serra');
   });
   await ctx.close();
 }

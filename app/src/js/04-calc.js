@@ -187,14 +187,11 @@ const Calc = {
           const sides = ['d', 'e'].filter((s) => pos(x[s]));
           if (sides.length) add('warn', t.section, `${t.name} positiu (${sides.map((s) => SIDE[s].toLowerCase()).join(' i ')}).`);
         }
-        if (t.id === 'stage4' && x.v && !/Etapa [34]/.test(x.v)) add('bad', t.section, '4 Stage Balance: no manté el tàndem 10 s (risc de caiguda, criteri STEADI).');
       } else if (t.kind === 'scoreBi') {
         const s = Calc.patternScore(x, true);
         if (s === '--') add('bad', t.section, `${t.name}: limitació clara${Calc.sidesDetail(x)}.`);
         else if (s === '-') add('warn', t.section, `${t.name}: a millorar${Calc.sidesDetail(x)}.`);
         if (x.pain) add('bad', t.section, `${t.name}: dolor o símptomes (P) · derivar al fisio.`);
-      } else if (t.kind === 'single') {
-        if (t.id === 'tug' && U.num(x.v) != null && U.num(x.v) >= 12) add('bad', t.section, `Timed Up and Go de ${U.fmt(U.num(x.v))} s (≥ 12 s: risc de caiguda, criteri STEADI).`);
       }
     }
 
@@ -241,7 +238,7 @@ const Calc = {
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
   KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
-    'rom_hip_ir', 'rom_hip_er', 'chair30', 'tug', 'walk6', 'cod505'],
+    'rom_hip_ir', 'rom_hip_er'],
 
   compare(cur, prev, onlyKey = false) {
     if (!cur || !prev) return [];
@@ -285,7 +282,6 @@ const Calc = {
         if (g.kind === 'ybt') add(sec.id, 'Y-Balance Test', (a.ybt || {}).video);
         if (g.kind === 'jumps') add(sec.id, 'Salts · CMJ', (a.jumps || {}).video);
         if (g.kind === 'patterns') for (const pt of PATTERNS) add(sec.id, pt.name, ((a.patterns || {})[pt.id] || {}).video);
-        if (g.kind === 'profile') for (const t of PROFILE_TESTS) add(sec.id, t.name, (v[t.id] || {}).video);
       }
     }
     return out;
@@ -465,7 +461,7 @@ const Flat = {
       'Data naixement': p.birthDate || '', 'Edat': U.age(p.birthDate) ?? '',
       'Sexe': (OPT.sex.find((o) => o.v === p.sex) || {}).label || '',
       'Servei': (OPT.services.find((o) => o.v === p.service) || {}).label || '',
-      'Perfil': p.profile || '', 'Professional': p.professional || '',
+      'Professional': p.professional || '',
       'Estat': (OPT.status.find((o) => o.v === p.status) || {}).label || '',
       'Data alta': p.startDate || '', 'Email': p.email || '', 'Telèfon': p.phone || '',
       'Objectiu': p.goal || '', 'Motiu de consulta': p.reason || '', 'Antecedents': p.history || '',
@@ -588,15 +584,6 @@ const Flat = {
           }
           const pc = Calc.patterns(a).counts;
           o['Patrons 0'] = pc['0']; o['Patrons −'] = pc['-']; o['Patrons −−'] = pc['--']; o['Patrons P'] = pc.P;
-        }
-        if (g.kind === 'profile') {
-          for (const t of PROFILE_TESTS) {
-            const x = v[t.id] || {};
-            if (t.kind === 'bi') { o[`${t.name} D (${t.unit})`] = n(U.num(x.d)); o[`${t.name} E (${t.unit})`] = n(U.num(x.e)); }
-            else if (t.kind === 'single') o[`${t.name} (${t.unit})`] = n(U.num(x.v));
-            else if (t.kind === 'select' || t.kind === 'text') o[t.name] = x.v || '';
-            else if (t.kind === 'scoreBi') { o[`${t.name} D`] = Flat.sym(x.sd); o[`${t.name} E`] = Flat.sym(x.se); }
-          }
         }
         if (g.kind === 'free') {
           for (const r of a.free || []) {

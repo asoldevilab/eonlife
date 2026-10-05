@@ -8,7 +8,7 @@ Les dues versions fan servir la mateixa estructura. A Microsoft 365 és l'Excel
 
 | Pestanya | Una fila per… | Columnes llegibles |
 |---|---|---|
-| `Pacients` | client | Nom, cognoms, servei (valoració inicial / seguiment membership), perfil, professional, estat, objectiu, antecedents, dates IQ i lesió, carpeta del client, alçada, pes, dominància, nivell d'activitat, esport, professió, disponibilitat, condicions de salut, limitacions per entrenar, medicació, contacte d'emergència… |
+| `Pacients` | client | Nom, cognoms, servei (valoració inicial / seguiment membership), professional, estat, objectiu, antecedents, dates IQ i lesió, carpeta del client, alçada, pes, dominància, nivell d'activitat, esport, professió, disponibilitat, condicions de salut, limitacions per entrenar, medicació, contacte d'emergència… |
 | `Valoracions` | valoració | Una columna per test i costat (`ROM RI maluc D (°)`, `Knee-to-wall E (cm)`, `Força quàdriceps D (N/kg)`, `YBT composite D (%)`, `CMJ millor altura (cm)`, `Squat (puntuació)`…), punts d'atenció i conclusions |
 | `Sessions` | sessió | Data, setmana, nº, professional, objectiu, pla i nº de sessió del pla, son/energia/dolor, RPE, minuts, **càrrega (UA)**, observacions, decisió i un resum de cada bloc (focus, mètode i exercicis) |
 | `Registre_exercicis` | exercici de cada sessió | Bloc, subbloc (Bloc 1, Bloc 2…), ordre (4.2), exercici, grup muscular, contracció, posició, lateralitat, material, sèries, reps, càrrega, intensitat, descans, fet i, si s'ha fet servir, l'encoder ADR (V 1a rep, pèrdua de velocitat, potència) i ADR Jumping (altura del salt) |
@@ -32,7 +32,6 @@ Tot el protocol és a [`app/src/js/02-catalog.js`](../app/src/js/02-catalog.js):
 - `PROTOCOL` — seccions, grups i tests (tipus: `bi` dreta/esquerra, `single`, `biSelect`,
   `select`, `scoreBi`, i els grups especials `ybt`, `jumps`, `encoder`, `bike`, `patterns`).
 - `PATTERNS` — els 7 patrons de la Sessió 1 amb «Què observem», criteris de − i −−, execució i adaptació.
-- `PROFILE_TESTS` — tests per perfil A/B/C.
 - `THRESHOLDS` — llindars (asimetria 10 % / 15 %, knee-to-wall 8 cm / 4 cm, Y-Balance 4 cm, re-test 3 mesos).
 - `BLOCKS` — els 6 blocs de la sessió i els focus suggerits.
 

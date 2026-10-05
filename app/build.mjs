@@ -84,19 +84,21 @@ writeFileSync(join(m365Dir, 'manifest.webmanifest'), JSON.stringify({
 }, null, 2));
 console.log(`Microsoft 365: dist/m365/index.html${m365.clientId ? '' : ' (sense codis: es demanaran a la primera connexió)'}`);
 
-// Demostració publicada al costat de l'app: mode local amb clients ficticis, sense iniciar sessió.
-// També s'instal·la a la tauleta (com una app a part, «EON Life demo») i s'actualitza sola.
+// Versió local publicada al costat de l'app (/demo/): sense iniciar sessió, les dades queden a l'aparell.
+// És la que fan servir les tauletes mentre no hi ha Microsoft 365: comença buida, sense clients de prova
+// (es poden carregar des de Configuració). S'instal·la a la tauleta («EON Life demo») i s'actualitza sola.
 const demoDir = join(repo, 'dist', 'm365', 'demo');
 mkdirSync(demoDir, { recursive: true });
 const demoHead = installable
   .replace('href="icon-192.png"', 'href="../icon-192.png"').replace('href="apple-touch-icon.png"', 'href="../apple-touch-icon.png"')
   .replace('content="EON Life">', 'content="EON Life demo">');
-writeFileSync(join(demoDir, 'index.html'), updatable(html.replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${demoHead}`)));
+writeFileSync(join(demoDir, 'index.html'), updatable(html.replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${demoHead}`))
+  .replace('window.EON_BUILD =', () => 'window.EON_NO_DEMO = true;\nwindow.EON_BUILD ='));
 writeFileSync(join(demoDir, 'version.json'), version);
 writeFileSync(join(demoDir, 'manifest.webmanifest'), JSON.stringify({
   name: 'EON Life · demostració',
   short_name: 'EON Life demo',
-  description: 'Demostració amb clients ficticis (les dades queden en aquest aparell).',
+  description: 'Versió local: les dades queden en aquest aparell.',
   lang: 'ca',
   start_url: './',
   scope: './',
