@@ -31,6 +31,16 @@ const LocalFiles = (() => {
     },
     is(url) { return String(url || '').startsWith(PREFIX); },
 
+    // Número de sèrie dels noms dels fitxers desats a la tauleta (etiqueta_client_data_01, _02…).
+    serial(stem) {
+      const key = 'eonlife:serials';
+      let map = {};
+      try { map = JSON.parse(window.localStorage.getItem(key) || '{}') || {}; } catch (e) { map = {}; }
+      map[stem] = (map[stem] || 0) + 1;
+      try { window.localStorage.setItem(key, JSON.stringify(map)); } catch (e) { /* sense emmagatzematge */ }
+      return map[stem];
+    },
+
     async put(file, name) {
       const id = U.uid('F');
       try {

@@ -39,7 +39,7 @@ client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / P
 - **Inici** mostra les sessions d'avui i dels propers 7 dies, els re-tests pendents
   (cada 3 mesos) i la llista de clients amb filtres per estat, servei i professional.
 - **Nou client**: nom, cognoms, servei i professional. Amb Microsoft 365 o Google es crea automàticament
-  la carpeta del client (amb *01 · Valoracions*, *02 · Vídeos* i *03 · Informes*).
+  la carpeta del client (amb *Valoracions* i *Sessions*, i dins de cadascuna la carpeta dels seus vídeos).
 - **Servei**: *Valoració inicial* o *Seguiment membership*. Surt a la capçalera de la fitxa, al filtre de l'inici
   i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
 - **Professional de referència**: Richy, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
@@ -72,7 +72,8 @@ A **Fitxa › Informe de la doctora**:
 3. Desmarca el que no vulguis i **Desa a la fitxa**. Els textos s'afegeixen al que ja hi havia; les dates se
    substitueixen.
 
-Amb Microsoft 365, **Desa el PDF a la carpeta** guarda l'informe original a *03 · Informes* del client.
+Amb Microsoft 365, **Desa el PDF a la carpeta** guarda l'informe original a *Valoracions* del client
+(`informemedic_nomcognoms_aaaammdd_01.pdf`).
 Funciona millor si l'informe té els títols (*Motiu de consulta:*, *Antecedents:*…) al començament de cada línia.
 
 ## Valoració funcional
@@ -94,11 +95,12 @@ Consells:
 - Les **D** i **E** són dreta i esquerra. Els decimals es poden escriure amb coma.
 - La icona de **nota** obre un camp d'observacions per a cada test; la de **vídeo** enllaça el
   vídeo de la carpeta del client. Amb Microsoft 365, **Grava o puja un vídeo** obre la càmera o la galeria
-  de la tauleta i el desa directament a *02 · Vídeos* de la carpeta del client.
+  de la tauleta i el desa directament a *Valoracions › Vídeos valoracions* de la carpeta del client.
 - **Fotos i vídeos per costat**: alguns tests tenen, a sota, el seu espai per a fotos o vídeos en lloc de la
   icona de vídeo. A cada espai, **Fes la foto** / **Grava** obre la càmera i **Tria'n una** / **Tria'n un** agafa
-  una foto o un vídeo que ja tingueu a la tauleta. Es desen sols: les fotos a *01 · Valoracions* i els vídeos a
-  *02 · Vídeos* de la carpeta del client (a la versió local, a la mateixa tauleta).
+  una foto o un vídeo que ja tingueu a la tauleta. Es desen sols: les fotos a *Valoracions* i els vídeos a
+  *Valoracions › Vídeos valoracions* de la carpeta del client, amb un nom com
+  `singlelegsquatdreta_lauravidalserra_20260702_01.mp4` (a la versió local, a la mateixa tauleta).
   - **Test de Thomas**: dues fotos, la de la dreta i la de l'esquerra.
   - **Test de flexió de tronc (Adams)**: una foto.
   - **Single Leg Squat**: dos vídeos, el de la dreta i el de l'esquerra.
@@ -109,8 +111,8 @@ Consells:
 
   Les fotos surten a l'informe, al costat de l'anàlisi postural, i els vídeos, a l'apartat de vídeos, amb el
   costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
-- **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *01 · Valoracions*
-  de la carpeta del client (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
+- **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *Valoracions*
+  de la carpeta del client (`informekinvent_…_01.pdf`) (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
   A la **versió de prova** (sense Microsoft 365) també es tria el PDF o es grava el vídeo, però es queden només en
   aquella tauleta: no els veu cap altre aparell.
 - **Llegeix el PDF** (a *Goniometria* i a *Dinamometria*): tria l'informe PDF de Kinvent Physio i l'app en llegeix
@@ -198,7 +200,8 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   l'exercici. Es veu allà mateix. Si marques *Desa'l a la biblioteca*, aquell exercici sortirà sempre amb el vídeo.
   A YouTube, pugeu-lo com a **No llistat** (no *Privat*: un vídeo privat només el pot veure qui l'ha pujat).
 - **Grava el client** (icona de càmera de cada exercici): amb Microsoft 365, **Grava ara** obre la càmera de la
-  tauleta i el vídeo es desa sol a *02 · Vídeos* de la carpeta del client, enllaçat a l'exercici.
+  tauleta i el vídeo es desa sol a *Sessions › Vídeos sessions d'entrenament* de la carpeta del client (amb un nom com
+  `hipthrust_lauravidalserra_20261002_01.mp4`), enllaçat a l'exercici.
 - **Encoder** (a *Potència* i *Força principal*): obre el registre per sèries.
   - **Encoder ADR**: càrrega, reps, velocitat de la 1a rep, velocitat de l'última rep, pèrdua de velocitat (%)
     i potència màxima. Si poses la 1a i l'última velocitat, la pèrdua de velocitat es calcula sola.
@@ -316,6 +319,35 @@ sessions previstes del pla d'entrenament.
   sessió surten com a **OFF**.
 - Columna **Setmana**: càrrega total, sessions fetes i RPE mitjà.
 - **Progressió de càrregues**: taula exercici × sessió amb la càrrega i les sèries × reps de cada dia.
+- **Planifica el mes**: crea d'una vegada les sessions d'un mes ja **planificades**. Tries el mes, els dies
+  d'entrenament (p. ex. dilluns, dimecres i divendres) i, per a cada dia, d'on surt la sessió: **igual que l'última
+  sessió d'aquell dia de la setmana**, una plantilla de sessió o en blanc. Pots fer que cada cop d'unes setmanes
+  els exercicis que tenen progressió pugin un nivell. Salta els dies que ja tenen sessió. Després les obres i les
+  ajustes una a una (o canvies la data a l'editor).
+- **Copia la setmana** (a la columna *Setmana*): copia les sessions d'aquella setmana a les setmanes següents (fins
+  a 12), també amb progressió, saltant els dies ocupats.
+
+## Els Excel del client
+
+L'app **fa sola els Excel** a partir del que s'omple a l'app. Mai cal omplir-los ni obrir-los per treballar:
+
+- **Un Excel per cada sessió**, feta, planificada o prevista al pla: dades, wellness, tancament, els 6 blocs amb tota
+  la prescripció, l'última vegada que es va fer cada exercici, l'encoder i els enllaços als vídeos.
+- **Un Excel per cada valoració** (inicial, re-test…): resum i punts d'atenció, **comparació amb l'anterior**,
+  mobilitat, força, rendiment, patrons, i els enllaços a fotos, vídeos i PDF.
+- **Un Excel gegant de visió general** per client: perfil, dates clau, plans, valoracions i càrrega setmanal; i, per
+  cada mes, un **calendari** i un **detall** de totes les sessions (com l'Excel de control de l'equip), a més d'un
+  *Registre* per filtrar. S'omple sol: a mesura que es fan, es completen o es planifiquen sessions, apareixen aquí.
+
+Amb **Microsoft 365** es pugen sols a la carpeta del client (*Valoracions* i *Sessions*) uns segons després de
+l'últim canvi (i un cop al dia es refà el que depèn de la data, com *Sense tancar* o la propera sessió); a la
+capçalera de la fitxa es veu si són **al dia**. El menú **Excel** de la fitxa permet pujar-los
+ara, obrir la carpeta o descarregar-ne la visió general o tot en un ZIP. A la **versió local** (sense núvol) es
+descarreguen des del menú **Excel** de la fitxa i des del menú de cada sessió i de cada valoració. Els noms són
+`sessio_lauravidalserra_20261002_01.xlsx`, `valoracioinicial_…`, `retest_…` i `visiogeneral_…`.
+
+Els Excel són **només de lectura** (protegits sense contrasenya): les dades es corregeixen sempre a l'app i
+l'Excel es refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada o refer-los tots.
 
 ## Biblioteca
 

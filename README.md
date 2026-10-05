@@ -12,7 +12,8 @@ Substitueix l'Excel mensual per client, la plantilla de sessió, la plantilla de
 | Valoració funcional (PDF) i `02_FICHA_VALORACION` | Formulari de tauleta amb el protocol EON i càlculs automàtics · **informe per ensenyar al client** |
 | Plantilla My Jump | Intents de salt, resum automàtic i importació del CSV de My Jump Lab |
 | Ficha de sesión / `12_FICHA_SESION` | Sessió de **6 blocs**: Mobilitat · Activació · Potència · Força principal · Accessoris · Tornada a la calma · **fitxa per al client** en pantalla o PDF |
-| Excel mensual (Obj, RPE, T, Càrrega, Obs) | **Seguiment mensual**: calendari, càrrega RPE × minuts, resum setmanal i progressió de càrregues |
+| Excel mensual (Obj, RPE, T, Càrrega, Obs) | **Seguiment mensual**: calendari, càrrega RPE × minuts, resum setmanal i progressió de càrregues, i **Planifica el mes** per dissenyar sessions futures |
+| Un Excel per sessió, un per valoració i la visió general del client | **Excel automàtics**: l'app els fa sola i, amb Microsoft 365, els deixa a *Sessions* i *Valoracions* de la carpeta de cada client (un per sessió, un per valoració i un d'enorme de visió general amb calendari i detall per mes) |
 | Full *DB* (dates IQ i lesió) | Dates clau a la fitxa del client amb dies i setmanes |
 | Taules centrals amb `PATIENT_ID` (Kinvent ROM, dinamometria, Y-Balance, My Jump…) | **Base de dades** dins de l'app, amb una taula per àrea i botó «+ Afegeix», i el mateix a un full de càlcul central (una fila per registre, una columna per test) |
 

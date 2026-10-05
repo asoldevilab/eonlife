@@ -41,6 +41,24 @@ Després de qualsevol canvi: `npm run build` i `npm test`. Amb Microsoft 365 i G
 publica sola en arribar a `main`; amb Google, actualitzeu `Index.html` a Apps Script
 (vegeu [INSTALLACIO.md](INSTALLACIO.md#actualitzar-laplicació-versions-noves)).
 
+## Els Excel que fa l'app (per client)
+
+A banda de la base de dades, l'app genera sola uns Excel de **lectura** per a cada client (vegeu
+[GUIA-US.md](GUIA-US.md#els-excel-del-client)). A Microsoft 365 es desen a la carpeta del client; a la versió local es
+descarreguen.
+
+| Fitxer | Carpeta | Contingut |
+|---|---|---|
+| `sessio_<nomcognoms>_<aaaammdd>_<NN>.xlsx` | `Sessions` | fulls *Sessió* (dades, wellness, tancament, blocs, vídeos), *Exercicis* i, si n'hi ha, *Encoder*; també per a les sessions planificades i les previstes als plans |
+| `valoracioinicial_…`, `retest_…`, `controlmesures_…`, `valoracioalta_…` | `Valoracions` | *Resum*, *Comparació* (amb l'anterior), *Mobilitat*, *Força*, *Rendiment*, *Patrons* i *Altres mesures* |
+| `visiogeneral_<nomcognoms>_01.xlsx` | `Sessions` | *Resum*, un calendari i un detall per cada mes («Octubre 2026», «Octubre 2026 · detall») i *Registre* |
+
+Els Excel porten **fórmules** (càrrega = RPE × minuts, asimetries, N/kg, composite del Y-Balance, resums del registre,
+dies des de la lesió…) amb el valor ja calculat, i el format condicional ressalta el dia d'avui. Es protegeixen
+sense contrasenya perquè no es canviïn per error. Les dades **no es llegeixen mai** d'aquests fitxers: l'app és l'única
+font; cada canvi els refà (només puja els que han canviat) i retira els que ja no toquen (una sessió eliminada o canviada
+de dia). Només es toquen fitxers amb aquests noms.
+
 ## Estructura del codi
 
 ```
@@ -56,8 +74,13 @@ app/
     05-store.js        dades i desament (Microsoft 365, Google o navegador)
     06-demo.js         clients ficticis per provar
     07-dbcols.js       taules de la pantalla Base de dades
-    08-xlsx.js         generador de fitxers .xlsx (plantilla de l'Excel)
+    08-xlsx.js         generador de fitxers .xlsx (plantilla de l'Excel de la base de dades)
+    08-xlsxdoc.js      escriptor d'Excel amb estils (colors, combinades, fórmules, enllaços, format condicional)
+    08-excel-common.js estils i peces comunes dels Excel que fa l'app
     09-m365.js         Microsoft 365: inici de sessió, Excel com a base de dades, carpetes i vídeos
+    09-names.js        carpetes i noms dels fitxers de cada client (nomcognoms, aaaammdd, número de sèrie)
+    09-excel-*.js      Excel de cada sessió, de cada valoració i de la visió general del client
+    09-sync.js         pujada automàtica dels Excel a la carpeta del client (cua, reintents, estat)
     1x-*.js            components, gràfics i navegació
     2x-*.js, 3x-*.js   pantalles (31-connect.js: connexió amb Microsoft 365)
     99-app.js          arrencada
@@ -76,7 +99,7 @@ dist/m365/index.html   la versió per publicar al web amb Microsoft 365
 
 ```bash
 npm run build      # genera dist/eonlife.html, dist/m365/index.html i apps-script/Index.html
-npm test           # càlculs, columnes del full, Apps Script i Microsoft 365 (simulats)
+npm test           # càlculs, columnes del full, Apps Script, Microsoft 365 (simulat) i els Excel de cada client
 npm run test:e2e   # recorre totes les pantalles amb Chromium: local, Google i Microsoft 365
 ```
 

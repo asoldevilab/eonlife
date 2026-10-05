@@ -3,8 +3,10 @@
 
 function MonthView({ p, sessions }) {
   const today = U.today();
-  const [month, setMonth] = useState(U.monthKey(today));
+  const [month, setMonth] = useState(() => MonthNav.take(p.id) || U.monthKey(today));
   const [allBlocks, setAllBlocks] = useState(false);
+  // En planificar un mes (Planifica el mes), el calendari hi va sol.
+  useEffect(() => { const m = MonthNav.take(p.id); if (m) setMonth(m); });
   const first = `${month}-01`;
   const last = U.addDays(U.addMonths(first, 1), -1);
   const gridStart = U.weekStart(first);
@@ -38,6 +40,7 @@ function MonthView({ p, sessions }) {
           <${Btn} variant="ghost" icon="right" title="Mes següent" onClick=${() => shift(1)} />
           ${month !== U.monthKey(today) && html`<${Btn} size="sm" variant="ghost" onClick=${() => setMonth(U.monthKey(today))}>Avui</${Btn}>`}
         </div>
+        <${Btn} variant="primary" icon="calendar" onClick=${() => openPlanMonth(p, month)}>Planifica el mes</${Btn}>
         <div class="kv-row">
           <div class="kv"><span>Sessions fetes</span><strong>${done.length}<small> / ${inMonth.length}</small></strong></div>
           <div class="kv"><span>Càrrega del mes</span><strong>${loads.length ? `${U.fmt(loads.reduce((a, b) => a + b, 0), 0)} UA` : '—'}</strong></div>
@@ -75,10 +78,11 @@ function MonthView({ p, sessions }) {
             <div class="cal-w">
               <span class="cal-w-load">${w.load ? U.fmt(w.load, 0) : '—'}<small> UA</small></span>
               <span class="cal-w-meta">${w.done}/${w.sessions} fetes${w.rpe != null ? ` · RPE ${U.fmt(w.rpe, 1)}` : ''}</span>
+              ${w.sessions > 0 && html`<button type="button" class="link cal-w-copy" title="Copia les sessions d'aquesta setmana a les següents" onClick=${() => openCopyWeek(p, w.start)}>Copia la setmana</button>`}
             </div>`)}
         </div>
       </div>
-      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió. Les sessions amb vora discontínua són les previstes al pla d'entrenament.</p>
+      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també a l'Excel de visió general del client.</p>
     </section>
 
     <section class="card">

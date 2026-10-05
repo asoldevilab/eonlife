@@ -183,21 +183,28 @@ test('carpeta del client, llistat de fitxers i pujada de vídeo per trossos', as
   assert.equal(f1.folderId, f2.folderId);
   const folder = mock.items.get(f1.folderId);
   assert.equal(folder.name, 'Puig, Laura · P-9');
-  assert.deepEqual(mock.childrenOf(f1.folderId).map((x) => x.name).sort(), ['01 · Valoracions', '02 · Vídeos', '03 · Informes']);
+  // Estructura acordada: Valoracions (› Vídeos valoracions) i Sessions (› Vídeos sessions d'entrenament).
+  assert.deepEqual(mock.childrenOf(f1.folderId).map((x) => x.name).sort(), ['Sessions', 'Valoracions']);
+  assert.deepEqual(mock.childrenOf(mock.child(f1.folderId, 'Valoracions').id).map((x) => x.name), ['Vídeos valoracions']);
+  assert.deepEqual(mock.childrenOf(mock.child(f1.folderId, 'Sessions').id).map((x) => x.name), ['Vídeos sessions d\'entrenament']);
   const size = 327680 * 16 + 1234; // dos trossos
   const blob = new Blob([new Uint8Array(size).fill(7)], { type: 'video/mp4' });
   blob.name = 'IMG_0001.MOV';
   const seen = [];
-  const up = await a.uploadFile(f1.folderId, blob, { name: '2026-09-28 · Squat: dreta/esquerra.mov', onProgress: (x) => seen.push(x) });
+  const up = await a.uploadFile(f1.folderId, blob, { stem: 'backsquat_lauraspuig_20260928', ext: '.mov', path: ['Sessions', 'Vídeos sessions d\'entrenament'], onProgress: (x) => seen.push(x) });
   assert.ok(up.url);
   assert.equal(seen.at(-1), 1);
-  const videos = mock.child(f1.folderId, '02 · Vídeos');
+  assert.equal(up.name, 'backsquat_lauraspuig_20260928_01.mov');
+  const videos = mock.child(mock.child(f1.folderId, 'Sessions').id, 'Vídeos sessions d\'entrenament');
   const file = mock.childrenOf(videos.id)[0];
-  assert.equal(file.name, '2026-09-28 · Squat dreta esquerra.mov');
+  assert.equal(file.name, 'backsquat_lauraspuig_20260928_01.mov');
   assert.equal(file.content.length, size);
+  // El segon vídeo del mateix exercici i dia rep el número de sèrie següent.
+  const up2 = await a.uploadFile(f1.folderId, new Blob([new Uint8Array(5000).fill(1)], { type: 'video/mp4' }), { stem: 'backsquat_lauraspuig_20260928', ext: '.mov', path: ['Sessions', 'Vídeos sessions d\'entrenament'] });
+  assert.equal(up2.name, 'backsquat_lauraspuig_20260928_02.mov');
   const list = await a.listFiles(f1.folderId);
-  assert.equal(list.length, 1);
-  assert.equal(list[0].folder, '02 · Vídeos');
+  assert.equal(list.length, 2);
+  assert.equal(list[0].folder, 'Sessions/Vídeos sessions d\'entrenament');
   // Miniatura i adreça de reproducció per a l'informe.
   const [m] = await a.media([list[0].id]);
   assert.match(m.play, /download\.mock\.test/);
@@ -249,15 +256,36 @@ test('taules llargues: es llegeixen per trossos i en poques crides', async () =>
   assert.ok(calls <= 4, `crides $batch: ${calls}`);
 });
 
-test('informe de Kinvent (PDF) a «01 · Valoracions» del client', async () => {
+test('informe de Kinvent (PDF) a «Valoracions» del client, amb nom i número de sèrie', async () => {
   const { mock, api } = setup();
   const a = await api();
   const f = await a.ensureFolder({ id: 'P-K', firstName: 'Jordi', lastName: 'Vila' });
-  const pdf = new Blob([new Uint8Array(40000).fill(3)], { type: 'application/pdf' });
-  const up = await a.uploadFile(f.folderId, pdf, { name: '2026-09-29 · Informe Kinvent K-Push · Jordi Vila.pdf', subfolder: '01 · Valoracions' });
-  const dir = mock.child(f.folderId, '01 · Valoracions');
-  assert.deepEqual(mock.childrenOf(dir.id).map((x) => x.name), ['2026-09-29 · Informe Kinvent K-Push · Jordi Vila.pdf']);
+  const pdf = () => new Blob([new Uint8Array(40000).fill(3)], { type: 'application/pdf' });
+  const up = await a.uploadFile(f.folderId, pdf(), { stem: 'informekinvent_jordivila_20260929', ext: '.pdf', path: ['Valoracions'] });
+  const dir = mock.child(f.folderId, 'Valoracions');
+  assert.deepEqual(mock.childrenOf(dir.id).filter((x) => x.file).map((x) => x.name), ['informekinvent_jordivila_20260929_01.pdf']);
   assert.ok(up.url.includes('sharepoint.com'));
+  // Un altre informe el mateix dia no trepitja el primer.
+  await a.uploadFile(f.folderId, pdf(), { stem: 'informekinvent_jordivila_20260929', ext: '.pdf', path: ['Valoracions'] });
+  assert.deepEqual(mock.childrenOf(dir.id).filter((x) => x.file).map((x) => x.name).sort(), ['informekinvent_jordivila_20260929_01.pdf', 'informekinvent_jordivila_20260929_02.pdf']);
+});
+
+test('fitxers fets per l\'app: es substitueixen sense còpies repetides i es poden esborrar', async () => {
+  const { mock, api } = setup();
+  const a = await api();
+  const f = await a.ensureFolder({ id: 'P-X', firstName: 'Pau', lastName: 'Soler' });
+  const dir = await a.ensurePath(f.folderId, ['Sessions']);
+  const one = await a.putFile(dir.id, 'sessio_pausoler_20261002_01.xlsx', new Uint8Array([1, 2, 3]));
+  const two = await a.putFile(dir.id, 'sessio_pausoler_20261002_01.xlsx', new Uint8Array([4, 5, 6, 7]));
+  assert.equal(two.id, one.id, 'es substitueix el mateix fitxer');
+  const names = mock.childrenOf(dir.id).filter((x) => x.file).map((x) => x.name);
+  assert.deepEqual(names, ['sessio_pausoler_20261002_01.xlsx']);
+  assert.equal(mock.child(dir.id, 'sessio_pausoler_20261002_01.xlsx').content.length, 4);
+  await a.removeItem(one.id);
+  assert.equal(mock.childrenOf(dir.id).filter((x) => x.file).length, 0);
+  await a.removeItem(one.id); // ja no hi és: no falla
+  // La mateixa ruta dona la mateixa carpeta (es recorda).
+  assert.equal((await a.ensurePath(f.folderId, ['Sessions'])).id, dir.id);
 });
 
 test('pla d\'entrenament llarg: es reparteix en més cel·les i es torna a llegir sencer', async () => {

@@ -232,6 +232,23 @@ const U = {
     }
   },
 
+  // Descarrega un fitxer binari (Excel, ZIP…).
+  downloadBytes(filename, bytes, mime = 'application/octet-stream') {
+    try {
+      const blob = new Blob([bytes], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
   readFile(file) {
     return new Promise((resolve, reject) => {
       const r = new FileReader();

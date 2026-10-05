@@ -90,6 +90,8 @@ function SettingsView() {
           </div>`}
     </section>
 
+    <${ExcelSettingsCard} />
+
     <section class="card">
       <div class="card-head"><h2 class="h2">Versió de l'app</h2><span class="muted">${window.EON_BUILD || ''}</span></div>
       ${AppUpdate.enabled() ? html`<p class="muted">L'app mira sola si n'hi ha una versió nova cada cop que s'obre. Si veus alguna cosa antiga, comprova-ho aquí.</p>

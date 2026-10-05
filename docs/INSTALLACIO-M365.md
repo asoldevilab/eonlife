@@ -8,11 +8,24 @@ L'app és la mateixa, però les dades es desen a la **carpeta compartida** de l'
 ├── 📊 EON Life · Base de dades.xlsx      ← totes les dades, com un Excel
 └── 📁 EON Life · Clients
     ├── 📁 Puig, Laura · P-…
-    │   ├── 01 · Valoracions
-    │   ├── 02 · Vídeos                   ← els vídeos gravats amb la tauleta
-    │   └── 03 · Informes
+    │   ├── 📁 Valoracions                ← valoració inicial i re-tests (Excel), PDF de Kinvent, informe mèdic i fotos
+    │   │   └── 📁 Vídeos valoracions     ← els vídeos dels tests
+    │   └── 📁 Sessions                   ← un Excel per sessió i l'Excel gegant de visió general
+    │       └── 📁 Vídeos sessions d'entrenament
     └── 📁 …
 ```
+
+Els noms dels fitxers són sempre en minúscules, sense accents ni espais, amb la data com a *any-mes-dia* i un número
+de sèrie (`_01`, `_02`…) per si n'hi ha més d'un el mateix dia:
+
+| Què | Exemple |
+|---|---|
+| Valoració inicial / re-test | `valoracioinicial_lauravidalserra_20260702_01.xlsx` · `retest_lauravidalserra_20261001_01.xlsx` |
+| Sessió d'entrenament | `sessio_lauravidalserra_20261002_01.xlsx` |
+| Visió general del client | `visiogeneral_lauravidalserra_01.xlsx` |
+| Vídeo d'un exercici | `hipthrust_lauravidalserra_20261002_01.mp4` |
+| Vídeo o foto d'un test | `singlelegsquatdreta_lauravidalserra_20260702_01.mp4` · `testthomasdreta_lauravidalserra_20260702_01.jpg` |
+| Informe de Kinvent / informe mèdic | `informekinvent_lauravidalserra_20260702_01.pdf` · `informemedic_lauravidalserra_20260702_01.pdf` |
 
 **L'Excel** té una pestanya per a cada tipus de dada: *Pacients*, *Valoracions*, *Sessions*,
 *Registre_exercicis*, *Biblioteca*, *Plantilles* i *Configuracio*. Cada valoració o sessió és una fila i cada test,
@@ -22,6 +35,45 @@ S'omple sol mentre l'equip treballa amb l'app a la tauleta.
 Tothom qui tingui accés a la carpeta pot obrir l'Excel per mirar-lo, filtrar-lo o descarregar-lo.
 Les dades, però, **s'omplen i es corregeixen sempre des de l'app**: si es canvia una cel·la directament a
 l'Excel, l'app no la llegeix i es perd la pròxima vegada que es desi aquell registre.
+
+## Els Excel de cada client (es fan sols)
+
+A més de la base de dades, l'app **fa i manté sola** els Excel de cada client, ben presentats i amb els colors de
+l'app. No cal obrir-los ni omplir-los: tot es registra a l'app i els Excel es refan quan hi ha canvis.
+
+- **Un Excel per cada sessió** (a *Sessions*): dades, wellness, tancament (RPE, durada, càrrega, dolor, decisió),
+  tots els exercicis dels 6 blocs amb la prescripció, l'última vegada que els va fer, l'encoder ADR i els enllaços als
+  vídeos. També es fa per a les sessions **planificades** (futures) i per a les **previstes al pla**, i passa sol de
+  *Planificada* a *Sense tancar* si la data ja ha passat.
+- **Un Excel per cada valoració** (a *Valoracions*): resum amb els punts d'atenció, **comparació amb l'anterior**
+  (millora en verd, empitjora en vermell), mobilitat, força, rendiment, patrons de moviment i els enllaços a les fotos,
+  els vídeos i el PDF de Kinvent.
+- **Un Excel gegant de visió general** (a *Sessions*, `visiogeneral_…`): *Resum* (perfil, dates clau amb els dies
+  que fa de la lesió o l'operació, plans, valoracions i càrrega setmanal), **dues pestanyes per mes** (el
+  *calendari* d'un cop d'ull i el *detall* de totes les sessions amb les setmanes en columnes, com l'Excel de
+  control de l'equip) i un *Registre* amb una fila per sessió per filtrar. S'omple sol a mesura que es fan, es
+  completen i es planifiquen sessions.
+
+Els Excel es pugen sols a la carpeta uns segons després de l'últim canvi (i en acabar una sessió); a la fitxa del
+client, sota el nom, es veu si són **al dia** o pendents, amb el botó *Puja'ls ara* i el menú **Excel**
+(obre la carpeta, descarrega la visió general o tot en un ZIP). A més, **un cop al dia** (en obrir l'app o si es deixa
+oberta de nit) es refà el que depèn de la data —la visió general i les sessions encara per fer— dels clients que han
+entrenat o tenen sessions previstes en els últims 45 dies, perquè *Sense tancar*, la propera sessió o el calendari del
+mes siguin sempre els d'avui encara que ningú hagi tocat res. Cada pujada **substitueix** el fitxer anterior
+(sense còpies repetides); si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira (queda a la
+paperera de reciclatge de OneDrive/SharePoint). L'app **no toca mai cap altre fitxer** de la carpeta: només els Excel
+amb aquests noms. A *Configuració › Excel de cada client* es pot **pausar** la pujada automàtica o tornar a fer-los
+tots. Els fitxers estan protegits contra escriptura (sense contrasenya) perquè ningú els canviï per error: si
+es vol filtrar o ordenar, es pot; si es vol escriure, cal treure la protecció, però els canvis es perdrien la
+pròxima vegada que l'app refaci el fitxer.
+
+### Planificar sessions per endavant
+
+A *Seguiment mensual* de cada client, **Planifica el mes** crea d'una vegada les sessions d'un mes (per exemple,
+dilluns, dimecres i divendres), cadascuna partint de l'última sessió d'aquell dia de la setmana, d'una plantilla o en
+blanc, i amb la progressió d'exercicis que es triï. **Copia la setmana** a les setmanes següents repeteix una setmana
+dissenyada. Les sessions queden planificades, es poden ajustar una a una i surten a l'Excel de visió general i amb el seu
+propi Excel a la carpeta.
 
 ---
 
@@ -114,13 +166,15 @@ tornar a entrar.
 
 A cada test de la valoració hi ha el botó de **vídeo**:
 
-- **Grava ara** obre la càmera de la tauleta. En acabar de gravar, el vídeo es puja sol a *02 · Vídeos* de la
-  carpeta del client (amb el nom «data · test · client») i queda enllaçat al test. No cal fer res més.
+- **Grava ara** obre la càmera de la tauleta. En acabar de gravar, el vídeo es puja sol a *Valoracions › Vídeos
+  valoracions* de la carpeta del client (amb el nom `test_client_data_01.mp4`) i queda enllaçat al test. No cal
+  fer res més.
 - **Tria de la galeria** fa el mateix amb un vídeo que ja és a la tauleta.
 
 També es poden pujar amb l'app de OneDrive i triar-los després de la llista *Vídeos de la carpeta*.
 
-A les **sessions**, cada exercici té el mateix botó (*Grava el client*): el vídeo va a *02 · Vídeos* i queda
+A les **sessions**, cada exercici té el mateix botó (*Grava el client*): el vídeo va a *Sessions › Vídeos sessions
+d'entrenament* (amb el nom `exercici_client_data_01.mp4`) i queda
 enllaçat a l'exercici. Els **vídeos de demostració** del professional són enllaços de YouTube (**No llistat**) i es
 desen a la biblioteca; no ocupen espai a la carpeta.
 A l'**informe**, els vídeos surten amb la miniatura (es reprodueixen dins de l'informe) i, en paper o PDF, amb un
@@ -132,8 +186,8 @@ L'app de Kinvent exporta l'informe en PDF i només l'ofereix a les apps de la ta
 
 - **Amb l'app d'EON Life:** a Kinvent, *Compartir › Files by Google* (desa el PDF a la tauleta). Després, a la
   valoració del client, **Informes i fitxers › Adjunta l'informe de Kinvent** (o *Adjunta el PDF* a les targetes
-  de K-Push i K-Move). El PDF es desa sol a *01 · Valoracions* de la carpeta del client i queda enllaçat a la
-  valoració i a l'Excel (columna *Informes adjunts*).
+  de K-Push i K-Move). El PDF es desa sol a *Valoracions* de la carpeta del client (`informekinvent_…_01.pdf`) i queda
+  enllaçat a la valoració, a l'Excel de la valoració i a la base de dades (columna *Informes adjunts*).
 - **Directament a OneDrive:** instal·leu l'app **Microsoft OneDrive** a la tauleta i entreu amb el compte del centre.
   A partir d'aquí, OneDrive surt a la llista de *Compartir* de Kinvent.
 
@@ -143,7 +197,7 @@ l'app calcula l'asimetria i els N/kg i els posa a les columnes de l'Excel. Un PD
 ## Informe de la doctora
 
 A la fitxa del client, **Informe de la doctora › Desa el PDF a la carpeta** puja l'informe original a
-*03 · Informes*. El text (enganxat o d'un Word) omple l'objectiu, el motiu de consulta, els antecedents i les
+*Valoracions* (`informemedic_…_01.pdf`). El text (enganxat o d'un Word) omple l'objectiu, el motiu de consulta, els antecedents i les
 dates de la intervenció i la lesió. Si la política del centre és que la informació clínica només sigui a Nubimed,
 copieu-hi només el que calgui per a l'entrenament.
 

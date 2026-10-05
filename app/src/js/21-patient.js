@@ -11,6 +11,9 @@ function PatientView({ id, tab = 'resum' }) {
   const age = U.age(p.birthDate);
   const status = OPT.status.find((o) => o.v === p.status);
 
+  // Primera vegada que s'obre el client en aquesta tauleta: els seus Excel es fan i es pugen a la carpeta.
+  useEffect(() => { if (Sync.enabled() && Sync.info(id).state === 'never') Sync.touch(id); }, [id]);
+
   const remove = async () => {
     const ok = await UI.confirm({ title: `Eliminar ${U.fullName(p)}?`, text: 'S\'amagaran el client, les seves valoracions i les sessions. Al full de càlcul queden marcats com a eliminats i es poden recuperar.', ok: 'Elimina', danger: true });
     if (!ok) return;
@@ -29,12 +32,14 @@ function PatientView({ id, tab = 'resum' }) {
         <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Client des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
         <${KeyDates} p=${p} />
+        <${SyncBadge} pid=${p.id} />
       </div>
       <div class="phead-actions">
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
         <${Btn} icon="clipboard" onClick=${() => createAssessment(p.id)}>${assessments.length ? 'Nova valoració' : 'Valoració inicial'}</${Btn}>
         ${p.folderUrl ? html`<${Btn} icon="folder" href=${p.folderUrl}>Carpeta</${Btn}>`
           : Store.cloud() ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
+        <${ExcelMenu} p=${p} />
         <${Menu} items=${[
           { label: 'Edita les dades', icon: 'edit', onClick: () => setTab('fitxa') },
           { sep: true },
@@ -187,7 +192,10 @@ function PatientSessions({ p, sessions }) {
   const keys = Object.keys(groups).sort().reverse();
   return html`<section class="card">
     <div class="card-head"><h2 class="h2">Sessions</h2>
-      <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}></div>
+      <div class="inline">
+        <${Btn} icon="calendar" onClick=${() => openPlanMonth(p, U.monthKey(U.today()))}>Planifica el mes</${Btn}>
+        <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
+      </div></div>
     ${keys.length ? keys.map((wk) => {
       const list = groups[wk].slice().reverse();
       const w = Calc.weeks(groups[wk], wk, 1)[0];
@@ -364,7 +372,7 @@ function DoctorReportCard({ p }) {
     if (!file) return;
     setPct(0);
     try {
-      const res = await uploadToClient(p, file, { label: 'Informe mèdic', subfolder: '03 · Informes', onProgress: setPct });
+      const res = await uploadToClient(p, file, { label: 'Informe mèdic', where: 'assess', onProgress: setPct });
       Store.update('patients', p.id, (x) => { x.docs = [...(x.docs || []), { id: U.uid('F'), name: res.name, url: res.url, date: U.today() }]; });
       UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
     } catch (e) {

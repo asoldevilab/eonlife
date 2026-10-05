@@ -292,7 +292,8 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
       const [, driveId, itemId, restRaw] = m;
       if (!drives.has(driveId)) throw httpError(404, 'itemNotFound', 'Drive not found');
       const it = items.get(itemId);
-      if (!it) throw httpError(404, 'itemNotFound', 'Item not found');
+      // Un element esborrat (a la paperera) ja no es troba per identificador, com a Graph.
+      if (!it || it.deleted) throw httpError(404, 'itemNotFound', 'Item not found');
       const rest = restRaw;
       if (rest.startsWith('/workbook')) return handleWorkbook(method, itemId, rest.slice('/workbook'.length), body, user);
       // Adreçament per ruta: items/{pare}:/{nom}[:/content | :/createUploadSession]
@@ -338,6 +339,12 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
         if (existing && body['@microsoft.graph.conflictBehavior'] === 'fail') throw httpError(409, 'nameAlreadyExists', 'The specified item name already exists.');
         if (/["*:<>?/\\|]/.test(body.name)) throw httpError(400, 'invalidRequest', 'Invalid name');
         return { status: 201, body: view(addItem(driveId, itemId, body.name, { folder: {} })) };
+      }
+      if (rest === '' && method === 'DELETE') {
+        if (readOnly.has(user.email)) throw httpError(403, 'accessDenied', 'Access denied');
+        const kill = (x) => { x.deleted = true; for (const c of items.values()) if (c.parentId === x.id) kill(c); };
+        kill(it);
+        return { status: 204 };
       }
       if (rest === '' && method === 'GET') {
         const body = view(it);

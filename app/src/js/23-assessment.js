@@ -45,11 +45,15 @@ function AssessmentEditor({ id, focus }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${() => go('client', a.patientId, 'valoracions')} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
       <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
-      <${Menu} items=${[{ label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove }]} />
+      <${Menu} items=${[
+        ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
+        ...(IS_ARTIFACT ? [] : [{ label: 'Descarrega l\'Excel d\'aquesta valoració', icon: 'download', onClick: () => downloadExcel(a.patientId, `A:${a.id}`) }, { sep: true }]),
+        { label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove },
+      ]} />
       <nav class="secnav" aria-label="Seccions de la valoració">
         ${nav.map((n) => html`<button type="button" class="secnav-btn" onClick=${() => scrollTo(n.id)}>${n.label}${n.n && n.n.total ? html`<span class=${U.cls('secnav-n', n.n.done === n.n.total && 'full')}>${n.n.done}/${n.n.total}</span>` : ''}</button>`)}
       </nav>
@@ -65,7 +69,7 @@ function AssessmentEditor({ id, focus }) {
         <${Field} label="Alçada" id="as-height"><${NumInput} id="as-height" value=${g.height} onValue=${setGen('height')} unit="cm" /></${Field}>
         <${Field} label="Motiu / objectiu" id="as-goal" wide=${true}><${TextInput} id="as-goal" value=${g.goal} onValue=${setGen('goal')} /></${Field}>
         <${Field} label="Vídeo general de la valoració" id="as-video">
-          <div class="inline"><${VideoButton} url=${g.video} title="Vídeo general" patient=${p} onChange=${setGen('video')} /><span class="muted small">${U.isUrl(g.video) ? 'Enllaç desat' : 'Sense enllaç'}</span></div>
+          <div class="inline"><${VideoButton} url=${g.video} title="Vídeo general" patient=${p} date=${a.date} where="assessVideos" onChange=${setGen('video')} /><span class="muted small">${U.isUrl(g.video) ? 'Enllaç desat' : 'Sense enllaç'}</span></div>
         </${Field}>
       </div>
     </section>
@@ -140,10 +144,10 @@ function GroupCard({ g, a, p, upd, setVal }) {
   </div>`;
 }
 
-function Tools({ x, onNote, noteOpen, onVideo, title, patient, video = true }) {
+function Tools({ x, onNote, noteOpen, onVideo, title, patient, date, video = true }) {
   return html`<div class="trow-tools">
     <${NoteButton} value=${x.note} open=${noteOpen} onToggle=${onNote} />
-    ${video && html`<${VideoButton} url=${x.video} title=${title} patient=${patient} onChange=${onVideo} />`}
+    ${video && html`<${VideoButton} url=${x.video} title=${title} patient=${patient} date=${date} where="assessVideos" onChange=${onVideo} />`}
   </div>`;
 }
 
@@ -220,7 +224,7 @@ function TestRow({ t, a, p, setVal }) {
     <div class="trow-name">${t.name}${t.optional && html` <span class="opt">opcional</span>`}${t.info && html`<span class="trow-info">${t.info}</span>`}</div>
     ${inputs}
     <div class="trow-result">${result}</div>
-    <${Tools} x=${x} title=${t.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${s('video')}
+    <${Tools} x=${x} title=${t.name} patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${s('video')}
       video=${!(t.photos || t.videos) || U.isUrl(x.video)} />
     ${t.kind === 'scoreBi' && t.chips && html`<div class="trow-chips">${t.chips.map((ch) => {
       const on = (x.chips || []).includes(ch);
@@ -256,7 +260,7 @@ function YbtBlock({ a, p, upd }) {
     </table></div>
     <div class="ybt-foot">
       <span class="muted small">Composite = (ANT + PM + PL) ÷ (3 × longitud de la cama) × 100. Diferència anterior ≥ ${THRESHOLDS.ybtAntDiff} cm: punt d'atenció.</span>
-      <${Tools} x=${y} title="Y-Balance" patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setTop('video')} video=${U.isUrl(y.video)} />
+      <${Tools} x=${y} title="Y-Balance" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setTop('video')} video=${U.isUrl(y.video)} />
     </div>
     <div class="tmedia">${YBT_VIDEOS.map((m) => html`<${VideoSlot} key=${m.k} url=${y[m.k]} label=${`Vídeo ${m.label.toLowerCase()}`}
       title=${`Y-Balance Test · ${m.label.toLowerCase()}`} patient=${p} date=${a.date} onChange=${setTop(m.k)} />`)}</div>
@@ -305,7 +309,7 @@ function JumpsBlock({ a, p, upd }) {
       <span class="grow"></span>
       <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} onChange=${(e) => importCsv(e.currentTarget.files[0])} />
       <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa CSV de My Jump</${Btn}>
-      <${Tools} x=${j} title="Salts" patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
+      <${Tools} x=${j} title="Salts" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
     ${list.length > 0 && html`<div class="table-wrap"><table class="table jumps-table">
@@ -433,7 +437,7 @@ function PatternCard({ pt, n, v, p, date, set }) {
     <div class="pcard-foot">
       ${v.pain && html`<span class="warn-text small"><${Icon} name="alert" size=${14} /> S'atura el test i es deriva al fisio.</span>`}
       <span class="grow"></span>
-      <${Tools} x=${v} title=${pt.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)}
+      <${Tools} x=${v} title=${pt.name} patient=${p} date=${date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)}
         video=${!pt.videos || U.isUrl(v.video)} />
     </div>
     ${noteOpen && html`<${Area} value=${v.note} onValue=${(x) => set('note', x)} placeholder="Compensacions observades" rows=${1} />`}
@@ -463,7 +467,7 @@ function FreeBlock({ a, upd }) {
 }
 
 // ── Informes de Kinvent (PDF) i altres fitxers de la valoració ──
-// Es pugen a «01 · Valoracions» de la carpeta del client i queden enllaçats a la valoració (i a l'Excel).
+// Es pugen a «Valoracions» de la carpeta del client i queden enllaçats a la valoració (i a l'Excel).
 function AssessmentFiles({ a, p, upd }) {
   const files = a.files || [];
   const unlink = async (f) => {
@@ -484,9 +488,9 @@ function AssessmentFiles({ a, p, upd }) {
         <${Btn} variant="ghost" size="sm" icon="x" title="Treu l'enllaç" onClick=${() => unlink(f)} />
       </li>`)}</ul>`
       : html`<p class="muted">${canUploadFiles() && filesOnDevice()
-        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «01 · Valoracions» de la carpeta del client.'
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «Valoracions» de la carpeta del client.'
         : canUploadFiles()
-        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «01 · Valoracions» de la carpeta del client.'
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «Valoracions» de la carpeta del client.'
         : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del client.'}</p>`}
   </section>`;
 }
@@ -500,7 +504,7 @@ function AttachButton({ a, p, upd, label, primary, compact }) {
     if (!file) return;
     setPct(0);
     try {
-      const res = await uploadToClient(p, file, { label, date: a.date, subfolder: M365_NAMES.reports, onProgress: setPct });
+      const res = await uploadToClient(p, file, { label, date: a.date, where: 'assess', onProgress: setPct });
       add({ name: res.name, url: res.url, label });
       UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
     } catch (e) {
