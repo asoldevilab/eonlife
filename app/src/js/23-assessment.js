@@ -100,7 +100,7 @@ function AssessmentEditor({ id, focus }) {
 // Progrés d'una secció (tests amb algun valor / total).
 function sectionProgress(a, sec, p) {
   let done = 0, total = 0;
-  const has = (x) => x && Object.entries(x).some(([k, v]) => !['note', 'video', 'chips'].includes(k) && v !== '' && v != null && v !== false);
+  const has = (x) => x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false);
   for (const g of sec.groups) {
     if (g.kind === 'patterns') { total += PATTERNS.length; done += PATTERNS.filter((pt) => Calc.patternScore((a.patterns || {})[pt.id], pt.uni)).length; }
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
@@ -138,10 +138,10 @@ function GroupCard({ g, a, p, upd, setVal }) {
   </div>`;
 }
 
-function Tools({ x, onNote, noteOpen, onVideo, title, patient }) {
+function Tools({ x, onNote, noteOpen, onVideo, title, patient, video = true }) {
   return html`<div class="trow-tools">
     <${NoteButton} value=${x.note} open=${noteOpen} onToggle=${onNote} />
-    <${VideoButton} url=${x.video} title=${title} patient=${patient} onChange=${onVideo} />
+    ${video && html`<${VideoButton} url=${x.video} title=${title} patient=${patient} onChange=${onVideo} />`}
   </div>`;
 }
 
@@ -218,11 +218,13 @@ function TestRow({ t, a, p, setVal }) {
     <div class="trow-name">${t.name}${t.optional && html` <span class="opt">opcional</span>`}${t.info && html`<span class="trow-info">${t.info}</span>`}</div>
     ${inputs}
     <div class="trow-result">${result}</div>
-    <${Tools} x=${x} title=${t.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${s('video')} />
+    <${Tools} x=${x} title=${t.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${s('video')}
+      video=${!(t.photos || t.videos) || U.isUrl(x.video)} />
     ${t.kind === 'scoreBi' && t.chips && html`<div class="trow-chips">${t.chips.map((ch) => {
       const on = (x.chips || []).includes(ch);
       return html`<${Chip} on=${on} onClick=${() => s('chips')(on ? (x.chips || []).filter((y) => y !== ch) : [...(x.chips || []), ch])}>${ch}</${Chip}>`;
     })}</div>`}
+    ${(t.photos || t.videos) && html`<${TestMedia} t=${t} a=${a} p=${p} setVal=${setVal} />`}
     ${noteOpen && html`<div class="trow-note"><${Area} value=${x.note} onValue=${s('note')} placeholder="Observacions del test" rows=${1} ariaLabel=${`Nota: ${t.name}`} /></div>`}
   </div>`;
 }
@@ -252,8 +254,10 @@ function YbtBlock({ a, p, upd }) {
     </table></div>
     <div class="ybt-foot">
       <span class="muted small">Composite = (ANT + PM + PL) ÷ (3 × longitud de la cama) × 100. Diferència anterior ≥ ${THRESHOLDS.ybtAntDiff} cm: punt d'atenció.</span>
-      <${Tools} x=${y} title="Y-Balance" patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setTop('video')} />
+      <${Tools} x=${y} title="Y-Balance" patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setTop('video')} video=${U.isUrl(y.video)} />
     </div>
+    <div class="tmedia">${YBT_VIDEOS.map((m) => html`<${VideoSlot} key=${m.k} url=${y[m.k]} label=${`Vídeo ${m.label.toLowerCase()}`}
+      title=${`Y-Balance Test · ${m.label.toLowerCase()}`} patient=${p} date=${a.date} onChange=${setTop(m.k)} />`)}</div>
     ${noteOpen && html`<${Area} value=${y.note} onValue=${setTop('note')} placeholder="Observacions del Y-Balance" rows=${1} />`}
   </div>`;
 }

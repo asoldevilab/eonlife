@@ -206,6 +206,7 @@ const RECORDING_RULES = [
 // Protocol de valoració funcional. Tipus de test:
 //   bi (dreta/esquerra numèric) · single (un valor) · biSelect · select · scoreBi (0/−/−− per costat)
 //   grups especials: ybt · jumps · encoder · bike · patterns · free
+//   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol)
 const PROTOCOL = [
   {
     id: 'mobilitat', title: 'Mobilitat i anàlisi postural', short: 'Mobilitat',
@@ -235,8 +236,10 @@ const PROTOCOL = [
         ref: 'Magee DJ. Orthopedic Physical Assessment (6a ed.). Saunders/Elsevier; 2014.',
         tests: [
           { id: 'adams', name: 'Test de flexió de tronc (Adams)', kind: 'select', options: ['Negatiu', 'Positiu'],
+            photos: [{ k: 'photo', label: 'Foto' }],
             info: 'Mobilitat global de la columna, flexibilitat de la cadena posterior i simetria de pelvis i reixa costal (escoliosi).' },
           { id: 'thomas', name: 'Test de Thomas', kind: 'biSelect',
+            photos: [{ k: 'photoD', label: 'Dreta' }, { k: 'photoE', label: 'Esquerra' }],
             options: ['Negatiu', 'Positiu · psoes ilíac', 'Positiu · recte anterior', 'Positiu · TFL'],
             info: 'Positiu si la cuixa s\'enlaira de la taula (psoes) o si el genoll s\'estén involuntàriament (recte anterior).' },
           { id: 'windlass', name: 'Test de Windlass (peu)', kind: 'biSelect', options: ['Negatiu', 'Positiu'] },
@@ -260,7 +263,7 @@ const PROTOCOL = [
       { id: 'sls', title: 'Single Leg Squat', device: 'Vídeo',
         info: '3 squats unipodals per valorar valg de genoll (rotació interna del peu o poca flexió dorsal) i compensacions de maluc i core.',
         ref: 'Crossley KM, et al. Performance on the single-leg squat task indicates hip abductor muscle function. Am J Sports Med. 2011;39(4):866-873.',
-        tests: [{ id: 'sls', name: 'Single leg squat', kind: 'scoreBi',
+        tests: [{ id: 'sls', name: 'Single leg squat', kind: 'scoreBi', videos: [{ k: 'videoD', label: 'Dreta' }, { k: 'videoE', label: 'Esquerra' }],
           chips: ['Valg de genoll', 'Caiguda de pelvis', 'Rotació de tronc', 'Pronació del peu', 'Poca flexió dorsal'] }] },
       { id: 'ybt', title: 'Y-Balance Test', kind: 'ybt', device: 'Vídeo',
         info: 'Estabilitat dinàmica, control neuromuscular i equilibri unipodal: màxima distància amb la cama contrària en direcció anterior, posteromedial i posterolateral.',
@@ -289,6 +292,12 @@ const PROTOCOL = [
     groups: [{ id: 'free', kind: 'free' }],
   },
 ];
+
+// Y-Balance: un vídeo per cama.
+const YBT_VIDEOS = [{ k: 'videoD', label: 'Dreta' }, { k: 'videoE', label: 'Esquerra' }];
+
+// Camps d'un test que no són el resultat (no compten per saber si el test està fet).
+const MEDIA_KEYS = ['note', 'video', 'videoD', 'videoE', 'chips', 'photo', 'photoD', 'photoE'];
 
 // Índex de tots els tests simples (per id) amb la seva unitat i grup.
 const TEST_INDEX = (() => {
