@@ -3,7 +3,7 @@
 
 const { h, render, html, useState, useEffect, useMemo, useRef, useCallback, useLayoutEffect } = window.htmPreact;
 
-// Dins del visor d'enllaços privats de claude.ai no es pot imprimir ni descarregar fitxers.
+// Dins del visor d'enllaços privats de claude.ai no es pot imprimir, i els fitxers només es baixen a través del visor (U.saveFile).
 const IS_ARTIFACT = window.EON_ENV === 'artifact';
 // L'app de les tauletes (mode local amb clients reals): comença buida i treu els clients de prova d'abans.
 const NO_DEMO = window.EON_NO_DEMO === true;
@@ -216,9 +216,18 @@ const U = {
   },
 
   // ── Fitxers ──
-  download(filename, text, mime = 'text/plain') {
+  // Al visor de claude.ai (enllaç privat de prova) el navegador no deixa baixar res directament: allà el fitxer
+  // s'ofereix al visor, que ho confirma. A la resta (GitHub Pages, tauleta, ordinador) és un enllaç de descàrrega.
+  viewer: null, // espai «downloads» del visor, quan hi és
+  canDownload() { return !IS_ARTIFACT || !!U.viewer; },
+
+  // Desa un fitxer (text, bytes o Blob). Resol 'saved', 'declined' (qui ho feia ha dit que no) o 'failed'.
+  async saveFile(filename, data, mime = 'application/octet-stream') {
+    if (U.viewer) {
+      try { await U.viewer.save({ filename, data }); return 'saved'; } catch (e) { return e && e.code === 'declined' ? 'declined' : 'failed'; }
+    }
     try {
-      const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+      const blob = data instanceof Blob ? data : new Blob([data], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -226,28 +235,17 @@ const U = {
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-      return true;
+      return 'saved';
     } catch (e) {
-      return false;
+      return 'failed';
     }
   },
 
+  // Descarrega un text (CSV, còpia de seguretat…).
+  download(filename, text, mime = 'text/plain') { return U.saveFile(filename, text, `${mime};charset=utf-8`); },
+
   // Descarrega un fitxer binari (Excel, ZIP…).
-  downloadBytes(filename, bytes, mime = 'application/octet-stream') {
-    try {
-      const blob = new Blob([bytes], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
+  downloadBytes(filename, bytes, mime = 'application/octet-stream') { return U.saveFile(filename, bytes, mime); },
 
   readFile(file) {
     return new Promise((resolve, reject) => {
@@ -303,3 +301,15 @@ const U = {
   // Enllaç web, o fitxer desat a la tauleta en la versió de prova («eonlocal:…», vegeu LocalFiles).
   isUrl(s) { const t = String(s || '').trim(); return /^https?:\/\/\S+$/i.test(t) || /^eonlocal:[\w-]+$/.test(t); },
 };
+
+// El visor de claude.ai hi posa `window.claude`: si ofereix les descàrregues, els Excel i els CSV es poden baixar des de l'enllaç de prova.
+(function viewerDownloads() {
+  try {
+    if (!IS_ARTIFACT || !window.claude || typeof window.claude.use !== 'function') return;
+    window.claude.use('downloads').then((d) => {
+      if (!d || typeof d.save !== 'function') return;
+      U.viewer = d;
+      if (typeof Store !== 'undefined' && Store.emit) Store.emit(); // perquè surtin els botons de descàrrega
+    }).catch(() => {});
+  } catch (e) { /* fora del visor */ }
+}());

@@ -283,9 +283,10 @@ const Exports = {
     return { name: f.name, bytes };
   },
 
+  // Retorna { name, status } (status: 'saved', 'declined' o 'failed', vegeu U.saveFile).
   async download(pid, key) {
     const { name, bytes } = await this.file(pid, key);
-    return U.downloadBytes(name, bytes, XlsxDoc.XLSX_MIME) ? name : '';
+    return { name, status: await U.downloadBytes(name, bytes, XlsxDoc.XLSX_MIME) };
   },
 
   // ZIP amb les carpetes Valoracions/ i Sessions/ tal com queden al núvol.
@@ -305,6 +306,6 @@ const Exports = {
 
   async downloadZip(pid) {
     const { name, bytes } = await this.zip(pid);
-    return U.downloadBytes(name, bytes, 'application/zip') ? name : '';
+    return { name, status: await U.downloadBytes(name, bytes, 'application/zip') };
   },
 };

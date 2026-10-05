@@ -41,18 +41,18 @@ function DatabaseView({ table = 'valoracions', pid = '' }) {
     if (def.kind === 'patients') openNewPatient();
     else if (def.kind === 'assessments') openAddMeasurement(def.focus, client);
   };
-  const exportCsv = () => {
+  const exportCsv = async () => {
     const headers = cols.map(DB.header);
     const data = list.map((r) => Object.fromEntries(cols.map((c, i) => [headers[i], DB.csvValue(c, r)])));
-    const ok = U.download(`eonlife-${def.id}-${U.today()}.csv`, U.toCsv(data, headers), 'text/csv');
-    if (!ok) UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad');
+    const status = await U.download(`eonlife-${def.id}-${U.today()}.csv`, U.toCsv(data, headers), 'text/csv');
+    if (status === 'failed') UI.toast('No s\'ha pogut descarregar el fitxer.', 'bad');
   };
 
   return html`<div class="page page-wide">
     <header class="page-head">
       <div><p class="eyebrow">Totes les dades dels clients</p><h1 class="h1">Base de dades</h1></div>
       <div class="page-actions">
-        ${!IS_ARTIFACT && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
+        ${U.canDownload() && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
         ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
       </div>
     </header>

@@ -100,8 +100,10 @@ dist/m365/index.html   la versió per publicar al web amb Microsoft 365
 ```bash
 npm run build      # genera dist/eonlife.html, dist/m365/index.html i apps-script/Index.html
 npm test           # càlculs, columnes del full, Apps Script, Microsoft 365 (simulat) i els Excel de cada client
-npm run test:e2e   # recorre totes les pantalles amb Chromium: local, Google i Microsoft 365
+npm run test:e2e   # recorre totes les pantalles amb Chromium: local, Google, Microsoft 365 i l'enllaç privat
 ```
 
-Per generar la versió de prova per a un enllaç privat de claude.ai (sense botons d'imprimir ni de
-descarregar, que aquell visor no permet): `node app/build.mjs --artifact sortida.html`.
+Per generar la versió de prova per a un enllaç privat de claude.ai: `node app/build.mjs --artifact sortida.html`.
+Aquell visor no deixa imprimir (no hi ha el botó d'imprimir) i només deixa baixar fitxers a través de la capacitat
+`downloads`, que s'ha de declarar en publicar-lo; amb ella, els Excel, el ZIP i els CSV es baixen demanant-ne
+confirmació al visor, i sense ella no surt cap botó de descàrrega (`U.saveFile` a `01-util.js`).
