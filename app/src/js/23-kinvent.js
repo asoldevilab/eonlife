@@ -67,30 +67,44 @@ const KinventOcr = {
         onStep(`Llegint la pàgina ${p + 1} de ${images.length}…`);
         const bmp = await createImageBitmap(images[p]);
         if (bmp.width < 600) continue;
-        // Només la part esquerra de la pàgina (els valors); la dreta són les gràfiques, amb números que confondrien.
-        const sw = bmp.width * 0.6, k = 1400 / sw;
-        const pg = this.canvas(1400, bmp.height * k);
-        pg.cx.drawImage(bmp, 0, 0, sw, bmp.height, 0, 0, pg.c.width, pg.c.height);
+        // Tota la pàgina (segons l'informe, la «Derecha» és al mig o a la dreta), a 2000 px d'amplada; els PDF de poca
+        // resolució, una mica més grans perquè el text petit es llegeixi millor.
+        const W = bmp.width >= 1600 ? 2000 : 2400;
+        const k = W / bmp.width;
+        const pg = this.canvas(W, bmp.height * k);
+        pg.cx.drawImage(bmp, 0, 0, bmp.width, bmp.height, 0, 0, pg.c.width, pg.c.height);
         const { data } = await page.recognize(this.binarize(pg, 160), {}, { blocks: true });
         const lines = [];
         for (const b of data.blocks || []) for (const pa of b.paragraphs || []) for (const l of pa.lines || []) {
           lines.push({ text: l.text, bbox: l.bbox, words: (l.words || []).map((w) => ({ text: w.text, bbox: w.bbox })) });
         }
+        // Retalla un tros de la pàgina original, ampliat perquè l'etiqueta faci uns 48 px d'alt (o, amb tall, perquè el
+        // tros faci aquesta alçada), i el llegeix.
+        const readBox = async (r, thr, tall) => {
+          const s = tall ? Math.min(4, tall / ((r.y1 - r.y0) / k)) : Math.min(8, Math.max(2, 48 / ((KinventPdf.LABEL_H * pg.c.width) / k)));
+          const W = ((r.x1 - r.x0) / k) * s, H = ((r.y1 - r.y0) / k) * s;
+          const v = this.canvas(W + 60, H + 60);
+          v.cx.imageSmoothingQuality = 'high';
+          v.cx.drawImage(bmp, r.x0 / k, r.y0 / k, (r.x1 - r.x0) / k, (r.y1 - r.y0) / k, 30, 30, W, H);
+          return String((await num.recognize(this.binarize(v, thr))).data.text || '').trim();
+        };
         for (const card of KinventPdf.cards(lines, pg.c.width)) {
+          // Prova d'un sol costat: un número gran al mig, sense «Izquierda» ni «Derecha» ni asimetria.
+          // Sense asimetria per comprovar-lo, es llegeix amb tres contrastos i guanya el que hi coincideix més.
+          if (card.single) {
+            const raws = [];
+            for (const thr of [200, 170, 225]) raws.push(await readBox(card.single, thr, 120));
+            const fit = KinventPdf.fixPair([...raws, card.lineV], [...raws, card.lineV], null, card.measure);
+            found.push({ ...card, page: p + 1, rawE: raws, rawD: [], e: null, d: null, one: fit.e, ok: false, fixed: false });
+            continue;
+          }
           // Cada número es torna a llegir retallat i ampliat. Si esquerra i dreta no quadren amb l'asimetria, es prova
           // amb un altre llindar de blanc i negre (els PDF de menys resolució tenen els números més prims).
           const rawE = [], rawD = [];
           let fit = null;
           for (const thr of [200, 170, 225]) {
-            for (const side of ['left', 'right']) {
-              const r = KinventPdf.valueBox(card[side], pg.c.width);
-              const s = Math.min(8, Math.max(2, 48 / ((card[side].y1 - card[side].y0) / k)));
-              const W = ((r.x1 - r.x0) / k) * s, H = ((r.y1 - r.y0) / k) * s;
-              const v = this.canvas(W + 60, H + 60);
-              v.cx.imageSmoothingQuality = 'high';
-              v.cx.drawImage(bmp, r.x0 / k, r.y0 / k, (r.x1 - r.x0) / k, (r.y1 - r.y0) / k, 30, 30, W, H);
-              (side === 'left' ? rawE : rawD).push(String((await num.recognize(this.binarize(v, thr))).data.text || '').trim());
-            }
+            rawE.push(await readBox(KinventPdf.valueBox(card.left, pg.c.width), thr));
+            rawD.push(await readBox(KinventPdf.valueBox(card.right, pg.c.width), thr));
             fit = KinventPdf.fixPair([...rawE, card.lineE], [...rawD, card.lineD], card.asym, card.measure);
             if (fit.ok || card.asym == null) break;
           }
@@ -139,7 +153,9 @@ function KinventImport({ file, a, p, upd, onClose }) {
         const force = c.measure === 'force';
         return { id: i, title: c.title, measure: c.measure, page: c.page, target: c.target, on: !!c.target, ok: c.ok, fixed: c.fixed, asym: c.asym,
           kgE: force ? c.e : null, kgD: force ? c.d : null,
-          e: kvNum(force ? KinventPdf.toN(c.e) : c.e, !force), d: kvNum(force ? KinventPdf.toN(c.d) : c.d, !force) };
+          e: kvNum(force ? KinventPdf.toN(c.e) : c.e, !force), d: kvNum(force ? KinventPdf.toN(c.d) : c.d, !force),
+          // Prova d'un sol costat: l'informe no diu quin; es tria aquí.
+          single: !!c.single, one: c.one == null ? '' : kvNum(force ? KinventPdf.toN(c.one) : c.one, !force), kgOne: force ? c.one : null };
       }));
     }).catch((e) => {
       if (alive) setErr(e.message === 'net' ? 'No s\'ha pogut carregar el lector de text. La primera vegada cal connexió a internet.' : `No s'ha pogut llegir l'informe: ${e.message}`);
@@ -147,7 +163,7 @@ function KinventImport({ file, a, p, upd, onClose }) {
     return () => { alive = false; };
   }, []);
   const setRow = (id, k) => (v) => setRows(rows.map((r) => (r.id === id ? { ...r, [k]: v, ...(k === 'target' ? { on: !!v } : {}) } : r)));
-  const chosen = (rows || []).filter((r) => r.on && r.target);
+  const chosen = (rows || []).filter((r) => r.on && r.target && (r.e !== '' || r.d !== ''));
 
   const apply = async () => {
     setBusy(true);
@@ -215,12 +231,19 @@ function KinventImport({ file, a, p, upd, onClose }) {
             <div class="kvi-vals">
               <label class="kvi-val"><span class="kvi-side">Esquerra</span><${NumInput} value=${r.e} onValue=${setRow(r.id, 'e')} unit=${unit} ariaLabel=${`${r.title} esquerra`} /></label>
               <label class="kvi-val"><span class="kvi-side">Dreta</span><${NumInput} value=${r.d} onValue=${setRow(r.id, 'd')} unit=${unit} ariaLabel=${`${r.title} dreta`} /></label>
-              ${r.kgE != null && html`<span class="muted small kvi-kg">${kvNum(r.kgE, true)} kg · ${kvNum(r.kgD, true)} kg</span>`}
+              ${r.kgE != null && !r.single && html`<span class="muted small kvi-kg">${kvNum(r.kgE, true)} kg · ${kvNum(r.kgD, true)} kg</span>`}
+
               ${t && t.kind === 'single' && html`<span class="muted small kvi-kg">${t.name}: s'hi posa el valor més alt i E i D, a la nota.</span>`}
             </div>
-            <div class="kvi-state">${r.ok ? html`<${Pill} tone="ok" title="Els valors quadren amb l'asimetria de l'informe">${r.fixed ? 'Corregit' : 'Quadra'}</${Pill}>`
+            <div class="kvi-state">${r.single ? html`<${Pill} tone="warn" title="Un sol valor: tria a quin costat va">Un costat</${Pill}>`
+              : r.ok ? html`<${Pill} tone="ok" title="Els valors quadren amb l'asimetria de l'informe">${r.fixed ? 'Corregit' : 'Quadra'}</${Pill}>`
               : html`<${Pill} tone="warn" title=${r.asym == null ? 'No s\'ha pogut llegir l\'asimetria per comprovar els valors: revisa\'ls amb el PDF'
                 : 'Els valors llegits no quadren amb l\'asimetria: revisa\'ls amb el PDF'}>Revisa</${Pill}>`}</div>
+            ${r.single && html`<div class="kvi-one">
+                <span class="muted small">L'informe només té un valor${r.one ? html`: <strong>${r.one} ${unit}</strong>${r.kgOne != null ? ` (${kvNum(r.kgOne, true)} kg)` : ''}` : ''}, sense dir el costat. A quin costat va?</span>
+                <${Btn} size="sm" variant=${r.e && r.e === r.one ? 'primary' : 'secondary'} disabled=${!r.one} onClick=${() => setRows(rows.map((x) => (x.id === r.id ? { ...x, e: r.one, d: '' } : x)))}>Esquerra</${Btn}>
+                <${Btn} size="sm" variant=${r.d && r.d === r.one ? 'primary' : 'secondary'} disabled=${!r.one} onClick=${() => setRows(rows.map((x) => (x.id === r.id ? { ...x, d: r.one, e: '' } : x)))}>Dreta</${Btn}>
+              </div>`}
           </div>`;
         })}</div>`}
   </${Dialog}>`;

@@ -38,19 +38,42 @@ const KinventPdf = (() => {
   }
 
   const norm = (s) => U.norm(s).replace(/[*"”″º]/g, '°').replace(/\s+/g, ' ').trim();
-  // Encapçalament de cada targeta («Ángulo máximo», «Fuerza máxima»…): una línia curta que comença així.
-  // També mal llegida: «Angule maximo», «Fuerza mama»…
-  const HEAD = /^(\S*gul\S*|angle|fuer\S*|f\S*rza|forca|force)\s+(m|rn)\S*(\s+\S{1,2})?$|^(max(imum)? (angle|force)|peak force)$/;
+  const letters = (s) => norm(s).replace(/[^a-z]/g, '');
+  const cx = (b) => (b.x0 + b.x1) / 2;
+  // Encapçalament de cada targeta («Ángulo máximo», «Fuerza máxima»…), també mal llegit («Angule maximo», «Fuerza mama»).
+  const HEAD = /^(\S*gul\S*|angle|fuer\S*|f\S*rza|forca|force)\s+(m|rn)\S*$|^(max(imum)? (angle|force)|peak force)$/;
   const FORCE = /^(fuer\S*|f\S*rza|forca|force|max(imum)? force|peak force)/;
   // Etiquetes «Izquierda» i «Derecha», també mig mal llegides («lzquierda», «¿quierda», «Derecna»…).
   const LEFT = /^(izquierda|esquerra|left|gauche)$/, RIGHT = /^(derecha|dreta|right|droite)$/;
   const isLeft = (w) => LEFT.test(w) || /quier|zquie|uierd|ierda/.test(w);
   const isRight = (w) => RIGHT.test(w) || /derec|erech|recha/.test(w);
-  // Posició de les etiquetes a l'informe de Kinvent Physio, en proporció a l'amplada llegida (el 60 % esquerre de la
-  // pàgina): serveix quan l'OCR no en llegeix alguna. Les dues són simètriques respecte del centre del gràfic.
-  const GEO = { mid: 0.525, dy: 0.155, h: 0.0164, left: [0.1743, 0.2421], right: [0.8114, 0.8721] };
-  const mirror = (b, w) => ({ x0: 2 * GEO.mid * w - b.x1, x1: 2 * GEO.mid * w - b.x0, y0: b.y0, y1: b.y1 });
-  const nominal = (side, b, w) => ({ x0: GEO[side][0] * w, x1: GEO[side][1] * w, y0: b.y0, y1: b.y0 + GEO.h * w });
+
+  // Les dues maquetacions de l'informe de Kinvent Physio, en proporció a l'amplada de la pàgina:
+  // - history: amb la gràfica de l'evolució a la dreta (més d'una sessió); els valors ocupen el 60 % esquerre.
+  // - single: una sola sessió; els valors ocupen tota l'amplada.
+  // mid és el centre del gràfic (i de l'asimetria): l'esquerra i la dreta en són simètriques. dy és la distància de
+  // l'encapçalament a les etiquetes. Serveixen quan l'OCR no llegeix alguna etiqueta.
+  const LAYOUTS = {
+    history: { mid: 0.315, dy: 0.0935, left: [0.1045, 0.145], right: [0.4865, 0.523] },
+    single: { mid: 0.5, dy: 0.102, left: [0.16, 0.201], right: [0.802, 0.8385] },
+  };
+  const LABEL_H = 0.0099;
+  const nominal = (L, side, y0, w) => ({ x0: LAYOUTS[L][side][0] * w, x1: LAYOUTS[L][side][1] * w, y0, y1: y0 + LABEL_H * w });
+  const nearest = (side, x, w) => Object.keys(LAYOUTS).reduce((best, k) => {
+    const L = LAYOUTS[k], c = side === 'mid' ? L.mid * w : ((L[side][0] + L[side][1]) / 2) * w;
+    return !best || Math.abs(c - x) < best.d ? { k, d: Math.abs(c - x) } : best;
+  }, null).k;
+  const mirror = (b, mid) => ({ x0: 2 * mid - b.x1, x1: 2 * mid - b.x0, y0: b.y0, y1: b.y1 });
+
+  // Paraules d'una línia fins al primer gran buit: a tota l'amplada, l'OCR ajunta el títol amb el text de la dreta
+  // («… en sedestación  Sesión 05/10/2026», «Ángulo máximo  Máximo sep 24 - sep 29»).
+  function firstRun(l, width) {
+    const ws = l.words || [];
+    if (!ws.length) return String(l.text || '');
+    const out = [ws[0]];
+    for (let i = 1; i < ws.length && ws[i].bbox.x0 - ws[i - 1].bbox.x1 < 0.06 * width; i++) out.push(ws[i]);
+    return out.map((w) => w.text).join(' ');
+  }
 
   // Títol net: sense la icona del dispositiu que l'OCR llegeix com a lletres soltes («WEN», «|»…).
   function cleanTitle(s) {
@@ -67,56 +90,82 @@ const KinventPdf = (() => {
     return v != null && v <= 100 ? v : null;
   }
 
-  // Targetes d'una pàgina a partir de les línies de l'OCR ({ text, bbox, words: [{ text, bbox }] }).
-  // width: amplada de la imatge llegida (per situar les etiquetes que no s'hagin llegit).
-  function cards(lines, width = 1400) {
+  // Targetes d'una pàgina a partir de les línies de l'OCR ({ text, bbox, words: [{ text, bbox }] }) de tota la pàgina.
+  // width: amplada de la imatge llegida.
+  function cards(lines, width = 2000) {
     const list = (lines || []).filter((l) => l && String(l.text || '').trim());
+    // Maquetació de la pàgina: amb la gràfica de l'evolució hi ha «Máximo» i «… y la sesión actual» a la dreta.
+    const hint = list.some((l) => /sesion actual|y la sesion/.test(norm(l.text))
+      || (l.words || []).some((w) => letters(w.text) === 'maximo' && w.bbox.x0 > 0.55 * width)) ? 'history' : 'single';
     const out = [];
     list.forEach((l, i) => {
-      const n = norm(l.text);
+      const n = norm(firstRun(l, width));
       if (!HEAD.test(n) || n.split(' ').length > 3 || n.length > 26) return;
       let t = i - 1;
-      while (t >= 0 && norm(list[t].text).replace(/[^a-z]/g, '').length < 6) t--;
+      while (t >= 0 && letters(firstRun(list[t], width)).length < 6) t--;
       if (t < 0) return;
-      out.push({ title: cleanTitle(list[t].text), measure: FORCE.test(n) ? 'force' : 'angle', head: l.bbox, from: i });
+      out.push({ title: cleanTitle(firstRun(list[t], width)), measure: FORCE.test(n) ? 'force' : 'angle', head: l.bbox, from: i });
     });
     out.forEach((c, k) => {
-      const until = k + 1 < out.length ? out[k + 1].from : list.length;
+      const until = k + 1 < out.length ? out[k + 1].from - 1 : list.length;
       const body = list.slice(c.from + 1, until);
-      let row = null;
+      let row = null, fuzzy = null, mid = null;
       for (const l of body) {
         for (const w of l.words || []) {
-          const wn = norm(w.text).replace(/[^a-z]/g, '');
+          const wn = letters(w.text);
           if (wn.length < 3) continue;
-          // Si la paraula està mig mal llegida, la seva caixa no és fiable: es fa servir la posició habitual a la mateixa alçada.
-          if (!c.right && isRight(wn)) { c.right = RIGHT.test(wn) ? w.bbox : nominal('right', w.bbox, width); row = row || l; }
-          else if (!c.left && isLeft(wn)) { c.left = LEFT.test(wn) ? w.bbox : nominal('left', w.bbox, width); row = row || l; }
+          if (!c.right && isRight(wn)) { c.right = w.bbox; row = row || l; if (!RIGHT.test(wn)) fuzzy = { ...fuzzy, right: true }; }
+          else if (!c.left && isLeft(wn)) { c.left = w.bbox; row = row || l; if (!LEFT.test(wn)) fuzzy = { ...fuzzy, left: true }; }
         }
-        if (c.asym == null) c.asym = asymOf(l.text);
+        if (c.asym == null) {
+          c.asym = asymOf(l.text);
+          // Centre de l'asimetria = centre del gràfic: el número i la paraula «Asimetría».
+          const ws = l.words || [];
+          const i = ws.findIndex((w) => /\d[.,]\d/.test(w.text));
+          if (c.asym != null && i >= 0) mid = ws[i + 1] ? (ws[i].bbox.x0 + ws[i + 1].bbox.x1) / 2 : cx(ws[i].bbox);
+        }
       }
+      const L = c.right && !(fuzzy && fuzzy.right) ? nearest('right', cx(c.right), width)
+        : c.left && !(fuzzy && fuzzy.left) ? nearest('left', cx(c.left), width)
+        : mid != null ? nearest('mid', mid, width) : hint;
+      c.layout = L;
+      if (mid == null) mid = LAYOUTS[L].mid * width;
+      // Etiqueta mig mal llegida: la seva caixa no és fiable; es fa servir la posició habitual a la mateixa alçada.
+      for (const side of ['left', 'right']) if (fuzzy && fuzzy[side]) c[side] = nominal(L, side, c[side].y0, width);
       // Una etiqueta llegida i l'altra no: és la paraula de l'altra banda de la mateixa línia o, si no n'hi ha, el mirall.
       if (row && !(c.left && c.right)) {
-        const found = c.left || c.right;
-        const other = (row.words || []).filter((w) => w.bbox !== found && norm(w.text).replace(/[^a-z]/g, '').length >= 3
-          && (c.left ? w.bbox.x0 > found.x1 + (found.x1 - found.x0) : w.bbox.x1 < found.x0 - (found.x1 - found.x0)));
-        const pick = other.length ? other[c.left ? other.length - 1 : 0].bbox : mirror(found, width);
+        const found = c.left || c.right, want = 2 * mid - cx(found);
+        const other = (row.words || []).filter((w) => w.bbox !== found && letters(w.text).length >= 3 && Math.abs(cx(w.bbox) - want) < 0.1 * width)
+          .sort((x, y) => Math.abs(cx(x.bbox) - want) - Math.abs(cx(y.bbox) - want));
+        const pick = other.length ? nominal(L, c.left ? 'right' : 'left', other[0].bbox.y0, width) : mirror(found, mid);
         if (c.left) c.right = pick; else c.left = pick;
         c.guessed = true;
       }
-      // Cap etiqueta llegida: on són sempre, a sota de l'encapçalament.
+      // Cap etiqueta: o bé l'OCR no les ha llegit (són sempre al mateix lloc), o bé la prova només té un valor (un sol
+      // costat): llavors no hi ha asimetria i el número gran és al mig.
       if (!c.left && !c.right && c.head) {
-        const y0 = c.head.y0 + GEO.dy * width, y1 = y0 + GEO.h * width;
-        c.left = { x0: GEO.left[0] * width, x1: GEO.left[1] * width, y0, y1 };
-        c.right = { x0: GEO.right[0] * width, x1: GEO.right[1] * width, y0, y1 };
+        if (c.asym == null) {
+          const y0 = c.head.y1 + 0.02 * width;
+          c.single = { x0: mid - 0.12 * width, x1: mid + 0.12 * width, y0, y1: y0 + 0.07 * width };
+          const nums = body.flatMap((l) => l.words || []).filter((w) => /\d/.test(w.text) && cx(w.bbox) > c.single.x0 && cx(w.bbox) < c.single.x1
+            && w.bbox.y0 > c.head.y1 && w.bbox.y1 < c.single.y1 + 0.03 * width);
+          c.lineV = nums.length ? nums[0].text : '';
+        }
+        const y0 = c.head.y0 + LAYOUTS[L].dy * width;
+        c.left = nominal(L, 'left', y0, width);
+        c.right = nominal(L, 'right', y0, width);
         c.guessed = true;
       }
-      // Números que la primera lectura ja ha vist a sota de cada etiqueta (una segona opció per als valors).
+      // Números que la primera lectura ja ha vist a sota de cada etiqueta (una segona opció per als valors). Si l'OCR ha
+      // partit el número («1 6.0»), els trossos que es toquen es tornen a ajuntar.
       for (const side of ['left', 'right']) {
-        const b = c[side] && valueBox(c[side], width);
-        if (!b) continue;
+        const b = valueBox(c[side], width);
         const words = body.flatMap((l) => l.words || []).filter((w) => /\d/.test(w.text)
-          && (w.bbox.x0 + w.bbox.x1) / 2 > b.x0 && (w.bbox.x0 + w.bbox.x1) / 2 < b.x1 && (w.bbox.y0 + w.bbox.y1) / 2 > b.y0 && (w.bbox.y0 + w.bbox.y1) / 2 < b.y1);
-        c[side === 'left' ? 'lineE' : 'lineD'] = words.length ? words[0].text : '';
+          && cx(w.bbox) > b.x0 && cx(w.bbox) < b.x1 && (w.bbox.y0 + w.bbox.y1) / 2 > b.y0 && (w.bbox.y0 + w.bbox.y1) / 2 < b.y1)
+          .sort((x, y) => x.bbox.x0 - y.bbox.x0);
+        let text = words.length ? words[0].text : '';
+        for (let i = 1; i < words.length && words[i].bbox.x0 - words[i - 1].bbox.x1 < 0.015 * width; i++) text += words[i].text;
+        c[side === 'left' ? 'lineE' : 'lineD'] = text;
       }
       delete c.from;
     });
@@ -124,12 +173,12 @@ const KinventPdf = (() => {
   }
 
   // On es llegeix el valor: just a sota de l'etiqueta «Izquierda» o «Derecha», centrat i una mica més ample.
-  // Les mides van en proporció a l'amplada llegida (no a la caixa de l'etiqueta, que l'OCR pot fer més gran o més petita):
-  // el número és entre 1,4 i 4 alçades d'etiqueta per sota; més avall hi ha la fletxa amb el percentatge, que confondria.
-  function valueBox(b, width = 1400) {
-    const h = GEO.h * width, cx = (b.x0 + b.x1) / 2;
-    const w = Math.min(Math.max(b.x1 - b.x0, 0.05 * width), 0.09 * width);
-    return { x0: cx - w * 0.85, y0: b.y0 + h * 1.4, x1: cx + w * 0.85, y1: b.y0 + h * 4 };
+  // Les mides van en proporció a l'amplada de la pàgina (no a la caixa de l'etiqueta, que l'OCR pot fer més gran o més
+  // petita): el número és entre 1,4 i 4 alçades d'etiqueta per sota; més avall hi ha la fletxa amb el percentatge.
+  function valueBox(b, width = 2000) {
+    const h = LABEL_H * width;
+    const w = Math.min(Math.max(b.x1 - b.x0, 0.03 * width), 0.054 * width);
+    return { x0: cx(b) - w * 0.85, y0: b.y0 + h * 1.4, x1: cx(b) + w * 0.85, y1: b.y0 + h * 4 };
   }
 
   // Possibles lectures d'un número, amb el «cost» de cada correcció.
@@ -249,5 +298,5 @@ const KinventPdf = (() => {
   const KG_TO_N = 9.80665;
   const toN = (kg) => (kg == null ? null : Math.round(kg * KG_TO_N));
 
-  return { jpegs, cards, cleanTitle, asymOf, valueBox, candidates, fixPair, target, toN, KG_TO_N };
+  return { jpegs, cards, cleanTitle, asymOf, valueBox, candidates, fixPair, target, toN, KG_TO_N, LABEL_H };
 })();
