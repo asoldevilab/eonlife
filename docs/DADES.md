@@ -101,7 +101,12 @@ dist/m365/index.html   la versió per publicar al web amb Microsoft 365
 npm run build      # genera dist/eonlife.html, dist/m365/index.html i apps-script/Index.html
 npm test           # càlculs, columnes del full, Apps Script, Microsoft 365 (simulat) i els Excel de cada client
 npm run test:e2e   # recorre totes les pantalles amb Chromium: local, Google, Microsoft 365 i l'enllaç privat
+npm run test:openxml   # passa els Excel de la demo pel validador oficial de Microsoft (cal .NET 8 i xarxa)
 ```
+
+`test:openxml` (a `app/test/validate-openxml.mjs`) és el que més s'acosta a saber si Excel obrirà els fitxers sense
+demanar «reparar»: valida cada fitxer amb l'Open XML SDK i l'esquema de Microsoft 365. Cal tornar-lo a passar si
+es toca l'escriptor d'Excel (`08-xlsxdoc.js`).
 
 Per generar la versió de prova per a un enllaç privat de claude.ai: `node app/build.mjs --artifact sortida.html`.
 Aquell visor no deixa imprimir (no hi ha el botó d'imprimir) i només deixa baixar fitxers a través de la capacitat
