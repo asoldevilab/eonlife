@@ -466,7 +466,10 @@ const XlsxDoc = (() => {
       ];
       const names = this.sheets.map((ws, i) => {
         const t = ws.opts.titles;
-        return t ? `<definedName name="_xlnm.Print_Titles" localSheetId="${i}">'${ws.name.replace(/'/g, "''")}'!$${t[0]}:$${t[1]}</definedName>` : '';
+        const q = `'${ws.name.replace(/'/g, "''")}'`;
+        // Com fa Excel: un filtre automàtic va amb el seu nom ocult (_FilterDatabase) i els títols d'impressió amb el seu.
+        const filter = ws.filter ? `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">${q}!${ws.filter.replace(/([A-Z]+)(\d+)/g, '$$$1$$$2')}</definedName>` : '';
+        return filter + (t ? `<definedName name="_xlnm.Print_Titles" localSheetId="${i}">${q}!$${t[0]}:$${t[1]}</definedName>` : '');
       }).join('');
       const files = [
         { name: '[Content_Types].xml', text: `${HEAD}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${ct.join('')}</Types>` },

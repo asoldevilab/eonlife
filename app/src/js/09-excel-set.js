@@ -57,6 +57,7 @@ const ExcelSet = (() => {
       const n = next(`s:${s.date}`);
       files.push({
         key: `S:${s.id}`, kind: 'session', id: s.id, folder: 'sessions', name: Names.sessionFile(p, s.date, n), date: s.date,
+        timed: !s.ghost && s.status !== 'feta', // l'estat «Sense tancar» depèn de la data d'avui
         make: () => ExcelSession.build({ patient: p, session: s, sessions: d.sessions, plan: planOf(s), settings: d.settings, today }),
       });
     }
@@ -68,7 +69,7 @@ const ExcelSet = (() => {
       });
     });
     files.push({
-      key: 'O:overview', kind: 'overview', folder: 'sessions', name: Names.overviewFile(p), date: '',
+      key: 'O:overview', kind: 'overview', folder: 'sessions', name: Names.overviewFile(p), date: '', timed: true,
       make: (links) => ExcelOverview.build({ ...d, items: all, today, links: links || {} }),
     });
     return files;

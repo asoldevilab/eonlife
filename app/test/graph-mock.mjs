@@ -292,7 +292,8 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
       const [, driveId, itemId, restRaw] = m;
       if (!drives.has(driveId)) throw httpError(404, 'itemNotFound', 'Drive not found');
       const it = items.get(itemId);
-      if (!it) throw httpError(404, 'itemNotFound', 'Item not found');
+      // Un element esborrat (a la paperera) ja no es troba per identificador, com a Graph.
+      if (!it || it.deleted) throw httpError(404, 'itemNotFound', 'Item not found');
       const rest = restRaw;
       if (rest.startsWith('/workbook')) return handleWorkbook(method, itemId, rest.slice('/workbook'.length), body, user);
       // Adreçament per ruta: items/{pare}:/{nom}[:/content | :/createUploadSession]

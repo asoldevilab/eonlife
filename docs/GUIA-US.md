@@ -340,7 +340,8 @@ L'app **fa sola els Excel** a partir del que s'omple a l'app. Mai cal omplir-los
   *Registre* per filtrar. S'omple sol: a mesura que es fan, es completen o es planifiquen sessions, apareixen aquí.
 
 Amb **Microsoft 365** es pugen sols a la carpeta del client (*Valoracions* i *Sessions*) uns segons després de
-l'últim canvi; a la capçalera de la fitxa es veu si són **al dia**. El menú **Excel** de la fitxa permet pujar-los
+l'últim canvi (i un cop al dia es refà el que depèn de la data, com *Sense tancar* o la propera sessió); a la
+capçalera de la fitxa es veu si són **al dia**. El menú **Excel** de la fitxa permet pujar-los
 ara, obrir la carpeta o descarregar-ne la visió general o tot en un ZIP. A la **versió local** (sense núvol) es
 descarreguen des del menú **Excel** de la fitxa i des del menú de cada sessió i de cada valoració. Els noms són
 `sessio_lauravidalserra_20261002_01.xlsx`, `valoracioinicial_…`, `retest_…` i `visiogeneral_…`.

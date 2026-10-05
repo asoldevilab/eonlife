@@ -728,7 +728,7 @@ class M365Api {
     if (p.folderId) {
       try {
         const f = await this.g.req('GET', `${this.drive}/items/${p.folderId}?$select=id,webUrl,folder,deleted`);
-        if (f && f.folder) return { folderId: f.id, folderUrl: f.webUrl };
+        if (f && f.folder && !f.deleted) return { folderId: f.id, folderUrl: f.webUrl };
       } catch (e) {
         if (e.code === 'network') throw e;
       }

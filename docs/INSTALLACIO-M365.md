@@ -56,7 +56,10 @@ l'app. No cal obrir-los ni omplir-los: tot es registra a l'app i els Excel es re
 
 Els Excel es pugen sols a la carpeta uns segons després de l'últim canvi (i en acabar una sessió); a la fitxa del
 client, sota el nom, es veu si són **al dia** o pendents, amb el botó *Puja'ls ara* i el menú **Excel**
-(obre la carpeta, descarrega la visió general o tot en un ZIP). Cada pujada **substitueix** el fitxer anterior
+(obre la carpeta, descarrega la visió general o tot en un ZIP). A més, **un cop al dia** (en obrir l'app o si es deixa
+oberta de nit) es refà el que depèn de la data —la visió general i les sessions encara per fer— dels clients que han
+entrenat o tenen sessions previstes en els últims 45 dies, perquè *Sense tancar*, la propera sessió o el calendari del
+mes siguin sempre els d'avui encara que ningú hagi tocat res. Cada pujada **substitueix** el fitxer anterior
 (sense còpies repetides); si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira (queda a la
 paperera de reciclatge de OneDrive/SharePoint). L'app **no toca mai cap altre fitxer** de la carpeta: només els Excel
 amb aquests noms. A *Configuració › Excel de cada client* es pot **pausar** la pujada automàtica o tornar a fer-los

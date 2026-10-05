@@ -113,8 +113,10 @@ function App() {
   // Desa els canvis pendents si l'app passa a segon pla (tauleta); en tornar, mira si hi ha una versió nova.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') { Store.flushAll(); Sync.kick(); }
-    else AppUpdate.check();
+    else { AppUpdate.check(); Sync.daily(); }
   });
+  // Una tauleta que es deixa oberta tota la nit: en canviar el dia es refà el que depèn de la data.
+  setInterval(() => Sync.daily(), 20 * 60 * 1000);
   window.addEventListener('pagehide', () => Store.flushAll());
   window.addEventListener('online', () => { Sync.kick(); });
 }());

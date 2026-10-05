@@ -8,7 +8,7 @@
    Els fitxers antics que ja no toquen (una sessió eliminada o canviada de dia) es treuen de la carpeta (queden a la
    paperera de reciclatge). Mai es toca cap altre fitxer: només els que tenen el nom d'un Excel fet per l'app. */
 
-const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done' };
+const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day' };
 
 const Sync = (() => {
   const DELAY = 20000;     // temps sense canvis abans de pujar
@@ -19,7 +19,7 @@ const Sync = (() => {
   const read = (key, fallback) => { try { const v = window.localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } };
   const write = (key, v) => { try { window.localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge */ } };
 
-  let queue = read(SYNC_KEYS.queue, {});       // { pid: { due, since, rev, tries } }
+  let queue = read(SYNC_KEYS.queue, {});       // { pid: { due, since, rev, tries, force?, time? } }
   let hashes = read(SYNC_KEYS.hashes, {});     // { «carpeta/nom»: resum del contingut que es va pujar }
   let done = read(SYNC_KEYS.done, {});         // { pid: { at, uploaded, kept, removed } }
   let timer = null;
@@ -53,9 +53,9 @@ const Sync = (() => {
     running = pid;
     emit();
     try {
-      const res = await syncClient(pid, { force: !!q.force });
+      const res = await syncClient(pid, { force: !!q.force, only: q.time ? 'time' : '' });
       const cur = queue[pid];
-      if (cur && cur.rev !== rev) { cur.due = Date.now() + SOON; cur.tries = 0; delete cur.force; } else delete queue[pid]; // ha canviat alguna cosa mentre es pujava
+      if (cur && cur.rev !== rev) { cur.due = Date.now() + SOON; cur.tries = 0; delete cur.force; delete cur.time; } else delete queue[pid]; // ha canviat alguna cosa mentre es pujava
       done[pid] = { at: Date.now(), ...res };
       live.error = ''; live.code = ''; live.pid = '';
     } catch (e) {
@@ -82,16 +82,17 @@ const Sync = (() => {
   }
 
   // Fa (o refà) tots els Excel d'un client i els deixa a la seva carpeta. Retorna { uploaded, kept, removed }.
-  async function syncClient(pid, { force = false } = {}) {
+  // only: 'time' = refresc diari: només es refà el que depèn de la data d'avui (la visió general i les sessions per fer).
+  async function syncClient(pid, { force = false, only = '' } = {}) {
     const b = Store.backend;
     const d = ExcelSet.data(pid);
     if (!d || d.patient.deleted) return { uploaded: 0, kept: 0, removed: 0, skipped: true };
     // La carpeta del client: si no n'hi ha, es crea; si algú l'ha esborrat o canviat de lloc, es torna a trobar o a fer.
-    const found = await b.ensureFolder(d.patient);
-    const fid = found && found.folderId;
+    const folder = await b.ensureFolder(d.patient);
+    const fid = folder && folder.folderId;
     if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
-    if (fid !== d.patient.folderId || found.folderUrl !== d.patient.folderUrl) {
-      Store.update('patients', pid, (x) => { x.folderUrl = found.folderUrl; x.folderId = fid; });
+    if (fid !== d.patient.folderId || folder.folderUrl !== d.patient.folderUrl) {
+      Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; });
     }
     const dirs = {}, existing = {};
     for (const key of ['assess', 'sessions']) {
@@ -105,9 +106,10 @@ const Sync = (() => {
     const stamp = xlStampText();
     for (const f of order) {
       const dir = dirs[f.folder];
+      const found = existing[f.folder].get(f.name.toLowerCase());
+      if (only === 'time' && !force && found && !f.timed) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
       const { bytes, digest } = await f.make(links).build({ stamp });
       const hk = `${dir.id}/${f.name}`;
-      const found = existing[f.folder].get(f.name.toLowerCase());
       if (found && !force && hashes[hk] === digest) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
       const item = await b.putFile(dir.id, f.name, bytes);
       hashes[hk] = digest;
@@ -143,6 +145,7 @@ const Sync = (() => {
       const q = queue[pid] || { since: now, rev: 0, tries: 0 };
       q.rev++;
       q.tries = 0;
+      delete q.time; // un canvi de dades demana la passada sencera
       q.due = urgent ? now + SOON : Math.min(now + DELAY, q.since + MAX_WAIT);
       queue[pid] = q;
       save();
@@ -170,7 +173,32 @@ const Sync = (() => {
     },
 
     // Torna a mirar la cua en obrir l'app o en tornar la connexió.
-    resume() { schedule(); },
+    resume() { schedule(); api.daily(); },
+
+    // Les dades no canvien soles, però la data sí: «Sense tancar», «la propera sessió» o el calendari del mes depenen d'avui.
+    // Un cop al dia es refà (només el que depèn de la data) el que toca als clients amb sessions fetes o per fer en els últims 45 dies.
+    daily() {
+      if (!enabled()) return 0;
+      const today = U.today();
+      if (read(SYNC_KEYS.day, '') === today) return 0;
+      write(SYNC_KEYS.day, today);
+      const since = U.addDays(today, -45);
+      const active = new Set();
+      for (const s of Store.all('sessions')) if (s.patientId && s.date >= since) active.add(s.patientId);
+      for (const t of Store.templates()) {
+        if (t.kind !== 'plan' || !t.patientId || t.deleted) continue;
+        const dates = Calc.planDates(t).filter(Boolean);
+        if (dates.length && dates[dates.length - 1] >= since) active.add(t.patientId);
+      }
+      let n = 0;
+      for (const p of Store.all('patients')) {
+        if (!p.folderId || !active.has(p.id) || queue[p.id]) continue;
+        queue[p.id] = { since: Date.now(), rev: 0, tries: 0, time: true, due: Date.now() + 4000 + n * 1500 };
+        n++;
+      }
+      if (n) { save(); schedule(); emit(); }
+      return n;
+    },
     kick() { for (const q of Object.values(queue)) q.due = Math.min(q.due, Date.now() + 500); save(); schedule(); },
 
     // Puja ara mateix els Excel d'un client (botó «Sincronitza ara»). Retorna { uploaded, kept, removed }.
@@ -203,6 +231,7 @@ const Sync = (() => {
         const q = queue[p.id] || { since: Date.now(), rev: 0, tries: 0 };
         q.rev++;
         q.due = Date.now() + 500 + Object.keys(queue).length * 300;
+        delete q.time;
         if (force) q.force = true;
         queue[p.id] = q;
       }
@@ -224,8 +253,15 @@ const Sync = (() => {
     },
     busy() { return running; },
     queued() { return Object.keys(queue).length; },
+    // Fa ara mateix tot el que hi ha a la cua (una passada per client).
+    async drain() {
+      for (const pid of Object.keys(queue)) {
+        if (queue[pid]) queue[pid].due = 0;
+        await tick();
+      }
+    },
     // Fa servir als tests per començar de zero.
-    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; running = ''; clearTimeout(timer); save(); },
+    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; running = ''; clearTimeout(timer); write(SYNC_KEYS.day, ''); save(); },
     syncClient,
   };
   return api;

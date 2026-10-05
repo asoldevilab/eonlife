@@ -12,7 +12,7 @@ import { readXlsx, unzip } from './xlsx-read.mjs';
 
 const STAMP = '05/10/2026 18:30';
 // Rellotge fix (5 d'octubre de 2026): les dades de prova són relatives a «avui» i així els tests valen qualsevol dia.
-const FIXED = new Date(2026, 9, 5, 12, 0, 0).getTime();
+let FIXED = new Date(2026, 9, 5, 12, 0, 0).getTime();
 class FixedDate extends Date {
   constructor(...a) { if (a.length) super(...a); else super(FIXED); }
   static now() { return FIXED; }
@@ -487,6 +487,83 @@ test('sincronització: cua amb avís, estat i errors amb reintent', async () => 
     assert.equal(Sync.info('P-DEMO-LAURA').state, 'ok');
     assert.equal(Sync.queued(), 1, 'queda l\'avís de l\'altre client');
   } finally { done(); }
+});
+
+test('sincronització: carpeta esborrada o canviada de lloc, sessions sense data i versió sense núvol', async () => {
+  const { core, Store, db, mock, names, done } = await cloudSetup();
+  const { Sync } = core;
+  try {
+    const pid = 'P-DEMO-JORDI';
+    await Sync.syncClient(pid);
+    const old = Store.get('patients', pid).folderId;
+    assert.ok(old);
+    // Algú esborra la carpeta del client a OneDrive: es refà i tot es torna a pujar
+    mock.dispatch('DELETE', `${mock.GRAPH}/drives/${[...mock.drives.keys()][0]}/items/${old}`, { authorization: 'Bearer tok' });
+    const r = await Sync.syncClient(pid);
+    const now = Store.get('patients', pid);
+    assert.notEqual(now.folderId, old, 'carpeta nova');
+    assert.ok(r.uploaded > 5 && r.kept === 0);
+    assert.ok(names(now, ['Valoracions']).some((n) => /^valoracioinicial_jordipuigferrer_/.test(n)));
+    // Una sessió sense data (mentre s'escriu la data) no surt, ni dona un nom de fitxer estrany
+    const s = Object.values(db.sessions).find((x) => x.patientId === pid);
+    Store.update('sessions', s.id, (x) => { x.date = ''; });
+    const r2 = await Sync.syncClient(pid);
+    assert.equal(r2.removed, 1);
+    assert.ok(!names(now, ['Sessions']).some((n) => /sensedata/.test(n)));
+    Store.update('sessions', s.id, (x) => { x.date = '2026-09-20'; });
+    assert.equal((await Sync.syncClient(pid)).removed, 0);
+    // Sense núvol (mode local) la sincronització no existeix i no molesta
+    Store.meta = { mode: 'local' };
+    assert.ok(!Sync.available() && !Sync.enabled());
+    assert.equal(Sync.info(pid).state, 'off');
+    Sync.reset();
+    Store.update('sessions', s.id, (x) => { x.goal = 'x'; });
+    assert.equal(Sync.queued(), 0, 'sense núvol no es deixa cap avís a la cua');
+    Store.meta = { mode: 'm365' };
+  } finally { done(); }
+});
+
+test('refresc diari: en canviar el dia es refà només el que depèn de la data', async () => {
+  const { core, Store, mock, done } = await cloudSetup();
+  const { Sync, ExcelSession, ExcelSet } = core;
+  const day0 = FIXED;
+  try {
+    const pid = 'P-DEMO-LAURA';
+    Store.addPlanned(pid, { date: '2026-10-07', blocks: Store.emptyBlocks().slice(0, 1), goal: 'Pas pendent' });
+    await Sync.syncClient(pid);
+    const p = Store.get('patients', pid);
+    const sessionsDir = mock.child(p.folderId, 'Sessions');
+    const planned = ExcelSet.plan(ExcelSet.data(pid)).find((f) => f.kind === 'session' && f.date === '2026-10-07');
+    const stateOf = () => {
+      const sh = readXlsx(mock.child(sessionsDir.id, planned.name).content).sheet('Sessió');
+      return sh.get(`B${sh.rowOf(sh.find(/^Estat$/))}`);
+    };
+    assert.equal(stateOf(), 'Planificada');
+    assert.equal(Sync.daily(), 0, 'el mateix dia no es torna a fer res');
+    // Passen quatre dies i ningú toca res: l'endemà, en obrir l'app, la sessió que no s'ha tancat canvia d'estat
+    FIXED = new Date(2026, 9, 9, 8, 0, 0).getTime();
+    Sync.reset();
+    assert.ok(Sync.daily() >= 1, 'es posa a la cua');
+    assert.equal(Sync.info(pid).state, 'pending');
+    assert.equal(Sync.daily(), 0, 'un sol cop al dia');
+    let builds = 0;
+    const orig = ExcelSession.build;
+    ExcelSession.build = (...a) => { builds++; return orig(...a); };
+    await Sync.drain();
+    ExcelSession.build = orig;
+    const last = Sync.info(pid).last;
+    const pendents = ExcelSet.data(pid).sessions.filter((s) => s.status !== 'feta').length;
+    assert.equal(builds, pendents, 'només es refan les sessions que encara no estan fetes');
+    assert.ok(last.kept > 20, 'les sessions fetes i les valoracions es queden com estaven');
+    assert.equal(stateOf(), 'Sense tancar');
+    const ov = readXlsx(mock.child(sessionsDir.id, 'visiogeneral_lauravidalserra_01.xlsx').content);
+    const reg = ov.sheet('Registre');
+    const row = [...reg.cells.keys()].filter((k) => /^A\d+$/.test(k)).map((k) => reg.rowOf(k)).find((r) => reg.get(`E${r}`) === 'Sense tancar');
+    assert.ok(row, 'la visió general també ho recull');
+    // Un client que fa mesos que no entrena no es toca cada dia
+    FIXED = new Date(2027, 5, 1, 8, 0, 0).getTime();
+    assert.equal(Sync.daily(), 0);
+  } finally { FIXED = day0; done(); }
 });
 
 test('descàrrega a la versió local: cada Excel i el ZIP amb les dues carpetes', async () => {
