@@ -508,7 +508,11 @@ const step = async (label, fn) => {
     if ((await lat.locator('.tvideo').count()) !== 2) throw new Error('el lateral lunge ha de tenir dos vídeos');
     await lat.locator('.tvideo', { hasText: 'Vídeo esquerra' }).locator('input[data-kind="record"]').setInputFiles({ name: 'lat-e.mp4', mimeType: 'video/mp4', buffer: Buffer.from('lateral esquerra') });
     await lat.locator('.tvideo.has', { hasText: 'Vídeo esquerra' }).waitFor();
-    if ((await page.locator('.pcard', { hasText: 'Squat' }).first().locator('.tvideo').count()) !== 0) throw new Error('el squat no té vídeos per costat');
+    // Tots els patrons unilaterals (Lunge, Lateral Lunge, Copenhagen) tenen dos vídeos; els bilaterals, cap.
+    for (const pt of ['Lunge', 'Copenhagen Plank']) {
+      if ((await page.locator('.pcard', { has: page.locator('.pcard-title', { hasText: new RegExp(`· ${pt}$`) }) }).locator('.tvideo').count()) !== 2) throw new Error(`${pt}: dos vídeos`);
+    }
+    if ((await page.locator('.pcard', { has: page.locator('.pcard-title', { hasText: /· Squat$/ }) }).locator('.tvideo').count()) !== 0) throw new Error('el squat no té vídeos per costat');
     await page.waitForTimeout(300);
     const all = await page.evaluate((id) => Store.get('assessments', id), aid);
     if (!/^eonlocal:/.test((all.patterns.laterallunge || {}).videoE || '')) throw new Error(`lateral lunge: ${JSON.stringify(all.patterns.laterallunge)}`);
