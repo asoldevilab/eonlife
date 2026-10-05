@@ -55,6 +55,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const clin = ['slump', 'pkb', 'adams', 'thomas', 'windlass'].map((tid) => ({ t: TEST_INDEX[tid], x: v[tid] || {} }))
     .filter(({ x }) => x.d || x.e || x.v || x.photo || x.photoD || x.photoE);
   const sls = v.sls || {};
+  const wl = Calc.wellness(a.wellness);
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
   const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
   const hasPatterns = pc.scored > 0 || pc.counts.P > 0;
@@ -86,6 +87,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           ${service && html`<div><dt>Servei</dt><dd>${service.label}</dd></div>`}
           ${w && html`<div><dt>Pes</dt><dd>${U.fmt(w, 1)} kg</dd></div>`}
           ${(g.goal || p.goal) && html`<div class="wide"><dt>Objectiu</dt><dd>${g.goal || p.goal}</dd></div>`}
+          ${wl && html`<div class="wide"><dt>Wellness el dia de la valoració</dt><dd>${wl.total != null ? `${wl.total}/25 · ` : ''}${WELLNESS
+            .filter((q) => U.num((a.wellness || {})[q.k]) != null).map((q) => `${q.label} ${a.wellness[q.k]}`).join(' · ')}${notes && a.wellness.notes ? html`<div class="rnote">${a.wellness.notes}</div>` : ''}</dd></div>`}
         </dl>
       </header>
 

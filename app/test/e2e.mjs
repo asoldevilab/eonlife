@@ -539,6 +539,35 @@ const step = async (label, fn) => {
     const flat = await page.evaluate((id) => { const a = Store.get('assessments', id); return Flat.assessment(a, Store.get('patients', a.patientId)); }, aid);
     if (!/^eonlocal:/.test(flat['Test de Thomas foto D']) || !/^eonlocal:/.test(flat['Single leg squat vídeo E'])) throw new Error('columnes de l\'Excel');
   });
+  await step('wellness a l\'inici de la sessió i de la valoració (1-5 i observacions)', async () => {
+    const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
+    await goHash(page, `#/sessio/${sid}`);
+    const card = page.locator('#se-wellness');
+    await card.waitFor();
+    for (const [label, v] of [['Fatiga', '4'], ['Qualitat del son', '2'], ['Dolor muscular', '3'], ['Nivell d\'estrès', '4'], ['Estat d\'ànim', '5']]) {
+      await card.locator(`[role="radiogroup"][aria-label="${label} de l'1 al 5"] >> text="${v}"`).click();
+    }
+    await card.locator('textarea').fill('Ha dormit malament per un viatge.');
+    await card.locator('.pill >> text=18/25').waitFor();
+    if (!(await card.locator('.wl-item.wl-low', { hasText: 'Qualitat del son' }).count())) throw new Error('el son baix no es marca');
+    await page.waitForTimeout(300);
+    const w = await page.evaluate((id) => Store.get('sessions', id).wellness, sid);
+    if (w.fatigue !== '4' || w.sleep !== '2' || w.mood !== '5' || w.notes !== 'Ha dormit malament per un viatge.') throw new Error(JSON.stringify(w));
+    const flat = await page.evaluate((id) => { const x = Store.get('sessions', id); return Flat.session(x, Store.get('patients', x.patientId), Store.settings); }, sid);
+    if (flat['Wellness total (/25)'] !== 18 || flat['Qualitat del son (1-5)'] !== 2) throw new Error(JSON.stringify(flat));
+    await card.scrollIntoViewIfNeeded();
+    await shot(page, '08b-wellness-sessio', false);
+    // A la valoració, a sota de les dades.
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-ALEX').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.locator('#as-wellness [role="radiogroup"][aria-label="Fatiga de l\'1 al 5"] >> text="3"').click();
+    await page.waitForTimeout(300);
+    const aw = await page.evaluate((id) => Store.get('assessments', id).wellness, aid);
+    if (!aw || aw.fatigue !== '3') throw new Error(JSON.stringify(aw));
+    await page.locator('#as-wellness .pill >> text=1 de 5').waitFor();
+    await page.click('.editbar >> text=Informe');
+    await page.waitForSelector('.report-facts >> text=Fatiga 3');
+  });
   await step('fitxa del client: perfil i limitacions al resum; el pes de la valoració actualitza la fitxa', async () => {
     await goHash(page, '#/client/P-DEMO-ALEX/fitxa');
     await page.fill('#pf-height input, input#pf-height', '183');

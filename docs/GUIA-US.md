@@ -77,8 +77,9 @@ Funciona millor si l'informe té els títols (*Motiu de consulta:*, *Antecedents
 
 ## Valoració funcional
 
-Botó **Nova valoració** a la fitxa del client. Les seccions segueixen el document
-*Valoració funcional · Human Performance*:
+Botó **Nova valoració** a la fitxa del client. A sota de les dades de la valoració hi ha el mateix **Wellness · com
+arriba avui?** que a les sessions (5 preguntes de l'1 al 5 i observacions); surt també a la capçalera de l'informe.
+Les seccions segueixen el document *Valoració funcional · Human Performance*:
 
 | Secció | Què hi ha | Càlcul automàtic |
 |---|---|---|
@@ -217,7 +218,11 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   - Es veuen a **Presenta** i al PDF, es copien amb *Copia l'última sessió* i les plantilles, i a l'Excel
     (*Registre_exercicis*) hi ha la columna **Subbloc**.
 - Botó de **plantilles** de cada bloc: insereix un bloc desat o desa el bloc actual com a plantilla.
-- **Com arriba avui?** son, energia i dolor abans de començar.
+- **Wellness · com arriba avui?** (a dalt de tot, abans dels blocs): cinc preguntes de l'1 al 5 — fatiga, qualitat
+  del son, dolor muscular, nivell d'estrès i estat d'ànim — i les **observacions** de l'entrenador. El 5 és sempre el
+  millor estat (1 = molt cansat, 5 = molt fresc; 1 = molt adolorit, 5 = gens…), i surt el total sobre 25. Les
+  respostes d'1 o 2 es marquen. Es desa a l'Excel (una columna per pregunta, el total i les observacions) i a la
+  taula *Sessions* de la base de dades.
 - **Tancament**: RPE de la sessió (0–10) i minuts › la **càrrega** (RPE × minuts, UA) es calcula
   sola; dolor en acabar, observacions i decisió per a la propera sessió. **Marca com a feta**.
 

@@ -235,6 +235,21 @@ const Calc = {
     return list;
   },
 
+  // Wellness: total sobre 25 quan hi ha les 5 respostes, mitjana i respostes baixes (1 o 2).
+  wellness(w) {
+    const x = w || {};
+    const vals = WELLNESS.map((q) => U.num(x[q.k]));
+    const given = vals.filter((v) => v != null);
+    if (!given.length) return null;
+    const avg = given.reduce((s, v) => s + v, 0) / given.length;
+    return {
+      total: given.length === WELLNESS.length ? given.reduce((s, v) => s + v, 0) : null,
+      avg, n: given.length,
+      low: WELLNESS.filter((q, i) => vals[i] != null && vals[i] <= 2).map((q) => q.label),
+      tone: avg < 2.5 ? 'bad' : avg < 3.5 ? 'warn' : 'ok',
+    };
+  },
+
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
   KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
@@ -511,6 +526,7 @@ const Flat = {
     o['Pes (kg)'] = n(U.num(a.general && a.general.weight));
     o['Alçada (cm)'] = n(U.num(a.general && a.general.height));
     o['Motiu / objectiu'] = (a.general && a.general.goal) || '';
+    Object.assign(o, Flat.wellness(a.wellness));
     o['Informes adjunts'] = (a.files || []).map((f) => `${f.name}${f.url ? ` (${f.url})` : ''}`).join('\n');
     const w = Calc.weight(a);
 
@@ -629,8 +645,18 @@ const Flat = {
 
   sym(v) { const s = Calc.scoreInfo(v); return s ? s.sym : ''; },
 
+  // Columnes del wellness (sessions i valoracions).
+  wellness(w) {
+    const x = w || {}, c = Calc.wellness(x);
+    const o = {};
+    for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
+    o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
+    o['Wellness observacions'] = x.notes || '';
+    return o;
+  },
+
   session(s, p, settings) {
-    const f = s.feedback || {}, r = s.readiness || {};
+    const f = s.feedback || {};
     const o = {
       'Client': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
@@ -638,7 +664,7 @@ const Flat = {
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
       'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
       'Sessió del pla': U.num(s.planN) ?? '',
-      'Son (1-5)': U.num(r.sleep) ?? '', 'Energia (1-5)': U.num(r.energy) ?? '', 'Dolor previ (0-10)': U.num(r.pain) ?? '',
+      ...Flat.wellness(s.wellness),
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
     };

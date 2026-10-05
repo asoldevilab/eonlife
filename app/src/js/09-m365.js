@@ -600,7 +600,7 @@ function m365TemplateSheets() {
     id: 'V', patientId: 'P', date: '', values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [] },
     encoder: { rows: [{ name: 'Squat' }, { name: 'RDL' }, { name: 'Hip Thrust' }] }, bike: {}, patterns: {}, free: [], general: {},
   };
-  const s = { id: 'S', patientId: 'P', blocks: BLOCKS.map((b) => ({ key: b.key, items: [] })), feedback: {}, readiness: {} };
+  const s = { id: 'S', patientId: 'P', blocks: BLOCKS.map((b) => ({ key: b.key, items: [] })), feedback: {}, wellness: {} };
   const logKeys = Object.keys(Flat.sessionLog({ blocks: [{ key: 'for', items: [{ name: 'x' }] }] }, p)[0]);
   const settingsKeys = [];
   const readable = {

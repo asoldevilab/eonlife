@@ -648,10 +648,15 @@ input[type="search"].input { -webkit-appearance: none; }
 .secnav-n { font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .secnav-n.full { color: var(--ok-ink); }
 
-.readiness { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
-.readiness-title { font-weight: 650; font-size: 14px; }
-.readiness-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.readiness-item > span { font-size: 13px; font-weight: 650; color: var(--ink-2); }
+/* Wellness a l'inici de la sessió i de la valoració. */
+.wellness > .muted { margin: -4px 0 12px; }
+.wl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px 18px; margin-bottom: 14px; }
+.wl-item { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.wl-item.wl-low { border-color: color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }
+.wl-label { font-weight: 700; font-size: 14px; }
+.wl-item .seg { align-self: flex-start; }
+.wl-item .seg-btn { min-width: 40px; }
+.wl-anchors { display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--ink-3); }
 
 .block { scroll-margin-top: 90px; container: blk / inline-size; }
 .block-head { display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap; }
@@ -3754,7 +3759,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
-window.EON_BUILD = "2026-10-05 12:59";
+window.EON_BUILD = "2026-10-05 13:03";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4149,6 +4154,16 @@ const OPT = {
     { v: 'vermell', label: 'Vermell' },
   ],
 };
+
+// Wellness a l'inici de cada sessió d'entrenament i de cada valoració: com arriba el client avui.
+// De l'1 al 5, sempre amb el 5 com a millor estat (qüestionari de McLean et al., 2010): total sobre 25.
+const WELLNESS = [
+  { k: 'fatigue', label: 'Fatiga', lo: 'Molt cansat', hi: 'Molt fresc' },
+  { k: 'sleep', label: 'Qualitat del son', lo: 'Molt dolenta', hi: 'Molt reparadora' },
+  { k: 'soreness', label: 'Dolor muscular', lo: 'Molt adolorit', hi: 'Gens' },
+  { k: 'stress', label: 'Nivell d\'estrès', lo: 'Molt estressat', hi: 'Molt relaxat' },
+  { k: 'mood', label: 'Estat d\'ànim', lo: 'Molt baix', hi: 'Molt bo' },
+];
 
 // Llindars de referència (els de la documentació EON quan n'hi ha).
 const THRESHOLDS = {
@@ -5299,6 +5314,21 @@ const Calc = {
     return list;
   },
 
+  // Wellness: total sobre 25 quan hi ha les 5 respostes, mitjana i respostes baixes (1 o 2).
+  wellness(w) {
+    const x = w || {};
+    const vals = WELLNESS.map((q) => U.num(x[q.k]));
+    const given = vals.filter((v) => v != null);
+    if (!given.length) return null;
+    const avg = given.reduce((s, v) => s + v, 0) / given.length;
+    return {
+      total: given.length === WELLNESS.length ? given.reduce((s, v) => s + v, 0) : null,
+      avg, n: given.length,
+      low: WELLNESS.filter((q, i) => vals[i] != null && vals[i] <= 2).map((q) => q.label),
+      tone: avg < 2.5 ? 'bad' : avg < 3.5 ? 'warn' : 'ok',
+    };
+  },
+
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
   KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
@@ -5575,6 +5605,7 @@ const Flat = {
     o['Pes (kg)'] = n(U.num(a.general && a.general.weight));
     o['Alçada (cm)'] = n(U.num(a.general && a.general.height));
     o['Motiu / objectiu'] = (a.general && a.general.goal) || '';
+    Object.assign(o, Flat.wellness(a.wellness));
     o['Informes adjunts'] = (a.files || []).map((f) => `${f.name}${f.url ? ` (${f.url})` : ''}`).join('\n');
     const w = Calc.weight(a);
 
@@ -5693,8 +5724,18 @@ const Flat = {
 
   sym(v) { const s = Calc.scoreInfo(v); return s ? s.sym : ''; },
 
+  // Columnes del wellness (sessions i valoracions).
+  wellness(w) {
+    const x = w || {}, c = Calc.wellness(x);
+    const o = {};
+    for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
+    o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
+    o['Wellness observacions'] = x.notes || '';
+    return o;
+  },
+
   session(s, p, settings) {
-    const f = s.feedback || {}, r = s.readiness || {};
+    const f = s.feedback || {};
     const o = {
       'Client': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
@@ -5702,7 +5743,7 @@ const Flat = {
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
       'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
       'Sessió del pla': U.num(s.planN) ?? '',
-      'Son (1-5)': U.num(r.sleep) ?? '', 'Energia (1-5)': U.num(r.energy) ?? '', 'Dolor previ (0-10)': U.num(r.pain) ?? '',
+      ...Flat.wellness(s.wellness),
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
     };
@@ -6307,7 +6348,7 @@ const Store = {
     const s = {
       id: U.uid('S'), patientId: pid, date: date || U.today(), number: this.nextSessionNumber(pid),
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
-      readiness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
+      wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
     return this.put('sessions', s, { immediate: true });
   },
@@ -6317,7 +6358,7 @@ const Store = {
     if (!s) return null;
     const copy = {
       ...U.clone(s), id: U.uid('S'), date: date || U.today(), number: this.nextSessionNumber(s.patientId),
-      status: 'planificada', readiness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
+      status: 'planificada', wellness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
     };
     delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });
@@ -6631,7 +6672,8 @@ function makeDemoData() {
     numbers[pid] = (numbers[pid] || 0) + 1;
     const done = !!fb;
     const s = { id: U.uid('S'), patientId: pid, date, number: numbers[pid], professional: prof, goal, pillar: '',
-      status: done ? 'feta' : 'planificada', readiness: done ? { sleep: String(fb.sleep || 4), energy: String(fb.energy || 4), pain: String(fb.painPre ?? 0) } : {},
+      status: done ? 'feta' : 'planificada',
+      wellness: done ? { fatigue: String(fb.energy || 4), sleep: String(fb.sleep || 4), soreness: String(fb.painPre ? 3 : 4), stress: '4', mood: String(fb.energy >= 4 ? 4 : 3) } : {},
       blocks: blocks(spec), feedback: done ? { rpe: String(fb.rpe), duration: String(fb.min), pain: String(fb.pain || 0), notes: fb.notes || '', decision: fb.decision || '' } : {},
       createdAt: `${date}T08:00:00.000Z` };
     if (done) for (const b of s.blocks) for (const it of b.items) it.done = true;
@@ -6835,6 +6877,17 @@ const DB = (() => {
   const positive = (x) => (x && /^Positiu/.test(x) ? 'warn' : '');
   const decFor = (unit) => (['°', 'N', 'W', 'bpm', 'reps', 'tocs', 'm'].includes(unit) ? 0 : unit === 'm/s' ? 2 : 1);
 
+  // Wellness (1-5 per pregunta, total sobre 25): columnes de les sessions i total a les valoracions.
+  const wellnessTone = (v) => (v == null ? '' : v <= 2 ? 'bad' : '');
+  const wellnessTotal = (get) => ({ id: 'wltotal', group: 'Wellness', label: 'Total', unit: '/25', kind: 'num', dec: 0,
+    get: (r) => { const c = Calc.wellness(get(r)); return c ? c.total : null; },
+    tone: (r) => { const c = Calc.wellness(get(r)); return c && c.total != null ? (c.tone === 'ok' ? '' : c.tone) : ''; } });
+  const wellnessCols = (get) => [
+    ...WELLNESS.map((q) => ({ id: `wl_${q.k}`, group: 'Wellness', label: q.label, kind: 'num', dec: 0,
+      get: (r) => num((get(r) || {})[q.k]), tone: (r, v) => wellnessTone(v) })),
+    wellnessTotal(get),
+  ];
+
   const lead = () => [
     { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
     { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.a.date },
@@ -6918,6 +6971,7 @@ const DB = (() => {
       ...lead(),
       { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.a.professional || '' },
       { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
+      wellnessTotal((r) => r.a.wellness),
       { id: 'cmj', group: 'CMJ', label: 'Millor', unit: 'cm', kind: 'num', dec: 1, get: jump('CMJ', 'best') },
       { id: 'cmjw', group: 'CMJ', label: 'Potència', unit: 'W/kg', kind: 'num', dec: 1, get: jump('CMJ', 'relPower') },
       { id: 'ybtd', group: 'Y-Balance', label: 'D', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.ybt(r.a).d.comp },
@@ -7008,9 +7062,7 @@ const DB = (() => {
       { id: 'num', label: 'Nº', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
-      { id: 'sleep', group: 'Com arriba', label: 'Son', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).sleep) },
-      { id: 'energy', group: 'Com arriba', label: 'Energia', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).energy) },
-      { id: 'painpre', group: 'Com arriba', label: 'Dolor', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).pain) },
+      ...wellnessCols((r) => r.s.wellness),
       { id: 'rpe', group: 'Tancament', label: 'RPE', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).rpe) },
       { id: 'min', group: 'Tancament', label: 'Minuts', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).duration) },
       { id: 'load', group: 'Tancament', label: 'Càrrega', unit: 'UA', kind: 'num', dec: 0, get: (r) => Calc.sessionLoad(r.s) },
@@ -8387,7 +8439,7 @@ function m365TemplateSheets() {
     id: 'V', patientId: 'P', date: '', values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [] },
     encoder: { rows: [{ name: 'Squat' }, { name: 'RDL' }, { name: 'Hip Thrust' }] }, bike: {}, patterns: {}, free: [], general: {},
   };
-  const s = { id: 'S', patientId: 'P', blocks: BLOCKS.map((b) => ({ key: b.key, items: [] })), feedback: {}, readiness: {} };
+  const s = { id: 'S', patientId: 'P', blocks: BLOCKS.map((b) => ({ key: b.key, items: [] })), feedback: {}, wellness: {} };
   const logKeys = Object.keys(Flat.sessionLog({ blocks: [{ key: 'for', items: [{ name: 'x' }] }] }, p)[0]);
   const settingsKeys = [];
   const readable = {
@@ -9630,6 +9682,28 @@ function KeyDates({ p }) {
       <span class="keydate-note">${it.note || U.fmtDate(it.date)}</span>
     </div>`;
   })}</div>`;
+}
+
+// ── Wellness a l'inici de la sessió o de la valoració ──
+// Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
+function WellnessCard({ value, onSet, id }) {
+  const w = value || {};
+  const c = Calc.wellness(w);
+  return html`<section class="card wellness" id=${id}>
+    <div class="card-head"><h2 class="h2">Wellness · com arriba avui?</h2>
+      ${c && html`<${Pill} tone=${c.tone} title="Suma de les 5 respostes (5 = el millor estat)">${c.total != null ? `${c.total}/25` : `${c.n} de 5`}</${Pill}>`}</div>
+    <p class="muted small">De l'1 al 5: el 5 és sempre el millor estat.</p>
+    <div class="wl-grid">${WELLNESS.map((q) => html`<div class=${U.cls('wl-item', U.num(w[q.k]) != null && U.num(w[q.k]) <= 2 && 'wl-low')} key=${q.k}>
+      <span class="wl-label">${q.label}</span>
+      <${Seg} value=${w[q.k] || ''} onValue=${(v) => onSet(q.k, v)} ariaLabel=${`${q.label} de l'1 al 5`}
+        options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
+      <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
+    </div>`)}</div>
+    <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
+      <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
+        placeholder="El que el client us comenti o el que observeu (son, feina, molèsties, viatges…)" />
+    </${Field}>
+  </section>`;
 }
 
 
@@ -11255,6 +11329,8 @@ function AssessmentEditor({ id, focus }) {
       </div>
     </section>
 
+    <${WellnessCard} id="as-wellness" value=${a.wellness} onSet=${(k, v) => upd((x) => { x.wellness = { ...(x.wellness || {}), [k]: v }; })} />
+
     <${AssessmentFiles} a=${a} p=${p} upd=${upd} />
 
     ${PROTOCOL.map((sec) => html`<section class="asec" id=${`sec-${sec.id}`}>
@@ -12019,6 +12095,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const clin = ['slump', 'pkb', 'adams', 'thomas', 'windlass'].map((tid) => ({ t: TEST_INDEX[tid], x: v[tid] || {} }))
     .filter(({ x }) => x.d || x.e || x.v || x.photo || x.photoD || x.photoE);
   const sls = v.sls || {};
+  const wl = Calc.wellness(a.wellness);
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
   const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
   const hasPatterns = pc.scored > 0 || pc.counts.P > 0;
@@ -12050,6 +12127,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           ${service && html`<div><dt>Servei</dt><dd>${service.label}</dd></div>`}
           ${w && html`<div><dt>Pes</dt><dd>${U.fmt(w, 1)} kg</dd></div>`}
           ${(g.goal || p.goal) && html`<div class="wide"><dt>Objectiu</dt><dd>${g.goal || p.goal}</dd></div>`}
+          ${wl && html`<div class="wide"><dt>Wellness el dia de la valoració</dt><dd>${wl.total != null ? `${wl.total}/25 · ` : ''}${WELLNESS
+            .filter((q) => U.num((a.wellness || {})[q.k]) != null).map((q) => `${q.label} ${a.wellness[q.k]}`).join(' · ')}${notes && a.wellness.notes ? html`<div class="rnote">${a.wellness.notes}</div>` : ''}</dd></div>`}
         </dl>
       </header>
 
@@ -12279,7 +12358,7 @@ function SessionEditor({ id }) {
   const setIn = (obj, k) => (v) => upd((x) => { x[obj] = { ...(x[obj] || {}), [k]: v }; });
   const setBlock = (key, fn) => upd((x) => { const b = x.blocks.find((bb) => bb.key === key); if (b) fn(b); });
 
-  const f = s.feedback || {}, r = s.readiness || {};
+  const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
 
   const duplicate = async () => {
@@ -12362,13 +12441,9 @@ function SessionEditor({ id }) {
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
         </${Field}>
       </div>
-      <div class="readiness">
-        <span class="readiness-title">Com arriba avui?</span>
-        <div class="readiness-item"><span>Son</span><${Seg} size="sm" value=${r.sleep || ''} onValue=${setIn('readiness', 'sleep')} options=${['1', '2', '3', '4', '5']} ariaLabel="Son de l'1 al 5" /></div>
-        <div class="readiness-item"><span>Energia</span><${Seg} size="sm" value=${r.energy || ''} onValue=${setIn('readiness', 'energy')} options=${['1', '2', '3', '4', '5']} ariaLabel="Energia de l'1 al 5" /></div>
-        <div class="readiness-item"><span>Dolor</span><${Seg} size="sm" value=${r.pain || ''} onValue=${setIn('readiness', 'pain')} options=${['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']} ariaLabel="Dolor del 0 al 10" /></div>
-      </div>
     </section>
+
+    <${WellnessCard} id="se-wellness" value=${s.wellness} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}

@@ -24,6 +24,17 @@ const DB = (() => {
   const positive = (x) => (x && /^Positiu/.test(x) ? 'warn' : '');
   const decFor = (unit) => (['°', 'N', 'W', 'bpm', 'reps', 'tocs', 'm'].includes(unit) ? 0 : unit === 'm/s' ? 2 : 1);
 
+  // Wellness (1-5 per pregunta, total sobre 25): columnes de les sessions i total a les valoracions.
+  const wellnessTone = (v) => (v == null ? '' : v <= 2 ? 'bad' : '');
+  const wellnessTotal = (get) => ({ id: 'wltotal', group: 'Wellness', label: 'Total', unit: '/25', kind: 'num', dec: 0,
+    get: (r) => { const c = Calc.wellness(get(r)); return c ? c.total : null; },
+    tone: (r) => { const c = Calc.wellness(get(r)); return c && c.total != null ? (c.tone === 'ok' ? '' : c.tone) : ''; } });
+  const wellnessCols = (get) => [
+    ...WELLNESS.map((q) => ({ id: `wl_${q.k}`, group: 'Wellness', label: q.label, kind: 'num', dec: 0,
+      get: (r) => num((get(r) || {})[q.k]), tone: (r, v) => wellnessTone(v) })),
+    wellnessTotal(get),
+  ];
+
   const lead = () => [
     { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
     { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.a.date },
@@ -107,6 +118,7 @@ const DB = (() => {
       ...lead(),
       { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.a.professional || '' },
       { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
+      wellnessTotal((r) => r.a.wellness),
       { id: 'cmj', group: 'CMJ', label: 'Millor', unit: 'cm', kind: 'num', dec: 1, get: jump('CMJ', 'best') },
       { id: 'cmjw', group: 'CMJ', label: 'Potència', unit: 'W/kg', kind: 'num', dec: 1, get: jump('CMJ', 'relPower') },
       { id: 'ybtd', group: 'Y-Balance', label: 'D', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.ybt(r.a).d.comp },
@@ -197,9 +209,7 @@ const DB = (() => {
       { id: 'num', label: 'Nº', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
-      { id: 'sleep', group: 'Com arriba', label: 'Son', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).sleep) },
-      { id: 'energy', group: 'Com arriba', label: 'Energia', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).energy) },
-      { id: 'painpre', group: 'Com arriba', label: 'Dolor', kind: 'num', dec: 0, get: (r) => num((r.s.readiness || {}).pain) },
+      ...wellnessCols((r) => r.s.wellness),
       { id: 'rpe', group: 'Tancament', label: 'RPE', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).rpe) },
       { id: 'min', group: 'Tancament', label: 'Minuts', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).duration) },
       { id: 'load', group: 'Tancament', label: 'Càrrega', unit: 'UA', kind: 'num', dec: 0, get: (r) => Calc.sessionLoad(r.s) },

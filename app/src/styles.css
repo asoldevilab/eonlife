@@ -631,10 +631,15 @@ input[type="search"].input { -webkit-appearance: none; }
 .secnav-n { font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .secnav-n.full { color: var(--ok-ink); }
 
-.readiness { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
-.readiness-title { font-weight: 650; font-size: 14px; }
-.readiness-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.readiness-item > span { font-size: 13px; font-weight: 650; color: var(--ink-2); }
+/* Wellness a l'inici de la sessió i de la valoració. */
+.wellness > .muted { margin: -4px 0 12px; }
+.wl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px 18px; margin-bottom: 14px; }
+.wl-item { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.wl-item.wl-low { border-color: color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }
+.wl-label { font-weight: 700; font-size: 14px; }
+.wl-item .seg { align-self: flex-start; }
+.wl-item .seg-btn { min-width: 40px; }
+.wl-anchors { display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--ink-3); }
 
 .block { scroll-margin-top: 90px; container: blk / inline-size; }
 .block-head { display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap; }

@@ -101,6 +101,16 @@ const OPT = {
   ],
 };
 
+// Wellness a l'inici de cada sessió d'entrenament i de cada valoració: com arriba el client avui.
+// De l'1 al 5, sempre amb el 5 com a millor estat (qüestionari de McLean et al., 2010): total sobre 25.
+const WELLNESS = [
+  { k: 'fatigue', label: 'Fatiga', lo: 'Molt cansat', hi: 'Molt fresc' },
+  { k: 'sleep', label: 'Qualitat del son', lo: 'Molt dolenta', hi: 'Molt reparadora' },
+  { k: 'soreness', label: 'Dolor muscular', lo: 'Molt adolorit', hi: 'Gens' },
+  { k: 'stress', label: 'Nivell d\'estrès', lo: 'Molt estressat', hi: 'Molt relaxat' },
+  { k: 'mood', label: 'Estat d\'ànim', lo: 'Molt baix', hi: 'Molt bo' },
+];
+
 // Llindars de referència (els de la documentació EON quan n'hi ha).
 const THRESHOLDS = {
   asymWarn: 10,     // % d'asimetria: cal vigilar
