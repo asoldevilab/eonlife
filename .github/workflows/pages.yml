@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   publica:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # fixada: el 19 d'octubre de 2026 «ubuntu-latest» passa a l'Ubuntu 26
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
