@@ -111,6 +111,8 @@ const ExcelOverview = (() => {
       if (xlIsWeb(url)) { ws.set(r, 17, 'Obre', [XS.cell, XS.link]); ws.link(r, 17, url, 'Obre l\'Excel de la sessió'); } else ws.set(r, 17, '', XS.cell);
       r++;
     }
+    // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
+    ws.unlock(REG_FIRST, 1, r - 1, cols.length);
   }
 
   // ── Resum ──

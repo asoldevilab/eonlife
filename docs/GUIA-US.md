@@ -349,6 +349,22 @@ descarreguen des del menú **Excel** de la fitxa i des del menú de cada sessió
 Els Excel són **només de lectura** (protegits sense contrasenya): les dades es corregeixen sempre a l'app i
 l'Excel es refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada o refer-los tots.
 
+**Què fas a l'app i on surt als Excel** (no cal fer res més: tot es reflecteix sol)
+
+| A l'app | Als Excel |
+|---|---|
+| Crear o editar el client: dades, objectiu, motiu de consulta, antecedents, lesió o operació, esport, limitacions | **Visió general › Resum**: perfil del client i dates clau (amb els dies que fa de la lesió o l'operació). El nom surt a tots els títols i als noms dels fitxers (si es canvia, tots els fitxers passen al nom nou) |
+| Dissenyar una sessió (data, blocs, exercicis, prescripció, mètode, notes) o planificar-la | **Excel de la sessió** (*Sessió* i *Exercicis*) i, a la visió general, el **calendari** i el **detall** del mes i el *Registre* (estat *Planificada*; passa sola a *Sense tancar* si la data ja ha passat) |
+| *Planifica el mes* / *Copia la setmana* | Una sessió i un Excel per a cada dia nou; surten al calendari del mes |
+| Pla d'entrenament amb progressió | *Resum* › Plans, i les sessions que encara no s'han fet surten com a *Prevista al pla* (calendari i un Excel cadascuna) |
+| Wellness a l'inici de la sessió | **Excel de la sessió** › Wellness (5 preguntes, total sobre 25 i observacions) i, a la visió general, el wellness mitjà i la càrrega setmanal |
+| Marcar els exercicis fets | *Exercicis* › **Fet**; el dia es pinta de verd al calendari |
+| Tancar la sessió (RPE, durada, dolor, decisió) | *Sessió* › Tancament amb la **càrrega (UA = RPE × minuts)**; a la visió general, la càrrega del mes i la setmanal |
+| Encoder (ADR) i vídeo del client o de demostració | Full *Encoder* i enllaços a *Exercicis* (Vídeo client, Demo) |
+| Valoració inicial o re-test (tests, Kinvent, salts, patrons, conclusions) | **Excel de la valoració**: *Resum*, *Comparació* amb l'anterior, *Mobilitat*, *Força*, *Rendiment*, *Patrons* i *Altres mesures* |
+| Fotos, vídeos, PDF de Kinvent i informe mèdic | A la carpeta *Valoracions* (i *Vídeos valoracions*), amb l'enllaç des de l'Excel de la valoració; els vídeos de les sessions, a *Sessions › Vídeos sessions d'entrenament* |
+| Eliminar una sessió o canviar-la de dia | L'Excel antic es retira de la carpeta (queda a la paperera de reciclatge) i se'n fa un de nou |
+
 ## Biblioteca
 
 - **Exercicis** per bloc, **per grup muscular** (les mateixes carpetes de tren superior i inferior) o per

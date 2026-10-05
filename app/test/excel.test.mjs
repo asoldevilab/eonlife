@@ -416,6 +416,13 @@ test('visió general: resum, un calendari i un detall per mes, i registre de ses
   assert.ok(det.text().includes('Back squat') && det.text().includes('DIVENDRES 02/10/2026'));
   // El mes: la fórmula de la targeta compta les sessions del rang de dates
   assert.ok([...cal.cells.values()].some((c) => c.f && /^COUNTIFS\('Registre'!\$A\$6:\$A\$\d+,">="&DATE\(2026,10,1\),'Registre'!\$A\$6:\$A\$\d+,"<="&DATE\(2026,10,31\)\)$/.test(c.f)));
+  // Full protegit sense contrasenya; només les files del registre estan desbloquejades (així es pot ordenar i filtrar)
+  assert.match(reg.xml, /<sheetProtection sheet="1"[^>]*sort="0"[^>]*autoFilter="0"/);
+  const xfs = [...x.zip['xl/styles.xml'].data.toString('utf8').match(/<cellXfs[\s\S]*?<\/cellXfs>/)[0].matchAll(/<xf [^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map((m) => m[0]);
+  const unlocked = (sheet, ref) => /<protection locked="0"\/>/.test(xfs[sheet.cells.get(ref).s] || '');
+  for (const ref of ['A6', 'F6', 'Q6', `Q${5 + items.length}`]) assert.ok(unlocked(reg, ref), `${ref} del registre desbloquejada`);
+  assert.ok(!unlocked(reg, 'A5'), 'la capçalera del registre, no');
+  assert.ok(!unlocked(res, 'A6') && !unlocked(cal, [...cal.cells.keys()][3]), 'la resta de fulls queda bloquejada');
 });
 
 test('visió general: sense sessions té el resum i el mes actual', async () => {
