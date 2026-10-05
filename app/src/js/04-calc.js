@@ -151,7 +151,8 @@ const Calc = {
   // " (dreta: a millorar · esquerra: competent)" quan els costats no coincideixen.
   sidesDetail(p) {
     if (!p || !p.sd || !p.se || p.sd === p.se) return '';
-    return ` (dreta: ${Calc.scoreInfo(p.sd).label.toLowerCase()} · esquerra: ${Calc.scoreInfo(p.se).label.toLowerCase()})`;
+    const label = (v) => String((Calc.scoreInfo(v) || { label: v }).label).toLowerCase();
+    return ` (dreta: ${label(p.sd)} · esquerra: ${label(p.se)})`;
   },
 
   // Punts d'atenció automàtics de la valoració.
@@ -430,7 +431,7 @@ const Calc = {
     const days = (plan && plan.days && plan.days.length ? plan.days : [1, 4]).map(Number);
     const total = count || ((plan && plan.sessions) || []).length;
     const out = [];
-    let d = (plan && plan.start) || U.today();
+    let d = (plan && U.parse(plan.start) && plan.start) || U.today(); // sense data d'inici (o amb una de malmesa) es compta des d'avui
     for (let i = 0; i < 800 && out.length < total; i++, d = U.addDays(d, 1)) if (days.includes(U.parse(d).getDay())) out.push(d);
     return out;
   },

@@ -255,6 +255,10 @@ const XlsxDoc = (() => {
         if (!s.fmt) s = { ...s, fmt: 'dd/mm/yyyy' };
       }
       if (typeof v === 'number' && !Number.isFinite(v)) v = null;
+      // Només hi caben textos, números, booleans, text enriquit {rich} i fórmules {f}: qualsevol altra cosa es deixa en blanc.
+      if (v && typeof v === 'object' && v.rich === undefined && v.f === undefined) v = null;
+      else if (typeof v === 'function' || typeof v === 'symbol') v = null;
+      else if (typeof v === 'bigint') v = Number(v);
       this.cells.set(`${r}:${c}`, { r, c, v, s });
       return this;
     }

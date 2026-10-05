@@ -28,7 +28,8 @@ const Sync = (() => {
   const live = { error: '', code: '', pid: '' };
   const listeners = new Set();
   const emit = () => { for (const fn of listeners) fn(); if (typeof Store !== 'undefined' && Store.emit) Store.emit(); };
-  const save = () => { write(SYNC_KEYS.queue, queue); write(SYNC_KEYS.hashes, hashes); write(SYNC_KEYS.done, done); };
+  const saveQueue = () => write(SYNC_KEYS.queue, queue); // (només la cua, que és petita: es crida a cada canvi de dades)
+  const save = () => { saveQueue(); write(SYNC_KEYS.hashes, hashes); write(SYNC_KEYS.done, done); };
 
   // Disponible només amb Microsoft 365 (el backend sap pujar fitxers fets per l'app).
   const available = () => typeof Store !== 'undefined' && Store.cloud() && !!Store.backend && typeof Store.backend.putFile === 'function';
@@ -105,12 +106,16 @@ const Sync = (() => {
     const order = [...files.filter((f) => f.kind !== 'overview'), ...files.filter((f) => f.kind === 'overview')];
     const links = {};
     const out = { uploaded: 0, kept: 0, removed: 0 };
+    const failed = [];
     const stamp = xlStampText();
     for (const f of order) {
       const dir = dirs[f.folder];
       const found = existing[f.folder].get(f.name.toLowerCase());
       if (only === 'time' && !force && found && !f.timed) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
-      const { bytes, digest } = await f.make(links).build({ stamp });
+      // Un Excel que no es pot fer (dades malmeses) no ha d'aturar els altres: es deixa anotat i es continua.
+      let built;
+      try { built = await f.make(links).build({ stamp }); } catch (e) { failed.push(f.name); continue; }
+      const { bytes, digest } = built;
       const hk = `${dir.id}/${f.name}`;
       if (found && !force && hashes[hk] === digest) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
       const item = await b.putFile(dir.id, f.name, bytes);
@@ -129,6 +134,7 @@ const Sync = (() => {
         out.removed++;
       }
     }
+    if (failed.length) { out.failed = failed.length; out.failedNames = failed.slice(0, 5); }
     // Enllaços per obrir les carpetes i la visió general des de l'app.
     out.sessionsUrl = dirs.sessions.webUrl || '';
     out.assessUrl = dirs.assess.webUrl || '';
@@ -150,7 +156,7 @@ const Sync = (() => {
       delete q.time; // un canvi de dades demana la passada sencera
       q.due = urgent ? now + SOON : Math.min(now + DELAY, q.since + MAX_WAIT);
       queue[pid] = q;
-      save();
+      saveQueue();
       schedule();
       emit();
     },
@@ -160,7 +166,7 @@ const Sync = (() => {
       const q = queue[pid];
       if (!q || !enabled()) return;
       q.due = Math.min(q.due, Date.now() + SOON);
-      save();
+      saveQueue();
       schedule();
     },
 
@@ -201,7 +207,7 @@ const Sync = (() => {
       if (n) { save(); schedule(); emit(); }
       return n;
     },
-    kick() { for (const q of Object.values(queue)) q.due = Math.min(q.due, Date.now() + 500); save(); schedule(); },
+    kick() { for (const q of Object.values(queue)) q.due = Math.min(q.due, Date.now() + 500); saveQueue(); schedule(); },
 
     // Puja ara mateix els Excel d'un client (botó «Sincronitza ara»). Retorna { uploaded, kept, removed }.
     async now(pid, { force = false } = {}) {
@@ -251,6 +257,7 @@ const Sync = (() => {
       const last = done[pid];
       if (live.error && live.pid === pid) return { state: 'error', error: live.error, code: live.code, last };
       if (q) return { state: 'pending', due: q.due, last };
+      if (last && last.failed) return { state: 'partial', last };
       return last ? { state: 'ok', last } : { state: 'never' };
     },
     busy() { return running; },
@@ -295,17 +302,21 @@ const Exports = {
     if (!d) throw new Error('No trobo aquest client.');
     const stamp = xlStampText();
     const out = [];
+    const failed = [];
     const files = ExcelSet.plan(d);
     const links = {};
     for (const f of [...files.filter((x) => x.kind !== 'overview'), ...files.filter((x) => x.kind === 'overview')]) {
-      const { bytes } = await f.make(links).build({ stamp });
-      out.push({ name: `${EXPORT_FOLDERS[f.folder][0]}/${f.name}`, data: bytes });
+      try {
+        const { bytes } = await f.make(links).build({ stamp });
+        out.push({ name: `${EXPORT_FOLDERS[f.folder][0]}/${f.name}`, data: bytes });
+      } catch (e) { failed.push(f.name); }
     }
-    return { name: `eonlife_${Names.client(d.patient)}_${Names.stamp(U.today())}.zip`, bytes: Xlsx.zip(out), count: out.length };
+    if (!out.length) throw new Error('No s\'ha pogut fer cap Excel d\'aquest client.');
+    return { name: `eonlife_${Names.client(d.patient)}_${Names.stamp(U.today())}.zip`, bytes: Xlsx.zip(out), count: out.length, failed };
   },
 
   async downloadZip(pid) {
-    const { name, bytes } = await this.zip(pid);
-    return { name, status: await U.downloadBytes(name, bytes, 'application/zip') };
+    const { name, bytes, failed } = await this.zip(pid);
+    return { name, failed, status: await U.downloadBytes(name, bytes, 'application/zip') };
   },
 };
