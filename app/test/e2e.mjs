@@ -454,7 +454,11 @@ const step = async (label, fn) => {
   await step('valoració: llegir l\'informe PDF de Kinvent (OCR simulat amb la lectura real d\'un informe)', async () => {
     // Sense internet als tests: el lector (Tesseract) es substitueix per un que torna el que va llegir d'un informe de prova.
     const fx = JSON.parse(readFileSync(join(root, 'app', 'test', 'fixtures', 'kinvent-ocr.json'), 'utf8'));
-    const fake = `window.__kv = ${JSON.stringify({ pages: fx.pages, values: fx.values.rawTesseract })};
+    // El PDF de prova té pàgines petites (744 px): l'app les llegeix a 2400 px d'amplada, i les línies són d'una lectura a 2000.
+    const f = 2400 / fx.width;
+    const sb = (b) => ({ x0: b.x0 * f, y0: b.y0 * f, x1: b.x1 * f, y1: b.y1 * f });
+    const pages = fx.pages.map((ls) => ls.map((l) => ({ ...l, bbox: sb(l.bbox), words: l.words.map((w) => ({ ...w, bbox: sb(w.bbox) })) })));
+    const fake = `window.__kv = ${JSON.stringify({ pages, values: fx.values.rawTesseract })};
       window.Tesseract = { createWorker: async () => { let ps = {}; return {
         setParameters: async (p) => { ps = p; },
         recognize: async () => (ps.tessedit_pageseg_mode === '7' ? { data: { text: window.__kv.values.shift() || '' } }

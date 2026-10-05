@@ -474,15 +474,16 @@ test('informe de Kinvent: imatges del PDF, targetes, correcció amb l\'asimetria
   assert.deepEqual(Array.from(imgs[0]), jpg);
 
   const fx = JSON.parse(readFileSync(new URL('./fixtures/kinvent-ocr.json', import.meta.url), 'utf8'));
-  const cards = fx.pages.flatMap((lines) => KinventPdf.cards(lines));
+  const cards = fx.pages.flatMap((lines) => KinventPdf.cards(lines, fx.width));
   assert.deepEqual(cards.map((c) => c.title), [
     'Rotadores externos en sedestación con abducción de 90° (R3)', 'Rotadores internos en sedestación con abducción de 90°',
-    'Rotación externa de cadera en sedestación', 'Rotación interna de cadera en sedestación', 'Flexión de la rodilla',
+    // «Fiexión»: tal com ho llegeix l'OCR (el títol es reconeix igualment).
+    'Rotación externa de cadera en sedestación', 'Rotación interna de cadera en sedestación', 'Fiexión de la rodilla',
     'Flexión de la rodilla en decúbito prono con flexión de 90°', 'Aducción de cadera en decúbito supino',
     'Extensión de rodilla en sedestación con flexión de 90°']);
   assert.deepEqual(cards.map((c) => c.measure), ['angle', 'angle', 'angle', 'angle', 'angle', 'force', 'force', 'force']);
   assert.deepEqual(cards.map((c) => c.asym), [17.9, 3.9, 45, 9.2, 1.4, 35.9, 11.9, 3.9]);
-  assert.ok(cards.every((c) => c.left && c.right && c.left.x1 < c.right.x0));
+  assert.ok(cards.every((c) => c.left && c.right && c.left.x1 < c.right.x0 && c.layout === 'history'));
   assert.deepEqual(cards.map((c) => KinventPdf.target(c.title, c.measure)),
     ['rom_sh_er', 'rom_sh_ir', 'rom_hip_er', 'rom_hip_ir', 'rom_knee_flex', 'dyn_curl_90', 'dyn_squeeze', 'dyn_knee_ext']);
 
@@ -500,26 +501,26 @@ test('informe de Kinvent: imatges del PDF, targetes, correcció amb l\'asimetria
   assert.equal(KinventPdf.target('Hip external rotation', 'angle'), 'rom_hip_er');
 });
 
-test('informe de Kinvent de poca resolució: «Izquierda» i asimetria mal llegides, i esquerra i dreta igualment bé', async () => {
+test('informe de Kinvent de poca resolució: etiquetes i asimetries mal llegides, i esquerra i dreta igualment bé', async () => {
   const { readFileSync } = await import('node:fs');
   const { KinventPdf } = loadCore('07', {});
   const fx = JSON.parse(readFileSync(new URL('./fixtures/kinvent-ocr-lowres.json', import.meta.url), 'utf8'));
-  const cards = fx.pages.flatMap((lines) => KinventPdf.cards(lines, 1400));
+  const cards = fx.pages.flatMap((lines) => KinventPdf.cards(lines, fx.width));
   assert.deepEqual(cards.map((c) => KinventPdf.target(c.title, c.measure)),
     ['rom_sh_er', 'rom_sh_ir', 'rom_hip_er', 'rom_hip_ir', 'rom_knee_flex', 'dyn_curl_90', 'dyn_squeeze', 'dyn_knee_ext']);
-  assert.deepEqual(cards.map((c) => c.asym), [17.9, 3.9, 45, 9.2, 1.4, 35.9, 11.9, 3.9]);
-  // Cada targeta té les dues bandes, l'esquerra a l'esquerra (encara que «Izquierda» no s'hagi llegit bé).
+  assert.deepEqual(cards.map((c) => c.asym), [17.9, 3.9, null, 9.2, null, null, 11.9, 3.9]);
+  // Cada targeta té les dues bandes, a banda i banda del gràfic (encara que alguna etiqueta no s'hagi llegit bé).
   for (const c of cards) {
-    assert.ok(c.left && c.right, c.title);
-    assert.ok((c.left.x0 + c.left.x1) / 2 < 500 && (c.right.x0 + c.right.x1) / 2 > 1000, c.title);
+    const mid = 0.315 * fx.width, cx = (b) => (b.x0 + b.x1) / 2;
+    assert.ok(c.left && c.right && c.layout === 'history', c.title);
+    assert.ok(cx(c.left) < mid - 300 && cx(c.right) > mid + 300, c.title);
   }
+  // Els valors surten bé; sense asimetria per comprovar-los, queden per revisar.
   cards.forEach((c, i) => {
     const r = KinventPdf.fixPair([fx.reads[i][0], c.lineE], [fx.reads[i][1], c.lineD], c.asym, c.measure);
-    assert.equal(r.ok, true, c.title);
     assert.deepEqual([r.e, r.d], fx.expected[i], c.title);
+    assert.equal(r.ok, c.asym != null, c.title);
   });
-  // La primera lectura ja havia vist alguns números a sota de cada etiqueta.
-  assert.deepEqual([cards[5].lineE, cards[5].lineD], ['4.8', '75']);
 
   assert.equal(KinventPdf.asymOf('17.9% Asimetría'), 17.9);
   assert.equal(KinventPdf.asymOf('17.97 Asiietria'), 17.9);
@@ -530,12 +531,46 @@ test('informe de Kinvent de poca resolució: «Izquierda» i asimetria mal llegi
   assert.equal(KinventPdf.candidates('4.8 9', 'force')[0].v, 4.8);
   assert.equal(KinventPdf.target('Rotación intema de cadera en sedestación', 'angle'), 'rom_hip_ir');
   assert.equal(KinventPdf.target('Fhexión de la rodilla', 'angle'), 'rom_knee_flex');
-  // Sense asimetria no es pot comprovar: surt «Revisa».
   assert.equal(KinventPdf.fixPair('48.4', '26.6', null, 'angle').ok, false);
-  // Cap etiqueta llegida: on són sempre, a sota de «Ángulo máximo».
-  const [g] = KinventPdf.cards([{ text: 'Rotación externa de cadera en sedestación', bbox: { x0: 181, y0: 940, x1: 732, y1: 961 }, words: [] },
-    { text: 'Ángulo máximo', bbox: { x0: 109, y0: 1030, x1: 327, y1: 1063 }, words: [] }], 1400);
-  assert.ok(g.guessed && Math.abs(g.left.x0 - 244) < 2 && Math.abs(g.right.x1 - 1221) < 2 && Math.abs(g.left.y0 - 1247) < 3);
+  // Cap etiqueta llegida: on són sempre, a sota de «Ángulo máximo» (informe amb la gràfica de l'evolució).
+  const [g] = KinventPdf.cards([
+    { text: 'Rotación externa de cadera en sedestación 1º y la sesión actual | 5 días', bbox: { x0: 155, y0: 805, x1: 1927, y1: 826 },
+      words: [{ text: 'Rotación', bbox: { x0: 155, y0: 805, x1: 250, y1: 826 } }, { text: 'externa', bbox: { x0: 259, y0: 805, x1: 340, y1: 826 } },
+        { text: 'de', bbox: { x0: 348, y0: 805, x1: 374, y1: 826 } }, { text: 'cadera', bbox: { x0: 381, y0: 805, x1: 454, y1: 826 } },
+        { text: 'en', bbox: { x0: 462, y0: 805, x1: 487, y1: 826 } }, { text: 'sedestación', bbox: { x0: 495, y0: 805, x1: 627, y1: 826 } },
+        { text: '1º', bbox: { x0: 1670, y0: 805, x1: 1688, y1: 826 } }, { text: 'y', bbox: { x0: 1695, y0: 805, x1: 1704, y1: 826 } },
+        { text: 'la', bbox: { x0: 1711, y0: 805, x1: 1725, y1: 826 } }, { text: 'sesión', bbox: { x0: 1733, y0: 805, x1: 1791, y1: 826 } },
+        { text: 'actual', bbox: { x0: 1799, y0: 805, x1: 1854, y1: 826 } }] },
+    { text: 'Ángulo máximo Máximo sep 24 - sep 29, 2026', bbox: { x0: 93, y0: 881, x1: 1908, y1: 910 },
+      words: [{ text: 'Ángulo', bbox: { x0: 93, y0: 881, x1: 175, y1: 910 } }, { text: 'máximo', bbox: { x0: 185, y0: 881, x1: 280, y1: 910 } },
+        { text: 'Máximo', bbox: { x0: 1224, y0: 881, x1: 1317, y1: 910 } }, { text: 'sep', bbox: { x0: 1678, y0: 881, x1: 1715, y1: 910 } }] },
+  ], 2000);
+  assert.equal(g.title, 'Rotación externa de cadera en sedestación');
+  assert.equal(g.layout, 'history');
+  assert.ok(g.guessed && Math.abs(g.left.x0 - 209) < 2 && Math.abs(g.right.x1 - 1046) < 2 && Math.abs(g.left.y0 - 1068) < 3);
+});
+
+test('informe de Kinvent d\'una sola sessió: «Derecha» a la dreta de la pàgina i una prova d\'un sol valor', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { KinventPdf } = loadCore('07', {});
+  const fx = JSON.parse(readFileSync(new URL('./fixtures/kinvent-ocr-single.json', import.meta.url), 'utf8'));
+  const cards = fx.pages.flatMap((lines) => KinventPdf.cards(lines, fx.width));
+  assert.deepEqual(cards.map((c) => KinventPdf.target(c.title, c.measure)),
+    ['rom_sh_er', 'rom_sh_ir', 'rom_hip_er', 'rom_hip_ir', 'rom_knee_flex', 'dyn_curl_90', 'dyn_squeeze', 'dyn_knee_ext']);
+  assert.equal(cards[0].title, 'Rotadores externos en sedestación con abducción de 90° (R3)');
+  assert.ok(cards.every((c) => c.layout === 'single'));
+  assert.deepEqual(cards.map((c) => c.asym), [11.6, 5.5, null, 29.3, 1.7, 15.1, 0.4, 23.8]);
+  // Les etiquetes llegides: «Izquierda» a un sisè de la pàgina i «Derecha» a cinc sisens.
+  for (const c of cards.filter((x) => !x.single)) assert.ok(c.left.x1 < 450 && c.right.x0 > 1550, c.title);
+  // La rotació externa de maluc només té un valor (sense etiquetes ni asimetria).
+  assert.ok(cards[2].single && !cards.filter((c, i) => i !== 2).some((c) => c.single));
+  assert.equal(KinventPdf.fixPair(cards[2].lineV, cards[2].lineV, null, 'angle').e, 35.5);
+  // La força que la primera lectura ja havia vist (també «25.99» → 25.9).
+  for (const i of [5, 6, 7]) {
+    const r = KinventPdf.fixPair(cards[i].lineE, cards[i].lineD, cards[i].asym, 'force');
+    assert.equal(r.ok, true, cards[i].title);
+    assert.deepEqual([r.e, r.d], fx.expected[i], cards[i].title);
+  }
 });
 
 test('fitxa del client: perfil físic, pes i alçada lligats a les valoracions, i columnes de l\'Excel', async () => {

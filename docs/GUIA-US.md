@@ -128,6 +128,9 @@ Consells:
   - La força es passa de kg a newtons (× 9,81).
   - Cada número es comprova amb l'asimetria de l'informe: «Quadra» si coincideix; si no, «Revisa». Si l'esquerra i la
     dreta no quadren, l'app torna a llegir els números amb un altre contrast abans de demanar que els reviseu.
+  - Llegeix els dos tipus d'informe de Kinvent: amb la gràfica de l'evolució a la dreta (quan el client té més d'una
+    sessió) i d'una sola sessió, on la «Derecha» és a la dreta de la pàgina.
+  - Si una prova només té un valor (s'ha fet d'un sol costat), surt «Un costat»: trieu si és l'esquerra o la dreta.
   - Funciona també amb PDF de menys resolució (per exemple, els que es descarreguen des de la tauleta), encara que
     l'OCR llegeixi malament «Izquierda» o el % d'asimetria: l'app sap on són els valors de cada targeta.
 

@@ -1399,6 +1399,7 @@ tfoot .rpc { font-size: 14px; }
 .kvi-side { font-size: 11.5px; font-weight: 750; color: var(--ink-2); letter-spacing: 0.02em; }
 .kvi-val .numin { width: 96px; }
 .kvi-kg { flex-basis: 100%; }
+.kvi-one { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 @media (max-width: 760px) {
   .kvi-row { grid-template-columns: 28px minmax(0, 1fr) auto; }
   .kvi-target, .kvi-vals { grid-column: 2 / -1; }
