@@ -3755,7 +3755,7 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-05 19:21";
+<script>window.EON_BUILD = "2026-10-05 19:52";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5253,7 +5253,8 @@ const Calc = {
   // " (dreta: a millorar · esquerra: competent)" quan els costats no coincideixen.
   sidesDetail(p) {
     if (!p || !p.sd || !p.se || p.sd === p.se) return '';
-    return ` (dreta: ${Calc.scoreInfo(p.sd).label.toLowerCase()} · esquerra: ${Calc.scoreInfo(p.se).label.toLowerCase()})`;
+    const label = (v) => String((Calc.scoreInfo(v) || { label: v }).label).toLowerCase();
+    return ` (dreta: ${label(p.sd)} · esquerra: ${label(p.se)})`;
   },
 
   // Punts d'atenció automàtics de la valoració.
@@ -5532,7 +5533,7 @@ const Calc = {
     const days = (plan && plan.days && plan.days.length ? plan.days : [1, 4]).map(Number);
     const total = count || ((plan && plan.sessions) || []).length;
     const out = [];
-    let d = (plan && plan.start) || U.today();
+    let d = (plan && U.parse(plan.start) && plan.start) || U.today(); // sense data d'inici (o amb una de malmesa) es compta des d'avui
     for (let i = 0; i < 800 && out.length < total; i++, d = U.addDays(d, 1)) if (days.includes(U.parse(d).getDay())) out.push(d);
     return out;
   },
@@ -8350,6 +8351,10 @@ const XlsxDoc = (() => {
         if (!s.fmt) s = { ...s, fmt: 'dd/mm/yyyy' };
       }
       if (typeof v === 'number' && !Number.isFinite(v)) v = null;
+      // Només hi caben textos, números, booleans, text enriquit {rich} i fórmules {f}: qualsevol altra cosa es deixa en blanc.
+      if (v && typeof v === 'object' && v.rich === undefined && v.f === undefined) v = null;
+      else if (typeof v === 'function' || typeof v === 'symbol') v = null;
+      else if (typeof v === 'bigint') v = Number(v);
       this.cells.set(`${r}:${c}`, { r, c, v, s });
       return this;
     }
@@ -11006,7 +11011,8 @@ const Sync = (() => {
   const live = { error: '', code: '', pid: '' };
   const listeners = new Set();
   const emit = () => { for (const fn of listeners) fn(); if (typeof Store !== 'undefined' && Store.emit) Store.emit(); };
-  const save = () => { write(SYNC_KEYS.queue, queue); write(SYNC_KEYS.hashes, hashes); write(SYNC_KEYS.done, done); };
+  const saveQueue = () => write(SYNC_KEYS.queue, queue); // (només la cua, que és petita: es crida a cada canvi de dades)
+  const save = () => { saveQueue(); write(SYNC_KEYS.hashes, hashes); write(SYNC_KEYS.done, done); };
 
   // Disponible només amb Microsoft 365 (el backend sap pujar fitxers fets per l'app).
   const available = () => typeof Store !== 'undefined' && Store.cloud() && !!Store.backend && typeof Store.backend.putFile === 'function';
@@ -11083,12 +11089,16 @@ const Sync = (() => {
     const order = [...files.filter((f) => f.kind !== 'overview'), ...files.filter((f) => f.kind === 'overview')];
     const links = {};
     const out = { uploaded: 0, kept: 0, removed: 0 };
+    const failed = [];
     const stamp = xlStampText();
     for (const f of order) {
       const dir = dirs[f.folder];
       const found = existing[f.folder].get(f.name.toLowerCase());
       if (only === 'time' && !force && found && !f.timed) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
-      const { bytes, digest } = await f.make(links).build({ stamp });
+      // Un Excel que no es pot fer (dades malmeses) no ha d'aturar els altres: es deixa anotat i es continua.
+      let built;
+      try { built = await f.make(links).build({ stamp }); } catch (e) { failed.push(f.name); continue; }
+      const { bytes, digest } = built;
       const hk = `${dir.id}/${f.name}`;
       if (found && !force && hashes[hk] === digest) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
       const item = await b.putFile(dir.id, f.name, bytes);
@@ -11107,6 +11117,7 @@ const Sync = (() => {
         out.removed++;
       }
     }
+    if (failed.length) { out.failed = failed.length; out.failedNames = failed.slice(0, 5); }
     // Enllaços per obrir les carpetes i la visió general des de l'app.
     out.sessionsUrl = dirs.sessions.webUrl || '';
     out.assessUrl = dirs.assess.webUrl || '';
@@ -11128,7 +11139,7 @@ const Sync = (() => {
       delete q.time; // un canvi de dades demana la passada sencera
       q.due = urgent ? now + SOON : Math.min(now + DELAY, q.since + MAX_WAIT);
       queue[pid] = q;
-      save();
+      saveQueue();
       schedule();
       emit();
     },
@@ -11138,7 +11149,7 @@ const Sync = (() => {
       const q = queue[pid];
       if (!q || !enabled()) return;
       q.due = Math.min(q.due, Date.now() + SOON);
-      save();
+      saveQueue();
       schedule();
     },
 
@@ -11179,7 +11190,7 @@ const Sync = (() => {
       if (n) { save(); schedule(); emit(); }
       return n;
     },
-    kick() { for (const q of Object.values(queue)) q.due = Math.min(q.due, Date.now() + 500); save(); schedule(); },
+    kick() { for (const q of Object.values(queue)) q.due = Math.min(q.due, Date.now() + 500); saveQueue(); schedule(); },
 
     // Puja ara mateix els Excel d'un client (botó «Sincronitza ara»). Retorna { uploaded, kept, removed }.
     async now(pid, { force = false } = {}) {
@@ -11229,6 +11240,7 @@ const Sync = (() => {
       const last = done[pid];
       if (live.error && live.pid === pid) return { state: 'error', error: live.error, code: live.code, last };
       if (q) return { state: 'pending', due: q.due, last };
+      if (last && last.failed) return { state: 'partial', last };
       return last ? { state: 'ok', last } : { state: 'never' };
     },
     busy() { return running; },
@@ -11273,18 +11285,22 @@ const Exports = {
     if (!d) throw new Error('No trobo aquest client.');
     const stamp = xlStampText();
     const out = [];
+    const failed = [];
     const files = ExcelSet.plan(d);
     const links = {};
     for (const f of [...files.filter((x) => x.kind !== 'overview'), ...files.filter((x) => x.kind === 'overview')]) {
-      const { bytes } = await f.make(links).build({ stamp });
-      out.push({ name: `${EXPORT_FOLDERS[f.folder][0]}/${f.name}`, data: bytes });
+      try {
+        const { bytes } = await f.make(links).build({ stamp });
+        out.push({ name: `${EXPORT_FOLDERS[f.folder][0]}/${f.name}`, data: bytes });
+      } catch (e) { failed.push(f.name); }
     }
-    return { name: `eonlife_${Names.client(d.patient)}_${Names.stamp(U.today())}.zip`, bytes: Xlsx.zip(out), count: out.length };
+    if (!out.length) throw new Error('No s\'ha pogut fer cap Excel d\'aquest client.');
+    return { name: `eonlife_${Names.client(d.patient)}_${Names.stamp(U.today())}.zip`, bytes: Xlsx.zip(out), count: out.length, failed };
   },
 
   async downloadZip(pid) {
-    const { name, bytes } = await this.zip(pid);
-    return { name, status: await U.downloadBytes(name, bytes, 'application/zip') };
+    const { name, bytes, failed } = await this.zip(pid);
+    return { name, failed, status: await U.downloadBytes(name, bytes, 'application/zip') };
   },
 };
 
@@ -17067,12 +17083,15 @@ function agoText(ts) {
   return `el ${U.fmtDate(U.iso(new Date(ts)))}`;
 }
 
+const failedText = (names, n) => `${n === 1 ? 'No s\'ha pogut fer 1 Excel' : `No s'han pogut fer ${n} Excel`}${names && names.length ? ` (${names.join(', ')})` : ''}: revisa les dades d'aquest client.`;
+
 async function syncNow(pid, force) {
   try {
     const r = await Sync.now(pid, { force });
     UI.toast(r.uploaded || r.removed
       ? `Excel desats a la carpeta: ${U.plural(r.uploaded, 'fitxer nou o canviat', 'fitxers nous o canviats')}${r.removed ? ` · ${U.plural(r.removed, 'd\'antic retirat', 'd\'antics retirats')}` : ''}.`
       : 'Els Excel ja estaven al dia a la carpeta.');
+    if (r.failed) UI.toast(failedText(r.failedNames, r.failed), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -17095,8 +17114,9 @@ async function downloadExcel(pid, key) {
 
 async function downloadExcelZip(pid) {
   try {
-    const { name, status } = await Exports.downloadZip(pid);
+    const { name, status, failed } = await Exports.downloadZip(pid);
     savedToast(status, `Descarregat: ${name} (carpetes Valoracions i Sessions).`);
+    if (status === 'saved' && failed && failed.length) UI.toast(failedText(failed.slice(0, 5), failed.length), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -17113,6 +17133,7 @@ function SyncBadge({ pid }) {
     running: ['neutral', 'refresh', 'Pujant els Excel a la carpeta…'],
     pending: ['warn', 'clock', 'Excel pendents de pujar (es pugen sols)'],
     error: ['bad', 'alert', `Excel sense pujar: ${st.error}`],
+    partial: ['warn', 'alert', `Excel al dia a la carpeta, menys ${st.last && st.last.failed === 1 ? '1 que no s\'ha' : `${st.last && st.last.failed} que no s'han`} pogut fer`],
     ok: ['ok', 'cloud', `Excel al dia a la carpeta · ${agoText(st.last && st.last.at)}`],
     never: ['neutral', 'table', 'Excel encara no pujats a la carpeta'],
     paused: ['neutral', 'table', 'Pujada automàtica dels Excel en pausa'],

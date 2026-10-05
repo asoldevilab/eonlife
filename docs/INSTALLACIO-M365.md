@@ -212,6 +212,8 @@ copieu-hi només el que calgui per a l'entrenament.
 | «Sense connexió · es desarà en tornar» | Els canvis es guarden a la tauleta i s'envien sols quan torna la connexió. |
 | «Sessió caducada · torna a entrar» | Premeu-ho i torneu a entrar: no es perd res. |
 | «L'Excel està bloquejat» | Algú el té obert en una versió antiga d'Excel que no permet l'edició simultània. L'app ho torna a provar sola. |
+| «Excel al dia a la carpeta, menys 1 que no s'ha pogut fer» | Un registre (una sessió, una valoració o la visió general) té dades que l'app no sap posar a l'Excel; la resta s'ha pujat. Cal revisar-ne els camps o avisar-nos. |
+| «Excel sense pujar: …» | Normalment és la xarxa o la sessió de Microsoft: es torna a provar sola (20 s, 1 min, 2 min, 5 min). *Puja'ls ara* ho força. |
 | Un company no veu el que acabo d'afegir | Les dades es carreguen en obrir l'app. Que premi **Actualitza les dades** al menú lateral. |
 
 ## Dades i privacitat

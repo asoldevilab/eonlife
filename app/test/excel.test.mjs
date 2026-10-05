@@ -175,6 +175,63 @@ test('Excel de la sessió planificada i de la prevista al pla', async () => {
   assert.match(g.sheet('Sessió').text(), /Bloc 2 · força i potència|Pla d'entrenament/);
 });
 
+// ── Dades incompletes o estranyes ──
+// Les dades que venen d'altres versions, d'una importació o d'un camp buit al mig d'una edició no poden trencar cap Excel:
+// es fan servir les dades de la demo amb camps esborrats, buits, canviats de tipus, molt llargs o amb caràcters estranys.
+test('dades incompletes o estranyes: cap Excel es trenca (prova aleatòria amb llavor fixa)', async () => {
+  const { core, db, Store } = setup();
+  const { ExcelSet } = core;
+  let seed = 20261005;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const WEIRD = ['<b>&"\'</b>', '\u0000nul\u0007', '😀 emoji', '=SUM(A1)', '\n\nsalts\n de línia\n', '   espais   ', 'a'.repeat(33000), 'Text llarg amb accents àèéíòóú ç · ñ — '.repeat(40)];
+  const leaf = (v) => {
+    const k = rnd();
+    if (k < 0.2) return undefined;
+    if (k < 0.3) return null;
+    if (k < 0.4) return '';
+    if (k < 0.5) return typeof v === 'number' ? String(v) : typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : 'abc';
+    if (k < 0.75) return pick(WEIRD);
+    if (k < 0.85) return typeof v === 'number' ? -v : 0;
+    if (k < 0.9) return NaN;
+    return v;
+  };
+  const KEEP = new Set(['id', 'patientId', 'kind', 'status']);
+  const mutate = (o, p) => {
+    if (Array.isArray(o)) return rnd() < p / 3 ? o.slice(0, Math.floor(rnd() * o.length)) : o.map((x) => mutate(x, p));
+    if (!o || typeof o !== 'object') return o;
+    const out = {};
+    for (const [k, v] of Object.entries(o)) {
+      if (KEEP.has(k)) { out[k] = v; continue; }
+      if (rnd() < p) {
+        if (v && typeof v === 'object') { const r = rnd(); out[k] = r < 0.3 ? undefined : r < 0.5 ? (Array.isArray(v) ? [] : {}) : mutate(v, p); } else out[k] = leaf(v);
+      } else out[k] = v && typeof v === 'object' ? mutate(v, p) : v;
+    }
+    return out;
+  };
+  const many = (m, q) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k, mutate(v, q)]));
+  let built = 0;
+  for (let round = 0; round < 4; round++) {
+    const p = 0.08 + rnd() * 0.22;
+    const data = { patients: many(db.patients, p * 0.5), assessments: many(db.assessments, p), sessions: many(db.sessions, p), exercises: {}, templates: many(db.templates, p * 0.3) };
+    for (const [k, x] of Object.entries(data.sessions)) if (rnd() < 0.9) x.date = db.sessions[k].date;
+    for (const [k, x] of Object.entries(data.assessments)) if (rnd() < 0.9) { x.date = db.assessments[k].date; x.type = db.assessments[k].type; }
+    Store.data = data;
+    for (const pid of Object.keys(data.patients)) {
+      const files = ExcelSet.plan(ExcelSet.data(pid, Store));
+      const links = {};
+      for (const f of files) {
+        try {
+          const { bytes } = await f.make(links).build({ stamp: STAMP });
+          assert.ok(readXlsx(bytes).names.length > 0);
+          built++;
+        } catch (e) { assert.fail(`ronda ${round} · ${pid} · ${f.name}: ${e.message}`); }
+      }
+    }
+  }
+  assert.ok(built > 150);
+});
+
 // ── Auditoria: tot el que s'omple a l'app surt a l'Excel ──
 test('auditoria de la sessió: cada camp que s\'omple a l\'app surt a l\'Excel', async () => {
   const { core, db, Store } = setup();
@@ -521,6 +578,36 @@ test('sincronització: carpeta esborrada o canviada de lloc, sessions sense data
     assert.equal(Sync.queued(), 0, 'sense núvol no es deixa cap avís a la cua');
     Store.meta = { mode: 'm365' };
   } finally { done(); }
+});
+
+test('un Excel que no es pot fer no atura els altres: es puja tot la resta i es diu quin falla', async () => {
+  const { core, Store, mock, done } = await cloudSetup();
+  const { Sync, ExcelSession, ExcelSet, Exports } = core;
+  const orig = ExcelSession.build;
+  try {
+    const pid = 'P-DEMO-LAURA';
+    const bad = ExcelSet.data(pid).sessions.find((s) => s.number === 7);
+    ExcelSession.build = (o) => { if (o.session.id === bad.id) throw new Error('dades malmeses'); return orig(o); };
+    const r = await Sync.syncClient(pid);
+    assert.equal(r.failed, 1);
+    assert.deepEqual([...r.failedNames], [`sessio_lauravidalserra_${bad.date.replace(/-/g, '')}_01.xlsx`]);
+    assert.ok(r.uploaded > 25, 'tota la resta es puja igualment');
+    const p = Store.get('patients', pid);
+    const sess = mock.childrenOf(mock.child(p.folderId, 'Sessions').id).filter((x) => x.file).map((x) => x.name);
+    assert.ok(sess.includes('visiogeneral_lauravidalserra_01.xlsx'), 'la visió general també');
+    assert.ok(!sess.includes(`sessio_lauravidalserra_${bad.date.replace(/-/g, '')}_01.xlsx`));
+    await Sync.now(pid);
+    assert.equal(Sync.info(pid).state, 'partial');
+    // El ZIP també fa tot el que pot
+    const z = await Exports.zip(pid);
+    assert.equal(z.failed.length, 1);
+    assert.ok(z.count > 25);
+    // En arreglar-se, el fitxer surt
+    ExcelSession.build = orig;
+    const r2 = await Sync.syncClient(pid);
+    assert.equal(r2.failed, undefined);
+    assert.equal(r2.uploaded, 2, 'el fitxer que faltava i la visió general, que ara hi té l\'enllaç');
+  } finally { ExcelSession.build = orig; done(); }
 });
 
 test('refresc diari: en canviar el dia es refà només el que depèn de la data', async () => {

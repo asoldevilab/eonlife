@@ -12,12 +12,15 @@ function agoText(ts) {
   return `el ${U.fmtDate(U.iso(new Date(ts)))}`;
 }
 
+const failedText = (names, n) => `${n === 1 ? 'No s\'ha pogut fer 1 Excel' : `No s'han pogut fer ${n} Excel`}${names && names.length ? ` (${names.join(', ')})` : ''}: revisa les dades d'aquest client.`;
+
 async function syncNow(pid, force) {
   try {
     const r = await Sync.now(pid, { force });
     UI.toast(r.uploaded || r.removed
       ? `Excel desats a la carpeta: ${U.plural(r.uploaded, 'fitxer nou o canviat', 'fitxers nous o canviats')}${r.removed ? ` · ${U.plural(r.removed, 'd\'antic retirat', 'd\'antics retirats')}` : ''}.`
       : 'Els Excel ja estaven al dia a la carpeta.');
+    if (r.failed) UI.toast(failedText(r.failedNames, r.failed), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -40,8 +43,9 @@ async function downloadExcel(pid, key) {
 
 async function downloadExcelZip(pid) {
   try {
-    const { name, status } = await Exports.downloadZip(pid);
+    const { name, status, failed } = await Exports.downloadZip(pid);
     savedToast(status, `Descarregat: ${name} (carpetes Valoracions i Sessions).`);
+    if (status === 'saved' && failed && failed.length) UI.toast(failedText(failed.slice(0, 5), failed.length), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
   }
@@ -58,6 +62,7 @@ function SyncBadge({ pid }) {
     running: ['neutral', 'refresh', 'Pujant els Excel a la carpeta…'],
     pending: ['warn', 'clock', 'Excel pendents de pujar (es pugen sols)'],
     error: ['bad', 'alert', `Excel sense pujar: ${st.error}`],
+    partial: ['warn', 'alert', `Excel al dia a la carpeta, menys ${st.last && st.last.failed === 1 ? '1 que no s\'ha' : `${st.last && st.last.failed} que no s'han`} pogut fer`],
     ok: ['ok', 'cloud', `Excel al dia a la carpeta · ${agoText(st.last && st.last.at)}`],
     never: ['neutral', 'table', 'Excel encara no pujats a la carpeta'],
     paused: ['neutral', 'table', 'Pujada automàtica dels Excel en pausa'],
