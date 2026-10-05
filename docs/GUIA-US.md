@@ -103,7 +103,8 @@ Consells:
   - **Single Leg Squat**: dos vídeos, el de la dreta i el de l'esquerra.
   - **Y-Balance**: dos vídeos, un per cama, a sota de les 3 mesures de cada cama (anterior, posteromedial i
     posterolateral) i la longitud de la cama.
-  - **Patró Lateral Lunge** (Sessió 1): dos vídeos, el de la dreta i el de l'esquerra.
+  - **Patrons unilaterals de la Sessió 1** (Lunge, Lateral Lunge i Copenhagen Plank): dos vídeos, el de la dreta
+    i el de l'esquerra.
 
   Les fotos surten a l'informe, al costat de l'anàlisi postural, i els vídeos, a l'apartat de vídeos, amb el
   costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
