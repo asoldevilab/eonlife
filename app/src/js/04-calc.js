@@ -288,7 +288,13 @@ const Calc = {
           for (const m of YBT_VIDEOS) add(sec.id, `Y-Balance Test · ${m.label.toLowerCase()}`, (a.ybt || {})[m.k]);
         }
         if (g.kind === 'jumps') add(sec.id, 'Salts · CMJ', (a.jumps || {}).video);
-        if (g.kind === 'patterns') for (const pt of PATTERNS) add(sec.id, pt.name, ((a.patterns || {})[pt.id] || {}).video);
+        if (g.kind === 'patterns') {
+          for (const pt of PATTERNS) {
+            const x = (a.patterns || {})[pt.id] || {};
+            add(sec.id, pt.name, x.video);
+            for (const m of pt.videos || []) add(sec.id, `${pt.name} · ${m.label.toLowerCase()}`, x[m.k]);
+          }
+        }
       }
     }
     return out;
@@ -594,6 +600,7 @@ const Flat = {
             if (pt.seconds) { o[`${pt.name} D (s)`] = n(U.num(p.secD)); o[`${pt.name} E (s)`] = n(U.num(p.secE)); }
             o[`${pt.name} P`] = p.pain ? 'P' : '';
             o[`${pt.name} compensacions`] = (p.chips || []).join(', ');
+            for (const m of pt.videos || []) o[`${pt.name} vídeo ${m.k.slice(-1)}`] = p[m.k] || '';
           }
           const pc = Calc.patterns(a).counts;
           o['Patrons 0'] = pc['0']; o['Patrons −'] = pc['-']; o['Patrons −−'] = pc['--']; o['Patrons P'] = pc.P;
