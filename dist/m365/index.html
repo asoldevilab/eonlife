@@ -3764,7 +3764,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-05 19:11";
+window.EON_BUILD = "2026-10-05 19:13";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -10997,6 +10997,7 @@ const Sync = (() => {
   let done = read(SYNC_KEYS.done, {});         // { pid: { at, uploaded, kept, removed } }
   let timer = null;
   let running = '';                            // client que s'està sincronitzant
+  let own = false;                             // canvi fet per la pròpia sincronització (no compta com a canvi de dades)
   const live = { error: '', code: '', pid: '' };
   const listeners = new Set();
   const emit = () => { for (const fn of listeners) fn(); if (typeof Store !== 'undefined' && Store.emit) Store.emit(); };
@@ -11065,7 +11066,8 @@ const Sync = (() => {
     const fid = folder && folder.folderId;
     if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
     if (fid !== d.patient.folderId || folder.folderUrl !== d.patient.folderUrl) {
-      Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; });
+      own = true; // desar la carpeta a la fitxa no ha de posar el client altre cop a la cua
+      try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
     }
     const dirs = {}, existing = {};
     for (const key of ['assess', 'sessions']) {
@@ -11137,7 +11139,7 @@ const Sync = (() => {
 
     // Es crida des de Store.put en cada canvi.
     onChange(kind, rec) {
-      if (!rec || !enabled()) return;
+      if (own || !rec || !enabled()) return;
       let pid = '';
       if (kind === 'patients') pid = rec.deleted ? '' : rec.id;
       else if (kind === 'sessions' || kind === 'assessments') pid = rec.patientId;
