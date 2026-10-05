@@ -21,7 +21,7 @@ function SessionEditor({ id }) {
   const setIn = (obj, k) => (v) => upd((x) => { x[obj] = { ...(x[obj] || {}), [k]: v }; });
   const setBlock = (key, fn) => upd((x) => { const b = x.blocks.find((bb) => bb.key === key); if (b) fn(b); });
 
-  const f = s.feedback || {}, r = s.readiness || {};
+  const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
 
   const duplicate = async () => {
@@ -104,13 +104,9 @@ function SessionEditor({ id }) {
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
         </${Field}>
       </div>
-      <div class="readiness">
-        <span class="readiness-title">Com arriba avui?</span>
-        <div class="readiness-item"><span>Son</span><${Seg} size="sm" value=${r.sleep || ''} onValue=${setIn('readiness', 'sleep')} options=${['1', '2', '3', '4', '5']} ariaLabel="Son de l'1 al 5" /></div>
-        <div class="readiness-item"><span>Energia</span><${Seg} size="sm" value=${r.energy || ''} onValue=${setIn('readiness', 'energy')} options=${['1', '2', '3', '4', '5']} ariaLabel="Energia de l'1 al 5" /></div>
-        <div class="readiness-item"><span>Dolor</span><${Seg} size="sm" value=${r.pain || ''} onValue=${setIn('readiness', 'pain')} options=${['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']} ariaLabel="Dolor del 0 al 10" /></div>
-      </div>
     </section>
+
+    <${WellnessCard} id="se-wellness" value=${s.wellness} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p}

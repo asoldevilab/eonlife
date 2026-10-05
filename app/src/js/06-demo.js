@@ -172,7 +172,8 @@ function makeDemoData() {
     numbers[pid] = (numbers[pid] || 0) + 1;
     const done = !!fb;
     const s = { id: U.uid('S'), patientId: pid, date, number: numbers[pid], professional: prof, goal, pillar: '',
-      status: done ? 'feta' : 'planificada', readiness: done ? { sleep: String(fb.sleep || 4), energy: String(fb.energy || 4), pain: String(fb.painPre ?? 0) } : {},
+      status: done ? 'feta' : 'planificada',
+      wellness: done ? { fatigue: String(fb.energy || 4), sleep: String(fb.sleep || 4), soreness: String(fb.painPre ? 3 : 4), stress: '4', mood: String(fb.energy >= 4 ? 4 : 3) } : {},
       blocks: blocks(spec), feedback: done ? { rpe: String(fb.rpe), duration: String(fb.min), pain: String(fb.pain || 0), notes: fb.notes || '', decision: fb.decision || '' } : {},
       createdAt: `${date}T08:00:00.000Z` };
     if (done) for (const b of s.blocks) for (const it of b.items) it.done = true;

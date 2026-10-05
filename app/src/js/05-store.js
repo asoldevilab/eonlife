@@ -444,7 +444,7 @@ const Store = {
     const s = {
       id: U.uid('S'), patientId: pid, date: date || U.today(), number: this.nextSessionNumber(pid),
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
-      readiness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
+      wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
     return this.put('sessions', s, { immediate: true });
   },
@@ -454,7 +454,7 @@ const Store = {
     if (!s) return null;
     const copy = {
       ...U.clone(s), id: U.uid('S'), date: date || U.today(), number: this.nextSessionNumber(s.patientId),
-      status: 'planificada', readiness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
+      status: 'planificada', wellness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
     };
     delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });

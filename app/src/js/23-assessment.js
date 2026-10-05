@@ -70,6 +70,8 @@ function AssessmentEditor({ id, focus }) {
       </div>
     </section>
 
+    <${WellnessCard} id="as-wellness" value=${a.wellness} onSet=${(k, v) => upd((x) => { x.wellness = { ...(x.wellness || {}), [k]: v }; })} />
+
     <${AssessmentFiles} a=${a} p=${p} upd=${upd} />
 
     ${PROTOCOL.map((sec) => html`<section class="asec" id=${`sec-${sec.id}`}>

@@ -203,3 +203,25 @@ function KeyDates({ p }) {
     </div>`;
   })}</div>`;
 }
+
+// ── Wellness a l'inici de la sessió o de la valoració ──
+// Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
+function WellnessCard({ value, onSet, id }) {
+  const w = value || {};
+  const c = Calc.wellness(w);
+  return html`<section class="card wellness" id=${id}>
+    <div class="card-head"><h2 class="h2">Wellness · com arriba avui?</h2>
+      ${c && html`<${Pill} tone=${c.tone} title="Suma de les 5 respostes (5 = el millor estat)">${c.total != null ? `${c.total}/25` : `${c.n} de 5`}</${Pill}>`}</div>
+    <p class="muted small">De l'1 al 5: el 5 és sempre el millor estat.</p>
+    <div class="wl-grid">${WELLNESS.map((q) => html`<div class=${U.cls('wl-item', U.num(w[q.k]) != null && U.num(w[q.k]) <= 2 && 'wl-low')} key=${q.k}>
+      <span class="wl-label">${q.label}</span>
+      <${Seg} value=${w[q.k] || ''} onValue=${(v) => onSet(q.k, v)} ariaLabel=${`${q.label} de l'1 al 5`}
+        options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
+      <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
+    </div>`)}</div>
+    <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
+      <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
+        placeholder="El que el client us comenti o el que observeu (son, feina, molèsties, viatges…)" />
+    </${Field}>
+  </section>`;
+}

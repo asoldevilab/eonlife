@@ -133,7 +133,7 @@ test('sessions: registre d\'exercicis substituït sense tocar les altres session
         { id: 'I2', name: 'Hip Thrust', sets: '3', reps: '6', load: '60' },
         { id: 'I3', name: 'Leg Curl', sets: '2', reps: '12', load: '25' },
       ] },
-    ], feedback: {}, readiness: {},
+    ], feedback: {}, wellness: {},
   });
   const s1 = mk('S-1', 1), s2 = mk('S-2', 2);
   for (const s of [s1, s2]) await a.db.upsert('sessions', s, Flat.session(s, p), Flat.sessionLog(s, p), a.user);
