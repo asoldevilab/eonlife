@@ -116,12 +116,14 @@ const XlsxDoc = (() => {
       const borderId = this.border(s);
       const fmtId = this.fmt(s.fmt);
       const al = { h: s.h || '', v: s.v || (Object.keys(s).length ? 'center' : ''), wrap: !!s.wrap, indent: s.indent || 0 };
-      const key = [fontId, fillId, borderId, fmtId, al.h, al.v, al.wrap ? 1 : 0, al.indent].join('|');
+      const key = [fontId, fillId, borderId, fmtId, al.h, al.v, al.wrap ? 1 : 0, al.indent, s.unlock ? 1 : 0].join('|');
       if (!this.map.xf.has(key)) {
         this.map.xf.set(key, this.xfs.length);
         const alignXml = al.h || al.v || al.wrap || al.indent
           ? `<alignment${al.h ? ` horizontal="${al.h}"` : ''}${al.v ? ` vertical="${al.v}"` : ''}${al.wrap ? ' wrapText="1"' : ''}${al.indent ? ` indent="${al.indent}"` : ''}/>` : '';
-        this.xfs.push(`<xf numFmtId="${fmtId}" fontId="${fontId}" fillId="${fillId}" borderId="${borderId}" xfId="0"${fmtId ? ' applyNumberFormat="1"' : ''}${fontId ? ' applyFont="1"' : ''}${fillId ? ' applyFill="1"' : ''}${borderId ? ' applyBorder="1"' : ''}${alignXml ? ` applyAlignment="1">${alignXml}</xf>` : '/>'}`);
+        const protXml = s.unlock ? '<protection locked="0"/>' : ''; // cel·la desbloquejada (a un full protegit): perquè es pugui ordenar
+        const inner = alignXml + protXml;
+        this.xfs.push(`<xf numFmtId="${fmtId}" fontId="${fontId}" fillId="${fillId}" borderId="${borderId}" xfId="0"${fmtId ? ' applyNumberFormat="1"' : ''}${fontId ? ' applyFont="1"' : ''}${fillId ? ' applyFill="1"' : ''}${borderId ? ' applyBorder="1"' : ''}${alignXml ? ' applyAlignment="1"' : ''}${protXml ? ' applyProtection="1"' : ''}${inner ? `>${inner}</xf>` : '/>'}`);
       }
       return this.map.xf.get(key);
     }
@@ -270,6 +272,16 @@ const XlsxDoc = (() => {
         const k = `${r}:${c}`;
         const cur = this.cells.get(k);
         if (cur) cur.s = { ...s, ...cur.s }; else this.cells.set(k, { r, c, v: null, s });
+      }
+      return this;
+    }
+
+    // Cel·les d'un rang desbloquejades (la resta del full queda protegida): serveix perquè es pugui ordenar una taula.
+    unlock(r1, c1, r2, c2) {
+      for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) {
+        const k = `${r}:${c}`;
+        const cur = this.cells.get(k);
+        if (cur) cur.s = { ...cur.s, unlock: true }; else this.cells.set(k, { r, c, v: null, s: { unlock: true } });
       }
       return this;
     }

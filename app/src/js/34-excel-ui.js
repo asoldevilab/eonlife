@@ -222,7 +222,7 @@ function ExcelSettingsCard() {
     <div class="card-head"><h2 class="h2">Excel de cada client</h2>
       <${Pill} tone=${cloud ? (on ? 'ok' : 'warn') : 'neutral'} icon="table">${cloud ? (on ? 'Pujada automàtica' : 'En pausa') : 'Només descàrrega'}</${Pill}></div>
     <p>L'app fa sola, des del que s'omple a l'app, un <strong>Excel per cada sessió</strong> (feta, planificada o prevista), un <strong>Excel per cada valoració</strong> i un <strong>Excel gegant de visió general</strong> per client, amb un calendari i un detall per cada mes. Tot es registra a l'app: els Excel són només de lectura i es refan sols quan hi ha canvis.</p>
-    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /> Puja'ls sols a la carpeta de cada client (<em>Valoracions</em> i <em>Sessions</em>)</label>
+    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'ls sols a la carpeta de cada client (<em>Valoracions</em> i <em>Sessions</em>)</span></label>
       <p class="muted small">Es pugen uns segons després de l'últim canvi. Si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira de la carpeta (queda a la paperera de reciclatge). Mai es toca cap altre fitxer.</p>
       ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'client té', 'clients tenen')} Excel pendents de pujar.</p>`}
       <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja els Excel de tots els clients</${Btn}></div>`

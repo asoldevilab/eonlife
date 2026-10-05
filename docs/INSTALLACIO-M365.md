@@ -63,9 +63,9 @@ mes siguin sempre els d'avui encara que ningú hagi tocat res. Cada pujada **sub
 (sense còpies repetides); si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira (queda a la
 paperera de reciclatge de OneDrive/SharePoint). L'app **no toca mai cap altre fitxer** de la carpeta: només els Excel
 amb aquests noms. A *Configuració › Excel de cada client* es pot **pausar** la pujada automàtica o tornar a fer-los
-tots. Els fitxers estan protegits contra escriptura (sense contrasenya) perquè ningú els canviï per error: si
-es vol filtrar o ordenar, es pot; si es vol escriure, cal treure la protecció, però els canvis es perdrien la
-pròxima vegada que l'app refaci el fitxer.
+tots. Els fitxers estan protegits contra escriptura (sense contrasenya) perquè ningú els canviï per error: al *Registre*
+de la visió general es pot filtrar i ordenar sense treure res; si es vol escriure en un altre lloc, cal treure la
+protecció, però els canvis es perdrien la pròxima vegada que l'app refaci el fitxer.
 
 ### Planificar sessions per endavant
 
