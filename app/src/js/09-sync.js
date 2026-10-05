@@ -86,12 +86,12 @@ const Sync = (() => {
     const b = Store.backend;
     const d = ExcelSet.data(pid);
     if (!d || d.patient.deleted) return { uploaded: 0, kept: 0, removed: 0, skipped: true };
-    let fid = d.patient.folderId;
-    if (!fid) {
-      const res = await b.ensureFolder(d.patient);
-      fid = res && res.folderId;
-      if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
-      Store.update('patients', pid, (x) => { x.folderUrl = res.folderUrl; x.folderId = res.folderId; });
+    // La carpeta del client: si no n'hi ha, es crea; si algú l'ha esborrat o canviat de lloc, es torna a trobar o a fer.
+    const found = await b.ensureFolder(d.patient);
+    const fid = found && found.folderId;
+    if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+    if (fid !== d.patient.folderId || found.folderUrl !== d.patient.folderUrl) {
+      Store.update('patients', pid, (x) => { x.folderUrl = found.folderUrl; x.folderId = fid; });
     }
     const dirs = {}, existing = {};
     for (const key of ['assess', 'sessions']) {

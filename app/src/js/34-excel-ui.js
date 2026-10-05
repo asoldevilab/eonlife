@@ -86,7 +86,7 @@ function excelMenuItems(pid) {
 function ExcelMenu({ p }) {
   const items = excelMenuItems(p.id);
   if (!items.length) return null;
-  return html`<${Menu} items=${items} icon="table" title="Excel del client" />`;
+  return html`<${Menu} items=${items} icon="table" label="Excel" variant="secondary" title="Excel del client: pujar, obrir o descarregar" />`;
 }
 
 // ── Planifica el mes: crea d'una vegada les sessions de tot un mes ──

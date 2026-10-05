@@ -247,7 +247,7 @@ test('auditoria de la valoració: cada test, valor i fitxer surt a l\'Excel', as
   const y = { d: { ant: '60', pm: '90', pl: '88', len: '85' }, e: { ant: '66', pm: '93', pl: '90', len: '85' }, note: '‹nota ybt›', videoD: 'https://eonlife.sharepoint.com/ybt-d.mp4', videoE: 'https://eonlife.sharepoint.com/ybt-e.mp4' };
   const patterns = {};
   PATTERNS.forEach((pt, i) => {
-    patterns[pt.id] = pt.uni ? { sd: '-', se: '--', chips: [`‹chip ${pt.id}›`], note: `‹nota ${pt.id}›`, pain: i === 0, secD: '21', secE: '19' } : { score: '-', chips: [`‹chip ${pt.id}›`], note: `‹nota ${pt.id}›` };
+    patterns[pt.id] = pt.uni ? { sd: '-', se: '--', chips: [`‹chip ${pt.id}›`], note: `‹nota ${pt.id}›`, decision: `‹decisió ${pt.id}›`, pain: i === 0, secD: '21', secE: '19' } : { score: '-', chips: [`‹chip ${pt.id}›`], note: `‹nota ${pt.id}›`, decision: `‹decisió ${pt.id}›` };
     for (const m of pt.videos || []) patterns[pt.id][m.k] = `https://eonlife.sharepoint.com/pat-${pt.id}-${m.k}.mp4`;
   });
   const a = {
@@ -270,7 +270,7 @@ test('auditoria de la valoració: cada test, valor i fitxer surt a l\'Excel', as
   for (const t of ['‹avaluador›', '‹motiu›', '‹wnotes›', '‹forts›', '‹prioritats›', '‹pla›', '‹nota ybt›', '‹nota salts›', '‹nota intent›', '‹encoder›', '‹mesura lliure›']) assert.ok(all.includes(t), `no surt: ${t}`);
   assert.ok(x.sheet('Resum').text().includes('Re-test'));
   for (const t of Object.values(TEST_INDEX)) assert.ok(all.includes(`‹nota ${t.id}›`), `falta la nota del test ${t.name}`);
-  for (const pt of PATTERNS) assert.ok(all.includes(`‹chip ${pt.id}›`) && all.includes(`‹nota ${pt.id}›`), `falta el patró ${pt.name}`);
+  for (const pt of PATTERNS) assert.ok(all.includes(`‹chip ${pt.id}›`) && all.includes(`‹nota ${pt.id}›`) && all.includes(`‹decisió ${pt.id}›`), `falta el patró ${pt.name}`);
   // Tots els números dels tests (dreta, esquerra, valor únic)
   const sheetsWithNums = ['Mobilitat', 'Força', 'Rendiment'].map((s) => x.sheet(s));
   for (const v of expectNums) assert.ok(sheetsWithNums.some((s) => hasNum(s, v)), `falta el valor ${v}`);

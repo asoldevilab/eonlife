@@ -192,7 +192,10 @@ function PatientSessions({ p, sessions }) {
   const keys = Object.keys(groups).sort().reverse();
   return html`<section class="card">
     <div class="card-head"><h2 class="h2">Sessions</h2>
-      <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}></div>
+      <div class="inline">
+        <${Btn} icon="calendar" onClick=${() => openPlanMonth(p, U.monthKey(U.today()))}>Planifica el mes</${Btn}>
+        <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
+      </div></div>
     ${keys.length ? keys.map((wk) => {
       const list = groups[wk].slice().reverse();
       const w = Calc.weeks(groups[wk], wk, 1)[0];

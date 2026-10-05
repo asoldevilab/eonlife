@@ -3,7 +3,7 @@
 
 function MonthView({ p, sessions }) {
   const today = U.today();
-  const [month, setMonth] = useState(MonthNav.take(p.id) || U.monthKey(today));
+  const [month, setMonth] = useState(() => MonthNav.take(p.id) || U.monthKey(today));
   const [allBlocks, setAllBlocks] = useState(false);
   // En planificar un mes (Planifica el mes), el calendari hi va sol.
   useEffect(() => { const m = MonthNav.take(p.id); if (m) setMonth(m); });

@@ -6,6 +6,7 @@ import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { readXlsx, unzip } from './xlsx-read.mjs';
 
 const require = createRequire(import.meta.url);
 let playwright;
@@ -689,6 +690,106 @@ const step = async (label, fn) => {
       }));
       throw new Error(`${e.message}\nabans: ${JSON.stringify(before)}\ndesprés: ${JSON.stringify(after)}`);
     }
+  });
+  // ── Excel de cada client i planificació del mes (versió local: descàrrega) ──
+  await step('planifica el mes: sessions planificades al calendari', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA/mes');
+    await page.waitForSelector('.cal');
+    const month = await page.evaluate(() => U.monthKey(U.addMonths(`${U.monthKey(U.today())}-01`, 2)));
+    const label = await page.evaluate((m) => U.fmtMonth(m), month);
+    await page.click('.month-head >> text=Planifica el mes');
+    await page.waitForSelector('.dialog >> text=Crea d\'una vegada les sessions');
+    await page.selectOption('#pm-month', month);
+    for (const d of ['dilluns', 'dimarts', 'dimecres', 'dijous', 'divendres', 'dissabte', 'diumenge']) {
+      const chip = page.locator('.dialog .chips .chip', { hasText: new RegExp(`^${d}$`) });
+      const on = await chip.evaluate((el) => el.classList.contains('on'));
+      if (on !== ['dimarts', 'dijous'].includes(d)) await chip.click();
+    }
+    await shot(page, '04b-planifica-el-mes', false);
+    const n = await page.evaluate((m) => Store.monthDates(m, [2, 4]).length, month);
+    await page.click(`.dialog-foot >> text=Crea ${n} sessions`);
+    await page.waitForSelector(`.toast >> text=${n} sessions planificades`);
+    await page.waitForSelector(`.month-title >> text=${label}`);
+    const shown = await page.locator('.cal-s.plan').count();
+    if (shown !== n) throw new Error(`al calendari hi ha ${shown} sessions planificades i n'esperàvem ${n}`);
+    const bad = await page.evaluate((m) => Store.sessionsOf('P-DEMO-LAURA').filter((s) => s.date.startsWith(m)).some((s) => s.status !== 'planificada' || (s.feedback && s.feedback.rpe)), month);
+    if (bad) throw new Error('alguna sessió planificada no ho està');
+    await shot(page, '04c-mes-planificat');
+  });
+  await step('copia una setmana a les següents', async () => {
+    const monday = await page.evaluate(() => U.weekStart(U.addMonths(U.today(), 4)));
+    const month = monday.slice(0, 7);
+    await goHash(page, '#/inici');
+    await page.evaluate(([d, m]) => { Store.addPlanned('P-DEMO-LAURA', { date: d, blocks: [], goal: 'Setmana tipus' }); MonthNav.show('P-DEMO-LAURA', m); }, [monday, month]);
+    await goHash(page, '#/client/P-DEMO-LAURA/mes');
+    await page.waitForSelector('.cal-w-copy');
+    await page.click('.cal-w-copy >> nth=0');
+    await page.waitForSelector('.dialog >> text=Copia la setmana del');
+    await page.fill('#cw-n', '2');
+    await page.click('.dialog-foot >> text=Copia a les 2 setmanes següents');
+    try {
+      await page.waitForSelector('.toast >> text=2 sessions planificades');
+    } catch (e) {
+      const info = await page.evaluate((d) => ({ toasts: [...document.querySelectorAll('.toast')].map((t) => t.innerText), dialog: !!document.querySelector('.dialog'),
+        sessions: Store.sessionsOf('P-DEMO-LAURA').filter((x) => x.date >= d).map((x) => `${x.date}:${x.goal}`).slice(0, 12) }), monday);
+      throw new Error(`${e.message.split('\n')[0]} · ${JSON.stringify(info)}`);
+    }
+    const dates = await page.evaluate((d) => Store.sessionsOf('P-DEMO-LAURA').filter((s) => s.date > d && s.goal === 'Setmana tipus').map((s) => s.date), monday);
+    const want = await page.evaluate((d) => [U.addDays(d, 7), U.addDays(d, 14)], monday);
+    if (JSON.stringify(dates) !== JSON.stringify(want)) throw new Error(`dates copiades ${dates} (esperades ${want})`);
+  });
+  await step('Excel: descarrega la visió general del client (calendari i detall de cada mes)', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA/mes');
+    await page.waitForSelector('.cal');
+    const [dl] = await Promise.all([page.waitForEvent('download'), (async () => {
+      await page.click('.phead-actions >> text=Excel');
+      await page.click('.menu-list >> text=Descarrega l\'Excel de visió general');
+    })()]);
+    if (dl.suggestedFilename() !== 'visiogeneral_lauravidalserra_01.xlsx') throw new Error(`nom ${dl.suggestedFilename()}`);
+    const x = readXlsx(readFileSync(await dl.path()));
+    const month = await page.evaluate(() => U.fmtMonth(U.monthKey(U.addMonths(`${U.monthKey(U.today())}-01`, 2))));
+    for (const n of ['Resum', 'Registre', month, `${month} · detall`]) if (!x.names.includes(n)) throw new Error(`falta el full ${n} (hi ha ${x.names})`);
+    if (!x.sheet(month).text().includes('PLANIFICADA')) throw new Error('el calendari del mes planificat no mostra les sessions');
+    if (!x.sheet('Resum').text().includes('Tornar a competir en trail de 42 km')) throw new Error('falta l\'objectiu del client');
+    await shot(page, '04d-menu-excel', false);
+  });
+  await step('Excel: ZIP amb les carpetes Valoracions i Sessions', async () => {
+    const [dl] = await Promise.all([page.waitForEvent('download'), (async () => {
+      await page.click('.phead-actions >> text=Excel');
+      await page.click('.menu-list >> text=Descarrega tots els Excel (ZIP)');
+    })()]);
+    if (!/^eonlife_lauravidalserra_\d{8}\.zip$/.test(dl.suggestedFilename())) throw new Error(`nom ${dl.suggestedFilename()}`);
+    const names = Object.keys(unzip(readFileSync(await dl.path())));
+    if (!names.includes('Sessions/visiogeneral_lauravidalserra_01.xlsx')) throw new Error('falta la visió general');
+    if (!names.some((n) => /^Valoracions\/valoracioinicial_lauravidalserra_\d{8}_01\.xlsx$/.test(n))) throw new Error('falta la valoració inicial');
+    if (!names.some((n) => /^Sessions\/sessio_lauravidalserra_\d{8}_01\.xlsx$/.test(n))) throw new Error('falten les sessions');
+  });
+  await step('Excel: cada sessió i cada valoració es descarreguen des del seu editor', async () => {
+    const sid = await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').filter((s) => s.status === 'feta').pop().id);
+    await goHash(page, `#/sessio/${sid}`);
+    await page.waitForSelector('.block');
+    const [d1] = await Promise.all([page.waitForEvent('download'), (async () => {
+      await page.click('.editbar .menu button');
+      await page.click('.menu-list >> text=Descarrega l\'Excel d\'aquesta sessió');
+    })()]);
+    if (!/^sessio_lauravidalserra_\d{8}_01\.xlsx$/.test(d1.suggestedFilename())) throw new Error(`nom ${d1.suggestedFilename()}`);
+    const s = readXlsx(readFileSync(await d1.path()));
+    if (!/^Sessió \d+ · Laura Vidal Serra$/.test(s.sheet('Sessió').get('A1'))) throw new Error(`títol ${s.sheet('Sessió').get('A1')}`);
+    if (!s.sheet('Exercicis').text().includes('Back squat')) throw new Error('falten els exercicis');
+    const aid = await page.evaluate(() => Store.assessmentsOf('P-DEMO-LAURA').pop().id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.waitForSelector('#sec-mobilitat');
+    const [d2] = await Promise.all([page.waitForEvent('download'), (async () => {
+      await page.click('.editbar .menu button');
+      await page.click('.menu-list >> text=Descarrega l\'Excel d\'aquesta valoració');
+    })()]);
+    if (!/^retest_lauravidalserra_\d{8}_01\.xlsx$/.test(d2.suggestedFilename())) throw new Error(`nom ${d2.suggestedFilename()}`);
+    const v = readXlsx(readFileSync(await d2.path()));
+    for (const n of ['Resum', 'Comparació', 'Mobilitat', 'Força', 'Rendiment', 'Patrons']) if (!v.names.includes(n)) throw new Error(`falta ${n}`);
+    // La configuració explica els Excel
+    await goHash(page, '#/configuracio');
+    await page.waitForSelector('text=Excel de cada client');
+    await page.waitForSelector('text=Només descàrrega');
   });
   await ctx.close();
 }

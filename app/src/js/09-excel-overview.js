@@ -146,13 +146,21 @@ const ExcelOverview = (() => {
     r = xlSection(ws, r, 'Perfil del client', RC);
     const body = Calc.body(p, assessments);
     const age = U.age(p.birthDate);
+    const level = (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '';
     r = xlKv(ws, r, [
       ['Objectiu', xlStr(p.goal)],
       ['Edat · alçada · pes', [age != null && `${age} anys`, body.height.v != null && `${U.fmt(body.height.v, 0)} cm`, body.weight.v != null && `${U.fmt(body.weight.v, 1)} kg`, body.bmi != null && `IMC ${U.fmt(body.bmi, 1)}`].filter(Boolean).join(' · ')],
       ['Limitacions i precaucions per entrenar', xlStr(p.limitations)],
+      ['Motiu de consulta', xlStr(p.reason)],
+      ['Antecedents i lesions', xlStr(p.history)],
+      ['Condicions de salut', xlStr(p.conditions)],
+      ['Medicació rellevant', xlStr(p.medication)],
       ['Esport o activitat', xlStr(p.sport)],
+      ['Nivell d\'activitat', level],
+      ['Professió', xlStr(p.occupation)],
       ['Disponibilitat', xlStr(p.availability)],
       ['Dominància', (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || ''],
+      ['Observacions de l\'equip', xlStr(p.notes)],
     ], RC) + 1;
 
     // Dates clau (dies des de la data, en viu)
@@ -240,6 +248,21 @@ const ExcelOverview = (() => {
         ws.set(r, 5, { f: `IFERROR(ROUND(AVERAGEIFS(${R('J')},${R('B')},${wc}),1),"")`, v: rp.length ? U.round(rp.reduce((s, v) => s + v, 0) / rp.length, 1) : '' }, [XS.cell, { fmt: '0.0' }]);
         ws.set(r, 6, { f: `IFERROR(ROUND(AVERAGEIFS(${R('N')},${R('B')},${wc}),1),"")`, v: wl.length ? U.round(wl.reduce((s, v) => s + v, 0) / wl.length, 1) : '' }, [XS.cell, { fmt: '0.0' }]);
         ws.set(r, 7, { f: `REPT("█",ROUND(${xlRef(r, 4)}/50,0))`, v: '█'.repeat(Math.round(ua / 50)) }, [XS.cell, { h: 'left', color: XL_C.BRAND_M, sz: 9 }]);
+        r++;
+      }
+      r++;
+    }
+
+    // Informes mèdics i altres documents del client (PDF a la carpeta «Valoracions»)
+    const docs = (p.docs || []).filter((f) => f && f.url);
+    if (docs.length) {
+      r = xlSection(ws, r, 'Informes i documents del client (carpeta «Valoracions»)', RC);
+      r = xlHeader(ws, r, [['Fitxer', 4], 'Data', ['Enllaç', 2]]);
+      for (const f of docs) {
+        ws.merge(r, 1, r, 4, xlStr(f.name), XS.text);
+        ws.set(r, 5, f.date ? { date: f.date } : '', [XS.cell, { fmt: 'dd/mm/yyyy' }]);
+        ws.merge(r, 6, r, 7, xlIsWeb(f.url) ? 'Obre' : 'Desat a la tauleta (versió de prova)', [XS.cell, xlIsWeb(f.url) ? XS.link : XS.muted]);
+        if (xlIsWeb(f.url)) ws.link(r, 6, xlStr(f.url).trim(), 'Obre el fitxer');
         r++;
       }
       r++;

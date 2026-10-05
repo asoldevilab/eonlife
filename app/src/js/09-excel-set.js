@@ -13,8 +13,9 @@ const ExcelSet = (() => {
     const patient = S.get ? S.get('patients', pid) : (S.data.patients || {})[pid];
     if (!patient) return null;
     const byDate = (a, b) => (a.date === b.date ? (U.num(a.number) || 0) - (U.num(b.number) || 0) : a.date < b.date ? -1 : 1);
-    const sessions = get('sessions').filter((s) => s.patientId === pid).sort(byDate);
-    const assessments = get('assessments').filter((a) => a.patientId === pid).sort((a, b) => (a.date === b.date ? xlStr(a.createdAt).localeCompare(xlStr(b.createdAt)) : a.date < b.date ? -1 : 1));
+    // Sense data (p. ex. mentre s'escriu una de nova) no es pot situar al calendari ni donar nom a un fitxer: queden fora fins que en tinguin.
+    const sessions = get('sessions').filter((s) => s.patientId === pid && U.parse(s.date)).sort(byDate);
+    const assessments = get('assessments').filter((a) => a.patientId === pid && U.parse(a.date)).sort((a, b) => (a.date === b.date ? xlStr(a.createdAt).localeCompare(xlStr(b.createdAt)) : a.date < b.date ? -1 : 1));
     const templates = S.templates ? S.templates() : real(Object.values(S.data.templates || {}));
     const plans = templates.filter((t) => t.kind === 'plan' && t.patientId === pid && !t.deleted);
     return { patient, sessions, assessments, plans, settings: S.settings || defaultSettings(), exercise: (id) => (S.exercise ? S.exercise(id) : null) };

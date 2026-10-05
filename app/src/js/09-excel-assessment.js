@@ -469,7 +469,8 @@ const ExcelAssessment = (() => {
       ws.set(r, 6, pt.seconds ? [xlStr(x.secD) && `${xlStr(x.secD)} s`, xlStr(x.secE) && `${xlStr(x.secE)} s`].filter(Boolean).join(' · ') : '', XS.cell);
       ws.set(r, 7, x.pain ? 'P' : '', [XS.cell, { b: true, fill: x.pain ? XL_C.RED : null }]);
       const info = Calc.scoreInfo(worst);
-      ws.set(r, 8, x.pain ? 'Dolor: s\'atura el test i es deriva al fisio.' : info ? info.decision : '', XS.text);
+      // La decisió escrita pel professional; si no n'hi ha, la que es proposa segons la puntuació.
+      ws.set(r, 8, xlStr(x.decision).trim() || (x.pain ? 'Dolor: s\'atura el test i es deriva al fisio.' : info ? info.decision : ''), XS.text);
       ws.set(r, 9, xlStr(x.note), XS.text);
       r++;
     }

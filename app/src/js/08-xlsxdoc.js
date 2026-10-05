@@ -181,11 +181,45 @@ const XlsxDoc = (() => {
     }
   }
 
-  // Línies que ocupa un text en una cel·la amb salt de línia automàtic (estimació; Excel no recalcula l'alçada de les combinades).
-  function fitLines(text, width, sz = 10, bold = false) {
-    const cpl = Math.max(1, Math.floor(width * (11 / sz) * (bold ? 0.9 : 0.96)));
-    let lines = 0;
-    for (const para of String(text).split('\n')) lines += Math.max(1, Math.ceil(para.length / cpl));
+  // ── Mida del text (per saber l'alçada de les files amb salt de línia) ──
+  // Amplades dels caràcters de Calibri (per 1000 d'em) de l'espai (32) al 383, en normal i en negreta, i alguns símbols.
+  const CAL_REG = [226,326,401,498,507,715,682,221,303,303,498,498,250,306,252,386,507,507,507,507,507,507,507,507,507,507,268,268,498,498,498,463,894,579,544,533,615,488,459,631,623,252,319,520,420,855,646,662,517,673,543,459,487,642,567,890,519,487,468,307,386,307,498,498,291,479,525,423,525,498,305,471,525,229,239,455,229,799,525,527,525,525,349,391,335,525,452,715,433,453,395,314,460,314,498,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,226,326,498,507,498,507,498,498,393,834,402,512,498,500,507,394,339,498,336,334,292,550,586,252,307,246,422,512,636,671,675,463,579,579,579,579,579,579,763,533,488,488,488,488,252,252,252,252,625,646,662,662,662,662,662,498,664,642,642,642,642,487,517,527,479,479,479,479,479,479,773,423,498,498,498,498,229,229,229,229,525,525,527,527,527,527,527,498,529,525,525,525,525,453,525,453,579,479,579,479,579,479,533,423,533,423,533,423,533,423,615,568,625,552,488,498,488,498,488,498,488,498,488,498,631,471,631,471,631,471,631,471,623,525,656,533,252,229,252,229,252,229,252,229,252,229,571,469,319,239,520,455,455,420,229,420,229,423,264,546,374,430,248,646,525,646,525,646,525,579,628,525,662,527,662,527,662,527,867,850,543,349,543,349,543,349,459,391,459,391,459,391,459,391,487,335,487,346,487,342,642,525,642,525,642,525,642,525,642,525,642,525,890,715,487,453,487,468,395,468,395,468,395,243];
+  const CAL_BOLD = [226,326,438,498,507,729,705,233,312,312,498,498,258,306,267,430,507,507,507,507,507,507,507,507,507,507,276,276,498,498,498,463,898,606,561,529,630,488,459,637,631,267,331,547,423,874,659,676,532,686,563,473,495,653,591,906,551,520,478,325,430,325,498,498,300,494,537,418,537,503,316,474,537,246,255,480,246,813,537,538,537,537,355,399,347,537,473,745,459,474,397,344,475,344,498,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,226,326,498,507,498,507,498,498,415,834,416,539,498,500,507,390,342,498,338,336,301,563,598,268,303,252,435,539,658,691,702,463,606,606,606,606,606,606,775,529,488,488,488,488,267,267,267,267,639,659,676,676,676,676,676,498,681,653,653,653,653,520,532,555,494,494,494,494,494,494,775,418,503,503,503,503,246,246,246,246,537,537,538,538,538,538,538,498,544,537,537,537,537,474,537,474,606,494,606,494,606,494,529,418,529,418,529,418,529,418,630,597,639,569,488,503,488,503,488,503,488,503,488,503,637,474,637,474,637,474,637,474,631,537,658,547,267,246,267,246,267,246,267,246,267,246,598,501,331,255,547,480,480,423,246,423,246,430,306,562,422,433,264,659,537,659,537,659,537,622,641,537,676,538,676,538,676,538,874,843,563,355,563,355,563,355,473,399,473,399,473,399,473,399,495,347,495,363,495,354,653,537,653,537,653,537,653,537,653,537,653,537,906,745,520,474,520,478,397,478,397,478,397,258];
+  const CAL_EXTRA = {8211:[498,498],8212:[905,905],8216:[250,258],8217:[250,258],8220:[418,435],8221:[418,435],8226:[498,498],8230:[690,711],8594:[905,905],8722:[498,498],8804:[498,498],8805:[498,498]};
+  const glyph = (cp, bold) => {
+    if (cp >= 32 && cp <= 383) return (bold ? CAL_BOLD : CAL_REG)[cp - 32];
+    const e = CAL_EXTRA[cp];
+    return e ? e[bold ? 1 : 0] : 700; // símbols que Calibri no té (✔ ▲ █…): una mica més amples que una lletra
+  };
+  // Píxels que ocupa una paraula (a 96 ppp) amb aquesta mida (en punts).
+  const wordPx = (text, sz, bold) => {
+    let w = 0;
+    for (const ch of text) w += glyph(ch.codePointAt(0), bold);
+    return (w / 1000) * sz * (96 / 72);
+  };
+
+  // Línies que ocupa un text (runs: [[text, { sz, b }]]) en una cel·la d'aquesta amplada en caràcters (amb salt de línia automàtic).
+  // Simula el salt de línia d'Excel (a espais i guions) amb les amplades reals de Calibri; el marge és prudent perquè mai es talli un text.
+  function fitLines(runs, widthChars, sz = 10, bold = false) {
+    const list = typeof runs === 'string' ? [[runs, {}]] : runs;
+    const avail = Math.max(10, (widthChars * 7 - 7) * 0.97);
+    let lines = 1, cur = 0, gap = 0;
+    for (const [text, st] of list) {
+      const size = (st && st.sz) || sz, b = st && st.b !== undefined ? !!st.b : bold;
+      for (const para of String(text).split(/(\n)/)) {
+        if (para === '\n') { lines++; cur = 0; gap = 0; continue; }
+        // Paraules i espais; després d'un guió també es pot partir la línia (sense «lookbehind»: no el porten tots els navegadors).
+        for (const tok of para.replace(/-/g, '-\u0001').split(/( +|\u0001)/)) {
+          if (!tok || tok === '\u0001') continue;
+          if (/^ +$/.test(tok)) { gap += wordPx(' ', size, b) * tok.length; continue; }
+          const w = wordPx(tok, size, b);
+          if (cur === 0) { cur = w; gap = 0; }
+          else if (cur + gap + w <= avail) { cur += gap + w; gap = 0; }
+          else { lines++; cur = w; gap = 0; }
+          if (cur > avail) { lines += Math.floor(cur / avail); cur %= avail; } // paraula més llarga que la cel·la
+        }
+      }
+    }
     return lines;
   }
   const lineHeight = (sz) => Math.max(12, sz * 1.34);
@@ -265,15 +299,21 @@ const XlsxDoc = (() => {
 
     // Alçada d'una fila: la que s'hi ha posat com a mínim i el que calgui per als textos amb salt de línia.
     heightOf(r, cells, mergeAt) {
+      if (this.opts.autoHeight === false) return this.heights.get(r) || 0; // (per comparar l'estimació amb el que fa un full de càlcul de veritat)
       let need = 0;
       for (const cell of cells) {
         if (!cell.s.wrap || cell.v == null || cell.v === '') continue;
         const mg = mergeAt.get(`${r}:${cell.c}`);
         if (mg && mg[2] > mg[0]) continue; // combinada en vertical: no s'estima
-        const raw = typeof cell.v === 'object' ? (cell.v.rich ? cell.v.rich.map((x) => x[0]).join('') : cell.v.f ? String(cell.v.v == null ? '' : cell.v.v) : '') : String(cell.v);
-        if (!raw) continue;
         const sz = cell.s.sz || 10;
-        need = Math.max(need, Math.ceil(fitLines(raw, this.width(cell.c, mg), sz, cell.s.b) * lineHeight(sz) + 3));
+        let runs;
+        if (typeof cell.v === 'object') {
+          if (cell.v.rich) runs = cell.v.rich.map((x) => (typeof x === 'string' ? [x, {}] : [x[0], x[1] || {}]));
+          else if (cell.v.f) runs = [[String(cell.v.v == null ? '' : cell.v.v), {}]];
+          else continue;
+        } else runs = [[String(cell.v), {}]];
+        if (!runs.some((x) => x[0])) continue;
+        need = Math.max(need, Math.ceil(fitLines(runs, this.width(cell.c, mg), sz, !!cell.s.b) * lineHeight(sz) + 3));
       }
       const set = this.heights.get(r) || 0;
       const h = Math.max(set, need);
@@ -385,6 +425,12 @@ const XlsxDoc = (() => {
     validate() {
       for (const ws of this.sheets) {
         if (INVALID_NAME.test(ws.name)) throw new Error(`Nom de full no vàlid: ${ws.name}`);
+        const linked = new Set();
+        for (const l of ws.links) {
+          const k = `${l.r}:${l.c}`;
+          if (linked.has(k)) throw new Error(`Dos enllaços a la mateixa cel·la ${ws.name}!${ref(l.r, l.c)}`);
+          linked.add(k);
+        }
         const taken = new Set();
         for (const [r1, c1, r2, c2] of ws.merges) {
           for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) {
