@@ -503,8 +503,15 @@ const step = async (label, fn) => {
     await ybt.locator('.tvideo.has', { hasText: 'Vídeo dreta' }).waitFor();
     await ybt.locator('.tvideo', { hasText: 'Vídeo esquerra' }).locator('input[data-kind="gallery"]').setInputFiles({ name: 'ybt-e.mp4', mimeType: 'video/mp4', buffer: Buffer.from('ybt esquerra') });
     await ybt.locator('.tvideo.has', { hasText: 'Vídeo esquerra' }).waitFor();
+    // Patró Lateral Lunge: un vídeo per costat.
+    const lat = page.locator('.pcard', { hasText: 'Lateral Lunge' });
+    if ((await lat.locator('.tvideo').count()) !== 2) throw new Error('el lateral lunge ha de tenir dos vídeos');
+    await lat.locator('.tvideo', { hasText: 'Vídeo esquerra' }).locator('input[data-kind="record"]').setInputFiles({ name: 'lat-e.mp4', mimeType: 'video/mp4', buffer: Buffer.from('lateral esquerra') });
+    await lat.locator('.tvideo.has', { hasText: 'Vídeo esquerra' }).waitFor();
+    if ((await page.locator('.pcard', { hasText: 'Squat' }).first().locator('.tvideo').count()) !== 0) throw new Error('el squat no té vídeos per costat');
     await page.waitForTimeout(300);
     const all = await page.evaluate((id) => Store.get('assessments', id), aid);
+    if (!/^eonlocal:/.test((all.patterns.laterallunge || {}).videoE || '')) throw new Error(`lateral lunge: ${JSON.stringify(all.patterns.laterallunge)}`);
     const v = all.values;
     for (const [t, k] of [['thomas', 'photoD'], ['thomas', 'photoE'], ['adams', 'photo'], ['sls', 'videoD'], ['sls', 'videoE']]) {
       if (!/^eonlocal:/.test((v[t] || {})[k] || '')) throw new Error(`${t}.${k}: ${JSON.stringify(v[t])}`);
@@ -519,6 +526,7 @@ const step = async (label, fn) => {
     await page.waitForSelector('.rphoto img');
     await page.waitForSelector('.rvid >> text=Single leg squat · esquerra');
     await page.waitForSelector('.rvid >> text=Y-Balance Test · dreta');
+    await page.waitForSelector('.rvid >> text=Lateral Lunge · esquerra');
     // Excel: enllaços a les fotos i als vídeos.
     const flat = await page.evaluate((id) => { const a = Store.get('assessments', id); return Flat.assessment(a, Store.get('patients', a.patientId)); }, aid);
     if (!/^eonlocal:/.test(flat['Test de Thomas foto D']) || !/^eonlocal:/.test(flat['Single leg squat vídeo E'])) throw new Error('columnes de l\'Excel');

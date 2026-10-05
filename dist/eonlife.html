@@ -3744,7 +3744,7 @@ var qrcode = function() {
     return qrcode;
 }));
 </script>
-<script>window.EON_BUILD = "2026-10-05 11:57";
+<script>window.EON_BUILD = "2026-10-05 12:04";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4212,7 +4212,7 @@ const PATTERNS = [
     exec: 'Pes corporal o barra lleugera · 5 reps · escàpules al banc',
     adapt: 'Pont de glutis a terra.',
     chips: ['Extensió incompleta', 'Hiperextensió lumbar', 'Genolls cap endins', 'Rotació de pelvis'] },
-  { id: 'laterallunge', name: 'Lateral Lunge', short: 'Lat. lunge', uni: true,
+  { id: 'laterallunge', name: 'Lateral Lunge', short: 'Lat. lunge', uni: true, videos: [{ k: 'videoD', label: 'Dreta' }, { k: 'videoE', label: 'Esquerra' }],
     observe: ['Frontissa de maluc a la cama que treballa.', 'Genoll alineat amb el peu i taló a terra.',
       'Cama contrària estesa, amb el peu recolzat.', 'Tronc neutre, sense rotació.', 'Tornada al centre controlada.'],
     minor: 'Recorregut limitat per mobilitat d\'adductors o valg lleu, però completa el patró.',
@@ -4245,7 +4245,8 @@ const RECORDING_RULES = [
 // Protocol de valoració funcional. Tipus de test:
 //   bi (dreta/esquerra numèric) · single (un valor) · biSelect · select · scoreBi (0/−/−− per costat)
 //   grups especials: ybt · jumps · encoder · bike · patterns · free
-//   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol)
+//   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol;
+//   també als patrons, PATTERNS)
 const PROTOCOL = [
   {
     id: 'mobilitat', title: 'Mobilitat i anàlisi postural', short: 'Mobilitat',
@@ -5341,7 +5342,13 @@ const Calc = {
           for (const m of YBT_VIDEOS) add(sec.id, `Y-Balance Test · ${m.label.toLowerCase()}`, (a.ybt || {})[m.k]);
         }
         if (g.kind === 'jumps') add(sec.id, 'Salts · CMJ', (a.jumps || {}).video);
-        if (g.kind === 'patterns') for (const pt of PATTERNS) add(sec.id, pt.name, ((a.patterns || {})[pt.id] || {}).video);
+        if (g.kind === 'patterns') {
+          for (const pt of PATTERNS) {
+            const x = (a.patterns || {})[pt.id] || {};
+            add(sec.id, pt.name, x.video);
+            for (const m of pt.videos || []) add(sec.id, `${pt.name} · ${m.label.toLowerCase()}`, x[m.k]);
+          }
+        }
       }
     }
     return out;
@@ -5647,6 +5654,7 @@ const Flat = {
             if (pt.seconds) { o[`${pt.name} D (s)`] = n(U.num(p.secD)); o[`${pt.name} E (s)`] = n(U.num(p.secE)); }
             o[`${pt.name} P`] = p.pain ? 'P' : '';
             o[`${pt.name} compensacions`] = (p.chips || []).join(', ');
+            for (const m of pt.videos || []) o[`${pt.name} vídeo ${m.k.slice(-1)}`] = p[m.k] || '';
           }
           const pc = Calc.patterns(a).counts;
           o['Patrons 0'] = pc['0']; o['Patrons −'] = pc['-']; o['Patrons −−'] = pc['--']; o['Patrons P'] = pc.P;
@@ -11506,12 +11514,12 @@ function PatternsBlock({ a, p, upd }) {
     ${rules && html`<ol class="rules">${RECORDING_RULES.map((r) => html`<li><strong>${r.t}.</strong> ${r.d}</li>`)}
       <li class="rules-why">A la primera visita no corregim: les consignes arriben a partir de la 2a sessió (Bennett et al., 2019; Frost et al., 2015).</li></ol>`}
     <div class="pgrid">
-      ${PATTERNS.map((pt, i) => html`<${PatternCard} key=${pt.id} pt=${pt} n=${i + 1} v=${(a.patterns || {})[pt.id] || {}} p=${p} set=${(k, v) => setP(pt.id, k, v)} />`)}
+      ${PATTERNS.map((pt, i) => html`<${PatternCard} key=${pt.id} pt=${pt} n=${i + 1} v=${(a.patterns || {})[pt.id] || {}} p=${p} date=${a.date} set=${(k, v) => setP(pt.id, k, v)} />`)}
     </div>
   </div>`;
 }
 
-function PatternCard({ pt, n, v, p, set }) {
+function PatternCard({ pt, n, v, p, date, set }) {
   const [obs, setObs] = useState(false);
   const [noteOpen, setNoteOpen] = useState(!!v.note);
   const score = Calc.patternScore(v, pt.uni);
@@ -11542,12 +11550,15 @@ function PatternCard({ pt, n, v, p, set }) {
       const on = (v.chips || []).includes(ch);
       return html`<${Chip} on=${on} onClick=${() => set('chips', on ? (v.chips || []).filter((y) => y !== ch) : [...(v.chips || []), ch])}>${ch}</${Chip}>`;
     })}</div>
+    ${pt.videos && html`<div class="tmedia">${pt.videos.map((m) => html`<${VideoSlot} key=${m.k} url=${v[m.k]} label=${`Vídeo ${m.label.toLowerCase()}`}
+      title=${`${pt.name} · ${m.label.toLowerCase()}`} patient=${p} date=${date} onChange=${(x) => set(m.k, x)} />`)}</div>`}
     <label class="pcard-dec"><span class="field-label">Decisió</span>
       <input class="input" value=${v.decision || ''} placeholder=${auto || 'Es proposa segons la puntuació'} onInput=${(e) => set('decision', e.currentTarget.value)} /></label>
     <div class="pcard-foot">
       ${v.pain && html`<span class="warn-text small"><${Icon} name="alert" size=${14} /> S'atura el test i es deriva al fisio.</span>`}
       <span class="grow"></span>
-      <${Tools} x=${v} title=${pt.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)} />
+      <${Tools} x=${v} title=${pt.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)}
+        video=${!pt.videos || U.isUrl(v.video)} />
     </div>
     ${noteOpen && html`<${Area} value=${v.note} onValue=${(x) => set('note', x)} placeholder="Compensacions observades" rows=${1} />`}
   </div>`;

@@ -173,7 +173,7 @@ const PATTERNS = [
     exec: 'Pes corporal o barra lleugera · 5 reps · escàpules al banc',
     adapt: 'Pont de glutis a terra.',
     chips: ['Extensió incompleta', 'Hiperextensió lumbar', 'Genolls cap endins', 'Rotació de pelvis'] },
-  { id: 'laterallunge', name: 'Lateral Lunge', short: 'Lat. lunge', uni: true,
+  { id: 'laterallunge', name: 'Lateral Lunge', short: 'Lat. lunge', uni: true, videos: [{ k: 'videoD', label: 'Dreta' }, { k: 'videoE', label: 'Esquerra' }],
     observe: ['Frontissa de maluc a la cama que treballa.', 'Genoll alineat amb el peu i taló a terra.',
       'Cama contrària estesa, amb el peu recolzat.', 'Tronc neutre, sense rotació.', 'Tornada al centre controlada.'],
     minor: 'Recorregut limitat per mobilitat d\'adductors o valg lleu, però completa el patró.',
@@ -206,7 +206,8 @@ const RECORDING_RULES = [
 // Protocol de valoració funcional. Tipus de test:
 //   bi (dreta/esquerra numèric) · single (un valor) · biSelect · select · scoreBi (0/−/−− per costat)
 //   grups especials: ybt · jumps · encoder · bike · patterns · free
-//   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol)
+//   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol;
+//   també als patrons, PATTERNS)
 const PROTOCOL = [
   {
     id: 'mobilitat', title: 'Mobilitat i anàlisi postural', short: 'Mobilitat',

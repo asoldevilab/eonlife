@@ -388,12 +388,12 @@ function PatternsBlock({ a, p, upd }) {
     ${rules && html`<ol class="rules">${RECORDING_RULES.map((r) => html`<li><strong>${r.t}.</strong> ${r.d}</li>`)}
       <li class="rules-why">A la primera visita no corregim: les consignes arriben a partir de la 2a sessió (Bennett et al., 2019; Frost et al., 2015).</li></ol>`}
     <div class="pgrid">
-      ${PATTERNS.map((pt, i) => html`<${PatternCard} key=${pt.id} pt=${pt} n=${i + 1} v=${(a.patterns || {})[pt.id] || {}} p=${p} set=${(k, v) => setP(pt.id, k, v)} />`)}
+      ${PATTERNS.map((pt, i) => html`<${PatternCard} key=${pt.id} pt=${pt} n=${i + 1} v=${(a.patterns || {})[pt.id] || {}} p=${p} date=${a.date} set=${(k, v) => setP(pt.id, k, v)} />`)}
     </div>
   </div>`;
 }
 
-function PatternCard({ pt, n, v, p, set }) {
+function PatternCard({ pt, n, v, p, date, set }) {
   const [obs, setObs] = useState(false);
   const [noteOpen, setNoteOpen] = useState(!!v.note);
   const score = Calc.patternScore(v, pt.uni);
@@ -424,12 +424,15 @@ function PatternCard({ pt, n, v, p, set }) {
       const on = (v.chips || []).includes(ch);
       return html`<${Chip} on=${on} onClick=${() => set('chips', on ? (v.chips || []).filter((y) => y !== ch) : [...(v.chips || []), ch])}>${ch}</${Chip}>`;
     })}</div>
+    ${pt.videos && html`<div class="tmedia">${pt.videos.map((m) => html`<${VideoSlot} key=${m.k} url=${v[m.k]} label=${`Vídeo ${m.label.toLowerCase()}`}
+      title=${`${pt.name} · ${m.label.toLowerCase()}`} patient=${p} date=${date} onChange=${(x) => set(m.k, x)} />`)}</div>`}
     <label class="pcard-dec"><span class="field-label">Decisió</span>
       <input class="input" value=${v.decision || ''} placeholder=${auto || 'Es proposa segons la puntuació'} onInput=${(e) => set('decision', e.currentTarget.value)} /></label>
     <div class="pcard-foot">
       ${v.pain && html`<span class="warn-text small"><${Icon} name="alert" size=${14} /> S'atura el test i es deriva al fisio.</span>`}
       <span class="grow"></span>
-      <${Tools} x=${v} title=${pt.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)} />
+      <${Tools} x=${v} title=${pt.name} patient=${p} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${(x) => set('video', x)}
+        video=${!pt.videos || U.isUrl(v.video)} />
     </div>
     ${noteOpen && html`<${Area} value=${v.note} onValue=${(x) => set('note', x)} placeholder="Compensacions observades" rows=${1} />`}
   </div>`;
