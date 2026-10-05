@@ -76,18 +76,25 @@ const KinventOcr = {
         for (const b of data.blocks || []) for (const pa of b.paragraphs || []) for (const l of pa.lines || []) {
           lines.push({ text: l.text, bbox: l.bbox, words: (l.words || []).map((w) => ({ text: w.text, bbox: w.bbox })) });
         }
-        for (const card of KinventPdf.cards(lines)) {
-          const raw = {};
-          for (const side of ['left', 'right']) {
-            if (!card[side]) continue;
-            const r = KinventPdf.valueBox(card[side]);
-            const W = (r.x1 - r.x0) * 2, H = (r.y1 - r.y0) * 2;
-            const v = this.canvas(W + 60, H + 60);
-            v.cx.imageSmoothingQuality = 'high';
-            v.cx.drawImage(bmp, r.x0 / k, r.y0 / k, (r.x1 - r.x0) / k, (r.y1 - r.y0) / k, 30, 30, W, H);
-            raw[side] = String((await num.recognize(this.binarize(v, 200))).data.text || '').trim();
+        for (const card of KinventPdf.cards(lines, pg.c.width)) {
+          // Cada número es torna a llegir retallat i ampliat. Si esquerra i dreta no quadren amb l'asimetria, es prova
+          // amb un altre llindar de blanc i negre (els PDF de menys resolució tenen els números més prims).
+          const rawE = [], rawD = [];
+          let fit = null;
+          for (const thr of [200, 170, 225]) {
+            for (const side of ['left', 'right']) {
+              const r = KinventPdf.valueBox(card[side], pg.c.width);
+              const s = Math.min(8, Math.max(2, 48 / ((card[side].y1 - card[side].y0) / k)));
+              const W = ((r.x1 - r.x0) / k) * s, H = ((r.y1 - r.y0) / k) * s;
+              const v = this.canvas(W + 60, H + 60);
+              v.cx.imageSmoothingQuality = 'high';
+              v.cx.drawImage(bmp, r.x0 / k, r.y0 / k, (r.x1 - r.x0) / k, (r.y1 - r.y0) / k, 30, 30, W, H);
+              (side === 'left' ? rawE : rawD).push(String((await num.recognize(this.binarize(v, thr))).data.text || '').trim());
+            }
+            fit = KinventPdf.fixPair([...rawE, card.lineE], [...rawD, card.lineD], card.asym, card.measure);
+            if (fit.ok || card.asym == null) break;
           }
-          found.push({ ...card, page: p + 1, rawE: raw.left || '', rawD: raw.right || '' });
+          found.push({ ...card, page: p + 1, rawE, rawD, ...fit });
         }
         if (bmp.close) bmp.close();
       }
@@ -95,7 +102,7 @@ const KinventOcr = {
       await page.terminate();
       await num.terminate();
     }
-    return found.map((c) => ({ ...c, ...KinventPdf.fixPair(c.rawE, c.rawD, c.asym, c.measure), target: KinventPdf.target(c.title, c.measure) }));
+    return found.map((c) => ({ ...c, target: KinventPdf.target(c.title, c.measure) }));
   },
 };
 
@@ -190,7 +197,8 @@ function KinventImport({ file, a, p, upd, onClose }) {
     ${err ? html`<p class="kvi-err">${err}</p>`
       : !rows ? html`<div class="kvi-busy" role="status"><span class="spinner"></span><span>${step}</span></div>`
       : !rows.length ? html`<p class="muted">No he trobat cap prova a l'informe. Comprova que sigui l'informe PDF de Kinvent Physio.</p>`
-      : html`<p class="muted small">Revisa els valors abans d'omplir: la força es passa de kg a newtons. Els números es comproven amb l'asimetria de l'informe;
+      : html`<p class="muted small">Revisa els valors abans d'omplir: Esquerra i Dreta són la «Izquierda» i la «Derecha» de l'informe (a la valoració,
+          la dreta va a la primera columna) i la força es passa de kg a newtons. Els números es comproven amb l'asimetria de l'informe;
           si alguna cosa no quadra, surt «Revisa» i el pots corregir aquí.</p>
         <div class="kvi-rows">${rows.map((r) => {
           const t = r.target && TEST_INDEX[r.target];
@@ -205,13 +213,14 @@ function KinventImport({ file, a, p, upd, onClose }) {
               ${r.target && current(r.target) && html`<span class="muted small">${current(r.target)} (es substitueix)</span>`}
             </div>
             <div class="kvi-vals">
-              <label class="kvi-val"><span class="side-k" title="Esquerra">E</span><${NumInput} value=${r.e} onValue=${setRow(r.id, 'e')} unit=${unit} ariaLabel=${`${r.title} esquerra`} /></label>
-              <label class="kvi-val"><span class="side-k" title="Dreta">D</span><${NumInput} value=${r.d} onValue=${setRow(r.id, 'd')} unit=${unit} ariaLabel=${`${r.title} dreta`} /></label>
+              <label class="kvi-val"><span class="kvi-side">Esquerra</span><${NumInput} value=${r.e} onValue=${setRow(r.id, 'e')} unit=${unit} ariaLabel=${`${r.title} esquerra`} /></label>
+              <label class="kvi-val"><span class="kvi-side">Dreta</span><${NumInput} value=${r.d} onValue=${setRow(r.id, 'd')} unit=${unit} ariaLabel=${`${r.title} dreta`} /></label>
               ${r.kgE != null && html`<span class="muted small kvi-kg">${kvNum(r.kgE, true)} kg · ${kvNum(r.kgD, true)} kg</span>`}
               ${t && t.kind === 'single' && html`<span class="muted small kvi-kg">${t.name}: s'hi posa el valor més alt i E i D, a la nota.</span>`}
             </div>
             <div class="kvi-state">${r.ok ? html`<${Pill} tone="ok" title="Els valors quadren amb l'asimetria de l'informe">${r.fixed ? 'Corregit' : 'Quadra'}</${Pill}>`
-              : html`<${Pill} tone="warn" title="Els valors llegits no quadren amb l'asimetria: revisa'ls amb el PDF">Revisa</${Pill}>`}</div>
+              : html`<${Pill} tone="warn" title=${r.asym == null ? 'No s\'ha pogut llegir l\'asimetria per comprovar els valors: revisa\'ls amb el PDF'
+                : 'Els valors llegits no quadren amb l\'asimetria: revisa\'ls amb el PDF'}>Revisa</${Pill}>`}</div>
           </div>`;
         })}</div>`}
   </${Dialog}>`;

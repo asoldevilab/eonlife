@@ -300,6 +300,8 @@ const step = async (label, fn) => {
     await page.click('.sblock.blk-mob .sblock-videos');
     await page.waitForSelector('.bv .embed iframe[src*="youtube-nocookie.com/embed/dQw4w9WgXcQ"]');
     await shot(page, '09b-videos-bloc');
+    // Escape tanca els vídeos (amb el focus a la pàgina: dins del reproductor de YouTube, la tecla és del reproductor).
+    await page.locator('.bv-head button[title="Tanca"]').focus();
     await page.keyboard.press('Escape');
     await page.waitForSelector('.bv', { state: 'detached' });
   });

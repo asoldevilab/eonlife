@@ -109,9 +109,13 @@ Consells:
   el PDF no s'envia enlloc. La primera vegada es descarrega el lector (uns 6 MB, cal internet) i després ja queda
   guardat. Abans d'omplir res surt la llista de proves trobades:
   - Per a cada prova hi ha el camp de la valoració on va, que es pot canviar o deixar sense omplir.
-  - Hi ha l'esquerra i la dreta, que es poden corregir.
+  - Hi ha l'**Esquerra** (la «Izquierda» de l'informe) i la **Dreta** («Derecha»), que es poden corregir. A la
+    valoració, la dreta (D) és la primera columna i l'esquerra (E), la segona.
   - La força es passa de kg a newtons (× 9,81).
-  - Cada número es comprova amb l'asimetria de l'informe: «Quadra» si coincideix; si no, «Revisa».
+  - Cada número es comprova amb l'asimetria de l'informe: «Quadra» si coincideix; si no, «Revisa». Si l'esquerra i la
+    dreta no quadren, l'app torna a llegir els números amb un altre contrast abans de demanar que els reviseu.
+  - Funciona també amb PDF de menys resolució (per exemple, els que es descarreguen des de la tauleta), encara que
+    l'OCR llegeixi malament «Izquierda» o el % d'asimetria: l'app sap on són els valors de cada targeta.
 
   Amb *Adjunta també el PDF*, el PDF també queda desat a la valoració. Està provat amb l'informe en castellà, que és
   el que feu servir.
