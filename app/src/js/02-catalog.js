@@ -246,7 +246,7 @@ const PROTOCOL = [
         tests: [{ id: 'wblt', name: 'Knee-to-wall', short: 'Knee-to-wall', rule: 'wblt', diffOnly: true }] },
       { id: 'neuro', title: 'Neurodinàmia', kind: 'biSelect', options: ['Negatiu', 'Positiu'],
         tests: [
-          { id: 'slump', name: 'Slump test' },
+          { id: 'slump', name: 'Slump test', retired: true },
           { id: 'pkb', name: 'Prone knee bending' },
         ] },
       { id: 'postural', title: 'Anàlisi postural',
