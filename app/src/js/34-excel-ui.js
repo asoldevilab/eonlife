@@ -1,6 +1,6 @@
-/* EON Life · Excel de cada client a l'app: estat de la pujada a la carpeta, descàrregues i planificació del mes.
-   L'app fa sola un Excel per sessió, un per valoració i un Excel gegant de visió general (09-sync.js); aquí
-   s'hi veu si són al dia, es poden pujar a mà o descarregar i es planifiquen sessions per endavant. */
+/* EON Life · Excel de cada client a l'app: estat de la pujada a la carpeta, descàrrega i planificació del mes.
+   L'app fa sola un Excel per client, amb un full per mes (sessions) i les valoracions (09-sync.js); aquí s'hi veu
+   si és al dia, es pot pujar a mà o descarregar i es planifiquen sessions per endavant. */
 
 // «fa 3 min», «fa 2 h», «el 02/10/2026»
 function agoText(ts) {
@@ -18,8 +18,8 @@ async function syncNow(pid, force) {
   try {
     const r = await Sync.now(pid, { force });
     UI.toast(r.uploaded || r.removed
-      ? `Excel desats a la carpeta: ${U.plural(r.uploaded, 'fitxer nou o canviat', 'fitxers nous o canviats')}${r.removed ? ` · ${U.plural(r.removed, 'd\'antic retirat', 'd\'antics retirats')}` : ''}.`
-      : 'Els Excel ja estaven al dia a la carpeta.');
+      ? `${r.uploaded ? 'Excel del client desat a la carpeta' : 'L\'Excel del client ja era al dia'}${r.removed ? ` · ${U.plural(r.removed, 'Excel antic retirat', 'Excel antics retirats')}` : ''}.`
+      : 'L\'Excel del client ja era al dia a la carpeta.');
     if (r.failed) UI.toast(failedText(r.failedNames, r.failed), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
@@ -32,7 +32,7 @@ function savedToast(status, okText) {
   UI.toast(status === 'saved' ? okText : 'No s\'ha pogut descarregar en aquesta vista.', status === 'saved' ? 'ok' : 'bad');
 }
 
-async function downloadExcel(pid, key) {
+async function downloadExcel(pid, key = 'C:client') {
   try {
     const { name, status } = await Exports.download(pid, key);
     savedToast(status, `Excel descarregat: ${name}`);
@@ -41,17 +41,7 @@ async function downloadExcel(pid, key) {
   }
 }
 
-async function downloadExcelZip(pid) {
-  try {
-    const { name, status, failed } = await Exports.downloadZip(pid);
-    savedToast(status, `Descarregat: ${name} (carpetes Valoracions i Sessions).`);
-    if (status === 'saved' && failed && failed.length) UI.toast(failedText(failed.slice(0, 5), failed.length), 'bad');
-  } catch (e) {
-    UI.toast(e.message, 'bad');
-  }
-}
-
-// Estat de la pujada dels Excel d'un client (només amb Microsoft 365).
+// Estat de la pujada de l'Excel d'un client (només amb Microsoft 365).
 function SyncBadge({ pid }) {
   const [, force] = useState(0);
   useEffect(() => Sync.subscribe(() => force((n) => n + 1)), []);
@@ -59,18 +49,18 @@ function SyncBadge({ pid }) {
   const st = Sync.info(pid);
   if (st.state === 'off') return null;
   const map = {
-    running: ['neutral', 'refresh', 'Pujant els Excel a la carpeta…'],
-    pending: ['warn', 'clock', 'Excel pendents de pujar (es pugen sols)'],
+    running: ['neutral', 'refresh', 'Pujant l\'Excel a la carpeta…'],
+    pending: ['warn', 'clock', 'Excel pendent de pujar (es puja sol)'],
     error: ['bad', 'alert', `Excel sense pujar: ${st.error}`],
-    partial: ['warn', 'alert', `Excel al dia a la carpeta, menys ${st.last && st.last.failed === 1 ? '1 que no s\'ha' : `${st.last && st.last.failed} que no s'han`} pogut fer`],
+    partial: ['warn', 'alert', 'No s\'ha pogut fer l\'Excel: revisa les dades d\'aquest client'],
     ok: ['ok', 'cloud', `Excel al dia a la carpeta · ${agoText(st.last && st.last.at)}`],
-    never: ['neutral', 'table', 'Excel encara no pujats a la carpeta'],
-    paused: ['neutral', 'table', 'Pujada automàtica dels Excel en pausa'],
+    never: ['neutral', 'table', 'Excel encara no pujat a la carpeta'],
+    paused: ['neutral', 'table', 'Pujada automàtica de l\'Excel en pausa'],
   };
   const [tone, icon, text] = map[st.state] || map.never;
   return html`<div class="syncbadge" role="status">
     <${Pill} tone=${tone} icon=${icon}>${text}</${Pill}>
-    ${st.state !== 'running' && html`<button type="button" class="link" onClick=${() => syncNow(pid)}>Puja'ls ara</button>`}
+    ${st.state !== 'running' && html`<button type="button" class="link" onClick=${() => syncNow(pid)}>Puja'l ara</button>`}
   </div>`;
 }
 
@@ -81,15 +71,14 @@ function excelMenuItems(pid) {
   const last = st.last || {};
   const open = (url) => () => window.open(url, '_blank', 'noopener');
   if (Sync.available()) {
-    items.push({ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(pid) });
-    if (last.overviewUrl) items.push({ label: 'Obre l\'Excel de visió general', icon: 'table', onClick: open(last.overviewUrl) });
+    items.push({ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(pid) });
+    if (last.fileUrl) items.push({ label: 'Obre l\'Excel del client', icon: 'table', onClick: open(last.fileUrl) });
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
   }
   if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
-    items.push({ label: 'Descarrega l\'Excel de visió general', icon: 'download', onClick: () => downloadExcel(pid, 'O:overview') });
-    items.push({ label: 'Descarrega tots els Excel (ZIP)', icon: 'download', onClick: () => downloadExcelZip(pid) });
+    items.push({ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(pid) });
   }
   return items;
 }
@@ -157,7 +146,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   return html`<${Dialog} title="Planifica el mes" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="calendar" disabled=${!count} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
-    <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten a l'Excel de visió general i amb el seu propi Excel a la carpeta del client.</p>
+    <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten al full del mes de l'Excel del client.</p>
     <div class="form-grid">
       <${Field} label="Mes" id="pm-month"><${Select} id="pm-month" value=${month} onValue=${setMonth} options=${months.map((m) => ({ v: m, label: U.fmtMonth(m) }))} /></${Field}>
       <${Field} label="Progressió dels exercicis" id="pm-every" hint="Els exercicis que tenen nivells a la biblioteca pugen un nivell (p. ex. Goblet squat → Back squat).">
@@ -217,15 +206,15 @@ function ExcelSettingsCard() {
     Store.saveSettings({ autoExcel: v });
     if (v) Sync.all();
   };
-  const all = () => { Sync.all({ force: true }); UI.toast('Es tornen a fer i pujar els Excel de tots els clients. Pot tardar uns minuts.'); };
+  const all = () => { Sync.all({ force: true }); UI.toast('Es torna a fer i pujar l\'Excel de cada client. Pot tardar uns minuts.'); };
   return html`<section class="card">
     <div class="card-head"><h2 class="h2">Excel de cada client</h2>
       <${Pill} tone=${cloud ? (on ? 'ok' : 'warn') : 'neutral'} icon="table">${cloud ? (on ? 'Pujada automàtica' : 'En pausa') : 'Només descàrrega'}</${Pill}></div>
-    <p>L'app fa sola, des del que s'omple a l'app, un <strong>Excel per cada sessió</strong> (feta, planificada o prevista), un <strong>Excel per cada valoració</strong> i un <strong>Excel gegant de visió general</strong> per client, amb un calendari i un detall per cada mes. Tot es registra a l'app: els Excel són només de lectura i es refan sols quan hi ha canvis.</p>
-    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'ls sols a la carpeta de cada client (<em>Valoracions</em> i <em>Sessions</em>)</span></label>
-      <p class="muted small">Es pugen uns segons després de l'últim canvi. Si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira de la carpeta (queda a la paperera de reciclatge). Mai es toca cap altre fitxer.</p>
-      ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'client té', 'clients tenen')} Excel pendents de pujar.</p>`}
-      <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja els Excel de tots els clients</${Btn}></div>`
-      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) els Excel es descarreguen des de la fitxa de cada client (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es pugen sols a la carpeta del client.</p>`}
+    <p>L'app fa sola, des del que s'omple a l'app, <strong>un Excel per client</strong> (<em>seguiment_nomcognoms_01.xlsx</em>): un resum, <strong>un full per mes</strong> amb el calendari i cada sessió (feta, planificada o prevista al pla), el registre de totes les sessions i les <strong>valoracions</strong> (l'evolució i el detall de cadascuna). Tot es registra a l'app: l'Excel és només de lectura i es refà sol quan hi ha canvis.</p>
+    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'l sol a la carpeta de cada client</span></label>
+      <p class="muted small">Es puja uns segons després de l'últim canvi i substitueix l'anterior. Els Excel antics fets per l'app (els d'una sessió o una valoració, d'abans de l'Excel únic) es retiren de <em>Sessions</em> i <em>Valoracions</em> (queden a la paperera de reciclatge). Mai es toca cap altre fitxer.</p>
+      ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'client té l\'Excel pendent', 'clients tenen l\'Excel pendent')} de pujar.</p>`}
+      <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja l'Excel de tots els clients</${Btn}></div>`
+      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) l'Excel del client es descarrega des de la seva fitxa (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es puja sol a la carpeta del client.</p>`}
   </section>`;
 }

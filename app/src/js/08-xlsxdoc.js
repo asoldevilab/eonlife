@@ -2,7 +2,7 @@
    A diferència de Xlsx (08-xlsx.js, que només crea la plantilla de la base de dades), aquest escriptor fa
    llibres per llegir: colors, cel·les combinades, text enriquit, fórmules amb el valor ja calculat, enllaços,
    format condicional, files i columnes fixades, protecció suau i configuració d'impressió. L'app el fa servir
-   per als Excel que genera sola per a cada sessió, cada valoració i la visió general de cada client.
+   per a l'Excel que genera sola per a cada client (sessions per mes i valoracions).
 
    Ús:
      const doc = XlsxDoc.create({ title: 'Sessió 12', creator: 'EON Life' });
@@ -240,6 +240,7 @@ const XlsxDoc = (() => {
       this.links = [];
       this.cfs = [];
       this.filter = '';
+      this.colBreaks = [];
     }
 
     cols(widths) { widths.forEach((w, i) => { if (w) this.widths[i + 1] = w; }); return this; }
@@ -247,6 +248,8 @@ const XlsxDoc = (() => {
     rowH(r, h) { this.heights.set(r, h); return this; }
     freeze(row, col = 1) { this.opts.freeze = [row, col]; return this; }
     autoFilter(range) { this.filter = range; return this; }
+    // Salt de pàgina en imprimir, just abans de la columna c (1, 2…).
+    pageBreakBefore(c) { if (c > 1 && !this.colBreaks.includes(c)) this.colBreaks.push(c); return this; }
 
     // value: text, número, booleà, { f, v } (fórmula amb valor), { date }, { rich }, null (només l'estil)
     set(r, c, value, style) {
@@ -368,7 +371,8 @@ const XlsxDoc = (() => {
       const colXml = this.widths.map((w, c) => (w ? `<col min="${c}" max="${c}" width="${num(w)}" customWidth="1"${this.hidden.has(c) ? ' hidden="1"' : ''}/>` : '')).join('');
       const out = [];
       out.push(`${HEAD}<worksheet xmlns="${NS}" xmlns:r="${NSR}">`);
-      out.push(`<sheetPr>${o.tab ? `<tabColor rgb="${argb(o.tab)}"/>` : ''}<pageSetUpPr fitToPage="1"/></sheetPr>`);
+      // fit: false = s'imprimeix a mida real (fulls molt amples com els mesos); si no, s'ajusta a l'amplada d'una pàgina.
+      out.push(`<sheetPr>${o.tab ? `<tabColor rgb="${argb(o.tab)}"/>` : ''}${o.fit === false ? '' : '<pageSetUpPr fitToPage="1"/>'}</sheetPr>`);
       out.push(`<dimension ref="A1:${ref(maxR, maxC)}"/>`);
       out.push(`<sheetViews><sheetView workbookViewId="0"${o.grid === false ? ' showGridLines="0"' : ''}${zoom}${sel}>${view.join('')}</sheetView></sheetViews>`);
       out.push('<sheetFormatPr defaultRowHeight="15"/>');
@@ -392,8 +396,12 @@ const XlsxDoc = (() => {
       this.rels = rels;
       if (o.center) out.push('<printOptions horizontalCentered="1"/>');
       out.push('<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.55" header="0.25" footer="0.25"/>');
-      out.push(`<pageSetup paperSize="9" orientation="${o.landscape === false ? 'portrait' : 'landscape'}" fitToWidth="1" fitToHeight="0"/>`);
+      out.push(`<pageSetup paperSize="9" orientation="${o.landscape === false ? 'portrait' : 'landscape'}"${o.fit === false ? '' : ' fitToWidth="1" fitToHeight="0"'}/>`);
       out.push(`<headerFooter><oddFooter>${esc(`&L&8${o.footer || 'EON Life · Human Performance'}&C&8&A&R&8Pàgina &P de &N`)}</oddFooter></headerFooter>`);
+      if (this.colBreaks.length) {
+        const brk = [...this.colBreaks].sort((a, b) => a - b);
+        out.push(`<colBreaks count="${brk.length}" manualBreakCount="${brk.length}">${brk.map((c) => `<brk id="${c - 1}" max="1048575" man="1"/>`).join('')}</colBreaks>`);
+      }
       out.push('</worksheet>');
       return out.join('');
     }

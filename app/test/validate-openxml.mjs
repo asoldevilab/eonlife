@@ -1,6 +1,6 @@
 // Validació estricta dels Excel amb el validador oficial de Microsoft (Open XML SDK, esquema de Microsoft 365).
 //   node app/test/validate-openxml.mjs        (o: npm run test:openxml)
-// Fa tots els Excel dels clients de la demo (sessions, valoracions i visió general) més la base de dades buida,
+// Fa l'Excel de cada client de la demo (resum, mesos, registre i valoracions) més la base de dades buida,
 // i hi passa el validador: és el que més s'acosta a saber si Excel obrirà els fitxers sense demanar «reparar».
 // Cal el SDK de .NET 8 (`dotnet`) i accés a NuGet la primera vegada. No forma part de `npm test` perquè necessita xarxa.
 import { mkdtempSync, writeFileSync } from 'node:fs';

@@ -1,20 +1,20 @@
-/* EON Life · sincronització dels Excel amb la carpeta del client (Microsoft 365).
+/* EON Life · sincronització de l'Excel del client amb la seva carpeta (Microsoft 365).
    Cada cop que es canvia alguna cosa d'un client (dades, valoració, sessió o pla) es deixa un avís a una cua que
-   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer els Excel d'aquell client i
-   només puja els que han canviat (substituint el fitxer anterior, sense còpies repetides):
-     · un Excel per sessió (feta, planificada o prevista al pla) a «Sessions»
-     · un Excel per valoració a «Valoracions»
-     · l'Excel gegant de visió general a «Sessions»
-   Els fitxers antics que ja no toquen (una sessió eliminada o canviada de dia) es treuen de la carpeta (queden a la
-   paperera de reciclatge). Mai es toca cap altre fitxer: només els que tenen el nom d'un Excel fet per l'app. */
+   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer l'Excel d'aquell client
+   (seguiment_<client>_01.xlsx, a l'arrel de la seva carpeta: un full per mes amb les sessions i les valoracions) i
+   només el puja si ha canviat (substituint el fitxer anterior, sense còpies repetides).
+   Els Excel antics fets per l'app que ja no toquen (els d'abans de l'Excel únic, a «Sessions» i «Valoracions», o el
+   d'un client reanomenat) es treuen de la carpeta (queden a la paperera de reciclatge). Mai es toca cap altre fitxer:
+   només els que tenen el nom d'un Excel fet per l'app. */
 
-const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day' };
+const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day', format: 'eonlife:sync:format' };
 
 const Sync = (() => {
   const DELAY = 20000;     // temps sense canvis abans de pujar
   const MAX_WAIT = 120000; // com a molt, es puja cada 2 minuts encara que s'estigui editant
   const SOON = 2500;       // en acabar una sessió o sortir de l'editor
   const BACKOFF = [20000, 60000, 120000, 300000];
+  const FORMAT = 2;        // forma dels Excel (2 = un sol Excel per client). Quan canvia, es refan els de tots els clients.
 
   const read = (key, fallback) => { try { const v = window.localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } };
   const write = (key, v) => { try { window.localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge */ } };
@@ -83,8 +83,8 @@ const Sync = (() => {
     return (e && e.message) || 'No s\'han pogut pujar els Excel.';
   }
 
-  // Fa (o refà) tots els Excel d'un client i els deixa a la seva carpeta. Retorna { uploaded, kept, removed }.
-  // only: 'time' = refresc diari: només es refà el que depèn de la data d'avui (la visió general i les sessions per fer).
+  // Fa (o refà) l'Excel d'un client i el deixa a la seva carpeta. Retorna { uploaded, kept, removed }.
+  // only: 'time' = refresc diari: només es refà el que depèn de la data d'avui (ara, l'Excel del client sencer).
   async function syncClient(pid, { force = false, only = '' } = {}) {
     const b = Store.backend;
     const d = ExcelSet.data(pid);
@@ -97,18 +97,20 @@ const Sync = (() => {
       own = true; // desar la carpeta a la fitxa no ha de posar el client altre cop a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
     }
-    const dirs = {}, existing = {};
+    // L'Excel va a l'arrel de la carpeta del client; «Sessions» i «Valoracions» (on van els PDF i els vídeos) es fan
+    // igualment perquè la carpeta tingui sempre la mateixa forma, i s'hi miren els Excel d'abans per retirar-los.
+    const list = async (id) => new Map((await b.children(id)).filter((x) => x.file).map((x) => [x.name.toLowerCase(), x]));
+    const dirs = { root: { id: fid, webUrl: folder.folderUrl || '' } }, existing = { root: await list(fid) };
     for (const key of ['assess', 'sessions']) {
       dirs[key] = await b.ensurePath(fid, EXPORT_FOLDERS[key]);
-      existing[key] = new Map((await b.children(dirs[key].id)).filter((x) => x.file).map((x) => [x.name.toLowerCase(), x]));
+      existing[key] = await list(dirs[key].id);
     }
     const files = ExcelSet.plan(d);
-    const order = [...files.filter((f) => f.kind !== 'overview'), ...files.filter((f) => f.kind === 'overview')];
     const links = {};
     const out = { uploaded: 0, kept: 0, removed: 0 };
     const failed = [];
     const stamp = xlStampText();
-    for (const f of order) {
+    for (const f of files) {
       const dir = dirs[f.folder];
       const found = existing[f.folder].get(f.name.toLowerCase());
       if (only === 'time' && !force && found && !f.timed) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
@@ -123,22 +125,25 @@ const Sync = (() => {
       links[f.key] = item.url || (found && found.webUrl) || '';
       out.uploaded++;
     }
-    // Fitxers antics d'Excel que ja no corresponen a res (sessió eliminada, canviada de dia, client reanomenat…).
-    const wanted = { assess: new Set(), sessions: new Set() };
+    // Excel antics fets per l'app que ja no corresponen a res (els d'abans de l'Excel únic, client reanomenat…).
+    // Si l'Excel nou no s'ha pogut fer, no es treu res: millor un Excel antic que cap.
+    const wanted = { root: new Set(), assess: new Set(), sessions: new Set() };
     for (const f of files) wanted[f.folder].add(f.name.toLowerCase());
-    for (const key of Object.keys(dirs)) {
-      for (const [name, it] of existing[key]) {
-        if (!Names.OWN[key].test(name) || wanted[key].has(name)) continue;
-        await b.removeItem(it.id);
-        delete hashes[`${dirs[key].id}/${name}`];
-        out.removed++;
+    if (!failed.length) {
+      for (const key of Object.keys(dirs)) {
+        for (const [name, it] of existing[key]) {
+          if (!Names.OWN[key].test(name) || wanted[key].has(name)) continue;
+          await b.removeItem(it.id);
+          delete hashes[`${dirs[key].id}/${name}`];
+          out.removed++;
+        }
       }
     }
     if (failed.length) { out.failed = failed.length; out.failedNames = failed.slice(0, 5); }
-    // Enllaços per obrir les carpetes i la visió general des de l'app.
+    // Enllaços per obrir l'Excel i les carpetes des de l'app.
+    out.fileUrl = links['C:client'] || '';
     out.sessionsUrl = dirs.sessions.webUrl || '';
     out.assessUrl = dirs.assess.webUrl || '';
-    out.overviewUrl = links['O:overview'] || '';
     return out;
   }
 
@@ -181,7 +186,16 @@ const Sync = (() => {
     },
 
     // Torna a mirar la cua en obrir l'app o en tornar la connexió.
-    resume() { schedule(); api.daily(); },
+    resume() { schedule(); api.upgrade(); api.daily(); },
+
+    // Primera obertura d'una versió que fa els Excel d'una altra forma: es refan els de tots els clients (i es retiren
+    // els d'abans), sense esperar que algú en toqui les dades.
+    upgrade() {
+      if (!enabled() || read(SYNC_KEYS.format, 0) === FORMAT) return false;
+      write(SYNC_KEYS.format, FORMAT);
+      api.all();
+      return true;
+    },
 
     // Les dades no canvien soles, però la data sí: «Sense tancar», «la propera sessió» o el calendari del mes depenen d'avui.
     // Un cop al dia es refà (només el que depèn de la data) el que toca als clients amb sessions fetes o per fer en els últims 45 dies.
@@ -270,18 +284,16 @@ const Sync = (() => {
       }
     },
     // Fa servir als tests per començar de zero.
-    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; running = ''; clearTimeout(timer); write(SYNC_KEYS.day, ''); save(); },
+    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; running = ''; clearTimeout(timer); write(SYNC_KEYS.day, ''); write(SYNC_KEYS.format, 0); save(); },
     syncClient,
   };
   return api;
 })();
 
-// Enllaços de descàrrega dels Excel (versió local, sense carpeta al núvol) i còpia de tots els fitxers d'un client en un ZIP.
+// Descàrrega de l'Excel del client (versió local, sense carpeta al núvol, o per tenir-ne una còpia).
 const Exports = {
-  folderOf: (f) => EXPORT_FOLDERS[f.folder][0],
-
-  // Un fitxer del conjunt d'un client: { name, bytes }
-  async file(pid, key) {
+  // L'Excel del client: { name, bytes }
+  async file(pid, key = 'C:client') {
     const d = ExcelSet.data(pid);
     if (!d) throw new Error('No trobo aquest client.');
     const f = ExcelSet.plan(d).find((x) => x.key === key);
@@ -291,32 +303,8 @@ const Exports = {
   },
 
   // Retorna { name, status } (status: 'saved', 'declined' o 'failed', vegeu U.saveFile).
-  async download(pid, key) {
+  async download(pid, key = 'C:client') {
     const { name, bytes } = await this.file(pid, key);
     return { name, status: await U.downloadBytes(name, bytes, XlsxDoc.XLSX_MIME) };
-  },
-
-  // ZIP amb les carpetes Valoracions/ i Sessions/ tal com queden al núvol.
-  async zip(pid) {
-    const d = ExcelSet.data(pid);
-    if (!d) throw new Error('No trobo aquest client.');
-    const stamp = xlStampText();
-    const out = [];
-    const failed = [];
-    const files = ExcelSet.plan(d);
-    const links = {};
-    for (const f of [...files.filter((x) => x.kind !== 'overview'), ...files.filter((x) => x.kind === 'overview')]) {
-      try {
-        const { bytes } = await f.make(links).build({ stamp });
-        out.push({ name: `${EXPORT_FOLDERS[f.folder][0]}/${f.name}`, data: bytes });
-      } catch (e) { failed.push(f.name); }
-    }
-    if (!out.length) throw new Error('No s\'ha pogut fer cap Excel d\'aquest client.');
-    return { name: `eonlife_${Names.client(d.patient)}_${Names.stamp(U.today())}.zip`, bytes: Xlsx.zip(out), count: out.length, failed };
-  },
-
-  async downloadZip(pid) {
-    const { name, bytes, failed } = await this.zip(pid);
-    return { name, failed, status: await U.downloadBytes(name, bytes, 'application/zip') };
   },
 };

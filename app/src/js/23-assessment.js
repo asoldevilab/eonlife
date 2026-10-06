@@ -50,8 +50,8 @@ function AssessmentEditor({ id, focus }) {
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
-        ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel d\'aquesta valoració', icon: 'download', onClick: () => downloadExcel(a.patientId, `A:${a.id}`) }, { sep: true }] : []),
+        ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(a.patientId) }, { sep: true }] : []),
         { label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove },
       ]} />
       <nav class="secnav" aria-label="Seccions de la valoració">

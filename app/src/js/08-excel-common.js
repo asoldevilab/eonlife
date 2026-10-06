@@ -1,5 +1,5 @@
 /* EON Life · Excel generats per l'app: estils i peces comunes (títols, seccions, taules, enllaços).
-   Els Excel de cada sessió, de cada valoració i de la visió general del client es fan amb aquestes peces,
+   Els fulls de l'Excel del client (resum, mesos, registre i valoracions) es fan amb aquestes peces,
    perquè tots tinguin els mateixos colors i la mateixa disposició que l'app. */
 
 const XL_C = {
