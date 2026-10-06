@@ -227,6 +227,42 @@ test('Excel d\'un client nou, sense sessions ni valoracions: resum, el mes actua
   assert.match(x.sheet('Oct26').text(), /Cap sessió aquesta setmana/);
 });
 
+test('valoració: els tests que ja no es fan no surten (si no tenen dades) i l\'RPE del final, sí', async () => {
+  const { core, Store } = setup();
+  const { Calc, TEST_INDEX, PROTOCOL, ExcelAssessment } = core;
+  const retired = Object.values(TEST_INDEX).filter((t) => t.retired).map((t) => t.id).sort();
+  assert.deepEqual(retired, ['dyn_curl_30', 'dyn_hip_er', 'dyn_hip_ir', 'dyn_sh_er', 'rom_knee_ext', 'rom_sh_flex']);
+  const enc = PROTOCOL.flatMap((s) => s.groups).find((g) => g.kind === 'encoder');
+  assert.ok(enc.retired, 'l\'encoder de la valoració ja no es fa');
+  assert.equal(Calc.testOn({ values: {} }, TEST_INDEX.dyn_hip_ir), false);
+  assert.equal(Calc.testOn({ values: { dyn_hip_ir: { note: 'només una nota' } } }, TEST_INDEX.dyn_hip_ir), false);
+  assert.equal(Calc.testOn({ values: { dyn_hip_ir: { d: '150' } } }, TEST_INDEX.dyn_hip_ir), true, 'una valoració antiga amb dades les continua mostrant');
+  assert.equal(Calc.testOn({ values: {} }, TEST_INDEX.dyn_curl_90), true);
+  assert.equal(Calc.groupOn({ encoder: { rows: [] } }, enc), false);
+  assert.equal(Calc.groupOn({ encoder: { rows: [{ name: 'Squat', load: '40' }] } }, enc), true);
+  // La demo ja no en té
+  for (const a of Object.values(Store.data.assessments)) {
+    for (const id of retired) assert.ok(!Calc.testHasData((a.values || {})[id]), `${a.id}: ${id}`);
+    assert.equal(((a.encoder && a.encoder.rows) || []).length, 0);
+  }
+  // A l'Excel: res dels tests retirats; l'RPE de cada valoració al detall i a l'evolució
+  const pid = 'P-DEMO-LAURA';
+  const list = Store.assessmentsOf(pid);
+  Store.update('assessments', list[0].id, (x) => { x.rpe = '6'; });
+  Store.update('assessments', list[1].id, (x) => { x.rpe = '8'; });
+  const { x } = await clientBook(core, Store, pid);
+  const txt = x.text();
+  for (const id of retired) assert.ok(!txt.includes(TEST_INDEX[id].name), `no hauria de sortir: ${TEST_INDEX[id].name}`);
+  assert.ok(!/Encoder ·/.test(x.sheet('Valoracions').text()) && !/Encoder · velocitat/.test(txt));
+  const det = x.sheet('Re-test 01-10-26');
+  const rr = det.rowOf(det.find(/^RPE de la valoració/));
+  assert.equal(det.get(`B${rr}`), 8);
+  const ev = x.sheet('Valoracions');
+  const er = ev.rowOf(ev.find(/^RPE de la valoració$/));
+  assert.deepEqual([ev.get(`C${er}`), ev.get(`E${er}`)], [6, 8]);
+  void ExcelAssessment;
+});
+
 // ── Dades incompletes o estranyes ──
 // Les dades que venen d'altres versions, d'una importació o d'un camp buit al mig d'una edició no poden trencar cap Excel:
 // es fan servir les dades de la demo amb camps esborrats, buits, canviats de tipus, molt llargs o amb caràcters estranys.
@@ -371,7 +407,7 @@ test('auditoria de la valoració: cada test, valor i fitxer surt al detall i a l
     encoder: { rows: [{ id: 'R1', name: '‹encoder›', load: '61', vel: '0.77', power: '444' }] },
     bike: { peak: '800', mean: '600', min: '400' },
     patterns, free: [{ id: 'F1', name: '‹mesura lliure›', d: '17', e: '19', v: '23', unit: 'mm' }],
-    conclusions: { strengths: '‹forts›', priorities: '‹prioritats›', plan: '‹pla›' }, nextRetest: '2027-01-06',
+    conclusions: { strengths: '‹forts›', priorities: '‹prioritats›', plan: '‹pla›' }, nextRetest: '2027-01-06', rpe: '9',
     files: [{ id: 'F', name: 'informekinvent_marcelauditoria_20261006_01.pdf', url: 'https://eonlife.sharepoint.com/kinvent.pdf', label: 'Informe Kinvent', date: '2026-10-06' }],
   };
   const prev = { ...a, id: 'V-PREV', date: '2026-07-06', type: 'inicial', general: { ...a.general, weight: '73' }, values: Object.fromEntries(Object.entries(values).map(([k, v]) => [k, typeof v.d === 'number' ? { ...v, d: v.d - 5, e: v.e - 3 } : v])) };
@@ -389,6 +425,7 @@ test('auditoria de la valoració: cada test, valor i fitxer surt al detall i a l
   for (const v of [33.3, 2999, 1777, 1.44, 0.55, 12, 480, 210, 61, 0.77, 444, 800, 600, 400]) assert.ok(hasNum(det, v), `rendiment ${v}`);
   for (const v of [17, 19, 23, 71.5, 178, 3, 4, 2, 5, 1, 15]) assert.ok(hasNum(det, v), `valor ${v}`);
   assert.ok([...det.cells.values()].some((c) => c.f && /'Re-test 06-10-26'!\$B\$\d+/.test(c.f)), 'N/kg amb el pes de la mateixa valoració');
+  assert.equal(det.get(`B${det.rowOf(det.find(/^RPE de la valoració/))}`), 9, 'RPE de la valoració');
   // Enllaços: fotos i vídeos de cada test, Y-Balance, patrons, salts, vídeo general i PDF de Kinvent
   const targets = det.links.map((l) => l.target);
   const wantLinks = ['general.mp4', 'salts.mp4', 'ybt-d.mp4', 'ybt-e.mp4', 'kinvent.pdf'];

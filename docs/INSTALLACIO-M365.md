@@ -54,7 +54,7 @@ refà quan hi ha canvis. Pestanyes:
   fetes, les **planificades**, les que han quedat **sense tancar** i les **previstes al pla**, cadascuna amb el seu color.
 - **Registre**: una fila per sessió, per filtrar i ordenar (amb l'enllaç a la sessió dins del seu mes).
 - **Una pestanya per valoració** (`Val. inicial 02-07-26`, `Re-test 01-10-26`…): resum amb els indicadors i els punts
-  d'atenció, conclusions, i tots els tests (mobilitat, força, Y-Balance, salts, encoder, bicicleta, patrons de
+  d'atenció, conclusions, RPE, i tots els tests (mobilitat, força, Y-Balance, salts, bicicleta, patrons de
   moviment i altres mesures) amb els enllaços a les fotos, els vídeos i el PDF de Kinvent.
 
 L'Excel es puja sol a la carpeta uns segons després de l'últim canvi (i en acabar una sessió); a la fitxa del client,

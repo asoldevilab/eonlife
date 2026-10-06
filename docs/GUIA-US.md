@@ -16,7 +16,7 @@ Menú **Base de dades**: totes les dades de tots els clients en taules, una per 
 pestanyes del full de càlcul):
 
 **Clients · Valoracions · Mobilitat (K-Move) · Neurodinàmia i postural · Dinamometria (K-Push) ·
-Y-Balance · Salts (My Jump) · Encoder i bike · Patrons · Sessions · Registre d'exercicis**
+Y-Balance · Salts (My Jump) · Assault bike · Patrons · Sessions · Registre d'exercicis**
 
 - Cada fila és una mesura d'un client en una data. Toca-la per obrir-la i editar-la.
 - Filtres per client i professional, cerca per nom, **Només l'última de cada client**, i ordenació
@@ -84,9 +84,9 @@ Les seccions segueixen el document *Valoració funcional · Human Performance*:
 
 | Secció | Què hi ha | Càlcul automàtic |
 |---|---|---|
-| Mobilitat | Goniometria Kinvent K-Move (maluc, espatlla, genoll), knee-to-wall, neurodinàmia (Slump, PKB), anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
-| Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i 30/30, squeeze, rotadors de maluc), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
-| Rendiment | CMJ (My Jump), encoder (squat, RDL, hip thrust), Assault bike 30 s (fase 2) | Millor salt, mitjana, W/kg, RSI-mod, índex de fatiga |
+| Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, neurodinàmia (Slump, PKB), anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
+| Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i squeeze), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
+| Rendiment | CMJ (My Jump), Assault bike 30 s (fase 2) | Millor salt, mitjana, W/kg, RSI-mod, índex de fatiga |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
 | Altres mesures | Qualsevol mesura nova | Es desa també al full |
 
@@ -117,10 +117,13 @@ Consells:
   aquella tauleta: no els veu cap altre aparell.
 - **Llegeix el PDF** (a *Goniometria* i a *Dinamometria*): tria l'informe PDF de Kinvent Physio i l'app en llegeix
   els valors i omple els camps:
-  - **K-Move** (angle màxim): rotació interna i externa de maluc i d'espatlla, flexió d'espatlla, flexió i extensió
-    de genoll.
-  - **K-Push** (força màxima): leg extension, leg curl 90/90 i 30/30, adductors (squeeze), rotadors de maluc i
-    rotadors externs d'espatlla.
+  - **K-Move** (angle màxim): rotació interna i externa de maluc i d'espatlla i flexió de genoll.
+  - **K-Push** (força màxima): leg extension, leg curl 90/90 i adductors (squeeze).
+
+  Des de l'octubre de 2026 el protocol ja no inclou la flexió d'espatlla sobre el cap, l'extensió de genoll, el leg
+  curl 30/30, els rotadors de maluc, els rotadors externs d'espatlla ni l'encoder: no surten a les valoracions noves
+  ni el lector del PDF els omple. Si una valoració d'abans en té dades, s'hi continuen veient (amb l'etiqueta
+  *ja no es fa*).
 
   Com que l'informe de Kinvent són imatges, l'app el llegeix amb reconeixement de text (OCR) a la mateixa tauleta:
   el PDF no s'envia enlloc. La primera vegada es descarrega el lector (uns 6 MB, cal internet) i després ja queda
@@ -143,6 +146,8 @@ Consells:
   columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
   les prioritats, les decisions i la data del re-test (per defecte, 3 mesos després).
+- Al final, **Esforç percebut de la valoració**: l'RPE de 1 a 10 (1 = molt suau, 10 = esforç màxim). Surt a l'Excel
+  del client (detall de la valoració i evolució) i a la taula *Valoracions* de la base de dades.
 - **Informe per apartat**: al costat del títol de cada apartat (Mobilitat, Força, Rendiment, Patrons) hi ha
   *Informe de …*: només aquell apartat, els seus vídeos i la comparació amb l'última vegada que es va mesurar.
   Quan es repeteix un apartat (per exemple, els patrons al cap d'un mes), es fa amb **Afegeix mesures** i el seu
@@ -226,7 +231,7 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   millor estat (1 = molt cansat, 5 = molt fresc; 1 = molt adolorit, 5 = gens…), i surt el total sobre 25. Les
   respostes d'1 o 2 es marquen. Es desa a l'Excel (una columna per pregunta, el total i les observacions) i a la
   taula *Sessions* de la base de dades.
-- **Tancament**: RPE de la sessió (0–10) i minuts › la **càrrega** (RPE × minuts, UA) es calcula
+- **Tancament**: RPE de la sessió (1–10) i minuts › la **càrrega** (RPE × minuts, UA) es calcula
   sola; dolor en acabar, observacions i decisió per a la propera sessió. **Marca com a feta**.
 
 ### Presentar-la al client

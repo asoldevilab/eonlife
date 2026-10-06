@@ -116,12 +116,20 @@ test('columnes per al full de càlcul', () => {
   assert.equal(flat['Knee-to-wall D (cm)'], 7);
   assert.equal(flat['Knee-to-wall diferència (cm)'], -4);
   assert.equal(flat['ROM RE espatlla asimetria (%)'], 2.97);
-  assert.equal(flat['Força RI maluc D (N)'], 150);
+  assert.equal(flat['Força curl 90/90 D (N)'], 190);
+  // Els tests que ja no es fan no tenen columna, si la valoració no en té dades; si en té (una d'abans), sí.
+  assert.ok(!('Força RI maluc D (N)' in flat) && !('Força curl 30/30 D (N)' in flat) && !Object.keys(flat).some((k) => /^Encoder /.test(k)));
+  const old = Flat.assessment({ ...a, values: { ...a.values, dyn_hip_ir: { d: '150', e: '158' } }, encoder: { rows: [{ name: 'Squat', load: '40', vel: '0.78' }] } }, db.patients['P-DEMO-LAURA']);
+  assert.equal(old['Força RI maluc D (N)'], 150);
+  assert.equal(old['Encoder Squat càrrega (kg)'], 40);
+  assert.equal(flat['RPE de la valoració (1-10)'], '');
+  assert.equal(Flat.assessment({ ...a, rpe: '7' }, db.patients['P-DEMO-LAURA'])['RPE de la valoració (1-10)'], 7);
   assert.equal(flat['CMJ millor altura (cm)'], 28.4);
   assert.equal(flat['YBT composite D (%)'], 92.25);
   assert.equal(flat['Squat (puntuació)'], '−');
   assert.equal(typeof flat['Força quàdriceps D (N/kg)'], 'number');
-  assert.ok('ROM extensió genoll diferència (°)' in flat);
+  assert.ok(!('ROM extensió genoll diferència (°)' in flat));
+  assert.ok('Knee-to-wall diferència (cm)' in flat);
   const s = Object.values(db.sessions).find((x) => x.patientId === 'P-DEMO-LAURA' && x.status === 'feta');
   const rows = Flat.sessionLog(s, db.patients['P-DEMO-LAURA']);
   assert.ok(rows.length > 8);

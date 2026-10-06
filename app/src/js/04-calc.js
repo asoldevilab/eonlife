@@ -27,6 +27,16 @@ const Calc = {
   },
 
   weight(a) { return U.num(a && a.general && a.general.weight); },
+
+  // Un test té algun resultat (les notes, les fotos i els vídeos no compten).
+  testHasData(x) { return !!x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false && !(typeof v === 'number' && Number.isNaN(v))); },
+  // Tests i grups que ja no es fan (retired al catàleg): només surten a les valoracions que ja en tenen dades.
+  testOn(a, t) { return !t.retired || Calc.testHasData(((a && a.values) || {})[t.id]); },
+  groupOn(a, g) {
+    if (!g.retired) return true;
+    if (g.kind === 'encoder') return ((a && a.encoder && a.encoder.rows) || []).some((r) => r && (String(r.name || '').trim() || U.num(r.load) != null || U.num(r.vel) != null || U.num(r.power) != null));
+    return (g.tests || []).some((t) => Calc.testOn(a, { ...t, retired: true }));
+  },
   // Codi dels exercicis EON (gravats pel centre): «1.3» = bloc 1 (mobilitat), número 3.
   codeKey(code) {
     const m = String(code || '').trim().match(/^(\d+)\.(\d+)$/);
@@ -253,7 +263,7 @@ const Calc = {
 
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
-  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
+  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'patterns', 'weight',
     'rom_hip_ir', 'rom_hip_er'],
 
   compare(cur, prev, onlyKey = false) {
@@ -535,6 +545,7 @@ const Flat = {
       for (const g of sec.groups) {
         for (const t0 of g.tests || []) {
           const t = TEST_INDEX[t0.id];
+          if (!Calc.testOn(a, t)) continue; // un test que ja no es fa només té columnes si aquesta valoració en té dades
           const x = v[t.id] || {};
           const label = t.col;
           if (t.kind === 'bi') {
@@ -637,6 +648,7 @@ const Flat = {
     o['Punts forts'] = c.strengths || '';
     o['Prioritats'] = c.priorities || '';
     o['Decisions per al pla'] = c.plan || '';
+    o['RPE de la valoració (1-10)'] = n(U.num(a.rpe));
     o['Punts d\'atenció'] = Calc.alerts(a).map((x) => x.text).join(' | ');
     o['Propera valoració'] = a.nextRetest || '';
     // Els números com a text ("12,5") passen a número perquè el full pugui calcular.

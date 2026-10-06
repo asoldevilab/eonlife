@@ -128,6 +128,13 @@ function migrateDemo(db) {
   }
   if (typeof addDemoPlan === 'function') addDemoPlan(db, U.today());
   if (typeof addDemoProfiles === 'function') addDemoProfiles(db);
+  // Tests que el centre ja no fa (retired al catàleg) i l'encoder de la valoració: fora de les valoracions de prova.
+  const retired = Object.values(TEST_INDEX).filter((t) => t.retired).map((t) => t.id);
+  for (const a of Object.values(db.assessments || {})) {
+    if (!/^P-DEMO-/.test(String(a.patientId || ''))) continue;
+    for (const id of retired) if (a.values) delete a.values[id];
+    if (a.encoder) a.encoder.rows = [];
+  }
 }
 
 const Store = {
