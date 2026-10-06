@@ -11,7 +11,7 @@ const DB_TABLES = [
   { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
   { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
-  { id: 'rendiment', label: 'Encoder i bike', kind: 'assessments', focus: 'encoder', add: 'Afegeix encoder o bike', hint: 'Velocitat d\'execució i Assault bike 30 s.' },
+  { id: 'rendiment', label: 'Assault bike', kind: 'assessments', focus: 'bike', add: 'Afegeix bike', hint: 'Assault bike 30 s all-out.' },
   { id: 'patrons', label: 'Patrons', kind: 'assessments', focus: 'patterns', add: 'Afegeix patrons', hint: 'Sessió 1 · puntuació 0 / − / −− i P (dolor).' },
   { id: 'sessions', label: 'Sessions', kind: 'sessions', hint: 'Una fila per sessió: RPE, minuts i càrrega.' },
   { id: 'exercicis', label: 'Registre d\'exercicis', kind: 'log', hint: 'Una fila per exercici de cada sessió.' },
@@ -92,7 +92,8 @@ const DB = (() => {
       { id: `${tid}.p`, group: g, label: 'P', kind: 'pain', get: (r) => (V(r.a, tid).pain ? 'P' : '') },
     ];
   };
-  const encoder = (name) => (r) => ((r.a.encoder && r.a.encoder.rows) || []).find((x) => U.norm(x.name) === U.norm(name)) || {};
+  // Els tests que ja no es fan (retired al catàleg) no tenen columna a la base de dades de l'app.
+  const active = (ids) => ids.filter((tid) => !TEST_INDEX[tid].retired);
   const jump = (type, k) => (r) => { const j = Calc.jumps(r.a)[type]; return j ? j[k] : null; };
   const patterns = (r) => Calc.patterns(r.a);
 
@@ -130,18 +131,19 @@ const DB = (() => {
       { id: 'p1', group: 'Patrons', label: '−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['-'] : null) },
       { id: 'p2', group: 'Patrons', label: '−−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['--'] : null), tone: (r, v) => (v ? 'bad' : '') },
       { id: 'pp', group: 'Patrons', label: 'P', kind: 'num', dec: 0, get: (r) => (patterns(r).scored || patterns(r).counts.P ? patterns(r).counts.P : null), tone: (r, v) => (v ? 'bad' : '') },
+      { id: 'rpe', label: 'RPE', unit: '1-10', kind: 'num', dec: 0, get: (r) => num(r.a.rpe) },
       { id: 'alerts', label: 'Punts d\'atenció', kind: 'num', dec: 0, get: (r) => Calc.alerts(r.a).length,
         tone: (r) => (Calc.alerts(r.a).some((x) => x.tone === 'bad') ? 'bad' : Calc.alerts(r.a).length ? 'warn' : '') },
     ],
 
-    mobilitat: () => [...lead(), ...['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex', 'rom_knee_ext', 'wblt'].flatMap((tid) => biCols(tid))],
+    mobilitat: () => [...lead(), ...active(['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex', 'rom_knee_ext', 'wblt']).flatMap((tid) => biCols(tid))],
 
     postural: () => [...lead(), ...biSelectCols('slump'), ...biSelectCols('pkb'), selectCol('adams'), ...biSelectCols('thomas'), ...biSelectCols('windlass'), ...scoreBiCols('sls')],
 
     dinamometria: () => [
       ...lead(),
       { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
-      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
+      ...active(['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er']).flatMap((tid) => biCols(tid)),
       // Squeeze d'abans (un sol valor, sense dreta ni esquerra).
       { id: 'squeezeold', group: 'Squeeze', label: 'Total (abans)', unit: 'N', kind: 'num', dec: 0, get: (r) => U.num(V(r.a, 'dyn_squeeze').v) },
       { id: 'hqd', group: 'Ràtio isquios/quàdriceps', label: 'D', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).d },
@@ -183,10 +185,6 @@ const DB = (() => {
 
     rendiment: () => [
       ...lead(),
-      ...['Squat', 'RDL', 'Hip Thrust'].flatMap((n) => [
-        { id: `${n}.kg`, group: `Encoder ${n}`, label: 'Càrrega', unit: 'kg', kind: 'num', dec: 1, get: (r) => num(encoder(n)(r).load) },
-        { id: `${n}.v`, group: `Encoder ${n}`, label: 'Velocitat', unit: 'm/s', kind: 'num', dec: 2, get: (r) => num(encoder(n)(r).vel) },
-      ]),
       { id: 'bikepk', group: 'Assault bike 30 s', label: 'Pic', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).peak },
       { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
       { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },

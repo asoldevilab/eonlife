@@ -3764,7 +3764,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-06 13:02";
+window.EON_BUILD = "2026-10-06 15:53";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4220,6 +4220,10 @@ const SCORES = [
     decision: 'Variant adaptada i treball específic abans de carregar.' },
 ];
 const SCORE_RANK = { '0': 0, '-': 1, '--': 2 };
+// RPE (esforç percebut) al final de cada valoració i de cada sessió: de 1 a 10.
+const RPE_SCALE = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const RPE_HINT = '1 = molt suau · 3 = moderat · 5 = dur · 7 = molt dur · 10 = esforç màxim';
+
 const PAIN_INFO = { sym: 'P', label: 'Dolor o símptomes',
   desc: 'Ho anotem separadament: no és simplement "pitjor tècnica". S\'atura el test i es deriva al fisio.' };
 
@@ -4304,6 +4308,8 @@ const RECORDING_RULES = [
 //   grups especials: ybt · jumps · encoder · bike · patterns · free
 //   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol;
 //   també als patrons, PATTERNS)
+//   retired: el centre ja no el fa (octubre 2026). No surt a les valoracions noves ni als informes; si una valoració
+//   antiga en té dades, es continuen mostrant i desant (vegeu Calc.testOn i Calc.groupOn).
 const PROTOCOL = [
   {
     id: 'mobilitat', title: 'Mobilitat i anàlisi postural', short: 'Mobilitat',
@@ -4316,9 +4322,9 @@ const PROTOCOL = [
           { id: 'rom_hip_er', name: 'Rotació externa de maluc', short: 'RE maluc' },
           { id: 'rom_sh_ir', name: 'Rotació interna d\'espatlla', short: 'RI espatlla' },
           { id: 'rom_sh_er', name: 'Rotació externa d\'espatlla', short: 'RE espatlla' },
-          { id: 'rom_sh_flex', name: 'Flexió d\'espatlla sobre el cap', short: 'Flexió espatlla', optional: true },
+          { id: 'rom_sh_flex', name: 'Flexió d\'espatlla sobre el cap', short: 'Flexió espatlla', optional: true, retired: true },
           { id: 'rom_knee_flex', name: 'Flexió de genoll', short: 'Flexió genoll' },
-          { id: 'rom_knee_ext', name: 'Extensió de genoll', short: 'Extensió genoll', diffOnly: true },
+          { id: 'rom_knee_ext', name: 'Extensió de genoll', short: 'Extensió genoll', diffOnly: true, retired: true },
         ] },
       { id: 'wblt', title: 'Flexió dorsal de turmell en càrrega', device: 'Knee-to-wall', kind: 'bi', unit: 'cm',
         info: 'En càrrega, flexió de genoll i turmell sense aixecar el taló. Mesurem els cm que el genoll sobrepassa la punta del peu. Una diferència de 4 cm entre turmells o un valor inferior a 8 cm es considera patològic.',
@@ -4351,11 +4357,11 @@ const PROTOCOL = [
         tests: [
           { id: 'dyn_knee_ext', name: 'Leg extension · quàdriceps', short: 'Quàdriceps' },
           { id: 'dyn_curl_90', name: 'Leg curl 90/90', short: 'Curl 90/90' },
-          { id: 'dyn_curl_30', name: 'Leg curl 30/30', short: 'Curl 30/30' },
+          { id: 'dyn_curl_30', name: 'Leg curl 30/30', short: 'Curl 30/30', retired: true },
           { id: 'dyn_squeeze', name: 'Squeeze test · adductors', short: 'Squeeze' },
-          { id: 'dyn_hip_ir', name: 'Rotadors interns de maluc', short: 'RI maluc' },
-          { id: 'dyn_hip_er', name: 'Rotadors externs de maluc', short: 'RE maluc' },
-          { id: 'dyn_sh_er', name: 'Rotadors externs d\'espatlla', short: 'RE espatlla', optional: true },
+          { id: 'dyn_hip_ir', name: 'Rotadors interns de maluc', short: 'RI maluc', retired: true },
+          { id: 'dyn_hip_er', name: 'Rotadors externs de maluc', short: 'RE maluc', retired: true },
+          { id: 'dyn_sh_er', name: 'Rotadors externs d\'espatlla', short: 'RE espatlla', optional: true, retired: true },
         ] },
       { id: 'sls', title: 'Single Leg Squat', device: 'Vídeo',
         info: '3 squats unipodals per valorar valg de genoll (rotació interna del peu o poca flexió dorsal) i compensacions de maluc i core.',
@@ -4373,7 +4379,7 @@ const PROTOCOL = [
       { id: 'jumps', title: 'CMJ', device: 'My Jump Lab', kind: 'jumps',
         info: 'Salt amb contramoviment: potència mecànica, força explosiva i capacitat del cicle d\'estirament-escurçament de l\'extremitat inferior.',
         ref: 'Pérez-Castiglioni C, Buscà B, Aguilera-Castells J. J Strength Cond Res. 2022;36(12):3530-3542.' },
-      { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder' },
+      { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder', retired: true },
       { id: 'bike', title: 'Assault bike · 30 s all-out', device: 'Fase 2', kind: 'bike',
         info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en clients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
         ref: 'Bar-Or O. The Wingate anaerobic test: an update on methodology, reliability and validity. Sports Med. 1987;4(6):381-394.' },
@@ -5138,6 +5144,16 @@ const Calc = {
   },
 
   weight(a) { return U.num(a && a.general && a.general.weight); },
+
+  // Un test té algun resultat (les notes, les fotos i els vídeos no compten).
+  testHasData(x) { return !!x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false && !(typeof v === 'number' && Number.isNaN(v))); },
+  // Tests i grups que ja no es fan (retired al catàleg): només surten a les valoracions que ja en tenen dades.
+  testOn(a, t) { return !t.retired || Calc.testHasData(((a && a.values) || {})[t.id]); },
+  groupOn(a, g) {
+    if (!g.retired) return true;
+    if (g.kind === 'encoder') return ((a && a.encoder && a.encoder.rows) || []).some((r) => r && (String(r.name || '').trim() || U.num(r.load) != null || U.num(r.vel) != null || U.num(r.power) != null));
+    return (g.tests || []).some((t) => Calc.testOn(a, { ...t, retired: true }));
+  },
   // Codi dels exercicis EON (gravats pel centre): «1.3» = bloc 1 (mobilitat), número 3.
   codeKey(code) {
     const m = String(code || '').trim().match(/^(\d+)\.(\d+)$/);
@@ -5364,7 +5380,7 @@ const Calc = {
 
   // Comparació amb la valoració anterior (només mètriques amb valor a totes dues).
   // Mètriques clau per a l'informe del client.
-  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'dyn_hip_ir_kg', 'dyn_hip_er_kg', 'patterns', 'weight',
+  KEY_METRICS: ['cmj', 'cmjPow', 'ybt', 'wblt', 'dyn_knee_ext_kg', 'dyn_curl_90_kg', 'dyn_squeeze_kg', 'patterns', 'weight',
     'rom_hip_ir', 'rom_hip_er'],
 
   compare(cur, prev, onlyKey = false) {
@@ -5646,6 +5662,7 @@ const Flat = {
       for (const g of sec.groups) {
         for (const t0 of g.tests || []) {
           const t = TEST_INDEX[t0.id];
+          if (!Calc.testOn(a, t)) continue; // un test que ja no es fa només té columnes si aquesta valoració en té dades
           const x = v[t.id] || {};
           const label = t.col;
           if (t.kind === 'bi') {
@@ -5748,6 +5765,7 @@ const Flat = {
     o['Punts forts'] = c.strengths || '';
     o['Prioritats'] = c.priorities || '';
     o['Decisions per al pla'] = c.plan || '';
+    o['RPE de la valoració (1-10)'] = n(U.num(a.rpe));
     o['Punts d\'atenció'] = Calc.alerts(a).map((x) => x.text).join(' | ');
     o['Propera valoració'] = a.nextRetest || '';
     // Els números com a text ("12,5") passen a número perquè el full pugui calcular.
@@ -6065,6 +6083,13 @@ function migrateDemo(db) {
   }
   if (typeof addDemoPlan === 'function') addDemoPlan(db, U.today());
   if (typeof addDemoProfiles === 'function') addDemoProfiles(db);
+  // Tests que el centre ja no fa (retired al catàleg) i l'encoder de la valoració: fora de les valoracions de prova.
+  const retired = Object.values(TEST_INDEX).filter((t) => t.retired).map((t) => t.id);
+  for (const a of Object.values(db.assessments || {})) {
+    if (!/^P-DEMO-/.test(String(a.patientId || ''))) continue;
+    for (const id of retired) if (a.values) delete a.values[id];
+    if (a.encoder) a.encoder.rows = [];
+  }
 }
 
 const Store = {
@@ -6669,16 +6694,14 @@ function makeDemoData() {
     general: { weight: '58', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
-      rom_knee_flex: bi(138, 142), rom_knee_ext: bi(0, 1),
+      rom_knee_flex: bi(138, 142),
       wblt: bi(7, 11), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Positiu · recte anterior', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_curl_30: bi(220, 236), dyn_squeeze: bi(255, 268),
-      dyn_hip_ir: bi(150, 158), dyn_hip_er: bi(142, 150),
+      dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_squeeze: bi(255, 268),
       sls: { sd: '-', se: '0', chips: ['Valg de genoll', 'Caiguda de pelvis'], note: 'Valg dinàmic a la cama dreta a partir de la 2a repetició.' },
     },
     ybt: { d: { ant: '58', pm: '92', pl: '88', len: '86' }, e: { ant: '63', pm: '95', pl: '91', len: '86' } },
     jumps: { readiness: 'verd', attempts: [jump('CMJ', 27.8, 2240, 1290, 1.16, 0.37), jump('CMJ', 28.4, 2290, 1310, 1.19, 0.39), jump('CMJ', 28.1, 2270, 1300, 1.17, 0.38)] },
-    encoder: { rows: [{ id: U.uid('R'), name: 'Squat', load: '40', vel: '0,78', power: '420' }, { id: U.uid('R'), name: 'RDL', load: '40', vel: '0,62', power: '' }, { id: U.uid('R'), name: 'Hip Thrust', load: '60', vel: '0,55', power: '' }] },
     patterns: {
       squat: pat('-', { chips: ['Valg de genoll'] }), lunge: patUni('-', '0', { chips: ['Valg de genoll'] }),
       deadlift: pat('0'), rdl: pat('0'), hipthrust: pat('0'),
@@ -6694,16 +6717,14 @@ function makeDemoData() {
     general: { weight: '57.5', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
-      rom_knee_flex: bi(141, 142), rom_knee_ext: bi(0, 1),
+      rom_knee_flex: bi(141, 142),
       wblt: bi(9.5, 11.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_curl_30: bi(232, 240), dyn_squeeze: bi(281, 290),
-      dyn_hip_ir: bi(158, 161), dyn_hip_er: bi(150, 154),
+      dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_squeeze: bi(281, 290),
       sls: { sd: '0', se: '0', chips: [] },
     },
     ybt: { d: { ant: '62', pm: '95', pl: '91', len: '86' }, e: { ant: '64', pm: '96', pl: '92', len: '86' } },
     jumps: { readiness: 'verd', attempts: [jump('CMJ', 30.2, 2350, 1340, 1.22, 0.42), jump('CMJ', 30.9, 2390, 1360, 1.24, 0.44), jump('CMJ', 30.5, 2370, 1350, 1.23, 0.43), jump('SJ', 27.9, 2230, 1280, 1.15, '')] },
-    encoder: { rows: [{ id: U.uid('R'), name: 'Squat', load: '50', vel: '0,74', power: '505' }, { id: U.uid('R'), name: 'RDL', load: '55', vel: '0,60', power: '' }, { id: U.uid('R'), name: 'Hip Thrust', load: '80', vel: '0,52', power: '' }] },
     bike: { peak: '720', mean: '520', min: '390' },
     patterns: {
       squat: pat('0'), lunge: patUni('0', '0'), deadlift: pat('0'), rdl: pat('0'), hipthrust: pat('0'),
@@ -6718,11 +6739,10 @@ function makeDemoData() {
   assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Richy',
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
-      rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118), rom_knee_ext: bi(0, -3),
+      rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118),
       wblt: bi(10, 8.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' },
-      dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_curl_30: bi(290, 250), dyn_squeeze: bi(322, 298),
-      dyn_hip_ir: bi(170, 165), dyn_hip_er: bi(165, 160),
+      dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_squeeze: bi(322, 298),
       sls: { sd: '0', se: '--', chips: ['Valg de genoll', 'Rotació de tronc'], note: 'Evita carregar la cama esquerra.' },
     },
     ybt: { d: { ant: '64', pm: '98', pl: '94', len: '94' }, e: { ant: '56', pm: '90', pl: '85', len: '94' } },
@@ -6758,13 +6778,11 @@ function makeDemoData() {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
       rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5), slump: { d: 'Negatiu', e: 'Negatiu' }, pkb: { d: 'Negatiu', e: 'Negatiu' },
       thomas: { d: 'Negatiu', e: 'Positiu · psoes ilíac' },
-      dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_curl_30: bi(335, 330), dyn_squeeze: bi(415, 426),
-      dyn_hip_ir: bi(190, 185), dyn_hip_er: bi(180, 158),
+      dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_squeeze: bi(415, 426),
       sls: { sd: '0', se: '0' },
     },
     ybt: { d: { ant: '68', pm: '104', pl: '101', len: '92' }, e: { ant: '67', pm: '100', pl: '97', len: '92' } },
     jumps: { readiness: 'verd', attempts: [jump('CMJ', 40.6, 4020, 1880, 1.41, 0.58), jump('CMJ', 41.2, 4060, 1900, 1.43, 0.6), jump('CMJ', 40.9, 4040, 1890, 1.42, 0.59)] },
-    encoder: { rows: [{ id: U.uid('R'), name: 'Squat', load: '80', vel: '0,82', power: '' }, { id: U.uid('R'), name: 'RDL', load: '80', vel: '0,65', power: '' }, { id: U.uid('R'), name: 'Hip Thrust', load: '120', vel: '0,58', power: '' }] },
     patterns: {
       squat: pat('0'), lunge: patUni('0', '0'), deadlift: pat('0'), rdl: pat('0'), hipthrust: pat('0'),
       laterallunge: patUni('0', '-', { chips: ['Recorregut limitat'] }),
@@ -6977,7 +6995,7 @@ const DB_TABLES = [
   { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
   { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
-  { id: 'rendiment', label: 'Encoder i bike', kind: 'assessments', focus: 'encoder', add: 'Afegeix encoder o bike', hint: 'Velocitat d\'execució i Assault bike 30 s.' },
+  { id: 'rendiment', label: 'Assault bike', kind: 'assessments', focus: 'bike', add: 'Afegeix bike', hint: 'Assault bike 30 s all-out.' },
   { id: 'patrons', label: 'Patrons', kind: 'assessments', focus: 'patterns', add: 'Afegeix patrons', hint: 'Sessió 1 · puntuació 0 / − / −− i P (dolor).' },
   { id: 'sessions', label: 'Sessions', kind: 'sessions', hint: 'Una fila per sessió: RPE, minuts i càrrega.' },
   { id: 'exercicis', label: 'Registre d\'exercicis', kind: 'log', hint: 'Una fila per exercici de cada sessió.' },
@@ -7058,7 +7076,8 @@ const DB = (() => {
       { id: `${tid}.p`, group: g, label: 'P', kind: 'pain', get: (r) => (V(r.a, tid).pain ? 'P' : '') },
     ];
   };
-  const encoder = (name) => (r) => ((r.a.encoder && r.a.encoder.rows) || []).find((x) => U.norm(x.name) === U.norm(name)) || {};
+  // Els tests que ja no es fan (retired al catàleg) no tenen columna a la base de dades de l'app.
+  const active = (ids) => ids.filter((tid) => !TEST_INDEX[tid].retired);
   const jump = (type, k) => (r) => { const j = Calc.jumps(r.a)[type]; return j ? j[k] : null; };
   const patterns = (r) => Calc.patterns(r.a);
 
@@ -7096,18 +7115,19 @@ const DB = (() => {
       { id: 'p1', group: 'Patrons', label: '−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['-'] : null) },
       { id: 'p2', group: 'Patrons', label: '−−', kind: 'num', dec: 0, get: (r) => (patterns(r).scored ? patterns(r).counts['--'] : null), tone: (r, v) => (v ? 'bad' : '') },
       { id: 'pp', group: 'Patrons', label: 'P', kind: 'num', dec: 0, get: (r) => (patterns(r).scored || patterns(r).counts.P ? patterns(r).counts.P : null), tone: (r, v) => (v ? 'bad' : '') },
+      { id: 'rpe', label: 'RPE', unit: '1-10', kind: 'num', dec: 0, get: (r) => num(r.a.rpe) },
       { id: 'alerts', label: 'Punts d\'atenció', kind: 'num', dec: 0, get: (r) => Calc.alerts(r.a).length,
         tone: (r) => (Calc.alerts(r.a).some((x) => x.tone === 'bad') ? 'bad' : Calc.alerts(r.a).length ? 'warn' : '') },
     ],
 
-    mobilitat: () => [...lead(), ...['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex', 'rom_knee_ext', 'wblt'].flatMap((tid) => biCols(tid))],
+    mobilitat: () => [...lead(), ...active(['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex', 'rom_knee_ext', 'wblt']).flatMap((tid) => biCols(tid))],
 
     postural: () => [...lead(), ...biSelectCols('slump'), ...biSelectCols('pkb'), selectCol('adams'), ...biSelectCols('thomas'), ...biSelectCols('windlass'), ...scoreBiCols('sls')],
 
     dinamometria: () => [
       ...lead(),
       { id: 'weight', label: 'Pes', unit: 'kg', kind: 'num', dec: 1, get: (r) => Calc.weight(r.a) },
-      ...['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er'].flatMap((tid) => biCols(tid)),
+      ...active(['dyn_knee_ext', 'dyn_curl_90', 'dyn_curl_30', 'dyn_squeeze', 'dyn_hip_ir', 'dyn_hip_er', 'dyn_sh_er']).flatMap((tid) => biCols(tid)),
       // Squeeze d'abans (un sol valor, sense dreta ni esquerra).
       { id: 'squeezeold', group: 'Squeeze', label: 'Total (abans)', unit: 'N', kind: 'num', dec: 0, get: (r) => U.num(V(r.a, 'dyn_squeeze').v) },
       { id: 'hqd', group: 'Ràtio isquios/quàdriceps', label: 'D', kind: 'num', dec: 2, get: (r) => Calc.hq(r.a).d },
@@ -7149,10 +7169,6 @@ const DB = (() => {
 
     rendiment: () => [
       ...lead(),
-      ...['Squat', 'RDL', 'Hip Thrust'].flatMap((n) => [
-        { id: `${n}.kg`, group: `Encoder ${n}`, label: 'Càrrega', unit: 'kg', kind: 'num', dec: 1, get: (r) => num(encoder(n)(r).load) },
-        { id: `${n}.v`, group: `Encoder ${n}`, label: 'Velocitat', unit: 'm/s', kind: 'num', dec: 2, get: (r) => num(encoder(n)(r).vel) },
-      ]),
       { id: 'bikepk', group: 'Assault bike 30 s', label: 'Pic', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).peak },
       { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
       { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },
@@ -8795,6 +8811,7 @@ const ExcelAssessment = (() => {
       ['Edat en aquesta data', age != null ? `${age} anys` : ''],
       ['Motiu / objectiu', xlStr(g.goal)],
       ['Propera valoració (re-test)', a.nextRetest ? { date: a.nextRetest } : '', { style: { h: 'left' } }],
+      ['RPE de la valoració (1-10)', xlNum(a.rpe), { style: { h: 'left', b: true } }],
     ], NC) + 1;
 
     // Indicadors clau
@@ -8889,7 +8906,7 @@ const ExcelAssessment = (() => {
     const title = `${g.title || ''}${g.device ? `  ·  ${g.device}` : ''}`;
     if (g.kind === 'ybt') return ybtBlock(ws, r, { a, title });
     if (['encoder', 'jumps', 'bike', 'patterns', 'free'].includes(g.kind)) return r;
-    const shown = tests.filter((t) => measured(v[t.id]) || (anything(v[t.id]) && !t.optional));
+    const shown = tests.filter((t) => measured(v[t.id]) || (anything(v[t.id]) && !t.optional && !t.retired));
     if (!shown.length) return r;
     r = xlSection(ws, r, title, NC);
     const runs = [];
@@ -9148,6 +9165,7 @@ const ExcelAssessment = (() => {
       { label: 'IMC', unit: 'kg/m²', fmt: '0.0', dir: 0, get: (a) => ({ v: Calc.bmi(xlNum((a.general || {}).weight), xlNum((a.general || {}).height)) }) },
       { label: 'Wellness (total)', unit: '/25', fmt: '0', dir: 1, get: (a) => { const w = Calc.wellness(a.wellness); return { v: w && w.total != null ? w.total : null }; } },
       { label: 'Punts d\'atenció', unit: '', fmt: '0', dir: -1, get: (a) => ({ v: Calc.alerts(a).length }) },
+      { label: 'RPE de la valoració', unit: '/10', fmt: '0', dir: 0, get: (a) => ({ v: xlNum(a.rpe) }) },
     ]);
     for (const s of PROTOCOL) {
       const rows = [];
@@ -10501,7 +10519,7 @@ function m365TemplateSheets() {
   const p = { id: 'P', firstName: '', lastName: '' };
   const a = {
     id: 'V', patientId: 'P', date: '', values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [] },
-    encoder: { rows: [{ name: 'Squat' }, { name: 'RDL' }, { name: 'Hip Thrust' }] }, bike: {}, patterns: {}, free: [], general: {},
+    encoder: { rows: [] }, bike: {}, patterns: {}, free: [], general: {},
   };
   const s = { id: 'S', patientId: 'P', blocks: BLOCKS.map((b) => ({ key: b.key, items: [] })), feedback: {}, wellness: {} };
   const logKeys = Object.keys(Flat.sessionLog({ blocks: [{ key: 'for', items: [{ name: 'x' }] }] }, p)[0]);
@@ -13846,7 +13864,7 @@ function AssessmentEditor({ id, focus }) {
     const el = document.getElementById(`sec-${sid}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-  const nav = [{ id: 'dades', label: 'Dades' }, ...PROTOCOL.map((s) => ({ id: s.id, label: s.short, n: sectionProgress(a, s, p) })), { id: 'conclusions', label: 'Conclusions' }];
+  const nav = [{ id: 'dades', label: 'Dades' }, ...PROTOCOL.map((s) => ({ id: s.id, label: s.short, n: sectionProgress(a, s, p) })), { id: 'conclusions', label: 'Conclusions' }, { id: 'rpe', label: 'RPE' }];
 
   return html`<div class="page page-edit">
     <div class="editbar">
@@ -13889,7 +13907,7 @@ function AssessmentEditor({ id, focus }) {
         ${areaHasData(a, sec.id) && html`<${Btn} variant="ghost" size="sm" icon="play" onClick=${() => go('informe', a.id, sec.id)}
           title=${`Informe només de ${sec.short.toLowerCase()}, comparat amb l'última vegada`}>Informe de ${sec.short.toLowerCase()}</${Btn}>`}
       </div>
-      ${sec.groups.map((grp) => html`<${GroupCard} key=${grp.id} g=${grp} a=${a} p=${p} upd=${upd} setVal=${setVal} />`)}
+      ${sec.groups.filter((grp) => Calc.groupOn(a, grp)).map((grp) => html`<${GroupCard} key=${grp.id} g=${grp} a=${a} p=${p} upd=${upd} setVal=${setVal} />`)}
     </section>`)}
 
     <section class="card" id="sec-conclusions">
@@ -13903,6 +13921,15 @@ function AssessmentEditor({ id, focus }) {
         <${Field} label="Decisions per al pla d'entrenament" id="co-plan" wide=${true}><${Area} id="co-plan" value=${c.plan} onValue=${setCon('plan')} /></${Field}>
         <${Field} label="Propera valoració (re-test)" id="co-next" hint=${`Per defecte, ${THRESHOLDS.retestMonths} mesos després.`}><${TextInput} id="co-next" type="date" value=${a.nextRetest} onValue=${set('nextRetest')} /></${Field}>
       </div>
+    </section>
+
+    <section class="card feedback" id="sec-rpe">
+      <div class="card-head"><h2 class="h2">Esforç percebut de la valoració</h2></div>
+      <div class="fb-grid">
+        <${Field} label="RPE de la valoració (1–10)" id="as-rpe" wide=${true} hint=${RPE_HINT}>
+          <${Seg} value=${a.rpe || ''} onValue=${set('rpe')} options=${RPE_SCALE} ariaLabel="RPE de la valoració" class="seg-rpe" />
+        </${Field}>
+      </div>
       <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Veure l'informe per al client</${Btn}></div>
     </section>
   </div>`;
@@ -13911,15 +13938,16 @@ function AssessmentEditor({ id, focus }) {
 // Progrés d'una secció (tests amb algun valor / total).
 function sectionProgress(a, sec, p) {
   let done = 0, total = 0;
-  const has = (x) => x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false);
+  const has = (x) => Calc.testHasData(x);
   for (const g of sec.groups) {
+    if (!Calc.groupOn(a, g)) continue;
     if (g.kind === 'patterns') { total += PATTERNS.length; done += PATTERNS.filter((pt) => Calc.patternScore((a.patterns || {})[pt.id], pt.uni)).length; }
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
     else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null) done++; }
     else if (g.kind === 'free') { /* opcional */ }
-    else for (const t of g.tests || []) { if (t.optional) continue; total++; if (has((a.values || {})[t.id])) done++; }
+    else for (const t of g.tests || []) { if (t.optional || t.retired) continue; total++; if (has((a.values || {})[t.id])) done++; }
   }
   return { done, total };
 }
@@ -13933,7 +13961,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
-  else body = html`<div class="trows">${(g.tests || []).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
+  else body = html`<div class="trows">${(g.tests || []).filter((t0) => Calc.testOn(a, t0)).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
   const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'free' ? 'Mesures addicionals' : '');
   return html`<div class="card group" id=${`grp-${g.id}`}>
     <div class="group-head">
@@ -14026,7 +14054,7 @@ function TestRow({ t, a, p, setVal }) {
   }
 
   return html`<div class=${U.cls('trow', `trow-${t.kind}`)}>
-    <div class="trow-name">${t.name}${t.optional && html` <span class="opt">opcional</span>`}${t.info && html`<span class="trow-info">${t.info}</span>`}</div>
+    <div class="trow-name">${t.name}${t.retired ? html` <span class="opt">ja no es fa</span>` : t.optional && html` <span class="opt">opcional</span>`}${t.info && html`<span class="trow-info">${t.info}</span>`}</div>
     ${inputs}
     <div class="trow-result">${result}</div>
     <${Tools} x=${x} title=${t.name} patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${s('video')}
@@ -14453,12 +14481,13 @@ const KinventOcr = {
       await page.terminate();
       await num.terminate();
     }
-    return found.map((c) => ({ ...c, target: KinventPdf.target(c.title, c.measure) }));
+    // Les proves que el centre ja no fa (retired) no s'omplen: queden a la llista per si es vol triar un altre camp.
+    return found.map((c) => { const t = KinventPdf.target(c.title, c.measure); return { ...c, target: t && TEST_INDEX[t] && TEST_INDEX[t].retired ? '' : t }; });
   },
 };
 
 // Proves de la valoració on pot anar cada mesura de Kinvent.
-const kinventTargets = (measure) => Object.values(TEST_INDEX).filter((t) => t.group === (measure === 'force' ? 'dyn' : 'rom'));
+const kinventTargets = (measure) => Object.values(TEST_INDEX).filter((t) => t.group === (measure === 'force' ? 'dyn' : 'rom') && !t.retired);
 const kvNum = (v, dec) => (v == null ? '' : String(dec ? Math.round(v * 10) / 10 : v).replace('.', ','));
 
 function KinventReadButton({ a, p, upd }) {
@@ -15011,8 +15040,8 @@ function SessionEditor({ id }) {
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>
         ${s.status !== 'feta' && html`<${Btn} variant="primary" icon="check" onClick=${markDone}>Marca com a feta</${Btn}>`}</div>
       <div class="fb-grid">
-        <${Field} label="RPE global de la sessió (0–10)" id="fb-rpe" wide=${true}>
-          <${Seg} value=${f.rpe || ''} onValue=${setIn('feedback', 'rpe')} options=${['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']} ariaLabel="RPE" class="seg-rpe" />
+        <${Field} label="RPE global de la sessió (1–10)" id="fb-rpe" wide=${true} hint=${RPE_HINT}>
+          <${Seg} value=${f.rpe || ''} onValue=${setIn('feedback', 'rpe')} options=${RPE_SCALE} ariaLabel="RPE" class="seg-rpe" />
         </${Field}>
         <${Field} label="Durada" id="fb-min"><${NumInput} id="fb-min" value=${f.duration} onValue=${setIn('feedback', 'duration')} unit="min" /></${Field}>
         <${Field} label="Càrrega de la sessió"><div class="computed"><${Icon} name="flame" size=${16} />${load != null ? `${U.fmt(load, 0)} UA` : 'RPE × minuts'}</div></${Field}>
@@ -16415,7 +16444,7 @@ function openAddMeasurement(focus, pid) {
 const FOCUS_LABELS = {
   dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', neuro: 'Neurodinàmia i postural',
   dyn: 'Dinamometria (K-Push)', sls: 'Single Leg Squat', ybt: 'Y-Balance', jumps: 'Salts (My Jump)',
-  encoder: 'Encoder i bike', patterns: 'Patrons de moviment',
+  bike: 'Assault bike', patterns: 'Patrons de moviment',
 };
 
 function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {

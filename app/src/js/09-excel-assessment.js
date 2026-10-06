@@ -127,6 +127,7 @@ const ExcelAssessment = (() => {
       ['Edat en aquesta data', age != null ? `${age} anys` : ''],
       ['Motiu / objectiu', xlStr(g.goal)],
       ['Propera valoració (re-test)', a.nextRetest ? { date: a.nextRetest } : '', { style: { h: 'left' } }],
+      ['RPE de la valoració (1-10)', xlNum(a.rpe), { style: { h: 'left', b: true } }],
     ], NC) + 1;
 
     // Indicadors clau
@@ -221,7 +222,7 @@ const ExcelAssessment = (() => {
     const title = `${g.title || ''}${g.device ? `  ·  ${g.device}` : ''}`;
     if (g.kind === 'ybt') return ybtBlock(ws, r, { a, title });
     if (['encoder', 'jumps', 'bike', 'patterns', 'free'].includes(g.kind)) return r;
-    const shown = tests.filter((t) => measured(v[t.id]) || (anything(v[t.id]) && !t.optional));
+    const shown = tests.filter((t) => measured(v[t.id]) || (anything(v[t.id]) && !t.optional && !t.retired));
     if (!shown.length) return r;
     r = xlSection(ws, r, title, NC);
     const runs = [];
@@ -480,6 +481,7 @@ const ExcelAssessment = (() => {
       { label: 'IMC', unit: 'kg/m²', fmt: '0.0', dir: 0, get: (a) => ({ v: Calc.bmi(xlNum((a.general || {}).weight), xlNum((a.general || {}).height)) }) },
       { label: 'Wellness (total)', unit: '/25', fmt: '0', dir: 1, get: (a) => { const w = Calc.wellness(a.wellness); return { v: w && w.total != null ? w.total : null }; } },
       { label: 'Punts d\'atenció', unit: '', fmt: '0', dir: -1, get: (a) => ({ v: Calc.alerts(a).length }) },
+      { label: 'RPE de la valoració', unit: '/10', fmt: '0', dir: 0, get: (a) => ({ v: xlNum(a.rpe) }) },
     ]);
     for (const s of PROTOCOL) {
       const rows = [];

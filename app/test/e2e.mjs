@@ -99,6 +99,20 @@ const step = async (label, fn) => {
     await e.fill('400');
     await page.waitForSelector('text=25 %');
   });
+  await step('valoració: els tests que ja no es fan no surten i l\'RPE (1–10) es posa al final', async () => {
+    for (const t of ['Rotadors interns de maluc', 'Rotadors externs de maluc', 'Rotadors externs d\'espatlla', 'Leg curl 30/30', 'Flexió d\'espatlla sobre el cap', 'Extensió de genoll']) {
+      if (await page.locator('.trow-name', { hasText: t }).count()) throw new Error(`encara surt: ${t}`);
+    }
+    if (await page.locator('#grp-encoder').count()) throw new Error('encara surt l\'encoder');
+    if (!(await page.locator('.trow-name', { hasText: 'Leg curl 90/90' }).count())) throw new Error('falta el leg curl 90/90');
+    await page.click('.secnav-btn >> text=RPE');
+    const btns = await page.locator('#sec-rpe .seg-rpe .seg-btn').allInnerTexts();
+    if (btns.join() !== '1,2,3,4,5,6,7,8,9,10') throw new Error(`escala ${btns}`);
+    await page.click('#sec-rpe .seg-rpe >> text=7');
+    const aid = await page.evaluate(() => location.hash.split('/')[2]);
+    await page.waitForFunction((id) => Store.get('assessments', id).rpe === '7', aid);
+    await shot(page, '06e-rpe-valoracio', false);
+  });
   await step('versió de prova: el PDF de Kinvent es tria de la tauleta i s\'hi desa', async () => {
     await page.waitForSelector('#sec-fitxers >> text=Adjunta l\'informe de Kinvent');
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('#sec-fitxers >> text=Adjunta l\'informe de Kinvent')]);
@@ -212,7 +226,9 @@ const step = async (label, fn) => {
     await item.locator('.item-side .menu button').click();
     await page.click('.menu-list >> text=Elimina');
   });
-  await step('tancament: RPE i durada → càrrega', async () => {
+  await step('tancament: RPE (1–10) i durada → càrrega', async () => {
+    const btns = await page.locator('.feedback .seg-rpe .seg-btn').allInnerTexts();
+    if (btns.join() !== '1,2,3,4,5,6,7,8,9,10') throw new Error(`escala ${btns}`);
     await page.click('.seg-rpe >> text=7');
     await page.fill('#fb-min', '60');
     await page.waitForSelector('.computed >> text=420 UA');

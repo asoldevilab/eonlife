@@ -134,6 +134,10 @@ const SCORES = [
     decision: 'Variant adaptada i treball específic abans de carregar.' },
 ];
 const SCORE_RANK = { '0': 0, '-': 1, '--': 2 };
+// RPE (esforç percebut) al final de cada valoració i de cada sessió: de 1 a 10.
+const RPE_SCALE = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const RPE_HINT = '1 = molt suau · 3 = moderat · 5 = dur · 7 = molt dur · 10 = esforç màxim';
+
 const PAIN_INFO = { sym: 'P', label: 'Dolor o símptomes',
   desc: 'Ho anotem separadament: no és simplement "pitjor tècnica". S\'atura el test i es deriva al fisio.' };
 
@@ -218,6 +222,8 @@ const RECORDING_RULES = [
 //   grups especials: ybt · jumps · encoder · bike · patterns · free
 //   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol;
 //   també als patrons, PATTERNS)
+//   retired: el centre ja no el fa (octubre 2026). No surt a les valoracions noves ni als informes; si una valoració
+//   antiga en té dades, es continuen mostrant i desant (vegeu Calc.testOn i Calc.groupOn).
 const PROTOCOL = [
   {
     id: 'mobilitat', title: 'Mobilitat i anàlisi postural', short: 'Mobilitat',
@@ -230,9 +236,9 @@ const PROTOCOL = [
           { id: 'rom_hip_er', name: 'Rotació externa de maluc', short: 'RE maluc' },
           { id: 'rom_sh_ir', name: 'Rotació interna d\'espatlla', short: 'RI espatlla' },
           { id: 'rom_sh_er', name: 'Rotació externa d\'espatlla', short: 'RE espatlla' },
-          { id: 'rom_sh_flex', name: 'Flexió d\'espatlla sobre el cap', short: 'Flexió espatlla', optional: true },
+          { id: 'rom_sh_flex', name: 'Flexió d\'espatlla sobre el cap', short: 'Flexió espatlla', optional: true, retired: true },
           { id: 'rom_knee_flex', name: 'Flexió de genoll', short: 'Flexió genoll' },
-          { id: 'rom_knee_ext', name: 'Extensió de genoll', short: 'Extensió genoll', diffOnly: true },
+          { id: 'rom_knee_ext', name: 'Extensió de genoll', short: 'Extensió genoll', diffOnly: true, retired: true },
         ] },
       { id: 'wblt', title: 'Flexió dorsal de turmell en càrrega', device: 'Knee-to-wall', kind: 'bi', unit: 'cm',
         info: 'En càrrega, flexió de genoll i turmell sense aixecar el taló. Mesurem els cm que el genoll sobrepassa la punta del peu. Una diferència de 4 cm entre turmells o un valor inferior a 8 cm es considera patològic.',
@@ -265,11 +271,11 @@ const PROTOCOL = [
         tests: [
           { id: 'dyn_knee_ext', name: 'Leg extension · quàdriceps', short: 'Quàdriceps' },
           { id: 'dyn_curl_90', name: 'Leg curl 90/90', short: 'Curl 90/90' },
-          { id: 'dyn_curl_30', name: 'Leg curl 30/30', short: 'Curl 30/30' },
+          { id: 'dyn_curl_30', name: 'Leg curl 30/30', short: 'Curl 30/30', retired: true },
           { id: 'dyn_squeeze', name: 'Squeeze test · adductors', short: 'Squeeze' },
-          { id: 'dyn_hip_ir', name: 'Rotadors interns de maluc', short: 'RI maluc' },
-          { id: 'dyn_hip_er', name: 'Rotadors externs de maluc', short: 'RE maluc' },
-          { id: 'dyn_sh_er', name: 'Rotadors externs d\'espatlla', short: 'RE espatlla', optional: true },
+          { id: 'dyn_hip_ir', name: 'Rotadors interns de maluc', short: 'RI maluc', retired: true },
+          { id: 'dyn_hip_er', name: 'Rotadors externs de maluc', short: 'RE maluc', retired: true },
+          { id: 'dyn_sh_er', name: 'Rotadors externs d\'espatlla', short: 'RE espatlla', optional: true, retired: true },
         ] },
       { id: 'sls', title: 'Single Leg Squat', device: 'Vídeo',
         info: '3 squats unipodals per valorar valg de genoll (rotació interna del peu o poca flexió dorsal) i compensacions de maluc i core.',
@@ -287,7 +293,7 @@ const PROTOCOL = [
       { id: 'jumps', title: 'CMJ', device: 'My Jump Lab', kind: 'jumps',
         info: 'Salt amb contramoviment: potència mecànica, força explosiva i capacitat del cicle d\'estirament-escurçament de l\'extremitat inferior.',
         ref: 'Pérez-Castiglioni C, Buscà B, Aguilera-Castells J. J Strength Cond Res. 2022;36(12):3530-3542.' },
-      { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder' },
+      { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder', retired: true },
       { id: 'bike', title: 'Assault bike · 30 s all-out', device: 'Fase 2', kind: 'bike',
         info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en clients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
         ref: 'Bar-Or O. The Wingate anaerobic test: an update on methodology, reliability and validity. Sports Med. 1987;4(6):381-394.' },

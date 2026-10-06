@@ -41,7 +41,7 @@ function AssessmentEditor({ id, focus }) {
     const el = document.getElementById(`sec-${sid}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-  const nav = [{ id: 'dades', label: 'Dades' }, ...PROTOCOL.map((s) => ({ id: s.id, label: s.short, n: sectionProgress(a, s, p) })), { id: 'conclusions', label: 'Conclusions' }];
+  const nav = [{ id: 'dades', label: 'Dades' }, ...PROTOCOL.map((s) => ({ id: s.id, label: s.short, n: sectionProgress(a, s, p) })), { id: 'conclusions', label: 'Conclusions' }, { id: 'rpe', label: 'RPE' }];
 
   return html`<div class="page page-edit">
     <div class="editbar">
@@ -84,7 +84,7 @@ function AssessmentEditor({ id, focus }) {
         ${areaHasData(a, sec.id) && html`<${Btn} variant="ghost" size="sm" icon="play" onClick=${() => go('informe', a.id, sec.id)}
           title=${`Informe només de ${sec.short.toLowerCase()}, comparat amb l'última vegada`}>Informe de ${sec.short.toLowerCase()}</${Btn}>`}
       </div>
-      ${sec.groups.map((grp) => html`<${GroupCard} key=${grp.id} g=${grp} a=${a} p=${p} upd=${upd} setVal=${setVal} />`)}
+      ${sec.groups.filter((grp) => Calc.groupOn(a, grp)).map((grp) => html`<${GroupCard} key=${grp.id} g=${grp} a=${a} p=${p} upd=${upd} setVal=${setVal} />`)}
     </section>`)}
 
     <section class="card" id="sec-conclusions">
@@ -98,6 +98,15 @@ function AssessmentEditor({ id, focus }) {
         <${Field} label="Decisions per al pla d'entrenament" id="co-plan" wide=${true}><${Area} id="co-plan" value=${c.plan} onValue=${setCon('plan')} /></${Field}>
         <${Field} label="Propera valoració (re-test)" id="co-next" hint=${`Per defecte, ${THRESHOLDS.retestMonths} mesos després.`}><${TextInput} id="co-next" type="date" value=${a.nextRetest} onValue=${set('nextRetest')} /></${Field}>
       </div>
+    </section>
+
+    <section class="card feedback" id="sec-rpe">
+      <div class="card-head"><h2 class="h2">Esforç percebut de la valoració</h2></div>
+      <div class="fb-grid">
+        <${Field} label="RPE de la valoració (1–10)" id="as-rpe" wide=${true} hint=${RPE_HINT}>
+          <${Seg} value=${a.rpe || ''} onValue=${set('rpe')} options=${RPE_SCALE} ariaLabel="RPE de la valoració" class="seg-rpe" />
+        </${Field}>
+      </div>
       <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Veure l'informe per al client</${Btn}></div>
     </section>
   </div>`;
@@ -106,15 +115,16 @@ function AssessmentEditor({ id, focus }) {
 // Progrés d'una secció (tests amb algun valor / total).
 function sectionProgress(a, sec, p) {
   let done = 0, total = 0;
-  const has = (x) => x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false);
+  const has = (x) => Calc.testHasData(x);
   for (const g of sec.groups) {
+    if (!Calc.groupOn(a, g)) continue;
     if (g.kind === 'patterns') { total += PATTERNS.length; done += PATTERNS.filter((pt) => Calc.patternScore((a.patterns || {})[pt.id], pt.uni)).length; }
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
     else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null) done++; }
     else if (g.kind === 'free') { /* opcional */ }
-    else for (const t of g.tests || []) { if (t.optional) continue; total++; if (has((a.values || {})[t.id])) done++; }
+    else for (const t of g.tests || []) { if (t.optional || t.retired) continue; total++; if (has((a.values || {})[t.id])) done++; }
   }
   return { done, total };
 }
@@ -128,7 +138,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
-  else body = html`<div class="trows">${(g.tests || []).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
+  else body = html`<div class="trows">${(g.tests || []).filter((t0) => Calc.testOn(a, t0)).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
   const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'free' ? 'Mesures addicionals' : '');
   return html`<div class="card group" id=${`grp-${g.id}`}>
     <div class="group-head">
@@ -221,7 +231,7 @@ function TestRow({ t, a, p, setVal }) {
   }
 
   return html`<div class=${U.cls('trow', `trow-${t.kind}`)}>
-    <div class="trow-name">${t.name}${t.optional && html` <span class="opt">opcional</span>`}${t.info && html`<span class="trow-info">${t.info}</span>`}</div>
+    <div class="trow-name">${t.name}${t.retired ? html` <span class="opt">ja no es fa</span>` : t.optional && html` <span class="opt">opcional</span>`}${t.info && html`<span class="trow-info">${t.info}</span>`}</div>
     ${inputs}
     <div class="trow-result">${result}</div>
     <${Tools} x=${x} title=${t.name} patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${s('video')}

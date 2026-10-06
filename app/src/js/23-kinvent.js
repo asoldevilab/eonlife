@@ -116,12 +116,13 @@ const KinventOcr = {
       await page.terminate();
       await num.terminate();
     }
-    return found.map((c) => ({ ...c, target: KinventPdf.target(c.title, c.measure) }));
+    // Les proves que el centre ja no fa (retired) no s'omplen: queden a la llista per si es vol triar un altre camp.
+    return found.map((c) => { const t = KinventPdf.target(c.title, c.measure); return { ...c, target: t && TEST_INDEX[t] && TEST_INDEX[t].retired ? '' : t }; });
   },
 };
 
 // Proves de la valoració on pot anar cada mesura de Kinvent.
-const kinventTargets = (measure) => Object.values(TEST_INDEX).filter((t) => t.group === (measure === 'force' ? 'dyn' : 'rom'));
+const kinventTargets = (measure) => Object.values(TEST_INDEX).filter((t) => t.group === (measure === 'force' ? 'dyn' : 'rom') && !t.retired);
 const kvNum = (v, dec) => (v == null ? '' : String(dec ? Math.round(v * 10) / 10 : v).replace('.', ','));
 
 function KinventReadButton({ a, p, upd }) {

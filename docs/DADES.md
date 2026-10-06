@@ -30,7 +30,12 @@ recuperar.
 Tot el protocol és a [`app/src/js/02-catalog.js`](../app/src/js/02-catalog.js):
 
 - `PROTOCOL` — seccions, grups i tests (tipus: `bi` dreta/esquerra, `single`, `biSelect`,
-  `select`, `scoreBi`, i els grups especials `ybt`, `jumps`, `encoder`, `bike`, `patterns`).
+  `select`, `scoreBi`, i els grups especials `ybt`, `jumps`, `encoder`, `bike`, `patterns`). Un test o un grup que ja
+  no es fa es marca amb `retired: true` (no s'esborra): deixa de sortir a les valoracions noves, als informes, a la base
+  de dades de l'app i al lector del PDF de Kinvent, però les valoracions antigues que en tenen dades les conserven.
+  Ara ho estan la flexió d'espatlla sobre el cap, l'extensió de genoll, el leg curl 30/30, els rotadors de maluc i
+  d'espatlla i l'encoder de la valoració.
+- `RPE_SCALE` — escala de l'RPE (1–10) del final de cada valoració (`rpe`) i del tancament de cada sessió.
 - `PATTERNS` — els 7 patrons de la Sessió 1 amb «Què observem», criteris de − i −−, execució i adaptació.
 - `THRESHOLDS` — llindars (asimetria 10 % / 15 %, knee-to-wall 8 cm / 4 cm, Y-Balance 4 cm, re-test 3 mesos).
 - `BLOCKS` — els 6 blocs de la sessió i els focus suggerits.

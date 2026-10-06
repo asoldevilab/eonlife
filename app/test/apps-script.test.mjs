@@ -53,7 +53,7 @@ test('una valoració completa amplia les columnes i es pot llegir', () => {
   assert.equal(r.ok, true, r.error);
   const sh = ss.getSheetByName('Valoracions');
   const h = headersOf(sh);
-  assert.ok(h.length > 150, `columnes: ${h.length}`);
+  assert.ok(h.length > 130, `columnes: ${h.length}`);
   const row = rowsOf(sh)[0];
   assert.equal(row[h.indexOf('CMJ millor altura (cm)')], flat['CMJ millor altura (cm)']);
   const back = gas.api({ action: 'bootstrap' }).data.records.assessments[0];

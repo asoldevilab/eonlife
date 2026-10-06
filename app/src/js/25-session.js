@@ -124,8 +124,8 @@ function SessionEditor({ id }) {
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>
         ${s.status !== 'feta' && html`<${Btn} variant="primary" icon="check" onClick=${markDone}>Marca com a feta</${Btn}>`}</div>
       <div class="fb-grid">
-        <${Field} label="RPE global de la sessió (0–10)" id="fb-rpe" wide=${true}>
-          <${Seg} value=${f.rpe || ''} onValue=${setIn('feedback', 'rpe')} options=${['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']} ariaLabel="RPE" class="seg-rpe" />
+        <${Field} label="RPE global de la sessió (1–10)" id="fb-rpe" wide=${true} hint=${RPE_HINT}>
+          <${Seg} value=${f.rpe || ''} onValue=${setIn('feedback', 'rpe')} options=${RPE_SCALE} ariaLabel="RPE" class="seg-rpe" />
         </${Field}>
         <${Field} label="Durada" id="fb-min"><${NumInput} id="fb-min" value=${f.duration} onValue=${setIn('feedback', 'duration')} unit="min" /></${Field}>
         <${Field} label="Càrrega de la sessió"><div class="computed"><${Icon} name="flame" size=${16} />${load != null ? `${U.fmt(load, 0)} UA` : 'RPE × minuts'}</div></${Field}>

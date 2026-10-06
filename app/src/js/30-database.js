@@ -149,7 +149,7 @@ function openAddMeasurement(focus, pid) {
 const FOCUS_LABELS = {
   dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', neuro: 'Neurodinàmia i postural',
   dyn: 'Dinamometria (K-Push)', sls: 'Single Leg Squat', ybt: 'Y-Balance', jumps: 'Salts (My Jump)',
-  encoder: 'Encoder i bike', patterns: 'Patrons de moviment',
+  bike: 'Assault bike', patterns: 'Patrons de moviment',
 };
 
 function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
