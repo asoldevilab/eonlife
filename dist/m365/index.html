@@ -3764,7 +3764,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-05 20:04";
+window.EON_BUILD = "2026-10-06 13:02";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6210,7 +6210,7 @@ const Store = {
     this.data[kind][rec.id] = rec;
     this.emit();
     this.queue(kind, rec.id, opts.immediate ? 0 : 900);
-    // Els Excel del client (sessions, valoracions i visió general) es refan sols (09-sync.js).
+    // L'Excel del client (sessions i valoracions) es refà sol (09-sync.js).
     if (typeof Sync !== 'undefined') Sync.onChange(kind, rec);
     return rec;
   },
@@ -7704,7 +7704,7 @@ const KinventPdf = (() => {
 
 /* ── 08-excel-common.js ── */
 /* EON Life · Excel generats per l'app: estils i peces comunes (títols, seccions, taules, enllaços).
-   Els Excel de cada sessió, de cada valoració i de la visió general del client es fan amb aquestes peces,
+   Els fulls de l'Excel del client (resum, mesos, registre i valoracions) es fan amb aquestes peces,
    perquè tots tinguin els mateixos colors i la mateixa disposició que l'app. */
 
 const XL_C = {
@@ -8107,7 +8107,7 @@ const Xlsx = (() => {
    A diferència de Xlsx (08-xlsx.js, que només crea la plantilla de la base de dades), aquest escriptor fa
    llibres per llegir: colors, cel·les combinades, text enriquit, fórmules amb el valor ja calculat, enllaços,
    format condicional, files i columnes fixades, protecció suau i configuració d'impressió. L'app el fa servir
-   per als Excel que genera sola per a cada sessió, cada valoració i la visió general de cada client.
+   per a l'Excel que genera sola per a cada client (sessions per mes i valoracions).
 
    Ús:
      const doc = XlsxDoc.create({ title: 'Sessió 12', creator: 'EON Life' });
@@ -8345,6 +8345,7 @@ const XlsxDoc = (() => {
       this.links = [];
       this.cfs = [];
       this.filter = '';
+      this.colBreaks = [];
     }
 
     cols(widths) { widths.forEach((w, i) => { if (w) this.widths[i + 1] = w; }); return this; }
@@ -8352,6 +8353,8 @@ const XlsxDoc = (() => {
     rowH(r, h) { this.heights.set(r, h); return this; }
     freeze(row, col = 1) { this.opts.freeze = [row, col]; return this; }
     autoFilter(range) { this.filter = range; return this; }
+    // Salt de pàgina en imprimir, just abans de la columna c (1, 2…).
+    pageBreakBefore(c) { if (c > 1 && !this.colBreaks.includes(c)) this.colBreaks.push(c); return this; }
 
     // value: text, número, booleà, { f, v } (fórmula amb valor), { date }, { rich }, null (només l'estil)
     set(r, c, value, style) {
@@ -8473,7 +8476,8 @@ const XlsxDoc = (() => {
       const colXml = this.widths.map((w, c) => (w ? `<col min="${c}" max="${c}" width="${num(w)}" customWidth="1"${this.hidden.has(c) ? ' hidden="1"' : ''}/>` : '')).join('');
       const out = [];
       out.push(`${HEAD}<worksheet xmlns="${NS}" xmlns:r="${NSR}">`);
-      out.push(`<sheetPr>${o.tab ? `<tabColor rgb="${argb(o.tab)}"/>` : ''}<pageSetUpPr fitToPage="1"/></sheetPr>`);
+      // fit: false = s'imprimeix a mida real (fulls molt amples com els mesos); si no, s'ajusta a l'amplada d'una pàgina.
+      out.push(`<sheetPr>${o.tab ? `<tabColor rgb="${argb(o.tab)}"/>` : ''}${o.fit === false ? '' : '<pageSetUpPr fitToPage="1"/>'}</sheetPr>`);
       out.push(`<dimension ref="A1:${ref(maxR, maxC)}"/>`);
       out.push(`<sheetViews><sheetView workbookViewId="0"${o.grid === false ? ' showGridLines="0"' : ''}${zoom}${sel}>${view.join('')}</sheetView></sheetViews>`);
       out.push('<sheetFormatPr defaultRowHeight="15"/>');
@@ -8497,8 +8501,12 @@ const XlsxDoc = (() => {
       this.rels = rels;
       if (o.center) out.push('<printOptions horizontalCentered="1"/>');
       out.push('<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.55" header="0.25" footer="0.25"/>');
-      out.push(`<pageSetup paperSize="9" orientation="${o.landscape === false ? 'portrait' : 'landscape'}" fitToWidth="1" fitToHeight="0"/>`);
+      out.push(`<pageSetup paperSize="9" orientation="${o.landscape === false ? 'portrait' : 'landscape'}"${o.fit === false ? '' : ' fitToWidth="1" fitToHeight="0"'}/>`);
       out.push(`<headerFooter><oddFooter>${esc(`&L&8${o.footer || 'EON Life · Human Performance'}&C&8&A&R&8Pàgina &P de &N`)}</oddFooter></headerFooter>`);
+      if (this.colBreaks.length) {
+        const brk = [...this.colBreaks].sort((a, b) => a - b);
+        out.push(`<colBreaks count="${brk.length}" manualBreakCount="${brk.length}">${brk.map((c) => `<brk id="${c - 1}" max="1048575" man="1"/>`).join('')}</colBreaks>`);
+      }
       out.push('</worksheet>');
       return out.join('');
     }
@@ -8658,18 +8666,34 @@ const XlsxDoc = (() => {
 
 
 /* ── 09-excel-assessment.js ── */
-/* EON Life · Excel d'una valoració (inicial, re-test, control o alta).
-   Fulls: «Resum» (dades, wellness, punts d'atenció, conclusions i fitxers), «Comparació» (amb l'anterior, si n'hi ha),
-   «Mobilitat», «Força», «Rendiment», «Patrons» i «Altres mesures». Només surt el que s'ha mesurat. */
+/* EON Life · les valoracions dins de l'Excel del client.
+   · «Valoracions»: totes les valoracions (inicial, re-tests…) l'una al costat de l'altra, prova per prova (dreta i esquerra),
+     amb el canvi entre les dues últimes en verd (millora) o vermell (empitjora).
+   · Una pestanya per valoració («Val. inicial 06-10-26», «Re-test 06-01-27»…) amb tot el detall: dades, wellness, punts
+     d'atenció, conclusions i cada apartat del protocol (mobilitat, força, rendiment, patrons i altres mesures) amb les
+     fotos, els vídeos i els informes enllaçats. Només hi surt el que s'ha mesurat. */
 
 const ExcelAssessment = (() => {
   const SYM = { '0': '0', '-': '−', '--': '−−' };
   const SCORE_FILL = { '0': XL_C.GRN, '-': XL_C.AMB, '--': XL_C.RED };
-  const typeLabel = (a) => (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
+  const typeOf = (a) => OPT.assessmentTypes.find((t) => t.v === a.type) || {};
+  const typeLabel = (a) => typeOf(a).label || 'Valoració';
   const hasVal = (v) => v !== '' && v != null && v !== false && !(Array.isArray(v) && !v.length);
   const anything = (x) => !!x && Object.values(x).some(hasVal);
   const measured = (x) => !!x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && hasVal(v));
   const decimals = (unit) => (unit === 'N' || unit === '°' ? '0' : '0.0');
+  const SEC_COLOR = { mobilitat: XL_BLOCK.mob, forca: XL_BLOCK.for, rendiment: XL_BLOCK.pot, patrons: XL_BLOCK.acc, altres: XL_C.MUTED };
+  const AREA = { mobilitat: 'Mobilitat', forca: 'Força', rendiment: 'Rendiment', patrons: 'Patrons', altres: 'Altres', tot: 'General' };
+
+  // Nom de la pestanya d'una valoració: «Val. inicial 06-10-26», «Re-test 06-01-27»…
+  function sheetName(a, taken) {
+    const d = String(a.date || '');
+    const base = `${a.type === 'inicial' ? 'Val. inicial' : typeOf(a).short || 'Valoració'} ${d.slice(8, 10)}-${d.slice(5, 7)}-${d.slice(2, 4)}`;
+    let name = base, n = 2;
+    while (taken.has(name.toLowerCase())) name = `${base} (${n++})`;
+    taken.add(name.toLowerCase());
+    return name;
+  }
 
   // Fotos, vídeos i informes de la valoració: [{ area, label, kind, url }]
   function media(a) {
@@ -8703,40 +8727,54 @@ const ExcelAssessment = (() => {
     return out;
   }
 
-  function mediaTable(ws, r, items, ncols) {
-    r = xlHeader(ws, r, [['Fitxer', Math.max(1, ncols - 3)], 'Tipus', ['Enllaç', 2]]);
+  // ════════════════ Pestanya de detall d'una valoració ════════════════
+  const NC = 11;
+  const WIDTHS = [34, 12, 12, 11, 22, 12, 11, 12, 11, 11, 34];
+
+  // Franja de color d'un apartat del protocol.
+  function band(ws, r, text, color, sub) {
+    ws.merge(r, 1, r, NC, { rich: [[text, { b: true, sz: 12, color: 'FFFFFF' }], [sub ? `   ${sub}` : '', { sz: 10, i: true, color: 'FFFFFF' }]] }, { fill: color, h: 'left', v: 'center', indent: 1 });
+    ws.rowH(r, 24);
+    return r + 1;
+  }
+
+  function mediaTable(ws, r, items) {
+    r = xlHeader(ws, r, [['Fitxer', NC - 3], 'Tipus', ['Enllaç', 2]]);
     for (const m of items) {
-      ws.merge(r, 1, r, ncols - 3, m.label, XS.text);
-      ws.set(r, ncols - 2, m.kind, XS.cell);
-      ws.merge(r, ncols - 1, r, ncols, xlIsWeb(m.url) ? 'Obre' : 'Desat a la tauleta (versió de prova)', [XS.cell, xlIsWeb(m.url) ? XS.link : XS.muted]);
-      if (xlIsWeb(m.url)) ws.link(r, ncols - 1, m.url, 'Obre el fitxer');
+      ws.merge(r, 1, r, NC - 3, m.label, XS.text);
+      ws.set(r, NC - 2, m.kind, XS.cell);
+      ws.merge(r, NC - 1, r, NC, xlIsWeb(m.url) ? 'Obre' : 'Desat a la tauleta (versió de prova)', [XS.cell, xlIsWeb(m.url) ? XS.link : XS.muted]);
+      if (xlIsWeb(m.url)) ws.link(r, NC - 1, m.url, 'Obre el fitxer');
       r++;
     }
     return r;
   }
 
-  function build({ patient: p, assessment: a, previous = null, settings, today = U.today() }) {
-    const doc = XlsxDoc.create({ title: `${typeLabel(a)} · ${U.fullName(p)}`, subject: 'Valoració funcional', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
-    const ref = { weight: null, files: media(a) };
-    const wsR = doc.sheet('Resum', { grid: false, landscape: true, tab: XL_C.BRAND });
-    const wsC = previous ? doc.sheet('Comparació', { grid: false, landscape: true, tab: XL_C.BRAND_M }) : null;
-    const sheets = {};
+  function detailSheet(doc, { p, a, previous = null, name, settings }) {
+    const ws = doc.sheet(name, { grid: false, landscape: true, tab: XL_C.BRAND_L, zoom: 90 });
+    ws.cols(WIDTHS);
+    const ref = { weight: null, files: media(a), name };
+    let r = xlTitle(ws, `${typeLabel(a)} · ${U.fullName(p)}`, `${U.fmtDateLong(a.date)}${a.professional ? ` · ${a.professional}` : ''}`, NC);
+    r = summary(ws, r, { p, a, previous, ref, settings });
+    const skipped = [];
     for (const sec of PROTOCOL) {
-      if (sec.id === 'patrons') sheets[sec.id] = doc.sheet('Patrons', { grid: false, landscape: true, tab: XL_BLOCK.for, freeze: [6, 2] });
-      else if (sec.id === 'altres') { if ((a.free || []).some((x) => x.name)) sheets[sec.id] = doc.sheet('Altres mesures', { grid: false, landscape: true, tab: XL_C.MUTED }); }
-      else sheets[sec.id] = doc.sheet(sec.short === 'Força' ? 'Força' : sec.short, { grid: false, landscape: true, tab: { mobilitat: XL_BLOCK.mob, forca: XL_BLOCK.for, rendiment: XL_BLOCK.pot }[sec.id], freeze: [6, 2] });
+      const before = r;
+      r = section(ws, r, { a, sec, ref });
+      if (r === before) skipped.push(sec.short);
     }
-    summarySheet(wsR, { p, a, previous, settings, ref, today });
-    if (wsC) compareSheet(wsC, { p, a, previous });
-    for (const sec of PROTOCOL) if (sheets[sec.id]) sectionSheet(sheets[sec.id], { p, a, sec, ref, settings });
-    return doc;
+    if (skipped.length) {
+      ws.merge(r, 1, r, NC, `Sense dades en aquesta valoració: ${skipped.join(', ')}.`, [XS.note, { wrap: true }]);
+      r += 2;
+    }
+    const gen = ref.files.filter((m) => m.area === 'tot');
+    if (gen.length) {
+      r = xlSection(ws, r, 'Informes i vídeo general (a la carpeta «Valoracions»)', NC);
+      r = mediaTable(ws, r, gen) + 1;
+    }
+    return ws;
   }
 
-  // ── Resum ──
-  const NC = 6;
-  function summarySheet(ws, { p, a, previous, settings, ref }) {
-    ws.cols([34, 18, 22, 22, 22, 30]);
-    let r = xlTitle(ws, `${typeLabel(a)} · ${U.fullName(p)}`, `${U.fmtDateLong(a.date)}${a.professional ? ` · ${a.professional}` : ''}`, NC);
+  function summary(ws, r, { p, a, previous, ref }) {
     const g = a.general || {};
     r = xlSection(ws, r, 'Dades de la valoració', NC);
     const age = U.age(p.birthDate, a.date);
@@ -8750,7 +8788,7 @@ const ExcelAssessment = (() => {
       ['Alçada (cm)', xlNum(g.height) ?? '—', { style: { h: 'left', b: true, fmt: '0' }, keep: true, id: 'height' }],
     ], NC, at);
     const weightRow = at.weight, heightRow = at.height;
-    ref.weight = `'Resum'!$B$${weightRow}`;
+    ref.weight = `${xlSheetRef(ref.name, weightRow, 2).replace(/!([A-Z]+)(\d+)$/, '!$$$1$$$2')}`;
     const w = xlNum(g.weight), h = xlNum(g.height);
     r = xlKv(ws, r, [
       ['IMC (kg/m²)', { f: `IF(AND(ISNUMBER(${xlRef(weightRow, 2)}),ISNUMBER(${xlRef(heightRow, 2)})),${xlRef(weightRow, 2)}/(${xlRef(heightRow, 2)}/100)^2,"")`, v: Calc.bmi(w, h) ?? '' }, { style: { h: 'left', fmt: '0.0' } }],
@@ -8768,20 +8806,21 @@ const ExcelAssessment = (() => {
     if (pc.scored) key.push(['Patrons de moviment', `${pc.counts['0']} competents · ${pc.counts['-']} a millorar · ${pc.counts['--']} amb limitació clara${pc.counts.P ? ` · ${pc.counts.P} amb dolor` : ''} (de ${pc.total})`]);
     const alerts = Calc.alerts(a);
     key.push(['Punts d\'atenció', alerts.length ? `${alerts.length} (${alerts.filter((x) => x.tone === 'bad').length} importants)` : 'Cap']);
-    if (key.length) { r = xlSection(ws, r, 'Indicadors clau', NC); r = xlKv(ws, r, key, NC) + 1; }
+    r = xlSection(ws, r, 'Indicadors clau', NC);
+    r = xlKv(ws, r, key, NC) + 1;
 
     // Wellness
     const wl = Calc.wellness(a.wellness);
     if (wl) {
       r = xlSection(ws, r, 'Wellness · com arriba avui?', NC);
-      r = xlHeader(ws, r, ['Pregunta', 'Resposta (1–5)', ['1 =', 2], ['5 =', 2]]);
+      r = xlHeader(ws, r, ['Pregunta', 'Resposta (1–5)', ['1 =', 4], ['5 =', NC - 6]]);
       const first = r;
       for (const q of WELLNESS) {
         const v = U.num((a.wellness || {})[q.k]);
         ws.set(r, 1, q.label, XS.label);
         ws.set(r, 2, v, [XS.cell, { b: true, fmt: '0', fill: v == null ? null : v <= 2 ? XL_C.RED : v === 3 ? XL_C.AMB : XL_C.GRN }]);
-        ws.merge(r, 3, r, 4, q.lo, [XS.text, { color: XL_C.MUTED }]);
-        ws.merge(r, 5, r, 6, q.hi, [XS.text, { color: XL_C.MUTED }]);
+        ws.merge(r, 3, r, 6, q.lo, [XS.text, { color: XL_C.MUTED }]);
+        ws.merge(r, 7, r, NC, q.hi, [XS.text, { color: XL_C.MUTED }]);
         r++;
       }
       ws.set(r, 1, 'Total (màxim 25)', XS.label);
@@ -8794,10 +8833,9 @@ const ExcelAssessment = (() => {
     // Punts d'atenció
     r = xlSection(ws, r, 'Punts d\'atenció', NC);
     if (alerts.length) {
-      r = xlHeader(ws, r, ['Àrea', 'Nivell', ['Descripció', 4]]);
-      const area = { mobilitat: 'Mobilitat', forca: 'Força', rendiment: 'Rendiment', patrons: 'Patrons', altres: 'Altres' };
+      r = xlHeader(ws, r, ['Àrea', 'Nivell', ['Descripció', NC - 2]]);
       for (const al of alerts) {
-        ws.set(r, 1, area[al.section] || al.section, XS.text);
+        ws.set(r, 1, AREA[al.section] || al.section, XS.text);
         ws.set(r, 2, al.tone === 'bad' ? 'Important' : 'A vigilar', [XS.cell, { b: true, fill: al.tone === 'bad' ? XL_C.RED : XL_C.AMB }]);
         ws.merge(r, 3, r, NC, al.text, XS.text);
         r++;
@@ -8814,83 +8852,46 @@ const ExcelAssessment = (() => {
       r = xlSection(ws, r, 'Conclusions i pla', NC);
       r = xlKv(ws, r, [['Punts forts', xlStr(c.strengths)], ['Prioritats', xlStr(c.priorities)], ['Decisions per al pla d\'entrenament', xlStr(c.plan)]], NC) + 1;
     }
-
     if (previous) {
-      ws.merge(r, 1, r, NC, `Comparació amb la valoració anterior (${U.fmtDate(previous.date)}): vegeu el full «Comparació».`, [XS.text, { u: true, color: XL_C.LINK }]);
-      ws.link(r, 1, xlGo('Comparació'), 'Vés a la comparació');
+      ws.merge(r, 1, r, NC, `Evolució respecte a la valoració anterior (${U.fmtDate(previous.date)}) i les altres: pestanya «Valoracions».`, [XS.text, { u: true, color: XL_C.LINK }]);
+      ws.link(r, 1, xlGo('Valoracions'), 'Vés a l\'evolució de les valoracions');
       r += 2;
     }
-
-    // Fitxers
-    if (ref.files.length) {
-      r = xlSection(ws, r, 'Fotos, vídeos i informes (a les carpetes del client)', NC);
-      r = mediaTable(ws, r, ref.files, NC);
-    }
     return r;
   }
 
-  // ── Comparació amb l'anterior ──
-  function compareSheet(ws, { p, a, previous }) {
-    ws.cols([46, 18, 18, 14, 12, 14]);
-    let r = xlTitle(ws, `Comparació · ${U.fullName(p)}`, `${typeLabel(previous)} del ${U.fmtDate(previous.date)}  →  ${typeLabel(a)} del ${U.fmtDate(a.date)}`, 6);
-    ws.freeze(r + 1, 2);
-    r = xlHeader(ws, r, ['Test', `Anterior · ${U.fmtDate(previous.date)}`, `Actual · ${U.fmtDate(a.date)}`, 'Canvi', 'Canvi %', 'Evolució']);
-    const rows = Calc.compare(a, previous, false);
-    if (!rows.length) {
-      ws.merge(r, 1, r, 6, 'No hi ha cap test mesurat a les dues valoracions.', [XS.text, { i: true, color: XL_C.MUTED }]);
-      return r;
-    }
-    for (const x of rows) {
-      const fmt = decimals(x.unit);
-      ws.set(r, 1, `${x.label}${x.unit ? ` (${x.unit})` : ''}`, XS.text);
-      ws.set(r, 2, x.prev, [XS.cell, { fmt }]);
-      ws.set(r, 3, x.cur, [XS.cell, { fmt, b: true }]);
-      const fill = x.better === true ? XL_C.GRN : x.better === false ? XL_C.RED : null;
-      ws.set(r, 4, { f: `${xlRef(r, 3)}-${xlRef(r, 2)}`, v: x.delta }, [XS.cell, { fmt: `+${fmt};-${fmt};${fmt}`, fill }]);
-      ws.set(r, 5, { f: `IF(${xlRef(r, 2)}=0,"",(${xlRef(r, 3)}-${xlRef(r, 2)})/ABS(${xlRef(r, 2)}))`, v: x.prev === 0 ? '' : x.delta / Math.abs(x.prev) }, [XS.cell, { fmt: '+0%;-0%;0%', fill }]);
-      ws.set(r, 6, x.better === true ? '▲ Millora' : x.better === false ? '▼ Empitjora' : Math.abs(x.delta) < 1e-9 ? '• Igual' : '• Canvi', [XS.cell, { fill, b: x.better != null }]);
-      r++;
-    }
-    r++;
-    ws.merge(r, 1, r, 6, 'Verd = millora · vermell = empitjora (segons el test: en algunes proves un valor més baix és millor). El pes corporal no es valora com a millora ni empitjorament.', [XS.note, { wrap: true }]);
-    return r;
-  }
-
-  // ── Seccions del protocol ──
-  const SIDE_COLS = { w: [36, 14, 14, 11, 16, 13, 13, 52] }; // Prova · D · E · Unitat · Asimetria · N/kg D · N/kg E · Observacions
-
-  function sectionSheet(ws, { p, a, sec, ref, settings }) {
-    if (sec.id === 'patrons') return patternsSheet(ws, { p, a, sec });
-    if (sec.id === 'altres') return freeSheet(ws, { p, a });
-    if (sec.id === 'rendiment') return performanceSheet(ws, { p, a, sec, ref });
-    ws.cols(SIDE_COLS.w);
-    const NCOLS = 8;
-    let r = xlTitle(ws, `${sec.title} · ${U.fullName(p)}`, `${typeLabel(a)} del ${U.fmtDate(a.date)}  ·  D = dreta, E = esquerra`, NCOLS);
-    ws.freeze(r + 1, 2);
+  // Un apartat del protocol (només si s'hi ha mesurat alguna cosa). Retorna la fila següent, o la mateixa si no hi ha res.
+  function section(ws, r, { a, sec, ref }) {
+    const start = r;
+    let body = r + 1;
     const items = ref.files.filter((m) => m.area === sec.id);
-    let any = false;
-    for (const g of sec.groups) {
-      const before = r;
-      r = groupBlock(ws, r, { a, g, ref, NCOLS });
-      if (r !== before) { any = true; r++; }
+    if (sec.id === 'patrons') body = patterns(ws, body, { a });
+    else if (sec.id === 'altres') body = free(ws, body, { a });
+    else if (sec.id === 'rendiment') body = performance(ws, body, { a, ref });
+    else {
+      for (const g of sec.groups) {
+        const before = body;
+        body = groupBlock(ws, body, { a, g, ref });
+        if (body !== before) body++;
+      }
     }
-    if (!any) { ws.merge(r, 1, r, NCOLS, 'Aquest apartat no s\'ha mesurat en aquesta valoració.', [XS.text, { i: true, color: XL_C.MUTED }]); r += 2; }
-    if (items.length) { r = xlSection(ws, r, 'Fotos i vídeos d\'aquest apartat', NCOLS); mediaTable(ws, r, items, NCOLS); }
-    return r;
+    if (body === start + 1 && !items.length) return start; // res a mostrar
+    band(ws, start, sec.title, SEC_COLOR[sec.id], sec.id === 'patrons' ? '0 = competent · − = a millorar · −− = limitació clara · P = dolor' : sec.id !== 'rendiment' && sec.id !== 'altres' ? 'D = dreta · E = esquerra' : '');
+    r = body;
+    if (items.length) { r = xlSection(ws, r, 'Fotos i vídeos d\'aquest apartat', NC); r = mediaTable(ws, r, items); }
+    return r + 1;
   }
 
-  // Un grup de tests (una taula per cada tipus de prova consecutiu). Retorna la fila següent, o la mateixa si no hi ha res a mostrar.
-  function groupBlock(ws, r, { a, g, ref, NCOLS }) {
+  // Un grup de tests (una taula per cada tipus de prova consecutiu). Retorna la fila següent, o la mateixa si no hi ha res.
+  function groupBlock(ws, r, { a, g, ref }) {
     const v = a.values || {};
     const tests = (g.tests || []).map((t0) => TEST_INDEX[t0.id]);
-    const title = g.title || '';
-    const sub = g.device ? `  ·  ${g.device}` : '';
-    if (g.kind === 'ybt') return ybtBlock(ws, r, { a, g, title: title + sub, NCOLS });
+    const title = `${g.title || ''}${g.device ? `  ·  ${g.device}` : ''}`;
+    if (g.kind === 'ybt') return ybtBlock(ws, r, { a, title });
     if (['encoder', 'jumps', 'bike', 'patterns', 'free'].includes(g.kind)) return r;
     const shown = tests.filter((t) => measured(v[t.id]) || (anything(v[t.id]) && !t.optional));
     if (!shown.length) return r;
-    r = xlSection(ws, r, title + sub, NCOLS);
-    // Tests seguits del mateix tipus (numèric per costats, positiu/negatiu, puntuació…) comparteixen taula.
+    r = xlSection(ws, r, title, NC);
     const runs = [];
     for (const t of shown) {
       const last = runs[runs.length - 1];
@@ -8898,20 +8899,20 @@ const ExcelAssessment = (() => {
     }
     runs.forEach((run, i) => {
       if (i) r++;
-      r = runTable(ws, r, { a, g, run, ref, NCOLS, v });
+      r = runTable(ws, r, { a, g, run, ref, v });
     });
     return r;
   }
 
-  function runTable(ws, r, { a, g, run, ref, NCOLS, v }) {
+  function runTable(ws, r, { a, g, run, ref, v }) {
     const shown = run.tests;
     if (run.kind === 'bi') {
       const perKg = shown.some((t) => t.perKg);
-      r = xlHeader(ws, r, ['Prova', 'Dreta (D)', 'Esquerra (E)', 'Unitat', shown.every((t) => t.diffOnly) ? 'Diferència' : 'Asimetria / dif.', ...(perKg ? ['Dreta (N/kg)', 'Esquerra (N/kg)', 'Observacions'] : [['Observacions', 3]])]);
+      r = xlHeader(ws, r, ['Prova', 'Dreta (D)', 'Esquerra (E)', 'Unitat', shown.every((t) => t.diffOnly) ? 'Diferència' : 'Asimetria / dif.', ...(perKg ? ['Dreta (N/kg)', 'Esquerra (N/kg)', ['Observacions', NC - 7]] : [['Observacions', NC - 5]])]);
       for (const t of shown) {
         const x = v[t.id] || {};
         const d = xlNum(x.d), e = xlNum(x.e);
-        const fmt = t.unit === 'N' || t.unit === '°' ? '0' : '0.0';
+        const fmt = decimals(t.unit);
         ws.set(r, 1, t.name, XS.text);
         const wb = t.rule === 'wblt';
         ws.set(r, 2, d, [XS.cell, { fmt }, wb && d != null && d < THRESHOLDS.wbltMin ? { fill: XL_C.RED } : null]);
@@ -8931,8 +8932,8 @@ const ExcelAssessment = (() => {
           const kg = (cell, val) => ({ f: `IF(AND(ISNUMBER(${cell}),ISNUMBER(${wref}),${wref}>0),${cell}/${wref},"")`, v: Calc.perKg(val, Calc.weight(a)) ?? '' });
           ws.set(r, 6, kg(dr, x.d), [XS.cell, { fmt: '0.0' }]);
           ws.set(r, 7, kg(er, x.e), [XS.cell, { fmt: '0.0' }]);
-          ws.set(r, 8, xlStr(x.note), XS.text);
-        } else ws.merge(r, 6, r, 8, xlStr(x.note), XS.text);
+          ws.merge(r, 8, r, NC, xlStr(x.note), XS.text);
+        } else ws.merge(r, 6, r, NC, xlStr(x.note), XS.text);
         r++;
       }
       // Ràtio isquiotibials / quàdriceps (curl 90/90 ÷ leg extension)
@@ -8945,63 +8946,63 @@ const ExcelAssessment = (() => {
           const f = (col, val) => ({ f: `IF(AND(ISNUMBER(${xlRef(base + q, col)}),ISNUMBER(${xlRef(base + h, col)}),${xlRef(base + q, col)}>0),${xlRef(base + h, col)}/${xlRef(base + q, col)},"")`, v: val ?? '' });
           ws.set(r, 2, f(2, hq.d), [XS.cell, { fmt: '0.00', b: true }]);
           ws.set(r, 3, f(3, hq.e), [XS.cell, { fmt: '0.00', b: true }]);
-          ws.merge(r, 4, r, 8, '', XS.text);
+          ws.merge(r, 4, r, NC, '', XS.text);
           r++;
         }
       }
     } else if (run.kind === 'biSelect') {
-      r = xlHeader(ws, r, ['Prova', 'Dreta (D)', 'Esquerra (E)', ['Observacions', 5]]);
+      r = xlHeader(ws, r, ['Prova', 'Dreta (D)', 'Esquerra (E)', ['Observacions', NC - 3]]);
       for (const t of shown) {
         const x = v[t.id] || {};
         const pos = (s) => /^Positiu/.test(xlStr(s));
         ws.set(r, 1, t.name, XS.text);
         ws.set(r, 2, xlStr(x.d), [XS.cellW, pos(x.d) ? { fill: XL_C.AMB, b: true } : null]);
         ws.set(r, 3, xlStr(x.e), [XS.cellW, pos(x.e) ? { fill: XL_C.AMB, b: true } : null]);
-        ws.merge(r, 4, r, 8, xlStr(x.note), XS.text);
+        ws.merge(r, 4, r, NC, xlStr(x.note), XS.text);
         r++;
       }
     } else if (run.kind === 'select') {
-      r = xlHeader(ws, r, ['Prova', ['Resultat', 2], ['Observacions', 5]]);
+      r = xlHeader(ws, r, ['Prova', ['Resultat', 2], ['Observacions', NC - 3]]);
       for (const t of shown) {
         const x = v[t.id] || {};
         ws.set(r, 1, t.name, XS.text);
         ws.merge(r, 2, r, 3, xlStr(x.v), [XS.cellW, /^Positiu/.test(xlStr(x.v)) ? { fill: XL_C.AMB, b: true } : null]);
-        ws.merge(r, 4, r, 8, xlStr(x.note), XS.text);
+        ws.merge(r, 4, r, NC, xlStr(x.note), XS.text);
         r++;
       }
     } else if (run.kind === 'scoreBi') {
-      r = xlHeader(ws, r, ['Prova', 'Dreta (D)', 'Esquerra (E)', 'Dolor', ['Compensacions observades', 2], ['Observacions', 2]]);
+      r = xlHeader(ws, r, ['Prova', 'Dreta (D)', 'Esquerra (E)', 'Dolor', ['Compensacions observades', 2], ['Observacions', NC - 6]]);
       for (const t of shown) {
         const x = v[t.id] || {};
         ws.set(r, 1, t.name, XS.text);
         for (const [col, key] of [[2, 'sd'], [3, 'se']]) ws.set(r, col, SYM[x[key]] || '', [XS.cell, { b: true, sz: 12, fill: SCORE_FILL[x[key]] }]);
         ws.set(r, 4, x.pain ? 'P' : '', [XS.cell, { b: true, fill: x.pain ? XL_C.RED : null }]);
         ws.merge(r, 5, r, 6, (x.chips || []).join(', '), XS.text);
-        ws.merge(r, 7, r, 8, xlStr(x.note), XS.text);
+        ws.merge(r, 7, r, NC, xlStr(x.note), XS.text);
         r++;
       }
-      ws.merge(r, 1, r, NCOLS, '0 = competent · − = a millorar · −− = limitació clara · P = dolor o símptomes (s\'atura el test i es deriva al fisio).', [XS.note, { wrap: true }]);
+      ws.merge(r, 1, r, NC, '0 = competent · − = a millorar · −− = limitació clara · P = dolor o símptomes (s\'atura el test i es deriva al fisio).', [XS.note, { wrap: true }]);
       r++;
     } else if (run.kind === 'single') {
-      r = xlHeader(ws, r, ['Prova', 'Valor', 'Unitat', ['Observacions', 5]]);
+      r = xlHeader(ws, r, ['Prova', 'Valor', 'Unitat', ['Observacions', NC - 3]]);
       for (const t of shown) {
         const x = v[t.id] || {};
         ws.set(r, 1, t.name, XS.text);
         ws.set(r, 2, xlNum(x.v), [XS.cell, { b: true }]);
         ws.set(r, 3, t.unit, XS.cell);
-        ws.merge(r, 4, r, 8, xlStr(x.note), XS.text);
+        ws.merge(r, 4, r, NC, xlStr(x.note), XS.text);
         r++;
       }
     }
     return r;
   }
 
-  function ybtBlock(ws, r, { a, g, title, NCOLS }) {
+  function ybtBlock(ws, r, { a, title }) {
     const y = Calc.ybt(a), raw = a.ybt || {};
     const has = ['d', 'e'].some((s) => ['ant', 'pm', 'pl', 'len'].some((k) => xlStr((raw[s] || {})[k]).trim()));
     if (!has) return r;
-    r = xlSection(ws, r, `${title}  ·  1 intent per direcció i cama`, NCOLS);
-    r = xlHeader(ws, r, ['Direcció', 'Dreta (cm)', 'Esquerra (cm)', 'Diferència (cm)', ['Observacions', 4]]);
+    r = xlSection(ws, r, `${title}  ·  1 intent per direcció i cama`, NC);
+    r = xlHeader(ws, r, ['Direcció', 'Dreta (cm)', 'Esquerra (cm)', 'Diferència (cm)', ['Observacions', NC - 4]]);
     const first = r;
     const rowsDef = [['Anterior', 'ant'], ['Posteromedial', 'pm'], ['Posterolateral', 'pl'], ['Longitud de la cama', 'len']];
     for (const [label, k] of rowsDef) {
@@ -9012,7 +9013,7 @@ const ExcelAssessment = (() => {
       const df = dv != null && ev != null ? Math.abs(dv - ev) : '';
       const bad = k === 'ant' && df !== '' && df >= THRESHOLDS.ybtAntDiff;
       ws.set(r, 4, { f: `IF(COUNT(${xlRef(r, 2)},${xlRef(r, 3)})=2,ABS(${xlRef(r, 2)}-${xlRef(r, 3)}),"")`, v: df }, [XS.cell, { fmt: '0.0', fill: bad ? XL_C.RED : null, b: bad }]);
-      ws.merge(r, 5, r, 8, k === 'ant' ? `Diferència ≥ ${THRESHOLDS.ybtAntDiff} cm a l'anterior = punt d'atenció.` : '', [XS.text, { color: XL_C.MUTED }]);
+      ws.merge(r, 5, r, NC, k === 'ant' ? `Diferència ≥ ${THRESHOLDS.ybtAntDiff} cm a l'anterior = punt d'atenció.` : '', [XS.text, { color: XL_C.MUTED }]);
       r++;
     }
     const comp = (col, val) => {
@@ -9023,24 +9024,17 @@ const ExcelAssessment = (() => {
     ws.set(r, 2, comp(2, y.d.comp), [XS.cell, { fmt: '0.0', b: true, fill: XL_C.GREY }]);
     ws.set(r, 3, comp(3, y.e.comp), [XS.cell, { fmt: '0.0', b: true, fill: XL_C.GREY }]);
     ws.set(r, 4, { f: `IF(COUNT(${xlRef(r, 2)},${xlRef(r, 3)})=2,ABS(${xlRef(r, 2)}-${xlRef(r, 3)}),"")`, v: y.compDiff ?? '' }, [XS.cell, { fmt: '0.0', fill: XL_C.GREY }]);
-    ws.merge(r, 5, r, 8, 'Composite = (anterior + posteromedial + posterolateral) ÷ (3 × longitud de la cama) × 100.', [XS.text, { color: XL_C.MUTED }]);
+    ws.merge(r, 5, r, NC, 'Composite = (anterior + posteromedial + posterolateral) ÷ (3 × longitud de la cama) × 100.', [XS.text, { color: XL_C.MUTED }]);
     r++;
-    if (xlStr(raw.note).trim()) { r = xlKv(ws, r, [['Observacions', xlStr(raw.note)]], NCOLS); }
+    if (xlStr(raw.note).trim()) r = xlKv(ws, r, [['Observacions', xlStr(raw.note)]], NC);
     return r;
   }
 
   // ── Rendiment: salts, encoder i bike ──
-  function performanceSheet(ws, { p, a, sec, ref }) {
-    const cols = [26, 16, 12, 13, 12, 13, 10, 11, 10, 11, 40];
-    const NCOLS = cols.length;
-    ws.cols(cols);
-    let r = xlTitle(ws, `${sec.title} · ${U.fullName(p)}`, `${typeLabel(a)} del ${U.fmtDate(a.date)}`, NCOLS);
-    ws.freeze(r + 1, 2);
-    let any = false;
+  function performance(ws, r, { a, ref }) {
     const attempts = ((a.jumps && a.jumps.attempts) || []).filter((x) => U.num(x.height) != null || U.num(x.power) != null);
     if (attempts.length) {
-      any = true;
-      r = xlSection(ws, r, 'Salts  ·  My Jump Lab', NCOLS);
+      r = xlSection(ws, r, 'Salts  ·  My Jump Lab', NC);
       r = xlHeader(ws, r, ['Intent', 'Tipus', 'Altura (cm)', 'Potència (W)', 'Força (N)', 'Velocitat (m/s)', 'RSI-mod', 'Càrrega (kg)', 'Vol (ms)', 'Contacte (ms)', 'Nota']);
       attempts.forEach((x, i) => {
         ws.set(r, 1, `Intent ${i + 1}`, XS.text);
@@ -9062,13 +9056,12 @@ const ExcelAssessment = (() => {
       const extra = [];
       if (xlStr((a.jumps || {}).readiness)) extra.push(['Estat de forma (My Jump)', (OPT.readiness.find((o) => o.v === a.jumps.readiness) || {}).label || a.jumps.readiness]);
       if (xlStr((a.jumps || {}).note)) extra.push(['Observacions dels salts', xlStr(a.jumps.note)]);
-      if (extra.length) r = xlKv(ws, r, extra, NCOLS);
+      if (extra.length) r = xlKv(ws, r, extra, NC);
       r++;
     }
     const enc = ((a.encoder && a.encoder.rows) || []).filter((x) => x.name && (xlNum(x.load) != null || xlNum(x.vel) != null || xlNum(x.power) != null));
     if (enc.length) {
-      any = true;
-      r = xlSection(ws, r, 'Encoder  ·  velocitat d\'execució', NCOLS);
+      r = xlSection(ws, r, 'Encoder  ·  velocitat d\'execució', NC);
       r = xlHeader(ws, r, ['Exercici', 'Càrrega (kg)', 'Velocitat mitjana (m/s)', 'Potència (W)']);
       for (const x of enc) {
         ws.set(r, 1, x.name, XS.text);
@@ -9081,8 +9074,7 @@ const ExcelAssessment = (() => {
     }
     const b = Calc.bike(a);
     if (b.peak != null) {
-      any = true;
-      r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NCOLS);
+      r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
       r = xlHeader(ws, r, ['Mesura', 'Valor', 'Unitat']);
       const w = ref.weight;
       const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0'], ['Potència mínima', xlNum(a.bike.min), 'W', '0']];
@@ -9096,25 +9088,13 @@ const ExcelAssessment = (() => {
       ws.set(r, 3, '%', XS.cell); r++;
       r++;
     }
-    if (!any) { ws.merge(r, 1, r, NCOLS, 'Aquest apartat no s\'ha mesurat en aquesta valoració.', [XS.text, { i: true, color: XL_C.MUTED }]); r += 2; }
-    const items = ref.files.filter((m) => m.area === sec.id);
-    if (items.length) { r = xlSection(ws, r, 'Fotos i vídeos d\'aquest apartat', NCOLS); mediaTable(ws, r, items, NCOLS); }
     return r;
   }
 
   // ── Patrons de moviment ──
-  function patternsSheet(ws, { p, a, sec }) {
-    const cols = [28, 11, 13, 12, 34, 12, 8, 44, 40];
-    const NCOLS = cols.length;
-    ws.cols(cols);
-    let r = xlTitle(ws, `${sec.title} · ${U.fullName(p)}`, `${typeLabel(a)} del ${U.fmtDate(a.date)}  ·  0 = competent · − = a millorar · −− = limitació clara · P = dolor`, NCOLS);
-    ws.freeze(r + 1, 2);
-    const any = PATTERNS.some((pt) => anything((a.patterns || {})[pt.id]));
-    if (!any) {
-      ws.merge(r, 1, r, NCOLS, 'Els patrons de moviment no s\'han valorat en aquesta valoració.', [XS.text, { i: true, color: XL_C.MUTED }]);
-      return r;
-    }
-    r = xlHeader(ws, r, ['Patró', 'Dreta', 'Esquerra', 'Pitjor', 'Compensacions', 'Segons (D · E)', 'Dolor', 'Decisió proposada', 'Observacions']);
+  function patterns(ws, r, { a }) {
+    if (!PATTERNS.some((pt) => anything((a.patterns || {})[pt.id]))) return r;
+    r = xlHeader(ws, r, ['Patró', 'Dreta', 'Esquerra', 'Pitjor', 'Compensacions', 'Segons (D · E)', 'Dolor', ['Decisió proposada', 2], ['Observacions', NC - 9]]);
     for (const pt of PATTERNS) {
       const x = (a.patterns || {})[pt.id] || {};
       if (!anything(x)) continue;
@@ -9130,30 +9110,20 @@ const ExcelAssessment = (() => {
       ws.set(r, 7, x.pain ? 'P' : '', [XS.cell, { b: true, fill: x.pain ? XL_C.RED : null }]);
       const info = Calc.scoreInfo(worst);
       // La decisió escrita pel professional; si no n'hi ha, la que es proposa segons la puntuació.
-      ws.set(r, 8, xlStr(x.decision).trim() || (x.pain ? 'Dolor: s\'atura el test i es deriva al fisio.' : info ? info.decision : ''), XS.text);
-      ws.set(r, 9, xlStr(x.note), XS.text);
+      ws.merge(r, 8, r, 9, xlStr(x.decision).trim() || (x.pain ? 'Dolor: s\'atura el test i es deriva al fisio.' : info ? info.decision : ''), XS.text);
+      ws.merge(r, 10, r, NC, xlStr(x.note), XS.text);
       r++;
     }
     r++;
-    r = xlSection(ws, r, 'Escala de puntuació', NCOLS);
-    for (const s of SCORES) {
-      ws.set(r, 1, `${s.sym} · ${s.label}`, [XS.cell, { b: true, fill: SCORE_FILL[s.v], h: 'left' }]);
-      ws.merge(r, 2, r, NCOLS, `${s.desc}  Decisió: ${s.decision}`, XS.text);
-      r++;
-    }
-    ws.set(r, 1, `P · ${PAIN_INFO.label}`, [XS.cell, { b: true, fill: XL_C.RED, h: 'left' }]);
-    ws.merge(r, 2, r, NCOLS, PAIN_INFO.desc, XS.text);
-    r += 2;
-    const items = media(a).filter((m) => m.area === sec.id);
-    if (items.length) { r = xlSection(ws, r, 'Vídeos dels patrons', NCOLS); mediaTable(ws, r, items, NCOLS); }
-    return r;
+    ws.merge(r, 1, r, NC, `${SCORES.map((s) => `${s.sym} = ${s.label.toLowerCase()}`).join(' · ')} · P = ${PAIN_INFO.label.toLowerCase()}`, [XS.note, { wrap: true }]);
+    return r + 1;
   }
 
-  function freeSheet(ws, { p, a }) {
-    ws.cols([36, 14, 14, 14, 12]);
-    let r = xlTitle(ws, `Altres mesures · ${U.fullName(p)}`, `${typeLabel(a)} del ${U.fmtDate(a.date)}`, 5);
+  function free(ws, r, { a }) {
+    const list = (a.free || []).filter((y) => y.name);
+    if (!list.length) return r;
     r = xlHeader(ws, r, ['Mesura', 'Dreta (D)', 'Esquerra (E)', 'Valor únic', 'Unitat']);
-    for (const x of (a.free || []).filter((y) => y.name)) {
+    for (const x of list) {
       ws.set(r, 1, x.name, XS.text);
       ws.set(r, 2, xlNumOrText(x.d), XS.cell);
       ws.set(r, 3, xlNumOrText(x.e), XS.cell);
@@ -9164,44 +9134,188 @@ const ExcelAssessment = (() => {
     return r;
   }
 
-  return { build, media };
+  // ════════════════ «Valoracions»: l'evolució, una valoració al costat de l'altra ════════════════
+  // Cada fila: { label, unit, get(a) → { d, e } | { v } | { t } | { sd, se } (puntuacions), dir: 1 més és millor, -1 menys és millor, 0 neutre, fmt }
+  function evolutionRows(list) {
+    const any = (get) => list.some((a) => { const x = get(a); return x && Object.values(x).some((y) => y != null && y !== ''); });
+    const sections = [];
+    const sec = (title, color, rows) => { const kept = rows.filter((x) => any(x.get)); if (kept.length) sections.push({ title, color, rows: kept }); };
+    // Dades generals
+    sec('Dades i estat del dia', XL_C.BRAND_M, [
+      { label: 'Professional', get: (a) => ({ t: xlStr(a.professional) || null }) },
+      { label: 'Pes', unit: 'kg', fmt: '0.0', dir: 0, get: (a) => ({ v: Calc.weight(a) }) },
+      { label: 'Alçada', unit: 'cm', fmt: '0', dir: 0, get: (a) => ({ v: xlNum((a.general || {}).height) }) },
+      { label: 'IMC', unit: 'kg/m²', fmt: '0.0', dir: 0, get: (a) => ({ v: Calc.bmi(xlNum((a.general || {}).weight), xlNum((a.general || {}).height)) }) },
+      { label: 'Wellness (total)', unit: '/25', fmt: '0', dir: 1, get: (a) => { const w = Calc.wellness(a.wellness); return { v: w && w.total != null ? w.total : null }; } },
+      { label: 'Punts d\'atenció', unit: '', fmt: '0', dir: -1, get: (a) => ({ v: Calc.alerts(a).length }) },
+    ]);
+    for (const s of PROTOCOL) {
+      const rows = [];
+      for (const g of s.groups) {
+        if (g.kind === 'ybt') {
+          for (const [label, k] of [['Y-Balance · anterior', 'ant'], ['Y-Balance · posteromedial', 'pm'], ['Y-Balance · posterolateral', 'pl'], ['Y-Balance · longitud de la cama', 'len']]) {
+            rows.push({ label, unit: 'cm', fmt: '0', dir: k === 'len' ? 0 : 1, get: (a) => ({ d: xlNum(((a.ybt || {}).d || {})[k]), e: xlNum(((a.ybt || {}).e || {})[k]) }) });
+          }
+          rows.push({ label: 'Y-Balance · composite', unit: '%', fmt: '0.0', dir: 1, bold: true, get: (a) => { const y = Calc.ybt(a); return { d: y.d.comp, e: y.e.comp }; } });
+          continue;
+        }
+        if (g.kind === 'jumps') {
+          const types = [...new Set(list.flatMap((a) => Object.keys(Calc.jumps(a) || {})))];
+          for (const type of types) {
+            rows.push({ label: `${type} · millor altura`, unit: 'cm', fmt: '0.0', dir: 1, bold: true, get: (a) => { const j = (Calc.jumps(a) || {})[type]; return { v: j ? j.best : null }; } });
+            rows.push({ label: `${type} · potència relativa`, unit: 'W/kg', fmt: '0.0', dir: 1, get: (a) => { const j = (Calc.jumps(a) || {})[type]; return { v: j ? j.relPower : null }; } });
+          }
+          continue;
+        }
+        if (g.kind === 'encoder') {
+          const exs = [...new Set(list.flatMap((a) => ((a.encoder && a.encoder.rows) || []).map((x) => xlStr(x.name).trim()).filter(Boolean)))];
+          for (const name of exs) {
+            const pick = (a) => ((a.encoder && a.encoder.rows) || []).find((x) => xlStr(x.name).trim() === name) || {};
+            // La velocitat només es pot comparar a la mateixa càrrega: es mostra el canvi, però sense color.
+            rows.push({ label: `Encoder · ${name} · velocitat`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: xlNum(pick(a).vel) }) });
+            rows.push({ label: `Encoder · ${name} · càrrega`, unit: 'kg', fmt: '0.0', dir: 0, get: (a) => ({ v: xlNum(pick(a).load) }) });
+          }
+          continue;
+        }
+        if (g.kind === 'bike') {
+          rows.push({ label: 'Assault bike · potència pic', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).peak }) });
+          rows.push({ label: 'Assault bike · potència mitjana', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).mean != null ? Calc.bike(a).mean : xlNum((a.bike || {}).mean) }) });
+          rows.push({ label: 'Assault bike · índex de fatiga', unit: '%', fmt: '0.0', dir: -1, get: (a) => ({ v: Calc.bike(a).fatigue }) });
+          continue;
+        }
+        if (g.kind === 'patterns') {
+          for (const pt of PATTERNS) {
+            rows.push({ label: pt.name, score: true, get: (a) => { const x = (a.patterns || {})[pt.id] || {}; return pt.uni ? { sd: x.sd || null, se: x.se || null, pain: !!x.pain } : { s: x.score || null, pain: !!x.pain }; } });
+          }
+          continue;
+        }
+        if (g.kind === 'free') {
+          const names = [...new Set(list.flatMap((a) => (a.free || []).map((x) => xlStr(x.name).trim()).filter(Boolean)))];
+          for (const name of names) {
+            const pick = (a) => (a.free || []).find((x) => xlStr(x.name).trim() === name) || {};
+            rows.push({ label: name, unit: xlStr((list.map(pick).find((x) => x.unit) || {}).unit), dir: 0, get: (a) => { const x = pick(a); return xlStr(x.v).trim() ? { v: xlNumOrText(x.v) } : { d: xlNumOrText(x.d), e: xlNumOrText(x.e) }; } });
+          }
+          continue;
+        }
+        for (const t0 of g.tests || []) {
+          const t = TEST_INDEX[t0.id];
+          const x = (a) => ((a.values || {})[t.id] || {});
+          if (t.kind === 'bi') {
+            rows.push({ label: t.name, unit: t.unit, fmt: decimals(t.unit), dir: t.lowerBetter ? -1 : t.diffOnly && t.rule !== 'wblt' ? 0 : 1, get: (a) => ({ d: xlNum(x(a).d), e: xlNum(x(a).e) }) });
+            if (t.perKg) rows.push({ label: `${t.name} (relativa)`, unit: 'N/kg', fmt: '0.0', dir: 1, get: (a) => ({ d: Calc.perKg(x(a).d, Calc.weight(a)), e: Calc.perKg(x(a).e, Calc.weight(a)) }) });
+          } else if (t.kind === 'single') rows.push({ label: t.name, unit: t.unit, fmt: decimals(t.unit), dir: t.lowerBetter ? -1 : 1, get: (a) => ({ v: xlNum(x(a).v) }) });
+          else if (t.kind === 'select') rows.push({ label: t.name, get: (a) => ({ t: xlStr(x(a).v) || null }) });
+          else if (t.kind === 'biSelect') rows.push({ label: t.name, get: (a) => ({ td: xlStr(x(a).d) || null, te: xlStr(x(a).e) || null }) });
+          else if (t.kind === 'scoreBi') rows.push({ label: t.name, score: true, get: (a) => ({ sd: x(a).sd || null, se: x(a).se || null, pain: !!x(a).pain }) });
+        }
+        if (g.id === 'dyn') rows.push({ label: 'Ràtio isquiotibials / quàdriceps', unit: '', fmt: '0.00', dir: 1, get: (a) => { const hq = Calc.hq(a); return { d: hq.d, e: hq.e }; } });
+      }
+      sec(s.title, SEC_COLOR[s.id], rows);
+    }
+    sec('Conclusions', XL_C.BRAND_M, [
+      { label: 'Punts forts', text: true, get: (a) => ({ t: xlStr((a.conclusions || {}).strengths).trim() || null }) },
+      { label: 'Prioritats', text: true, get: (a) => ({ t: xlStr((a.conclusions || {}).priorities).trim() || null }) },
+      { label: 'Decisions per al pla', text: true, get: (a) => ({ t: xlStr((a.conclusions || {}).plan).trim() || null }) },
+    ]);
+    return sections;
+  }
+
+  function evolutionSheet(doc, { p, list, names }) {
+    const ws = doc.sheet('Valoracions', { grid: false, landscape: true, tab: XL_C.BRAND, zoom: 90 });
+    const n = list.length;
+    const cmp = n >= 2;
+    const first = 3;                                   // primera columna de valoracions
+    const last = first + 2 * n - 1;
+    const NCv = last + (cmp ? 2 : 0);
+    ws.col(1, 38); ws.col(2, 8);
+    for (let c = first; c <= NCv; c++) ws.col(c, 10);
+    let r = xlTitle(ws, `Valoracions · ${U.fullName(p)}`, `${U.plural(n, 'valoració', 'valoracions')}, de la més antiga a la més nova · D = dreta, E = esquerra${cmp ? ' · el canvi és entre les dues últimes (verd = millora, vermell = empitjora)' : ''}`, NCv);
+    // Capçalera de dues files
+    const hd = (r1, c1, r2, c2, text, extra) => ws.merge(r1, c1, r2, c2, text, [XS.head, extra]);
+    hd(r, 1, r + 1, 1, 'Prova', { h: 'left', indent: 1 });
+    hd(r, 2, r + 1, 2, 'Unitat');
+    list.forEach((a, i) => {
+      const c = first + 2 * i;
+      hd(r, c, r, c + 1, `${typeOf(a).short || 'Valoració'} · ${U.fmtDate(a.date)}`, { u: !!names[a.id] });
+      if (names[a.id]) ws.link(r, c, xlGo(names[a.id]), 'Vés al detall d\'aquesta valoració');
+      hd(r + 1, c, r + 1, c, 'D'); hd(r + 1, c + 1, r + 1, c + 1, 'E');
+    });
+    if (cmp) { hd(r, last + 1, r, last + 2, 'Canvi'); hd(r + 1, last + 1, r + 1, last + 1, 'D'); hd(r + 1, last + 2, r + 1, last + 2, 'E'); }
+    ws.rowH(r, 30);
+    r += 2;
+    ws.freeze(r, 3);
+    if (!n) return ws;
+    for (const s of evolutionRows(list)) {
+      ws.merge(r, 1, r, NCv, s.title, { b: true, sz: 11, color: 'FFFFFF', fill: s.color, h: 'left', v: 'center', indent: 1 });
+      ws.rowH(r, 20);
+      r++;
+      for (const row of s.rows) {
+        ws.set(r, 1, row.label, [XS.text, row.bold ? { b: true } : null]);
+        ws.set(r, 2, row.unit || '', [XS.cell, XS.muted]);
+        const vals = list.map((a) => row.get(a) || {});
+        vals.forEach((x, i) => {
+          const c = first + 2 * i;
+          const num = (v) => [v == null || v === '' ? null : v, [XS.cell, row.fmt && typeof v === 'number' ? { fmt: row.fmt } : null, i === n - 1 ? { b: true } : null]];
+          if (row.score) {
+            const one = (k) => [SYM[k] || '', [XS.cell, { b: true, sz: 11, fill: SCORE_FILL[k] }]];
+            if ('s' in x) ws.merge(r, c, r, c + 1, `${SYM[x.s] || ''}${x.pain ? ' P' : ''}`, [XS.cell, { b: true, sz: 11, fill: x.pain ? XL_C.RED : SCORE_FILL[x.s] }]);
+            else {
+              ws.set(r, c, ...one(x.sd)); ws.set(r, c + 1, ...one(x.se));
+              if (x.pain) ws.set(r, c + 1, `${SYM[x.se] || ''} P`, [XS.cell, { b: true, sz: 11, fill: XL_C.RED }]);
+            }
+          } else if (row.text || 't' in x) ws.merge(r, c, r, c + 1, x.t || '', [XS.text, { sz: 9 }]);
+          else if ('td' in x) {
+            const pos = (s) => /^Positiu/.test(xlStr(s));
+            ws.set(r, c, x.td || '', [XS.cellW, { sz: 9 }, pos(x.td) ? { fill: XL_C.AMB, b: true } : null]);
+            ws.set(r, c + 1, x.te || '', [XS.cellW, { sz: 9 }, pos(x.te) ? { fill: XL_C.AMB, b: true } : null]);
+          } else if ('v' in x) ws.merge(r, c, r, c + 1, ...num(x.v));
+          else { ws.set(r, c, ...num(x.d)); ws.set(r, c + 1, ...num(x.e)); }
+        });
+        if (cmp) {
+          const a = vals[n - 1], b = vals[n - 2];
+          const delta = (k, col, span) => {
+            const x = a[k], y = b[k];
+            if (row.score || row.text || typeof x !== 'number' || typeof y !== 'number') { if (span) ws.merge(r, col, r, col + 1, '', XS.cell); else ws.set(r, col, '', XS.cell); return; }
+            const dlt = x - y;
+            const better = !row.dir || Math.abs(dlt) < 1e-9 ? null : row.dir > 0 ? dlt > 0 : dlt < 0;
+            const fmtd = row.fmt || '0.0';
+            // El canvi es calcula a l'Excel amb les dues columnes.
+            const ca = first + 2 * (n - 1) + (k === 'e' ? 1 : 0), cb = first + 2 * (n - 2) + (k === 'e' ? 1 : 0);
+            const f = k === 'v' ? `IF(COUNT(${xlRef(r, ca)},${xlRef(r, cb)})=2,${xlRef(r, ca)}-${xlRef(r, cb)},"")` : `IF(COUNT(${xlRef(r, ca)},${xlRef(r, cb)})=2,${xlRef(r, ca)}-${xlRef(r, cb)},"")`;
+            const st = [XS.cell, { fmt: `+${fmtd};-${fmtd};${fmtd}`, b: better != null, fill: better === true ? XL_C.GRN : better === false ? XL_C.RED : null }];
+            if (span) ws.merge(r, col, r, col + 1, { f, v: dlt }, st); else ws.set(r, col, { f, v: dlt }, st);
+          };
+          if ('v' in a || 'v' in b) delta('v', last + 1, true);
+          else { delta('d', last + 1); delta('e', last + 2); }
+        }
+        r++;
+      }
+    }
+    r++;
+    ws.merge(r, 1, r, NCv, `Verd = millora · vermell = empitjora, segons la prova (en algunes, com el temps o la fatiga, un valor més baix és millor). El pes, l'alçada i la velocitat de l'encoder (depèn de la càrrega) no es valoren. Patrons: ${SCORES.map((x) => `${x.sym} = ${x.label.toLowerCase()}`).join(' · ')} · P = dolor. Clica la data d'una valoració per veure'n tot el detall.`, [XS.note, { wrap: true }]);
+    ws.rowH(r, 30);
+    return ws;
+  }
+
+  return { detailSheet, evolutionSheet, evolutionRows, media, sheetName, typeLabel };
 })();
 
 
-/* ── 09-excel-overview.js ── */
-/* EON Life · Excel gegant de visió general d'un client (a la carpeta «Sessions»).
-   S'omple sol amb tot el que es fa a l'app: sessions fetes, planificades i previstes als plans.
-   Fulls: «Resum» (perfil, dates clau, plans, valoracions i càrrega setmanal), dues pestanyes per mes
-   («Octubre 2026» = calendari d'un cop d'ull, «Octubre 2026 · detall» = totes les sessions amb exercicis,
-   setmanes en columnes com l'Excel de control de l'equip) i «Registre» (una fila per sessió, per filtrar). */
+/* ── 09-excel-client.js ── */
+/* EON Life · l'Excel del client: un sol fitxer per client (seguiment_<client>_01.xlsx, a la carpeta del client) que
+   ajunta la idea de l'Excel de control de l'Oriol amb la de l'app. S'omple sol amb tot el que es fa a l'app.
+   Pestanyes:
+     · «Resum»: perfil, dates clau, plans, valoracions i càrrega setmanal;
+     · «Valoracions»: totes les valoracions l'una al costat de l'altra, amb el canvi entre les dues últimes;
+     · una per mes amb el format de l'Oriol («Oct26», «Nov26»…): el calendari i les sessions de cada setmana;
+     · «Registre»: una fila per sessió, per filtrar i ordenar;
+     · una per valoració amb tot el detall («Val. inicial 06-10-26», «Re-test 06-01-27»…). */
 
-const ExcelOverview = (() => {
-  const DAYS = ['Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte', 'Diumenge'];
-  const dm = (iso) => `${String(iso).slice(8, 10)}/${String(iso).slice(5, 7)}`;
+const ExcelClient = (() => {
   const names = (b) => (b.items || []).filter((i) => i.name);
   const usedBlocks = (s) => (s.blocks || []).filter((b) => names(b).length);
   const REG = 'Registre';
   const REG_FIRST = 6; // primera fila de dades del registre
-
-  // Línies d'una sessió al calendari (text enriquit).
-  function dayRuns(s, state, { sz = 9, settings }) {
-    const runs = [];
-    const add = (t, st) => runs.push([t, { sz, ...(st || {}) }]);
-    const label = s.ghost ? `S${s.planN} del pla` : `Sessió ${s.number || ''}`.trim();
-    add(`${label} · ${state.key === 'feta' ? 'FETA ✔' : state.key === 'prevista' ? 'PREVISTA' : state.key === 'sense' ? 'SENSE TANCAR' : 'PLANIFICADA'}`, { b: true, color: XL_C.BRAND });
-    if (s.goal) add(`\n${s.goal}`, { i: true, color: XL_C.MUTED });
-    for (const b of usedBlocks(s)) {
-      const list = names(b).map((it) => (['for', 'pot'].includes(b.key) && (it.sets || it.reps) ? `${it.name} ${it.sets && it.reps ? `${it.sets}×${it.reps}` : it.reps || it.sets}${Calc.load(it.load) ? ` ${Calc.load(it.load)}` : ''}` : it.name));
-      add(`\n${xlBlockName(b.key, settings)}: `, { b: true, color: XL_BLOCK[b.key] });
-      add(list.join(' · '));
-    }
-    if (state.key === 'feta') {
-      const f = s.feedback || {}, load = Calc.sessionLoad(s), wl = Calc.wellness(s.wellness);
-      const parts = [f.rpe !== '' && f.rpe != null ? `RPE ${f.rpe}` : '', f.duration ? `${f.duration} min` : '', load != null ? `${U.fmt(load, 0)} UA` : '', wl && wl.total != null ? `wellness ${wl.total}/25` : ''].filter(Boolean);
-      if (parts.length) add(`\n${parts.join(' · ')}`, { b: true, color: '3D6B2E' });
-    }
-    return runs;
-  }
 
   function monthsOf(items, today) {
     const set = new Set(items.map((s) => U.monthKey(s.date)).filter(Boolean));
@@ -9223,34 +9337,34 @@ const ExcelOverview = (() => {
     };
   }
 
-  function build({ patient: p, items, plans, assessments, settings, today, links = {} }) {
+  function build({ patient: p, items, plans, assessments, settings, today }) {
     const rows = items.map((s) => rowOf(s, today, settings));
     const months = monthsOf(items, today);
-    const doc = XlsxDoc.create({ title: `Visió general · ${U.fullName(p)}`, subject: 'Visió general de les sessions', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
+    const doc = XlsxDoc.create({ title: `Seguiment · ${U.fullName(p)}`, subject: 'Seguiment del client: sessions i valoracions', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
     const wsRes = doc.sheet('Resum', { grid: false, landscape: true, tab: XL_C.BRAND, zoom: 100 });
-    const pairs = months.map((m) => ({
-      m,
-      cal: doc.sheet(U.fmtMonth(m), { grid: false, landscape: true, tab: XL_C.BRAND_M, zoom: 80, freeze: [1, 2] }),
-      det: doc.sheet(`${U.fmtMonth(m)} · detall`, { grid: false, landscape: true, tab: XL_BLOCK.for, zoom: 80 }),
-    }));
+    // Valoracions: l'evolució i, al final del llibre, el detall de cadascuna.
+    const taken = new Set(['resum', 'valoracions', REG.toLowerCase(), ...months.map((m) => ExcelMonth.sheetName(m).toLowerCase())]);
+    const aNames = {};
+    for (const a of assessments) aNames[a.id] = ExcelAssessment.sheetName(a, taken);
+    if (assessments.length) ExcelAssessment.evolutionSheet(doc, { p, list: assessments, names: aNames });
+    // Un full per mes, amb el format de l'Oriol.
+    const where = {}; // id de sessió → { sheet, r, c } (la sessió dins del full del seu mes)
+    const monthSheets = months.map((m) => ({ m, ws: ExcelMonth.build(doc, { m, items, settings, today, plans, where }) }));
     const wsReg = doc.sheet(REG, { grid: false, landscape: true, tab: XL_C.MUTED, zoom: 100, titles: [5, 5] });
     const last = REG_FIRST + Math.max(rows.length, 1) - 1;
     const R = (col) => `'${REG}'!$${col}$${REG_FIRST}:$${col}$${last}`; // rang d'una columna del registre
-
-    registerSheet(wsReg, { p, rows, links, plans });
-    const where = {}; // id de sessió → { sheet, row, col } al full de detall
-    for (const x of pairs) detailSheet(x.det, { p, m: x.m, rows, settings, where, today });
-    for (const x of pairs) calendarSheet(x.cal, { p, m: x.m, rows, settings, where, R, today, detName: x.det.name });
-    summarySheet(wsRes, { p, rows, plans, assessments, settings, today, links, R, pairs });
-    // S'obre pel mes actual (o el més proper).
-    const cur = pairs.findIndex((x) => x.m === U.monthKey(today));
-    if (cur >= 0) doc.active = pairs[cur].cal.index;
+    registerSheet(wsReg, { p, rows, plans, where });
+    assessments.forEach((a, i) => ExcelAssessment.detailSheet(doc, { p, a, previous: assessments[i - 1] || null, name: aNames[a.id], settings }));
+    summarySheet(wsRes, { p, rows, plans, assessments, settings, today, R, aNames, monthSheets });
+    // S'obre pel mes actual.
+    const cur = monthSheets.find((x) => x.m === U.monthKey(today));
+    if (cur) doc.active = cur.ws.index;
     return doc;
   }
 
   // ── Registre: una fila per sessió ──
-  function registerSheet(ws, { p, rows, links, plans }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor', 7], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Fitxer', 14]];
+  function registerSheet(ws, { p, rows, plans, where }) {
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor', 7], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -9278,8 +9392,8 @@ const ExcelOverview = (() => {
       ws.set(r, 14, x.wellness, [XS.cell, { fmt: '0' }]);
       ws.set(r, 15, x.n, [XS.cell, { fmt: '0' }]);
       ws.set(r, 16, x.n ? x.done : null, [XS.cell, { fmt: '0' }]);
-      const url = links[`S:${s.id}`];
-      if (xlIsWeb(url)) { ws.set(r, 17, 'Obre', [XS.cell, XS.link]); ws.link(r, 17, url, 'Obre l\'Excel de la sessió'); } else ws.set(r, 17, '', XS.cell);
+      const at = where[s.id];
+      if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
@@ -9288,10 +9402,10 @@ const ExcelOverview = (() => {
 
   // ── Resum ──
   const RC = 7;
-  function summarySheet(ws, { p, rows, plans, assessments, settings, today, links, R, pairs }) {
+  function summarySheet(ws, { p, rows, plans, assessments, settings, today, R, aNames, monthSheets }) {
     ws.cols([30, 17, 17, 17, 17, 17, 17]);
     const service = (OPT.services.find((o) => o.v === p.service) || {}).label || '';
-    let r = xlTitle(ws, `Visió general · ${U.fullName(p)}`, [service, p.professional, p.startDate ? `client des del ${U.fmtDate(p.startDate)}` : ''].filter(Boolean).join(' · '), RC);
+    let r = xlTitle(ws, `Seguiment · ${U.fullName(p)}`, [service, p.professional, p.startDate ? `client des del ${U.fmtDate(p.startDate)}` : ''].filter(Boolean).join(' · '), RC);
 
     // Targetes (fórmules sobre el registre)
     const done = rows.filter((x) => x.state.key === 'feta');
@@ -9381,8 +9495,8 @@ const ExcelOverview = (() => {
 
     // Valoracions
     if (assessments.length) {
-      r = xlSection(ws, r, 'Valoracions (a la carpeta «Valoracions»)', RC);
-      r = xlHeader(ws, r, ['Tipus', 'Data', 'Professional', 'CMJ (cm)', 'Patrons competents', 'Punts d\'atenció', 'Excel']);
+      r = xlSection(ws, r, 'Valoracions (evolució a la pestanya «Valoracions»)', RC);
+      r = xlHeader(ws, r, ['Tipus', 'Data', 'Professional', 'CMJ (cm)', 'Patrons competents', 'Punts d\'atenció', 'Detall']);
       for (const a of assessments) {
         const cmj = Calc.cmj(a), pc = Calc.patterns(a), al = Calc.alerts(a);
         ws.set(r, 1, (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració', [XS.text, { b: true }]);
@@ -9391,8 +9505,8 @@ const ExcelOverview = (() => {
         ws.set(r, 4, cmj && cmj.best != null ? U.round(cmj.best, 1) : null, [XS.cell, { fmt: '0.0' }]);
         ws.set(r, 5, pc.scored ? `${pc.counts['0']} de ${pc.total}` : '', XS.cell);
         ws.set(r, 6, al.length, [XS.cell, { fmt: '0', fill: al.some((x) => x.tone === 'bad') ? XL_C.RED : al.length ? XL_C.AMB : XL_C.GRN }]);
-        const url = links[`A:${a.id}`];
-        if (xlIsWeb(url)) { ws.set(r, 7, 'Obre', [XS.cell, XS.link]); ws.link(r, 7, url, 'Obre l\'Excel de la valoració'); } else ws.set(r, 7, '', XS.cell);
+        ws.set(r, 7, 'Vés-hi', [XS.cell, XS.link]);
+        ws.link(r, 7, xlGo(aNames[a.id]), 'Vés al detall de la valoració');
         r++;
       }
       r++;
@@ -9443,460 +9557,291 @@ const ExcelOverview = (() => {
 
     // Pestanyes
     r = xlSection(ws, r, 'Com es llegeix aquest fitxer', RC);
+    const lastMonth = monthSheets.length ? monthSheets[monthSheets.length - 1].ws.name : 'Oct26';
     const guide = [
-      ['Calendari del mes', `Una pestanya per mes (p. ex. «${pairs.length ? U.fmtMonth(pairs[pairs.length - 1].m) : 'Octubre 2026'}»): cada dia amb la sessió d'un cop d'ull. Verd = feta, beix = planificada, taronja = sense tancar, gris = descans. Clica una sessió per anar al seu detall.`],
-      ['Detall del mes', 'Pestanya «… · detall»: totes les sessions del mes amb cada exercici, la càrrega i el tancament, amb les setmanes en columnes (com l\'Excel de control).'],
-      ['Registre', 'Una fila per sessió, per filtrar o fer taules dinàmiques.'],
-      ['Sessions individuals', 'Cada sessió té el seu Excel a la mateixa carpeta (sessio_…); les valoracions són a la carpeta «Valoracions».'],
+      ['Un full per mes', `«${lastMonth}» i els altres: a dalt, el calendari de cada setmana amb l'objectiu, l'RPE, el temps, la càrrega, el wellness i el dolor de cada dia; a sota, cada sessió sencera amb els exercicis de cada bloc (GM, contracció, posició, lateralitat, exercici, material, càrrega, sèries, repeticions i observacions). Verd = feta, beix = planificada, taronja = sense tancar, gris = prevista al pla o descans. Clica la data d'un dia per anar a la sessió.`],
+      ['Valoracions', 'Totes les valoracions l\'una al costat de l\'altra, amb el canvi entre les dues últimes; i, al final del llibre, una pestanya per valoració amb tot el detall, les fotos, els vídeos i els informes.'],
+      ['Registre', 'Una fila per sessió, per filtrar i ordenar (o fer taules dinàmiques).'],
+      ['Fotos, vídeos i PDF', 'Són a les carpetes «Valoracions» i «Sessions» del client; des d\'aquí s\'obren amb els enllaços.'],
     ];
     r = xlKv(ws, r, guide, RC);
     return r;
   }
 
-  // Alçada (en files) que ocupa una llista de sessions d'un dia al full de detall.
-  function need(list) {
-    if (!list.length) return 0;
-    return list.reduce((n, x) => n + 2 + usedBlocks(x.s).reduce((m, b) => m + 1 + names(b).length + (Calc.groups(b) ? Calc.groups(b).length : 0), 0) + 2, 0) + (list.length - 1);
-  }
-
-  // ── Detall del mes: setmanes en columnes, dies de la setmana en files ──
-  const DC = [['GM', 9], ['Cont', 6], ['Pos', 5], ['A', 5], ['Exercici', 31], ['Material', 17], ['Càrrega', 10], ['Int.', 11], ['S', 4.5], ['R', 10], ['Obs.', 24]];
-  function monthWeeks(m) {
-    const first = `${m}-01`;
-    const last = U.addDays(U.addMonths(first, 1), -1);
-    const start = U.weekStart(first);
-    return { first, last, start, count: Math.ceil((U.diffDays(start, last) + 1) / 7) };
-  }
-
-  function detailSheet(ws, { p, m, rows, settings, where, today }) {
-    const { start, count, first, last } = monthWeeks(m);
-    const NCD = DC.length, WB = NCD + 1;
-    for (let w = 0; w < count; w++) {
-      DC.forEach(([, wd], j) => ws.col(w * WB + 1 + j, wd));
-      ws.col(w * WB + WB, 2.5);
-    }
-    const total = count * WB - 1;
-    let r = xlTitle(ws, `Detall del mes · ${U.fmtMonth(m)} · ${U.fullName(p)}`, 'Cada dia amb la sessió sencera (verd = feta, beix = planificada, taronja = sense tancar, gris = descans). Les setmanes van en columnes, de dilluns a diumenge en files.', total);
-    // Capçaleres de setmana
-    for (let w = 0; w < count; w++) {
-      const a = U.addDays(start, w * 7);
-      ws.merge(r, w * WB + 1, r, w * WB + NCD, `SETMANA ${w + 1} · del ${dm(a)} al ${dm(U.addDays(a, 6))}`, { b: true, sz: 12, color: 'FFFFFF', fill: XL_C.BRAND_M, h: 'center', v: 'center', border: 'thin' });
-    }
-    ws.rowH(r, 22);
-    ws.freeze(r + 1, 1);
-    r++;
-    for (let d = 0; d < 7; d++) {
-      const cells = [];
-      for (let w = 0; w < count; w++) {
-        const date = U.addDays(start, w * 7 + d);
-        cells.push({ w, date, list: rows.filter((x) => x.date === date) });
-      }
-      const h = Math.max(...cells.map((c) => need(c.list)), 1);
-      const top = r;
-      for (const c of cells) {
-        const c0 = c.w * WB + 1;
-        const out = c.date < first || c.date > last;
-        const label = `${DAYS[d].toUpperCase()} ${U.fmtDate(c.date)}`;
-        if (!c.list.length) {
-          ws.merge(top, c0, top + h - 1, c0 + NCD - 1, `${label} · OFF`, { b: true, sz: 10, color: XL_C.MUTED, fill: XL_C.OFF, h: 'center', v: h > 1 ? 'top' : 'center', border: 'thin' });
-          continue;
-        }
-        let rr = top;
-        c.list.forEach((x, k) => {
-          if (k) rr++;
-          rr = sessionBlock(ws, rr, c0, x, { label: k ? `${label} (2a sessió)` : label, settings, out, where, sheet: ws.name });
-        });
-      }
-      r = top + h + (h > 0 ? 1 : 0);
-    }
-  }
-
-  // Una sessió dins de la graella de detall (retorna la fila següent).
-  function sessionBlock(ws, r, c0, x, { label, settings, out, where, sheet }) {
-    const s = x.s, state = x.state, NCD = DC.length;
-    where[s.id] = { sheet, row: r, col: c0 };
-    ws.merge(r, c0, r, c0 + NCD - 1, `${label}  ·  ${s.ghost ? `S${s.planN} del pla` : `Sessió ${s.number || ''}`}  ·  ${state.label}${s.goal ? `  ·  ${s.goal}` : ''}${s.professional ? `  ·  ${s.professional}` : ''}`, { b: true, sz: 10, color: XL_C.BRAND, fill: state.fill, h: 'left', v: 'center', wrap: true, border: 'thin', indent: 1 });
-    r++;
-    DC.forEach(([name], j) => ws.set(r, c0 + j, name, [XS.head, { sz: 9, h: j === 4 ? 'left' : 'center' }]));
-    r++;
-    for (const b of usedBlocks(s)) {
-      const def = blockDef(b.key);
-      ws.merge(r, c0, r, c0 + NCD - 1, `${def.num} · ${xlBlockName(b.key, settings)}${b.focus ? `  —  ${b.focus}` : ''}${b.methodName ? `  ·  ${b.methodName}` : ''}`, { b: true, sz: 10, color: 'FFFFFF', fill: XL_BLOCK[b.key], h: 'left', v: 'center', border: 'thin', indent: 1 });
-      r++;
-      const gs = Calc.groups(b);
-      const put = (it) => {
-        const vals = [xlStr(it.gm), xlStr(it.cont), xlStr(it.pos), xlStr(it.lat), it.name, xlStr(it.material), xlNumOrText(it.load), xlStr(it.intensity), xlNumOrText(it.sets), xlNumOrText(it.reps), [xlStr(it.note), it.done && s.status === 'feta' ? '✔' : ''].filter(Boolean).join('  ')];
-        vals.forEach((v, j) => ws.set(r, c0 + j, v, [{ sz: 9, border: 'thin', h: j === 4 || j === 5 || j === 10 ? 'left' : 'center', v: 'center', wrap: j === 0 || j === 4 || j === 5 || j === 7 || j === 10 }, it.done ? { fill: XL_C.GRN } : null]));
-        r++;
-      };
-      if (gs) {
-        for (const g of gs) {
-          ws.merge(r, c0, r, c0 + NCD - 1, `${g.label}${g.g.methodName ? `  ·  ${g.g.methodName}` : ''}`, { i: true, b: true, sz: 9, color: XL_C.BRAND_M, fill: XL_C.GREY, h: 'left', v: 'center', border: 'thin', indent: 2 });
-          r++;
-          g.items.map((y) => y.it).filter((i) => i.name).forEach(put);
-        }
-      } else names(b).forEach(put);
-    }
-    // Tancament: RPE · T · càrrega · observacions · decisió · wellness
-    const f = s.feedback || {}, wl = Calc.wellness(s.wellness);
-    const lab = [['RPE', c0, c0], ['T (min)', c0 + 1, c0 + 1], ['Càrrega (UA)', c0 + 2, c0 + 3], ['Observacions', c0 + 4, c0 + 4], ['Decisió per a la propera sessió', c0 + 5, c0 + 7], ['Wellness (/25)', c0 + 8, c0 + 10]];
-    for (const [t, a, b] of lab) ws.merge(r, a, r, b, t, { b: true, sz: 8, color: XL_C.MUTED, fill: XL_C.GREY, h: 'center', v: 'center', border: 'thin' });
-    r++;
-    const v = r;
-    const done = s.status === 'feta';
-    ws.set(v, c0, done ? xlNum(f.rpe) : null, { b: true, h: 'center', v: 'center', border: 'thin', sz: 10 });
-    ws.set(v, c0 + 1, done ? xlNum(f.duration) : null, { b: true, h: 'center', v: 'center', border: 'thin', sz: 10 });
-    ws.merge(v, c0 + 2, v, c0 + 3, { f: `IF(COUNT(${xlRef(v, c0)}:${xlRef(v, c0 + 1)})=2,${xlRef(v, c0)}*${xlRef(v, c0 + 1)},"")`, v: done ? Calc.sessionLoad(s) ?? '' : '' }, { b: true, h: 'center', v: 'center', border: 'thin', fill: XL_C.GREY, fmt: '0', sz: 10 });
-    ws.set(v, c0 + 4, done ? xlStr(f.notes) : '', { sz: 9, border: 'thin', wrap: true, v: 'top', h: 'left' });
-    ws.merge(v, c0 + 5, v, c0 + 7, done ? xlStr(f.decision) : '', { sz: 9, border: 'thin', wrap: true, v: 'top', h: 'left' });
-    ws.merge(v, c0 + 8, v, c0 + 10, done && wl && wl.total != null ? wl.total : '', { b: true, h: 'center', v: 'center', border: 'thin', sz: 10 });
-    ws.rowH(v, 30);
-    return v + 1;
-  }
-
-  // ── Calendari del mes ──
-  function calendarSheet(ws, { p, m, rows, settings, where, R, today, detName }) {
-    const { start, count, first, last } = monthWeeks(m);
-    ws.cols([14, 30, 30, 30, 30, 30, 30, 30, 17, 13, 12]);
-    const NCC = 11;
-    let r = xlTitle(ws, `Pla mensual · ${U.fmtMonth(m)} · ${U.fullName(p)}`, 'Calendari del mes d\'un cop d\'ull. Clica la data d\'un dia per anar al seu detall.', NCC);
-    // Targetes del mes (fórmules sobre el registre)
-    const inM = rows.filter((x) => x.date >= first && x.date <= last);
-    const doneM = inM.filter((x) => x.state.key === 'feta');
-    const range = `${R('A')},">="&DATE(${first.slice(0, 4)},${Number(first.slice(5, 7))},1),${R('A')},"<="&DATE(${last.slice(0, 4)},${Number(last.slice(5, 7))},${Number(last.slice(8, 10))})`;
-    const uaM = doneM.map((x) => x.ua).filter((n) => n != null), rpM = doneM.map((x) => x.rpe).filter((n) => n != null);
-    const tiles = [
-      ['Sessions del mes', { f: `COUNTIFS(${range})`, v: inM.length }, '0'],
-      ['Fetes', { f: `COUNTIFS(${range},${R('E')},"Feta")`, v: doneM.length }, '0'],
-      ['Pendents', { f: `COUNTIFS(${range},${R('E')},"<>Feta")`, v: inM.length - doneM.length }, '0'],
-      ['Càrrega feta (UA)', { f: `SUMIFS(${R('L')},${range},${R('E')},"Feta")`, v: uaM.reduce((s, n) => s + n, 0) }, '#,##0'],
-      ['RPE mitjà', { f: `IFERROR(ROUND(AVERAGEIFS(${R('J')},${range},${R('E')},"Feta"),1),"")`, v: rpM.length ? U.round(rpM.reduce((s, n) => s + n, 0) / rpM.length, 1) : '' }, '0.0'],
-    ];
-    tiles.forEach(([label, v, fmt], i) => {
-      const c = 2 + i * 2;
-      ws.merge(r, c, r, c + 1, label, { b: true, sz: 9, color: XL_C.MUTED, fill: XL_C.GREY, h: 'center', v: 'center', border: 'thin' });
-      ws.merge(r + 1, c, r + 1, c + 1, v, { b: true, sz: 18, color: XL_C.BRAND, h: 'center', v: 'center', border: 'thin', fmt });
-    });
-    ws.rowH(r + 1, 32);
-    // Llegenda
-    const leg = [['Feta', XL_C.GRN], ['Planificada', XL_C.BRAND_L], ['Sense tancar', XL_C.AMB], ['Prevista al pla', XL_C.PREV], ['Descans', XL_C.OFF]];
-    leg.forEach(([t, col], i) => ws.merge(r + 2, 2 + i, r + 2, 2 + i, t, { b: true, sz: 9, fill: col, h: 'center', v: 'center', border: 'thin' }));
-    ws.set(r + 2, 7, 'Avui', { b: true, sz: 9, fill: 'F6C65B', h: 'center', v: 'center', border: 'thin' });
-    r += 4;
-    // Capçalera de dies
-    ws.set(r, 1, 'Setmana', XS.head);
-    DAYS.forEach((d, i) => ws.set(r, 2 + i, d, XS.head));
-    ws.merge(r, 9, r, 11, 'Resum de la setmana', XS.head);
-    ws.rowH(r, 22);
-    r++;
-    for (let w = 0; w < count; w++) {
-      const wk = U.addDays(start, w * 7);
-      const hr = r, cr = r + 1; // fila de dates i fila de contingut
-      ws.merge(hr, 1, cr, 1, `${w + 1}\n${dm(wk)} – ${dm(U.addDays(wk, 6))}`, { b: true, sz: 11, color: XL_C.BRAND, fill: XL_C.BRAND_L, h: 'center', v: 'center', wrap: true, border: 'thin' });
-      for (let d = 0; d < 7; d++) {
-        const date = U.addDays(wk, d);
-        const out = date < first || date > last;
-        const list = rows.filter((x) => x.date === date);
-        const c = 2 + d;
-        ws.set(hr, c, { date }, { b: true, sz: 10, color: out ? 'A39B95' : XL_C.BRAND, fill: XL_C.GREY, h: 'left', v: 'center', border: 'thin', fmt: 'dd/mm', indent: 1 });
-        if (list.length && where[list[0].s.id]) {
-          const wh = where[list[0].s.id];
-          ws.link(hr, c, xlGo(detName, wh.row, wh.col), 'Vés al detall de la sessió');
-        }
-        if (!list.length) {
-          ws.set(cr, c, 'OFF', { b: true, sz: 10, color: XL_C.MUTED, fill: XL_C.OFF, h: 'center', v: 'center', border: 'thin' });
-          continue;
-        }
-        const runs = [];
-        list.forEach((x, k) => { if (k) runs.push(['\n\n', { sz: 9 }]); runs.push(...dayRuns(x.s, x.state, { settings })); });
-        const fill = list[0].state.fill;
-        ws.set(cr, c, { rich: runs }, { sz: 9, fill, h: 'left', v: 'top', wrap: true, border: 'thin', color: out ? '8F8780' : undefined });
-      }
-      // Avui
-      ws.cf(`B${hr}:H${hr}`, `B${hr}=TODAY()`, { fill: 'F6C65B', b: true });
-      ws.cf(`B${cr}:H${cr}`, `B$${hr}=TODAY()`, { border: 'thin', bc: XL_C.BRAND });
-      // Resum de la setmana (fórmules sobre el registre; el dilluns és la data de la cel·la B de la fila de dates)
-      const wkc = `$B${hr}`;
-      const inW = rows.filter((x) => x.week === wk), doneW = inW.filter((x) => x.state.key === 'feta');
-      const uaW = doneW.map((x) => x.ua).filter((n) => n != null), rpW = doneW.map((x) => x.rpe).filter((n) => n != null);
-      const wlW = doneW.map((x) => x.wellness).filter((n) => n != null);
-      const mean = (a) => (a.length ? U.round(a.reduce((s, n) => s + n, 0) / a.length, 1) : '');
-      ws.merge(hr, 9, hr, 11, { f: `COUNTIFS(${R('B')},${wkc},${R('E')},"Feta")&" fetes de "&COUNTIFS(${R('B')},${wkc})&" sessions"`, v: `${doneW.length} fetes de ${inW.length} sessions` }, { b: true, sz: 10, color: XL_C.BRAND, fill: XL_C.GREY, h: 'center', v: 'center', border: 'thin' });
-      const sumUa = `SUMIFS(${R('L')},${R('B')},${wkc})`;
-      ws.set(cr, 9, { f: `IF(${sumUa}=0,"",${sumUa})`, v: uaW.length ? uaW.reduce((s, n) => s + n, 0) : '' }, { b: true, sz: 12, color: XL_C.BRAND, h: 'center', v: 'top', border: 'thin', fill: XL_C.GREY, fmt: '0" UA"' });
-      ws.set(cr, 10, { f: `IFERROR(ROUND(AVERAGEIFS(${R('J')},${R('B')},${wkc}),1),"")`, v: mean(rpW) }, { b: true, sz: 12, color: XL_C.BRAND, h: 'center', v: 'top', border: 'thin', fill: XL_C.GREY, fmt: '"RPE "0.0' });
-      ws.set(cr, 11, { f: `IFERROR(ROUND(AVERAGEIFS(${R('N')},${R('B')},${wkc}),1),"")`, v: mean(wlW) }, { b: true, sz: 12, color: XL_C.BRAND, h: 'center', v: 'top', border: 'thin', fill: XL_C.GREY, fmt: '"Well. "0.0' });
-      ws.rowH(hr, 20);
-      r += 2;
-    }
-    return r;
-  }
-
-  return { build };
+  return { build, rowOf, monthsOf };
 })();
 
 
-/* ── 09-excel-session.js ── */
-/* EON Life · Excel d'una sessió d'entrenament (feta o planificada).
-   Tres fulls: «Sessió» (dades, wellness, tancament i resum dels blocs), «Exercicis» (els 6 blocs amb tota la
-   prescripció, com a l'app) i «Encoder» (el registre per sèries de l'ADR, si n'hi ha). */
+/* ── 09-excel-month.js ── */
+/* EON Life · pestanya d'un mes a l'Excel del client, amb el format de l'Excel de control de l'Oriol («Oct26», «Nov26»…).
+   Les setmanes (de dilluns a diumenge) van l'una al costat de l'altra, 15 columnes cadascuna:
+     · a dalt, el calendari de la setmana i les dades de cada dia: objectiu, RPE, temps, càrrega (RPE × min), wellness,
+       dolor i observacions; i el total de la setmana;
+     · a sota, cada sessió de la setmana sencera: dia, professional i setmana, i els exercicis de cada bloc amb les
+       columnes de l'Oriol (GM · Cont · Pos · A · Exercici · Material · + · S · R · Obs) i els colors dels blocs de l'app.
+   Les sessions fetes, planificades, sense tancar i previstes al pla es distingeixen pel color. */
 
-const ExcelSession = (() => {
-  const NC = 6; // columnes del full «Sessió»
-  const W_SESSION = [30, 16, 22, 22, 22, 22];
-  const EX = [
-    ['#', 6], ['Exercici', 34], ['Grup muscular', 14], ['Cont.', 6.5], ['Pos.', 6.5], ['Lat.', 6.5], ['Material', 18],
-    ['Sèries', 7.5], ['Reps / temps', 11], ['Càrrega', 11], ['Intensitat', 11], ['Descans', 9], ['Tempo', 8.5],
-    ['Encoder · ADR', 26], ['Última vegada', 24], ['Observacions', 30], ['Fet', 5.5], ['Vídeo client', 11], ['Demo', 8],
-  ];
+const ExcelMonth = (() => {
+  const MON = ['Gen', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Des'];
+  const W = 15;                                                   // columnes de cada setmana
+  const WIDTHS = [6.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 9.5, 9.5, 9, 6.5, 8.5, 22];
+  const HEAD_FILL = 'E7E6E6';                                     // el gris de la capçalera de l'Oriol
+  const LINE = XL_C.BRAND;
+  const R = { date: 1, label: 2, state: 3, info: 4, obj: 5, rpe: 6, t: 7, load: 8, well: 9, pain: 10, obs: 11, week: 12, first: 14 };
+  const names = (b) => (b.items || []).filter((i) => i.name);
+  const usedBlocks = (s) => (s.blocks || []).filter((b) => names(b).length);
+  const sheetName = (m) => `${MON[Number(m.slice(5, 7)) - 1]}${m.slice(2, 4)}`; // 2026-10 → Oct26
+  const shortLabel = (s) => (s.ghost ? `S${s.planN} del pla` : `Sessió ${s.number || ''}`.trim());
+  const stateText = (st) => ({ feta: 'Feta ✔', planificada: 'Planificada', sense: 'Sense tancar', prevista: 'Prevista al pla' })[st.key];
+  const done = (s) => s.status === 'feta' && !s.ghost;
 
-  // Última vegada que el client va fer cada exercici (només sessions fetes abans d'aquesta).
-  function prevMap(sessions, s) {
-    const out = {};
-    const before = (sessions || []).filter((x) => x.id !== s.id && x.status === 'feta' && x.date <= s.date)
-      .sort((a, b) => (a.date === b.date ? (U.num(a.number) || 0) - (U.num(b.number) || 0) : a.date < b.date ? -1 : 1)).reverse();
-    for (const x of before) for (const b of x.blocks || []) for (const it of b.items || []) {
-      if (it.name && !out[it.name]) out[it.name] = { ...it, date: x.date };
-    }
-    return out;
+  // Setmanes (dilluns) que toquen el mes.
+  function weeksOf(m) {
+    const first = `${m}-01`;
+    const last = U.addDays(U.addMonths(first, 1), -1);
+    const weeks = [];
+    for (let wk = U.weekStart(first); wk <= last; wk = U.addDays(wk, 7)) weeks.push(wk);
+    return { first, last, weeks };
   }
 
-  const namedItems = (b) => (b.items || []).filter((i) => i.name);
-
-  function title(s, p) {
-    return s.ghost ? `Sessió prevista S${s.planN} · ${U.fullName(p)}` : `Sessió ${s.number || ''} · ${U.fullName(p)}`.replace('  ', ' ');
+  // Files que ocupa una sessió a la seva casella.
+  function rowsOf(s) {
+    let n = 2;                                                    // «SESSIÓ» + dia/professional/setmana
+    if (s.goal || s.planId || s.pillar) n++;
+    if (Calc.wellness(s.wellness) || xlStr((s.wellness || {}).notes).trim()) n++;
+    n++;                                                          // capçalera de la taula
+    const bl = usedBlocks(s);
+    if (!bl.length) n++;
+    for (const b of bl) n += 1 + names(b).length + names(b).filter((it) => Calc.vbt(it)).length + (Calc.groups(b) ? Calc.groups(b).length : 0);
+    if (closing(s)) n++;
+    return n;
   }
 
-  function build({ patient: p, session: s, sessions = [], plan = null, settings, today = U.today() }) {
-    const state = xlSessionState(s, today);
-    const blocks = (s.blocks || []).filter((b) => namedItems(b).length || b.focus || b.method || (b.groups || []).length);
-    const doc = XlsxDoc.create({ title: title(s, p), subject: 'Sessió d\'entrenament', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
-    const wsS = doc.sheet('Sessió', { grid: false, landscape: true, tab: XL_C.BRAND, zoom: 100 });
-    const wsE = doc.sheet('Exercicis', { grid: false, landscape: true, tab: XL_BLOCK.for, zoom: 90, titles: [5, 5] });
-    const hasVbt = blocks.some((b) => namedItems(b).some((it) => Calc.vbt(it)));
-    const wsV = hasVbt ? doc.sheet('Encoder', { grid: false, landscape: true, tab: XL_BLOCK.pot, zoom: 100, titles: [5, 5] }) : null;
-
-    const where = exercisesSheet(wsE, { p, s, blocks, settings, prev: prevMap(sessions, s), state });
-    if (wsV) encoderSheet(wsV, { p, s, blocks, settings });
-    summarySheet(wsS, { p, s, blocks, settings, plan, state, where, today, planTotal: plan ? (plan.sessions || []).length : 0 });
-    return doc;
-  }
-
-  // ── Full «Sessió» ──
-  function summarySheet(ws, { p, s, blocks, settings, plan, state, where, planTotal }) {
-    ws.cols(W_SESSION);
-    let r = xlTitle(ws, title(s, p), `${U.fmtDateLong(s.date)} · ${state.label}${s.professional ? ` · ${s.professional}` : ''}`, NC);
-
-    r = xlSection(ws, r, 'Dades de la sessió', NC);
-    const rowDate = r + 1;
-    const rows = [
-      ['Client', U.fullName(p)],
-      ['Data', { date: s.date }, { style: { h: 'left' } }],
-      ['Dia de la setmana', U.weekday(s.date)],
-      [s.ghost ? 'Sessió del pla' : 'Nº de sessió', s.ghost ? `S${s.planN}` : U.num(s.number) ?? '', { style: { h: 'left' } }],
-      ['Professional', xlStr(s.professional)],
-      ['Pilar', xlStr(s.pillar)],
-      ['Objectiu de la sessió', xlStr(s.goal)],
-    ];
-    r = xlKv(ws, r, rows, NC);
-    // Estat: les «planificades» passen soles a «Sense tancar» quan s'obre el fitxer un dia després de la data.
-    const rowState = r;
-    ws.set(r, 1, 'Estat', XS.label);
-    if (state.key === 'planificada' || state.key === 'sense') {
-      ws.merge(r, 2, r, NC, { f: `IF(${xlRef(rowDate, 2)}<TODAY(),"Sense tancar","Planificada")`, v: state.key === 'sense' ? 'Sense tancar' : 'Planificada' }, [XS.text, { b: true, fill: state.fill }]);
-      ws.cf(`${xlRef(r, 2)}:${xlRef(r, NC)}`, `$B$${r}="Sense tancar"`, { fill: XL_C.AMB });
-      ws.cf(`${xlRef(r, 2)}:${xlRef(r, NC)}`, `$B$${r}="Planificada"`, { fill: XL_C.BRAND_L });
-    } else ws.merge(r, 2, r, NC, state.label, [XS.text, { b: true, fill: state.fill }]);
-    r++;
-    const nEx = blocks.reduce((n, b) => n + namedItems(b).length, 0);
-    const nDone = blocks.reduce((n, b) => n + namedItems(b).filter((i) => i.done).length, 0);
-    const more = [];
-    if (plan) more.push(['Pla d\'entrenament', `${plan.name} · S${s.planN} de ${planTotal}${(plan.sessions || []).find((x) => x.n === U.num(s.planN) && x.phase) ? ` · ${(plan.sessions.find((x) => x.n === U.num(s.planN))).phase}` : ''}`]);
-    more.push(['Contingut', `${U.plural(nEx, 'exercici', 'exercicis')} en ${U.plural(blocks.length, 'bloc', 'blocs')}${s.status === 'feta' ? ` · ${nDone} marcats com a fets` : ''}`]);
-    r = xlKv(ws, r, more, NC) + 1;
-
-    // Wellness
-    const wl = Calc.wellness(s.wellness);
-    if (wl || state.key === 'feta') {
-      r = xlSection(ws, r, 'Wellness · com arriba avui?', NC);
-      r = xlHeader(ws, r, ['Pregunta', 'Resposta (1–5)', ['1 =', 2], ['5 =', 2]]);
-      const first = r;
-      for (const q of WELLNESS) {
-        const v = U.num((s.wellness || {})[q.k]);
-        ws.set(r, 1, q.label, [XS.label]);
-        ws.set(r, 2, v, [XS.cell, { b: true, fmt: '0', fill: v == null ? null : v <= 2 ? XL_C.RED : v === 3 ? XL_C.AMB : XL_C.GRN }]);
-        ws.merge(r, 3, r, 4, q.lo, [XS.text, { color: XL_C.MUTED }]);
-        ws.merge(r, 5, r, 6, q.hi, [XS.text, { color: XL_C.MUTED }]);
-        r++;
-      }
-      ws.set(r, 1, 'Total (màxim 25)', XS.label);
-      ws.set(r, 2, { f: `IF(COUNT(${xlRef(first, 2)}:${xlRef(r - 1, 2)})=${WELLNESS.length},SUM(${xlRef(first, 2)}:${xlRef(r - 1, 2)}),"")`, v: wl && wl.total != null ? wl.total : '' }, [XS.cell, { b: true, fmt: '0', fill: XL_C.GREY }]);
-      ws.merge(r, 3, r, NC, wl && wl.low.length ? `Respostes baixes (1 o 2): ${wl.low.join(', ')}` : '', [XS.text, { color: XL_C.MUTED }]);
-      r++;
-      r = xlKv(ws, r, [['Observacions', xlStr((s.wellness || {}).notes)]], NC) + 1;
-    }
-
-    // Tancament
+  function closing(s) {
     const f = s.feedback || {};
-    const hasFb = ['rpe', 'duration', 'pain', 'notes', 'decision'].some((k) => xlStr(f[k]).trim() !== '');
-    if (state.key === 'feta' || hasFb) {
-      r = xlSection(ws, r, 'Tancament de la sessió', NC);
-      const rpe = r, dur = r + 1;
-      const pain = U.num(f.pain);
-      r = xlKv(ws, r, [
-        ['RPE global (0–10)', xlNum(f.rpe) ?? '—', { style: { h: 'left', b: true }, keep: true }],
-        ['Durada (minuts)', xlNum(f.duration) ?? '—', { style: { h: 'left', b: true }, keep: true }],
-        ['Càrrega de la sessió (UA = RPE × min)', { f: `IF(COUNT(${xlRef(rpe, 2)},${xlRef(dur, 2)})=2,${xlRef(rpe, 2)}*${xlRef(dur, 2)},"")`, v: Calc.sessionLoad(s) ?? '' }, { style: { h: 'left', b: true, fmt: '0' } }],
-        ['Dolor en acabar (0–10)', pain, { style: { h: 'left', b: true, fill: pain == null ? null : pain >= 6 ? XL_C.RED : pain >= 3 ? XL_C.AMB : XL_C.GRN } }],
-        ['Observacions', xlStr(f.notes)],
-        ['Decisió per a la propera sessió', xlStr(f.decision)],
-      ], NC) + 1;
-    }
-
-    // Blocs
-    if (blocks.length) {
-      r = xlSection(ws, r, 'Blocs de la sessió', NC);
-      r = xlHeader(ws, r, ['Bloc', ['Focus', 2], 'Mètode', 'Exercicis', 'Fets']);
-      for (const b of blocks) {
-        const def = blockDef(b.key);
-        const items = namedItems(b);
-        const gs = Calc.groups(b);
-        const method = [b.methodName, ...(gs || []).map((x) => x.g.methodName && `${x.label}: ${x.g.methodName}`)].filter(Boolean).join(' · ');
-        ws.set(r, 1, `${def.num} · ${xlBlockName(b.key, settings)}`, [XS.cell, { b: true, color: 'FFFFFF', fill: XL_BLOCK[b.key], h: 'left', indent: 1 }]);
-        ws.merge(r, 2, r, 3, xlStr(b.focus), XS.text);
-        ws.set(r, 4, method, XS.text);
-        ws.set(r, 5, items.length, [XS.cell, { fmt: '0' }, where[b.key] ? XS.link : null]);
-        if (where[b.key]) ws.link(r, 5, xlGo('Exercicis', where[b.key], 1), 'Vés als exercicis del bloc');
-        ws.set(r, 6, s.status === 'feta' || items.some((i) => i.done) ? items.filter((i) => i.done).length : null, [XS.cell, { fmt: '0' }]);
-        r++;
-      }
-      r++;
-    }
-
-    // Vídeos del client
-    const vids = [];
-    for (const b of blocks) for (const it of namedItems(b)) if (it.video) vids.push({ b, it });
-    if (vids.length) {
-      r = xlSection(ws, r, 'Vídeos del client (gravats amb l\'app)', NC);
-      r = xlHeader(ws, r, [['Exercici', 2], 'Bloc', ['Fitxer', 3]]);
-      for (const { b, it } of vids) {
-        ws.merge(r, 1, r, 2, it.name, XS.text);
-        ws.set(r, 3, xlBlockName(b.key, settings), XS.text);
-        ws.merge(r, 4, r, 6, xlIsWeb(it.video) ? 'Obre el vídeo' : 'Desat a la tauleta (versió de prova)', [XS.cell, xlIsWeb(it.video) ? XS.link : XS.muted]);
-        if (xlIsWeb(it.video)) ws.link(r, 4, xlStr(it.video).trim(), 'Obre el vídeo');
-        r++;
-      }
-    }
-    return r;
+    if (s.ghost) return '';
+    const load = Calc.sessionLoad(s);
+    const parts = [];
+    // (també d'una sessió que encara no s'ha marcat com a feta: el que s'ha apuntat a l'app hi ha de sortir)
+    const nums = [f.rpe !== '' && f.rpe != null && `RPE ${f.rpe}`, f.duration && `${f.duration} min`, load != null && `${U.fmt(load, 0)} UA`, U.num(f.pain) != null && `dolor ${f.pain}/10`].filter(Boolean);
+    if (nums.length) parts.push(nums.join(' · '));
+    if (xlStr(f.notes).trim()) parts.push(`Notes: ${xlStr(f.notes).trim()}`);
+    if (xlStr(f.decision).trim()) parts.push(`Propera sessió: ${xlStr(f.decision).trim()}`);
+    return parts.join('   —   ');
   }
 
-  // ── Full «Exercicis» ──
-  function exercisesSheet(ws, { p, s, blocks, settings, prev, state }) {
-    const n = EX.length;
-    ws.cols(EX.map((x) => x[1]));
-    let r = xlTitle(ws, `Exercicis · ${title(s, p)}`, `${U.fmtDateLong(s.date)} · ${state.label}`, n);
-    ws.freeze(r + 1, 3);
-    EX.forEach(([label], i) => ws.set(r, i + 1, label, i === 1 ? XS.headL : XS.head));
-    ws.rowH(r, 28);
-    r++;
-    const where = {};
-    if (!blocks.length) {
-      ws.merge(r, 1, r, n, 'Aquesta sessió encara no té exercicis. Afegeix els blocs des de l\'app.', [XS.text, { i: true, color: XL_C.MUTED }]);
-      return where;
+  function wellnessText(s) {
+    const w = s.wellness || {};
+    const wl = Calc.wellness(w);
+    const parts = WELLNESS.map((q) => (U.num(w[q.k]) != null ? `${q.label} ${U.num(w[q.k])}` : '')).filter(Boolean);
+    if (wl && wl.total != null) parts.push(`total ${wl.total}/25`);
+    if (xlStr(w.notes).trim()) parts.push(xlStr(w.notes).trim());
+    return parts.join(' · ');
+  }
+
+  // Observacions d'un exercici: intensitat, descans, tempo, resum de l'encoder i la nota.
+  function obsOf(it) {
+    const vbt = Calc.vbt(it);
+    return [xlStr(it.intensity).trim(), it.rest && `desc. ${xlStr(it.rest).trim()}`, it.tempo && `tempo ${xlStr(it.tempo).trim()}`, vbt && vbt.text, xlStr(it.note).trim()].filter(Boolean).join(' · ');
+  }
+
+  // where: s'hi apunta on queda cada sessió del mes ({ sheet, r, c }), per enllaçar-la des d'altres fulls.
+  function build(doc, { m, items, settings, today, plans = [], where = {} }) {
+    const name = sheetName(m);
+    const ws = doc.sheet(name, { grid: false, landscape: true, tab: XL_C.BRAND_M, zoom: 85, fit: false, footer: `EON Life · ${U.fmtMonth(m)}` });
+    const { first, last, weeks } = weeksOf(m);
+    const st = (s) => xlSessionState(s, today);
+    // Sessions de cada setmana (per data; les de dies d'un altre mes també hi surten, com al calendari de l'Oriol).
+    const perWeek = weeks.map((wk) => items.filter((s) => s.date >= wk && s.date <= U.addDays(wk, 6)));
+    const slots = Math.max(0, ...perWeek.map((l) => l.length));
+    const slotH = [];
+    for (let k = 0; k < slots; k++) slotH.push(Math.max(...perWeek.map((l) => (l[k] ? rowsOf(l[k]) : 0))) + 1);
+    const slotRow = [R.first];
+    for (let k = 1; k < slots; k++) slotRow.push(slotRow[k - 1] + slotH[k - 1]);
+
+    weeks.forEach((wk, w) => {
+      const c0 = 1 + w * W;
+      WIDTHS.forEach((wd, j) => ws.col(c0 + j, wd));
+      ws.pageBreakBefore(c0); // en imprimir, cada setmana a la seva pàgina
+      top(ws, { c0, wk, w, list: perWeek[w], first, last, st, name, slotRow, settings });
+      perWeek[w].forEach((s, k) => {
+        slot(ws, { c0, r: slotRow[k], s, state: st(s), wk, settings, plans });
+        if (s.date >= first && s.date <= last) where[s.id] = { sheet: name, r: slotRow[k], c: c0 };
+      });
+    });
+    // Alçades de la part de dalt
+    ws.rowH(R.date, 20); ws.rowH(R.label, 17); ws.rowH(R.state, 15); ws.rowH(R.info, 15); ws.rowH(R.obj, 48); ws.rowH(R.obs, 24); ws.rowH(R.week, 16);
+    return ws;
+  }
+
+  // ── Calendari de la setmana i dades de cada dia ──
+  function top(ws, { c0, wk, w, list, first, last, st, name, slotRow, settings }) {
+    const lab = (r, text, sz = 8) => ws.set(r, c0, text, { sz, h: 'right', v: 'center', color: XL_C.MUTED });
+    ws.set(R.date, c0, `S${w + 1}`, { b: true, sz: 9, h: 'center', v: 'center', color: XL_C.BRAND });
+    lab(R.obj, 'Obj', 9); lab(R.rpe, 'RPE'); lab(R.t, 'T (min)'); lab(R.load, 'Càrrega'); lab(R.well, 'Well.'); lab(R.pain, 'Dolor'); lab(R.obs, 'Obs');
+    ws.set(R.week, c0, 'Setm.', { sz: 8, h: 'right', v: 'center', b: true, color: XL_C.BRAND });
+    const loadCells = [];
+    for (let d = 0; d < 7; d++) {
+      const date = U.addDays(wk, d);
+      const c = c0 + 1 + 2 * d;
+      const out = date < first || date > last;
+      const sunday = d === 6;
+      const day = list.filter((s) => s.date === date);
+      const s = day[0] || null;
+      const state = s ? st(s) : null;
+      const off = !s && sunday;
+      const box = { border: 'thin', bc: 'BFBFBF' };
+      ws.merge(R.date, c, R.date, c + 1, { date }, [box, { b: true, sz: 10, h: 'center', v: 'center', fmt: 'd-mmm', fill: out ? 'F2F2F2' : HEAD_FILL, color: out ? '8C8C8C' : null }]);
+      if (s) ws.link(R.date, c, xlGo(name, slotRow[list.indexOf(s)], c0), 'Vés a la sessió');
+      const extra = day.length > 1 ? ` (+${day.length - 1})` : '';
+      ws.merge(R.label, c, R.label, c + 1, s ? `${shortLabel(s)}${extra}` : '', [box, { b: true, sz: 9, h: 'center', v: 'center', fill: s ? state.fill : off ? HEAD_FILL : null, color: XL_C.BRAND }]);
+      ws.merge(R.state, c, R.state, c + 1, s ? stateText(state) : off ? 'OFF' : '', [box, { sz: 9, h: 'center', v: 'center', fill: s ? state.fill : off ? HEAD_FILL : null, color: s && state.key === 'feta' ? '3D6B2E' : null }]);
+      const f = (s && s.feedback) || {};
+      const info = s ? (done(s) ? [f.rpe !== '' && f.rpe != null && `RPE ${f.rpe}`, f.duration && `${f.duration}'`].filter(Boolean).join(' · ') : xlStr(s.professional)) : '';
+      ws.merge(R.info, c, R.info, c + 1, info, [box, { sz: 8, h: 'center', v: 'center', color: XL_C.MUTED, fill: off ? HEAD_FILL : null }]);
+      // Objectiu i focus dels blocs
+      const runs = [];
+      if (s) {
+        if (s.goal) runs.push([s.goal, { b: true, sz: 8 }]);
+        for (const b of usedBlocks(s)) if (b.focus) runs.push([`${runs.length ? '\n' : ''}${xlBlockName(b.key, settings)}: `, { b: true, sz: 8, color: XL_BLOCK[b.key] }], [b.focus, { sz: 8 }]);
+      }
+      ws.merge(R.obj, c, R.obj, c + 1, runs.length ? { rich: runs } : '', { sz: 8, h: 'left', v: 'top', wrap: true });
+      // RPE, temps, càrrega, wellness i dolor (només de les sessions fetes)
+      const wl = s && done(s) ? Calc.wellness(s.wellness) : null;
+      const pain = s && done(s) ? xlNum(f.pain) : null;
+      ws.merge(R.rpe, c, R.rpe, c + 1, s && done(s) ? xlNum(f.rpe) : null, { sz: 9, h: 'center', v: 'center' });
+      ws.merge(R.t, c, R.t, c + 1, s && done(s) ? xlNum(f.duration) : null, { sz: 9, h: 'center', v: 'center', fmt: '0' });
+      const rr = xlRef(R.rpe, c), tr = xlRef(R.t, c);
+      const load = s && done(s) ? Calc.sessionLoad(s) : null;
+      ws.merge(R.load, c, R.load, c + 1, { f: `IF(COUNT(${rr},${tr})=2,${rr}*${tr},"")`, v: load ?? '' }, { sz: 9, h: 'center', v: 'center', fmt: '0', b: true });
+      loadCells.push(xlRef(R.load, c));
+      ws.merge(R.well, c, R.well, c + 1, wl && wl.total != null ? wl.total : null, { sz: 9, h: 'center', v: 'center', fmt: '0', fill: !wl ? null : wl.tone === 'bad' ? XL_C.RED : wl.tone === 'warn' ? XL_C.AMB : null });
+      ws.merge(R.pain, c, R.pain, c + 1, pain, { sz: 9, h: 'center', v: 'center', fmt: '0', fill: pain == null ? null : pain >= 6 ? XL_C.RED : pain >= 3 ? XL_C.AMB : null });
+      const obs = s && !s.ghost ? [xlStr(f.notes).trim(), xlStr(f.decision).trim() && `→ ${xlStr(f.decision).trim()}`].filter(Boolean).join(' ') : '';
+      ws.merge(R.obs, c, R.obs, c + 1, obs, { sz: 8, h: 'left', v: 'top', wrap: true, bb: 'medium', bc: LINE });
     }
-    for (const b of blocks) {
-      const def = blockDef(b.key);
-      where[b.key] = r;
-      const gs = Calc.groups(b);
-      ws.set(r, 1, def.num, [XS.cell, { b: true, sz: 12, color: 'FFFFFF', fill: XL_BLOCK[b.key] }]);
-      ws.merge(r, 2, r, n, {
-        rich: [[xlBlockName(b.key, settings), { b: true, sz: 11, color: XL_C.BRAND }],
-          [b.focus ? `   —   ${b.focus}` : '', { color: XL_C.MUTED }],
-          [b.methodName ? `   ·   Mètode: ${b.methodName}` : '', { i: true, color: XL_C.MUTED }]],
-      }, { fill: XL_C.BRAND_L, border: 'thin', h: 'left', v: 'center', indent: 1, sz: 10 });
-      ws.rowH(r, 20);
+    ws.set(R.obs, c0, 'Obs', { sz: 8, h: 'right', v: 'center', color: XL_C.MUTED, bb: 'thin', bc: LINE });
+    // Total de la setmana
+    const fetes = list.filter(done);
+    const loads = fetes.map((s) => Calc.sessionLoad(s)).filter((v) => v != null);
+    const rpes = fetes.map((s) => xlNum((s.feedback || {}).rpe)).filter((v) => v != null);
+    ws.merge(R.week, c0 + 1, R.week, c0 + 4, { f: `SUM(${loadCells.join(',')})`, v: loads.reduce((a, b) => a + b, 0) }, { b: true, sz: 9, h: 'center', v: 'center', fmt: '0 "UA"', fill: XL_C.GREY, border: 'thin', bc: 'BFBFBF' });
+    const txt = list.length
+      ? [`${U.plural(list.length, 'sessió', 'sessions')}`, `${fetes.length} ${fetes.length === 1 ? 'feta' : 'fetes'}`, rpes.length ? `RPE mitjà ${U.fmt(rpes.reduce((a, b) => a + b, 0) / rpes.length, 1)}` : ''].filter(Boolean).join(' · ')
+      : 'Cap sessió aquesta setmana';
+    ws.merge(R.week, c0 + 5, R.week, c0 + W - 1, `${U.fmtDateShort(wk)} – ${U.fmtDateShort(U.addDays(wk, 6))}  ·  ${txt}`, { sz: 8, h: 'left', v: 'center', color: XL_C.MUTED, indent: 1 });
+  }
+
+  // ── Una sessió sencera, amb les columnes de l'Oriol ──
+  function slot(ws, { c0, r, s, state, wk, settings, plans }) {
+    const C = (j) => c0 + j;
+    const end = C(W - 1);
+    const box = { bc: LINE };
+    ws.merge(r, C(0), r, end, s.ghost ? `SESSIÓ PREVISTA · ${shortLabel(s).toUpperCase()}` : `SESSIÓ ${s.number || ''} · ${stateText(state).toUpperCase()}`, [box, { b: true, sz: 10, h: 'center', v: 'center', fill: state.fill, color: XL_C.BRAND, border: 'medium' }]);
+    ws.rowH(r, 18);
+    r++;
+    const small = { sz: 9, h: 'center', v: 'center', color: XL_C.MUTED };
+    ws.set(r, C(0), 'DIA', { ...small, h: 'right' });
+    ws.merge(r, C(1), r, C(2), { date: s.date }, { sz: 10, b: true, h: 'center', v: 'center', fmt: 'dd/mm/yyyy' });
+    ws.merge(r, C(3), r, C(4), U.weekday(s.date), small);
+    ws.merge(r, C(5), r, C(6), 'PROFESSIONAL', small);
+    ws.merge(r, C(7), r, C(10), xlStr(s.professional).toUpperCase(), { sz: 10, b: true, h: 'center', v: 'center' });
+    ws.merge(r, C(11), r, C(12), 'SETMANA', small);
+    ws.merge(r, C(13), r, C(14), { date: wk }, { sz: 10, h: 'center', v: 'center', fmt: 'dd/mm/yyyy' });
+    r++;
+    if (s.goal || s.planId || s.pillar) {
+      const plan = s.planId ? plans.find((x) => x.id === s.planId) : null;
+      const runs = [];
+      if (s.goal) runs.push([s.goal, { b: true, sz: 9 }]);
+      if (s.pillar) runs.push([`${runs.length ? '   ·   ' : ''}Pilar: ${s.pillar}`, { sz: 9, color: XL_C.MUTED }]);
+      if (plan) runs.push([`${runs.length ? '   ·   ' : ''}${plan.name} · S${s.planN} de ${(plan.sessions || []).length}`, { sz: 9, i: true, color: XL_C.MUTED }]);
+      ws.set(r, C(0), 'OBJ.', { ...small, h: 'right', b: true });
+      ws.merge(r, C(1), r, end, { rich: runs }, { sz: 9, h: 'left', v: 'center', wrap: true, indent: 1 });
       r++;
-      const rowItem = (it, idx) => {
-        const vbt = Calc.vbt(it);
-        const last = prev[it.name];
-        const cells = [
-          [`${def.num}.${idx + 1}`, [XS.cell, XS.muted]],
-          [it.name, [XS.text, { b: true }]],
-          [xlStr(it.gm), XS.cellW],
-          [xlStr(it.cont), XS.cell], [xlStr(it.pos), XS.cell], [xlStr(it.lat), XS.cell],
-          [xlStr(it.material), XS.text],
-          [xlNumOrText(it.sets), XS.cell],
-          [xlNumOrText(it.reps), XS.cellW],
-          [xlNumOrText(it.load), XS.cellW],
-          [xlStr(it.intensity), XS.cellW],
-          [xlStr(it.rest), XS.cellW],
-          [xlStr(it.tempo), XS.cell],
-          [vbt && vbt.text ? vbt.text : '', [XS.text, { sz: 9 }]],
-          [last ? `${U.fmtDateShort(last.date)}: ${Calc.presc(last) || '—'}` : '', [XS.text, { sz: 9, color: XL_C.MUTED }]],
-          [xlStr(it.note), [XS.text, { sz: 9 }]],
-          [it.done ? '✔' : '', [XS.cell, { b: true, color: '3D6B2E', fill: it.done ? XL_C.GRN : null }]],
-        ];
-        cells.forEach(([v, st], i) => ws.set(r, i + 1, v, st));
-        xlLinkCell(ws, r, 18, it.video, it.video ? (xlIsWeb(it.video) ? 'Obre' : 'a la tauleta') : '', null);
-        xlLinkCell(ws, r, 19, it.demo, it.demo ? 'Demo' : '', null);
+    }
+    const wtxt = wellnessText(s);
+    if (wtxt) {
+      ws.set(r, C(0), 'WELL.', { ...small, h: 'right', b: true });
+      ws.merge(r, C(1), r, end, wtxt, { sz: 8, h: 'left', v: 'center', wrap: true, indent: 1, color: XL_C.MUTED });
+      r++;
+    }
+    // Capçalera de la taula
+    const head = { b: true, sz: 9, h: 'center', v: 'center', wrap: true, bt: 'thin', bb: 'thin', bc: LINE };
+    ws.merge(r, C(0), r, C(1), 'GM', head);
+    ws.set(r, C(2), 'Cont', head); ws.set(r, C(3), 'Pos', head); ws.set(r, C(4), 'A', head);
+    ws.merge(r, C(5), r, C(8), 'Exercici', head);
+    ws.merge(r, C(9), r, C(10), 'Material', head);
+    ws.set(r, C(11), '+', head); ws.set(r, C(12), 'S', head); ws.set(r, C(13), 'R', head); ws.set(r, C(14), 'Obs', head);
+    ws.rowH(r, 20);
+    r++;
+    const bl = usedBlocks(s);
+    if (!bl.length) {
+      ws.merge(r, C(0), r, end, 'Aquesta sessió encara no té exercicis.', { sz: 9, i: true, h: 'center', v: 'center', color: XL_C.MUTED });
+      r++;
+    }
+    const cell = { sz: 9, h: 'center', v: 'center', wrap: true, bb: 'thin', bc: 'E3DDD6' };
+    const itemRow = (it) => {
+      ws.merge(r, C(0), r, C(1), xlStr(it.gm), cell);
+      ws.set(r, C(2), xlStr(it.cont), cell); ws.set(r, C(3), xlStr(it.pos), cell); ws.set(r, C(4), xlStr(it.lat), cell);
+      // El nom de l'exercici obre el vídeo del client (o, si no n'hi ha, el de demostració); si hi ha tots dos, la
+      // demostració s'obre des de les observacions.
+      const vid = xlIsWeb(it.video) ? xlStr(it.video).trim() : '';
+      const demo = xlIsWeb(it.demo) ? xlStr(it.demo).trim() : '';
+      const url = vid || demo;
+      const nameRuns = [];
+      if (it.done) nameRuns.push(['✔ ', { b: true, color: '3D6B2E', sz: 9 }]);
+      nameRuns.push([it.name, { b: true, sz: 9, ...(url ? { color: XL_C.LINK, u: true } : {}) }]);
+      ws.merge(r, C(5), r, C(8), { rich: nameRuns }, cell);
+      if (url) ws.link(r, C(5), url, vid ? 'Vídeo del client' : 'Vídeo de demostració');
+      ws.merge(r, C(9), r, C(10), xlStr(it.material), cell);
+      ws.set(r, C(11), Calc.load(it.load) || xlStr(it.load), cell);
+      ws.set(r, C(12), xlNumOrText(it.sets), cell);
+      ws.set(r, C(13), xlNumOrText(it.reps), cell);
+      const obs = obsOf(it);
+      if (vid && demo) {
+        ws.set(r, C(14), { rich: [...(obs ? [[`${obs} · `, { sz: 8 }]] : []), ['▶ demostració', { sz: 8, color: XL_C.LINK, u: true }]] }, [cell, { sz: 8, h: 'left' }]);
+        ws.link(r, C(14), demo, 'Vídeo de demostració');
+      } else ws.set(r, C(14), obs, [cell, { sz: 8, h: 'left' }]);
+      r++;
+      // Encoder o salts: cada sèrie, en una fila a sota de l'exercici.
+      const vbt = Calc.vbt(it);
+      if (vbt) {
+        ws.merge(r, C(2), r, end, `${vbt.mode === 'salts' ? 'Salts' : 'Encoder'} · ${vbt.detail}`, { sz: 8, i: true, h: 'left', v: 'center', wrap: true, indent: 1, color: XL_C.MUTED, bb: 'thin', bc: 'E3DDD6' });
         r++;
-      };
+      }
+    };
+    for (const b of bl) {
+      const def = blockDef(b.key);
+      const runs = [[`${def.num} · ${xlBlockName(b.key, settings).toUpperCase()}`, { b: true, sz: 9, color: 'FFFFFF' }]];
+      if (b.focus) runs.push([`   ${b.focus}`, { sz: 9, color: 'FFFFFF' }]);
+      if (b.methodName) runs.push([`   ·   ${b.methodName}`, { sz: 9, i: true, color: 'FFFFFF' }]);
+      ws.merge(r, C(0), r, end, { rich: runs }, { fill: XL_BLOCK[b.key], h: 'left', v: 'center', indent: 1, sz: 9 });
+      r++;
+      const gs = Calc.groups(b);
       if (gs) {
         for (const x of gs) {
-          ws.merge(r, 1, r, n, {
-            rich: [[`${x.label}`, { b: true, color: XL_C.BRAND_M }], [x.g.methodName ? `   ·   Mètode: ${x.g.methodName}` : '', { i: true, color: XL_C.MUTED }]],
-          }, { fill: XL_C.GREY, border: 'thin', h: 'left', indent: 2, sz: 10 });
+          ws.merge(r, C(0), r, end, { rich: [[x.label, { b: true, sz: 9, color: XL_C.BRAND_M }], [x.g.methodName ? `   ·   ${x.g.methodName}` : '', { sz: 9, i: true, color: XL_C.MUTED }]] }, { fill: XL_C.GREY, h: 'left', v: 'center', indent: 2, sz: 9 });
           r++;
-          const its = x.items.map((y) => y.it).filter((i) => i.name);
-          if (!its.length) { ws.merge(r, 1, r, n, 'Encara no hi ha cap exercici en aquest bloc.', [XS.text, { i: true, color: XL_C.MUTED, indent: 2 }]); r++; }
-          its.forEach((it) => rowItem(it, (b.items || []).filter((i) => i.name).indexOf(it)));
+          x.items.map((y) => y.it).filter((i) => i.name).forEach(itemRow);
         }
-      } else namedItems(b).forEach(rowItem);
+      } else names(b).forEach(itemRow);
     }
-    r++;
-    ws.merge(r, 1, r, n, xlLegend(), [XS.note, { wrap: true }]);
-    return where;
-  }
-
-  // ── Full «Encoder» ──
-  function encoderSheet(ws, { p, s, blocks, settings }) {
-    const cols = [['Exercici', 30], ['Bloc', 16], ['Dispositiu', 14], ['Sèrie', 7], ['Càrrega (kg)', 11], ['Reps / salts', 10], ['V 1a rep (m/s)', 11], ['V última (m/s)', 11],
-      ['Pèrdua de vel. (%)', 12], ['Pot. màx. (W)', 11], ['Alçada millor (cm)', 12], ['Alçada mitjana (cm)', 12], ['RSI', 8], ['T. contacte (ms)', 11]];
-    ws.cols(cols.map((c) => c[1]));
-    let r = xlTitle(ws, `Encoder i salts · ${title(s, p)}`, `${U.fmtDateLong(s.date)} · registre per sèries de l'ADR (velocitat) i de l'ADR Jumping`, cols.length);
-    ws.freeze(r + 1, 2);
-    cols.forEach(([label], i) => ws.set(r, i + 1, label, i === 0 ? XS.headL : XS.head));
-    ws.rowH(r, 28);
-    r++;
-    const n = (v, fmt) => [xlNum(v), [XS.cell, fmt ? { fmt } : null]];
-    for (const b of blocks) for (const it of namedItems(b)) {
-      const sum = Calc.vbt(it);
-      if (!sum) continue;
-      const mode = sum.mode;
-      const sets = ((it.vbt && it.vbt.sets) || []).filter((st) => Object.entries(st).some(([k, v]) => k !== 'id' && v !== '' && v != null));
-      sets.forEach((st, i) => {
-        const vl = Calc.vl(st);
-        const row = [
-          [it.name, [XS.text, { b: true }]], [xlBlockName(b.key, settings), XS.text], [mode === 'salts' ? 'ADR Jumping' : 'Encoder ADR', XS.cell], [i + 1, XS.cell],
-          n(st.kg, '0.0'), n(st.reps, '0'), n(st.v1, '0.00'), n(st.vlast, '0.00'), [vl == null ? null : U.round(vl, 1), [XS.cell, { fmt: '0.0' }]], n(st.pmax, '0'),
-          n(st.h, '0.0'), n(st.hmean, '0.0'), n(st.rsi, '0.00'), n(st.tc, '0'),
-        ];
-        row.forEach(([v, stl], k) => ws.set(r, k + 1, v, stl));
-        r++;
-      });
+    const cl = closing(s);
+    if (cl) {
+      ws.merge(r, C(0), r, end, { rich: [['TANCAMENT   ', { b: true, sz: 9, color: XL_C.BRAND }], [cl, { sz: 9 }]] }, { h: 'left', v: 'center', wrap: true, indent: 1, fill: done(s) ? XL_C.GRN : XL_C.GREY, bt: 'thin', bb: 'medium', bc: LINE });
+      r++;
     }
     return r;
   }
 
-  return { build, prevMap };
+  return { build, sheetName, weeksOf, rowsOf };
 })();
 
 
 /* ── 09-excel-set.js ── */
-/* EON Life · el conjunt d'Excel d'un client: quins fitxers toca fer, amb quin nom i a quina carpeta.
-   Valoracions/  → un Excel per valoració (valoracioinicial_…, retest_…)
-   Sessions/     → un Excel per sessió (feta, planificada o prevista al pla) i l'Excel gegant de visió general.
-   La resta (carpetes, noms, números de sèrie) es decideix aquí a partir de les dades de l'app. */
+/* EON Life · els Excel d'un client: quins fitxers toca fer, amb quin nom i a quina carpeta.
+   Un de sol: l'Excel del client (seguiment_<client>_01.xlsx) a l'arrel de la seva carpeta, amb les sessions (fetes,
+   planificades i previstes als plans) i les valoracions. Aquí es reuneixen les dades del client per fer-lo. */
 
 const ExcelSet = (() => {
   const real = (list) => (list || []).filter((x) => x && !x.deleted);
@@ -9940,34 +9885,15 @@ const ExcelSet = (() => {
     return [...d.sessions, ...ghosts(d)].sort((a, b) => (a.date === b.date ? (a.ghost ? 1 : 0) - (b.ghost ? 1 : 0) || (U.num(a.number) || U.num(a.planN) || 0) - (U.num(b.number) || U.num(b.planN) || 0) : a.date < b.date ? -1 : 1));
   }
 
-  // Noms dels fitxers: el número de sèrie compta els fitxers del mateix dia (i, a les valoracions, del mateix tipus).
+  // Els fitxers d'un client: ara un de sol, l'Excel del client, a l'arrel de la seva carpeta.
   function plan(d, { today = U.today() } = {}) {
     const p = d.patient;
-    const files = [];
-    const count = {};
-    const next = (key) => (count[key] = (count[key] || 0) + 1);
     const all = items(d);
-    const planOf = (s) => d.plans.find((x) => x.id === s.planId) || null;
-    for (const s of all) {
-      const n = next(`s:${s.date}`);
-      files.push({
-        key: `S:${s.id}`, kind: 'session', id: s.id, folder: 'sessions', name: Names.sessionFile(p, s.date, n), date: s.date,
-        timed: !s.ghost && s.status !== 'feta', // l'estat «Sense tancar» depèn de la data d'avui
-        make: () => ExcelSession.build({ patient: p, session: s, sessions: d.sessions, plan: planOf(s), settings: d.settings, today }),
-      });
-    }
-    d.assessments.forEach((a, i) => {
-      const n = next(`a:${a.type}:${a.date}`);
-      files.push({
-        key: `A:${a.id}`, kind: 'assessment', id: a.id, folder: 'assess', name: Names.assessmentFile(p, a.type, a.date, n), date: a.date,
-        make: (links) => ExcelAssessment.build({ patient: p, assessment: a, previous: d.assessments[i - 1] || null, settings: d.settings, today, links }),
-      });
-    });
-    files.push({
-      key: 'O:overview', kind: 'overview', folder: 'sessions', name: Names.overviewFile(p), date: '', timed: true,
-      make: (links) => ExcelOverview.build({ ...d, items: all, today, links: links || {} }),
-    });
-    return files;
+    return [{
+      key: 'C:client', kind: 'client', id: p.id, folder: 'root', name: Names.clientFile(p), date: '',
+      timed: true, // «Sense tancar», la setmana actual i les dates clau depenen del dia d'avui
+      make: () => ExcelClient.build({ ...d, items: all, today }),
+    }];
   }
 
   return { data, ghosts, items, plan };
@@ -10801,7 +10727,7 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || fileName, url: (item && item.webUrl) || '' };
   }
 
-  // Desa un fitxer generat per l'app (els Excel de cada sessió, valoració i visió general), substituint el que hi hagi amb el mateix nom.
+  // Desa un fitxer generat per l'app (l'Excel del client), substituint el que hi hagi amb el mateix nom.
   async putFile(parentId, fileName, bytes, { mime = XlsxDoc.XLSX_MIME } = {}) {
     const name = safeName(fileName);
     if (bytes.length > 3.5 * 1024 * 1024) return this.uploadBlob(parentId, name, new Blob([bytes], { type: mime }), { conflict: 'replace' });
@@ -10914,13 +10840,14 @@ const M365Backend = {
 
 /* ── 09-names.js ── */
 /* EON Life · carpetes i noms dels fitxers de cada client.
-   Carpeta del client: «Cognoms, Nom · P-xxxx», amb dues branques:
-     Valoracions/                         valoració inicial, re-tests, PDF de Kinvent, informe mèdic i fotos
+   Carpeta del client: «Cognoms, Nom · P-xxxx», amb l'Excel del client i dues branques:
+     seguiment_lauravidalserra_01.xlsx    l'Excel del client: sessions (un full per mes) i valoracions
+     Valoracions/                         PDF de Kinvent, informe mèdic i fotos
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
-     Sessions/                            un Excel per sessió i l'Excel gegant de visió general
+     Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
-     valoracioinicial_lauravidalserra_20260702_01.xlsx · sessio_lauravidalserra_20261002_01.xlsx
+     seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
      singlelegsquatdreta_lauravidalserra_20260702_01.mp4 · hipthrust_lauravidalserra_20261002_01.mp4 */
 
 const EXPORT_FOLDERS = {
@@ -10987,11 +10914,12 @@ const Names = (() => {
 
   // ── Excel generats ──
   const ASSESS_KIND = { inicial: 'valoracioinicial', retest: 'retest', control: 'controlmesures', alta: 'valoracioalta' };
-  const sessionFile = (p, date, n) => `sessio_${client(p)}_${stamp(date)}_${serial(n)}.xlsx`;
-  const assessmentFile = (p, type, date, n) => `${ASSESS_KIND[type] || 'valoracio'}_${client(p)}_${stamp(date)}_${serial(n)}.xlsx`;
-  const overviewFile = (p) => `visiogeneral_${client(p)}_01.xlsx`;
-  // Els Excel que fa l'app tenen aquests noms; qualsevol altre fitxer de la carpeta no es toca mai.
+  // L'Excel del client (un de sol, a l'arrel de la seva carpeta): seguiment_lauravidalserra_01.xlsx
+  const clientFile = (p) => `seguiment_${client(p)}_01.xlsx`;
+  // Els Excel que fa (o feia) l'app tenen aquests noms; qualsevol altre fitxer de la carpeta no es toca mai.
+  // Els de «Sessions» i «Valoracions» són els d'abans de l'Excel únic: si encara hi són, es retiren.
   const OWN = {
+    root: /^seguiment_[a-z0-9]+_\d{2}\.xlsx$/,
     sessions: /^(sessio_[a-z0-9]+_\d{8}_\d{2}|visiogeneral_[a-z0-9]+_\d{2})\.xlsx$/,
     assess: /^(valoracioinicial|retest|controlmesures|valoracioalta|valoracio)_[a-z0-9]+_\d{8}_\d{2}\.xlsx$/,
   };
@@ -10999,28 +10927,28 @@ const Names = (() => {
   // Etiqueta d'un fitxer segons l'extensió i el tipus (per classificar-lo a Valoracions o a Sessions).
   const ext = (name) => ((String(name || '').match(/\.[a-z0-9]{2,5}$/i) || [''])[0]).toLowerCase();
 
-  return { slug, label, client, stamp, serial, stem, nextSerial, file, sessionFile, assessmentFile, overviewFile, OWN, ASSESS_KIND, ext };
+  return { slug, label, client, stamp, serial, stem, nextSerial, file, clientFile, OWN, ASSESS_KIND, ext };
 })();
 
 
 /* ── 09-sync.js ── */
-/* EON Life · sincronització dels Excel amb la carpeta del client (Microsoft 365).
+/* EON Life · sincronització de l'Excel del client amb la seva carpeta (Microsoft 365).
    Cada cop que es canvia alguna cosa d'un client (dades, valoració, sessió o pla) es deixa un avís a una cua que
-   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer els Excel d'aquell client i
-   només puja els que han canviat (substituint el fitxer anterior, sense còpies repetides):
-     · un Excel per sessió (feta, planificada o prevista al pla) a «Sessions»
-     · un Excel per valoració a «Valoracions»
-     · l'Excel gegant de visió general a «Sessions»
-   Els fitxers antics que ja no toquen (una sessió eliminada o canviada de dia) es treuen de la carpeta (queden a la
-   paperera de reciclatge). Mai es toca cap altre fitxer: només els que tenen el nom d'un Excel fet per l'app. */
+   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer l'Excel d'aquell client
+   (seguiment_<client>_01.xlsx, a l'arrel de la seva carpeta: un full per mes amb les sessions i les valoracions) i
+   només el puja si ha canviat (substituint el fitxer anterior, sense còpies repetides).
+   Els Excel antics fets per l'app que ja no toquen (els d'abans de l'Excel únic, a «Sessions» i «Valoracions», o el
+   d'un client reanomenat) es treuen de la carpeta (queden a la paperera de reciclatge). Mai es toca cap altre fitxer:
+   només els que tenen el nom d'un Excel fet per l'app. */
 
-const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day' };
+const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day', format: 'eonlife:sync:format' };
 
 const Sync = (() => {
   const DELAY = 20000;     // temps sense canvis abans de pujar
   const MAX_WAIT = 120000; // com a molt, es puja cada 2 minuts encara que s'estigui editant
   const SOON = 2500;       // en acabar una sessió o sortir de l'editor
   const BACKOFF = [20000, 60000, 120000, 300000];
+  const FORMAT = 2;        // forma dels Excel (2 = un sol Excel per client). Quan canvia, es refan els de tots els clients.
 
   const read = (key, fallback) => { try { const v = window.localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } };
   const write = (key, v) => { try { window.localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge */ } };
@@ -11089,8 +11017,8 @@ const Sync = (() => {
     return (e && e.message) || 'No s\'han pogut pujar els Excel.';
   }
 
-  // Fa (o refà) tots els Excel d'un client i els deixa a la seva carpeta. Retorna { uploaded, kept, removed }.
-  // only: 'time' = refresc diari: només es refà el que depèn de la data d'avui (la visió general i les sessions per fer).
+  // Fa (o refà) l'Excel d'un client i el deixa a la seva carpeta. Retorna { uploaded, kept, removed }.
+  // only: 'time' = refresc diari: només es refà el que depèn de la data d'avui (ara, l'Excel del client sencer).
   async function syncClient(pid, { force = false, only = '' } = {}) {
     const b = Store.backend;
     const d = ExcelSet.data(pid);
@@ -11103,18 +11031,20 @@ const Sync = (() => {
       own = true; // desar la carpeta a la fitxa no ha de posar el client altre cop a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
     }
-    const dirs = {}, existing = {};
+    // L'Excel va a l'arrel de la carpeta del client; «Sessions» i «Valoracions» (on van els PDF i els vídeos) es fan
+    // igualment perquè la carpeta tingui sempre la mateixa forma, i s'hi miren els Excel d'abans per retirar-los.
+    const list = async (id) => new Map((await b.children(id)).filter((x) => x.file).map((x) => [x.name.toLowerCase(), x]));
+    const dirs = { root: { id: fid, webUrl: folder.folderUrl || '' } }, existing = { root: await list(fid) };
     for (const key of ['assess', 'sessions']) {
       dirs[key] = await b.ensurePath(fid, EXPORT_FOLDERS[key]);
-      existing[key] = new Map((await b.children(dirs[key].id)).filter((x) => x.file).map((x) => [x.name.toLowerCase(), x]));
+      existing[key] = await list(dirs[key].id);
     }
     const files = ExcelSet.plan(d);
-    const order = [...files.filter((f) => f.kind !== 'overview'), ...files.filter((f) => f.kind === 'overview')];
     const links = {};
     const out = { uploaded: 0, kept: 0, removed: 0 };
     const failed = [];
     const stamp = xlStampText();
-    for (const f of order) {
+    for (const f of files) {
       const dir = dirs[f.folder];
       const found = existing[f.folder].get(f.name.toLowerCase());
       if (only === 'time' && !force && found && !f.timed) { links[f.key] = found.webUrl || ''; out.kept++; continue; }
@@ -11129,22 +11059,25 @@ const Sync = (() => {
       links[f.key] = item.url || (found && found.webUrl) || '';
       out.uploaded++;
     }
-    // Fitxers antics d'Excel que ja no corresponen a res (sessió eliminada, canviada de dia, client reanomenat…).
-    const wanted = { assess: new Set(), sessions: new Set() };
+    // Excel antics fets per l'app que ja no corresponen a res (els d'abans de l'Excel únic, client reanomenat…).
+    // Si l'Excel nou no s'ha pogut fer, no es treu res: millor un Excel antic que cap.
+    const wanted = { root: new Set(), assess: new Set(), sessions: new Set() };
     for (const f of files) wanted[f.folder].add(f.name.toLowerCase());
-    for (const key of Object.keys(dirs)) {
-      for (const [name, it] of existing[key]) {
-        if (!Names.OWN[key].test(name) || wanted[key].has(name)) continue;
-        await b.removeItem(it.id);
-        delete hashes[`${dirs[key].id}/${name}`];
-        out.removed++;
+    if (!failed.length) {
+      for (const key of Object.keys(dirs)) {
+        for (const [name, it] of existing[key]) {
+          if (!Names.OWN[key].test(name) || wanted[key].has(name)) continue;
+          await b.removeItem(it.id);
+          delete hashes[`${dirs[key].id}/${name}`];
+          out.removed++;
+        }
       }
     }
     if (failed.length) { out.failed = failed.length; out.failedNames = failed.slice(0, 5); }
-    // Enllaços per obrir les carpetes i la visió general des de l'app.
+    // Enllaços per obrir l'Excel i les carpetes des de l'app.
+    out.fileUrl = links['C:client'] || '';
     out.sessionsUrl = dirs.sessions.webUrl || '';
     out.assessUrl = dirs.assess.webUrl || '';
-    out.overviewUrl = links['O:overview'] || '';
     return out;
   }
 
@@ -11187,7 +11120,16 @@ const Sync = (() => {
     },
 
     // Torna a mirar la cua en obrir l'app o en tornar la connexió.
-    resume() { schedule(); api.daily(); },
+    resume() { schedule(); api.upgrade(); api.daily(); },
+
+    // Primera obertura d'una versió que fa els Excel d'una altra forma: es refan els de tots els clients (i es retiren
+    // els d'abans), sense esperar que algú en toqui les dades.
+    upgrade() {
+      if (!enabled() || read(SYNC_KEYS.format, 0) === FORMAT) return false;
+      write(SYNC_KEYS.format, FORMAT);
+      api.all();
+      return true;
+    },
 
     // Les dades no canvien soles, però la data sí: «Sense tancar», «la propera sessió» o el calendari del mes depenen d'avui.
     // Un cop al dia es refà (només el que depèn de la data) el que toca als clients amb sessions fetes o per fer en els últims 45 dies.
@@ -11276,18 +11218,16 @@ const Sync = (() => {
       }
     },
     // Fa servir als tests per començar de zero.
-    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; running = ''; clearTimeout(timer); write(SYNC_KEYS.day, ''); save(); },
+    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; running = ''; clearTimeout(timer); write(SYNC_KEYS.day, ''); write(SYNC_KEYS.format, 0); save(); },
     syncClient,
   };
   return api;
 })();
 
-// Enllaços de descàrrega dels Excel (versió local, sense carpeta al núvol) i còpia de tots els fitxers d'un client en un ZIP.
+// Descàrrega de l'Excel del client (versió local, sense carpeta al núvol, o per tenir-ne una còpia).
 const Exports = {
-  folderOf: (f) => EXPORT_FOLDERS[f.folder][0],
-
-  // Un fitxer del conjunt d'un client: { name, bytes }
-  async file(pid, key) {
+  // L'Excel del client: { name, bytes }
+  async file(pid, key = 'C:client') {
     const d = ExcelSet.data(pid);
     if (!d) throw new Error('No trobo aquest client.');
     const f = ExcelSet.plan(d).find((x) => x.key === key);
@@ -11297,33 +11237,9 @@ const Exports = {
   },
 
   // Retorna { name, status } (status: 'saved', 'declined' o 'failed', vegeu U.saveFile).
-  async download(pid, key) {
+  async download(pid, key = 'C:client') {
     const { name, bytes } = await this.file(pid, key);
     return { name, status: await U.downloadBytes(name, bytes, XlsxDoc.XLSX_MIME) };
-  },
-
-  // ZIP amb les carpetes Valoracions/ i Sessions/ tal com queden al núvol.
-  async zip(pid) {
-    const d = ExcelSet.data(pid);
-    if (!d) throw new Error('No trobo aquest client.');
-    const stamp = xlStampText();
-    const out = [];
-    const failed = [];
-    const files = ExcelSet.plan(d);
-    const links = {};
-    for (const f of [...files.filter((x) => x.kind !== 'overview'), ...files.filter((x) => x.kind === 'overview')]) {
-      try {
-        const { bytes } = await f.make(links).build({ stamp });
-        out.push({ name: `${EXPORT_FOLDERS[f.folder][0]}/${f.name}`, data: bytes });
-      } catch (e) { failed.push(f.name); }
-    }
-    if (!out.length) throw new Error('No s\'ha pogut fer cap Excel d\'aquest client.');
-    return { name: `eonlife_${Names.client(d.patient)}_${Names.stamp(U.today())}.zip`, bytes: Xlsx.zip(out), count: out.length, failed };
-  },
-
-  async downloadZip(pid) {
-    const { name, bytes, failed } = await this.zip(pid);
-    return { name, failed, status: await U.downloadBytes(name, bytes, 'application/zip') };
   },
 };
 
@@ -13939,8 +13855,8 @@ function AssessmentEditor({ id, focus }) {
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
-        ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel d\'aquesta valoració', icon: 'download', onClick: () => downloadExcel(a.patientId, `A:${a.id}`) }, { sep: true }] : []),
+        ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(a.patientId) }, { sep: true }] : []),
         { label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove },
       ]} />
       <nav class="secnav" aria-label="Seccions de la valoració">
@@ -15065,8 +14981,8 @@ function SessionEditor({ id }) {
         { label: 'Aplica una plantilla de sessió', icon: 'layers', onClick: applyTemplate },
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
         { sep: true },
-        ...(Sync.available() ? [{ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel d\'aquesta sessió', icon: 'download', onClick: () => downloadExcel(s.patientId, `S:${s.id}`) }] : []),
+        ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(s.patientId) }] : []),
         { sep: true },
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />
@@ -15740,7 +15656,7 @@ function MonthView({ p, sessions }) {
             </div>`)}
         </div>
       </div>
-      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també a l'Excel de visió general del client.</p>
+      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del client.</p>
     </section>
 
     <section class="card">
@@ -17092,9 +17008,9 @@ function ProgressCharts({ sessions, to }) {
 
 
 /* ── 34-excel-ui.js ── */
-/* EON Life · Excel de cada client a l'app: estat de la pujada a la carpeta, descàrregues i planificació del mes.
-   L'app fa sola un Excel per sessió, un per valoració i un Excel gegant de visió general (09-sync.js); aquí
-   s'hi veu si són al dia, es poden pujar a mà o descarregar i es planifiquen sessions per endavant. */
+/* EON Life · Excel de cada client a l'app: estat de la pujada a la carpeta, descàrrega i planificació del mes.
+   L'app fa sola un Excel per client, amb un full per mes (sessions) i les valoracions (09-sync.js); aquí s'hi veu
+   si és al dia, es pot pujar a mà o descarregar i es planifiquen sessions per endavant. */
 
 // «fa 3 min», «fa 2 h», «el 02/10/2026»
 function agoText(ts) {
@@ -17112,8 +17028,8 @@ async function syncNow(pid, force) {
   try {
     const r = await Sync.now(pid, { force });
     UI.toast(r.uploaded || r.removed
-      ? `Excel desats a la carpeta: ${U.plural(r.uploaded, 'fitxer nou o canviat', 'fitxers nous o canviats')}${r.removed ? ` · ${U.plural(r.removed, 'd\'antic retirat', 'd\'antics retirats')}` : ''}.`
-      : 'Els Excel ja estaven al dia a la carpeta.');
+      ? `${r.uploaded ? 'Excel del client desat a la carpeta' : 'L\'Excel del client ja era al dia'}${r.removed ? ` · ${U.plural(r.removed, 'Excel antic retirat', 'Excel antics retirats')}` : ''}.`
+      : 'L\'Excel del client ja era al dia a la carpeta.');
     if (r.failed) UI.toast(failedText(r.failedNames, r.failed), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
@@ -17126,7 +17042,7 @@ function savedToast(status, okText) {
   UI.toast(status === 'saved' ? okText : 'No s\'ha pogut descarregar en aquesta vista.', status === 'saved' ? 'ok' : 'bad');
 }
 
-async function downloadExcel(pid, key) {
+async function downloadExcel(pid, key = 'C:client') {
   try {
     const { name, status } = await Exports.download(pid, key);
     savedToast(status, `Excel descarregat: ${name}`);
@@ -17135,17 +17051,7 @@ async function downloadExcel(pid, key) {
   }
 }
 
-async function downloadExcelZip(pid) {
-  try {
-    const { name, status, failed } = await Exports.downloadZip(pid);
-    savedToast(status, `Descarregat: ${name} (carpetes Valoracions i Sessions).`);
-    if (status === 'saved' && failed && failed.length) UI.toast(failedText(failed.slice(0, 5), failed.length), 'bad');
-  } catch (e) {
-    UI.toast(e.message, 'bad');
-  }
-}
-
-// Estat de la pujada dels Excel d'un client (només amb Microsoft 365).
+// Estat de la pujada de l'Excel d'un client (només amb Microsoft 365).
 function SyncBadge({ pid }) {
   const [, force] = useState(0);
   useEffect(() => Sync.subscribe(() => force((n) => n + 1)), []);
@@ -17153,18 +17059,18 @@ function SyncBadge({ pid }) {
   const st = Sync.info(pid);
   if (st.state === 'off') return null;
   const map = {
-    running: ['neutral', 'refresh', 'Pujant els Excel a la carpeta…'],
-    pending: ['warn', 'clock', 'Excel pendents de pujar (es pugen sols)'],
+    running: ['neutral', 'refresh', 'Pujant l\'Excel a la carpeta…'],
+    pending: ['warn', 'clock', 'Excel pendent de pujar (es puja sol)'],
     error: ['bad', 'alert', `Excel sense pujar: ${st.error}`],
-    partial: ['warn', 'alert', `Excel al dia a la carpeta, menys ${st.last && st.last.failed === 1 ? '1 que no s\'ha' : `${st.last && st.last.failed} que no s'han`} pogut fer`],
+    partial: ['warn', 'alert', 'No s\'ha pogut fer l\'Excel: revisa les dades d\'aquest client'],
     ok: ['ok', 'cloud', `Excel al dia a la carpeta · ${agoText(st.last && st.last.at)}`],
-    never: ['neutral', 'table', 'Excel encara no pujats a la carpeta'],
-    paused: ['neutral', 'table', 'Pujada automàtica dels Excel en pausa'],
+    never: ['neutral', 'table', 'Excel encara no pujat a la carpeta'],
+    paused: ['neutral', 'table', 'Pujada automàtica de l\'Excel en pausa'],
   };
   const [tone, icon, text] = map[st.state] || map.never;
   return html`<div class="syncbadge" role="status">
     <${Pill} tone=${tone} icon=${icon}>${text}</${Pill}>
-    ${st.state !== 'running' && html`<button type="button" class="link" onClick=${() => syncNow(pid)}>Puja'ls ara</button>`}
+    ${st.state !== 'running' && html`<button type="button" class="link" onClick=${() => syncNow(pid)}>Puja'l ara</button>`}
   </div>`;
 }
 
@@ -17175,15 +17081,14 @@ function excelMenuItems(pid) {
   const last = st.last || {};
   const open = (url) => () => window.open(url, '_blank', 'noopener');
   if (Sync.available()) {
-    items.push({ label: 'Puja els Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(pid) });
-    if (last.overviewUrl) items.push({ label: 'Obre l\'Excel de visió general', icon: 'table', onClick: open(last.overviewUrl) });
+    items.push({ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(pid) });
+    if (last.fileUrl) items.push({ label: 'Obre l\'Excel del client', icon: 'table', onClick: open(last.fileUrl) });
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
   }
   if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
-    items.push({ label: 'Descarrega l\'Excel de visió general', icon: 'download', onClick: () => downloadExcel(pid, 'O:overview') });
-    items.push({ label: 'Descarrega tots els Excel (ZIP)', icon: 'download', onClick: () => downloadExcelZip(pid) });
+    items.push({ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(pid) });
   }
   return items;
 }
@@ -17251,7 +17156,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   return html`<${Dialog} title="Planifica el mes" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="calendar" disabled=${!count} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
-    <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten a l'Excel de visió general i amb el seu propi Excel a la carpeta del client.</p>
+    <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten al full del mes de l'Excel del client.</p>
     <div class="form-grid">
       <${Field} label="Mes" id="pm-month"><${Select} id="pm-month" value=${month} onValue=${setMonth} options=${months.map((m) => ({ v: m, label: U.fmtMonth(m) }))} /></${Field}>
       <${Field} label="Progressió dels exercicis" id="pm-every" hint="Els exercicis que tenen nivells a la biblioteca pugen un nivell (p. ex. Goblet squat → Back squat).">
@@ -17311,16 +17216,16 @@ function ExcelSettingsCard() {
     Store.saveSettings({ autoExcel: v });
     if (v) Sync.all();
   };
-  const all = () => { Sync.all({ force: true }); UI.toast('Es tornen a fer i pujar els Excel de tots els clients. Pot tardar uns minuts.'); };
+  const all = () => { Sync.all({ force: true }); UI.toast('Es torna a fer i pujar l\'Excel de cada client. Pot tardar uns minuts.'); };
   return html`<section class="card">
     <div class="card-head"><h2 class="h2">Excel de cada client</h2>
       <${Pill} tone=${cloud ? (on ? 'ok' : 'warn') : 'neutral'} icon="table">${cloud ? (on ? 'Pujada automàtica' : 'En pausa') : 'Només descàrrega'}</${Pill}></div>
-    <p>L'app fa sola, des del que s'omple a l'app, un <strong>Excel per cada sessió</strong> (feta, planificada o prevista), un <strong>Excel per cada valoració</strong> i un <strong>Excel gegant de visió general</strong> per client, amb un calendari i un detall per cada mes. Tot es registra a l'app: els Excel són només de lectura i es refan sols quan hi ha canvis.</p>
-    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'ls sols a la carpeta de cada client (<em>Valoracions</em> i <em>Sessions</em>)</span></label>
-      <p class="muted small">Es pugen uns segons després de l'últim canvi. Si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira de la carpeta (queda a la paperera de reciclatge). Mai es toca cap altre fitxer.</p>
-      ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'client té', 'clients tenen')} Excel pendents de pujar.</p>`}
-      <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja els Excel de tots els clients</${Btn}></div>`
-      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) els Excel es descarreguen des de la fitxa de cada client (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es pugen sols a la carpeta del client.</p>`}
+    <p>L'app fa sola, des del que s'omple a l'app, <strong>un Excel per client</strong> (<em>seguiment_nomcognoms_01.xlsx</em>): un resum, <strong>un full per mes</strong> amb el calendari i cada sessió (feta, planificada o prevista al pla), el registre de totes les sessions i les <strong>valoracions</strong> (l'evolució i el detall de cadascuna). Tot es registra a l'app: l'Excel és només de lectura i es refà sol quan hi ha canvis.</p>
+    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'l sol a la carpeta de cada client</span></label>
+      <p class="muted small">Es puja uns segons després de l'últim canvi i substitueix l'anterior. Els Excel antics fets per l'app (els d'una sessió o una valoració, d'abans de l'Excel únic) es retiren de <em>Sessions</em> i <em>Valoracions</em> (queden a la paperera de reciclatge). Mai es toca cap altre fitxer.</p>
+      ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'client té l\'Excel pendent', 'clients tenen l\'Excel pendent')} de pujar.</p>`}
+      <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja l'Excel de tots els clients</${Btn}></div>`
+      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) l'Excel del client es descarrega des de la seva fitxa (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es puja sol a la carpeta del client.</p>`}
   </section>`;
 }
 

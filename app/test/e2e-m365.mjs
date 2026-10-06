@@ -303,52 +303,50 @@ let pid = null;
     if (!r || r['Encoder · pèrdua de velocitat (%)'] !== 25 || r['Encoder · V 1a rep millor (m/s)'] !== 0.8) throw new Error(`registre: ${JSON.stringify(r || {}).slice(0, 300)}`);
     await shot(page, 'm365-08-sessio-encoder');
   });
-  await step('Excel automàtics: la sessió, la valoració i la visió general es pugen sols a la carpeta', async () => {
+  await step('Excel automàtic: l\'Excel del client (sessions i valoracions) es puja sol a la carpeta', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);
     await page.waitForSelector('.syncbadge');
-    // Sense prémer res: l'app espera uns segons sense canvis i puja els Excel del client.
+    // Sense prémer res: l'app espera uns segons sense canvis i puja l'Excel del client.
     await page.waitForFunction((id) => Sync.info(id).state === 'ok' && Sync.queued() === 0, pid, { timeout: 70000 });
     await page.waitForSelector('.syncbadge >> text=Excel al dia a la carpeta');
     await shot(page, 'm365-07b-excel-al-dia');
-    const ses = files('Sessions').filter((n) => /^sessio_/.test(n));
-    if (ses.length !== 1 || !/^sessio_montseriera_\d{8}_01\.xlsx$/.test(ses[0])) throw new Error(`sessions: ${files('Sessions')}`);
-    if (!files('Sessions').includes('visiogeneral_montseriera_01.xlsx')) throw new Error('falta la visió general');
-    const val = files('Valoracions').filter((n) => /\.xlsx$/.test(n));
-    if (val.length !== 1 || !/^valoracioinicial_montseriera_\d{8}_01\.xlsx$/.test(val[0])) throw new Error(`valoracions: ${val}`);
+    const root = files().filter((n) => /\.xlsx$/.test(n));
+    if (JSON.stringify(root) !== JSON.stringify(['seguiment_montseriera_01.xlsx'])) throw new Error(`a la carpeta del client: ${files()}`);
+    if (files('Sessions').some((n) => /\.xlsx$/.test(n)) || files('Valoracions').some((n) => /\.xlsx$/.test(n))) throw new Error('no hi ha d\'haver Excel a les subcarpetes');
     // El contingut és el de l'app
-    const x = readXlsx(mock.child(sub('Sessions').id, ses[0]).content);
-    const a = x.sheet('Sessió');
-    if (a.get('A1') !== 'Sessió 1 · Montse Riera') throw new Error(`títol: ${a.get('A1')}`);
-    if (!/Força · dominant de genoll/.test(a.text())) throw new Error('falta l\'objectiu');
-    const rpeRow = a.rowOf(a.find(/^RPE global/));
-    if (a.get(`B${rpeRow}`) !== 7 || a.get(`B${rpeRow + 1}`) !== 60 || a.get(`B${rpeRow + 2}`) !== 420) throw new Error(`tancament: ${a.get(`B${rpeRow}`)} ${a.get(`B${rpeRow + 1}`)} ${a.get(`B${rpeRow + 2}`)}`);
-    if (!a.links.some((l) => /sharepoint\.com/.test(l.target))) throw new Error('falta l\'enllaç del vídeo del client');
-    const v = readXlsx(mock.child(sub('Valoracions').id, val[0]).content);
-    const fo = v.sheet('Força');
-    if (!(fo.get(fo.find(/^Leg extension/).replace('A', 'B')) === 410) || !fo.text().includes('350.5') && ![...fo.cells.values()].some((c) => c.v === 350.5)) throw new Error('falten els valors de la dinamometria');
-    const links = v.sheets.flatMap((sh) => sh.links.map((l) => l.target));
-    if (!links.some((t) => /legextensionquadriceps_montseriera_\d{8}_01\.mov/.test(decodeURIComponent(t)))) throw new Error('falta l\'enllaç al vídeo de la valoració');
-    if (!links.some((t) => /informekinvent_montseriera_\d{8}_01\.pdf/.test(decodeURIComponent(t)))) throw new Error('falta l\'enllaç al PDF de Kinvent');
-    const ov = readXlsx(mock.child(sub('Sessions').id, 'visiogeneral_montseriera_01.xlsx').content);
-    // La sessió té RPE i durada però no s'ha marcat com a feta: és una pendent (planificada) amb la seva càrrega.
-    if (ov.sheet('Resum').get('A6') !== 0 || ov.sheet('Resum').get('B6') !== 1) throw new Error(`fetes/pendents a la visió general: ${ov.sheet('Resum').get('A6')}/${ov.sheet('Resum').get('B6')}`);
-    if (!ov.names.includes('Registre') || ov.names.length < 4) throw new Error(`fulls: ${ov.names}`);
+    const x = readXlsx(mock.child(sub().id, 'seguiment_montseriera_01.xlsx').content);
+    const month = x.sheets.find((sh) => sh.find(/^SESSIÓ 1 · /));
+    if (!month) throw new Error(`falta la sessió al full del mes: ${x.names}`);
+    const t = month.text();
+    if (!/Força · dominant de genoll/.test(t)) throw new Error('falta l\'objectiu');
+    if (!/RPE 7 · 60 min · 420 UA/.test(t)) throw new Error('falta el tancament (RPE, durada i càrrega)');
+    if (!month.links.some((l) => /sharepoint\.com/.test(l.target))) throw new Error('falta l\'enllaç del vídeo del client');
+    const det = x.sheets.find((sh) => /^Val\. inicial /.test(sh.name));
+    if (!det) throw new Error(`falta el detall de la valoració: ${x.names}`);
+    if (!det.text().includes('Leg extension') || ![...det.cells.values()].some((c) => c.v === 410) || ![...det.cells.values()].some((c) => c.v === 350.5)) throw new Error('falten els valors de la dinamometria');
+    const links = det.links.map((l) => l.target);
+    if (!links.some((u) => /legextensionquadriceps_montseriera_\d{8}_01\.mov/.test(decodeURIComponent(u)))) throw new Error('falta l\'enllaç al vídeo de la valoració');
+    if (!links.some((u) => /informekinvent_montseriera_\d{8}_01\.pdf/.test(decodeURIComponent(u)))) throw new Error('falta l\'enllaç al PDF de Kinvent');
+    // La sessió té RPE i durada però no s'ha marcat com a feta: és una pendent (planificada).
+    if (x.sheet('Resum').get('A6') !== 0 || x.sheet('Resum').get('B6') !== 1) throw new Error(`fetes/pendents al resum: ${x.sheet('Resum').get('A6')}/${x.sheet('Resum').get('B6')}`);
+    for (const n of ['Resum', 'Valoracions', 'Registre']) if (!x.names.includes(n)) throw new Error(`fulls: ${x.names}`);
   });
-  await step('canviar el dia d\'una sessió: l\'Excel antic es retira i surt el del dia nou', async () => {
+  await step('canviar el dia d\'una sessió: l\'Excel es refà amb la sessió al seu mes nou', async () => {
     const sid = await page.evaluate((id) => Store.sessionsOf(id)[0].id, pid);
     await page.evaluate((id) => { location.hash = `#/sessio/${id}`; }, sid);
     await page.waitForSelector('#se-date');
-    const before = files('Sessions').filter((n) => /^sessio_/.test(n))[0];
     await page.fill('#se-date', '2027-03-15');
     await page.waitForTimeout(1100);
     await page.click('.editbar >> .menu >> nth=0');
-    await page.click('text=Puja els Excel a la carpeta ara');
-    await page.waitForSelector('.toast >> text=Excel desats a la carpeta');
-    const after = files('Sessions').filter((n) => /^sessio_/.test(n));
-    if (after.length !== 1 || after[0] !== 'sessio_montseriera_20270315_01.xlsx') throw new Error(`abans ${before} · després ${after}`);
+    await page.click('text=Puja l\'Excel a la carpeta ara');
+    await page.waitForSelector('.toast >> text=Excel del client desat a la carpeta');
+    const x = readXlsx(mock.child(sub().id, 'seguiment_montseriera_01.xlsx').content);
+    if (!x.names.includes('Mar27')) throw new Error(`fulls: ${x.names}`);
+    if (!x.sheet('Mar27').text().includes('SESSIÓ 1 · ')) throw new Error('la sessió no és al full de març');
+    if (JSON.stringify(files().filter((n) => /\.xlsx$/.test(n))) !== JSON.stringify(['seguiment_montseriera_01.xlsx'])) throw new Error(`fitxers: ${files()}`);
     await waitSaved(page);
   });
-  await step('planifica el mes: sessions planificades que surten a la carpeta i a la visió general', async () => {
+  await step('planifica el mes: sessions planificades que surten al full del mes de l\'Excel', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}/mes`; }, pid);
     await page.click('.month-head >> text=Planifica el mes');
     await page.waitForSelector('.dialog >> text=Planifica el mes');
@@ -368,21 +366,20 @@ let pid = null;
     if (made !== n) throw new Error(`sessions planificades: ${made} de ${n}`);
     await shot(page, 'm365-07d-calendari-planificat');
     await page.evaluate((id) => Sync.now(id), pid);
-    const ses = files('Sessions').filter((x) => /^sessio_/.test(x));
-    if (ses.length !== n + 1) throw new Error(`fitxers de sessió: ${ses.length} (esperats ${n + 1})`);
-    const ov = readXlsx(mock.child(sub('Sessions').id, 'visiogeneral_montseriera_01.xlsx').content);
-    const monthName = await page.evaluate((m) => U.fmtMonth(m), monthVal);
-    if (!ov.names.includes(monthName) || !ov.names.includes(`${monthName} · detall`)) throw new Error(`fulls: ${ov.names}`);
-    if (!ov.sheet(monthName).text().includes('PLANIFICADA')) throw new Error('el calendari del mes no mostra les planificades');
+    const x = readXlsx(mock.child(sub().id, 'seguiment_montseriera_01.xlsx').content);
+    const sheet = await page.evaluate((m) => ExcelMonth.sheetName(m), monthVal);
+    if (!x.names.includes(sheet)) throw new Error(`fulls: ${x.names}`);
+    const planned = (x.sheet(sheet).text().match(/· PLANIFICADA/g) || []).length;
+    if (planned !== n) throw new Error(`sessions planificades al full ${sheet}: ${planned} (esperades ${n})`);
   });
   await step('configuració: pausar la pujada automàtica dels Excel', async () => {
     await page.evaluate(() => { location.hash = '#/configuracio'; });
     await page.waitForSelector('text=Excel de cada client');
-    await page.locator('label.check', { hasText: 'Puja\'ls sols a la carpeta' }).locator('input').uncheck();
+    await page.locator('label.check', { hasText: 'Puja\'l sol a la carpeta' }).locator('input').uncheck();
     await waitSaved(page);
     const st = await page.evaluate((id) => Sync.info(id).state, pid);
     if (st !== 'paused') throw new Error(`estat: ${st}`);
-    await page.locator('label.check', { hasText: 'Puja\'ls sols a la carpeta' }).locator('input').check();
+    await page.locator('label.check', { hasText: 'Puja\'l sol a la carpeta' }).locator('input').check();
     await waitSaved(page);
   });
   await step('configuració: on són les dades', async () => {

@@ -8,9 +8,10 @@ L'app és la mateixa, però les dades es desen a la **carpeta compartida** de l'
 ├── 📊 EON Life · Base de dades.xlsx      ← totes les dades, com un Excel
 └── 📁 EON Life · Clients
     ├── 📁 Puig, Laura · P-…
-    │   ├── 📁 Valoracions                ← valoració inicial i re-tests (Excel), PDF de Kinvent, informe mèdic i fotos
+    │   ├── 📊 seguiment_laurapuig_01.xlsx  ← l'Excel del client: un full per mes amb les sessions i les valoracions
+    │   ├── 📁 Valoracions                ← PDF de Kinvent, informe mèdic i fotos
     │   │   └── 📁 Vídeos valoracions     ← els vídeos dels tests
-    │   └── 📁 Sessions                   ← un Excel per sessió i l'Excel gegant de visió general
+    │   └── 📁 Sessions
     │       └── 📁 Vídeos sessions d'entrenament
     └── 📁 …
 ```
@@ -20,9 +21,7 @@ de sèrie (`_01`, `_02`…) per si n'hi ha més d'un el mateix dia:
 
 | Què | Exemple |
 |---|---|
-| Valoració inicial / re-test | `valoracioinicial_lauravidalserra_20260702_01.xlsx` · `retest_lauravidalserra_20261001_01.xlsx` |
-| Sessió d'entrenament | `sessio_lauravidalserra_20261002_01.xlsx` |
-| Visió general del client | `visiogeneral_lauravidalserra_01.xlsx` |
+| Excel del client (sessions i valoracions) | `seguiment_lauravidalserra_01.xlsx` |
 | Vídeo d'un exercici | `hipthrust_lauravidalserra_20261002_01.mp4` |
 | Vídeo o foto d'un test | `singlelegsquatdreta_lauravidalserra_20260702_01.mp4` · `testthomasdreta_lauravidalserra_20260702_01.jpg` |
 | Informe de Kinvent / informe mèdic | `informekinvent_lauravidalserra_20260702_01.pdf` · `informemedic_lauravidalserra_20260702_01.pdf` |
@@ -36,44 +35,47 @@ Tothom qui tingui accés a la carpeta pot obrir l'Excel per mirar-lo, filtrar-lo
 Les dades, però, **s'omplen i es corregeixen sempre des de l'app**: si es canvia una cel·la directament a
 l'Excel, l'app no la llegeix i es perd la pròxima vegada que es desi aquell registre.
 
-## Els Excel de cada client (es fan sols)
+## L'Excel de cada client (es fa sol)
 
-A més de la base de dades, l'app **fa i manté sola** els Excel de cada client, ben presentats i amb els colors de
-l'app. No cal obrir-los ni omplir-los: tot es registra a l'app i els Excel es refan quan hi ha canvis.
+A més de la base de dades, l'app **fa i manté sola un Excel per client** (`seguiment_<nomcognoms>_01.xlsx`, a
+l'arrel de la carpeta del client), amb el format de l'Excel de control que feia servir l'equip (un full per mes amb
+les setmanes en columnes) i els colors de l'app. No cal obrir-lo ni omplir-lo: tot es registra a l'app i l'Excel es
+refà quan hi ha canvis. Pestanyes:
 
-- **Un Excel per cada sessió** (a *Sessions*): dades, wellness, tancament (RPE, durada, càrrega, dolor, decisió),
-  tots els exercicis dels 6 blocs amb la prescripció, l'última vegada que els va fer, l'encoder ADR i els enllaços als
-  vídeos. També es fa per a les sessions **planificades** (futures) i per a les **previstes al pla**, i passa sol de
-  *Planificada* a *Sense tancar* si la data ja ha passat.
-- **Un Excel per cada valoració** (a *Valoracions*): resum amb els punts d'atenció, **comparació amb l'anterior**
-  (millora en verd, empitjora en vermell), mobilitat, força, rendiment, patrons de moviment i els enllaços a les fotos,
-  els vídeos i el PDF de Kinvent.
-- **Un Excel gegant de visió general** (a *Sessions*, `visiogeneral_…`): *Resum* (perfil, dates clau amb els dies
-  que fa de la lesió o l'operació, plans, valoracions i càrrega setmanal), **dues pestanyes per mes** (el
-  *calendari* d'un cop d'ull i el *detall* de totes les sessions amb les setmanes en columnes, com l'Excel de
-  control de l'equip) i un *Registre* amb una fila per sessió per filtrar. S'omple sol a mesura que es fan, es
-  completen i es planifiquen sessions.
+- **Resum**: sessions fetes i pendents, càrrega total, RPE i wellness mitjans, perfil del client, dates clau (amb els
+  dies que fa de la lesió o l'operació), plans, valoracions (amb l'enllaç al detall) i càrrega setmanal.
+- **Valoracions**: totes les valoracions l'una al costat de l'altra (dreta i esquerra) i el **canvi entre les dues
+  últimes** (millora en verd, empitjora en vermell).
+- **Un full per mes** (`Oct26`, `Nov26`…): a dalt, el **calendari** de cada setmana amb la sessió de cada dia i el seu
+  estat, l'objectiu i el focus de cada bloc, l'RPE, el temps, la **càrrega (RPE × minuts)**, el wellness, el dolor, les
+  observacions i el total de la setmana; a sota, **cada sessió sencera** (dia, professional, objectiu, wellness i els
+  exercicis de cada bloc amb GM · contracció · posició · lateralitat · exercici · material · càrrega · sèries ·
+  repeticions · observacions, l'encoder sèrie a sèrie, els enllaços als vídeos i el tancament). Hi surten les sessions
+  fetes, les **planificades**, les que han quedat **sense tancar** i les **previstes al pla**, cadascuna amb el seu color.
+- **Registre**: una fila per sessió, per filtrar i ordenar (amb l'enllaç a la sessió dins del seu mes).
+- **Una pestanya per valoració** (`Val. inicial 02-07-26`, `Re-test 01-10-26`…): resum amb els indicadors i els punts
+  d'atenció, conclusions, i tots els tests (mobilitat, força, Y-Balance, salts, encoder, bicicleta, patrons de
+  moviment i altres mesures) amb els enllaços a les fotos, els vídeos i el PDF de Kinvent.
 
-Els Excel es pugen sols a la carpeta uns segons després de l'últim canvi (i en acabar una sessió); a la fitxa del
-client, sota el nom, es veu si són **al dia** o pendents, amb el botó *Puja'ls ara* i el menú **Excel**
-(obre la carpeta, descarrega la visió general o tot en un ZIP). A més, **un cop al dia** (en obrir l'app o si es deixa
-oberta de nit) es refà el que depèn de la data —la visió general i les sessions encara per fer— dels clients que han
-entrenat o tenen sessions previstes en els últims 45 dies, perquè *Sense tancar*, la propera sessió o el calendari del
-mes siguin sempre els d'avui encara que ningú hagi tocat res. Cada pujada **substitueix** el fitxer anterior
-(sense còpies repetides); si una sessió es canvia de dia o s'elimina, el seu Excel antic es retira (queda a la
-paperera de reciclatge de OneDrive/SharePoint). L'app **no toca mai cap altre fitxer** de la carpeta: només els Excel
-amb aquests noms. A *Configuració › Excel de cada client* es pot **pausar** la pujada automàtica o tornar a fer-los
-tots. Els fitxers estan protegits contra escriptura (sense contrasenya) perquè ningú els canviï per error: al *Registre*
-de la visió general es pot filtrar i ordenar sense treure res; si es vol escriure en un altre lloc, cal treure la
-protecció, però els canvis es perdrien la pròxima vegada que l'app refaci el fitxer.
+L'Excel es puja sol a la carpeta uns segons després de l'últim canvi (i en acabar una sessió); a la fitxa del client,
+sota el nom, es veu si és **al dia** o pendent, amb el botó *Puja'l ara* i el menú **Excel** (obre l'Excel o les
+carpetes, o descarrega'l). A més, **un cop al dia** (en obrir l'app o si es deixa oberta de nit) es refà l'Excel dels
+clients que han entrenat o tenen sessions previstes en els últims 45 dies, perquè *Sense tancar*, la propera sessió o el
+calendari del mes siguin sempre els d'avui encara que ningú hagi tocat res. Cada pujada **substitueix** el fitxer
+anterior (sense còpies repetides). La primera vegada que s'obre aquesta versió, l'app refà l'Excel de **tots** els
+clients i retira els que feia abans (un per sessió i un per valoració a *Sessions* i *Valoracions*, i la visió general),
+que queden a la paperera de reciclatge de OneDrive/SharePoint. L'app **no toca mai cap altre fitxer** de la carpeta: només els Excel amb aquests noms. A
+*Configuració › Excel de cada client* es pot **pausar** la pujada automàtica o tornar-los a fer tots. Els fulls estan
+protegits contra escriptura (sense contrasenya) perquè ningú els canviï per error: al *Registre* es pot filtrar i ordenar
+sense treure res; si es vol escriure en un altre lloc, cal treure la protecció, però els canvis es perdrien la pròxima
+vegada que l'app refaci el fitxer.
 
 ### Planificar sessions per endavant
 
 A *Seguiment mensual* de cada client, **Planifica el mes** crea d'una vegada les sessions d'un mes (per exemple,
 dilluns, dimecres i divendres), cadascuna partint de l'última sessió d'aquell dia de la setmana, d'una plantilla o en
 blanc, i amb la progressió d'exercicis que es triï. **Copia la setmana** a les setmanes següents repeteix una setmana
-dissenyada. Les sessions queden planificades, es poden ajustar una a una i surten a l'Excel de visió general i amb el seu
-propi Excel a la carpeta.
+dissenyada. Les sessions queden planificades, es poden ajustar una a una i surten al full del mes de l'Excel del client.
 
 ---
 
@@ -212,8 +214,8 @@ copieu-hi només el que calgui per a l'entrenament.
 | «Sense connexió · es desarà en tornar» | Els canvis es guarden a la tauleta i s'envien sols quan torna la connexió. |
 | «Sessió caducada · torna a entrar» | Premeu-ho i torneu a entrar: no es perd res. |
 | «L'Excel està bloquejat» | Algú el té obert en una versió antiga d'Excel que no permet l'edició simultània. L'app ho torna a provar sola. |
-| «Excel al dia a la carpeta, menys 1 que no s'ha pogut fer» | Un registre (una sessió, una valoració o la visió general) té dades que l'app no sap posar a l'Excel; la resta s'ha pujat. Cal revisar-ne els camps o avisar-nos. |
-| «Excel sense pujar: …» | Normalment és la xarxa o la sessió de Microsoft: es torna a provar sola (20 s, 1 min, 2 min, 5 min). *Puja'ls ara* ho força. |
+| «No s'ha pogut fer l'Excel: revisa les dades d'aquest client» | Alguna dada del client (d'una sessió o d'una valoració) no es pot posar a l'Excel; a la carpeta es queda l'Excel anterior. Cal revisar-ne els camps o avisar-nos. |
+| «Excel sense pujar: …» | Normalment és la xarxa o la sessió de Microsoft: es torna a provar sola (20 s, 1 min, 2 min, 5 min). *Puja'l ara* ho força. |
 | Un company no veu el que acabo d'afegir | Les dades es carreguen en obrir l'app. Que premi **Actualitza les dades** al menú lateral. |
 
 ## Dades i privacitat

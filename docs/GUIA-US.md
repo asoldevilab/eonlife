@@ -327,43 +327,49 @@ sessions previstes del pla d'entrenament.
 - **Copia la setmana** (a la columna *Setmana*): copia les sessions d'aquella setmana a les setmanes següents (fins
   a 12), també amb progressió, saltant els dies ocupats.
 
-## Els Excel del client
+## L'Excel del client
 
-L'app **fa sola els Excel** a partir del que s'omple a l'app. Mai cal omplir-los ni obrir-los per treballar:
+L'app **fa sola un Excel per client** (`seguiment_lauravidalserra_01.xlsx`) a partir del que s'omple a l'app, amb el
+format de l'Excel de control de l'equip (un full per mes amb les setmanes en columnes). Mai cal omplir-lo ni obrir-lo
+per treballar. Pestanyes:
 
-- **Un Excel per cada sessió**, feta, planificada o prevista al pla: dades, wellness, tancament, els 6 blocs amb tota
-  la prescripció, l'última vegada que es va fer cada exercici, l'encoder i els enllaços als vídeos.
-- **Un Excel per cada valoració** (inicial, re-test…): resum i punts d'atenció, **comparació amb l'anterior**,
-  mobilitat, força, rendiment, patrons, i els enllaços a fotos, vídeos i PDF.
-- **Un Excel gegant de visió general** per client: perfil, dates clau, plans, valoracions i càrrega setmanal; i, per
-  cada mes, un **calendari** i un **detall** de totes les sessions (com l'Excel de control de l'equip), a més d'un
-  *Registre* per filtrar. S'omple sol: a mesura que es fan, es completen o es planifiquen sessions, apareixen aquí.
+- **Resum**: sessions fetes i pendents, càrrega total, RPE i wellness mitjans, perfil, dates clau, plans, valoracions
+  i càrrega setmanal.
+- **Valoracions**: totes les valoracions l'una al costat de l'altra, amb el canvi entre les dues últimes.
+- **Un full per mes** (`Oct26`, `Nov26`…): a dalt, el **calendari** de cada setmana (sessió i estat de cada dia,
+  objectiu i focus dels blocs, RPE, temps, càrrega, wellness, dolor, observacions i total de la setmana); a sota,
+  **cada sessió sencera** amb els exercicis de cada bloc (GM, contracció, posició, lateralitat, exercici, material,
+  càrrega, sèries, repeticions, observacions), l'encoder sèrie a sèrie, els vídeos i el tancament. Verd = feta,
+  beix = planificada, taronja = sense tancar, gris = prevista al pla o descans. Clicant la data d'un dia es va a la
+  sessió.
+- **Registre**: una fila per sessió per filtrar i ordenar.
+- **Una pestanya per valoració** (`Val. inicial 02-07-26`, `Re-test 01-10-26`…) amb tot el detall, les fotos, els
+  vídeos i els informes.
 
-Amb **Microsoft 365** es pugen sols a la carpeta del client (*Valoracions* i *Sessions*) uns segons després de
-l'últim canvi (i un cop al dia es refà el que depèn de la data, com *Sense tancar* o la propera sessió); a la
-capçalera de la fitxa es veu si són **al dia**. El menú **Excel** de la fitxa permet pujar-los
-ara, obrir la carpeta o descarregar-ne la visió general o tot en un ZIP. A la **versió local** (sense núvol) es
-descarreguen des del menú **Excel** de la fitxa i des del menú de cada sessió i de cada valoració. Els noms són
-`sessio_lauravidalserra_20261002_01.xlsx`, `valoracioinicial_…`, `retest_…` i `visiogeneral_…`.
+Amb **Microsoft 365** es puja sol a l'arrel de la carpeta del client uns segons després de l'últim canvi (i un cop al
+dia es refà perquè *Sense tancar*, la propera sessió o el calendari siguin els d'avui); a la capçalera de la fitxa es
+veu si és **al dia**. El menú **Excel** de la fitxa permet pujar-lo ara, obrir-lo, obrir les carpetes *Sessions* i
+*Valoracions* (on van les fotos, els vídeos i els PDF) o descarregar-lo. A la **versió local** (sense núvol) es
+descarrega des del menú **Excel** de la fitxa i des del menú de cada sessió i de cada valoració.
 
-Els Excel són **només de lectura** (protegits sense contrasenya): les dades es corregeixen sempre a l'app i
-l'Excel es refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada o refer-los tots.
+L'Excel és **només de lectura** (protegit sense contrasenya): les dades es corregeixen sempre a l'app i l'Excel es
+refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada o refer-los tots.
 
-**Què fas a l'app i on surt als Excel** (no cal fer res més: tot es reflecteix sol)
+**Què fas a l'app i on surt a l'Excel** (no cal fer res més: tot es reflecteix sol)
 
-| A l'app | Als Excel |
+| A l'app | A l'Excel del client |
 |---|---|
-| Crear o editar el client: dades, objectiu, motiu de consulta, antecedents, lesió o operació, esport, limitacions | **Visió general › Resum**: perfil del client i dates clau (amb els dies que fa de la lesió o l'operació). El nom surt a tots els títols i als noms dels fitxers (si es canvia, tots els fitxers passen al nom nou) |
-| Dissenyar una sessió (data, blocs, exercicis, prescripció, mètode, notes) o planificar-la | **Excel de la sessió** (*Sessió* i *Exercicis*) i, a la visió general, el **calendari** i el **detall** del mes i el *Registre* (estat *Planificada*; passa sola a *Sense tancar* si la data ja ha passat) |
-| *Planifica el mes* / *Copia la setmana* | Una sessió i un Excel per a cada dia nou; surten al calendari del mes |
-| Pla d'entrenament amb progressió | *Resum* › Plans, i les sessions que encara no s'han fet surten com a *Prevista al pla* (calendari i un Excel cadascuna) |
-| Wellness a l'inici de la sessió | **Excel de la sessió** › Wellness (5 preguntes, total sobre 25 i observacions) i, a la visió general, el wellness mitjà i la càrrega setmanal |
-| Marcar els exercicis fets | *Exercicis* › **Fet**; el dia es pinta de verd al calendari |
-| Tancar la sessió (RPE, durada, dolor, decisió) | *Sessió* › Tancament amb la **càrrega (UA = RPE × minuts)**; a la visió general, la càrrega del mes i la setmanal |
-| Encoder (ADR) i vídeo del client o de demostració | Full *Encoder* i enllaços a *Exercicis* (Vídeo client, Demo) |
-| Valoració inicial o re-test (tests, Kinvent, salts, patrons, conclusions) | **Excel de la valoració**: *Resum*, *Comparació* amb l'anterior, *Mobilitat*, *Força*, *Rendiment*, *Patrons* i *Altres mesures* |
-| Fotos, vídeos, PDF de Kinvent i informe mèdic | A la carpeta *Valoracions* (i *Vídeos valoracions*), amb l'enllaç des de l'Excel de la valoració; els vídeos de les sessions, a *Sessions › Vídeos sessions d'entrenament* |
-| Eliminar una sessió o canviar-la de dia | L'Excel antic es retira de la carpeta (queda a la paperera de reciclatge) i se'n fa un de nou |
+| Crear o editar el client: dades, objectiu, motiu de consulta, antecedents, lesió o operació, esport, limitacions | **Resum**: perfil del client i dates clau (amb els dies que fa de la lesió o l'operació). El nom surt als títols i al nom del fitxer (si es canvia, el fitxer passa al nom nou) |
+| Dissenyar una sessió (data, blocs, exercicis, prescripció, mètode, notes) o planificar-la | **Full del mes**: el dia al calendari i la sessió sencera a sota; i una fila al *Registre* (estat *Planificada*; passa a *Sense tancar* si la data ja ha passat) |
+| *Planifica el mes* / *Copia la setmana* | Les sessions noves surten al full del mes |
+| Pla d'entrenament amb progressió | *Resum* › Plans, i les sessions que encara no s'han fet surten al full del mes com a *Prevista al pla* |
+| Wellness a l'inici de la sessió | Full del mes: el total al calendari i les 5 respostes a la sessió; al *Resum*, el wellness mitjà i el setmanal |
+| Marcar els exercicis fets | ✔ davant de l'exercici; el dia es pinta de verd al calendari |
+| Tancar la sessió (RPE, durada, dolor, decisió) | Calendari: RPE, temps, **càrrega (UA = RPE × minuts)**, dolor i observacions, i el total de la setmana; a sota, el tancament de la sessió |
+| Encoder (ADR) i vídeo del client o de demostració | Una fila amb cada sèrie de l'encoder sota l'exercici; el nom de l'exercici obre el vídeo del client i *▶ demostració* el de demostració |
+| Valoració inicial o re-test (tests, Kinvent, salts, patrons, conclusions) | **Valoracions** (evolució) i la **pestanya de la valoració** amb tot el detall |
+| Fotos, vídeos, PDF de Kinvent i informe mèdic | A les carpetes *Valoracions* (i *Vídeos valoracions*) i *Sessions › Vídeos sessions d'entrenament*, amb l'enllaç des de l'Excel |
+| Eliminar una sessió o canviar-la de dia | Desapareix del seu dia (o passa al dia i al mes nous) a l'Excel |
 
 ## Biblioteca
 

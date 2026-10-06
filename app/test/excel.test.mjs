@@ -1,4 +1,4 @@
-// Proves dels Excel que genera l'app (08-xlsxdoc.js, 09-excel-*.js, 09-names.js, 09-sync.js) i de la planificació del mes.
+// Proves de l'Excel del client que genera l'app (08-xlsxdoc.js, 09-excel-*.js, 09-names.js, 09-sync.js) i de la planificació del mes.
 //   node --test app/test/excel.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { loadCore } from './load-core.mjs';
 import { createGraphMock } from './graph-mock.mjs';
-import { readXlsx, unzip } from './xlsx-read.mjs';
+import { readXlsx } from './xlsx-read.mjs';
 
 const STAMP = '05/10/2026 18:30';
 // Rellotge fix (5 d'octubre de 2026): les dades de prova són relatives a «avui» i així els tests valen qualsevol dia.
@@ -33,6 +33,14 @@ const numCells = (sheet) => [...sheet.cells.values()].filter((c) => typeof c.v =
 const Calc_itemCount = (core, s) => core.Calc.itemCount(s);
 const hasNum = (sheet, n) => numCells(sheet).some((v) => Math.abs(v - n) < 1e-9);
 
+// L'Excel del client fet amb les dades d'un client de la demo.
+async function clientBook(core, Store, pid, today = '2026-10-05') {
+  const d = core.ExcelSet.data(pid, Store);
+  const files = core.ExcelSet.plan(d, { today });
+  return { d, files, x: readXlsx((await files[0].make({}).build({ stamp: STAMP })).bytes) };
+}
+const xfsOf = (x) => [...x.zip['xl/styles.xml'].data.toString('utf8').match(/<cellXfs[\s\S]*?<\/cellXfs>/)[0].matchAll(/<xf [^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map((m) => m[0]);
+
 // ── Noms ──
 test('noms: sense accents ni espais, amb data i número de sèrie', () => {
   const { core } = setup();
@@ -49,16 +57,18 @@ test('noms: sense accents ni espais, amb data i número de sèrie', () => {
   assert.equal(Names.file('Hip thrust', p, '2026-10-02', '.mp4', []), 'hipthrust_lauravidalserra_20261002_01.mp4');
   assert.equal(Names.file('Hip thrust', p, '2026-10-02', '.mp4', ['hipthrust_lauravidalserra_20261002_01.mp4']), 'hipthrust_lauravidalserra_20261002_02.mp4');
   assert.equal(Names.file('Hip thrust', p, '2026-10-02', '.mp4', ['hipthrust_lauravidalserra_20261002_01.mp4', 'altre.mp4', 'hipthrust_lauravidalserra_20261002_07.mp4']), 'hipthrust_lauravidalserra_20261002_08.mp4');
-  assert.equal(Names.sessionFile(p, '2026-10-02', 1), 'sessio_lauravidalserra_20261002_01.xlsx');
-  assert.equal(Names.assessmentFile(p, 'inicial', '2026-07-02', 1), 'valoracioinicial_lauravidalserra_20260702_01.xlsx');
-  assert.equal(Names.assessmentFile(p, 'retest', '2026-10-01', 2), 'retest_lauravidalserra_20261001_02.xlsx');
-  assert.equal(Names.overviewFile(p), 'visiogeneral_lauravidalserra_01.xlsx');
-  // Només es reconeixen com a propis els Excel que fa l'app.
+  // L'Excel del client
+  assert.equal(Names.clientFile(p), 'seguiment_lauravidalserra_01.xlsx');
+  assert.ok(Names.OWN.root.test('seguiment_lauravidalserra_01.xlsx'));
+  assert.ok(!Names.OWN.root.test('seguiment de la Laura.xlsx'));
+  assert.ok(!Names.OWN.root.test('pla de la Laura.xlsx'));
+  // Els Excel d'abans de l'Excel únic es reconeixen (per retirar-los); qualsevol altre fitxer, no.
   assert.ok(Names.OWN.sessions.test('sessio_lauravidalserra_20261002_01.xlsx'));
   assert.ok(Names.OWN.sessions.test('visiogeneral_lauravidalserra_01.xlsx'));
   assert.ok(!Names.OWN.sessions.test('notes de l\'equip.xlsx'));
   assert.ok(!Names.OWN.sessions.test('hipthrust_lauravidalserra_20261002_01.mp4'));
   assert.ok(Names.OWN.assess.test('retest_lauravidalserra_20261001_01.xlsx'));
+  assert.ok(Names.OWN.assess.test('valoracioinicial_lauravidalserra_20260702_01.xlsx'));
   assert.ok(!Names.OWN.assess.test('informekinvent_lauravidalserra_20260702_01.pdf'));
 });
 
@@ -123,56 +133,98 @@ test('XlsxDoc: l\'hora de generació se substitueix i les combinades que se supe
   assert.throws(() => { const d = XlsxDoc.create({}); d.sheet('X'); d.sheet('x'); }, /repetit/);
 });
 
-// ── Excel d'una sessió ──
-test('Excel de la sessió feta: dades, wellness, tancament, exercicis i encoder', async () => {
-  const { core, db } = setup();
-  const { ExcelSession, Names } = core;
-  const p = db.patients['P-DEMO-LAURA'];
-  const sessions = sessionsOf(db, p.id);
-  const s = sessions.find((x) => x.number === 15);
-  const doc = ExcelSession.build({ patient: p, session: s, sessions, settings: db.settings, today: '2026-10-05' });
-  const x = readXlsx((await doc.build({ stamp: STAMP })).bytes);
-  assert.deepEqual(x.names, ['Sessió', 'Exercicis', 'Encoder']);
-  const a = x.sheet('Sessió');
-  assert.equal(a.get('A1'), 'Sessió 15 · Laura Vidal Serra');
-  assert.match(a.text(), /Força de tren inferior · dominant de genoll/);
-  assert.match(a.text(), /Feta/);
-  assert.equal(a.get(a.find(/^Total \(màxim 25\)/).replace('A', 'B')), 20, 'wellness total');
-  // Càrrega = RPE × durada (fórmula)
-  const loadRow = a.rowOf(a.find(/^Càrrega de la sessió/));
-  assert.match(a.formula(`B${loadRow}`), /^IF\(COUNT\(B\d+,B\d+\)=2,B\d+\*B\d+,""\)$/);
-  assert.equal(a.get(`B${loadRow}`), 455);
-  // Exercicis: tots els noms i la prescripció
-  const e = x.sheet('Exercicis');
-  for (const b of s.blocks) for (const it of b.items) assert.ok(e.find(new RegExp(`^${it.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)), `falta ${it.name}`);
-  assert.ok(e.find(/^Back squat$/));
-  assert.ok(e.text().includes('V 1a rep 0,76 m/s'), 'resum de l\'encoder');
-  const enc = x.sheet('Encoder');
-  assert.equal(enc.get(enc.find(/^Back squat$/)), 'Back squat');
-  assert.match(Names.sessionFile(p, s.date, 1), /^sessio_lauravidalserra_20261002_01\.xlsx$/);
+// ── L'Excel del client ──
+test('Excel del client: un sol fitxer amb resum, valoracions, un full per mes, registre i el detall de cada valoració', async () => {
+  const { core, Store } = setup();
+  const { ExcelSet } = core;
+  const { d, files, x } = await clientBook(core, Store, 'P-DEMO-LAURA');
+  assert.equal(files.length, 1, 'un sol fitxer per client');
+  assert.equal(files[0].key, 'C:client');
+  assert.equal(files[0].folder, 'root', 'a l\'arrel de la carpeta del client');
+  assert.equal(files[0].name, 'seguiment_lauravidalserra_01.xlsx');
+  assert.deepEqual(x.names, ['Resum', 'Valoracions', 'Ago26', 'Set26', 'Oct26', 'Registre', 'Val. inicial 02-07-26', 'Re-test 01-10-26']);
+  // S'obre pel mes actual
+  assert.match(x.zip['xl/workbook.xml'].data.toString('utf8'), /activeTab="4"/);
+  // Registre: una fila per sessió (reals i previstes), amb l'enllaç a la sessió dins del full del mes
+  const items = ExcelSet.items(d);
+  const reg = x.sheet('Registre');
+  const dataRows = [...reg.cells.keys()].filter((k) => /^A\d+$/.test(k) && reg.rowOf(k) >= 6);
+  assert.equal(dataRows.length, items.length);
+  assert.ok([...reg.cells.entries()].some(([k, c]) => /^L\d+$/.test(k) && /^IF\(COUNT\(J\d+,K\d+\)=2,J\d+\*K\d+,""\)$/.test(c.f || '')));
+  const states = new Set([...reg.cells.entries()].filter(([k]) => /^E\d+$/.test(k) && reg.rowOf(k) >= 6).map(([, c]) => c.v));
+  assert.deepEqual([...states].sort(), ['Feta', 'Planificada', 'Prevista al pla'].sort());
+  const months = new Set(['Ago26', 'Set26', 'Oct26']);
+  const regLinks = reg.links.filter((l) => /^Q\d+$/.test(l.ref));
+  assert.equal(regLinks.length, items.filter((s) => s.date <= '2026-10-31').length, 'cada sessió enllaça amb el seu full del mes');
+  assert.ok(regLinks.every((l) => months.has(l.location.match(/^'([^']+)'!/)[1])));
+  // Resum: targetes amb fórmules sobre el registre, perfil i enllaços al detall de cada valoració
+  const res = x.sheet('Resum');
+  assert.equal(res.get('A6'), 15);
+  assert.match(res.formula('A6'), /COUNTIF\('Registre'!\$E\$6:\$E\$\d+,"Feta"\)/);
+  assert.equal(res.get('C6'), 6295);
+  assert.match(res.text(), /Tornar a competir en trail de 42 km/);
+  assert.match(res.text(), /Evitar baixades i salts/);
+  assert.deepEqual(res.links.map((l) => l.location), ['\'Val. inicial 02-07-26\'!A1', '\'Re-test 01-10-26\'!A1']);
+  // Valoracions: les dues l'una al costat de l'altra, amb el canvi calculat per l'Excel
+  const val = x.sheet('Valoracions');
+  assert.deepEqual(val.links.map((l) => l.location), ['\'Val. inicial 02-07-26\'!A1', '\'Re-test 01-10-26\'!A1']);
+  assert.ok([...val.cells.values()].some((c) => c.f && /^IF\(COUNT\([A-Z]+\d+,[A-Z]+\d+\)=2,[A-Z]+\d+-[A-Z]+\d+,""\)$/.test(c.f)), 'canvi com a fórmula');
+  assert.match(val.text(), /Y-Balance · composite/);
+  assert.match(x.sheet('Re-test 01-10-26').text(), /Re-test · Laura Vidal Serra/);
+  // Fulls protegits sense contrasenya; només les files del registre estan desbloquejades (així es pot ordenar i filtrar)
+  assert.match(reg.xml, /<sheetProtection sheet="1"[^>]*sort="0"[^>]*autoFilter="0"/);
+  const xfs = xfsOf(x);
+  const unlocked = (sheet, ref) => /<protection locked="0"\/>/.test(xfs[sheet.cells.get(ref).s] || '');
+  for (const ref of ['A6', 'F6', 'Q6', `Q${5 + items.length}`]) assert.ok(unlocked(reg, ref), `${ref} del registre desbloquejada`);
+  assert.ok(!unlocked(reg, 'A5'), 'la capçalera del registre, no');
+  assert.ok(!unlocked(res, 'A6') && !unlocked(x.sheet('Oct26'), 'B1'), 'la resta de fulls queda bloquejada');
 });
 
-test('Excel de la sessió planificada i de la prevista al pla', async () => {
-  const { core, db } = setup();
-  const { ExcelSession, ExcelSet, Store } = core;
-  const p = db.patients['P-DEMO-LAURA'];
-  const d = ExcelSet.data(p.id, Store);
-  const planned = d.sessions.find((s) => s.status !== 'feta');
-  const x = readXlsx((await ExcelSession.build({ patient: p, session: planned, sessions: d.sessions, settings: d.settings, today: planned.date }).build({ stamp: STAMP })).bytes);
-  const a = x.sheet('Sessió');
-  const stRow = a.rowOf(a.find(/^Estat$/));
-  assert.equal(a.get(`B${stRow}`), 'Planificada');
-  assert.match(a.formula(`B${stRow}`), /TODAY\(\)/, 'passa sola a «Sense tancar»');
-  assert.ok(!a.find(/^Tancament de la sessió$/), 'una sessió planificada no té tancament');
-  assert.ok(!a.find(/^Wellness/), 'ni wellness');
-  assert.equal(a.cfs.length, 2);
-  // Una sessió prevista del pla
-  const ghost = ExcelSet.ghosts(d)[0];
-  assert.ok(ghost, 'el pla de la demo té sessions previstes');
-  const g = readXlsx((await ExcelSession.build({ patient: p, session: ghost, sessions: d.sessions, plan: d.plans[0], settings: d.settings, today: '2026-10-05' }).build({ stamp: STAMP })).bytes);
-  assert.match(g.sheet('Sessió').get('A1'), /^Sessió prevista S\d+ · Laura Vidal Serra$/);
-  assert.match(g.sheet('Sessió').text(), /Prevista al pla/);
-  assert.match(g.sheet('Sessió').text(), /Bloc 2 · força i potència|Pla d'entrenament/);
+test('full del mes a l\'estil de l\'Oriol: calendari, dades de cada dia i les sessions senceres a sota', async () => {
+  const { core, Store } = setup();
+  const { x } = await clientBook(core, Store, 'P-DEMO-LAURA');
+  const o = x.sheet('Oct26');
+  // Setmana 1 (del 28 de setembre al 4 d'octubre): dates, sessió, estat, RPE · temps
+  assert.equal(o.get('A1'), 'S1');
+  assert.equal(o.get('B1'), core.XlsxDoc.serial('2026-09-28'));
+  assert.equal(o.get('B2'), 'Sessió 13');
+  assert.equal(o.get('B3'), 'Feta ✔');
+  assert.equal(o.get('N3'), 'OFF', 'el diumenge sense sessió és descans');
+  // Càrrega del dia = RPE × temps i total de la setmana, calculats per l'Excel
+  assert.equal(o.formula('B8'), 'IF(COUNT(B6,B7)=2,B6*B7,"")');
+  assert.equal(o.get('B8'), 455);
+  assert.equal(o.formula('B12'), 'SUM(B8,D8,F8,H8,J8,L8,N8)');
+  assert.equal(o.get('B12'), 1300);
+  // La data del calendari porta a la sessió, que és a sota amb totes les columnes de l'Oriol
+  const s15 = o.find(/^SESSIÓ 15 · FETA/);
+  assert.ok(s15);
+  assert.equal(o.links.find((l) => l.ref === 'J1').location, `'Oct26'!${s15}`);
+  const txt = o.text();
+  for (const h of ['GM', 'Cont', 'Pos', 'A', 'Exercici', 'Material', '+', 'S', 'R', 'Obs', 'PROFESSIONAL', 'SETMANA']) assert.ok(txt.split('\n').includes(h), `falta la columna ${h}`);
+  assert.ok(txt.includes('Back squat'));
+  assert.match(txt, /Encoder · S1: 50 kg ×6 0,76→0,61 m\/s PV 20 %/);
+  assert.match(txt, /RPE 7 · 65 min · 455 UA · dolor 0\/10/);
+  assert.ok(txt.includes('4 · FORÇA PRINCIPAL'));
+  // Planificades i previstes al pla
+  assert.ok(txt.includes('Planificada'));
+  assert.match(txt, /SESSIÓ PREVISTA · S\d+ DEL PLA/);
+  assert.match(txt, /S\d+ del pla/);
+  // En imprimir, cada setmana va a la seva pàgina (Oct26 té 5 setmanes: 4 salts)
+  assert.match(o.xml, /<colBreaks count="4" manualBreakCount="4"><brk id="15" max="1048575" man="1"\/><brk id="30" /);
+  // Al full d'agost només hi ha les setmanes d'agost i la sessió del 31
+  const ago = x.sheet('Ago26');
+  assert.equal(ago.get('A1'), 'S1');
+  assert.ok(ago.find(/^SESSIÓ 1 · FETA/));
+});
+
+test('Excel d\'un client nou, sense sessions ni valoracions: resum, el mes actual i el registre buit', async () => {
+  const { core, Store } = setup();
+  const p = Store.newPatient({ firstName: 'Nou', lastName: 'Client' });
+  const { files, x } = await clientBook(core, Store, p.id);
+  assert.deepEqual([...files.map((f) => f.name)], ['seguiment_nouclient_01.xlsx']);
+  assert.deepEqual(x.names, ['Resum', 'Oct26', 'Registre']);
+  assert.match(x.sheet('Registre').text(), /Encara no hi ha cap sessió/);
+  assert.match(x.sheet('Oct26').text(), /Cap sessió aquesta setmana/);
 });
 
 // ── Dades incompletes o estranyes ──
@@ -211,7 +263,7 @@ test('dades incompletes o estranyes: cap Excel es trenca (prova aleatòria amb l
   };
   const many = (m, q) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k, mutate(v, q)]));
   let built = 0;
-  for (let round = 0; round < 4; round++) {
+  for (let round = 0; round < 8; round++) {
     const p = 0.08 + rnd() * 0.22;
     const data = { patients: many(db.patients, p * 0.5), assessments: many(db.assessments, p), sessions: many(db.sessions, p), exercises: {}, templates: many(db.templates, p * 0.3) };
     for (const [k, x] of Object.entries(data.sessions)) if (rnd() < 0.9) x.date = db.sessions[k].date;
@@ -229,13 +281,13 @@ test('dades incompletes o estranyes: cap Excel es trenca (prova aleatòria amb l
       }
     }
   }
-  assert.ok(built > 150);
+  assert.equal(built, 8 * Object.keys(db.patients).length, 'un Excel per client i ronda');
 });
 
 // ── Auditoria: tot el que s'omple a l'app surt a l'Excel ──
-test('auditoria de la sessió: cada camp que s\'omple a l\'app surt a l\'Excel', async () => {
+test('auditoria de la sessió: cada camp que s\'omple a l\'app surt al full del mes i al registre', async () => {
   const { core, db, Store } = setup();
-  const { ExcelSession, Names } = core;
+  const { ExcelClient, Calc, WELLNESS } = core;
   const p = { ...db.patients['P-DEMO-ALEX'], firstName: 'Marcel', lastName: 'Auditoria Prova' };
   const mk = (n) => `‹${n}›`; // marcadors únics
   let seq = 0;
@@ -251,39 +303,42 @@ test('auditoria de la sessió: cada camp que s\'omple a l\'app surt a l\'Excel',
     wellness: { fatigue: '1', sleep: '2', soreness: '3', stress: '4', mood: '5', notes: mk('wnotes') },
     feedback: { rpe: '8', duration: '70', pain: '3', notes: mk('fnotes'), decision: mk('decisio') }, blocks,
   };
-  const doc = ExcelSession.build({ patient: p, session: s, sessions: [s], settings: Store.settings, today: '2026-10-06' });
+  const doc = ExcelClient.build({ patient: p, items: [s], plans: [], assessments: [], settings: Store.settings, today: '2026-10-06' });
   const x = readXlsx((await doc.build({ stamp: STAMP })).bytes);
-  const all = x.text();
-  const must = [p.firstName, 'Auditoria Prova', mk('prof'), mk('objectiu'), mk('pilar'), mk('wnotes'), mk('fnotes'), mk('decisio'), 'dimarts, 6 d\'octubre de 2026', mk('grup1'), mk('grup2'), mk('metgrup1')];
+  assert.deepEqual(x.names, ['Resum', 'Oct26', 'Registre']);
+  const o = x.sheet('Oct26');
+  const all = o.text();
+  const must = [mk('objectiu'), mk('pilar'), mk('wnotes'), mk('fnotes'), mk('decisio'), mk('grup1'), mk('grup2'), mk('metgrup1'), 'SESSIÓ 42 · FETA ✔', 'dimarts', '‹PROF›'];
   for (const b of core.BLOCKS) must.push(mk(`focus${b.key}`), mk(`metode${b.key}`));
-  for (let i = 0; i < 6; i++) for (const k of ['a', 'b']) must.push(mk(`ex${i}${k}`), mk(`mat${i}${k}`), mk(`reps${i}${k}`), mk(`int${i}${k}`), mk(`desc${i}${k}`), mk(`nota${i}${k}`));
-  for (const t of must) assert.ok(all.includes(t), `no surt a l'Excel: ${t}`);
-  const sh = x.sheet('Sessió');
-  assert.ok(hasNum(sh, 8) && hasNum(sh, 70) && hasNum(sh, 560), 'RPE, durada i càrrega');
-  assert.ok(hasNum(sh, core.XlsxDoc.serial('2026-10-06')), 'la data és una data d\'Excel');
-  assert.ok([1, 2, 3, 4, 5].every((n) => hasNum(sh, n)), 'les 5 respostes del wellness');
-  assert.ok(hasNum(sh, 15), 'wellness total');
-  assert.ok(hasNum(sh, 3), 'dolor');
-  const ex = x.sheet('Exercicis');
-  for (let n = 51; n <= 62; n++) assert.ok(hasNum(ex, n), `càrrega ${n}`);
-  assert.ok(hasNum(ex, 4), 'sèries');
-  for (const t of ['ECC', 'Sd', 'UL', '3-1-1-0', 'GMax']) assert.ok(ex.text().includes(t), `falta ${t}`);
-  // Enllaços: vídeo del client i demostració de cada exercici
-  const targets = ex.links.map((l) => l.target);
+  for (let i = 0; i < 6; i++) for (const k of ['a', 'b']) must.push(mk(`ex${i}${k}`), mk(`mat${i}${k}`), mk(`reps${i}${k}`), mk(`int${i}${k}`), `desc. ${mk(`desc${i}${k}`)}`, mk(`nota${i}${k}`));
+  for (const t of must) assert.ok(all.includes(t), `no surt al full del mes: ${t}`);
+  for (const q of WELLNESS) assert.ok(all.includes(`${q.label} ${s.wellness[q.k]}`), `wellness: ${q.label}`);
+  assert.ok(all.includes('total 15/25'));
+  // Números: RPE, durada, càrrega (fórmula), wellness total, dolor, data, sèries
+  assert.ok(hasNum(o, 8) && hasNum(o, 70) && hasNum(o, 560), 'RPE, durada i càrrega');
+  assert.ok(hasNum(o, 15) && hasNum(o, 3), 'wellness total i dolor');
+  assert.ok(hasNum(o, core.XlsxDoc.serial('2026-10-06')), 'la data és una data d\'Excel');
+  assert.ok(hasNum(o, 4), 'sèries');
+  for (let n = 51; n <= 62; n++) assert.ok(all.includes(Calc.load(String(n))), `càrrega ${n}`);
+  for (const t of ['ECC', 'Sd', 'UL', 'tempo 3-1-1-0', 'GMax']) assert.ok(all.includes(t), `falta ${t}`);
+  // Encoder: cada sèrie
+  assert.match(all, /Encoder · S1: 80 kg ×5 0\.81→0\.62 m\/s PV 23 % 501 W/);
+  // Enllaços: vídeo del client (al nom) i demostració (a les observacions) de cada exercici
+  const targets = o.links.map((l) => l.target);
   for (let i = 0; i < 6; i++) for (const k of ['a', 'b']) {
     assert.ok(targets.includes(`https://eonlife.sharepoint.com/v${i}${k}.mp4`), `falta el vídeo de l'exercici ${i}${k}`);
     assert.ok(targets.includes(`https://youtu.be/d${i}${k}`), `falta la demostració ${i}${k}`);
   }
-  assert.ok(sh.links.length >= 12, 'enllaços dels vídeos del client a la pàgina de la sessió');
-  // Encoder
-  const en = x.sheet('Encoder');
-  for (const v of [80, 5, 0.81, 0.62, 501]) assert.ok(hasNum(en, v), `encoder ${v}`);
-  assert.equal(Names.sessionFile(p, s.date, 1), 'sessio_marcelauditoriaprova_20261006_01.xlsx');
+  // Registre i resum
+  const reg = x.sheet('Registre');
+  assert.ok(reg.text().includes(mk('prof')) && reg.text().includes(mk('objectiu')));
+  for (const v of [42, 8, 70, 560, 3, 15, 12]) assert.ok(hasNum(reg, v), `registre ${v}`);
+  assert.match(x.sheet('Resum').get('A1'), /Seguiment · Marcel Auditoria Prova/);
 });
 
-test('auditoria de la valoració: cada test, valor i fitxer surt a l\'Excel', async () => {
+test('auditoria de la valoració: cada test, valor i fitxer surt al detall i a l\'evolució', async () => {
   const { core, db, Store } = setup();
-  const { ExcelAssessment, TEST_INDEX, PROTOCOL, PATTERNS } = core;
+  const { ExcelClient, TEST_INDEX, PATTERNS } = core;
   const p = { ...db.patients['P-DEMO-ALEX'], firstName: 'Marcel', lastName: 'Auditoria' };
   const values = {};
   let n = 0;
@@ -319,123 +374,36 @@ test('auditoria de la valoració: cada test, valor i fitxer surt a l\'Excel', as
     conclusions: { strengths: '‹forts›', priorities: '‹prioritats›', plan: '‹pla›' }, nextRetest: '2027-01-06',
     files: [{ id: 'F', name: 'informekinvent_marcelauditoria_20261006_01.pdf', url: 'https://eonlife.sharepoint.com/kinvent.pdf', label: 'Informe Kinvent', date: '2026-10-06' }],
   };
-  const prev = { ...a, id: 'V-PREV', date: '2026-07-06', type: 'inicial', general: { ...a.general, weight: '73' }, values: Object.fromEntries(Object.entries(values).map(([k, v]) => [k, v.d !== undefined && typeof v.d === 'number' ? { ...v, d: v.d - 5, e: v.e - 3 } : v])) };
-  const doc = ExcelAssessment.build({ patient: p, assessment: a, previous: prev, settings: Store.settings, today: '2026-10-06' });
+  const prev = { ...a, id: 'V-PREV', date: '2026-07-06', type: 'inicial', general: { ...a.general, weight: '73' }, values: Object.fromEntries(Object.entries(values).map(([k, v]) => [k, typeof v.d === 'number' ? { ...v, d: v.d - 5, e: v.e - 3 } : v])) };
+  const doc = ExcelClient.build({ patient: p, items: [], plans: [], assessments: [prev, a], settings: Store.settings, today: '2026-10-06' });
   const x = readXlsx((await doc.build({ stamp: STAMP })).bytes);
-  assert.deepEqual(x.names, ['Resum', 'Comparació', 'Mobilitat', 'Força', 'Rendiment', 'Patrons', 'Altres mesures']);
-  const all = x.text();
-  for (const t of ['‹avaluador›', '‹motiu›', '‹wnotes›', '‹forts›', '‹prioritats›', '‹pla›', '‹nota ybt›', '‹nota salts›', '‹nota intent›', '‹encoder›', '‹mesura lliure›']) assert.ok(all.includes(t), `no surt: ${t}`);
-  assert.ok(x.sheet('Resum').text().includes('Re-test'));
+  assert.deepEqual(x.names, ['Resum', 'Valoracions', 'Oct26', 'Registre', 'Val. inicial 06-07-26', 'Re-test 06-10-26']);
+  const det = x.sheet('Re-test 06-10-26');
+  const all = det.text();
+  for (const t of ['‹avaluador›', '‹motiu›', '‹wnotes›', '‹forts›', '‹prioritats›', '‹pla›', '‹nota ybt›', '‹nota salts›', '‹nota intent›', '‹encoder›', '‹mesura lliure›', 'Re-test']) assert.ok(all.includes(t), `no surt: ${t}`);
   for (const t of Object.values(TEST_INDEX)) assert.ok(all.includes(`‹nota ${t.id}›`), `falta la nota del test ${t.name}`);
   for (const pt of PATTERNS) assert.ok(all.includes(`‹chip ${pt.id}›`) && all.includes(`‹nota ${pt.id}›`) && all.includes(`‹decisió ${pt.id}›`), `falta el patró ${pt.name}`);
-  // Tots els números dels tests (dreta, esquerra, valor únic)
-  const sheetsWithNums = ['Mobilitat', 'Força', 'Rendiment'].map((s) => x.sheet(s));
-  for (const v of expectNums) assert.ok(sheetsWithNums.some((s) => hasNum(s, v)), `falta el valor ${v}`);
-  const f = x.sheet('Força');
-  for (const v of [60, 90, 88, 85, 66, 93, 90]) assert.ok(hasNum(f, v), `Y-Balance ${v}`);
-  const r = x.sheet('Rendiment');
-  for (const v of [33.3, 2999, 1777, 1.44, 0.55, 12, 480, 210, 61, 0.77, 444, 800, 600, 400]) assert.ok(hasNum(r, v), `rendiment ${v}`);
-  const o = x.sheet('Altres mesures');
-  for (const v of [17, 19, 23]) assert.ok(hasNum(o, v), `mesura lliure ${v}`);
-  // Pes i alçada, wellness, pes → N/kg amb fórmula
-  const res = x.sheet('Resum');
-  for (const v of [71.5, 178, 3, 4, 2, 5, 1, 15]) assert.ok(hasNum(res, v), `resum ${v}`);
-  assert.ok(f.cells.size > 0 && [...f.cells.values()].some((c) => c.f && /Resum'!\$B\$/.test(c.f)), 'N/kg amb el pes del full Resum');
+  // Tots els números: tests (dreta, esquerra, valor únic), Y-Balance, salts, encoder, bici, mesures lliures, pes, alçada i wellness
+  for (const v of expectNums) assert.ok(hasNum(det, v), `falta el valor ${v}`);
+  for (const v of [60, 90, 88, 85, 66, 93, 90]) assert.ok(hasNum(det, v), `Y-Balance ${v}`);
+  for (const v of [33.3, 2999, 1777, 1.44, 0.55, 12, 480, 210, 61, 0.77, 444, 800, 600, 400]) assert.ok(hasNum(det, v), `rendiment ${v}`);
+  for (const v of [17, 19, 23, 71.5, 178, 3, 4, 2, 5, 1, 15]) assert.ok(hasNum(det, v), `valor ${v}`);
+  assert.ok([...det.cells.values()].some((c) => c.f && /'Re-test 06-10-26'!\$B\$\d+/.test(c.f)), 'N/kg amb el pes de la mateixa valoració');
   // Enllaços: fotos i vídeos de cada test, Y-Balance, patrons, salts, vídeo general i PDF de Kinvent
-  const targets = new Set(x.sheets.flatMap((s) => s.links.map((l) => l.target)));
+  const targets = det.links.map((l) => l.target);
   const wantLinks = ['general.mp4', 'salts.mp4', 'ybt-d.mp4', 'ybt-e.mp4', 'kinvent.pdf'];
   for (const t of Object.values(TEST_INDEX)) {
     for (const m of t.photos || []) wantLinks.push(`foto-${t.id}-${m.k}.jpg`);
     for (const m of t.videos || []) wantLinks.push(`video-${t.id}-${m.k}.mp4`);
   }
   for (const pt of PATTERNS) for (const m of pt.videos || []) wantLinks.push(`pat-${pt.id}-${m.k}.mp4`);
-  for (const l of wantLinks) assert.ok([...targets].some((t) => t.endsWith(l)), `falta l'enllaç ${l}`);
-  // Comparació: cada test numèric amb el seu canvi
-  const c = x.sheet('Comparació');
-  assert.ok(c.cells.size > 40);
-  assert.ok([...c.cells.values()].some((cell) => cell.f && /^D\d+-C\d+$|^C\d+-B\d+$/.test(cell.f.replace(/\s/g, ''))), 'canvi com a fórmula');
-  void PROTOCOL;
-});
-
-// ── Conjunt de fitxers d'un client ──
-test('conjunt de fitxers: noms, números de sèrie i carpetes', () => {
-  const { core, db, Store } = setup();
-  const { ExcelSet } = core;
-  const p = db.patients['P-DEMO-LAURA'];
-  // Dues sessions el mateix dia → _01 i _02; una valoració més del mateix tipus i dia → _02
-  const first = sessionsOf(db, p.id)[0];
-  db.sessions['S-DUP'] = { ...first, id: 'S-DUP', number: 99, status: 'planificada' };
-  const a0 = Object.values(db.assessments).find((a) => a.patientId === p.id && a.type === 'inicial');
-  db.assessments['V-DUP'] = { ...a0, id: 'V-DUP', createdAt: '2099-01-01T00:00:00Z' };
-  const d = ExcelSet.data(p.id, Store);
-  const files = ExcelSet.plan(d, { today: '2026-10-05' });
-  const names = files.map((f) => `${f.folder}/${f.name}`);
-  assert.equal(new Set(names).size, names.length, 'cap nom repetit');
-  assert.ok(names.includes(`sessions/sessio_lauravidalserra_${first.date.replace(/-/g, '')}_01.xlsx`));
-  assert.ok(names.includes(`sessions/sessio_lauravidalserra_${first.date.replace(/-/g, '')}_02.xlsx`));
-  assert.ok(names.includes(`assess/valoracioinicial_lauravidalserra_${a0.date.replace(/-/g, '')}_01.xlsx`));
-  assert.ok(names.includes(`assess/valoracioinicial_lauravidalserra_${a0.date.replace(/-/g, '')}_02.xlsx`));
-  assert.ok(names.includes('assess/retest_lauravidalserra_20261001_01.xlsx'));
-  assert.ok(names.includes('sessions/visiogeneral_lauravidalserra_01.xlsx'));
-  // Les sessions previstes del pla (encara sense fer) també tenen el seu fitxer
-  assert.ok(files.filter((f) => f.kind === 'session').length > d.sessions.length);
-  for (const f of files) assert.match(f.name, f.folder === 'assess' ? core.Names.OWN.assess : core.Names.OWN.sessions);
-});
-
-// ── Excel de visió general ──
-test('visió general: resum, un calendari i un detall per mes, i registre de sessions', async () => {
-  const { core, db, Store } = setup();
-  const { ExcelSet } = core;
-  const p = db.patients['P-DEMO-LAURA'];
-  const d = ExcelSet.data(p.id, Store);
-  const items = ExcelSet.items(d);
-  const doc = ExcelSet.plan(d, { today: '2026-10-05' }).find((f) => f.kind === 'overview').make({});
-  const x = readXlsx((await doc.build({ stamp: STAMP })).bytes);
-  assert.deepEqual(x.names, ['Resum', 'Agost 2026', 'Agost 2026 · detall', 'Setembre 2026', 'Setembre 2026 · detall', 'Octubre 2026', 'Octubre 2026 · detall', 'Registre']);
-  const reg = x.sheet('Registre');
-  const dataRows = [...reg.cells.keys()].filter((k) => /^A\d+$/.test(k) && reg.rowOf(k) >= 6);
-  assert.equal(dataRows.length, items.length, 'una fila per sessió (reals i previstes)');
-  // Estat i càrrega com a fórmula
-  assert.ok([...reg.cells.entries()].some(([k, c]) => /^L\d+$/.test(k) && /^IF\(COUNT\(J\d+,K\d+\)=2,J\d+\*K\d+,""\)$/.test(c.f || '')));
-  const states = new Set([...reg.cells.entries()].filter(([k]) => /^E\d+$/.test(k) && reg.rowOf(k) >= 6).map(([, c]) => c.v));
-  assert.deepEqual([...states].sort(), ['Feta', 'Planificada', 'Prevista al pla'].sort());
-  // Resum: targetes amb fórmules sobre el registre
-  const res = x.sheet('Resum');
-  assert.equal(res.get('A6'), 15);
-  assert.match(res.formula('A6'), /COUNTIF\('Registre'!\$E\$6:\$E\$\d+,"Feta"\)/);
-  assert.equal(res.get('C6'), 6295);
-  assert.match(res.text(), /Tornar a competir en trail de 42 km/);
-  assert.match(res.text(), /Evitar baixades i salts/);
-  // Calendari d'octubre: cap «Sessió 15 · FETA», les previstes i els enllaços al detall
-  const cal = x.sheet('Octubre 2026');
-  assert.ok(cal.text().includes('Sessió 15 · FETA'));
-  assert.ok(cal.text().includes('S2 del pla · PREVISTA'));
-  assert.ok(cal.links.length >= 12 && cal.links.every((l) => /^'Octubre 2026 · detall'!/.test(l.location)));
-  assert.equal(cal.cfs.length, 10, 'avui ressaltat per format condicional (dues regles per setmana, 5 setmanes)');
-  const det = x.sheet('Octubre 2026 · detall');
-  assert.ok(det.text().includes('Back squat') && det.text().includes('DIVENDRES 02/10/2026'));
-  // El mes: la fórmula de la targeta compta les sessions del rang de dates
-  assert.ok([...cal.cells.values()].some((c) => c.f && /^COUNTIFS\('Registre'!\$A\$6:\$A\$\d+,">="&DATE\(2026,10,1\),'Registre'!\$A\$6:\$A\$\d+,"<="&DATE\(2026,10,31\)\)$/.test(c.f)));
-  // Full protegit sense contrasenya; només les files del registre estan desbloquejades (així es pot ordenar i filtrar)
-  assert.match(reg.xml, /<sheetProtection sheet="1"[^>]*sort="0"[^>]*autoFilter="0"/);
-  const xfs = [...x.zip['xl/styles.xml'].data.toString('utf8').match(/<cellXfs[\s\S]*?<\/cellXfs>/)[0].matchAll(/<xf [^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map((m) => m[0]);
-  const unlocked = (sheet, ref) => /<protection locked="0"\/>/.test(xfs[sheet.cells.get(ref).s] || '');
-  for (const ref of ['A6', 'F6', 'Q6', `Q${5 + items.length}`]) assert.ok(unlocked(reg, ref), `${ref} del registre desbloquejada`);
-  assert.ok(!unlocked(reg, 'A5'), 'la capçalera del registre, no');
-  assert.ok(!unlocked(res, 'A6') && !unlocked(cal, [...cal.cells.keys()][3]), 'la resta de fulls queda bloquejada');
-});
-
-test('visió general: sense sessions té el resum i el mes actual', async () => {
-  const { core, db, Store } = setup();
-  const { ExcelSet } = core;
-  const p = Store.newPatient({ firstName: 'Nou', lastName: 'Client' });
-  void db;
-  const d = ExcelSet.data(p.id, Store);
-  const files = ExcelSet.plan(d, { today: '2026-10-05' });
-  assert.deepEqual([...files.map((f) => f.kind)], ['overview']);
-  const x = readXlsx((await files[0].make({}).build({ stamp: STAMP })).bytes);
-  assert.deepEqual(x.names, ['Resum', 'Octubre 2026', 'Octubre 2026 · detall', 'Registre']);
-  assert.match(x.sheet('Registre').text(), /Encara no hi ha cap sessió/);
+  for (const l of wantLinks) assert.ok(targets.some((t) => t.endsWith(l)), `falta l'enllaç ${l}`);
+  // Evolució: cada test numèric de les dues valoracions, amb el canvi
+  const ev = x.sheet('Valoracions');
+  for (const v of expectNums) assert.ok(hasNum(ev, v), `evolució: falta el valor ${v}`);
+  for (const t of ['‹encoder›', '‹mesura lliure›', '‹forts›']) assert.ok(ev.text().includes(t), `evolució: falta ${t}`);
+  const deltas = [...ev.cells.values()].filter((c) => c.f && /^IF\(COUNT/.test(c.f)).map((c) => c.v);
+  assert.ok(deltas.includes(5) && deltas.includes(3), 'el canvi entre les dues valoracions');
 });
 
 // ── Sincronització amb la carpeta (simulador de Graph) ──
@@ -463,7 +431,7 @@ async function cloudSetup() {
   return { ...s, mock, api, names, done() { core.Sync.reset(); for (const t of Object.values(s.Store.timers)) clearTimeout(t); } };
 }
 
-test('sincronització: puja tot, no repeteix, substitueix, renomena i esborra només els seus fitxers', async () => {
+test('sincronització: un sol Excel a la carpeta del client, sense repetir, substituint-lo i retirant només els Excel antics de l\'app', async () => {
   const { core, Store, db, mock, api, names, done } = await cloudSetup();
   const { Sync } = core;
   try {
@@ -471,49 +439,44 @@ test('sincronització: puja tot, no repeteix, substitueix, renomena i esborra no
     const r1 = await Sync.syncClient(pid);
     const p = Store.get('patients', pid);
     assert.ok(p.folderId && p.folderUrl, 'la carpeta del client s\'ha creat i enllaçat');
-    assert.equal(r1.kept, 0);
-    assert.ok(r1.uploaded > 25);
-    assert.deepEqual(names(p, ['Valoracions']), ['retest_lauravidalserra_20261001_01.xlsx', 'valoracioinicial_lauravidalserra_20260702_01.xlsx']);
-    assert.ok(names(p, ['Sessions']).includes('visiogeneral_lauravidalserra_01.xlsx'));
-    assert.ok(names(p, ['Sessions']).includes('sessio_lauravidalserra_20261002_01.xlsx'));
-    assert.match(r1.overviewUrl, /sharepoint/);
+    assert.deepEqual([r1.uploaded, r1.kept, r1.removed], [1, 0, 0]);
+    assert.deepEqual(names(p, []), ['seguiment_lauravidalserra_01.xlsx']);
+    // «Sessions» i «Valoracions» hi són (per als PDF i els vídeos), sense cap Excel
+    assert.deepEqual(names(p, ['Sessions']), []);
+    assert.deepEqual(names(p, ['Valoracions']), []);
+    assert.match(r1.fileUrl, /sharepoint/);
+    assert.ok(r1.sessionsUrl && r1.assessUrl);
     // Segona passada sense canvis: no es puja res
     const r2 = await Sync.syncClient(pid);
-    assert.equal(r2.uploaded, 0);
-    assert.equal(r2.kept, r1.uploaded);
+    assert.deepEqual([r2.uploaded, r2.kept], [0, 1]);
     // El fitxer pujat és un Excel vàlid
-    const f = mock.child(mock.child(p.folderId, 'Sessions').id, 'sessio_lauravidalserra_20261002_01.xlsx');
-    assert.equal(readXlsx(f.content).sheet('Sessió').get('A1'), 'Sessió 15 · Laura Vidal Serra');
-    // Canvi d'una sessió: es refà aquesta i la visió general; el fitxer es substitueix (mateixa ruta, sense còpies)
+    const book = () => readXlsx(mock.child(p.folderId, 'seguiment_lauravidalserra_01.xlsx').content);
+    assert.ok(book().names.includes('Oct26'));
+    // Canvi d'una sessió: es refà i se substitueix (mateixa ruta, sense còpies)
     const s15 = Object.values(db.sessions).find((s) => s.patientId === pid && s.number === 15);
-    const before = names(p, ['Sessions']);
     Store.update('sessions', s15.id, (x) => { x.feedback = { ...x.feedback, rpe: '9' }; });
     const r3 = await Sync.syncClient(pid);
-    assert.equal(r3.uploaded, 2);
-    assert.deepEqual(names(p, ['Sessions']), before);
-    const ses = readXlsx(mock.child(mock.child(p.folderId, 'Sessions').id, 'sessio_lauravidalserra_20261002_01.xlsx').content).sheet('Sessió');
-    assert.equal(ses.get(`B${ses.rowOf(ses.find(/^RPE global/))}`), 9, 'el canvi surt al fitxer de la carpeta');
-    // Canvi de dia: el fitxer vell es retira i en surt un de nou amb el nom del dia nou
-    Store.update('sessions', s15.id, (x) => { x.date = '2026-10-03'; });
+    assert.equal(r3.uploaded, 1);
+    assert.deepEqual(names(p, []), ['seguiment_lauravidalserra_01.xlsx']);
+    assert.equal(book().sheet('Oct26').get('J6'), 9, 'el canvi surt al fitxer de la carpeta (RPE del divendres 2)');
+    // Els Excel d'abans (un per sessió, un per valoració i la visió general) es retiren; cap altre fitxer es toca
+    const sdir = mock.child(p.folderId, 'Sessions'), vdir = mock.child(p.folderId, 'Valoracions');
+    const one = new Uint8Array([1]);
+    for (const n of ['sessio_lauravidalserra_20261002_01.xlsx', 'visiogeneral_lauravidalserra_01.xlsx', 'notes de l\'equip.xlsx']) await api.putFile(sdir.id, n, one);
+    await api.putFile(sdir.id, 'hipthrust_lauravidalserra_20261002_01.mp4', one, { mime: 'video/mp4' });
+    await api.putFile(vdir.id, 'retest_lauravidalserra_20261001_01.xlsx', one);
+    await api.putFile(vdir.id, 'informekinvent_lauravidalserra_20260702_01.pdf', one, { mime: 'application/pdf' });
+    await api.putFile(p.folderId, 'pla de la Laura.xlsx', one);
     const r4 = await Sync.syncClient(pid);
-    assert.equal(r4.removed, 1);
-    assert.ok(!names(p, ['Sessions']).includes('sessio_lauravidalserra_20261002_01.xlsx'));
-    assert.ok(names(p, ['Sessions']).includes('sessio_lauravidalserra_20261003_01.xlsx'));
-    // Fitxers que no són els d'aquesta app no es toquen mai
-    const sdir = mock.child(p.folderId, 'Sessions');
-    await api.putFile(sdir.id, 'notes de l\'equip.xlsx', new Uint8Array([1]));
-    await api.putFile(sdir.id, 'hipthrust_lauravidalserra_20261002_01.mp4', new Uint8Array([1]), { mime: 'video/mp4' });
-    Store.remove('sessions', s15.id);
-    const r5 = await Sync.syncClient(pid);
-    assert.equal(r5.removed, 1);
-    const left = names(p, ['Sessions']);
-    assert.ok(left.includes('notes de l\'equip.xlsx') && left.includes('hipthrust_lauravidalserra_20261002_01.mp4'));
-    assert.ok(!left.includes('sessio_lauravidalserra_20261003_01.xlsx'));
-    // Client reanomenat: tots els fitxers passen al nom nou
+    assert.deepEqual([r4.uploaded, r4.removed], [0, 3]);
+    assert.deepEqual(names(p, ['Sessions']), ['hipthrust_lauravidalserra_20261002_01.mp4', 'notes de l\'equip.xlsx']);
+    assert.deepEqual(names(p, ['Valoracions']), ['informekinvent_lauravidalserra_20260702_01.pdf']);
+    assert.deepEqual(names(p, []), ['pla de la Laura.xlsx', 'seguiment_lauravidalserra_01.xlsx']);
+    // Client reanomenat: l'Excel passa al nom nou i el vell es retira
     Store.update('patients', pid, (x) => { x.firstName = 'Laia'; });
-    const r6 = await Sync.syncClient(pid);
-    assert.ok(r6.removed > 20);
-    assert.ok(names(p, ['Valoracions']).every((n) => n.includes('laiavidalserra')));
+    const r5 = await Sync.syncClient(pid);
+    assert.deepEqual([r5.uploaded, r5.removed], [1, 1]);
+    assert.deepEqual(names(p, []), ['pla de la Laura.xlsx', 'seguiment_laiavidalserra_01.xlsx']);
   } finally { done(); }
 });
 
@@ -546,6 +509,14 @@ test('sincronització: cua amb avís, estat i errors amb reintent', async () => 
     mock.setReadOnly(['arnau@eonlife.test']);
     await assert.rejects(Sync.now('P-DEMO-LAURA'), /permís per escriure/);
     mock.setReadOnly([]);
+    // La primera vegada que s'obre una versió que fa els Excel d'una altra forma, es refan els de tots els clients
+    Sync.reset();
+    assert.equal(Sync.upgrade(), true);
+    assert.equal(Sync.queued(), Store.all('patients').length);
+    assert.equal(Sync.upgrade(), false, 'només una vegada');
+    Sync.reset();
+    Store.update('sessions', s.id, (x) => { x.goal = 'Un altre objectiu'; });
+    Store.update('assessments', a.id, (x) => { x.general = { ...x.general, goal: 'y' }; });
     const ok = await Sync.now('P-DEMO-LAURA');
     assert.ok(ok.uploaded > 0);
     assert.equal(Sync.info('P-DEMO-LAURA').state, 'ok');
@@ -566,14 +537,14 @@ test('sincronització: carpeta esborrada o canviada de lloc, sessions sense data
     const r = await Sync.syncClient(pid);
     const now = Store.get('patients', pid);
     assert.notEqual(now.folderId, old, 'carpeta nova');
-    assert.ok(r.uploaded > 5 && r.kept === 0);
-    assert.ok(names(now, ['Valoracions']).some((n) => /^valoracioinicial_jordipuigferrer_/.test(n)));
-    // Una sessió sense data (mentre s'escriu la data) no surt, ni dona un nom de fitxer estrany
+    assert.deepEqual([r.uploaded, r.kept], [1, 0]);
+    assert.deepEqual(names(now, []), ['seguiment_jordipuigferrer_01.xlsx']);
+    // Una sessió sense data (mentre s'escriu la data) no surt a l'Excel ni el trenca
     const s = Object.values(db.sessions).find((x) => x.patientId === pid);
     Store.update('sessions', s.id, (x) => { x.date = ''; });
     const r2 = await Sync.syncClient(pid);
-    assert.equal(r2.removed, 1);
-    assert.ok(!names(now, ['Sessions']).some((n) => /sensedata/.test(n)));
+    assert.deepEqual([r2.uploaded, r2.removed, r2.failed], [1, 0, undefined]);
+    assert.deepEqual(names(now, []), ['seguiment_jordipuigferrer_01.xlsx']);
     Store.update('sessions', s.id, (x) => { x.date = '2026-09-20'; });
     assert.equal((await Sync.syncClient(pid)).removed, 0);
     // Sense núvol (mode local) la sincronització no existeix i no molesta
@@ -587,94 +558,79 @@ test('sincronització: carpeta esborrada o canviada de lloc, sessions sense data
   } finally { done(); }
 });
 
-test('un Excel que no es pot fer no atura els altres: es puja tot la resta i es diu quin falla', async () => {
-  const { core, Store, mock, done } = await cloudSetup();
-  const { Sync, ExcelSession, ExcelSet, Exports } = core;
-  const orig = ExcelSession.build;
+test('si l\'Excel no es pot fer, no es puja ni es retira res i es diu', async () => {
+  const { core, Store, mock, api, names, done } = await cloudSetup();
+  const { Sync, ExcelClient, Exports } = core;
+  const orig = ExcelClient.build;
   try {
     const pid = 'P-DEMO-LAURA';
-    const bad = ExcelSet.data(pid).sessions.find((s) => s.number === 7);
-    ExcelSession.build = (o) => { if (o.session.id === bad.id) throw new Error('dades malmeses'); return orig(o); };
+    await Sync.syncClient(pid);
+    const p = Store.get('patients', pid);
+    const before = mock.child(p.folderId, 'seguiment_lauravidalserra_01.xlsx').content;
+    await api.putFile(mock.child(p.folderId, 'Sessions').id, 'sessio_lauravidalserra_20261002_01.xlsx', new Uint8Array([1]));
+    ExcelClient.build = () => { throw new Error('dades malmeses'); };
+    const s = Object.values(Store.data.sessions).find((x) => x.patientId === pid);
+    Store.update('sessions', s.id, (x) => { x.goal = 'Canvi'; });
     const r = await Sync.syncClient(pid);
     assert.equal(r.failed, 1);
-    assert.deepEqual([...r.failedNames], [`sessio_lauravidalserra_${bad.date.replace(/-/g, '')}_01.xlsx`]);
-    assert.ok(r.uploaded > 25, 'tota la resta es puja igualment');
-    const p = Store.get('patients', pid);
-    const sess = mock.childrenOf(mock.child(p.folderId, 'Sessions').id).filter((x) => x.file).map((x) => x.name);
-    assert.ok(sess.includes('visiogeneral_lauravidalserra_01.xlsx'), 'la visió general també');
-    assert.ok(!sess.includes(`sessio_lauravidalserra_${bad.date.replace(/-/g, '')}_01.xlsx`));
+    assert.deepEqual([...r.failedNames], ['seguiment_lauravidalserra_01.xlsx']);
+    assert.deepEqual([r.uploaded, r.removed], [0, 0], 'millor un Excel antic que cap');
+    assert.ok(names(p, ['Sessions']).includes('sessio_lauravidalserra_20261002_01.xlsx'));
+    assert.equal(mock.child(p.folderId, 'seguiment_lauravidalserra_01.xlsx').content, before, 'l\'Excel d\'abans es queda');
     await Sync.now(pid);
     assert.equal(Sync.info(pid).state, 'partial');
-    // El ZIP també fa tot el que pot
-    const z = await Exports.zip(pid);
-    assert.equal(z.failed.length, 1);
-    assert.ok(z.count > 25);
-    // En arreglar-se, el fitxer surt
-    ExcelSession.build = orig;
+    await assert.rejects(Exports.file(pid), /dades malmeses/);
+    // En arreglar-se, es puja i es retira l'antic
+    ExcelClient.build = orig;
     const r2 = await Sync.syncClient(pid);
     assert.equal(r2.failed, undefined);
-    assert.equal(r2.uploaded, 2, 'el fitxer que faltava i la visió general, que ara hi té l\'enllaç');
-  } finally { ExcelSession.build = orig; done(); }
+    assert.deepEqual([r2.uploaded, r2.removed], [1, 1]);
+  } finally { ExcelClient.build = orig; done(); }
 });
 
-test('refresc diari: en canviar el dia es refà només el que depèn de la data', async () => {
+test('refresc diari: en canviar el dia es refà l\'Excel dels clients que entrenen', async () => {
   const { core, Store, mock, done } = await cloudSetup();
-  const { Sync, ExcelSession, ExcelSet } = core;
+  const { Sync, ExcelClient } = core;
   const day0 = FIXED;
   try {
     const pid = 'P-DEMO-LAURA';
     Store.addPlanned(pid, { date: '2026-10-07', blocks: Store.emptyBlocks().slice(0, 1), goal: 'Pas pendent' });
     await Sync.syncClient(pid);
     const p = Store.get('patients', pid);
-    const sessionsDir = mock.child(p.folderId, 'Sessions');
-    const planned = ExcelSet.plan(ExcelSet.data(pid)).find((f) => f.kind === 'session' && f.date === '2026-10-07');
     const stateOf = () => {
-      const sh = readXlsx(mock.child(sessionsDir.id, planned.name).content).sheet('Sessió');
-      return sh.get(`B${sh.rowOf(sh.find(/^Estat$/))}`);
+      const reg = readXlsx(mock.child(p.folderId, 'seguiment_lauravidalserra_01.xlsx').content).sheet('Registre');
+      return reg.get(`E${reg.rowOf(reg.find(/^Pas pendent$/))}`);
     };
     assert.equal(stateOf(), 'Planificada');
     assert.equal(Sync.daily(), 0, 'el mateix dia no es torna a fer res');
-    // Passen quatre dies i ningú toca res: l'endemà, en obrir l'app, la sessió que no s'ha tancat canvia d'estat
+    // Passen quatre dies i ningú toca res: en obrir l'app, la sessió que no s'ha tancat canvia d'estat
     FIXED = new Date(2026, 9, 9, 8, 0, 0).getTime();
     Sync.reset();
     assert.ok(Sync.daily() >= 1, 'es posa a la cua');
     assert.equal(Sync.info(pid).state, 'pending');
     assert.equal(Sync.daily(), 0, 'un sol cop al dia');
     let builds = 0;
-    const orig = ExcelSession.build;
-    ExcelSession.build = (...a) => { builds++; return orig(...a); };
-    await Sync.drain();
-    ExcelSession.build = orig;
-    const last = Sync.info(pid).last;
-    const pendents = ExcelSet.data(pid).sessions.filter((s) => s.status !== 'feta').length;
-    assert.equal(builds, pendents, 'només es refan les sessions que encara no estan fetes');
-    assert.ok(last.kept > 20, 'les sessions fetes i les valoracions es queden com estaven');
+    const orig = ExcelClient.build;
+    ExcelClient.build = (...a) => { builds++; return orig(...a); };
+    try { await Sync.drain(); } finally { ExcelClient.build = orig; }
+    assert.equal(builds, 1);
+    assert.equal(Sync.info(pid).last.uploaded, 1);
     assert.equal(stateOf(), 'Sense tancar');
-    const ov = readXlsx(mock.child(sessionsDir.id, 'visiogeneral_lauravidalserra_01.xlsx').content);
-    const reg = ov.sheet('Registre');
-    const row = [...reg.cells.keys()].filter((k) => /^A\d+$/.test(k)).map((k) => reg.rowOf(k)).find((r) => reg.get(`E${r}`) === 'Sense tancar');
-    assert.ok(row, 'la visió general també ho recull');
     // Un client que fa mesos que no entrena no es toca cada dia
     FIXED = new Date(2027, 5, 1, 8, 0, 0).getTime();
     assert.equal(Sync.daily(), 0);
   } finally { FIXED = day0; done(); }
 });
 
-test('descàrrega a la versió local: cada Excel i el ZIP amb les dues carpetes', async () => {
-  const { core, Store } = setup();
-  const { Exports, ExcelSet } = core;
-  const pid = 'P-DEMO-LAURA';
-  const d = ExcelSet.data(pid, Store);
-  const s = d.sessions.find((x) => x.number === 15);
-  const f = await Exports.file(pid, `S:${s.id}`);
-  assert.equal(f.name, 'sessio_lauravidalserra_20261002_01.xlsx');
-  assert.equal(readXlsx(f.bytes).sheet('Sessió').get('A1'), 'Sessió 15 · Laura Vidal Serra');
-  const z = await Exports.zip(pid);
-  assert.match(z.name, /^eonlife_lauravidalserra_\d{8}\.zip$/);
-  const entries = Object.keys(unzip(z.bytes));
-  assert.ok(entries.includes('Valoracions/retest_lauravidalserra_20261001_01.xlsx'));
-  assert.ok(entries.includes('Sessions/visiogeneral_lauravidalserra_01.xlsx'));
-  assert.equal(entries.length, z.count);
+test('descàrrega a la versió local: l\'Excel del client', async () => {
+  const { core } = setup();
+  const { Exports } = core;
+  const f = await Exports.file('P-DEMO-LAURA');
+  assert.equal(f.name, 'seguiment_lauravidalserra_01.xlsx');
+  const x = readXlsx(f.bytes);
+  assert.ok(x.names.includes('Resum') && x.names.includes('Oct26') && x.names.includes('Registre'));
+  await assert.rejects(Exports.file('P-NO-HI-ES'), /No trobo aquest client/);
+  await assert.rejects(Exports.file('P-DEMO-LAURA', 'S:x'), /No trobo aquest fitxer/);
 });
 
 // ── Planificar el mes ──
@@ -729,7 +685,8 @@ test('els fitxers els obre openpyxl i LibreOffice recalcula les fórmules igual 
   const dir = mkdtempSync(join(tmpdir(), 'eon-xl-'));
   const d = ExcelSet.data('P-DEMO-LAURA', Store);
   const files = ExcelSet.plan(d, { today: '2026-10-05' });
-  const picks = [files.find((f) => f.kind === 'overview'), files.find((f) => f.kind === 'assessment'), files.filter((f) => f.kind === 'assessment')[1], files.find((f) => f.kind === 'session')];
+  const picks = ['P-DEMO-LAURA', 'P-DEMO-JORDI'].map((pid) => ExcelSet.plan(ExcelSet.data(pid, Store), { today: '2026-10-05' })[0]);
+  void files;
   const paths = [];
   for (const f of picks) { const p = join(dir, f.name); writeFileSync(p, (await f.make({}).build({ stamp: STAMP })).bytes); paths.push(p); }
   void db;

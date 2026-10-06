@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { readXlsx, unzip } from './xlsx-read.mjs';
+import { readXlsx } from './xlsx-read.mjs';
 
 const require = createRequire(import.meta.url);
 let playwright;
@@ -738,54 +738,43 @@ const step = async (label, fn) => {
     const want = await page.evaluate((d) => [U.addDays(d, 7), U.addDays(d, 14)], monday);
     if (JSON.stringify(dates) !== JSON.stringify(want)) throw new Error(`dates copiades ${dates} (esperades ${want})`);
   });
-  await step('Excel: descarrega la visió general del client (calendari i detall de cada mes)', async () => {
+  await step('Excel: descarrega l\'Excel del client (resum, un full per mes, registre i valoracions)', async () => {
     await goHash(page, '#/client/P-DEMO-LAURA/mes');
     await page.waitForSelector('.cal');
     const [dl] = await Promise.all([page.waitForEvent('download'), (async () => {
       await page.click('.phead-actions >> text=Excel');
-      await page.click('.menu-list >> text=Descarrega l\'Excel de visió general');
+      await page.click('.menu-list >> text=Descarrega l\'Excel del client');
     })()]);
-    if (dl.suggestedFilename() !== 'visiogeneral_lauravidalserra_01.xlsx') throw new Error(`nom ${dl.suggestedFilename()}`);
+    if (dl.suggestedFilename() !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${dl.suggestedFilename()}`);
     const x = readXlsx(readFileSync(await dl.path()));
-    const month = await page.evaluate(() => U.fmtMonth(U.monthKey(U.addMonths(`${U.monthKey(U.today())}-01`, 2))));
-    for (const n of ['Resum', 'Registre', month, `${month} · detall`]) if (!x.names.includes(n)) throw new Error(`falta el full ${n} (hi ha ${x.names})`);
-    if (!x.sheet(month).text().includes('PLANIFICADA')) throw new Error('el calendari del mes planificat no mostra les sessions');
+    const month = await page.evaluate(() => ExcelMonth.sheetName(U.monthKey(U.addMonths(`${U.monthKey(U.today())}-01`, 2))));
+    for (const n of ['Resum', 'Valoracions', 'Registre', month]) if (!x.names.includes(n)) throw new Error(`falta el full ${n} (hi ha ${x.names})`);
+    if (!x.names.some((n) => /^Val\. inicial \d{2}-\d{2}-\d{2}$/.test(n))) throw new Error(`falta el detall de la valoració inicial (hi ha ${x.names})`);
+    if (!x.sheet(month).text().includes('Planificada')) throw new Error('el full del mes planificat no mostra les sessions');
     if (!x.sheet('Resum').text().includes('Tornar a competir en trail de 42 km')) throw new Error('falta l\'objectiu del client');
     await shot(page, '04d-menu-excel', false);
   });
-  await step('Excel: ZIP amb les carpetes Valoracions i Sessions', async () => {
-    const [dl] = await Promise.all([page.waitForEvent('download'), (async () => {
-      await page.click('.phead-actions >> text=Excel');
-      await page.click('.menu-list >> text=Descarrega tots els Excel (ZIP)');
-    })()]);
-    if (!/^eonlife_lauravidalserra_\d{8}\.zip$/.test(dl.suggestedFilename())) throw new Error(`nom ${dl.suggestedFilename()}`);
-    const names = Object.keys(unzip(readFileSync(await dl.path())));
-    if (!names.includes('Sessions/visiogeneral_lauravidalserra_01.xlsx')) throw new Error('falta la visió general');
-    if (!names.some((n) => /^Valoracions\/valoracioinicial_lauravidalserra_\d{8}_01\.xlsx$/.test(n))) throw new Error('falta la valoració inicial');
-    if (!names.some((n) => /^Sessions\/sessio_lauravidalserra_\d{8}_01\.xlsx$/.test(n))) throw new Error('falten les sessions');
-  });
-  await step('Excel: cada sessió i cada valoració es descarreguen des del seu editor', async () => {
+  await step('Excel: es descarrega també des de l\'editor de cada sessió i de cada valoració', async () => {
     const sid = await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').filter((s) => s.status === 'feta').pop().id);
     await goHash(page, `#/sessio/${sid}`);
     await page.waitForSelector('.block');
     const [d1] = await Promise.all([page.waitForEvent('download'), (async () => {
       await page.click('.editbar .menu button');
-      await page.click('.menu-list >> text=Descarrega l\'Excel d\'aquesta sessió');
+      await page.click('.menu-list >> text=Descarrega l\'Excel del client');
     })()]);
-    if (!/^sessio_lauravidalserra_\d{8}_01\.xlsx$/.test(d1.suggestedFilename())) throw new Error(`nom ${d1.suggestedFilename()}`);
+    if (d1.suggestedFilename() !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${d1.suggestedFilename()}`);
     const s = readXlsx(readFileSync(await d1.path()));
-    if (!/^Sessió \d+ · Laura Vidal Serra$/.test(s.sheet('Sessió').get('A1'))) throw new Error(`títol ${s.sheet('Sessió').get('A1')}`);
-    if (!s.sheet('Exercicis').text().includes('Back squat')) throw new Error('falten els exercicis');
+    if (!s.sheets.some((sh) => /^[A-Z][a-z]{2}\d{2}$/.test(sh.name) && sh.text().includes('Back squat'))) throw new Error('falten els exercicis als fulls dels mesos');
     const aid = await page.evaluate(() => Store.assessmentsOf('P-DEMO-LAURA').pop().id);
     await goHash(page, `#/valoracio/${aid}`);
     await page.waitForSelector('#sec-mobilitat');
     const [d2] = await Promise.all([page.waitForEvent('download'), (async () => {
       await page.click('.editbar .menu button');
-      await page.click('.menu-list >> text=Descarrega l\'Excel d\'aquesta valoració');
+      await page.click('.menu-list >> text=Descarrega l\'Excel del client');
     })()]);
-    if (!/^retest_lauravidalserra_\d{8}_01\.xlsx$/.test(d2.suggestedFilename())) throw new Error(`nom ${d2.suggestedFilename()}`);
+    if (d2.suggestedFilename() !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${d2.suggestedFilename()}`);
     const v = readXlsx(readFileSync(await d2.path()));
-    for (const n of ['Resum', 'Comparació', 'Mobilitat', 'Força', 'Rendiment', 'Patrons']) if (!v.names.includes(n)) throw new Error(`falta ${n}`);
+    if (!v.names.some((n) => /^Re-test \d{2}-\d{2}-\d{2}$/.test(n))) throw new Error(`falta el detall del re-test (hi ha ${v.names})`);
     // La configuració explica els Excel
     await goHash(page, '#/configuracio');
     await page.waitForSelector('text=Excel de cada client');

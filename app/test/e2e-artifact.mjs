@@ -1,7 +1,7 @@
 // Prova de la variant de l'enllaç privat de claude.ai (sense impressió) amb un visor simulat.
 //   node app/test/e2e-artifact.mjs
 // El visor real només deixa baixar fitxers a través de la capacitat «downloads» (window.claude.use('downloads')).
-// Aquí se'n posa una de simulada i es comprova que els Excel, el ZIP i els CSV passen per ella, que un «no» de qui
+// Aquí se'n posa una de simulada i es comprova que l'Excel del client i els CSV passen per ella, que un «no» de qui
 // ho fa no mostra cap error i que, sense la capacitat, no surt cap botó de descàrrega.
 import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
@@ -66,38 +66,31 @@ const bytesOf = (s) => Buffer.from(s.bytes);
 
 {
   const { ctx, page } = await open('accepta');
-  await step('el visor ofereix les descàrregues: surt el menú Excel i es baixa la visió general', async () => {
+  await step('el visor ofereix les descàrregues: surt el menú Excel i es baixa l\'Excel del client', async () => {
     await page.click('.crow >> text=Laura Vidal Serra');
     await page.waitForSelector('text=Última valoració');
     await page.click('.phead-actions >> text=Excel');
-    await page.click('.menu-list >> text=Descarrega l\'Excel de visió general');
-    await page.waitForSelector('text=Excel descarregat: visiogeneral_lauravidalserra_01.xlsx');
+    await page.click('.menu-list >> text=Descarrega l\'Excel del client');
+    await page.waitForSelector('text=Excel descarregat: seguiment_lauravidalserra_01.xlsx');
     const [s] = await saves(page);
-    if (s.filename !== 'visiogeneral_lauravidalserra_01.xlsx') throw new Error(`nom ${s.filename}`);
-    if (s.bytes[0] !== 0x50 || s.bytes[1] !== 0x4b) throw new Error('no és un ZIP/xlsx');
+    if (s.filename !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${s.filename}`);
+    if (s.bytes[0] !== 0x50 || s.bytes[1] !== 0x4b) throw new Error('no és un xlsx');
+    if (!Object.keys(unzip(bytesOf(s))).includes('xl/workbook.xml')) throw new Error('no és un llibre d\'Excel');
   });
-  await step('ZIP amb les carpetes Valoracions i Sessions', async () => {
-    await page.click('.phead-actions >> text=Excel');
-    await page.click('.menu-list >> text=Descarrega tots els Excel (ZIP)');
-    await page.waitForFunction(() => window.__saves.length >= 2);
-    const s = (await saves(page))[1];
-    if (!/^eonlife_lauravidalserra_\d{8}\.zip$/.test(s.filename)) throw new Error(`nom ${s.filename}`);
-    const names = Object.keys(unzip(bytesOf(s)));
-    if (!names.includes('Sessions/visiogeneral_lauravidalserra_01.xlsx') || !names.some((n) => /^Valoracions\/valoracioinicial_/.test(n))) throw new Error(`contingut ${names.slice(0, 4)}`);
-  });
-  await step('Excel d\'una sessió i d\'una valoració des del seu editor', async () => {
+  await step('l\'Excel del client també es baixa des de l\'editor d\'una sessió i d\'una valoració', async () => {
     const sid = await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').filter((s) => s.status === 'feta').pop().id);
     await page.evaluate((id) => go('sessio', id), sid);
     await page.waitForSelector('.block');
     await page.click('.editbar .menu button');
-    await page.click('.menu-list >> text=Descarrega l\'Excel d\'aquesta sessió');
-    await page.waitForFunction(() => window.__saves.some((x) => /^sessio_lauravidalserra_\d{8}_01\.xlsx$/.test(x.filename)));
+    await page.click('.menu-list >> text=Descarrega l\'Excel del client');
+    await page.waitForFunction(() => window.__saves.length >= 2);
     const aid = await page.evaluate(() => Store.assessmentsOf('P-DEMO-LAURA').pop().id);
     await page.evaluate((id) => go('valoracio', id), aid);
     await page.waitForSelector('#sec-mobilitat');
     await page.click('.editbar .menu button');
-    await page.click('.menu-list >> text=Descarrega l\'Excel d\'aquesta valoració');
-    await page.waitForFunction(() => window.__saves.some((x) => /^retest_lauravidalserra_\d{8}_01\.xlsx$/.test(x.filename)));
+    await page.click('.menu-list >> text=Descarrega l\'Excel del client');
+    await page.waitForFunction(() => window.__saves.length >= 3);
+    if (!(await saves(page)).every((x) => x.filename === 'seguiment_lauravidalserra_01.xlsx')) throw new Error('noms dels fitxers');
   });
   await step('Configuració: els CSV i la còpia es baixen pel visor (sense «Importa»)', async () => {
     await page.evaluate(() => go('configuracio'));
@@ -119,7 +112,7 @@ const bytesOf = (s) => Buffer.from(s.bytes);
     await page.click('.crow >> text=Laura Vidal Serra');
     await page.waitForSelector('text=Última valoració');
     await page.click('.phead-actions >> text=Excel');
-    await page.click('.menu-list >> text=Descarrega l\'Excel de visió general');
+    await page.click('.menu-list >> text=Descarrega l\'Excel del client');
     await page.waitForFunction(() => window.__saves.length === 1);
     await page.waitForTimeout(400);
     const txt = await page.locator('body').innerText();

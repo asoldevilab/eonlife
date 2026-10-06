@@ -1,11 +1,12 @@
 /* EON Life · carpetes i noms dels fitxers de cada client.
-   Carpeta del client: «Cognoms, Nom · P-xxxx», amb dues branques:
-     Valoracions/                         valoració inicial, re-tests, PDF de Kinvent, informe mèdic i fotos
+   Carpeta del client: «Cognoms, Nom · P-xxxx», amb l'Excel del client i dues branques:
+     seguiment_lauravidalserra_01.xlsx    l'Excel del client: sessions (un full per mes) i valoracions
+     Valoracions/                         PDF de Kinvent, informe mèdic i fotos
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
-     Sessions/                            un Excel per sessió i l'Excel gegant de visió general
+     Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
-     valoracioinicial_lauravidalserra_20260702_01.xlsx · sessio_lauravidalserra_20261002_01.xlsx
+     seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
      singlelegsquatdreta_lauravidalserra_20260702_01.mp4 · hipthrust_lauravidalserra_20261002_01.mp4 */
 
 const EXPORT_FOLDERS = {
@@ -72,11 +73,12 @@ const Names = (() => {
 
   // ── Excel generats ──
   const ASSESS_KIND = { inicial: 'valoracioinicial', retest: 'retest', control: 'controlmesures', alta: 'valoracioalta' };
-  const sessionFile = (p, date, n) => `sessio_${client(p)}_${stamp(date)}_${serial(n)}.xlsx`;
-  const assessmentFile = (p, type, date, n) => `${ASSESS_KIND[type] || 'valoracio'}_${client(p)}_${stamp(date)}_${serial(n)}.xlsx`;
-  const overviewFile = (p) => `visiogeneral_${client(p)}_01.xlsx`;
-  // Els Excel que fa l'app tenen aquests noms; qualsevol altre fitxer de la carpeta no es toca mai.
+  // L'Excel del client (un de sol, a l'arrel de la seva carpeta): seguiment_lauravidalserra_01.xlsx
+  const clientFile = (p) => `seguiment_${client(p)}_01.xlsx`;
+  // Els Excel que fa (o feia) l'app tenen aquests noms; qualsevol altre fitxer de la carpeta no es toca mai.
+  // Els de «Sessions» i «Valoracions» són els d'abans de l'Excel únic: si encara hi són, es retiren.
   const OWN = {
+    root: /^seguiment_[a-z0-9]+_\d{2}\.xlsx$/,
     sessions: /^(sessio_[a-z0-9]+_\d{8}_\d{2}|visiogeneral_[a-z0-9]+_\d{2})\.xlsx$/,
     assess: /^(valoracioinicial|retest|controlmesures|valoracioalta|valoracio)_[a-z0-9]+_\d{8}_\d{2}\.xlsx$/,
   };
@@ -84,5 +86,5 @@ const Names = (() => {
   // Etiqueta d'un fitxer segons l'extensió i el tipus (per classificar-lo a Valoracions o a Sessions).
   const ext = (name) => ((String(name || '').match(/\.[a-z0-9]{2,5}$/i) || [''])[0]).toLowerCase();
 
-  return { slug, label, client, stamp, serial, stem, nextSerial, file, sessionFile, assessmentFile, overviewFile, OWN, ASSESS_KIND, ext };
+  return { slug, label, client, stamp, serial, stem, nextSerial, file, clientFile, OWN, ASSESS_KIND, ext };
 })();

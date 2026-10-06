@@ -1,7 +1,6 @@
-/* EON Life · el conjunt d'Excel d'un client: quins fitxers toca fer, amb quin nom i a quina carpeta.
-   Valoracions/  → un Excel per valoració (valoracioinicial_…, retest_…)
-   Sessions/     → un Excel per sessió (feta, planificada o prevista al pla) i l'Excel gegant de visió general.
-   La resta (carpetes, noms, números de sèrie) es decideix aquí a partir de les dades de l'app. */
+/* EON Life · els Excel d'un client: quins fitxers toca fer, amb quin nom i a quina carpeta.
+   Un de sol: l'Excel del client (seguiment_<client>_01.xlsx) a l'arrel de la seva carpeta, amb les sessions (fetes,
+   planificades i previstes als plans) i les valoracions. Aquí es reuneixen les dades del client per fer-lo. */
 
 const ExcelSet = (() => {
   const real = (list) => (list || []).filter((x) => x && !x.deleted);
@@ -45,34 +44,15 @@ const ExcelSet = (() => {
     return [...d.sessions, ...ghosts(d)].sort((a, b) => (a.date === b.date ? (a.ghost ? 1 : 0) - (b.ghost ? 1 : 0) || (U.num(a.number) || U.num(a.planN) || 0) - (U.num(b.number) || U.num(b.planN) || 0) : a.date < b.date ? -1 : 1));
   }
 
-  // Noms dels fitxers: el número de sèrie compta els fitxers del mateix dia (i, a les valoracions, del mateix tipus).
+  // Els fitxers d'un client: ara un de sol, l'Excel del client, a l'arrel de la seva carpeta.
   function plan(d, { today = U.today() } = {}) {
     const p = d.patient;
-    const files = [];
-    const count = {};
-    const next = (key) => (count[key] = (count[key] || 0) + 1);
     const all = items(d);
-    const planOf = (s) => d.plans.find((x) => x.id === s.planId) || null;
-    for (const s of all) {
-      const n = next(`s:${s.date}`);
-      files.push({
-        key: `S:${s.id}`, kind: 'session', id: s.id, folder: 'sessions', name: Names.sessionFile(p, s.date, n), date: s.date,
-        timed: !s.ghost && s.status !== 'feta', // l'estat «Sense tancar» depèn de la data d'avui
-        make: () => ExcelSession.build({ patient: p, session: s, sessions: d.sessions, plan: planOf(s), settings: d.settings, today }),
-      });
-    }
-    d.assessments.forEach((a, i) => {
-      const n = next(`a:${a.type}:${a.date}`);
-      files.push({
-        key: `A:${a.id}`, kind: 'assessment', id: a.id, folder: 'assess', name: Names.assessmentFile(p, a.type, a.date, n), date: a.date,
-        make: (links) => ExcelAssessment.build({ patient: p, assessment: a, previous: d.assessments[i - 1] || null, settings: d.settings, today, links }),
-      });
-    });
-    files.push({
-      key: 'O:overview', kind: 'overview', folder: 'sessions', name: Names.overviewFile(p), date: '', timed: true,
-      make: (links) => ExcelOverview.build({ ...d, items: all, today, links: links || {} }),
-    });
-    return files;
+    return [{
+      key: 'C:client', kind: 'client', id: p.id, folder: 'root', name: Names.clientFile(p), date: '',
+      timed: true, // «Sense tancar», la setmana actual i les dates clau depenen del dia d'avui
+      make: () => ExcelClient.build({ ...d, items: all, today }),
+    }];
   }
 
   return { data, ghosts, items, plan };

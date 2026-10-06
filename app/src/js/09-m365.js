@@ -824,7 +824,7 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || fileName, url: (item && item.webUrl) || '' };
   }
 
-  // Desa un fitxer generat per l'app (els Excel de cada sessió, valoració i visió general), substituint el que hi hagi amb el mateix nom.
+  // Desa un fitxer generat per l'app (l'Excel del client), substituint el que hi hagi amb el mateix nom.
   async putFile(parentId, fileName, bytes, { mime = XlsxDoc.XLSX_MIME } = {}) {
     const name = safeName(fileName);
     if (bytes.length > 3.5 * 1024 * 1024) return this.uploadBlob(parentId, name, new Blob([bytes], { type: mime }), { conflict: 'replace' });

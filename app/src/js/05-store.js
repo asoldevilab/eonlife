@@ -273,7 +273,7 @@ const Store = {
     this.data[kind][rec.id] = rec;
     this.emit();
     this.queue(kind, rec.id, opts.immediate ? 0 : 900);
-    // Els Excel del client (sessions, valoracions i visió general) es refan sols (09-sync.js).
+    // L'Excel del client (sessions i valoracions) es refà sol (09-sync.js).
     if (typeof Sync !== 'undefined') Sync.onChange(kind, rec);
     return rec;
   },
