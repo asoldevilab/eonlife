@@ -100,7 +100,7 @@ const step = async (label, fn) => {
     await page.waitForSelector('text=25 %');
   });
   await step('valoració: els tests que ja no es fan no surten i l\'RPE (1–10) es posa al final', async () => {
-    for (const t of ['Rotadors interns de maluc', 'Rotadors externs de maluc', 'Rotadors externs d\'espatlla', 'Leg curl 30/30', 'Flexió d\'espatlla sobre el cap', 'Extensió de genoll']) {
+    for (const t of ['Rotadors interns de maluc', 'Rotadors externs de maluc', 'Rotadors externs d\'espatlla', 'Leg curl 30/30', 'Flexió d\'espatlla sobre el cap', 'Extensió de genoll', 'Slump test']) {
       if (await page.locator('.trow-name', { hasText: t }).count()) throw new Error(`encara surt: ${t}`);
     }
     if (await page.locator('#grp-encoder').count()) throw new Error('encara surt l\'encoder');

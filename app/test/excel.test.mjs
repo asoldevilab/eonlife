@@ -231,7 +231,7 @@ test('valoració: els tests que ja no es fan no surten (si no tenen dades) i l\'
   const { core, Store } = setup();
   const { Calc, TEST_INDEX, PROTOCOL, ExcelAssessment } = core;
   const retired = Object.values(TEST_INDEX).filter((t) => t.retired).map((t) => t.id).sort();
-  assert.deepEqual(retired, ['dyn_curl_30', 'dyn_hip_er', 'dyn_hip_ir', 'dyn_sh_er', 'rom_knee_ext', 'rom_sh_flex']);
+  assert.deepEqual(retired, ['dyn_curl_30', 'dyn_hip_er', 'dyn_hip_ir', 'dyn_sh_er', 'rom_knee_ext', 'rom_sh_flex', 'slump']);
   const enc = PROTOCOL.flatMap((s) => s.groups).find((g) => g.kind === 'encoder');
   assert.ok(enc.retired, 'l\'encoder de la valoració ja no es fa');
   assert.equal(Calc.testOn({ values: {} }, TEST_INDEX.dyn_hip_ir), false);

@@ -7,7 +7,7 @@ const DB_TABLES = [
   { id: 'clients', label: 'Clients', kind: 'patients', add: 'Nou client', hint: 'Una fila per client.' },
   { id: 'valoracions', label: 'Valoracions', kind: 'assessments', focus: 'dades', add: 'Nova valoració', hint: 'Una fila per valoració, amb les dades clau de cada àrea.' },
   { id: 'mobilitat', label: 'Mobilitat · K-Move', kind: 'assessments', focus: 'rom', add: 'Afegeix mobilitat', hint: 'Goniometria digital (Kinvent K-Move) i knee-to-wall. Graus i cm.' },
-  { id: 'postural', label: 'Neurodinàmia i postural', kind: 'assessments', focus: 'neuro', add: 'Afegeix tests posturals', hint: 'Slump, prone knee bending, Adams, Thomas, Windlass i single leg squat.' },
+  { id: 'postural', label: 'Neurodinàmia i postural', kind: 'assessments', focus: 'neuro', add: 'Afegeix tests posturals', hint: 'Prone knee bending, Adams, Thomas, Windlass i single leg squat.' },
   { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
   { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
@@ -138,7 +138,7 @@ const DB = (() => {
 
     mobilitat: () => [...lead(), ...active(['rom_hip_ir', 'rom_hip_er', 'rom_sh_ir', 'rom_sh_er', 'rom_sh_flex', 'rom_knee_flex', 'rom_knee_ext', 'wblt']).flatMap((tid) => biCols(tid))],
 
-    postural: () => [...lead(), ...biSelectCols('slump'), ...biSelectCols('pkb'), selectCol('adams'), ...biSelectCols('thomas'), ...biSelectCols('windlass'), ...scoreBiCols('sls')],
+    postural: () => [...lead(), ...active(['slump', 'pkb']).flatMap((tid) => biSelectCols(tid)), selectCol('adams'), ...biSelectCols('thomas'), ...biSelectCols('windlass'), ...scoreBiCols('sls')],
 
     dinamometria: () => [
       ...lead(),

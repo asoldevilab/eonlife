@@ -84,7 +84,7 @@ Les seccions segueixen el document *Valoració funcional · Human Performance*:
 
 | Secció | Què hi ha | Càlcul automàtic |
 |---|---|---|
-| Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, neurodinàmia (Slump, PKB), anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
+| Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, neurodinàmia (prone knee bending), anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
 | Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i squeeze), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
 | Rendiment | CMJ (My Jump), Assault bike 30 s (fase 2) | Millor salt, mitjana, W/kg, RSI-mod, índex de fatiga |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
@@ -121,7 +121,7 @@ Consells:
   - **K-Push** (força màxima): leg extension, leg curl 90/90 i adductors (squeeze).
 
   Des de l'octubre de 2026 el protocol ja no inclou la flexió d'espatlla sobre el cap, l'extensió de genoll, el leg
-  curl 30/30, els rotadors de maluc, els rotadors externs d'espatlla ni l'encoder: no surten a les valoracions noves
+  curl 30/30, els rotadors de maluc, els rotadors externs d'espatlla, l'Slump test ni l'encoder: no surten a les valoracions noves
   ni el lector del PDF els omple. Si una valoració d'abans en té dades, s'hi continuen veient (amb l'etiqueta
   *ja no es fa*).
 
