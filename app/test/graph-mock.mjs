@@ -389,8 +389,10 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
     up.received = e + 1;
     if (up.received < total) return { status: 202, body: { nextExpectedRanges: [`${up.received}-`] } };
     let name = up.name;
-    if (childOf(up.parentId, name)) {
+    const prev = childOf(up.parentId, name);
+    if (prev) {
       if (up.conflict === 'rename') { const dot = name.lastIndexOf('.'); name = `${name.slice(0, dot)} 1${name.slice(dot)}`; }
+      else if (up.conflict === 'replace') { prev.content = Buffer.concat(up.parts); uploads.delete(sid); return { status: 200, body: view(prev) }; }
       else return { status: 409, body: { error: { code: 'nameAlreadyExists', message: 'exists' } } };
     }
     const f = addItem(up.driveId, up.parentId, name, { file: { mimeType: /\.(mp4|mov|m4v)$/i.test(name) ? 'video/mp4' : 'application/octet-stream' } });

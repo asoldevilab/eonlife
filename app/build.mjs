@@ -17,7 +17,7 @@ const read = (p) => readFileSync(join(src, p), 'utf8');
 
 const jsFiles = readdirSync(join(src, 'js')).filter((f) => f.endsWith('.js')).sort();
 const appJs = jsFiles.map((f) => `/* ── ${f} ── */\n${read('js/' + f)}`).join('\n\n');
-const vendorJs = ['vendor/preact-htm.umd.js', 'vendor/qrcode.js'].map(read).join('\n;\n');
+const vendorJs = ['vendor/preact-htm.umd.js', 'vendor/qrcode.js', 'vendor/html-to-image.js'].map(read).join('\n;\n');
 const logo = 'data:image/png;base64,' + read('assets/logo-mask.b64').trim();
 const css = read('styles.css').replaceAll('__LOGO_MASK__', logo);
 

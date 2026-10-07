@@ -9,7 +9,7 @@ L'app és la mateixa, però les dades es desen a la **carpeta compartida** de l'
 └── 📁 EON Life · Clients
     ├── 📁 Puig, Laura · P-…
     │   ├── 📊 seguiment_laurapuig_01.xlsx  ← l'Excel del client: un full per mes amb les sessions i les valoracions
-    │   ├── 📁 Valoracions                ← PDF de Kinvent, informe mèdic i fotos
+    │   ├── 📁 Valoracions                ← PDF de Kinvent, informe mèdic, fotos i el PDF de l'informe per al client
     │   │   └── 📁 Vídeos valoracions     ← els vídeos dels tests
     │   └── 📁 Sessions
     │       └── 📁 Vídeos sessions d'entrenament
@@ -25,6 +25,7 @@ de sèrie (`_01`, `_02`…) per si n'hi ha més d'un el mateix dia:
 | Vídeo d'un exercici | `hipthrust_lauravidalserra_20261002_01.mp4` |
 | Vídeo o foto d'un test | `singlelegsquatdreta_lauravidalserra_20260702_01.mp4` · `testthomasdreta_lauravidalserra_20260702_01.jpg` |
 | Informe de Kinvent / informe mèdic | `informekinvent_lauravidalserra_20260702_01.pdf` · `informemedic_lauravidalserra_20260702_01.pdf` |
+| Informe de la valoració per al client (botó *Desa el PDF a la carpeta*) | `informevaloracioinicial_lauravidalserra_20260702_01.pdf` · `informeretest_lauravidalserra_20261001_01.pdf` |
 
 **L'Excel** té una pestanya per a cada tipus de dada: *Pacients*, *Valoracions*, *Sessions*,
 *Registre_exercicis*, *Biblioteca*, *Plantilles* i *Configuracio*. Cada valoració o sessió és una fila i cada test,

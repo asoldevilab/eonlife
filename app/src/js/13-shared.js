@@ -124,12 +124,12 @@ function fileExt(file) {
 //   where: 'assess' (Valoracions: PDF de Kinvent, informe mèdic, fotos…) · 'assessVideos' (Valoracions › Vídeos valoracions)
 //          'sessions' (Sessions) · 'sessionVideos' (Sessions › Vídeos sessions d'entrenament, per defecte)
 // Nom: etiqueta_nomcognoms_aaaammdd_01.ext (hipthrust_lauravidalserra_20261002_01.mp4); el número de sèrie és el següent lliure.
-async function uploadToClient(patient, file, { label, date, where = 'sessionVideos', onProgress } = {}) {
+// Amb name, el nom és aquest; amb replace, substitueix el fitxer que ja hi hagi amb aquest nom (p. ex. el PDF de l'informe).
+async function uploadToClient(patient, file, { label, date, where = 'sessionVideos', onProgress, name = '', replace = false } = {}) {
   const ext = fileExt(file);
   const stem = Names.stem(label, patient, date || U.today());
   if (filesOnDevice()) {
-    const name = `${stem}_${Names.serial(LocalFiles.serial(stem))}${ext}`;
-    const res = await LocalFiles.put(file, name);
+    const res = await LocalFiles.put(file, name || `${stem}_${Names.serial(LocalFiles.serial(stem))}${ext}`);
     if (onProgress) onProgress(1);
     return { ...res, folderId: '' };
   }
@@ -139,14 +139,16 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
     fid = (res && res.folderId) || '';
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+  const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
+  const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
   try {
-    res = await Store.backend.uploadFile(fid, file, { stem, ext, path: EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos, onProgress });
+    res = await Store.backend.uploadFile(fid, file, opts);
   } catch (e) {
     // Si algú ha mogut o esborrat una carpeta, es torna a provar un cop amb les carpetes refetes.
     if (!(e && e.status === 404)) throw e;
     if (Store.backend.forgetPaths) Store.backend.forgetPaths();
-    res = await Store.backend.uploadFile(fid, file, { stem, ext, path: EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos, onProgress });
+    res = await Store.backend.uploadFile(fid, file, opts);
   }
   return { ...res, folderId: fid };
 }

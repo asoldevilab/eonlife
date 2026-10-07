@@ -86,6 +86,8 @@ app/
     09-names.js        carpetes i noms dels fitxers de cada client (nomcognoms, aaaammdd, número de sèrie)
     09-excel-*.js      l'Excel del client: resum, un full per mes (09-excel-month), registre i valoracions
     09-sync.js         pujada automàtica de l'Excel a la carpeta del client (cua, reintents, estat)
+    08-pdf.js          escriptor de PDF mínim (una pàgina A4 per imatge JPEG) i les regles d'impressió per a .pdf-mode
+    17-reportpdf.js    PDF de l'informe fet a l'app (html-to-image + 08-pdf.js), per desar-lo a la carpeta del client
     1x-*.js            components, gràfics i navegació
     2x-*.js, 3x-*.js   pantalles (31-connect.js: connexió amb Microsoft 365)
     99-app.js          arrencada
