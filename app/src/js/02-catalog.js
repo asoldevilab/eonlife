@@ -247,7 +247,7 @@ const PROTOCOL = [
       { id: 'neuro', title: 'Neurodinàmia', kind: 'biSelect', options: ['Negatiu', 'Positiu'],
         tests: [
           { id: 'slump', name: 'Slump test', retired: true },
-          { id: 'pkb', name: 'Prone knee bending' },
+          { id: 'pkb', name: 'Prone knee bending', retired: true },
         ] },
       { id: 'postural', title: 'Anàlisi postural',
         ref: 'Magee DJ. Orthopedic Physical Assessment (6a ed.). Saunders/Elsevier; 2014.',

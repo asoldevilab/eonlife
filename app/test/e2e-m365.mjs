@@ -252,6 +252,11 @@ let pid = null;
     await page.click('.rvid-thumb');
     const src = await page.getAttribute('.rvideos video', 'src');
     if (!/download\.mock\.test/.test(src || '')) throw new Error(`vídeo: ${src}`);
+    // Al PDF per al client (imprimir) els vídeos no hi surten; a la pantalla, sí.
+    await page.emulateMedia({ media: 'print' });
+    if (await page.locator('.rvideos').isVisible()) throw new Error('els vídeos surten al PDF');
+    await page.emulateMedia({ media: 'screen' });
+    if (!(await page.locator('.rvideos').isVisible())) throw new Error('els vídeos no surten a la pantalla');
     await page.selectOption('.presentbar select', 'forca');
     await page.waitForSelector('.report-cover >> text=Informe · Força');
     if (!/#\/informe\/[^/]+\/forca$/.test(page.url())) throw new Error(`adreça: ${page.url()}`);

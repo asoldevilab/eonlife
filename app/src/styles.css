@@ -1144,9 +1144,8 @@ tfoot .rpc { font-size: 14px; }
 .no-screen { display: none; }
 @media print {
   .no-screen { display: block; }
-  .rvid-play { display: none; }
-  .rvid-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .rvid-media { aspect-ratio: 16 / 9; }
+  /* Al PDF per al client no hi surten els vídeos (al paper només en quedaria una captura): es veuen a l'app i a la carpeta. */
+  .rvideos { display: none !important; }
 }
 
 /* Informe de la doctora */

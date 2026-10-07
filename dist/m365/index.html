@@ -1161,9 +1161,8 @@ tfoot .rpc { font-size: 14px; }
 .no-screen { display: none; }
 @media print {
   .no-screen { display: block; }
-  .rvid-play { display: none; }
-  .rvid-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .rvid-media { aspect-ratio: 16 / 9; }
+  /* Al PDF per al client no hi surten els vídeos (al paper només en quedaria una captura): es veuen a l'app i a la carpeta. */
+  .rvideos { display: none !important; }
 }
 
 /* Informe de la doctora */
@@ -3764,7 +3763,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-06 16:08";
+window.EON_BUILD = "2026-10-07 11:38";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4333,7 +4332,7 @@ const PROTOCOL = [
       { id: 'neuro', title: 'Neurodinàmia', kind: 'biSelect', options: ['Negatiu', 'Positiu'],
         tests: [
           { id: 'slump', name: 'Slump test', retired: true },
-          { id: 'pkb', name: 'Prone knee bending' },
+          { id: 'pkb', name: 'Prone knee bending', retired: true },
         ] },
       { id: 'postural', title: 'Anàlisi postural',
         ref: 'Magee DJ. Orthopedic Physical Assessment (6a ed.). Saunders/Elsevier; 2014.',
@@ -5149,10 +5148,12 @@ const Calc = {
   testHasData(x) { return !!x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false && !(typeof v === 'number' && Number.isNaN(v))); },
   // Tests i grups que ja no es fan (retired al catàleg): només surten a les valoracions que ja en tenen dades.
   testOn(a, t) { return !t.retired || Calc.testHasData(((a && a.values) || {})[t.id]); },
+  // Un grup es dona per retirat si ho està ell o si ho estan tots els seus tests (p. ex. la neurodinàmia).
   groupOn(a, g) {
-    if (!g.retired) return true;
+    const tests = g.tests || [];
+    if (!g.retired && !(tests.length && tests.every((t) => t.retired))) return true;
     if (g.kind === 'encoder') return ((a && a.encoder && a.encoder.rows) || []).some((r) => r && (String(r.name || '').trim() || U.num(r.load) != null || U.num(r.vel) != null || U.num(r.power) != null));
-    return (g.tests || []).some((t) => Calc.testOn(a, { ...t, retired: true }));
+    return tests.some((t) => Calc.testHasData(((a && a.values) || {})[t.id]));
   },
   // Codi dels exercicis EON (gravats pel centre): «1.3» = bloc 1 (mobilitat), número 3.
   codeKey(code) {
@@ -6695,7 +6696,7 @@ function makeDemoData() {
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
       rom_knee_flex: bi(138, 142),
-      wblt: bi(7, 11), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      wblt: bi(7, 11),
       adams: one('Negatiu'), thomas: { d: 'Positiu · recte anterior', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
       dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_squeeze: bi(255, 268),
       sls: { sd: '-', se: '0', chips: ['Valg de genoll', 'Caiguda de pelvis'], note: 'Valg dinàmic a la cama dreta a partir de la 2a repetició.' },
@@ -6718,7 +6719,7 @@ function makeDemoData() {
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
       rom_knee_flex: bi(141, 142),
-      wblt: bi(9.5, 11.5), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      wblt: bi(9.5, 11.5),
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
       dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_squeeze: bi(281, 290),
       sls: { sd: '0', se: '0', chips: [] },
@@ -6740,7 +6741,7 @@ function makeDemoData() {
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118),
-      wblt: bi(10, 8.5), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      wblt: bi(10, 8.5),
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' },
       dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_squeeze: bi(322, 298),
       sls: { sd: '0', se: '--', chips: ['Valg de genoll', 'Rotació de tronc'], note: 'Evita carregar la cama esquerra.' },
@@ -6776,7 +6777,7 @@ function makeDemoData() {
     general: { weight: '76', height: '179', goal: 'Rendiment i prevenció de recaigudes.' },
     values: {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
-      rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5),
       thomas: { d: 'Negatiu', e: 'Positiu · psoes ilíac' },
       dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_squeeze: bi(415, 426),
       sls: { sd: '0', se: '0' },
@@ -6991,7 +6992,7 @@ const DB_TABLES = [
   { id: 'clients', label: 'Clients', kind: 'patients', add: 'Nou client', hint: 'Una fila per client.' },
   { id: 'valoracions', label: 'Valoracions', kind: 'assessments', focus: 'dades', add: 'Nova valoració', hint: 'Una fila per valoració, amb les dades clau de cada àrea.' },
   { id: 'mobilitat', label: 'Mobilitat · K-Move', kind: 'assessments', focus: 'rom', add: 'Afegeix mobilitat', hint: 'Goniometria digital (Kinvent K-Move) i knee-to-wall. Graus i cm.' },
-  { id: 'postural', label: 'Neurodinàmia i postural', kind: 'assessments', focus: 'neuro', add: 'Afegeix tests posturals', hint: 'Prone knee bending, Adams, Thomas, Windlass i single leg squat.' },
+  { id: 'postural', label: 'Anàlisi postural', kind: 'assessments', focus: 'postural', add: 'Afegeix tests posturals', hint: 'Adams, Thomas, Windlass i single leg squat.' },
   { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
   { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
@@ -14743,7 +14744,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         ${wblt.length > 0 && html`<h3 class="h3">Flexió dorsal de turmell en càrrega <span class="muted">· knee-to-wall</span></h3>
           <${BiBars} rows=${wblt} unit="cm" decimals=${1} />
           <p class="muted small">Referència: menys de ${THRESHOLDS.wbltMin} cm o una diferència de ${THRESHOLDS.wbltDiff} cm entre turmells es considera limitació.</p>`}
-        ${clin.length > 0 && html`<h3 class="h3">Neurodinàmia i anàlisi postural</h3>
+        ${clin.length > 0 && html`<h3 class="h3">${clin.some(({ t }) => t.group === 'neuro') ? 'Neurodinàmia i anàlisi postural' : 'Anàlisi postural'}</h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Test</th><th>Dreta</th><th>Esquerra</th></tr></thead>
           <tbody>${clin.map(({ t, x }) => html`<tr><td>${t.name}${notes && x.note && html`<div class="rnote">${x.note}</div>`}</td>
             ${t.kind === 'select' ? html`<td colspan="2">${x.v || '—'}</td>` : html`<td>${x.d || '—'}</td><td>${x.e || '—'}</td>`}</tr>`)}</tbody></table></div>
@@ -14845,7 +14846,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
 }
 
 // ── Vídeos a l'informe ──
-// A la pantalla: miniatura i reproducció dins de l'informe (Microsoft 365). En paper o PDF: codi QR per obrir-lo.
+// A la pantalla: miniatura, reproducció dins de l'informe (Microsoft 365) i codi QR per obrir-lo des del mòbil.
+// Al PDF per al client no hi surten (styles.css): els vídeos es queden a la carpeta del client i a l'app.
 function ReportVideos({ videos, patient, grouped }) {
   const [media, setMedia] = useState({});
   const [playing, setPlaying] = useState('');
@@ -14867,7 +14869,6 @@ function ReportVideos({ videos, patient, grouped }) {
   const areaName = (id) => (id === 'tot' ? 'General' : (PROTOCOL.find((s) => s.id === id) || {}).short || '');
   return html`<section class="rsec rvideos">
     <h2 class="rsec-title">Vídeos</h2>
-    <p class="muted small no-screen">Escaneja el codi amb la càmera del mòbil per veure cada vídeo.</p>
     <div class="rvid-grid">${videos.map((vd) => {
       const m = media[vd.url] || {};
       const local = LocalFiles.is(vd.url);
@@ -16442,7 +16443,7 @@ function openAddMeasurement(focus, pid) {
 }
 
 const FOCUS_LABELS = {
-  dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', neuro: 'Neurodinàmia i postural',
+  dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', postural: 'Anàlisi postural',
   dyn: 'Dinamometria (K-Push)', sls: 'Single Leg Squat', ybt: 'Y-Balance', jumps: 'Salts (My Jump)',
   bike: 'Assault bike', patterns: 'Patrons de moviment',
 };
