@@ -454,7 +454,9 @@ test('sessió en blanc sense blocs; plantilla i última sessió només amb els b
   const core = loadCore();
   await core.Store.init();
   const { Store } = core;
-  const blank = Store.newSession('P-DEMO-LAURA', { date: '2026-10-05', mode: 'blank' });
+  // Dates lluny de les sessions de prova (que depenen d'avui), perquè «l'última sessió» sigui la de la plantilla.
+  const day = (n) => core.U.addDays(core.U.today(), 400 + n);
+  const blank = Store.newSession('P-DEMO-LAURA', { date: day(0), mode: 'blank' });
   assert.equal(blank.blocks.length, 0);
   const t = { id: 'T-X', kind: 'session', name: 'Prova', blocks: [
     { key: 'cal', items: [{ id: 'i1', name: 'Respiració 90/90' }] },
@@ -462,10 +464,10 @@ test('sessió en blanc sense blocs; plantilla i última sessió només amb els b
     { key: 'pot', items: [] },
   ] };
   Store.put('templates', t, { immediate: true });
-  const fromTpl = Store.newSession('P-DEMO-LAURA', { date: '2026-10-06', mode: 'template', templateId: 'T-X' });
+  const fromTpl = Store.newSession('P-DEMO-LAURA', { date: day(1), mode: 'template', templateId: 'T-X' });
   assert.deepEqual(Array.from(fromTpl.blocks, (b) => b.key), ['mob', 'cal']);
   Store.update('sessions', fromTpl.id, (x) => { x.blocks.push({ key: 'acc', focus: '', note: '', items: [] }); });
-  const fromLast = Store.newSession('P-DEMO-LAURA', { date: '2026-10-07', mode: 'last' });
+  const fromLast = Store.newSession('P-DEMO-LAURA', { date: day(2), mode: 'last' });
   assert.deepEqual(Array.from(fromLast.blocks, (b) => b.key), ['mob', 'cal']);
 });
 

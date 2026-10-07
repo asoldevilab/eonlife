@@ -34,7 +34,8 @@ Tot el protocol és a [`app/src/js/02-catalog.js`](../app/src/js/02-catalog.js):
   no es fa es marca amb `retired: true` (no s'esborra): deixa de sortir a les valoracions noves, als informes, a la base
   de dades de l'app i al lector del PDF de Kinvent, però les valoracions antigues que en tenen dades les conserven.
   Ara ho estan la flexió d'espatlla sobre el cap, l'extensió de genoll, el leg curl 30/30, els rotadors de maluc i
-  d'espatlla, l'Slump test i l'encoder de la valoració.
+  d'espatlla, la neurodinàmia (Slump test i prone knee bending) i l'encoder de la valoració. Un grup amb tots els tests
+  retirats (com la neurodinàmia) tampoc no surt.
 - `RPE_SCALE` — escala de l'RPE (1–10) del final de cada valoració (`rpe`) i del tancament de cada sessió.
 - `PATTERNS` — els 7 patrons de la Sessió 1 amb «Què observem», criteris de − i −−, execució i adaptació.
 - `THRESHOLDS` — llindars (asimetria 10 % / 15 %, knee-to-wall 8 cm / 4 cm, Y-Balance 4 cm, re-test 3 mesos).

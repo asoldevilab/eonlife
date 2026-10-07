@@ -124,7 +124,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         ${wblt.length > 0 && html`<h3 class="h3">Flexió dorsal de turmell en càrrega <span class="muted">· knee-to-wall</span></h3>
           <${BiBars} rows=${wblt} unit="cm" decimals=${1} />
           <p class="muted small">Referència: menys de ${THRESHOLDS.wbltMin} cm o una diferència de ${THRESHOLDS.wbltDiff} cm entre turmells es considera limitació.</p>`}
-        ${clin.length > 0 && html`<h3 class="h3">Neurodinàmia i anàlisi postural</h3>
+        ${clin.length > 0 && html`<h3 class="h3">${clin.some(({ t }) => t.group === 'neuro') ? 'Neurodinàmia i anàlisi postural' : 'Anàlisi postural'}</h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Test</th><th>Dreta</th><th>Esquerra</th></tr></thead>
           <tbody>${clin.map(({ t, x }) => html`<tr><td>${t.name}${notes && x.note && html`<div class="rnote">${x.note}</div>`}</td>
             ${t.kind === 'select' ? html`<td colspan="2">${x.v || '—'}</td>` : html`<td>${x.d || '—'}</td><td>${x.e || '—'}</td>`}</tr>`)}</tbody></table></div>
@@ -226,7 +226,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
 }
 
 // ── Vídeos a l'informe ──
-// A la pantalla: miniatura i reproducció dins de l'informe (Microsoft 365). En paper o PDF: codi QR per obrir-lo.
+// A la pantalla: miniatura, reproducció dins de l'informe (Microsoft 365) i codi QR per obrir-lo des del mòbil.
+// Al PDF per al client no hi surten (styles.css): els vídeos es queden a la carpeta del client i a l'app.
 function ReportVideos({ videos, patient, grouped }) {
   const [media, setMedia] = useState({});
   const [playing, setPlaying] = useState('');
@@ -248,7 +249,6 @@ function ReportVideos({ videos, patient, grouped }) {
   const areaName = (id) => (id === 'tot' ? 'General' : (PROTOCOL.find((s) => s.id === id) || {}).short || '');
   return html`<section class="rsec rvideos">
     <h2 class="rsec-title">Vídeos</h2>
-    <p class="muted small no-screen">Escaneja el codi amb la càmera del mòbil per veure cada vídeo.</p>
     <div class="rvid-grid">${videos.map((vd) => {
       const m = media[vd.url] || {};
       const local = LocalFiles.is(vd.url);

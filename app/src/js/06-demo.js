@@ -57,7 +57,7 @@ function makeDemoData() {
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
       rom_knee_flex: bi(138, 142),
-      wblt: bi(7, 11), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      wblt: bi(7, 11),
       adams: one('Negatiu'), thomas: { d: 'Positiu · recte anterior', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
       dyn_knee_ext: bi(312, 368), dyn_curl_90: bi(190, 205), dyn_squeeze: bi(255, 268),
       sls: { sd: '-', se: '0', chips: ['Valg de genoll', 'Caiguda de pelvis'], note: 'Valg dinàmic a la cama dreta a partir de la 2a repetició.' },
@@ -80,7 +80,7 @@ function makeDemoData() {
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
       rom_knee_flex: bi(141, 142),
-      wblt: bi(9.5, 11.5), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      wblt: bi(9.5, 11.5),
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' }, windlass: { d: 'Negatiu', e: 'Negatiu' },
       dyn_knee_ext: bi(352, 372), dyn_curl_90: bi(204, 210), dyn_squeeze: bi(281, 290),
       sls: { sd: '0', se: '0', chips: [] },
@@ -102,7 +102,7 @@ function makeDemoData() {
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118),
-      wblt: bi(10, 8.5), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      wblt: bi(10, 8.5),
       adams: one('Negatiu'), thomas: { d: 'Negatiu', e: 'Negatiu' },
       dyn_knee_ext: bi(520, 340), dyn_curl_90: bi(260, 210), dyn_squeeze: bi(322, 298),
       sls: { sd: '0', se: '--', chips: ['Valg de genoll', 'Rotació de tronc'], note: 'Evita carregar la cama esquerra.' },
@@ -138,7 +138,7 @@ function makeDemoData() {
     general: { weight: '76', height: '179', goal: 'Rendiment i prevenció de recaigudes.' },
     values: {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
-      rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5), pkb: { d: 'Negatiu', e: 'Negatiu' },
+      rom_knee_flex: bi(145, 144), wblt: bi(12, 11.5),
       thomas: { d: 'Negatiu', e: 'Positiu · psoes ilíac' },
       dyn_knee_ext: bi(560, 548), dyn_curl_90: bi(310, 298), dyn_squeeze: bi(415, 426),
       sls: { sd: '0', se: '0' },

@@ -100,10 +100,10 @@ const step = async (label, fn) => {
     await page.waitForSelector('text=25 %');
   });
   await step('valoració: els tests que ja no es fan no surten i l\'RPE (1–10) es posa al final', async () => {
-    for (const t of ['Rotadors interns de maluc', 'Rotadors externs de maluc', 'Rotadors externs d\'espatlla', 'Leg curl 30/30', 'Flexió d\'espatlla sobre el cap', 'Extensió de genoll', 'Slump test']) {
+    for (const t of ['Rotadors interns de maluc', 'Rotadors externs de maluc', 'Rotadors externs d\'espatlla', 'Leg curl 30/30', 'Flexió d\'espatlla sobre el cap', 'Extensió de genoll', 'Slump test', 'Prone knee bending']) {
       if (await page.locator('.trow-name', { hasText: t }).count()) throw new Error(`encara surt: ${t}`);
     }
-    if (await page.locator('#grp-encoder').count()) throw new Error('encara surt l\'encoder');
+    if (await page.locator('#grp-encoder').count() || await page.locator('#grp-neuro').count()) throw new Error('encara surt l\'encoder o la neurodinàmia');
     if (!(await page.locator('.trow-name', { hasText: 'Leg curl 90/90' }).count())) throw new Error('falta el leg curl 90/90');
     await page.click('.secnav-btn >> text=RPE');
     const btns = await page.locator('#sec-rpe .seg-rpe .seg-btn').allInnerTexts();
@@ -669,7 +669,10 @@ const step = async (label, fn) => {
     await page.click('.dbtab >> text=Dinamometria · K-Push');
     await page.click('.page-actions >> text=Afegeix dinamometria');
     await page.selectOption('#am-client', { label: 'Àlex Martí Soler' });
-    await page.fill('#am-date', '2026-10-05');
+    // Un dia sense cap valoració d'aquest client (les dades de prova depenen d'avui): així és una mesura nova, de control.
+    const day = await page.evaluate(() => U.addDays(U.today(), 1));
+    const shown = day.split('-').reverse().join('/');
+    await page.fill('#am-date', day);
     await page.click('.dialog-foot >> text=Continua');
     await page.waitForSelector('#grp-dyn.flash');
     await page.getByLabel('Leg extension · quàdriceps dreta').fill('580');
@@ -677,8 +680,8 @@ const step = async (label, fn) => {
     await page.waitForTimeout(1100);
     await page.click('.sidebar >> text=Base de dades');
     await page.click('.dbtab >> text=Dinamometria · K-Push');
-    await page.waitForSelector('.dbt td >> text=05/10/2026');
-    const types = await page.locator('.dbt tbody tr:has-text("05/10/2026") td').allInnerTexts();
+    await page.waitForSelector(`.dbt td >> text=${shown}`);
+    const types = await page.locator(`.dbt tbody tr:has-text("${shown}") td`).allInnerTexts();
     if (!types.includes('Control')) throw new Error(`tipus: ${types.slice(0, 4).join(' | ')}`);
     if (!types.includes('580')) throw new Error('no surt el valor 580');
   });

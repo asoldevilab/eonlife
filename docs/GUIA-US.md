@@ -15,7 +15,7 @@ Tot es desa sol mentre escrius (a dalt a la dreta: *Desant…* › *Desat al nú
 Menú **Base de dades**: totes les dades de tots els clients en taules, una per àrea (com les
 pestanyes del full de càlcul):
 
-**Clients · Valoracions · Mobilitat (K-Move) · Neurodinàmia i postural · Dinamometria (K-Push) ·
+**Clients · Valoracions · Mobilitat (K-Move) · Anàlisi postural · Dinamometria (K-Push) ·
 Y-Balance · Salts (My Jump) · Assault bike · Patrons · Sessions · Registre d'exercicis**
 
 - Cada fila és una mesura d'un client en una data. Toca-la per obrir-la i editar-la.
@@ -84,7 +84,7 @@ Les seccions segueixen el document *Valoració funcional · Human Performance*:
 
 | Secció | Què hi ha | Càlcul automàtic |
 |---|---|---|
-| Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, neurodinàmia (prone knee bending), anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
+| Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
 | Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i squeeze), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
 | Rendiment | CMJ (My Jump), Assault bike 30 s (fase 2) | Millor salt, mitjana, W/kg, RSI-mod, índex de fatiga |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
@@ -109,8 +109,8 @@ Consells:
   - **Patrons unilaterals de la Sessió 1** (Lunge, Lateral Lunge i Copenhagen Plank): dos vídeos, el de la dreta
     i el de l'esquerra.
 
-  Les fotos surten a l'informe, al costat de l'anàlisi postural, i els vídeos, a l'apartat de vídeos, amb el
-  costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
+  Les fotos surten a l'informe, al costat de l'anàlisi postural, i els vídeos, a l'apartat de vídeos de la pantalla
+  (al PDF per al client no hi surten), amb el costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
 - **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *Valoracions*
   de la carpeta del client (`informekinvent_…_01.pdf`) (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
   A la **versió de prova** (sense Microsoft 365) també es tria el PDF o es grava el vídeo, però es queden només en
@@ -121,7 +121,8 @@ Consells:
   - **K-Push** (força màxima): leg extension, leg curl 90/90 i adductors (squeeze).
 
   Des de l'octubre de 2026 el protocol ja no inclou la flexió d'espatlla sobre el cap, l'extensió de genoll, el leg
-  curl 30/30, els rotadors de maluc, els rotadors externs d'espatlla, l'Slump test ni l'encoder: no surten a les valoracions noves
+  curl 30/30, els rotadors de maluc, els rotadors externs d'espatlla, la neurodinàmia (Slump test i prone knee bending)
+  ni l'encoder: no surten a les valoracions noves
   ni el lector del PDF els omple. Si una valoració d'abans en té dades, s'hi continuen veient (amb l'etiqueta
   *ja no es fa*).
 
@@ -152,8 +153,10 @@ Consells:
   *Informe de …*: només aquell apartat, els seus vídeos i la comparació amb l'última vegada que es va mesurar.
   Quan es repeteix un apartat (per exemple, els patrons al cap d'un mes), es fa amb **Afegeix mesures** i el seu
   informe ja surt comparat amb l'anterior. A la barra de l'informe es pot canviar entre *Informe complet* i cada apartat.
-- **Vídeos a l'informe**: tots els vídeos enllaçats surten a l'informe, amb la miniatura (amb Microsoft 365 es
-  reprodueixen allà mateix) i un codi QR per obrir-los des del PDF o el paper.
+- **Vídeos a l'informe**: a la pantalla, tots els vídeos enllaçats surten a l'informe, amb la miniatura (amb
+  Microsoft 365 es reprodueixen allà mateix) i un codi QR per obrir-los des del mòbil. Al **PDF per al client** no
+  hi surten (en paper només en quedaria una captura): els vídeos no s'esborren i es continuen veient a l'app i a la
+  carpeta del client.
 - **Informe**: presentació per ensenyar al client en pantalla. Amb el botó
   *Sense notes / Amb notes* es mostren o s'amaguen les observacions internes de cada test.
   Si hi ha una valoració anterior, surt la comparació de les mètriques clau.

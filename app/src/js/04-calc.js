@@ -32,10 +32,12 @@ const Calc = {
   testHasData(x) { return !!x && Object.entries(x).some(([k, v]) => !MEDIA_KEYS.includes(k) && v !== '' && v != null && v !== false && !(typeof v === 'number' && Number.isNaN(v))); },
   // Tests i grups que ja no es fan (retired al catàleg): només surten a les valoracions que ja en tenen dades.
   testOn(a, t) { return !t.retired || Calc.testHasData(((a && a.values) || {})[t.id]); },
+  // Un grup es dona per retirat si ho està ell o si ho estan tots els seus tests (p. ex. la neurodinàmia).
   groupOn(a, g) {
-    if (!g.retired) return true;
+    const tests = g.tests || [];
+    if (!g.retired && !(tests.length && tests.every((t) => t.retired))) return true;
     if (g.kind === 'encoder') return ((a && a.encoder && a.encoder.rows) || []).some((r) => r && (String(r.name || '').trim() || U.num(r.load) != null || U.num(r.vel) != null || U.num(r.power) != null));
-    return (g.tests || []).some((t) => Calc.testOn(a, { ...t, retired: true }));
+    return tests.some((t) => Calc.testHasData(((a && a.values) || {})[t.id]));
   },
   // Codi dels exercicis EON (gravats pel centre): «1.3» = bloc 1 (mobilitat), número 3.
   codeKey(code) {

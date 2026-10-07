@@ -147,7 +147,7 @@ function openAddMeasurement(focus, pid) {
 }
 
 const FOCUS_LABELS = {
-  dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', neuro: 'Neurodinàmia i postural',
+  dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', postural: 'Anàlisi postural',
   dyn: 'Dinamometria (K-Push)', sls: 'Single Leg Squat', ybt: 'Y-Balance', jumps: 'Salts (My Jump)',
   bike: 'Assault bike', patterns: 'Patrons de moviment',
 };
