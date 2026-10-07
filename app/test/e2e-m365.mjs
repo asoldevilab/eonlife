@@ -257,6 +257,23 @@ let pid = null;
     if (await page.locator('.rvideos').isVisible()) throw new Error('els vídeos surten al PDF');
     await page.emulateMedia({ media: 'screen' });
     if (!(await page.locator('.rvideos').isVisible())) throw new Error('els vídeos no surten a la pantalla');
+    // «Desa el PDF a la carpeta»: el fa l'app i el desa a «Valoracions» del client; un segon cop el substitueix.
+    const aid = await page.evaluate(() => location.hash.split('/')[2]);
+    for (let k = 0; k < 2; k++) {
+      await page.click('.presentbar >> text=Desa el PDF a la carpeta');
+      await page.waitForSelector('.presentbar >> text=Fent el PDF', { timeout: 5000 }).catch(() => {});
+      await page.waitForFunction(() => !/Fent el PDF/.test(document.querySelector('.presentbar').textContent), null, { timeout: 120000 });
+      const bad = await page.evaluate(() => [...document.querySelectorAll('.toast')].map((t) => t.textContent).find((t) => /No s'ha pogut fer el PDF/.test(t)));
+      if (bad) throw new Error(bad);
+      await page.waitForSelector('.toast >> text=PDF desat a la carpeta del client');
+    }
+    const pdfs = files('Valoracions').filter((n) => /\.pdf$/.test(n) && /^informe(?!kinvent)/.test(n));
+    if (pdfs.length !== 1 || !/^informevaloracioinicial_montseriera_\d{8}_01\.pdf$/.test(pdfs[0])) throw new Error(`PDF a la carpeta: ${files('Valoracions')}`);
+    const pdf = mock.child(sub('Valoracions').id, pdfs[0]).content;
+    if (!pdf.toString('latin1', 0, 5).startsWith('%PDF') || (pdf.toString('latin1').match(/\/Type \/Page\b/g) || []).length < 2) throw new Error('no és un PDF de l\'informe');
+    const linked = await page.evaluate((id) => (Store.get('assessments', id).files || []).filter((f) => f.label === 'Informe per al client').map((f) => f.name), aid);
+    if (JSON.stringify(linked) !== JSON.stringify([pdfs[0]])) throw new Error(`enllaç a la valoració: ${linked}`);
+    await page.waitForSelector('.presentbar >> text=Obre el PDF');
     await page.selectOption('.presentbar select', 'forca');
     await page.waitForSelector('.report-cover >> text=Informe · Força');
     if (!/#\/informe\/[^/]+\/forca$/.test(page.url())) throw new Error(`adreça: ${page.url()}`);

@@ -781,7 +781,8 @@ class M365Api {
 
   // Puja un fitxer de la tauleta a una carpeta del client (path = ['Valoracions', 'Vídeos valoracions']), per trossos i amb progrés.
   // El nom és etiqueta_client_data_NN.ext: amb { stem, ext } el número de sèrie (_01, _02…) és el següent lliure de la carpeta.
-  async uploadFile(folderId, file, { name, stem, ext, onProgress, path = EXPORT_FOLDERS.sessionVideos } = {}) {
+  // conflict: 'rename' (per defecte, un fitxer nou amb el número de sèrie següent) o 'replace' (substitueix el que hi ha amb el mateix nom).
+  async uploadFile(folderId, file, { name, stem, ext, onProgress, path = EXPORT_FOLDERS.sessionVideos, conflict = 'rename' } = {}) {
     if (!file || !file.size) throw new M365Error('El fitxer és buit.', 'upload');
     const target = await this.ensurePath(folderId, path);
     let fileName = name;
@@ -790,7 +791,7 @@ class M365Api {
       fileName = `${stem}_${Names.serial(Names.nextSerial(taken, stem, ext || ''))}${ext || ''}`;
     }
     fileName = safeName(fileName || file.name) || 'fitxer';
-    return this.uploadBlob(target.id, fileName, file, { conflict: 'rename', onProgress });
+    return this.uploadBlob(target.id, fileName, file, { conflict, onProgress });
   }
 
   // Puja un fitxer per trossos (sessió de pujada de Graph) i en retorna { id, name, url }.

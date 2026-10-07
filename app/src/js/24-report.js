@@ -69,7 +69,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const ScoreCell = ({ s, pain }) => html`<span class="rscore"><${ScoreDot} v=${s} pain=${pain} size="sm" />${s ? Calc.scoreInfo(s).label : ''}</span>`;
 
   return html`<div class="present">
-    <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)}>
+    <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)}
+      actions=${html`<${ReportPdfButton} a=${a} p=${p} typeLabel=${typeLabel} scopeSec=${scopeSec} />`}>
       ${areas.length > 1 && html`<${Select} value=${scope} onValue=${setScope} class="select-sm" ariaLabel="Apartat de l'informe"
         options=${[{ v: 'tot', label: 'Informe complet' }, ...areas.map((s) => ({ v: s.id, label: `Només ${s.short.toLowerCase()}` }))]} />`}
       <${Btn} variant="ghost" icon=${notes ? 'eye' : 'eyeoff'} onClick=${() => setNotes(!notes)} title="Mostra o amaga les observacions de cada test">${notes ? 'Amb notes' : 'Sense notes'}</${Btn}>
@@ -223,6 +224,55 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
       </footer>
     </article>
   </div>`;
+}
+
+// ── PDF de l'informe fet a l'app ──
+// Amb Microsoft 365, es desa sol a «Valoracions» de la carpeta del client (substituint el d'abans de la mateixa valoració) i
+// queda enllaçat a la valoració i a l'Excel. Sense carpeta al núvol, es descarrega.
+//   informevaloracioinicial_lauravidalserra_20260702_01.pdf · informeforca_lauravidalserra_20261001_01.pdf (només d'un apartat)
+function reportPdfName(a, p, typeLabel, scopeSec) {
+  return `${Names.stem(scopeSec ? `Informe ${scopeSec.short}` : `Informe ${typeLabel}`, p, a.date)}_01.pdf`;
+}
+
+function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
+  const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
+  const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
+  const cloud = Store.cloud() && !!(Store.backend && Store.backend.uploadFile);
+  if (!cloud && !U.canDownload()) return null;
+  const name = reportPdfName(a, p, typeLabel, scopeSec);
+  const center = Store.settings.centerName || 'EON Life';
+  const run = async () => {
+    if (busy != null) return;
+    const el = document.querySelector('.present .report');
+    if (!el) return;
+    setBusy(0);
+    setSaved(null);
+    try {
+      const bytes = await ReportPdf.render(el, {
+        title: `${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`, author: center,
+        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)} · ${U.fmtDate(a.date)}`, onProgress: setBusy,
+      });
+      if (cloud) {
+        const res = await uploadToClient(p, new File([bytes], name, { type: 'application/pdf' }), { name, replace: true, where: 'assess' });
+        Store.update('assessments', a.id, (x) => {
+          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al client', date: U.today() }];
+        });
+        setSaved({ name: res.name, url: res.url });
+        UI.toast(`PDF desat a la carpeta del client: ${res.name}`);
+      } else {
+        savedToast(await U.downloadBytes(name, bytes, 'application/pdf'), `PDF descarregat: ${name}`);
+      }
+    } catch (e) {
+      UI.toast(`No s'ha pogut fer el PDF: ${(e && e.message) || e}`, 'bad');
+    }
+    setBusy(null);
+  };
+  const label = busy != null ? `Fent el PDF… ${Math.round(busy * 100)} %` : cloud ? 'Desa el PDF a la carpeta' : 'Descarrega el PDF';
+  return html`<span class="inline">
+    ${saved && saved.url && html`<a class="btn btn-ghost" href=${saved.url} target="_blank" rel="noopener" title=${saved.name}><${Icon} name="note" size=${16} /><span>Obre el PDF</span></a>`}
+    <${Btn} variant="primary" icon=${cloud ? 'upload' : 'download'} disabled=${busy != null} onClick=${run}
+      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el client'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
+  </span>`;
 }
 
 // ── Vídeos a l'informe ──

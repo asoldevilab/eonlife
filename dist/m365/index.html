@@ -3760,10 +3760,13 @@ var qrcode = function() {
 }(function () {
     return qrcode;
 }));
+
+;
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-07 11:38";
+window.EON_BUILD = "2026-10-07 12:24";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7955,6 +7958,96 @@ if (typeof document !== 'undefined') {
 }
 
 
+/* ── 08-pdf.js ── */
+/* EON Life · escriptor de PDF mínim: una pàgina A4 per imatge JPEG (les pàgines de l'informe fet a l'app, 17-reportpdf.js).
+   El JPEG va tal qual dins del PDF (filtre DCTDecode), sense tornar-lo a comprimir.
+
+   Ús:
+     const bytes = PdfWriter.build([{ jpeg, w, h }, …], { title: 'Valoració inicial · Laura Vidal Serra' }); */
+
+const PdfWriter = (() => {
+  const A4 = { w: 595.28, h: 841.89 };   // punts (1/72 de polzada)
+  const enc = new TextEncoder();
+
+  // Text d'un diccionari: en ASCII, entre parèntesis; amb accents, en UTF-16BE hexadecimal (<FEFF…>).
+  function pdfText(s) {
+    const str = String(s || '');
+    if (/^[\x20-\x7e]*$/.test(str)) return `(${str.replace(/[\\()]/g, '\\$&')})`;
+    let hex = 'FEFF';
+    for (const ch of str) {
+      const cp = ch.codePointAt(0);
+      const units = cp > 0xffff ? [0xd800 + ((cp - 0x10000) >> 10), 0xdc00 + ((cp - 0x10000) & 0x3ff)] : [cp];
+      for (const u of units) hex += u.toString(16).toUpperCase().padStart(4, '0');
+    }
+    return `<${hex}>`;
+  }
+
+  // D:AAAAMMDDHHmmSS
+  const pdfDate = (d) => `D:${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`;
+
+  function build(pages, { title = '', author = '', date = new Date(), page = A4 } = {}) {
+    if (!pages || !pages.length) throw new Error('El PDF no té cap pàgina.');
+    const chunks = [];
+    let size = 0;
+    const offsets = [];
+    const push = (x) => { const b = typeof x === 'string' ? enc.encode(x) : x; chunks.push(b); size += b.length; };
+    const obj = (n, body) => { offsets[n] = size; push(`${n} 0 obj\n`); for (const part of [].concat(body)) push(part); push('\nendobj\n'); };
+
+    push('%PDF-1.4\n%âãÏÓ\n'); // la 2a línia, amb bytes > 127, diu als programes que el fitxer és binari
+    const n = pages.length;
+    // 1 catàleg · 2 pàgines · per pàgina: 3k pàgina, 3k+1 contingut, 3k+2 imatge · al final, informació
+    const pageObj = (i) => 3 + i * 3;
+    const info = 3 + n * 3;
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, `<< /Type /Pages /Kids [${pages.map((_, i) => `${pageObj(i)} 0 R`).join(' ')}] /Count ${n} >>`);
+    const W = page.w.toFixed(2), H = page.h.toFixed(2);
+    pages.forEach((pg, i) => {
+      const p = pageObj(i);
+      if (!pg.jpeg || typeof pg.jpeg.length !== 'number' || pg.jpeg[0] !== 0xff || pg.jpeg[1] !== 0xd8) throw new Error(`La pàgina ${i + 1} no és una imatge JPEG.`);
+      obj(p, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 ${p + 2} 0 R >> /ProcSet [/PDF /ImageC] >> /Contents ${p + 1} 0 R >>`);
+      const content = `q\n${W} 0 0 ${H} 0 0 cm\n/Im0 Do\nQ\n`;
+      obj(p + 1, [`<< /Length ${enc.encode(content).length} >>\nstream\n`, content, 'endstream']);
+      obj(p + 2, [`<< /Type /XObject /Subtype /Image /Width ${pg.w} /Height ${pg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pg.jpeg.length} >>\nstream\n`, pg.jpeg, '\nendstream']);
+    });
+    obj(info, `<< /Title ${pdfText(title)} /Author ${pdfText(author)} /Producer (EON Life) /Creator (EON Life) /CreationDate (${pdfDate(date)}) >>`);
+    const xref = size;
+    let table = `xref\n0 ${info + 1}\n0000000000 65535 f \n`;
+    for (let k = 1; k <= info; k++) table += `${String(offsets[k]).padStart(10, '0')} 00000 n \n`;
+    push(table);
+    push(`trailer\n<< /Size ${info + 1} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+    const out = new Uint8Array(size);
+    let at = 0;
+    for (const c of chunks) { out.set(c, at); at += c.length; }
+    return out;
+  }
+
+  return { build, A4, pdfText };
+})();
+
+// Els selectors de les regles @media print, aplicats dins d'un contenidor .pdf-mode (:root, html i body passen a ser el
+// contenidor): així el PDF que fa l'app (17-reportpdf.js) té el mateix aspecte que imprimir l'informe.
+const PrintScope = (() => {
+  function split(sel) {
+    const out = [];
+    let depth = 0, cur = '';
+    for (const ch of sel) {
+      if (ch === '(' || ch === '[') depth++;
+      else if (ch === ')' || ch === ']') depth--;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    }
+    out.push(cur);
+    return out.map((s) => s.trim()).filter(Boolean);
+  }
+  function scope(sel, root = '.pdf-mode') {
+    return split(sel).map((s) => {
+      const m = s.match(/^(?::root|html|body)((?:\[[^\]]*\]|:not\((?:[^()]|\([^()]*\))*\))*)(.*)$/);
+      return m ? `${root}${m[2]}` : `${root} ${s}`;
+    }).join(', ');
+  }
+  return { scope, split };
+})();
+
+
 /* ── 08-xlsx.js ── */
 /* EON Life · generador de fitxers Excel (.xlsx) sense dependències.
    Serveix per crear la plantilla de la base de dades a Microsoft 365: un full per tipus de dada,
@@ -10703,7 +10796,8 @@ class M365Api {
 
   // Puja un fitxer de la tauleta a una carpeta del client (path = ['Valoracions', 'Vídeos valoracions']), per trossos i amb progrés.
   // El nom és etiqueta_client_data_NN.ext: amb { stem, ext } el número de sèrie (_01, _02…) és el següent lliure de la carpeta.
-  async uploadFile(folderId, file, { name, stem, ext, onProgress, path = EXPORT_FOLDERS.sessionVideos } = {}) {
+  // conflict: 'rename' (per defecte, un fitxer nou amb el número de sèrie següent) o 'replace' (substitueix el que hi ha amb el mateix nom).
+  async uploadFile(folderId, file, { name, stem, ext, onProgress, path = EXPORT_FOLDERS.sessionVideos, conflict = 'rename' } = {}) {
     if (!file || !file.size) throw new M365Error('El fitxer és buit.', 'upload');
     const target = await this.ensurePath(folderId, path);
     let fileName = name;
@@ -10712,7 +10806,7 @@ class M365Api {
       fileName = `${stem}_${Names.serial(Names.nextSerial(taken, stem, ext || ''))}${ext || ''}`;
     }
     fileName = safeName(fileName || file.name) || 'fitxer';
-    return this.uploadBlob(target.id, fileName, file, { conflict: 'rename', onProgress });
+    return this.uploadBlob(target.id, fileName, file, { conflict, onProgress });
   }
 
   // Puja un fitxer per trossos (sessió de pujada de Graph) i en retorna { id, name, url }.
@@ -12146,12 +12240,12 @@ function fileExt(file) {
 //   where: 'assess' (Valoracions: PDF de Kinvent, informe mèdic, fotos…) · 'assessVideos' (Valoracions › Vídeos valoracions)
 //          'sessions' (Sessions) · 'sessionVideos' (Sessions › Vídeos sessions d'entrenament, per defecte)
 // Nom: etiqueta_nomcognoms_aaaammdd_01.ext (hipthrust_lauravidalserra_20261002_01.mp4); el número de sèrie és el següent lliure.
-async function uploadToClient(patient, file, { label, date, where = 'sessionVideos', onProgress } = {}) {
+// Amb name, el nom és aquest; amb replace, substitueix el fitxer que ja hi hagi amb aquest nom (p. ex. el PDF de l'informe).
+async function uploadToClient(patient, file, { label, date, where = 'sessionVideos', onProgress, name = '', replace = false } = {}) {
   const ext = fileExt(file);
   const stem = Names.stem(label, patient, date || U.today());
   if (filesOnDevice()) {
-    const name = `${stem}_${Names.serial(LocalFiles.serial(stem))}${ext}`;
-    const res = await LocalFiles.put(file, name);
+    const res = await LocalFiles.put(file, name || `${stem}_${Names.serial(LocalFiles.serial(stem))}${ext}`);
     if (onProgress) onProgress(1);
     return { ...res, folderId: '' };
   }
@@ -12161,14 +12255,16 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
     fid = (res && res.folderId) || '';
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+  const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
+  const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
   try {
-    res = await Store.backend.uploadFile(fid, file, { stem, ext, path: EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos, onProgress });
+    res = await Store.backend.uploadFile(fid, file, opts);
   } catch (e) {
     // Si algú ha mogut o esborrat una carpeta, es torna a provar un cop amb les carpetes refetes.
     if (!(e && e.status === 404)) throw e;
     if (Store.backend.forgetPaths) Store.backend.forgetPaths();
-    res = await Store.backend.uploadFile(fid, file, { stem, ext, path: EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos, onProgress });
+    res = await Store.backend.uploadFile(fid, file, opts);
   }
   return { ...res, folderId: fid };
 }
@@ -13254,6 +13350,205 @@ function ReportPhoto({ url, title, patient }) {
     <figcaption>${title}</figcaption>
   </figure>`;
 }
+
+
+/* ── 17-reportpdf.js ── */
+/* EON Life · PDF de l'informe fet a la mateixa app, sense el diàleg d'imprimir (per desar-lo sol a la carpeta del client).
+   L'informe de la pantalla es copia en un contenidor fora de la vista amb l'amplada d'un A4 i les regles d'impressió de
+   styles.css (els blocs @media print, aplicats sota .pdf-mode); es parteix en pàgines sense tallar files, targetes, fotos
+   ni títols; cada pàgina es converteix en una imatge (html-to-image, a vendor/) i les imatges fan el PDF (08-pdf.js). */
+
+const ReportPdf = (() => {
+  // A4 a 96 px per polzada (210 × 297 mm) i els marges de 12 mm de l'@page de styles.css.
+  const PAGE = { w: 794, h: 1123, m: 45 };
+  const CONTENT_W = PAGE.w - 2 * PAGE.m;
+  const FOOT = 22;                                     // espai del peu de pàgina, dins del marge inferior
+  const CONTENT_H = PAGE.h - 2 * PAGE.m - FOOT;
+
+  // Les regles de @media print de la pàgina, però per a .pdf-mode (PrintScope, a 08-pdf.js).
+  function printCss() {
+    const out = [];
+    const walk = (rules, inPrint) => {
+      for (const r of rules) {
+        if (r.type === 4 /* @media */) {
+          const m = r.media ? r.media.mediaText : r.conditionText;
+          const isPrint = /\bprint\b/.test(m) && !/\bscreen\b/.test(m);
+          if (isPrint || inPrint) walk(r.cssRules, true);
+        } else if (inPrint && r.type === 1 /* regla */) {
+          out.push(`${PrintScope.scope(r.selectorText)} { ${r.style.cssText} }`);
+        }
+      }
+    };
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try { rules = sheet.cssRules; } catch (e) { continue; } // fulls d'un altre domini (les fonts)
+      if (rules) walk(rules, false);
+    }
+    return out.join('\n');
+  }
+
+  // Les fotos de la carpeta del client es baixen abans (si no, la imatge quedaria buida al PDF).
+  async function localImages(root) {
+    const urls = [];
+    await Promise.all([...root.querySelectorAll('img')].map(async (img) => {
+      const src = img.getAttribute('src') || '';
+      if (!/^https?:/i.test(src)) return;
+      try {
+        const res = await fetch(src, { mode: 'cors', credentials: 'omit' });
+        if (!res.ok) throw new Error(String(res.status));
+        const u = URL.createObjectURL(await res.blob());
+        urls.push(u);
+        img.setAttribute('src', u);
+      } catch (e) { img.removeAttribute('src'); img.setAttribute('data-pdf-missing', '1'); }
+    }));
+    await Promise.all([...root.querySelectorAll('img')].map((img) => (img.complete ? null : new Promise((ok) => { img.onload = ok; img.onerror = ok; }))));
+    return urls;
+  }
+
+  // On es pot tallar: mai pel mig d'una fila, una targeta, una foto, un paràgraf o just després d'un títol.
+  const ATOMIC = 'tr, img, svg, figure, canvas, li, h1, h2, h3, h4, p, dt, dd, .stat, .bibar, .alert, .jump-card, .rcols > div, .rtiles > *, .report-facts > div, .rphoto, .pill, .rscore';
+  const HEADING = 'h2, h3, h4, .h3, .rsec-title, .eyebrow, .rlegend, .legend';
+  function breaks(root) {
+    const top0 = root.getBoundingClientRect().top;
+    const spans = [];
+    let total = 0;                                                   // on acaba el contingut (sense marges ni vores buides al final)
+    for (const el of root.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect();
+      if (!r.height) continue;
+      const a = r.top - top0, b = r.bottom - top0;
+      if (!el.children.length || el.matches('img, svg, tr, .stat, .alert')) total = Math.max(total, Math.ceil(b));
+      if (b - a > CONTENT_H * 0.9) continue;                         // més alt que una pàgina: s'ha de poder tallar per dins
+      const cs = getComputedStyle(el);
+      if (el.matches(ATOMIC) || !el.children.length || cs.breakInside === 'avoid') spans.push([a, b]);
+      if (el.matches(HEADING) || cs.breakAfter === 'avoid') {
+        const next = el.nextElementSibling;
+        if (next) { const nr = next.getBoundingClientRect(); spans.push([a, Math.min(nr.bottom, nr.top + 70) - top0]); }
+      }
+    }
+    const out = [0];
+    let start = 0;
+    while (start + CONTENT_H < total) {
+      let y = start + CONTENT_H;
+      for (let moved = true; moved;) {
+        moved = false;
+        for (const [a, b] of spans) if (a > start + 1 && a < y - 0.5 && b > y + 0.5) { y = a; moved = true; }
+      }
+      if (y - start < CONTENT_H * 0.3) y = start + CONTENT_H;          // cap lloc bo: es talla igualment
+      y = Math.floor(y);
+      out.push(y);
+      start = y;
+    }
+    if (total - start > 4 || out.length === 1) out.push(total); else out[out.length - 1] = total;
+    return out;
+  }
+
+  // Les fonts de l'app (Google Fonts) dins del PDF: només els jocs llatins, baixats un cop i guardats per a la propera vegada.
+  // Sense connexió, el PDF es fa igualment amb les fonts del sistema.
+  let fontCache = null;
+  const dataUrl = (blob) => new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = ko; r.readAsDataURL(blob); });
+  async function fontCss() {
+    if (fontCache != null) return fontCache;
+    const link = [...document.querySelectorAll('link[rel="stylesheet"]')].find((l) => /fonts\.googleapis\.com/.test(l.href));
+    if (!link) return (fontCache = '');
+    try {
+      const css = await (await fetch(link.href)).text();
+      const out = [];
+      for (const m of css.matchAll(/\/\*\s*([\w-]+)\s*\*\/\s*(@font-face\s*\{[^}]*\})/g)) {
+        if (m[1] !== 'latin' && m[1] !== 'latin-ext') continue;
+        const u = (m[2].match(/url\(\s*['"]?([^'")]+)['"]?\s*\)/) || [])[1];
+        if (!u) continue;
+        const res = await fetch(u);
+        if (!res.ok) throw new Error(String(res.status));
+        out.push(m[2].replace(/url\([^)]*\)/, `url(${await dataUrl(await res.blob())})`));
+      }
+      fontCache = out.join('\n');
+      return fontCache;
+    } catch (e) { return ''; }
+  }
+
+  const toBytes = (canvas, quality) => new Promise((ok, ko) => canvas.toBlob((b) => (b ? b.arrayBuffer().then((x) => ok(new Uint8Array(x)), ko) : ko(new Error('No s\'ha pogut fer la imatge de la pàgina.'))), 'image/jpeg', quality));
+
+  // source: l'element de l'informe a la pantalla. Retorna els bytes del PDF.
+  async function render(source, { title = '', author = '', footer = '', scale = 2, quality = 0.9, onProgress } = {}) {
+    if (typeof htmlToImage === 'undefined') throw new Error('Aquesta versió no pot fer el PDF.');
+    const style = document.createElement('style');
+    style.textContent = `${printCss()}
+      /* l'escenari no es veu (1 px i retallat), però el que hi ha a dins es dibuixa a la mida real; html-to-image en fa la
+         imatge (una pàgina posada fora de la pantalla amb left negatiu sortiria en blanc) */
+      .pdf-stage { position: fixed; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none; z-index: -1; }
+      .pdf-host, .pdf-page { position: relative; background: #FFFFFF; color: var(--ink); font-family: var(--font-body); }
+      .pdf-host { width: ${CONTENT_W}px; }
+      .pdf-page { width: ${PAGE.w}px; height: ${PAGE.h}px; padding: ${PAGE.m}px; box-sizing: border-box; overflow: hidden; }
+      .pdf-view { position: relative; width: ${CONTENT_W}px; overflow: hidden; }
+      .pdf-foot { position: absolute; left: ${PAGE.m}px; right: ${PAGE.m}px; bottom: ${PAGE.m - 6}px; display: flex; justify-content: space-between; gap: 12px;
+        font-size: 7.5pt; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 5px; }
+      /* el peu de l'informe ja hi és a cada pàgina */
+      .pdf-mode .report > .sheet-foot { display: none; }
+      /* sempre la disposició de tauleta, encara que es faci des d'un mòbil */
+      .pdf-mode .bibar { grid-template-columns: minmax(150px, 1fr) minmax(0, 2.3fr) 70px; }
+      .pdf-mode .bibar-bars { grid-column: auto; grid-row: auto; }`;
+    document.head.appendChild(style);
+    const stage = document.createElement('div');
+    stage.className = 'pdf-stage';
+    stage.setAttribute('aria-hidden', 'true');
+    const host = document.createElement('div');
+    host.className = 'pdf-mode pdf-host';
+    const doc = source.cloneNode(true);
+    host.appendChild(doc);
+    stage.appendChild(host);
+    document.body.appendChild(stage);
+    let urls = [];
+    try {
+      // Fora el que no surt al paper (vídeos, botons, apartats amagats per imprimir): menys feina i res que no es pugui dibuixar.
+      for (const el of [...doc.querySelectorAll('video, iframe, audio')]) el.remove();
+      for (const el of [...doc.querySelectorAll('*')]) if (el.isConnected && getComputedStyle(el).display === 'none') el.remove();
+      urls = await localImages(doc);
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const cuts = breaks(doc);
+      const n = cuts.length - 1;
+      const opts = { pixelRatio: scale, backgroundColor: '#FFFFFF', width: PAGE.w, height: PAGE.h, cacheBust: false,
+        imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' };
+      opts.fontEmbedCSS = await fontCss(); // (així html-to-image no va a llegir els fulls d'estil d'un altre domini)
+      const pages = [];
+      for (let i = 0; i < n; i++) {
+        if (onProgress) onProgress(i / n);
+        const page = document.createElement('div');
+        page.className = 'pdf-mode pdf-page';
+        const view = document.createElement('div');
+        view.className = 'pdf-view';
+        view.style.height = `${cuts[i + 1] - cuts[i]}px`;
+        const part = doc.cloneNode(true);
+        part.style.transform = `translateY(${-cuts[i]}px)`;
+        view.appendChild(part);
+        page.appendChild(view);
+        const foot = document.createElement('div');
+        foot.className = 'pdf-foot';
+        const left = document.createElement('span');
+        left.textContent = footer;
+        const right = document.createElement('span');
+        right.textContent = `Pàgina ${i + 1} de ${n}`;
+        foot.append(left, right);
+        page.appendChild(foot);
+        stage.appendChild(page);
+        try {
+          let canvas;
+          try { canvas = await htmlToImage.toCanvas(page, opts); } catch (e) {
+            throw new Error(e && e.message ? e.message : `no s'ha pogut dibuixar la pàgina ${i + 1}`);
+          }
+          pages.push({ jpeg: await toBytes(canvas, quality), w: canvas.width, h: canvas.height });
+        } finally { page.remove(); }
+      }
+      if (onProgress) onProgress(1);
+      return PdfWriter.build(pages, { title, author });
+    } finally {
+      stage.remove();
+      style.remove();
+      for (const u of urls) URL.revokeObjectURL(u);
+    }
+  }
+
+  return { render, printCss, breaks, PAGE };
+})();
 
 
 /* ── 20-home.js ── */
@@ -14689,7 +14984,8 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const ScoreCell = ({ s, pain }) => html`<span class="rscore"><${ScoreDot} v=${s} pain=${pain} size="sm" />${s ? Calc.scoreInfo(s).label : ''}</span>`;
 
   return html`<div class="present">
-    <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)}>
+    <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)}
+      actions=${html`<${ReportPdfButton} a=${a} p=${p} typeLabel=${typeLabel} scopeSec=${scopeSec} />`}>
       ${areas.length > 1 && html`<${Select} value=${scope} onValue=${setScope} class="select-sm" ariaLabel="Apartat de l'informe"
         options=${[{ v: 'tot', label: 'Informe complet' }, ...areas.map((s) => ({ v: s.id, label: `Només ${s.short.toLowerCase()}` }))]} />`}
       <${Btn} variant="ghost" icon=${notes ? 'eye' : 'eyeoff'} onClick=${() => setNotes(!notes)} title="Mostra o amaga les observacions de cada test">${notes ? 'Amb notes' : 'Sense notes'}</${Btn}>
@@ -14843,6 +15139,55 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
       </footer>
     </article>
   </div>`;
+}
+
+// ── PDF de l'informe fet a l'app ──
+// Amb Microsoft 365, es desa sol a «Valoracions» de la carpeta del client (substituint el d'abans de la mateixa valoració) i
+// queda enllaçat a la valoració i a l'Excel. Sense carpeta al núvol, es descarrega.
+//   informevaloracioinicial_lauravidalserra_20260702_01.pdf · informeforca_lauravidalserra_20261001_01.pdf (només d'un apartat)
+function reportPdfName(a, p, typeLabel, scopeSec) {
+  return `${Names.stem(scopeSec ? `Informe ${scopeSec.short}` : `Informe ${typeLabel}`, p, a.date)}_01.pdf`;
+}
+
+function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
+  const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
+  const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
+  const cloud = Store.cloud() && !!(Store.backend && Store.backend.uploadFile);
+  if (!cloud && !U.canDownload()) return null;
+  const name = reportPdfName(a, p, typeLabel, scopeSec);
+  const center = Store.settings.centerName || 'EON Life';
+  const run = async () => {
+    if (busy != null) return;
+    const el = document.querySelector('.present .report');
+    if (!el) return;
+    setBusy(0);
+    setSaved(null);
+    try {
+      const bytes = await ReportPdf.render(el, {
+        title: `${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`, author: center,
+        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)} · ${U.fmtDate(a.date)}`, onProgress: setBusy,
+      });
+      if (cloud) {
+        const res = await uploadToClient(p, new File([bytes], name, { type: 'application/pdf' }), { name, replace: true, where: 'assess' });
+        Store.update('assessments', a.id, (x) => {
+          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al client', date: U.today() }];
+        });
+        setSaved({ name: res.name, url: res.url });
+        UI.toast(`PDF desat a la carpeta del client: ${res.name}`);
+      } else {
+        savedToast(await U.downloadBytes(name, bytes, 'application/pdf'), `PDF descarregat: ${name}`);
+      }
+    } catch (e) {
+      UI.toast(`No s'ha pogut fer el PDF: ${(e && e.message) || e}`, 'bad');
+    }
+    setBusy(null);
+  };
+  const label = busy != null ? `Fent el PDF… ${Math.round(busy * 100)} %` : cloud ? 'Desa el PDF a la carpeta' : 'Descarrega el PDF';
+  return html`<span class="inline">
+    ${saved && saved.url && html`<a class="btn btn-ghost" href=${saved.url} target="_blank" rel="noopener" title=${saved.name}><${Icon} name="note" size=${16} /><span>Obre el PDF</span></a>`}
+    <${Btn} variant="primary" icon=${cloud ? 'upload' : 'download'} disabled=${busy != null} onClick=${run}
+      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el client'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
+  </span>`;
 }
 
 // ── Vídeos a l'informe ──
@@ -15441,7 +15786,8 @@ function VbtPanel({ it, onChange }) {
 /* ── 26-session-sheet.js ── */
 /* EON Life · fitxa de sessió per ensenyar al client (pantalla) i per imprimir o desar en PDF. */
 
-function PresentBar({ onClose, children, title }) {
+// actions: botons que van al final (p. ex. «Desa el PDF a la carpeta» a l'informe); aleshores imprimir passa a ser secundari.
+function PresentBar({ onClose, children, title, actions }) {
   const [dark, setDark] = useState(document.documentElement.getAttribute('data-theme') === 'dark');
   const toggleTheme = () => {
     const next = dark ? 'light' : 'dark';
@@ -15461,7 +15807,9 @@ function PresentBar({ onClose, children, title }) {
     ${children}
     <${Btn} variant="ghost" icon=${dark ? 'sun' : 'moon'} title=${dark ? 'Tema clar' : 'Tema fosc'} onClick=${toggleTheme} />
     <${Btn} variant="ghost" icon="expand" title="Pantalla completa" onClick=${full} />
-    ${!IS_ARTIFACT && html`<${Btn} variant="primary" icon="print" onClick=${printPage}>Imprimeix / PDF</${Btn}>`}
+    ${!IS_ARTIFACT && (actions ? html`<${Btn} variant="ghost" icon="print" onClick=${printPage} title="Imprimeix en paper">Imprimeix</${Btn}>`
+      : html`<${Btn} variant="primary" icon="print" onClick=${printPage}>Imprimeix / PDF</${Btn}>`)}
+    ${actions}
   </div>`;
 }
 

@@ -5,7 +5,7 @@
 import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { readXlsx } from './xlsx-read.mjs';
 
 const require = createRequire(import.meta.url);
@@ -162,6 +162,18 @@ const step = async (label, fn) => {
     await page.waitForSelector('.report');
     if (await page.$('.rsec-title >> text=Tests complementaris')) throw new Error('l\'informe encara té els tests per perfil');
     await shot(page, '07-informe');
+  });
+  await step('informe: «Descarrega el PDF» el fa la mateixa app (A4, sense vídeos ni el diàleg d\'imprimir)', async () => {
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 120000 }), page.click('.presentbar >> text=Descarrega el PDF')]);
+    if (!/^informe[a-z]+_lauravidalserra_\d{8}_01\.pdf$/.test(dl.suggestedFilename())) throw new Error(`nom ${dl.suggestedFilename()}`);
+    const pdf = readFileSync(await dl.path());
+    const txt = pdf.toString('latin1');
+    const pages = (txt.match(/\/Type \/Page\b/g) || []).length;
+    if (!txt.startsWith('%PDF-') || pages < 3 || !/\/MediaBox \[0 0 595\.28 841\.89\]/.test(txt)) throw new Error(`PDF: ${pages} pàgines`);
+    if (pdf.length > 6e6) throw new Error(`PDF massa gran: ${pdf.length}`);
+    if (shots) writeFileSync(join(shots, 'informe-app.pdf'), pdf);
+    await page.waitForSelector('.presentbar >> text=Descarrega el PDF');
+    if (await page.locator('.pdf-stage').count()) throw new Error('no s\'ha netejat l\'escenari del PDF');
   });
   await step('editor de sessió', async () => {
     await goHash(page, '#/client/P-DEMO-LAURA/sessions');
