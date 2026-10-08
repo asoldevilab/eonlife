@@ -34,13 +34,13 @@ function makeDemoData() {
     reason: 'Dolor femoropatel·lar recurrent a la cama dreta en les baixades.',
     history: 'Condropatia rotuliana dreta (2024). Corredora de muntanya, 4 dies per setmana.' });
   const jordi = patient({ id: 'P-DEMO-JORDI', firstName: 'Jordi', lastName: 'Puig Ferrer', birthDate: '1974-09-03', sex: 'H', service: 'membership',
-    professional: 'Richy', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
+    professional: 'Ricardo Villamizar', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
     goal: 'Tornar a esquiar la temporada vinent amb seguretat.',
     reason: 'Readaptació després de la reconstrucció del LCA.',
     history: 'Esquiador aficionat. Sense altres lesions rellevants.',
     surgeryDate: D(-84), surgeryNote: 'Reconstrucció del LCA del genoll esquerre (plàstia HTH).' });
   const montse = patient({ id: 'P-DEMO-MONTSE', firstName: 'Montserrat', lastName: 'Font Riba', birthDate: '1955-01-22', sex: 'D', service: 'membership',
-    professional: 'Richy', startDate: D(-45),
+    professional: 'Ricardo Villamizar', startDate: D(-45),
     goal: 'Guanyar autonomia i confiança per caminar per la muntanya amb els néts.',
     reason: 'Osteopènia i por a caure.',
     history: 'Osteopènia (2023). Pròtesi de maluc dret (2019).' });
@@ -98,7 +98,7 @@ function makeDemoData() {
       plan: 'Iniciar fase de potència: pliometria reactiva 2 dies per setmana. Mantenir força principal a 3 × 5 (RIR 1-2).',
     } });
 
-  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Richy',
+  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Ricardo Villamizar',
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118),
@@ -120,7 +120,7 @@ function makeDemoData() {
       plan: 'Coordinat amb fisioteràpia. Sense impactes fins al criteri del fisio. Força de quàdriceps en cadena oberta i tancada, 2 dies per setmana.',
     } });
 
-  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Richy',
+  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Ricardo Villamizar',
     general: { weight: '62', height: '158', goal: 'Autonomia i confiança caminant.' },
     values: {
       rom_hip_ir: bi(22, 25), rom_hip_er: bi(30, 34), rom_sh_ir: bi(48, 50), rom_sh_er: bi(80, 84),
@@ -226,7 +226,7 @@ function makeDemoData() {
     for (const off of [1, 3]) {
       const date = U.addDays(jw0, w * 7 + off);
       if (date >= today) continue;
-      session(jordi, date, 'Richy', 'Readaptació LCA · força de quàdriceps', {
+      session(jordi, date, 'Ricardo Villamizar', 'Readaptació LCA · força de quàdriceps', {
         mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12'], ['X-MOB-07']] },
         act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
         pot: { focus: '', items: [] },
@@ -238,7 +238,7 @@ function makeDemoData() {
         decision: 'Progressar càrrega del leg press i mantenir profunditat controlada.' });
     }
   }
-  session(jordi, D(1), 'Richy', 'Readaptació LCA · força de quàdriceps', {
+  session(jordi, D(1), 'Ricardo Villamizar', 'Readaptació LCA · força de quàdriceps', {
     mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12']] },
     act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
     for: { focus: 'Dominant de genoll', items: [['X-FOR-03', { load: '24' }], ['X-FOR-07', { reps: '10', load: '90', intensity: 'RIR 3' }], ['X-FOR-06', { sets: '3', reps: '8/cama', load: '0', note: 'Caixa de 20 cm.' }]] },
@@ -252,7 +252,7 @@ function makeDemoData() {
     for (const off of [0, 3]) {
       const date = U.addDays(mw0, w * 7 + off);
       if (date >= today) continue;
-      session(montse, date, 'Richy', 'Autonomia · força i equilibri', {
+      session(montse, date, 'Ricardo Villamizar', 'Autonomia · força i equilibri', {
         mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
         act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
         pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -263,7 +263,7 @@ function makeDemoData() {
         decision: w > 3 ? 'Afegir exercici d\'equilibri amb ulls tancats.' : '' });
     }
   }
-  session(montse, today, 'Richy', 'Autonomia · força i equilibri', {
+  session(montse, today, 'Ricardo Villamizar', 'Autonomia · força i equilibri', {
     mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
     act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
     pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },

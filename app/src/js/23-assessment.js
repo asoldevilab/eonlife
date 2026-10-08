@@ -45,13 +45,13 @@ function AssessmentEditor({ id, focus }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
       <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
         ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(a.patientId) }, { sep: true }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del pacient', icon: 'download', onClick: () => downloadExcel(a.patientId) }, { sep: true }] : []),
         { label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove },
       ]} />
       <nav class="secnav" aria-label="Seccions de la valoració">
@@ -93,7 +93,7 @@ function AssessmentEditor({ id, focus }) {
       ${alerts.length ? html`<ul class="alerts">${alerts.map((x) => html`<li class=${`alert alert-${x.tone}`}><${Icon} name=${x.tone === 'bad' ? 'alert' : 'info'} size=${16} />${x.text}</li>`)}</ul>`
         : html`<p class="muted">Cap punt d'atenció amb les dades actuals.</p>`}
       <div class="form-grid mt">
-        <${Field} label="Punts forts" id="co-str" wide=${true}><${Area} id="co-str" value=${c.strengths} onValue=${setCon('strengths')} placeholder="Què fa bé el client, on té marge…" /></${Field}>
+        <${Field} label="Punts forts" id="co-str" wide=${true}><${Area} id="co-str" value=${c.strengths} onValue=${setCon('strengths')} placeholder="Què fa bé el pacient, on té marge…" /></${Field}>
         <${Field} label="Prioritats" id="co-pri" wide=${true}><${Area} id="co-pri" value=${c.priorities} onValue=${setCon('priorities')} placeholder=${'1. …\n2. …'} /></${Field}>
         <${Field} label="Decisions per al pla d'entrenament" id="co-plan" wide=${true}><${Area} id="co-plan" value=${c.plan} onValue=${setCon('plan')} /></${Field}>
         <${Field} label="Propera valoració (re-test)" id="co-next" hint=${`Per defecte, ${THRESHOLDS.retestMonths} mesos després.`}><${TextInput} id="co-next" type="date" value=${a.nextRetest} onValue=${set('nextRetest')} /></${Field}>
@@ -107,7 +107,7 @@ function AssessmentEditor({ id, focus }) {
           <${Seg} value=${a.rpe || ''} onValue=${set('rpe')} options=${RPE_SCALE} ariaLabel="RPE de la valoració" class="seg-rpe" />
         </${Field}>
       </div>
-      <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Veure l'informe per al client</${Btn}></div>
+      <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Veure l'informe per al pacient</${Btn}></div>
     </section>
   </div>`;
 }
@@ -376,7 +376,7 @@ function BikeBlock({ a, upd }) {
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
     </div>
-    <p class="muted small">Els watts de la bicicleta d'aire no són comparables amb els del Wingate clàssic: serveixen per comparar el client amb ell mateix.</p>
+    <p class="muted small">Els watts de la bicicleta d'aire no són comparables amb els del Wingate clàssic: serveixen per comparar el pacient amb ell mateix.</p>
   </div>`;
 }
 
@@ -481,7 +481,7 @@ function FreeBlock({ a, upd }) {
 function AssessmentFiles({ a, p, upd }) {
   const files = a.files || [];
   const unlink = async (f) => {
-    if (!(await UI.confirm({ title: 'Treure l\'enllaç?', text: `«${f.name}» deixarà de sortir a la valoració. El fitxer es queda a la carpeta del client.`, ok: 'Treu l\'enllaç' }))) return;
+    if (!(await UI.confirm({ title: 'Treure l\'enllaç?', text: `«${f.name}» deixarà de sortir a la valoració. El fitxer es queda a la carpeta del pacient.`, ok: 'Treu l\'enllaç' }))) return;
     upd((x) => { x.files = (x.files || []).filter((y) => y.id !== f.id); });
   };
   return html`<section class="card" id="sec-fitxers">
@@ -498,10 +498,10 @@ function AssessmentFiles({ a, p, upd }) {
         <${Btn} variant="ghost" size="sm" icon="x" title="Treu l'enllaç" onClick=${() => unlink(f)} />
       </li>`)}</ul>`
       : html`<p class="muted">${canUploadFiles() && filesOnDevice()
-        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «Valoracions» de la carpeta del client.'
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «Valoracions» de la carpeta del pacient.'
         : canUploadFiles()
-        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «Valoracions» de la carpeta del client.'
-        : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del client.'}</p>`}
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «Valoracions» de la carpeta del pacient.'
+        : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del pacient.'}</p>`}
   </section>`;
 }
 
@@ -516,7 +516,7 @@ function AttachButton({ a, p, upd, label, primary, compact }) {
     try {
       const res = await uploadToClient(p, file, { label, date: a.date, where: 'assess', onProgress: setPct });
       add({ name: res.name, url: res.url, label });
-      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
+      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del pacient.');
     } catch (e) {
       UI.toast(e.message, 'bad');
     }

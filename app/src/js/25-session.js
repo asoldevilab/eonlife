@@ -78,7 +78,7 @@ function SessionEditor({ id }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${leave} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${leave} />
       <div class="editbar-title">
         <strong>Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
@@ -95,7 +95,7 @@ function SessionEditor({ id }) {
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
         { sep: true },
         ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(s.patientId) }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del pacient', icon: 'download', onClick: () => downloadExcel(s.patientId) }] : []),
         { sep: true },
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />
@@ -129,8 +129,8 @@ function SessionEditor({ id }) {
         </${Field}>
         <${Field} label="Durada" id="fb-min"><${NumInput} id="fb-min" value=${f.duration} onValue=${setIn('feedback', 'duration')} unit="min" /></${Field}>
         <${Field} label="Càrrega de la sessió"><div class="computed"><${Icon} name="flame" size=${16} />${load != null ? `${U.fmt(load, 0)} UA` : 'RPE × minuts'}</div></${Field}>
-        <${Field} label="Dolor en acabar (0–10)" id="fb-pain" wide=${true}>
-          <${Seg} value=${f.pain || ''} onValue=${setIn('feedback', 'pain')} options=${['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']} ariaLabel="Dolor en acabar" />
+        <${Field} label="Dolor en acabar (EVA 0–10)" id="fb-pain" wide=${true}>
+          <${Seg} value=${f.pain || ''} onValue=${setIn('feedback', 'pain')} options=${EVA_SCALE} ariaLabel="Dolor en acabar" />
         </${Field}>
         <${Field} label="Observacions" id="fb-notes" wide=${true}>
           <${Area} id="fb-notes" value=${f.notes} onValue=${setIn('feedback', 'notes')} placeholder="Compensacions, dolor, asimetries, fatiga o ajustos realitzats" />
@@ -152,7 +152,7 @@ function AddBlocks({ blocks, onAdd }) {
   const empty = !(blocks || []).length;
   return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label="Afegeix blocs a la sessió">
     ${empty ? html`<div><h2 class="h2">Blocs de la sessió</h2>
-        <p class="muted">Afegeix només els blocs que necessiti aquest client. Es posen sols en l'ordre de la metodologia.</p></div>`
+        <p class="muted">Afegeix només els blocs que necessiti aquest pacient. Es posen sols en l'ordre de la metodologia.</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
     <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
       <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
@@ -416,7 +416,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
-        !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
+        !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />

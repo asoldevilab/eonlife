@@ -190,7 +190,7 @@ function ExerciseDialog({ ex, init, onClose }) {
       <${Field} label="Descans" id="ex-rest"><${TextInput} id="ex-rest" value=${f.rest} onValue=${set('rest')} /></${Field}>
     </div>
     <div class="form-grid mt">
-      <${Field} label="Consignes" id="ex-cues" wide=${true}><${Area} id="ex-cues" value=${f.cues} onValue=${set('cues')} placeholder="Què ha de sentir o controlar el client" /></${Field}>
+      <${Field} label="Consignes" id="ex-cues" wide=${true}><${Area} id="ex-cues" value=${f.cues} onValue=${set('cues')} placeholder="Què ha de sentir o controlar el pacient" /></${Field}>
     </div>
     ${BLOCKS.map((b) => html`<datalist id=${`focus-${b.key}`}>${b.focus.map((x) => html`<option value=${x}></option>`)}</datalist>`)}
   </${Dialog}>`;
@@ -290,7 +290,7 @@ function MethodList() {
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca mètodes i apunts…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca mètodes" /></label>
     </div>
-    <p class="muted small">Els mètodes per no fer sempre el mateix: a cada bloc o subbloc de la sessió es pot triar el mètode i surt a la fitxa del client. Obre'n un per afegir-hi els vostres apunts (cursos, universitat, articles).</p>
+    <p class="muted small">Els mètodes per no fer sempre el mateix: a cada bloc o subbloc de la sessió es pot triar el mètode i surt a la fitxa del pacient. Obre'n un per afegir-hi els vostres apunts (cursos, universitat, articles).</p>
     ${BLOCKS.filter((b) => inBlock(b.key).length).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(inBlock(b.key).length, 'mètode', 'mètodes')}</span></div>
       <div class="methods">${inBlock(b.key).map((t) => html`<button type="button" class="method" onClick=${() => openMethod(t)}>

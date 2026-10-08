@@ -1,5 +1,5 @@
 /* EON Life · pla d'entrenament: les sessions d'un client (S1…SN) preparades amb antelació i amb progressió.
-   Cada sessió del pla té els mateixos 6 blocs que una sessió normal. Quan el client ve, «Nova sessió › Del pla»
+   Cada sessió del pla té els mateixos 6 blocs que una sessió normal. Quan el pacient ve, «Nova sessió › Del pla»
    (o el calendari) crea la sessió del dia a partir de la del pla; la sessió es continua omplint com sempre. */
 
 const PLAN_PHASES = ['Adaptació', 'Hipertròfia', 'Força', 'Potència', 'Transferència', 'Descàrrega', 'Manteniment'];
@@ -14,7 +14,7 @@ function PatientPlan({ p }) {
   const plans = Store.plans(p.id);
   const progress = Store.sessionsOf(p.id).length >= 2 && html`<section class="card">
     <div class="card-head"><div class="grow"><h2 class="h2">Progrés</h2>
-      <p class="muted">Compara una sessió d'abans amb la d'ara, exercici per exercici: nivell, càrrega i velocitat de l'encoder. Per ensenyar-ho al client.</p></div>
+      <p class="muted">Compara una sessió d'abans amb la d'ara, exercici per exercici: nivell, càrrega i velocitat de l'encoder. Per ensenyar-ho al pacient.</p></div>
       <${Btn} icon="chart" onClick=${() => go('progres', p.id)}>Mira el progrés</${Btn}></div>
   </section>`;
   if (!plans.length) {
@@ -177,7 +177,7 @@ function PlanEditor({ id, n }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna al client" onClick=${() => go('client', plan.patientId, 'pla')} />
+      <${Btn} variant="ghost" icon="back" title="Torna al pacient" onClick=${() => go('client', plan.patientId, 'pla')} />
       <div class="editbar-title"><strong>${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
       <${SaveStatus} />
       ${real.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('progres', plan.patientId, plan.id)}>Progrés</${Btn}>`}

@@ -102,7 +102,7 @@ function ConnectLogin({ cfg, message }) {
       ${!cfg.baked.clientId && html`<${Btn} variant="ghost" onClick=${() => { M365.save({ clientId: '', tenantId: '' }); reconnect(); }}>Canvia els codis de l'app</${Btn}>`}
     </div>
     ${problem && html`<${RedirectInfo} />`}
-    <p class="muted small">Només vols veure com funciona? <a class="link" href="demo/">Obre la demostració amb clients ficticis</a> (sense compte).</p>`;
+    <p class="muted small">Només vols veure com funciona? <a class="link" href="demo/">Obre la demostració amb pacients ficticis</a> (sense compte).</p>`;
 }
 
 // Pas 2: carpeta compartida (enllaç de «Copia l'enllaç»).
@@ -132,8 +132,8 @@ function ConnectSetup({ cfg }) {
   return html`<h1 class="h2">Prepara la carpeta${cfg.folderName ? html` «${cfg.folderName}»` : ''}</h1>
     <p>És el primer cop que s'hi connecta l'app. Només cal fer-ho una vegada per a tot el centre. S'hi crearan:</p>
     <ul class="connect-list">
-      <li><${Icon} name="table" size=${18} /><span><strong>EON Life · Base de dades</strong> (Excel): una pestanya per a clients, valoracions, sessions i registre d'exercicis. Cada test és una columna i cada valoració o sessió, una fila.</span></li>
-      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per client amb <em>Valoracions</em> i <em>Sessions</em> (i els seus vídeos): hi van els Excel que l'app fa sola, els vídeos, les fotos i els PDF.</span></li>
+      <li><${Icon} name="table" size=${18} /><span><strong>EON Life · Base de dades</strong> (Excel): una pestanya per a pacients, valoracions, sessions i registre d'exercicis. Cada test és una columna i cada valoració o sessió, una fila.</span></li>
+      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per pacient amb <em>Valoracions</em> i <em>Sessions</em> (i els seus vídeos): hi van els Excel que l'app fa sola, els vídeos, les fotos i els PDF.</span></li>
     </ul>
     ${err && html`<${ConnectNote}>${err}</${ConnectNote}>`}
     <div class="connect-actions">

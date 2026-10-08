@@ -3,7 +3,7 @@
    de Microsoft i les dades es desen a la carpeta compartida de OneDrive/SharePoint:
    · «EON Life · Base de dades.xlsx» → la base de dades: un full per tipus de dada (Pacients, Valoracions,
      Sessions…), una fila per registre i una columna per test. Columna oculta data_json = registre complet.
-   · «EON Life · Clients» → una carpeta per client («Cognoms, Nom · P-xxxx») amb Valoracions (i Vídeos valoracions)
+   · «EON Life · Clients» → una carpeta per pacient («Cognoms, Nom · P-xxxx») amb Valoracions (i Vídeos valoracions)
      i Sessions (i Vídeos sessions d'entrenament): vegeu 09-names.js.
    Mateixa estructura que la versió de Google (apps-script/Code.gs). */
 
@@ -26,6 +26,7 @@ const XL = {
   log: 'Registre_exercicis',
   base: ['id', 'patient_id', 'updated_at', 'updated_by', 'deleted', 'data_json'],
   logBase: ['session_id', 'patient_id'],
+  renamed: { 'Pacient': 'Client', 'Carpeta del pacient': 'Carpeta del client', 'Comentaris del professional': 'Notes' }, // nom nou → nom d'abans
   extraChunks: 9, // data_json_2 … data_json_10 ja creades a la plantilla (un pla d'entrenament llarg ocupa ~150.000 caràcters)
   cellLimit: 30000, // Excel admet 32.767 caràcters per cel·la
   table: (sheet) => `t${sheet}`,
@@ -387,8 +388,27 @@ class ExcelDb {
     return `${Xlsx.colName(lay.startCol)}${sheetRow}:${Xlsx.colName(lay.startCol + width - 1)}${sheetRow}`;
   }
 
+  // Columnes que han canviat de nom (abans «Client», ara «Pacient»): es reanomena la capçalera, així les files d'abans i
+  // les noves queden a la mateixa columna. Si no es pot, es fa una columna nova.
+  async renameColumns(sheet, lay, keys) {
+    const lower = lay.headers.map((x) => x.toLowerCase());
+    for (const k of keys) {
+      const old = XL.renamed[k];
+      if (!old || lower.includes(k.toLowerCase())) continue;
+      const i = lower.indexOf(old.toLowerCase());
+      if (i < 0) continue;
+      const addr = `${Xlsx.colName(lay.startCol + i)}${lay.headerRow}`;
+      try {
+        await this.call('PATCH', ExcelDb.rangePath(sheet, addr), { body: { values: [[k]] }, retries: 2 });
+        lay.headers[i] = k;
+        lower[i] = k.toLowerCase();
+      } catch (e) { if (e.code === 'network') throw e; }
+    }
+  }
+
   // Afegeix les columnes que falten al final de la taula. Si no es pot, la dada continua a data_json.
   async addColumns(sheet, lay, keys) {
+    await this.renameColumns(sheet, lay, keys);
     const have = new Set(lay.headers.map((x) => x.toLowerCase()));
     const missing = [];
     for (const k of keys) {
@@ -611,7 +631,7 @@ function m365TemplateSheets() {
     templates: Object.keys(Flat.template({ items: [], blocks: [] })),
     settings: settingsKeys,
   };
-  const wide = { Client: 24, Nom: 18, Cognoms: 22, Objectiu: 30, Observacions: 30, Exercici: 26 };
+  const wide = { Pacient: 24, Nom: 18, Cognoms: 22, Objectiu: 30, Observacions: 30, Exercici: 26 };
   const sheets = Object.entries(XL.sheets).map(([kind, name]) => ({
     name, table: XL.table(name), columns: cols([...base, ...readable[kind]], wide),
   }));
@@ -724,7 +744,7 @@ class M365Api {
   }
 
   async ensureFolder(p) {
-    if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new M365Error('Client sense identificador vàlid.', 'id');
+    if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new M365Error('Pacient sense identificador vàlid.', 'id');
     if (p.folderId) {
       try {
         const f = await this.g.req('GET', `${this.drive}/items/${p.folderId}?$select=id,webUrl,folder,deleted`);
@@ -736,7 +756,7 @@ class M365Api {
     if (!this.clientsItem) this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
     const existing = (await this.children(this.clientsItem.id)).find((x) => x.folder && x.name.includes(p.id));
     if (existing) return { folderId: existing.id, folderUrl: existing.webUrl };
-    const name = safeName([[p.lastName, p.firstName].filter(Boolean).join(', ') || 'Client', p.id].join(' · '));
+    const name = safeName([[p.lastName, p.firstName].filter(Boolean).join(', ') || 'Pacient', p.id].join(' · '));
     const folder = await this.ensureChildFolder(this.clientsItem.id, name);
     for (const path of [EXPORT_FOLDERS.assessVideos, EXPORT_FOLDERS.sessionVideos]) await this.ensurePath(folder.id, path);
     return { folderId: folder.id, folderUrl: folder.webUrl };

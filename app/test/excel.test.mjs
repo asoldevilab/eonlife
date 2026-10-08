@@ -670,7 +670,7 @@ test('descàrrega a la versió local: l\'Excel del client', async () => {
   assert.equal(f.name, 'seguiment_lauravidalserra_01.xlsx');
   const x = readXlsx(f.bytes);
   assert.ok(x.names.includes('Resum') && x.names.includes('Oct26') && x.names.includes('Registre'));
-  await assert.rejects(Exports.file('P-NO-HI-ES'), /No trobo aquest client/);
+  await assert.rejects(Exports.file('P-NO-HI-ES'), /No trobo aquest pacient/);
   await assert.rejects(Exports.file('P-DEMO-LAURA', 'S:x'), /No trobo aquest fitxer/);
 });
 

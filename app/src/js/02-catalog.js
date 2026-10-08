@@ -55,11 +55,12 @@ const OPT = {
     { v: '4', label: 'Nivell 4 · Avançat' },
     { v: '5', label: 'Nivell 5 · Expert' },
   ],
-  pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control'],
+  pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control', 'Readaptació'],
   // Servei que fa el client al centre.
   services: [
     { v: 'valoracio', label: 'Valoració inicial', desc: 'Només la valoració funcional i l\'informe' },
-    { v: 'membership', label: 'Seguiment membership', desc: 'Entrenament i seguiment continuat al centre' },
+    { v: 'membership', label: 'Membership', desc: 'Entrenament i seguiment continuat al centre (quota de membership)' },
+    { v: 'bo', label: 'Bo (pacient puntual)', desc: 'Ha comprat un entrenament o un bo de sessions puntuals, sense membership' },
   ],
   status: [
     { v: 'actiu', label: 'Actiu' },
@@ -103,6 +104,9 @@ const OPT = {
 
 // Wellness a l'inici de cada sessió d'entrenament i de cada valoració: com arriba el client avui.
 // De l'1 al 5, sempre amb el 5 com a millor estat (qüestionari de McLean et al., 2010): total sobre 25.
+// Escala visual analògica del dolor (EVA): 0 = sense dolor, 10 = el pitjor dolor imaginable.
+const EVA_SCALE = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+
 const WELLNESS = [
   { k: 'fatigue', label: 'Fatiga', lo: 'Molt cansat', hi: 'Molt fresc' },
   { k: 'sleep', label: 'Qualitat del son', lo: 'Molt dolenta', hi: 'Molt reparadora' },
@@ -295,7 +299,7 @@ const PROTOCOL = [
         ref: 'Pérez-Castiglioni C, Buscà B, Aguilera-Castells J. J Strength Cond Res. 2022;36(12):3530-3542.' },
       { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder', retired: true },
       { id: 'bike', title: 'Assault bike · 30 s all-out', device: 'Fase 2', kind: 'bike',
-        info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en clients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
+        info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en pacients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
         ref: 'Bar-Or O. The Wingate anaerobic test: an update on methodology, reliability and validity. Sports Med. 1987;4(6):381-394.' },
     ],
   },
@@ -335,7 +339,9 @@ const TEST_INDEX = (() => {
 
 // Configuració per defecte (editable a Configuració).
 // Equip del centre (es pot canviar a Configuració).
-const CENTER_PROFESSIONALS = ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
+const CENTER_PROFESSIONALS = ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
+// Noms de l'equip que han canviat: l'app els canvia sola a les dades ja desades (Store.renameProfessionals).
+const PROFESSIONAL_RENAMES = { Richy: 'Ricardo Villamizar' };
 
 // Material del centre (es pot canviar a Configuració).
 const CENTER_MATERIALS = [

@@ -1,6 +1,6 @@
 /* EON Life · els Excel d'un client: quins fitxers toca fer, amb quin nom i a quina carpeta.
-   Un de sol: l'Excel del client (seguiment_<client>_01.xlsx) a l'arrel de la seva carpeta, amb les sessions (fetes,
-   planificades i previstes als plans) i les valoracions. Aquí es reuneixen les dades del client per fer-lo. */
+   Un de sol: l'Excel del pacient (seguiment_<client>_01.xlsx) a l'arrel de la seva carpeta, amb les sessions (fetes,
+   planificades i previstes als plans) i les valoracions. Aquí es reuneixen les dades del pacient per fer-lo. */
 
 const ExcelSet = (() => {
   const real = (list) => (list || []).filter((x) => x && !x.deleted);

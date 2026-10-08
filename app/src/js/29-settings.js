@@ -55,8 +55,8 @@ function SettingsView() {
   };
   const resetLocal = async (withDemo) => {
     const ok = await UI.confirm({
-      title: withDemo ? 'Tornar a carregar els clients de prova?' : 'Començar amb l\'app buida?',
-      text: withDemo ? 'Se substituiran totes les dades d\'aquest navegador pels clients ficticis.' : 'S\'esborraran totes les dades d\'aquest navegador (clients de prova inclosos). Si tens dades reals, descarrega abans una còpia.',
+      title: withDemo ? 'Tornar a carregar els pacients de prova?' : 'Començar amb l\'app buida?',
+      text: withDemo ? 'Se substituiran totes les dades d\'aquest navegador pels pacients ficticis.' : 'S\'esborraran totes les dades d\'aquest navegador (pacients de prova inclosos). Si tens dades reals, descarrega abans una còpia.',
       ok: withDemo ? 'Carrega la demo' : 'Esborra-ho tot', danger: !withDemo,
     });
     if (!ok) return;
@@ -77,16 +77,16 @@ function SettingsView() {
     <section class="card">
       <div class="card-head"><h2 class="h2">On es guarden les dades</h2>
         <${Pill} tone=${cloud ? 'ok' : 'warn'} icon=${cloud ? 'cloud' : 'device'}>${google ? 'Google Sheets · núvol del centre' : m365 ? 'Microsoft 365 · carpeta del centre' : 'Només en aquest navegador'}</${Pill}></div>
-      ${m365 ? html`<${M365DataCard} />` : google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a clients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada client.</p>
+      ${m365 ? html`<${M365DataCard} />` : google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a pacients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada pacient.</p>
         ${Store.meta.user && html`<p class="muted">Connectat com a <strong>${Store.meta.user}</strong>.</p>`}
         <div class="row-actions">
           ${Store.meta.spreadsheetUrl && html`<${Btn} icon="clipboard" href=${Store.meta.spreadsheetUrl}>Obre el full de càlcul</${Btn}>`}
-          ${Store.meta.rootFolderUrl && html`<${Btn} icon="folder" href=${Store.meta.rootFolderUrl}>Carpeta de clients</${Btn}>`}
+          ${Store.meta.rootFolderUrl && html`<${Btn} icon="folder" href=${Store.meta.rootFolderUrl}>Carpeta de pacients</${Btn}>`}
         </div>`
         : html`<p>Estàs fent servir l'app en <strong>mode local</strong>: les dades només es guarden en aquest navegador i no les veu ningú més. Per treballar tot l'equip amb les mateixes dades, cal publicar l'app per al centre amb Microsoft 365 (guia <em>docs/INSTALLACIO-M365.md</em>) o amb Google (<em>docs/INSTALLACIO.md</em>).</p>
           ${!LocalBackend.persistent && html`<p class="warn-text"><${Icon} name="alert" size=${15} /> Aquest navegador no permet guardar dades: si tanques la pàgina es perdran els canvis. Descarrega una còpia abans de sortir.</p>`}
           <div class="row-actions">
-            <${Btn} icon="refresh" onClick=${() => resetLocal(true)}>Carrega els clients de prova</${Btn}>
+            <${Btn} icon="refresh" onClick=${() => resetLocal(true)}>Carrega els pacients de prova</${Btn}>
             <${Btn} variant="danger" icon="trash" onClick=${() => resetLocal(false)}>Comença amb l'app buida</${Btn}>
           </div>`}
     </section>
@@ -185,12 +185,12 @@ function M365DataCard() {
     await Store.init();
     go('inici');
   };
-  return html`<p>Totes les dades es desen automàticament a l'Excel <strong>«EON Life · Base de dades»</strong>${m.dataFolderName ? html` de la carpeta <strong>«${m.dataFolderName}»</strong>` : ''}: una pestanya per a clients, valoracions, sessions i el registre d'exercicis, amb una fila per registre i una columna per test. Els vídeos i els PDF van a la carpeta de cada client, dins de «EON Life · Clients».</p>
+  return html`<p>Totes les dades es desen automàticament a l'Excel <strong>«EON Life · Base de dades»</strong>${m.dataFolderName ? html` de la carpeta <strong>«${m.dataFolderName}»</strong>` : ''}: una pestanya per a pacients, valoracions, sessions i el registre d'exercicis, amb una fila per registre i una columna per test. Els vídeos i els PDF van a la carpeta de cada pacient, dins de «EON Life · Pacients».</p>
     <p class="muted">Tothom qui tingui accés a la carpeta pot obrir l'Excel per consultar-lo, filtrar-lo o descarregar-lo. Les dades, però, s'omplen i es corregeixen sempre des de l'app.</p>
     ${m.user && html`<p class="muted">Connectat com a <strong>${m.userName ? `${m.userName} · ` : ''}${m.user}</strong>.</p>`}
     <div class="row-actions">
       ${m.spreadsheetUrl && html`<${Btn} icon="table" href=${m.spreadsheetUrl}>Obre l'Excel</${Btn}>`}
-      ${m.rootFolderUrl && html`<${Btn} icon="folder" href=${m.rootFolderUrl}>Carpetes dels clients</${Btn}>`}
+      ${m.rootFolderUrl && html`<${Btn} icon="folder" href=${m.rootFolderUrl}>Carpetes dels pacients</${Btn}>`}
       ${m.dataFolderUrl && html`<${Btn} icon="folder" href=${m.dataFolderUrl}>Carpeta compartida</${Btn}>`}
     </div>
     <div class="row-actions">

@@ -127,6 +127,8 @@ const ReportPdf = (() => {
       .pdf-view { position: relative; width: ${CONTENT_W}px; overflow: hidden; }
       .pdf-foot { position: absolute; left: ${PAGE.m}px; right: ${PAGE.m}px; bottom: ${PAGE.m - 6}px; display: flex; justify-content: space-between; gap: 12px;
         font-size: 7.5pt; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 5px; }
+      /* el marge de cada pàgina el fa .pdf-page (en imprimir el fa l'informe mateix) */
+      .pdf-mode .report, .pdf-mode .sheet { padding: 0 !important; }
       /* el peu de l'informe ja hi és a cada pàgina */
       .pdf-mode .report > .sheet-foot { display: none; }
       /* sempre la disposició de tauleta, encara que es faci des d'un mòbil */

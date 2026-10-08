@@ -50,7 +50,7 @@ function DatabaseView({ table = 'valoracions', pid = '' }) {
 
   return html`<div class="page page-wide">
     <header class="page-head">
-      <div><p class="eyebrow">Totes les dades dels clients</p><h1 class="h1">Base de dades</h1></div>
+      <div><p class="eyebrow">Totes les dades dels pacients</p><h1 class="h1">Base de dades</h1></div>
       <div class="page-actions">
         ${U.canDownload() && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
         ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
@@ -65,15 +65,15 @@ function DatabaseView({ table = 'valoracions', pid = '' }) {
     <section class="card dbcard">
       <div class="dbbar">
         <label class="search"><${Icon} name="search" size=${17} />
-          <input class="input" type="search" placeholder="Cerca un client…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca un client" /></label>
-        <${Select} value=${client} onValue=${(v) => go('dades', def.id, v)} placeholder="Tots els clients" options=${patients.map((p) => ({ v: p.id, label: U.fullName(p) }))} ariaLabel="Client" />
+          <input class="input" type="search" placeholder="Cerca un pacient…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca un pacient" /></label>
+        <${Select} value=${client} onValue=${(v) => go('dades', def.id, v)} placeholder="Tots els pacients" options=${patients.map((p) => ({ v: p.id, label: U.fullName(p) }))} ariaLabel="Pacient" />
         <${Select} value=${prof} onValue=${setProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
-        ${def.kind === 'assessments' && html`<label class="check"><input type="checkbox" checked=${latest} onChange=${(e) => setLatest(e.currentTarget.checked)} /> Només l'última de cada client</label>`}
+        ${def.kind === 'assessments' && html`<label class="check"><input type="checkbox" checked=${latest} onChange=${(e) => setLatest(e.currentTarget.checked)} /> Només l'última de cada pacient</label>`}
       </div>
       <p class="dbhint"><span>${def.hint}</span> <span class="muted">${U.plural(list.length, 'fila', 'files')}${def.kind === 'assessments' || def.kind === 'patients' || def.kind === 'sessions' ? ' · toca una fila per obrir-la' : ''}</span></p>
       ${list.length ? html`<${DbTable} cols=${cols} rows=${shown} sort=${s} onSort=${toggleSort} onOpen=${open} />`
         : html`<${Empty} icon="table" title="Encara no hi ha dades en aquesta taula"
-            text=${def.kind === 'assessments' ? 'Toca el botó per afegir-hi mesures d\'un client: s\'obrirà el formulari directament en aquest apartat.' : 'Quan n\'hi hagi, apareixeran aquí.'}>
+            text=${def.kind === 'assessments' ? 'Toca el botó per afegir-hi mesures d\'un pacient: s\'obrirà el formulari directament en aquest apartat.' : 'Quan n\'hi hagi, apareixeran aquí.'}>
             ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
           </${Empty}>`}
       ${list.length > shown.length && html`<div class="row-actions"><${Btn} onClick=${() => setLimit(limit + 300)}>Mostra'n més (${list.length - shown.length})</${Btn}></div>`}
@@ -141,7 +141,7 @@ function DbCell({ c, r, gstart }) {
 
 // ── Afegir mesures: tria el client i la data i obre el formulari a l'apartat corresponent ──
 function openAddMeasurement(focus, pid) {
-  if (!Store.patients().length) { UI.toast('Primer crea un client.', 'bad'); openNewPatient(); return; }
+  if (!Store.patients().length) { UI.toast('Primer crea un pacient.', 'bad'); openNewPatient(); return; }
   let close = null;
   close = UI.open(() => html`<${AddMeasurementDialog} focus=${focus} pid=${pid} onClose=${() => close()} />`);
 }
@@ -168,11 +168,11 @@ function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
     onClose();
     go('valoracio', a.id, what === 'dades' ? '' : what);
   };
-  return html`<${Dialog} title="Afegeix mesures" onClose=${onClose} footer=${html`
+  return html`<${Dialog} title="Nou test" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="right" onClick=${go_}>Continua</${Btn}>`}>
     <div class="form-grid">
-      <${Field} label="Client" id="am-client" wide=${true}>
+      <${Field} label="Pacient" id="am-client" wide=${true}>
         <${Select} id="am-client" value=${p} onValue=${(v) => { setP(v); setType(null); }} options=${patients.map((x) => ({ v: x.id, label: U.fullName(x) }))} />
       </${Field}>
       <${Field} label="Què vols registrar?" id="am-what" wide=${true}>
@@ -182,8 +182,8 @@ function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
       ${!existing && html`<${Field} label="Tipus" id="am-type"><${Select} id="am-type" value=${t} onValue=${setType} options=${OPT.assessmentTypes.map((o) => ({ v: o.v, label: o.label }))} /></${Field}>`}
     </div>
     <p class="dialog-text">${existing
-      ? `Aquest client ja té una valoració el ${U.fmtDate(date)} (${(OPT.assessmentTypes.find((o) => o.v === existing.type) || {}).label.toLowerCase()}): les mesures s'hi afegiran.`
+      ? `Aquest pacient ja té una valoració el ${U.fmtDate(date)} (${(OPT.assessmentTypes.find((o) => o.v === existing.type) || {}).label.toLowerCase()}): les mesures s'hi afegiran.`
       : prev.length ? `Es crearà una valoració nova del ${U.fmtDate(date)}. Només cal omplir el que mesureu avui; la resta pot quedar en blanc.`
-        : 'És la primera valoració d\'aquest client.'}</p>
+        : 'És la primera valoració d\'aquest pacient.'}</p>
   </${Dialog}>`;
 }

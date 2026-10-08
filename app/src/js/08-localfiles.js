@@ -1,5 +1,5 @@
 /* EON Life · fitxers desats a la tauleta (versió de prova, sense Microsoft 365).
-   Sense Microsoft 365 no hi ha carpeta del client: el PDF de Kinvent, l'informe de la doctora i els vídeos que
+   Sense Microsoft 365 no hi ha carpeta del pacient: el PDF de Kinvent, l'informe de la doctora i els vídeos que
    es graven o es trien es guarden al navegador d'aquell aparell (IndexedDB) i s'obren des de l'app.
    Al registre hi queda un enllaç «eonlocal:…». No arriben a cap altre aparell. */
 
@@ -47,7 +47,7 @@ const LocalFiles = (() => {
         await run('readwrite', (st) => st.put({ blob: file, name, type: file.type || '', size: file.size, date: new Date().toISOString() }, id));
       } catch (e) {
         if (e && /quota/i.test(`${e.name} ${e.message}`)) throw new Error('No hi ha prou espai a la tauleta per desar aquest fitxer.');
-        throw new Error('Aquest navegador no deixa desar fitxers. Amb Microsoft 365 es desen a la carpeta del client.');
+        throw new Error('Aquest navegador no deixa desar fitxers. Amb Microsoft 365 es desen a la carpeta del pacient.');
       }
       // Que el navegador no esborri els fitxers quan li falti espai (si ho permet).
       try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* res */ }
@@ -86,7 +86,7 @@ const LocalFiles = (() => {
         ${kind === 'video' ? html`<div class="embed"><video src=${src} controls autoplay playsinline></video></div>`
           : kind === 'image' ? html`<img class="localfile-img" src=${src} alt=${f.name} />` : null}
         <p class="localfile-name"><strong>${f.name}</strong> <span class="muted">· ${size}</span></p>
-        <p class="muted small">Desat només en aquesta tauleta (versió de prova). Amb Microsoft 365 es desa a la carpeta del client i el veu tot l'equip.</p>
+        <p class="muted small">Desat només en aquesta tauleta (versió de prova). Amb Microsoft 365 es desa a la carpeta del pacient i el veu tot l'equip.</p>
       </${Dialog}>`, { onDismiss: () => close() });
     },
   };

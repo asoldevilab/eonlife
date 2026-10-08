@@ -1100,13 +1100,15 @@ tfoot .rpc { font-size: 14px; }
     --blk-mob: #2F6FB0; --blk-act: #1E8A5C; --blk-pot: #D35A2E; --blk-for: #8A2F36; --blk-acc: #6D4FB0; --blk-cal: #B7882A;
     --blk-ink-light: #FFFFFF; --blk-ink-dark: #231416; --grid: #ECE6E0; --axis: #978985; --baseline: #CFC7BF;
   }
-  @page { size: A4; margin: 12mm; }
+  /* Sense marge de pàgina el navegador no hi posa la data, el títol ni l'enllaç a les cantonades; el marge el fa el
+     contingut, repetit a cada pàgina (box-decoration-break: clone) */
+  @page { size: A4; margin: 0; }
   html, body { background: #FFFFFF; }
   body { font-size: 10.5pt; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, .presentbar, .sidebar, .topbar, .toasts, .overlay, .scrim { display: none !important; }
   .shell { display: block; }
-  .sheet, .report { max-width: none; padding: 0; }
+  .sheet, .report { max-width: none; padding: 12mm; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .sheet-title, .report-title { font-size: 40pt; }
   .sheet-goal { font-size: 18pt; margin-top: 14pt; }
   .sheet-flow { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4pt; margin: 12pt 0; }
@@ -1438,3 +1440,21 @@ tfoot .rpc { font-size: 14px; }
 .syncbadge { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
 .syncbadge .link { font-size: 13px; }
 .cal-w-copy { font-size: 12px; margin-top: 4px; }
+
+/* Comentaris del professional (només per a l'equip): al principi de la fitxa */
+.pnotes { border-left: 4px solid var(--brand); }
+.pnotes .h2 { display: inline-flex; align-items: center; gap: 8px; }
+.pnotes .h2 svg, .cprof-notes .cprof-k svg { color: var(--brand); }
+.cprof-notes .cprof-k { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Calendari: sessions amb només l'objectiu (anotades ràpid) i llegenda */
+.cal-s.quick { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); border-left: 4px solid var(--blk-cal); }
+.cal-s.quick.done { background: color-mix(in srgb, var(--blk-cal) 16%, var(--surface)); }
+.cal-s.quick .cal-s-n { color: var(--ink-2); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0 4px; font-size: 12.5px; color: var(--ink-2); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-key { display: inline-block; width: 18px; height: 12px; border-radius: 4px; }
+.cal-key.done { background: var(--brand); }
+.cal-key.plan { background: var(--brand-soft); box-shadow: inset 0 0 0 1px var(--brand-2); }
+.cal-key.quick { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); border-left: 4px solid var(--blk-cal); }
+.cal-key.ghost { border: 1.5px dashed var(--line-2); }

@@ -161,6 +161,13 @@ const step = async (label, fn) => {
     await page.click('.editbar >> text=Informe');
     await page.waitForSelector('.report');
     if (await page.$('.rsec-title >> text=Tests complementaris')) throw new Error('l\'informe encara té els tests per perfil');
+    // Els comentaris del professional no surten mai a l'informe; la propera valoració, només amb el mes i l'any; cap data al peu.
+    await page.evaluate(() => Store.update('patients', 'P-DEMO-LAURA', (x) => { x.notes = 'Nota privada de l\'equip XYZ'; }));
+    await page.waitForTimeout(150);
+    const rep = await page.evaluate(() => ({ text: document.querySelector('.report').innerText, next: (document.querySelector('.rnext strong') || {}).textContent || '', foot: document.querySelector('.report .sheet-foot').innerText }));
+    if (rep.text.includes('XYZ')) throw new Error('els comentaris del professional surten a l\'informe');
+    if (rep.next && !/^[A-ZÀ-Ú][a-zà-ú]+ de \d{4}$/.test(rep.next)) throw new Error(`propera valoració: ${rep.next}`);
+    if (/\d{2}\/\d{2}\/\d{4}/.test(rep.foot)) throw new Error(`data al peu: ${rep.foot}`);
     await shot(page, '07-informe');
   });
   await step('informe: «Descarrega el PDF» el fa la mateixa app (A4, sense vídeos ni el diàleg d\'imprimir)', async () => {
@@ -402,18 +409,18 @@ const step = async (label, fn) => {
   });
   await step('nou client', async () => {
     await goHash(page, '#/inici');
-    await page.click('.page-actions >> text=Nou client');
+    await page.click('.page-actions >> text=Nou pacient');
     await page.fill('#np-first', 'Prova');
     await page.fill('#np-last', 'Automàtica');
-    await page.click('.dialog-foot >> text=Crea el client');
+    await page.click('.dialog-foot >> text=Crea el pacient');
     await page.waitForSelector('text=Dades personals');
   });
   await step('servei i professionals del centre', async () => {
     await page.waitForSelector('[role="radiogroup"][aria-label="Servei"] >> text=Valoració inicial');
-    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Seguiment membership');
-    await page.waitForSelector('.phead .eyebrow >> text=Seguiment membership');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Membership');
+    await page.waitForSelector('.phead .eyebrow >> text=Membership');
     const profs = await page.$$eval('#pf-professional option', (o) => o.map((x) => x.value));
-    for (const n of ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']) if (!profs.includes(n)) throw new Error(`falta ${n}: ${profs}`);
+    for (const n of ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']) if (!profs.includes(n)) throw new Error(`falta ${n}: ${profs}`);
     if (profs.some((n) => /Pau Roca|Marta Soler/.test(n))) throw new Error(`noms ficticis: ${profs}`);
     // És un desplegable: amb un nom ja triat s'hi veuen igualment tots els professionals.
     await page.selectOption('#pf-professional', 'Oriol Pastor (fisioteràpia)');
@@ -422,7 +429,7 @@ const step = async (label, fn) => {
   });
   await step('informe de la doctora → objectiu, motiu, antecedents i dates', async () => {
     await page.fill('textarea[aria-label="Text de l\'informe de la doctora"]', 'Motiu de consulta: dolor lumbar en aixecar pes\nAntecedents: hèrnia L5-S1 (2021)\nIntervenció quirúrgica: microdiscectomia 14/02/2022\nObjectiu: tornar a entrenar força sense dolor');
-    await page.click('text=Omple les dades del client');
+    await page.click('text=Omple les dades del pacient');
     await page.waitForSelector('.docmap >> text=Motiu de consulta');
     await shot(page, '10a-informe-doctora');
     await page.click('.dialog-foot >> text=Desa a la fitxa');
@@ -704,6 +711,48 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Continua');
     await page.waitForSelector('#grp-ybt.flash');
   });
+  await step('fitxa: comentaris del professional al principi, tipus «Bo» i «Nou test» del pacient', async () => {
+    await goHash(page, '#/client/P-DEMO-JORDI/fitxa');
+    await page.waitForSelector('.pnotes');
+    if (!(await page.evaluate(() => document.querySelector('.page .stack > section').classList.contains('pnotes')))) throw new Error('els comentaris no són al principi de la fitxa');
+    await page.fill('#pf-notes', 'Primera trobada: li fa por el salt');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Bo (pacient puntual)');
+    await page.waitForSelector('.phead .eyebrow >> text=Bo (pacient puntual)');
+    await page.click('.phead-actions >> text=Nou test');
+    await page.waitForSelector('.dialog >> text=Nou test');
+    const sel = await page.$eval('#am-client', (e) => e.value);
+    if (sel !== 'P-DEMO-JORDI') throw new Error(`Nou test sense el pacient: ${sel}`);
+    await page.click('.dialog-foot >> text=Cancel·la');
+    await goHash(page, '#/inici');
+    await page.selectOption('select[aria-label="Tipus de pacient"]', 'bo');
+    await page.waitForSelector('.crow >> text=Jordi');
+    if (await page.locator('.crow').count() !== 1) throw new Error('el filtre per tipus no funciona');
+    await page.selectOption('select[aria-label="Tipus de pacient"]', '');
+  });
+  await step('calendari: + d\'un dia → només l\'objectiu, i l\'RPE i el dolor sota l\'objectiu', async () => {
+    await goHash(page, '#/client/P-DEMO-JORDI/mes');
+    await page.waitForSelector('.cal');
+    await page.click('.cal-btn-next, button[title="Mes següent"]');
+    await page.locator('.cal-add').first().click();
+    await page.waitForSelector('.dialog >> text=Programa la sessió sencera');
+    await page.click('.dialog-foot >> text=Continua');
+    await page.fill('#qs-goal', 'Readaptació ràpida de prova');
+    await page.selectOption('#qs-pillar', 'Readaptació');
+    await page.click('.dialog-foot >> text=Anota-la al calendari');
+    await page.waitForSelector('.cal-s.quick >> text=Readaptació ràpida de prova');
+    await page.click('.cal-s.quick >> text=Readaptació ràpida de prova');
+    await page.click('[role="radiogroup"][aria-label="Estat"] >> text=Feta');
+    await page.click('[role="radiogroup"][aria-label="RPE de la sessió"] >> text="7"');
+    await page.click('[role="radiogroup"][aria-label="Dolor en acabar"] >> text="3"');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.cal-s.quick.done .cal-s-fb >> text=RPE 7 · Dolor 3');
+    await shot(page, '12-calendari-rapid');
+    // La sessió sencera: els blocs es poden afegir després
+    await page.click('.cal-s.quick >> text=Readaptació ràpida de prova');
+    await page.click('.dialog-foot >> text=Programa-la sencera');
+    await page.waitForSelector('#se-pillar');
+    if (await page.$eval('#se-pillar', (e) => e.value) !== 'Readaptació') throw new Error('pilar');
+  });
   await step('persistència local', async () => {
     const before = await page.evaluate(() => ({ pending: Store.pending(), stored: (localStorage.getItem('eonlife:data:v1') || '').includes('Automàtica') }));
     await page.evaluate(() => { window.__beforeReload = true; });
@@ -774,7 +823,7 @@ const step = async (label, fn) => {
     await page.waitForSelector('.cal');
     const [dl] = await Promise.all([page.waitForEvent('download'), (async () => {
       await page.click('.phead-actions >> text=Excel');
-      await page.click('.menu-list >> text=Descarrega l\'Excel del client');
+      await page.click('.menu-list >> text=Descarrega l\'Excel del pacient');
     })()]);
     if (dl.suggestedFilename() !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${dl.suggestedFilename()}`);
     const x = readXlsx(readFileSync(await dl.path()));
@@ -791,7 +840,7 @@ const step = async (label, fn) => {
     await page.waitForSelector('.block');
     const [d1] = await Promise.all([page.waitForEvent('download'), (async () => {
       await page.click('.editbar .menu button');
-      await page.click('.menu-list >> text=Descarrega l\'Excel del client');
+      await page.click('.menu-list >> text=Descarrega l\'Excel del pacient');
     })()]);
     if (d1.suggestedFilename() !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${d1.suggestedFilename()}`);
     const s = readXlsx(readFileSync(await d1.path()));
@@ -801,14 +850,14 @@ const step = async (label, fn) => {
     await page.waitForSelector('#sec-mobilitat');
     const [d2] = await Promise.all([page.waitForEvent('download'), (async () => {
       await page.click('.editbar .menu button');
-      await page.click('.menu-list >> text=Descarrega l\'Excel del client');
+      await page.click('.menu-list >> text=Descarrega l\'Excel del pacient');
     })()]);
     if (d2.suggestedFilename() !== 'seguiment_lauravidalserra_01.xlsx') throw new Error(`nom ${d2.suggestedFilename()}`);
     const v = readXlsx(readFileSync(await d2.path()));
     if (!v.names.some((n) => /^Re-test \d{2}-\d{2}-\d{2}$/.test(n))) throw new Error(`falta el detall del re-test (hi ha ${v.names})`);
     // La configuració explica els Excel
     await goHash(page, '#/configuracio');
-    await page.waitForSelector('text=Excel de cada client');
+    await page.waitForSelector('text=Excel de cada pacient');
     await page.waitForSelector('text=Només descàrrega');
   });
   await ctx.close();
@@ -875,10 +924,10 @@ const step = async (label, fn) => {
     await ctx.addInitScript(() => { window.EON_NO_DEMO = true; });
     await page.reload();
     await page.waitForSelector('.crow');
-    await page.waitForSelector('.toast >> text=S\'han esborrat els clients de prova');
+    await page.waitForSelector('.toast >> text=S\'han esborrat els pacients de prova');
     const names = await page.$$eval('.crow-name', (n) => n.map((x) => x.textContent));
     if (names.join('|') !== 'Client De Veritat') throw new Error(`clients: ${names}`);
-    if (await page.$('.banner >> text=clients ficticis')) throw new Error('encara surt l\'avís de prova');
+    if (await page.$('.banner >> text=pacients ficticis')) throw new Error('encara surt l\'avís de prova');
     await shot(page, '60-tauleta-sense-clients-prova', false);
     await goHash(page, '#/biblioteca');
     await page.fill('.page input[type="search"]', 'Exercici propi');
@@ -887,7 +936,7 @@ const step = async (label, fn) => {
     await page.reload();
     await page.waitForSelector('.page');
     await page.waitForTimeout(700);
-    if (await page.$('.toast >> text=clients de prova')) throw new Error('avisa cada cop');
+    if (await page.$('.toast >> text=pacients de prova')) throw new Error('avisa cada cop');
   });
   await ctx.close();
 }
@@ -903,16 +952,16 @@ const step = async (label, fn) => {
     await page.waitForSelector('.page');
     if (await page.$('.crow')) throw new Error('hi ha clients');
     await shot(page, '61-tauleta-buida', false);
-    await page.click('.page-actions >> text=Nou client');
+    await page.click('.page-actions >> text=Nou pacient');
     await page.fill('#np-first', 'Primer');
     await page.fill('#np-last', 'Client');
-    await page.click('.dialog-foot >> text=Crea el client');
+    await page.click('.dialog-foot >> text=Crea el pacient');
     await page.waitForSelector('text=Dades personals');
     await goHash(page, '#/inici');
     await page.waitForSelector('.crow-name >> text=Primer Client');
     // Els clients de prova es poden tornar a carregar a mà des de Configuració.
     await goHash(page, '#/configuracio');
-    await page.click('text=Carrega els clients de prova');
+    await page.click('text=Carrega els pacients de prova');
     await page.click('.dialog-foot >> text=Carrega la demo');
     await page.waitForSelector('.crow-name >> text=Laura Vidal Serra');
     await page.reload();

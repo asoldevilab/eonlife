@@ -1117,13 +1117,15 @@ tfoot .rpc { font-size: 14px; }
     --blk-mob: #2F6FB0; --blk-act: #1E8A5C; --blk-pot: #D35A2E; --blk-for: #8A2F36; --blk-acc: #6D4FB0; --blk-cal: #B7882A;
     --blk-ink-light: #FFFFFF; --blk-ink-dark: #231416; --grid: #ECE6E0; --axis: #978985; --baseline: #CFC7BF;
   }
-  @page { size: A4; margin: 12mm; }
+  /* Sense marge de pàgina el navegador no hi posa la data, el títol ni l'enllaç a les cantonades; el marge el fa el
+     contingut, repetit a cada pàgina (box-decoration-break: clone) */
+  @page { size: A4; margin: 0; }
   html, body { background: #FFFFFF; }
   body { font-size: 10.5pt; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, .presentbar, .sidebar, .topbar, .toasts, .overlay, .scrim { display: none !important; }
   .shell { display: block; }
-  .sheet, .report { max-width: none; padding: 0; }
+  .sheet, .report { max-width: none; padding: 12mm; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .sheet-title, .report-title { font-size: 40pt; }
   .sheet-goal { font-size: 18pt; margin-top: 14pt; }
   .sheet-flow { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4pt; margin: 12pt 0; }
@@ -1455,6 +1457,24 @@ tfoot .rpc { font-size: 14px; }
 .syncbadge { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
 .syncbadge .link { font-size: 13px; }
 .cal-w-copy { font-size: 12px; margin-top: 4px; }
+
+/* Comentaris del professional (només per a l'equip): al principi de la fitxa */
+.pnotes { border-left: 4px solid var(--brand); }
+.pnotes .h2 { display: inline-flex; align-items: center; gap: 8px; }
+.pnotes .h2 svg, .cprof-notes .cprof-k svg { color: var(--brand); }
+.cprof-notes .cprof-k { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Calendari: sessions amb només l'objectiu (anotades ràpid) i llegenda */
+.cal-s.quick { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); border-left: 4px solid var(--blk-cal); }
+.cal-s.quick.done { background: color-mix(in srgb, var(--blk-cal) 16%, var(--surface)); }
+.cal-s.quick .cal-s-n { color: var(--ink-2); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0 4px; font-size: 12.5px; color: var(--ink-2); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-key { display: inline-block; width: 18px; height: 12px; border-radius: 4px; }
+.cal-key.done { background: var(--brand); }
+.cal-key.plan { background: var(--brand-soft); box-shadow: inset 0 0 0 1px var(--brand-2); }
+.cal-key.quick { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); border-left: 4px solid var(--blk-cal); }
+.cal-key.ghost { border: 1.5px dashed var(--line-2); }
 </style>
 </head>
 <body>
@@ -3766,7 +3786,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-07 12:24";
+window.EON_BUILD = "2026-10-08 14:02";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -3911,6 +3931,14 @@ const U = {
     const [y, m] = key.split('-').map(Number);
     const name = MONTHS[m - 1];
     return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${y}`;
+  },
+
+  // "Gener de 2027", "Abril de 2027" (la propera valoració a l'informe: sense dia, per no lligar-nos a una data)
+  fmtMonthYear(s) {
+    const d = U.parse(s);
+    if (!d) return '—';
+    const name = MONTHS[d.getMonth()];
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)} de ${d.getFullYear()}`;
   },
 
   weekday(s) {
@@ -4143,11 +4171,12 @@ const OPT = {
     { v: '4', label: 'Nivell 4 · Avançat' },
     { v: '5', label: 'Nivell 5 · Expert' },
   ],
-  pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control'],
+  pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control', 'Readaptació'],
   // Servei que fa el client al centre.
   services: [
     { v: 'valoracio', label: 'Valoració inicial', desc: 'Només la valoració funcional i l\'informe' },
-    { v: 'membership', label: 'Seguiment membership', desc: 'Entrenament i seguiment continuat al centre' },
+    { v: 'membership', label: 'Membership', desc: 'Entrenament i seguiment continuat al centre (quota de membership)' },
+    { v: 'bo', label: 'Bo (pacient puntual)', desc: 'Ha comprat un entrenament o un bo de sessions puntuals, sense membership' },
   ],
   status: [
     { v: 'actiu', label: 'Actiu' },
@@ -4191,6 +4220,9 @@ const OPT = {
 
 // Wellness a l'inici de cada sessió d'entrenament i de cada valoració: com arriba el client avui.
 // De l'1 al 5, sempre amb el 5 com a millor estat (qüestionari de McLean et al., 2010): total sobre 25.
+// Escala visual analògica del dolor (EVA): 0 = sense dolor, 10 = el pitjor dolor imaginable.
+const EVA_SCALE = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+
 const WELLNESS = [
   { k: 'fatigue', label: 'Fatiga', lo: 'Molt cansat', hi: 'Molt fresc' },
   { k: 'sleep', label: 'Qualitat del son', lo: 'Molt dolenta', hi: 'Molt reparadora' },
@@ -4383,7 +4415,7 @@ const PROTOCOL = [
         ref: 'Pérez-Castiglioni C, Buscà B, Aguilera-Castells J. J Strength Cond Res. 2022;36(12):3530-3542.' },
       { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder', retired: true },
       { id: 'bike', title: 'Assault bike · 30 s all-out', device: 'Fase 2', kind: 'bike',
-        info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en clients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
+        info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en pacients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
         ref: 'Bar-Or O. The Wingate anaerobic test: an update on methodology, reliability and validity. Sports Med. 1987;4(6):381-394.' },
     ],
   },
@@ -4423,7 +4455,9 @@ const TEST_INDEX = (() => {
 
 // Configuració per defecte (editable a Configuració).
 // Equip del centre (es pot canviar a Configuració).
-const CENTER_PROFESSIONALS = ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
+const CENTER_PROFESSIONALS = ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
+// Noms de l'equip que han canviat: l'app els canvia sola a les dades ja desades (Store.renameProfessionals).
+const PROFESSIONAL_RENAMES = { Richy: 'Ricardo Villamizar' };
 
 // Material del centre (es pot canviar a Configuració).
 const CENTER_MATERIALS = [
@@ -5627,7 +5661,7 @@ const Flat = {
       'Objectiu': p.goal || '', 'Motiu de consulta': p.reason || '', 'Antecedents': p.history || '',
       'Data IQ': p.surgeryDate || '', 'IQ': p.surgeryNote || '',
       'Data lesió': p.injuryDate || '', 'Lesió': p.injuryNote || '',
-      'Carpeta del client': p.folderUrl || '', 'Notes': p.notes || '',
+      'Carpeta del pacient': p.folderUrl || '', 'Comentaris del professional': p.notes || '',
       'Alçada (cm)': U.num(p.height) ?? '', 'Pes (kg)': U.num(p.weight) ?? '',
       'Dominància': (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || '',
       'Nivell d\'activitat': (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '',
@@ -5651,7 +5685,7 @@ const Flat = {
     });
     const v = a.values || {};
     const n = (x) => (x == null ? '' : U.round(x, 2));
-    o['Client'] = U.fullName(p);
+    o['Pacient'] = U.fullName(p);
     o['Data'] = a.date || '';
     o['Tipus'] = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || '';
     o['Professional'] = a.professional || '';
@@ -5792,7 +5826,7 @@ const Flat = {
   session(s, p, settings) {
     const f = s.feedback || {};
     const o = {
-      'Client': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
+      'Pacient': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
@@ -5824,7 +5858,7 @@ const Flat = {
       const meth = (it) => { const x = grp(it); return (x && x.g.methodName) || b.methodName || ''; };
       (b.items || []).filter((i) => i.name).forEach((it, idx) => {
         rows.push({
-          'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
+          'Pacient': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
           'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Mètode': meth(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
           'Grup muscular': it.gm || '', 'Zona corporal': it.gm ? (MUSCLE_ZONES.find((z) => z.key === muscleZone(it.gm)) || {}).label || '' : '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
@@ -5852,15 +5886,15 @@ const Flat = {
       : (t.items || []).map((i) => i.name).join(', ');
     if (t.kind === 'method') {
       return { 'Nom': t.name || '', 'Tipus': 'Mètode', 'Bloc': (t.blocks || []).map((k) => blockName(k)).join(', '), 'Exercicis': t.example || '',
-        'Descripció': [t.aim, t.how, t.notes].filter(Boolean).join(' · '), 'Client': '' };
+        'Descripció': [t.aim, t.how, t.notes].filter(Boolean).join(' · '), 'Pacient': '' };
     }
     if (t.kind === 'plan') {
       const p = t.patientId && typeof Store !== 'undefined' && Store.get ? Store.get('patients', t.patientId) : null;
       return { 'Nom': t.name || '', 'Tipus': 'Pla', 'Bloc': '', 'Exercicis': `${(t.sessions || []).length} sessions`,
-        'Descripció': [t.goal, t.start && `Inici ${t.start}`].filter(Boolean).join(' · '), 'Client': p ? U.fullName(p) : '' };
+        'Descripció': [t.goal, t.start && `Inici ${t.start}`].filter(Boolean).join(' · '), 'Pacient': p ? U.fullName(p) : '' };
     }
     return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items,
-      'Descripció': t.desc || t.goal || '', 'Client': '' };
+      'Descripció': t.desc || t.goal || '', 'Pacient': '' };
   },
 };
 
@@ -5960,9 +5994,9 @@ function parseMyJumpCsv(text) {
 /* EON Life · dades: magatzem en memòria + desament automàtic.
    Tres modes:
    · Google        → quan l'app s'obre des de Google Apps Script: les dades van al full de càlcul del centre
-                     (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del client.
+                     (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del pacient.
    · Microsoft 365 → quan s'obre la versió publicada per al centre (09-m365.js): les dades van a l'Excel de la
-                     carpeta compartida de OneDrive/SharePoint i els vídeos a la carpeta de cada client.
+                     carpeta compartida de OneDrive/SharePoint i els vídeos a la carpeta de cada pacient.
    · Local         → quan s'obre el fitxer directament: les dades es guarden en aquest navegador (mode prova). */
 
 const KINDS = ['patients', 'assessments', 'sessions', 'exercises', 'templates'];
@@ -6072,7 +6106,7 @@ function removeDemoClients(db) {
 
 // Les dades de prova d'abans portaven professionals ficticis: es canvien pels de l'equip.
 function migrateDemo(db) {
-  const rename = { 'Pau Roca': 'Arnau', 'Marta Soler': 'Richy' };
+  const rename = { 'Pau Roca': 'Arnau', 'Marta Soler': 'Ricardo Villamizar' };
   for (const k of ['patients', 'assessments', 'sessions']) {
     for (const r of Object.values(db[k] || {})) if (rename[r.professional]) r.professional = rename[r.professional];
   }
@@ -6139,13 +6173,29 @@ const Store = {
       this.settings.blocks = BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc, ...((this.settings.blocks || []).find((x) => x.key === b.key) || {}) }));
       this.ready = true;
       this.replayOutbox();
+      this.renameProfessionals();
       if (typeof Sync !== 'undefined') Sync.resume();
-      if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els clients de prova. Ja podeu afegir els vostres.'), 400);
+      if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els pacients de prova. Ja podeu afegir els vostres.'), 400);
     } catch (err) {
       this.error = err.message || String(err);
       this.errorCode = err.code || '';
     }
     this.emit();
+  },
+
+  // Noms de l'equip que han canviat (PROFESSIONAL_RENAMES, a 02-catalog.js): es canvien a les fitxes, valoracions, sessions
+  // i plans ja desats, i a la llista de Configuració. Un sol cop: després ja no queda cap registre amb el nom antic.
+  renameProfessionals() {
+    const map = PROFESSIONAL_RENAMES;
+    for (const k of ['patients', 'assessments', 'sessions', 'templates']) {
+      for (const r of Object.values(this.data[k] || {})) {
+        if (r && map[r.professional]) this.put(k, { ...r, professional: map[r.professional] });
+      }
+    }
+    const list = this.settings.professionals;
+    if (Array.isArray(list) && list.some((n) => map[n])) {
+      this.saveSettings({ professionals: [...new Set(list.map((n) => map[n] || n))] });
+    }
   },
 
   // Canvis que no s'havien pogut desar (sense connexió, sessió caducada, pàgina tancada): es tornen a enviar.
@@ -6676,13 +6726,13 @@ function makeDemoData() {
     reason: 'Dolor femoropatel·lar recurrent a la cama dreta en les baixades.',
     history: 'Condropatia rotuliana dreta (2024). Corredora de muntanya, 4 dies per setmana.' });
   const jordi = patient({ id: 'P-DEMO-JORDI', firstName: 'Jordi', lastName: 'Puig Ferrer', birthDate: '1974-09-03', sex: 'H', service: 'membership',
-    professional: 'Richy', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
+    professional: 'Ricardo Villamizar', startDate: D(-24), email: 'jordi.puig@example.com', phone: '600 000 202',
     goal: 'Tornar a esquiar la temporada vinent amb seguretat.',
     reason: 'Readaptació després de la reconstrucció del LCA.',
     history: 'Esquiador aficionat. Sense altres lesions rellevants.',
     surgeryDate: D(-84), surgeryNote: 'Reconstrucció del LCA del genoll esquerre (plàstia HTH).' });
   const montse = patient({ id: 'P-DEMO-MONTSE', firstName: 'Montserrat', lastName: 'Font Riba', birthDate: '1955-01-22', sex: 'D', service: 'membership',
-    professional: 'Richy', startDate: D(-45),
+    professional: 'Ricardo Villamizar', startDate: D(-45),
     goal: 'Guanyar autonomia i confiança per caminar per la muntanya amb els néts.',
     reason: 'Osteopènia i por a caure.',
     history: 'Osteopènia (2023). Pròtesi de maluc dret (2019).' });
@@ -6740,7 +6790,7 @@ function makeDemoData() {
       plan: 'Iniciar fase de potència: pliometria reactiva 2 dies per setmana. Mantenir força principal a 3 × 5 (RIR 1-2).',
     } });
 
-  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Richy',
+  assessment({ patientId: jordi, date: D(-22), type: 'inicial', professional: 'Ricardo Villamizar',
     general: { weight: '84', height: '181', goal: 'Tornar a esquiar amb seguretat.' },
     values: {
       rom_hip_ir: bi(30, 28), rom_hip_er: bi(40, 38), rom_knee_flex: bi(140, 118),
@@ -6762,7 +6812,7 @@ function makeDemoData() {
       plan: 'Coordinat amb fisioteràpia. Sense impactes fins al criteri del fisio. Força de quàdriceps en cadena oberta i tancada, 2 dies per setmana.',
     } });
 
-  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Richy',
+  assessment({ patientId: montse, date: D(-42), type: 'inicial', professional: 'Ricardo Villamizar',
     general: { weight: '62', height: '158', goal: 'Autonomia i confiança caminant.' },
     values: {
       rom_hip_ir: bi(22, 25), rom_hip_er: bi(30, 34), rom_sh_ir: bi(48, 50), rom_sh_er: bi(80, 84),
@@ -6868,7 +6918,7 @@ function makeDemoData() {
     for (const off of [1, 3]) {
       const date = U.addDays(jw0, w * 7 + off);
       if (date >= today) continue;
-      session(jordi, date, 'Richy', 'Readaptació LCA · força de quàdriceps', {
+      session(jordi, date, 'Ricardo Villamizar', 'Readaptació LCA · força de quàdriceps', {
         mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12'], ['X-MOB-07']] },
         act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
         pot: { focus: '', items: [] },
@@ -6880,7 +6930,7 @@ function makeDemoData() {
         decision: 'Progressar càrrega del leg press i mantenir profunditat controlada.' });
     }
   }
-  session(jordi, D(1), 'Richy', 'Readaptació LCA · força de quàdriceps', {
+  session(jordi, D(1), 'Ricardo Villamizar', 'Readaptació LCA · força de quàdriceps', {
     mob: { focus: 'Genoll', items: [['X-MOB-14'], ['X-MOB-12']] },
     act: { focus: 'Quàdriceps', items: [['X-ACT-12', { sets: '4', reps: '45 s' }], ['X-ACT-04']] },
     for: { focus: 'Dominant de genoll', items: [['X-FOR-03', { load: '24' }], ['X-FOR-07', { reps: '10', load: '90', intensity: 'RIR 3' }], ['X-FOR-06', { sets: '3', reps: '8/cama', load: '0', note: 'Caixa de 20 cm.' }]] },
@@ -6894,7 +6944,7 @@ function makeDemoData() {
     for (const off of [0, 3]) {
       const date = U.addDays(mw0, w * 7 + off);
       if (date >= today) continue;
-      session(montse, date, 'Richy', 'Autonomia · força i equilibri', {
+      session(montse, date, 'Ricardo Villamizar', 'Autonomia · força i equilibri', {
         mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
         act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
         pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -6905,7 +6955,7 @@ function makeDemoData() {
         decision: w > 3 ? 'Afegir exercici d\'equilibri amb ulls tancats.' : '' });
     }
   }
-  session(montse, today, 'Richy', 'Autonomia · força i equilibri', {
+  session(montse, today, 'Ricardo Villamizar', 'Autonomia · força i equilibri', {
     mob: { focus: 'Turmell', items: [['X-MOB-12'], ['X-MOB-09']] },
     act: { focus: 'Glutis', items: [['X-ACT-04'], ['X-ACT-14']] },
     pot: { focus: 'Velocitat', items: [['X-POT-08', { load: '2', sets: '2', reps: '6' }]] },
@@ -6987,12 +7037,12 @@ function addDemoPlan(db, today) {
 
 /* ── 07-dbcols.js ── */
 /* EON Life · base de dades: definició de les taules (files i columnes).
-   Cada taula correspon a una pestanya del sistema EON v1 (clients, valoracions, Kinvent ROM,
+   Cada taula correspon a una pestanya del sistema EON v1 (pacients, valoracions, Kinvent ROM,
    dinamometria, postural, Y-Balance, My Jump, patrons, sessions, registre d'exercicis).
-   Les mesures viuen dins de cada valoració: una fila = una valoració d'un client en una data. */
+   Les mesures viuen dins de cada valoració: una fila = una valoració d'un pacient en una data. */
 
 const DB_TABLES = [
-  { id: 'clients', label: 'Clients', kind: 'patients', add: 'Nou client', hint: 'Una fila per client.' },
+  { id: 'clients', label: 'Pacients', kind: 'patients', add: 'Nou pacient', hint: 'Una fila per pacient.' },
   { id: 'valoracions', label: 'Valoracions', kind: 'assessments', focus: 'dades', add: 'Nova valoració', hint: 'Una fila per valoració, amb les dades clau de cada àrea.' },
   { id: 'mobilitat', label: 'Mobilitat · K-Move', kind: 'assessments', focus: 'rom', add: 'Afegeix mobilitat', hint: 'Goniometria digital (Kinvent K-Move) i knee-to-wall. Graus i cm.' },
   { id: 'postural', label: 'Anàlisi postural', kind: 'assessments', focus: 'postural', add: 'Afegeix tests posturals', hint: 'Adams, Thomas, Windlass i single leg squat.' },
@@ -7024,7 +7074,7 @@ const DB = (() => {
   ];
 
   const lead = () => [
-    { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+    { id: 'client', label: 'Pacient', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
     { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.a.date },
     { id: 'type', label: 'Tipus', kind: 'text', lead: true, get: (r) => typeShort(r.a.type) },
   ];
@@ -7087,7 +7137,7 @@ const DB = (() => {
 
   const COLUMNS = {
     clients: () => [
-      { id: 'client', label: 'Client', kind: 'client', get: (r) => U.fullName(r.p) },
+      { id: 'client', label: 'Pacient', kind: 'client', get: (r) => U.fullName(r.p) },
       { id: 'age', label: 'Edat', kind: 'num', dec: 0, get: (r) => U.age(r.p.birthDate) },
       { id: 'service', label: 'Servei', kind: 'text', get: (r) => (OPT.services.find((o) => o.v === r.p.service) || {}).label || '' },
       { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.p.professional || '' },
@@ -7190,7 +7240,7 @@ const DB = (() => {
     ],
 
     sessions: () => [
-      { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+      { id: 'client', label: 'Pacient', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
       { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.s.date },
       { id: 'num', label: 'Nº', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
@@ -7205,7 +7255,7 @@ const DB = (() => {
     ],
 
     exercicis: () => [
-      { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+      { id: 'client', label: 'Pacient', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
       { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.s.date },
       { id: 'num', label: 'Sessió', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
       { id: 'block', label: 'Bloc', kind: 'block', get: (r) => r.b.key },
@@ -7724,7 +7774,7 @@ const KinventPdf = (() => {
 
 /* ── 08-excel-common.js ── */
 /* EON Life · Excel generats per l'app: estils i peces comunes (títols, seccions, taules, enllaços).
-   Els fulls de l'Excel del client (resum, mesos, registre i valoracions) es fan amb aquestes peces,
+   Els fulls de l'Excel del pacient (resum, mesos, registre i valoracions) es fan amb aquestes peces,
    perquè tots tinguin els mateixos colors i la mateixa disposició que l'app. */
 
 const XL_C = {
@@ -7854,7 +7904,7 @@ function xlLinkCell(ws, r, c, url, label, style) {
 
 /* ── 08-localfiles.js ── */
 /* EON Life · fitxers desats a la tauleta (versió de prova, sense Microsoft 365).
-   Sense Microsoft 365 no hi ha carpeta del client: el PDF de Kinvent, l'informe de la doctora i els vídeos que
+   Sense Microsoft 365 no hi ha carpeta del pacient: el PDF de Kinvent, l'informe de la doctora i els vídeos que
    es graven o es trien es guarden al navegador d'aquell aparell (IndexedDB) i s'obren des de l'app.
    Al registre hi queda un enllaç «eonlocal:…». No arriben a cap altre aparell. */
 
@@ -7902,7 +7952,7 @@ const LocalFiles = (() => {
         await run('readwrite', (st) => st.put({ blob: file, name, type: file.type || '', size: file.size, date: new Date().toISOString() }, id));
       } catch (e) {
         if (e && /quota/i.test(`${e.name} ${e.message}`)) throw new Error('No hi ha prou espai a la tauleta per desar aquest fitxer.');
-        throw new Error('Aquest navegador no deixa desar fitxers. Amb Microsoft 365 es desen a la carpeta del client.');
+        throw new Error('Aquest navegador no deixa desar fitxers. Amb Microsoft 365 es desen a la carpeta del pacient.');
       }
       // Que el navegador no esborri els fitxers quan li falti espai (si ho permet).
       try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* res */ }
@@ -7941,7 +7991,7 @@ const LocalFiles = (() => {
         ${kind === 'video' ? html`<div class="embed"><video src=${src} controls autoplay playsinline></video></div>`
           : kind === 'image' ? html`<img class="localfile-img" src=${src} alt=${f.name} />` : null}
         <p class="localfile-name"><strong>${f.name}</strong> <span class="muted">· ${size}</span></p>
-        <p class="muted small">Desat només en aquesta tauleta (versió de prova). Amb Microsoft 365 es desa a la carpeta del client i el veu tot l'equip.</p>
+        <p class="muted small">Desat només en aquesta tauleta (versió de prova). Amb Microsoft 365 es desa a la carpeta del pacient i el veu tot l'equip.</p>
       </${Dialog}>`, { onDismiss: () => close() });
     },
   };
@@ -8217,7 +8267,7 @@ const Xlsx = (() => {
    A diferència de Xlsx (08-xlsx.js, que només crea la plantilla de la base de dades), aquest escriptor fa
    llibres per llegir: colors, cel·les combinades, text enriquit, fórmules amb el valor ja calculat, enllaços,
    format condicional, files i columnes fixades, protecció suau i configuració d'impressió. L'app el fa servir
-   per a l'Excel que genera sola per a cada client (sessions per mes i valoracions).
+   per a l'Excel que genera sola per a cada pacient (sessions per mes i valoracions).
 
    Ús:
      const doc = XlsxDoc.create({ title: 'Sessió 12', creator: 'EON Life' });
@@ -8890,7 +8940,7 @@ const ExcelAssessment = (() => {
     const age = U.age(p.birthDate, a.date);
     const at = {};
     r = xlKv(ws, r, [
-      ['Client', U.fullName(p)],
+      ['Pacient', U.fullName(p)],
       ['Data', { date: a.date }, { style: { h: 'left' } }],
       ['Tipus', typeLabel(a)],
       ['Professional', xlStr(a.professional)],
@@ -9452,7 +9502,7 @@ const ExcelClient = (() => {
   function build({ patient: p, items, plans, assessments, settings, today }) {
     const rows = items.map((s) => rowOf(s, today, settings));
     const months = monthsOf(items, today);
-    const doc = XlsxDoc.create({ title: `Seguiment · ${U.fullName(p)}`, subject: 'Seguiment del client: sessions i valoracions', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
+    const doc = XlsxDoc.create({ title: `Seguiment · ${U.fullName(p)}`, subject: 'Seguiment del pacient: sessions i valoracions', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
     const wsRes = doc.sheet('Resum', { grid: false, landscape: true, tab: XL_C.BRAND, zoom: 100 });
     // Valoracions: l'evolució i, al final del llibre, el detall de cadascuna.
     const taken = new Set(['resum', 'valoracions', REG.toLowerCase(), ...months.map((m) => ExcelMonth.sheetName(m).toLowerCase())]);
@@ -9476,7 +9526,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor', 7], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -9517,7 +9567,7 @@ const ExcelClient = (() => {
   function summarySheet(ws, { p, rows, plans, assessments, settings, today, R, aNames, monthSheets }) {
     ws.cols([30, 17, 17, 17, 17, 17, 17]);
     const service = (OPT.services.find((o) => o.v === p.service) || {}).label || '';
-    let r = xlTitle(ws, `Seguiment · ${U.fullName(p)}`, [service, p.professional, p.startDate ? `client des del ${U.fmtDate(p.startDate)}` : ''].filter(Boolean).join(' · '), RC);
+    let r = xlTitle(ws, `Seguiment · ${U.fullName(p)}`, [service, p.professional, p.startDate ? `pacient des del ${U.fmtDate(p.startDate)}` : ''].filter(Boolean).join(' · '), RC);
 
     // Targetes (fórmules sobre el registre)
     const done = rows.filter((x) => x.state.key === 'feta');
@@ -9542,7 +9592,7 @@ const ExcelClient = (() => {
     ws.rowH(r + 1, 36);
     r += 3;
 
-    r = xlSection(ws, r, 'Perfil del client', RC);
+    r = xlSection(ws, r, 'Perfil del pacient', RC);
     const body = Calc.body(p, assessments);
     const age = U.age(p.birthDate);
     const level = (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '';
@@ -9559,7 +9609,7 @@ const ExcelClient = (() => {
       ['Professió', xlStr(p.occupation)],
       ['Disponibilitat', xlStr(p.availability)],
       ['Dominància', (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || ''],
-      ['Observacions de l\'equip', xlStr(p.notes)],
+      // (els comentaris del professional no hi van: la carpeta es pot compartir amb el pacient)
     ], RC) + 1;
 
     // Dates clau (dies des de la data, en viu)
@@ -9655,7 +9705,7 @@ const ExcelClient = (() => {
     // Informes mèdics i altres documents del client (PDF a la carpeta «Valoracions»)
     const docs = (p.docs || []).filter((f) => f && f.url);
     if (docs.length) {
-      r = xlSection(ws, r, 'Informes i documents del client (carpeta «Valoracions»)', RC);
+      r = xlSection(ws, r, 'Informes i documents del pacient (carpeta «Valoracions»)', RC);
       r = xlHeader(ws, r, [['Fitxer', 4], 'Data', ['Enllaç', 2]]);
       for (const f of docs) {
         ws.merge(r, 1, r, 4, xlStr(f.name), XS.text);
@@ -9674,7 +9724,7 @@ const ExcelClient = (() => {
       ['Un full per mes', `«${lastMonth}» i els altres: a dalt, el calendari de cada setmana amb l'objectiu, l'RPE, el temps, la càrrega, el wellness i el dolor de cada dia; a sota, cada sessió sencera amb els exercicis de cada bloc (GM, contracció, posició, lateralitat, exercici, material, càrrega, sèries, repeticions i observacions). Verd = feta, beix = planificada, taronja = sense tancar, gris = prevista al pla o descans. Clica la data d'un dia per anar a la sessió.`],
       ['Valoracions', 'Totes les valoracions l\'una al costat de l\'altra, amb el canvi entre les dues últimes; i, al final del llibre, una pestanya per valoració amb tot el detall, les fotos, els vídeos i els informes.'],
       ['Registre', 'Una fila per sessió, per filtrar i ordenar (o fer taules dinàmiques).'],
-      ['Fotos, vídeos i PDF', 'Són a les carpetes «Valoracions» i «Sessions» del client; des d\'aquí s\'obren amb els enllaços.'],
+      ['Fotos, vídeos i PDF', 'Són a les carpetes «Valoracions» i «Sessions» del pacient; des d\'aquí s\'obren amb els enllaços.'],
     ];
     r = xlKv(ws, r, guide, RC);
     return r;
@@ -9904,7 +9954,7 @@ const ExcelMonth = (() => {
       if (it.done) nameRuns.push(['✔ ', { b: true, color: '3D6B2E', sz: 9 }]);
       nameRuns.push([it.name, { b: true, sz: 9, ...(url ? { color: XL_C.LINK, u: true } : {}) }]);
       ws.merge(r, C(5), r, C(8), { rich: nameRuns }, cell);
-      if (url) ws.link(r, C(5), url, vid ? 'Vídeo del client' : 'Vídeo de demostració');
+      if (url) ws.link(r, C(5), url, vid ? 'Vídeo del pacient' : 'Vídeo de demostració');
       ws.merge(r, C(9), r, C(10), xlStr(it.material), cell);
       ws.set(r, C(11), Calc.load(it.load) || xlStr(it.load), cell);
       ws.set(r, C(12), xlNumOrText(it.sets), cell);
@@ -9952,8 +10002,8 @@ const ExcelMonth = (() => {
 
 /* ── 09-excel-set.js ── */
 /* EON Life · els Excel d'un client: quins fitxers toca fer, amb quin nom i a quina carpeta.
-   Un de sol: l'Excel del client (seguiment_<client>_01.xlsx) a l'arrel de la seva carpeta, amb les sessions (fetes,
-   planificades i previstes als plans) i les valoracions. Aquí es reuneixen les dades del client per fer-lo. */
+   Un de sol: l'Excel del pacient (seguiment_<client>_01.xlsx) a l'arrel de la seva carpeta, amb les sessions (fetes,
+   planificades i previstes als plans) i les valoracions. Aquí es reuneixen les dades del pacient per fer-lo. */
 
 const ExcelSet = (() => {
   const real = (list) => (list || []).filter((x) => x && !x.deleted);
@@ -10018,7 +10068,7 @@ const ExcelSet = (() => {
    de Microsoft i les dades es desen a la carpeta compartida de OneDrive/SharePoint:
    · «EON Life · Base de dades.xlsx» → la base de dades: un full per tipus de dada (Pacients, Valoracions,
      Sessions…), una fila per registre i una columna per test. Columna oculta data_json = registre complet.
-   · «EON Life · Clients» → una carpeta per client («Cognoms, Nom · P-xxxx») amb Valoracions (i Vídeos valoracions)
+   · «EON Life · Clients» → una carpeta per pacient («Cognoms, Nom · P-xxxx») amb Valoracions (i Vídeos valoracions)
      i Sessions (i Vídeos sessions d'entrenament): vegeu 09-names.js.
    Mateixa estructura que la versió de Google (apps-script/Code.gs). */
 
@@ -10041,6 +10091,7 @@ const XL = {
   log: 'Registre_exercicis',
   base: ['id', 'patient_id', 'updated_at', 'updated_by', 'deleted', 'data_json'],
   logBase: ['session_id', 'patient_id'],
+  renamed: { 'Pacient': 'Client', 'Carpeta del pacient': 'Carpeta del client', 'Comentaris del professional': 'Notes' }, // nom nou → nom d'abans
   extraChunks: 9, // data_json_2 … data_json_10 ja creades a la plantilla (un pla d'entrenament llarg ocupa ~150.000 caràcters)
   cellLimit: 30000, // Excel admet 32.767 caràcters per cel·la
   table: (sheet) => `t${sheet}`,
@@ -10402,8 +10453,27 @@ class ExcelDb {
     return `${Xlsx.colName(lay.startCol)}${sheetRow}:${Xlsx.colName(lay.startCol + width - 1)}${sheetRow}`;
   }
 
+  // Columnes que han canviat de nom (abans «Client», ara «Pacient»): es reanomena la capçalera, així les files d'abans i
+  // les noves queden a la mateixa columna. Si no es pot, es fa una columna nova.
+  async renameColumns(sheet, lay, keys) {
+    const lower = lay.headers.map((x) => x.toLowerCase());
+    for (const k of keys) {
+      const old = XL.renamed[k];
+      if (!old || lower.includes(k.toLowerCase())) continue;
+      const i = lower.indexOf(old.toLowerCase());
+      if (i < 0) continue;
+      const addr = `${Xlsx.colName(lay.startCol + i)}${lay.headerRow}`;
+      try {
+        await this.call('PATCH', ExcelDb.rangePath(sheet, addr), { body: { values: [[k]] }, retries: 2 });
+        lay.headers[i] = k;
+        lower[i] = k.toLowerCase();
+      } catch (e) { if (e.code === 'network') throw e; }
+    }
+  }
+
   // Afegeix les columnes que falten al final de la taula. Si no es pot, la dada continua a data_json.
   async addColumns(sheet, lay, keys) {
+    await this.renameColumns(sheet, lay, keys);
     const have = new Set(lay.headers.map((x) => x.toLowerCase()));
     const missing = [];
     for (const k of keys) {
@@ -10626,7 +10696,7 @@ function m365TemplateSheets() {
     templates: Object.keys(Flat.template({ items: [], blocks: [] })),
     settings: settingsKeys,
   };
-  const wide = { Client: 24, Nom: 18, Cognoms: 22, Objectiu: 30, Observacions: 30, Exercici: 26 };
+  const wide = { Pacient: 24, Nom: 18, Cognoms: 22, Objectiu: 30, Observacions: 30, Exercici: 26 };
   const sheets = Object.entries(XL.sheets).map(([kind, name]) => ({
     name, table: XL.table(name), columns: cols([...base, ...readable[kind]], wide),
   }));
@@ -10739,7 +10809,7 @@ class M365Api {
   }
 
   async ensureFolder(p) {
-    if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new M365Error('Client sense identificador vàlid.', 'id');
+    if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new M365Error('Pacient sense identificador vàlid.', 'id');
     if (p.folderId) {
       try {
         const f = await this.g.req('GET', `${this.drive}/items/${p.folderId}?$select=id,webUrl,folder,deleted`);
@@ -10751,7 +10821,7 @@ class M365Api {
     if (!this.clientsItem) this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
     const existing = (await this.children(this.clientsItem.id)).find((x) => x.folder && x.name.includes(p.id));
     if (existing) return { folderId: existing.id, folderUrl: existing.webUrl };
-    const name = safeName([[p.lastName, p.firstName].filter(Boolean).join(', ') || 'Client', p.id].join(' · '));
+    const name = safeName([[p.lastName, p.firstName].filter(Boolean).join(', ') || 'Pacient', p.id].join(' · '));
     const folder = await this.ensureChildFolder(this.clientsItem.id, name);
     for (const path of [EXPORT_FOLDERS.assessVideos, EXPORT_FOLDERS.sessionVideos]) await this.ensurePath(folder.id, path);
     return { folderId: folder.id, folderUrl: folder.webUrl };
@@ -10953,8 +11023,8 @@ const M365Backend = {
 
 /* ── 09-names.js ── */
 /* EON Life · carpetes i noms dels fitxers de cada client.
-   Carpeta del client: «Cognoms, Nom · P-xxxx», amb l'Excel del client i dues branques:
-     seguiment_lauravidalserra_01.xlsx    l'Excel del client: sessions (un full per mes) i valoracions
+   Carpeta del pacient: «Cognoms, Nom · P-xxxx», amb l'Excel del pacient i dues branques:
+     seguiment_lauravidalserra_01.xlsx    l'Excel del pacient: sessions (un full per mes) i valoracions
      Valoracions/                         PDF de Kinvent, informe mèdic i fotos
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/
@@ -11046,12 +11116,12 @@ const Names = (() => {
 
 /* ── 09-sync.js ── */
 /* EON Life · sincronització de l'Excel del client amb la seva carpeta (Microsoft 365).
-   Cada cop que es canvia alguna cosa d'un client (dades, valoració, sessió o pla) es deixa un avís a una cua que
-   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer l'Excel d'aquell client
+   Cada cop que es canvia alguna cosa d'un pacient (dades, valoració, sessió o pla) es deixa un avís a una cua que
+   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer l'Excel d'aquell pacient
    (seguiment_<client>_01.xlsx, a l'arrel de la seva carpeta: un full per mes amb les sessions i les valoracions) i
    només el puja si ha canviat (substituint el fitxer anterior, sense còpies repetides).
    Els Excel antics fets per l'app que ja no toquen (els d'abans de l'Excel únic, a «Sessions» i «Valoracions», o el
-   d'un client reanomenat) es treuen de la carpeta (queden a la paperera de reciclatge). Mai es toca cap altre fitxer:
+   d'un pacient reanomenat) es treuen de la carpeta (queden a la paperera de reciclatge). Mai es toca cap altre fitxer:
    només els que tenen el nom d'un Excel fet per l'app. */
 
 const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day', format: 'eonlife:sync:format' };
@@ -11139,7 +11209,7 @@ const Sync = (() => {
     // La carpeta del client: si no n'hi ha, es crea; si algú l'ha esborrat o canviat de lloc, es torna a trobar o a fer.
     const folder = await b.ensureFolder(d.patient);
     const fid = folder && folder.folderId;
-    if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+    if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
     if (fid !== d.patient.folderId || folder.folderUrl !== d.patient.folderUrl) {
       own = true; // desar la carpeta a la fitxa no ha de posar el client altre cop a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
@@ -11273,7 +11343,7 @@ const Sync = (() => {
     // Puja ara mateix els Excel d'un client (botó «Sincronitza ara»). Retorna { uploaded, kept, removed }.
     async now(pid, { force = false } = {}) {
       if (!available()) throw new Error('Aquesta versió no té carpeta al núvol.');
-      if (running) throw new Error('Ja s\'està pujant un altre client. Torna-ho a provar d\'aquí a un moment.');
+      if (running) throw new Error('Ja s\'està pujant un altre pacient. Torna-ho a provar d\'aquí a un moment.');
       running = pid;
       emit();
       try {
@@ -11342,7 +11412,7 @@ const Exports = {
   // L'Excel del client: { name, bytes }
   async file(pid, key = 'C:client') {
     const d = ExcelSet.data(pid);
-    if (!d) throw new Error('No trobo aquest client.');
+    if (!d) throw new Error('No trobo aquest pacient.');
     const f = ExcelSet.plan(d).find((x) => x.key === key);
     if (!f) throw new Error('No trobo aquest fitxer.');
     const { bytes } = await f.make({}).build({ stamp: xlStampText() });
@@ -11398,6 +11468,7 @@ const ICONS = {
   clipboard: html`<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6M9 18h3"/>`,
   dumbbell: html`<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>`,
   clock: html`<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>`,
+  lock: html`<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>`,
   layers: html`<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>`,
   upload: html`<path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>`,
   download: html`<path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>`,
@@ -11772,7 +11843,7 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
       const res = await uploadToClient({ ...patient, folderId }, file, { label: title, date, where, onProgress: (pct) => setUp({ pct }) });
       setUp(null);
       setFolderId(res.folderId);
-      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el pacient'}.`);
       if (res.url) onSave(res.url);
       else loadFiles(res.folderId);
     } catch (e) {
@@ -11790,13 +11861,13 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
       <input type="file" accept="video/*" capture="environment" hidden ref=${recRef} data-kind="record" onChange=${(e) => upload(e.currentTarget.files[0])} />
       <input type="file" accept="video/*,image/*" hidden ref=${fileRef} data-kind="gallery" onChange=${(e) => upload(e.currentTarget.files[0])} />
       ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
-          <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el client'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
+          <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el pacient'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
           <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
         : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
           <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
-          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del client.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el client'}.`}</span>`}
+          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del pacient.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el pacient'}.`}</span>`}
     </div>`}
-    <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
+    <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del pacient (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del pacient, YouTube…).'}>
       <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />
     </${Field}>
     ${U.isUrl(v) && html`<p><a class="link" href=${v} target="_blank" rel="noopener"><${Icon} name="video" size=${15} /> Obre el vídeo</a></p>`}
@@ -12154,7 +12225,7 @@ function SessionRow({ s, showPatient, compact }) {
     </button>
     <div class="srow-actions">
       ${statusPill(s)}
-      <${Btn} variant="ghost" icon="play" title="Presenta la sessió al client" onClick=${() => go('fitxa', s.id)} />
+      <${Btn} variant="ghost" icon="play" title="Presenta la sessió al pacient" onClick=${() => go('fitxa', s.id)} />
     </div>
   </div>`;
 }
@@ -12175,24 +12246,24 @@ function NewPatientDialog({ onClose }) {
   const [f, setF] = useState({ firstName: '', lastName: '', service: 'valoracio', professional: Store.professionals()[0] || '', birthDate: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
-    if (!f.firstName.trim()) { UI.toast('Escriu el nom del client.', 'bad'); return; }
+    if (!f.firstName.trim()) { UI.toast('Escriu el nom del pacient.', 'bad'); return; }
     const p = Store.newPatient({ ...f, firstName: f.firstName.trim(), lastName: f.lastName.trim() });
     onClose();
     if (Store.cloud()) ensureFolder(p);
     go('client', p.id, 'fitxa');
   };
-  return html`<${Dialog} title="Nou client" onClose=${onClose} footer=${html`
+  return html`<${Dialog} title="Nou pacient" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="plus" onClick=${create}>Crea el client</${Btn}>`}>
+    <${Btn} variant="primary" icon="plus" onClick=${create}>Crea el pacient</${Btn}>`}>
     <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); create(); }}>
+      <${Field} label="Tipus de pacient" id="np-service" wide=${true} hint=${(OPT.services.find((o) => o.v === f.service) || {}).desc}>
+        <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Tipus de pacient" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
+      </${Field}>
       <${Field} label="Nom" id="np-first"><${TextInput} id="np-first" value=${f.firstName} onValue=${set('firstName')} autoFocus=${true} /></${Field}>
       <${Field} label="Cognoms" id="np-last"><${TextInput} id="np-last" value=${f.lastName} onValue=${set('lastName')} /></${Field}>
       <${Field} label="Data de naixement" id="np-birth"><${TextInput} id="np-birth" type="date" value=${f.birthDate} onValue=${set('birthDate')} /></${Field}>
       <${Field} label="Professional de referència" id="np-prof">
         <${ProfSelect} id="np-prof" value=${f.professional} onValue=${set('professional')} />
-      </${Field}>
-      <${Field} label="Servei" id="np-service" wide=${true}>
-        <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
@@ -12211,7 +12282,7 @@ async function ensureFolder(p, { silent } = {}) {
     const res = await Store.backend.ensureFolder(p);
     if (res && res.folderUrl) {
       Store.update('patients', p.id, (x) => { x.folderUrl = res.folderUrl; x.folderId = res.folderId; });
-      if (!silent) UI.toast(`Carpeta del client creada a ${Store.cloudName()}.`);
+      if (!silent) UI.toast(`Carpeta del pacient creada a ${Store.cloudName()}.`);
     }
     return res;
   } catch (e) {
@@ -12254,7 +12325,7 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
     const res = await ensureFolder(Store.get('patients', patient.id) || patient, { silent: true });
     fid = (res && res.folderId) || '';
   }
-  if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+  if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
   const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
   const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
@@ -12308,7 +12379,7 @@ function NewSessionDialog({ pid, date, onClose }) {
             options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
         </div>`)}
       ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
-      ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el client (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
+      ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el pacient (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
       ${option('template', 'A partir d\'una plantilla', 'Els blocs i els exercicis d\'una sessió tipus.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}
     </div>
@@ -12354,7 +12425,7 @@ function WellnessCard({ value, onSet, id }) {
     </div>`)}</div>
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
-        placeholder="El que el client us comenti o el que observeu (son, feina, molèsties, viatges…)" />
+        placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />
     </${Field}>
   </section>`;
 }
@@ -13131,7 +13202,7 @@ function ThumbEditor({ f, setF }) {
         ${yt && yt.kind === 'youtube' && !f.photo && f.pic && html`<${Btn} size="sm" variant="ghost" icon="video" onClick=${() => setF({ ...f, pic: '' })}>Imatge del vídeo</${Btn}>`}
         ${f.photo && html`<${Btn} size="sm" variant="ghost" icon="x" onClick=${() => setF({ ...f, photo: '' })}>Treu la foto</${Btn}>`}
       </div>
-      <p class="muted small">La foto, d'un entrenador fent l'exercici (mai d'un client). Si l'exercici té un vídeo de YouTube, la miniatura és la imatge del vídeo; si no, el dibuix.</p>
+      <p class="muted small">La foto, d'un entrenador fent l'exercici (mai d'un pacient). Si l'exercici té un vídeo de YouTube, la miniatura és la imatge del vídeo; si no, el dibuix.</p>
       <input ref=${fileRef} type="file" accept="image/*" hidden onChange=${onFile} aria-label="Foto de l'exercici" />
     </div>
   </div>`;
@@ -13152,7 +13223,7 @@ function PicChooser({ ex, auto, onPick, onClose }) {
 /* EON Life · fotos i vídeos per costat dels tests de la valoració.
    - Fotos: els tests que es documenten amb una foto i no amb vídeo (test de Thomas, dreta i esquerra; flexió de tronc).
    - Vídeos per costat: el single leg squat, amb un vídeo de la dreta i un de l'esquerra.
-   Es fan amb la càmera de la tauleta o es trien de la galeria. Amb Microsoft 365 van a la carpeta del client (fotos a
+   Es fan amb la càmera de la tauleta o es trien de la galeria. Amb Microsoft 365 van a la carpeta del pacient (fotos a
    «Valoracions», vídeos a «Valoracions › Vídeos valoracions»); a la versió local, a la mateixa tauleta. Al registre hi queda l'enllaç. */
 
 // Foto més lleugera abans de desar-la: costat llarg de 1600 px en JPEG. L'<img> ja la gira segons l'EXIF de la càmera.
@@ -13253,7 +13324,7 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
       const res = await uploadToClient(patient, file, { label: title, date, where: 'assessVideos', onProgress: (pct) => setUp(pct) });
       if (!res.url) throw new Error('No s\'ha pogut desar el vídeo.');
       onChange(res.url);
-      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el pacient'}.`);
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
@@ -13273,7 +13344,7 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
               <${Btn} size="sm" variant=${has ? 'ghost' : 'primary'} icon="video" title=${has ? 'Torna a gravar el vídeo' : 'Grava el vídeo amb la càmera'}
                 onClick=${() => recRef.current && recRef.current.click()}>${has ? '' : 'Grava'}</${Btn}>
               <${Btn} size="sm" variant="ghost" icon="upload" title="Tria un vídeo de la galeria" onClick=${() => galRef.current && galRef.current.click()}>${has ? '' : 'Tria\'n un'}</${Btn}>`}
-            <${Btn} size="sm" variant="ghost" icon="link" title="Enllaç al vídeo (carpeta del client, YouTube…)"
+            <${Btn} size="sm" variant="ghost" icon="link" title="Enllaç al vídeo (carpeta del pacient, YouTube…)"
               onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where: 'assessVideos' })}>${can ? '' : 'Enllaç'}</${Btn}>
           </div>`}
     </div>
@@ -13296,14 +13367,14 @@ function PhotoSlot({ url, label, title, patient, date, onChange }) {
       if (!res.url) throw new Error('No s\'ha pogut desar la foto.');
       PhotoSrc.set(res.url, URL.createObjectURL(photo));
       onChange(res.url);
-      UI.toast(filesOnDevice() ? 'Foto desada a la tauleta.' : `Foto desada a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Foto desada a la tauleta.' : `Foto desada a la carpeta de ${patient.firstName || 'el pacient'}.`);
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
     setBusy(false);
   };
   const remove = async () => {
-    if (await UI.confirm({ title: 'Treure la foto?', text: 'Es treu de la valoració. Si és a la carpeta del client, el fitxer s\'hi queda.', ok: 'Treu-la', danger: true })) onChange('');
+    if (await UI.confirm({ title: 'Treure la foto?', text: 'Es treu de la valoració. Si és a la carpeta del pacient, el fitxer s\'hi queda.', ok: 'Treu-la', danger: true })) onChange('');
   };
   return html`<div class=${U.cls('tphoto', url && 'has')}>
     <button type="button" class="tphoto-img" disabled=${!url} onClick=${() => openPhoto(url, src, title)}
@@ -13482,6 +13553,8 @@ const ReportPdf = (() => {
       .pdf-view { position: relative; width: ${CONTENT_W}px; overflow: hidden; }
       .pdf-foot { position: absolute; left: ${PAGE.m}px; right: ${PAGE.m}px; bottom: ${PAGE.m - 6}px; display: flex; justify-content: space-between; gap: 12px;
         font-size: 7.5pt; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 5px; }
+      /* el marge de cada pàgina el fa .pdf-page (en imprimir el fa l'informe mateix) */
+      .pdf-mode .report, .pdf-mode .sheet { padding: 0 !important; }
       /* el peu de l'informe ja hi és a cada pàgina */
       .pdf-mode .report > .sheet-foot { display: none; }
       /* sempre la disposició de tauleta, encara que es faci des d'un mòbil */
@@ -13593,15 +13666,15 @@ function HomeView() {
         <h1 class="h1">${greeting()}</h1>
       </div>
       <div class="page-actions">
-        <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Afegeix mesures</${Btn}>
-        <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou client</${Btn}>
+        <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Nou test</${Btn}>
+        <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou pacient</${Btn}>
       </div>
     </header>
 
     ${Store.meta.demo && html`<${DemoBanner} />`}
 
     <section class="stats">
-      <${Stat} icon="users" label="Clients actius" value=${active.length} sub=${`${patients.length} en total`} />
+      <${Stat} icon="users" label="Pacients actius" value=${active.length} sub=${`${patients.length} en total`} />
       <${Stat} icon="calendar" label="Sessions d'avui" value=${todays.length} sub=${todays.length ? `${todays.filter((s) => s.status === 'feta').length} fetes` : 'Cap sessió planificada'} />
       <${Stat} icon="dumbbell" label="Aquesta setmana" value=${week.filter((s) => s.status === 'feta').length} unit=${`/ ${week.length}`} sub="sessions fetes / planificades" />
       <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && x.r.days <= 0) ? 'warn' : ''} />
@@ -13611,7 +13684,7 @@ function HomeView() {
       <section class="card">
         <div class="card-head"><h2 class="h2">Sessions d'avui</h2></div>
         ${todays.length ? html`<div class="slist">${todays.map((s) => html`<${SessionRow} s=${s} showPatient=${true} />`)}</div>`
-          : html`<${Empty} icon="calendar" title="Avui no hi ha cap sessió" text="Crea una sessió des de la fitxa del client." />`}
+          : html`<${Empty} icon="calendar" title="Avui no hi ha cap sessió" text="Crea una sessió des de la fitxa del pacient." />`}
         ${upcoming.length > 0 && html`<h3 class="h3 mt">Propers 7 dies</h3>
           <div class="slist">${upcoming.slice(0, 8).map((s) => html`<${SessionRow} s=${s} showPatient=${true} compact=${true} />`)}</div>`}
       </section>
@@ -13629,20 +13702,20 @@ function HomeView() {
 
     <section class="card">
       <div class="card-head">
-        <h2 class="h2">Clients</h2>
-        <span class="muted">${U.plural(list.length, 'client', 'clients')}</span>
+        <h2 class="h2">Pacients</h2>
+        <span class="muted">${U.plural(list.length, 'pacient', 'pacients')}</span>
       </div>
       <div class="filters">
         <label class="search"><${Icon} name="search" size=${17} />
-          <input class="input" type="search" placeholder="Cerca per nom…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca clients" />
+          <input class="input" type="search" placeholder="Cerca per nom…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca pacients" />
         </label>
         <${Select} value=${fStatus} onValue=${setFStatus} placeholder="Tots els estats" options=${OPT.status} ariaLabel="Estat" />
-        <${Select} value=${fService} onValue=${setFService} placeholder="Tots els serveis" options=${OPT.services} ariaLabel="Servei" />
+        <${Select} value=${fService} onValue=${setFService} placeholder="Tots els tipus" options=${OPT.services} ariaLabel="Tipus de pacient" />
         <${Select} value=${fProf} onValue=${setFProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
       </div>
       ${list.length ? html`<div class="clist">${list.map((p) => html`<${ClientRow} p=${p} sessions=${byPatient[p.id] || []} />`)}</div>`
-        : html`<${Empty} icon="users" title=${patients.length ? 'Cap client coincideix amb la cerca' : 'Encara no hi ha clients'} text=${patients.length ? 'Prova amb uns altres filtres.' : 'Crea el primer client per començar.'}>
-          ${!patients.length && html`<${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou client</${Btn}>`}
+        : html`<${Empty} icon="users" title=${patients.length ? 'Cap pacient coincideix amb la cerca' : 'Encara no hi ha pacients'} text=${patients.length ? 'Prova amb uns altres filtres.' : 'Crea el primer pacient per començar.'}>
+          ${!patients.length && html`<${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou pacient</${Btn}>`}
         </${Empty}>`}
     </section>
   </div>`;
@@ -13660,7 +13733,7 @@ function ClientRow({ p, sessions }) {
       <span class="crow-name">${U.fullName(p)}</span>
       <span class="crow-meta">${[age != null && `${age} anys`, p.professional].filter(Boolean).join(' · ')}</span>
     </span>
-    <span class="crow-profile"><${Pill} tone=${p.service === 'membership' ? 'brand' : 'neutral'}>${(OPT.services.find((o) => o.v === p.service) || {}).label || 'Sense servei'}</${Pill}></span>
+    <span class="crow-profile"><${Pill} tone=${p.service === 'membership' ? 'brand' : p.service === 'bo' ? 'warn' : 'neutral'}>${(OPT.services.find((o) => o.v === p.service) || {}).label || 'Sense servei'}</${Pill}></span>
     <span class="crow-col"><span class="crow-k">Última sessió</span><span>${done ? U.since(done.date) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Propera</span><span>${next ? (next.date === today ? 'Avui' : U.fmtDateShort(next.date)) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Valoració</span><span>${last ? U.fmtDateShort(last.date) : html`<span class="warn-text">Pendent</span>`}</span></span>
@@ -13671,7 +13744,7 @@ function ClientRow({ p, sessions }) {
 function DemoBanner() {
   return html`<div class="banner">
     <${Icon} name="info" />
-    <div><strong>${IS_ARTIFACT ? 'Enllaç de prova amb clients ficticis.' : 'Mode de prova amb clients ficticis.'}</strong> Les dades es guarden només en aquest ${IS_ARTIFACT ? 'dispositiu' : 'navegador'}. Quan l'app estigui connectada al Microsoft 365 de la clínica, tot es desarà a l'Excel de la carpeta compartida.</div>
+    <div><strong>${IS_ARTIFACT ? 'Enllaç de prova amb pacients ficticis.' : 'Mode de prova amb pacients ficticis.'}</strong> Les dades es guarden només en aquest ${IS_ARTIFACT ? 'dispositiu' : 'navegador'}. Quan l'app estigui connectada al Microsoft 365 de la clínica, tot es desarà a l'Excel de la carpeta compartida.</div>
     <${Btn} size="sm" variant="ghost" onClick=${() => go('configuracio')}>Configuració</${Btn}>
   </div>`;
 }
@@ -13682,7 +13755,7 @@ function DemoBanner() {
 
 function PatientView({ id, tab = 'resum' }) {
   const p = Store.get('patients', id);
-  if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest client" text="Potser s'ha eliminat.">
+  if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest pacient" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
   const sessions = Store.sessionsOf(id);
   const assessments = Store.assessmentsOf(id);
@@ -13695,21 +13768,21 @@ function PatientView({ id, tab = 'resum' }) {
   useEffect(() => { if (Sync.enabled() && Sync.info(id).state === 'never') Sync.touch(id); }, [id]);
 
   const remove = async () => {
-    const ok = await UI.confirm({ title: `Eliminar ${U.fullName(p)}?`, text: 'S\'amagaran el client, les seves valoracions i les sessions. Al full de càlcul queden marcats com a eliminats i es poden recuperar.', ok: 'Elimina', danger: true });
+    const ok = await UI.confirm({ title: `Eliminar ${U.fullName(p)}?`, text: 'S\'amagaran el pacient, les seves valoracions i les sessions. Al full de càlcul queden marcats com a eliminats i es poden recuperar.', ok: 'Elimina', danger: true });
     if (!ok) return;
     Store.remove('patients', p.id);
-    UI.toast('Client eliminat.');
+    UI.toast('Pacient eliminat.');
     go('inici');
   };
 
   return html`<div class="page">
-    <nav class="crumbs"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Clients</button></nav>
+    <nav class="crumbs"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Pacients</button></nav>
     <header class="phead">
       <${Avatar} p=${p} size="lg" />
       <div class="phead-main">
         <p class="eyebrow">${service ? service.label : 'Sense servei'}${status && status.v !== 'actiu' ? ` · ${status.label}` : ''}</p>
         <h1 class="h1">${U.fullName(p)}</h1>
-        <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Client des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
+        <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Pacient des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
         <${KeyDates} p=${p} />
         <${SyncBadge} pid=${p.id} />
@@ -13717,13 +13790,14 @@ function PatientView({ id, tab = 'resum' }) {
       <div class="phead-actions">
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
         <${Btn} icon="clipboard" onClick=${() => createAssessment(p.id)}>${assessments.length ? 'Nova valoració' : 'Valoració inicial'}</${Btn}>
+        <${Btn} icon="plus" onClick=${() => openAddMeasurement('dades', p.id)}>Nou test</${Btn}>
         ${p.folderUrl ? html`<${Btn} icon="folder" href=${p.folderUrl}>Carpeta</${Btn}>`
           : Store.cloud() ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
         <${ExcelMenu} p=${p} />
         <${Menu} items=${[
           { label: 'Edita les dades', icon: 'edit', onClick: () => setTab('fitxa') },
           { sep: true },
-          { label: 'Elimina el client', icon: 'trash', danger: true, onClick: remove },
+          { label: 'Elimina el pacient', icon: 'trash', danger: true, onClick: remove },
         ]} />
       </div>
     </header>
@@ -13756,7 +13830,7 @@ function PatientSummary({ p, sessions, assessments }) {
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
   return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">
-    <div class="quickadd-head"><h2 class="h2">Registrar mesures</h2><span class="muted small">Obre el formulari directament a l'apartat</span></div>
+    <div class="quickadd-head"><h2 class="h2">Nou test</h2><span class="muted small">Obre el formulari d'aquest pacient directament a l'apartat</span></div>
     <div class="quickadd-chips">
       ${quick.map(([f, label]) => html`<button type="button" class="chip" onClick=${() => openAddMeasurement(f, p.id)}><${Icon} name="plus" size=${14} />${label}</button>`)}
       <button type="button" class="chip" onClick=${() => go('dades', 'valoracions', p.id)}><${Icon} name="table" size=${14} />Veure totes les dades</button>
@@ -13767,7 +13841,7 @@ function PatientSummary({ p, sessions, assessments }) {
       <div class="card-head"><h2 class="h2">Propera sessió</h2>
         <${Btn} size="sm" variant="ghost" icon="plus" onClick=${() => openNewSession(p.id)}>Nova</${Btn}></div>
       ${next ? html`<div class="slist"><${SessionRow} s=${next} /></div>
-        <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('fitxa', next.id)}>Presenta al client</${Btn}>
+        <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('fitxa', next.id)}>Presenta al pacient</${Btn}>
         <${Btn} icon="edit" onClick=${() => go('sessio', next.id)}>Edita</${Btn}></div>`
         : html`<${Empty} icon="calendar" title="Cap sessió planificada" text="Crea la propera sessió copiant l'última o des d'una plantilla." />`}
       ${lastDone && html`<div class="lastfb">
@@ -13833,7 +13907,7 @@ function ClientProfileCard({ p, assessments }) {
   ].filter((x) => x && x[1]);
   const empty = !facts.filter((f) => f.k !== 'Edat').length && !info.length && !health.length && !p.limitations && !p.notes;
   return html`<section class="card cprof">
-    <div class="card-head"><h2 class="h2">Perfil del client</h2>
+    <div class="card-head"><h2 class="h2">Perfil del pacient</h2>
       <${Btn} size="sm" variant="ghost" icon="edit" onClick=${() => go('client', p.id, 'fitxa')}>${empty ? 'Completa la fitxa' : 'Edita'}</${Btn}></div>
     ${facts.length > 0 && html`<div class="cprof-facts">${facts.map((f) => html`<div class="cprof-fact" title=${f.t ? f.t.slice(3) : ''}>
       <span class="cprof-k">${f.k}</span><strong>${f.v}</strong>${f.t && html`<span class="muted small">${f.t.slice(3)}</span>`}</div>`)}</div>`}
@@ -13842,8 +13916,8 @@ function ClientProfileCard({ p, assessments }) {
       ${info.length > 0 && html`<dl class="cprof-dl">${info.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
       ${health.length > 0 && html`<dl class="cprof-dl">${health.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
     </div>`}
-    ${p.notes && html`<div class="cprof-notes"><span class="cprof-k">Observacions</span><p>${p.notes}</p></div>`}
-    ${empty && html`<p class="muted">Encara no hi ha dades del client: alçada, pes, activitat, salut, limitacions per entrenar i observacions. Afegeix-les a la fitxa.</p>`}
+    ${p.notes && html`<div class="cprof-notes"><span class="cprof-k"><${Icon} name="lock" size=${13} />Comentaris del professional · només per a l'equip</span><p>${p.notes}</p></div>`}
+    ${empty && html`<p class="muted">Encara no hi ha dades del pacient: alçada, pes, activitat, salut, limitacions per entrenar i comentaris del professional. Afegeix-les a la fitxa.</p>`}
   </section>`;
 }
 
@@ -13915,7 +13989,7 @@ function PatientAssessments({ p, assessments }) {
             </span>
           </button>
           <div class="arow-actions">
-            <${Btn} variant="ghost" icon="play" title="Informe per al client" onClick=${() => go('informe', a.id)} />
+            <${Btn} variant="ghost" icon="play" title="Informe per al pacient" onClick=${() => go('informe', a.id)} />
             <${Menu} items=${[{ label: 'Edita', icon: 'edit', onClick: () => go('valoracio', a.id) }, { label: 'Elimina', icon: 'trash', danger: true, onClick: () => remove(a) }]} />
           </div>
         </div>`;
@@ -13952,8 +14026,13 @@ function PatientForm({ p, onRemove }) {
       : html`<${TextInput} id=${`pf-${k}`} type=${opts.type || 'text'} value=${p[k]} onValue=${set(k)} placeholder=${opts.placeholder} list=${opts.list} />`}
   </${Field}>`;
   return html`<div class="stack">
+    <section class="card pnotes">
+      <div class="card-head"><h2 class="h2"><${Icon} name="lock" size=${18} />Comentaris del professional</h2><${SaveStatus} /></div>
+      <p class="muted small">Només els veu l'equip a l'app: no surten mai als informes, ni al PDF ni a l'Excel de la carpeta del pacient.</p>
+      <${Area} id="pf-notes" value=${p.notes} onValue=${set('notes')} placeholder="El que t'explica el pacient a la primera trobada, com és, què li agrada, què li costa, acords…" rows=${5} ariaLabel="Comentaris del professional" />
+    </section>
     <section class="card">
-      <div class="card-head"><h2 class="h2">Dades personals</h2><${SaveStatus} /></div>
+      <div class="card-head"><h2 class="h2">Dades personals</h2></div>
       <div class="form-grid">
         ${F('Nom', 'firstName')}${F('Cognoms', 'lastName')}
         ${F('Data de naixement', 'birthDate', { type: 'date' })}${F('Sexe', 'sex', { options: OPT.sex, empty: '—' })}
@@ -13990,13 +14069,13 @@ function PatientForm({ p, onRemove }) {
     <section class="card">
       <div class="card-head"><h2 class="h2">Seguiment al centre</h2></div>
       <div class="form-grid">
-        <${Field} label="Servei" id="pf-service" wide=${true}>
+        <${Field} label="Tipus de pacient" id="pf-service" wide=${true}>
           <${Seg} value=${p.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
         </${Field}>
         <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
-        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el client?' })}
+        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el pacient?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
       </div>
     </section>
@@ -14009,21 +14088,17 @@ function PatientForm({ p, onRemove }) {
     </section>
     <section class="card">
       <div class="card-head"><h2 class="h2">Carpeta al núvol</h2></div>
-      <p class="muted">Vídeos de la valoració i dels exercicis, informes en PDF i documents del client. Es pot compartir amb el client en mode lectura.</p>
+      <p class="muted">Vídeos de la valoració i dels exercicis, informes en PDF i documents del pacient. Es pot compartir amb el pacient en mode lectura.</p>
       <div class="form-grid">
-        ${F(Store.cloud() ? `Enllaç de la carpeta (${Store.cloudName()})` : 'Enllaç de la carpeta del client', 'folderUrl', { wide: true, placeholder: 'https://…' })}
+        ${F(Store.cloud() ? `Enllaç de la carpeta (${Store.cloudName()})` : 'Enllaç de la carpeta del pacient', 'folderUrl', { wide: true, placeholder: 'https://…' })}
       </div>
       <div class="row-actions">
         ${p.folderUrl && html`<${Btn} icon="folder" href=${p.folderUrl}>Obre la carpeta</${Btn}>`}
-        ${!p.folderUrl && Store.cloud() && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta del client</${Btn}>`}
+        ${!p.folderUrl && Store.cloud() && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta del pacient</${Btn}>`}
       </div>
     </section>
-    <section class="card">
-      <div class="card-head"><h2 class="h2">Observacions</h2><span class="muted">Només per a l'equip; no surten als informes</span></div>
-      <${Area} value=${p.notes} onValue=${set('notes')} placeholder="Com és el client, què li agrada, què li costa, acords…" rows=${3} ariaLabel="Observacions" />
-    </section>
     <div class="danger-zone">
-      <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el client</${Btn}>
+      <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el pacient</${Btn}>
     </div>
   </div>`;
 }
@@ -14054,7 +14129,7 @@ function DoctorReportCard({ p }) {
     try {
       const res = await uploadToClient(p, file, { label: 'Informe mèdic', where: 'assess', onProgress: setPct });
       Store.update('patients', p.id, (x) => { x.docs = [...(x.docs || []), { id: U.uid('F'), name: res.name, url: res.url, date: U.today() }]; });
-      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
+      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del pacient.');
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
@@ -14066,7 +14141,7 @@ function DoctorReportCard({ p }) {
     <${Area} value=${text} onValue=${setText} rows=${4} ariaLabel="Text de l'informe de la doctora"
       placeholder=${'Motiu de consulta: …\nAntecedents: …\nDiagnòstic: …\nObjectiu: …'} />
     <div class="row-actions">
-      <${Btn} variant="primary" icon="check" disabled=${!text.trim()} onClick=${() => openDoctorPreview(p, text)}>Omple les dades del client</${Btn}>
+      <${Btn} variant="primary" icon="check" disabled=${!text.trim()} onClick=${() => openDoctorPreview(p, text)}>Omple les dades del pacient</${Btn}>
       <input type="file" accept=".docx,.txt,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden ref=${fileRef} onChange=${(e) => readFile(e.currentTarget.files[0])} />
       <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Llegeix un Word</${Btn}>
       ${canUploadFiles() && html`<input type="file" accept=".pdf,application/pdf,image/*,.docx" hidden ref=${pdfRef} onChange=${(e) => uploadPdf(e.currentTarget.files[0])} />
@@ -14101,7 +14176,7 @@ function DoctorPreview({ p, text, found, onClose }) {
       x.medicalDate = U.today();
     });
     onClose();
-    UI.toast('Dades del client actualitzades amb l\'informe de la doctora.');
+    UI.toast('Dades del pacient actualitzades amb l\'informe de la doctora.');
   };
   return html`<${Dialog} title="Informe de la doctora" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
@@ -14164,13 +14239,13 @@ function AssessmentEditor({ id, focus }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
       <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
         ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(a.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(a.patientId) }, { sep: true }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del pacient', icon: 'download', onClick: () => downloadExcel(a.patientId) }, { sep: true }] : []),
         { label: 'Elimina la valoració', icon: 'trash', danger: true, onClick: remove },
       ]} />
       <nav class="secnav" aria-label="Seccions de la valoració">
@@ -14212,7 +14287,7 @@ function AssessmentEditor({ id, focus }) {
       ${alerts.length ? html`<ul class="alerts">${alerts.map((x) => html`<li class=${`alert alert-${x.tone}`}><${Icon} name=${x.tone === 'bad' ? 'alert' : 'info'} size=${16} />${x.text}</li>`)}</ul>`
         : html`<p class="muted">Cap punt d'atenció amb les dades actuals.</p>`}
       <div class="form-grid mt">
-        <${Field} label="Punts forts" id="co-str" wide=${true}><${Area} id="co-str" value=${c.strengths} onValue=${setCon('strengths')} placeholder="Què fa bé el client, on té marge…" /></${Field}>
+        <${Field} label="Punts forts" id="co-str" wide=${true}><${Area} id="co-str" value=${c.strengths} onValue=${setCon('strengths')} placeholder="Què fa bé el pacient, on té marge…" /></${Field}>
         <${Field} label="Prioritats" id="co-pri" wide=${true}><${Area} id="co-pri" value=${c.priorities} onValue=${setCon('priorities')} placeholder=${'1. …\n2. …'} /></${Field}>
         <${Field} label="Decisions per al pla d'entrenament" id="co-plan" wide=${true}><${Area} id="co-plan" value=${c.plan} onValue=${setCon('plan')} /></${Field}>
         <${Field} label="Propera valoració (re-test)" id="co-next" hint=${`Per defecte, ${THRESHOLDS.retestMonths} mesos després.`}><${TextInput} id="co-next" type="date" value=${a.nextRetest} onValue=${set('nextRetest')} /></${Field}>
@@ -14226,7 +14301,7 @@ function AssessmentEditor({ id, focus }) {
           <${Seg} value=${a.rpe || ''} onValue=${set('rpe')} options=${RPE_SCALE} ariaLabel="RPE de la valoració" class="seg-rpe" />
         </${Field}>
       </div>
-      <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Veure l'informe per al client</${Btn}></div>
+      <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Veure l'informe per al pacient</${Btn}></div>
     </section>
   </div>`;
 }
@@ -14495,7 +14570,7 @@ function BikeBlock({ a, upd }) {
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
     </div>
-    <p class="muted small">Els watts de la bicicleta d'aire no són comparables amb els del Wingate clàssic: serveixen per comparar el client amb ell mateix.</p>
+    <p class="muted small">Els watts de la bicicleta d'aire no són comparables amb els del Wingate clàssic: serveixen per comparar el pacient amb ell mateix.</p>
   </div>`;
 }
 
@@ -14600,7 +14675,7 @@ function FreeBlock({ a, upd }) {
 function AssessmentFiles({ a, p, upd }) {
   const files = a.files || [];
   const unlink = async (f) => {
-    if (!(await UI.confirm({ title: 'Treure l\'enllaç?', text: `«${f.name}» deixarà de sortir a la valoració. El fitxer es queda a la carpeta del client.`, ok: 'Treu l\'enllaç' }))) return;
+    if (!(await UI.confirm({ title: 'Treure l\'enllaç?', text: `«${f.name}» deixarà de sortir a la valoració. El fitxer es queda a la carpeta del pacient.`, ok: 'Treu l\'enllaç' }))) return;
     upd((x) => { x.files = (x.files || []).filter((y) => y.id !== f.id); });
   };
   return html`<section class="card" id="sec-fitxers">
@@ -14617,10 +14692,10 @@ function AssessmentFiles({ a, p, upd }) {
         <${Btn} variant="ghost" size="sm" icon="x" title="Treu l'enllaç" onClick=${() => unlink(f)} />
       </li>`)}</ul>`
       : html`<p class="muted">${canUploadFiles() && filesOnDevice()
-        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «Valoracions» de la carpeta del client.'
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí. Versió de prova: el PDF es queda només en aquesta tauleta; amb Microsoft 365 es desa sol a «Valoracions» de la carpeta del pacient.'
         : canUploadFiles()
-        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «Valoracions» de la carpeta del client.'
-        : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del client.'}</p>`}
+        ? 'Quan acabis amb Kinvent, desa l\'informe en PDF a la tauleta (per exemple amb «Files by Google») i adjunta\'l aquí: es guarda sol a «Valoracions» de la carpeta del pacient.'
+        : 'Enganxa l\'enllaç de l\'informe de Kinvent (PDF). Amb l\'app connectada a Microsoft 365, el PDF es puja directament a la carpeta del pacient.'}</p>`}
   </section>`;
 }
 
@@ -14635,7 +14710,7 @@ function AttachButton({ a, p, upd, label, primary, compact }) {
     try {
       const res = await uploadToClient(p, file, { label, date: a.date, where: 'assess', onProgress: setPct });
       add({ name: res.name, url: res.url, label });
-      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
+      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del pacient.');
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
@@ -15130,12 +15205,11 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
       ${scope === 'tot' && (c.plan || a.nextRetest) && html`<section class="rsec rplan">
         <h2 class="rsec-title">Pla de treball</h2>
         ${c.plan && html`<p class="prose">${c.plan}</p>`}
-        ${a.nextRetest && html`<p class="rnext"><${Icon} name="calendar" size=${17} />Propera valoració: <strong>${U.fmtDateLong(a.nextRetest, false)}</strong></p>`}
+        ${a.nextRetest && html`<p class="rnext"><${Icon} name="calendar" size=${17} />Propera valoració: <strong>${U.fmtMonthYear(a.nextRetest)}</strong></p>`}
       </section>`}
 
       <footer class="sheet-foot">
         <span>${Store.settings.centerName || 'EON Life'} · ${scopeSec ? `Informe de ${scopeSec.short.toLowerCase()}` : 'Valoració funcional'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
-        <span>${U.fmtDate(a.date)}</span>
       </footer>
     </article>
   </div>`;
@@ -15165,15 +15239,15 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
     try {
       const bytes = await ReportPdf.render(el, {
         title: `${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`, author: center,
-        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)} · ${U.fmtDate(a.date)}`, onProgress: setBusy,
+        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)}`, onProgress: setBusy,
       });
       if (cloud) {
         const res = await uploadToClient(p, new File([bytes], name, { type: 'application/pdf' }), { name, replace: true, where: 'assess' });
         Store.update('assessments', a.id, (x) => {
-          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al client', date: U.today() }];
+          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al pacient', date: U.today() }];
         });
         setSaved({ name: res.name, url: res.url });
-        UI.toast(`PDF desat a la carpeta del client: ${res.name}`);
+        UI.toast(`PDF desat a la carpeta del pacient: ${res.name}`);
       } else {
         savedToast(await U.downloadBytes(name, bytes, 'application/pdf'), `PDF descarregat: ${name}`);
       }
@@ -15186,7 +15260,7 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
   return html`<span class="inline">
     ${saved && saved.url && html`<a class="btn btn-ghost" href=${saved.url} target="_blank" rel="noopener" title=${saved.name}><${Icon} name="note" size=${16} /><span>Obre el PDF</span></a>`}
     <${Btn} variant="primary" icon=${cloud ? 'upload' : 'download'} disabled=${busy != null} onClick=${run}
-      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el client'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
+      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el pacient'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
   </span>`;
 }
 
@@ -15340,7 +15414,7 @@ function SessionEditor({ id }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del client" onClick=${leave} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${leave} />
       <div class="editbar-title">
         <strong>Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
@@ -15357,7 +15431,7 @@ function SessionEditor({ id }) {
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
         { sep: true },
         ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
-        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(s.patientId) }] : []),
+        ...(U.canDownload() ? [{ label: 'Descarrega l\'Excel del pacient', icon: 'download', onClick: () => downloadExcel(s.patientId) }] : []),
         { sep: true },
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />
@@ -15391,8 +15465,8 @@ function SessionEditor({ id }) {
         </${Field}>
         <${Field} label="Durada" id="fb-min"><${NumInput} id="fb-min" value=${f.duration} onValue=${setIn('feedback', 'duration')} unit="min" /></${Field}>
         <${Field} label="Càrrega de la sessió"><div class="computed"><${Icon} name="flame" size=${16} />${load != null ? `${U.fmt(load, 0)} UA` : 'RPE × minuts'}</div></${Field}>
-        <${Field} label="Dolor en acabar (0–10)" id="fb-pain" wide=${true}>
-          <${Seg} value=${f.pain || ''} onValue=${setIn('feedback', 'pain')} options=${['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']} ariaLabel="Dolor en acabar" />
+        <${Field} label="Dolor en acabar (EVA 0–10)" id="fb-pain" wide=${true}>
+          <${Seg} value=${f.pain || ''} onValue=${setIn('feedback', 'pain')} options=${EVA_SCALE} ariaLabel="Dolor en acabar" />
         </${Field}>
         <${Field} label="Observacions" id="fb-notes" wide=${true}>
           <${Area} id="fb-notes" value=${f.notes} onValue=${setIn('feedback', 'notes')} placeholder="Compensacions, dolor, asimetries, fatiga o ajustos realitzats" />
@@ -15414,7 +15488,7 @@ function AddBlocks({ blocks, onAdd }) {
   const empty = !(blocks || []).length;
   return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label="Afegeix blocs a la sessió">
     ${empty ? html`<div><h2 class="h2">Blocs de la sessió</h2>
-        <p class="muted">Afegeix només els blocs que necessiti aquest client. Es posen sols en l'ordre de la metodologia.</p></div>`
+        <p class="muted">Afegeix només els blocs que necessiti aquest pacient. Es posen sols en l'ordre de la metodologia.</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
     <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
       <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
@@ -15678,7 +15752,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
-        !templateMode ? { label: 'Grava el client', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
+        !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />
@@ -16011,11 +16085,13 @@ function MonthView({ p, sessions }) {
               return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
                 ${list.map((s) => {
-                  const load = Calc.sessionLoad(s);
-                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)} title=${s.goal}>
-                    <span class="cal-s-n">S${s.number}</span>
+                  const quick = !sessionFilled(s);
+                  const nums = sessionNums(s);
+                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick')}
+                    onClick=${() => (quick ? openQuickSession(p, { s }) : go('sessio', s.id))} title=${sessionTitle(s, quick)}>
+                    <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
-                    ${s.status === 'feta' && html`<span class="cal-s-fb">RPE ${(s.feedback || {}).rpe || '—'} · ${(s.feedback || {}).duration || '—'}′${load != null ? ` · ${U.fmt(load, 0)}` : ''}</span>`}
+                    ${nums && html`<span class="cal-s-fb">${nums}</span>`}
                   </button>`;
                 })}
                 ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
@@ -16024,7 +16100,7 @@ function MonthView({ p, sessions }) {
                   <span class="cal-s-goal">${x.ps.goal || x.ps.phase || x.plan.goal || x.plan.name}</span>
                 </button>`)}
                 ${!list.length && !planned[date] && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
-                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openNewSession(p.id, date)}><${Icon} name="plus" size=${15} /></button>`}
+                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openCalendarAdd(p, date)}><${Icon} name="plus" size=${15} /></button>`}
               </div>`;
             })}
             <div class="cal-w">
@@ -16034,7 +16110,13 @@ function MonthView({ p, sessions }) {
             </div>`)}
         </div>
       </div>
-      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del client.</p>
+      <div class="cal-legend" aria-label="Llegenda">
+        <span><i class="cal-key done"></i>Feta</span>
+        <span><i class="cal-key plan"></i>Programada (amb exercicis)</span>
+        <span><i class="cal-key quick"></i>Només l'objectiu</span>
+        <span><i class="cal-key ghost"></i>Prevista al pla</span>
+      </div>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i el dolor (EVA) del final de la sessió. Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -16075,6 +16157,109 @@ function LoadProgression({ sessions, blocks }) {
       return html`${head}<tr><td class="lp-name">${r.name}</td>${cols.map((s) => cell(s, r.key, r.name))}</tr>`;
     })}</tbody>
   </table></div>`;
+}
+
+// ── Sessions del calendari: sencera (amb exercicis) o només l'objectiu ──
+const sessionFilled = (s) => (s.blocks || []).some((b) => (b.items || []).some((i) => i.name));
+
+// "RPE 7 · Dolor 3" (el dolor és l'EVA del final de la sessió).
+function sessionNums(s) {
+  const f = s.feedback || {};
+  const rpe = U.num(f.rpe), pain = U.num(f.pain);
+  return [rpe != null && `RPE ${rpe}`, pain != null && `Dolor ${pain}`].filter(Boolean).join(' · ');
+}
+
+function sessionTitle(s, quick) {
+  const load = Calc.sessionLoad(s);
+  const f = s.feedback || {};
+  return [s.goal || 'Sessió', quick ? 'Només l\'objectiu (toca-la per editar-la o programar-la sencera)' : '',
+    U.num(f.duration) != null ? `${f.duration} min` : '', load != null ? `${U.fmt(load, 0)} UA` : ''].filter(Boolean).join(' · ');
+}
+
+// El + d'un dia del calendari: programar la sessió sencera (com sempre) o anotar-ne només l'objectiu.
+function openCalendarAdd(p, date) {
+  let close = null;
+  close = UI.open(() => html`<${CalendarAddDialog} p=${p} date=${date} onClose=${() => close()} />`);
+}
+
+function CalendarAddDialog({ p, date, onClose }) {
+  const [mode, setMode] = useState('quick');
+  const option = (v, title, text) => html`<label class=${U.cls('choice', mode === v && 'on')}>
+    <input type="radio" name="ca-mode" checked=${mode === v} onChange=${() => setMode(v)} />
+    <span class="choice-body"><span class="choice-title">${title}</span><span class="choice-text">${text}</span></span>
+  </label>`;
+  if (mode === 'quick-form') return html`<${QuickSessionDialog} p=${p} date=${date} onClose=${onClose} />`;
+  const next = () => {
+    if (mode === 'full') { onClose(); openNewSession(p.id, date); } else setMode('quick-form');
+  };
+  return html`<${Dialog} title=${`Nova sessió · ${U.fmtDateLong(date)}`} onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="right" onClick=${next}>Continua</${Btn}>`}>
+    <div class="choices">
+      ${option('quick', 'Només l\'objectiu', 'Per omplir el calendari ràpid: s\'anota l\'objectiu (i el pilar, si vols) i surt al quadre del dia. Més endavant la pots programar sencera.')}
+      ${option('full', 'Programa la sessió sencera', 'Amb els blocs i els exercicis: del pla, copiant l\'última, d\'una plantilla o en blanc.')}
+    </div>
+  </${Dialog}>`;
+}
+
+function openQuickSession(p, { s, date } = {}) {
+  let close = null;
+  close = UI.open(() => html`<${QuickSessionDialog} p=${p} s=${s} date=${date} onClose=${() => close()} />`);
+}
+
+// Sessió amb només l'objectiu: crear-la, editar-la, marcar-la com a feta amb l'RPE i el dolor, o passar-la a sencera.
+function QuickSessionDialog({ p, s, date, onClose }) {
+  const f0 = (s && s.feedback) || {};
+  const [f, setF] = useState({
+    goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
+    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '',
+  });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const when = (s && s.date) || date;
+  const save = (thenFull) => {
+    if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
+    const apply = (x) => {
+      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status;
+      x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
+    };
+    let rec;
+    if (s) rec = Store.update('sessions', s.id, apply);
+    else { rec = Store.addPlanned(p.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar }); rec = Store.update('sessions', rec.id, apply); }
+    onClose();
+    if (thenFull) go('sessio', rec.id);
+    else UI.toast(s ? 'Sessió desada.' : `Sessió anotada el ${U.fmtDate(when)}.`);
+    return rec;
+  };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: 'Eliminar aquesta sessió?', text: `S${s.number} · ${U.fmtDate(s.date)} · ${s.goal || 'sense objectiu'}`, ok: 'Elimina-la', danger: true }))) return;
+    Store.remove('sessions', s.id);
+    onClose();
+  };
+  const done = f.status === 'feta';
+  return html`<${Dialog} title=${s ? `Sessió ${s.number} · ${U.fmtDateLong(when)}` : `Només l'objectiu · ${U.fmtDateLong(when)}`} onClose=${onClose} footer=${html`
+    ${s && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Elimina</${Btn}>`}
+    <${Btn} variant="ghost" icon="edit" onClick=${() => save(true)}>Programa-la sencera</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${() => save(false)}>${s ? 'Desa' : 'Anota-la al calendari'}</${Btn}>`}>
+    <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); save(false); }}>
+      <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
+        <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
+      </${Field}>
+      <${Field} label="Pilar" id="qs-pillar"><${Select} id="qs-pillar" value=${f.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
+      <${Field} label="Estat" id="qs-status">
+        <${Seg} value=${f.status} onValue=${set('status')} allowEmpty=${false} ariaLabel="Estat" options=${OPT.sessionStatus.map((o) => ({ v: o.v, label: o.label }))} />
+      </${Field}>
+      ${done && html`
+        <${Field} label="RPE de la sessió (1–10)" id="qs-rpe" wide=${true} hint=${RPE_HINT}>
+          <${Seg} value=${f.rpe} onValue=${set('rpe')} options=${RPE_SCALE} ariaLabel="RPE de la sessió" />
+        </${Field}>
+        <${Field} label="Dolor en acabar (EVA 0–10)" id="qs-pain" wide=${true}>
+          <${Seg} value=${f.pain} onValue=${set('pain')} options=${EVA_SCALE} ariaLabel="Dolor en acabar" />
+        </${Field}>
+        <${Field} label="Durada" id="qs-dur"><${NumInput} id="qs-dur" value=${f.duration} onValue=${set('duration')} unit="min" /></${Field}>`}
+      <button type="submit" hidden></button>
+    </form>
+    ${!done && html`<p class="dialog-text">Quan el pacient l'hagi feta, torna-la a obrir i marca-la com a <strong>Feta</strong> per anotar-hi l'RPE i el dolor: surten al quadre del dia.</p>`}
+  </${Dialog}>`;
 }
 
 
@@ -16271,7 +16456,7 @@ function ExerciseDialog({ ex, init, onClose }) {
       <${Field} label="Descans" id="ex-rest"><${TextInput} id="ex-rest" value=${f.rest} onValue=${set('rest')} /></${Field}>
     </div>
     <div class="form-grid mt">
-      <${Field} label="Consignes" id="ex-cues" wide=${true}><${Area} id="ex-cues" value=${f.cues} onValue=${set('cues')} placeholder="Què ha de sentir o controlar el client" /></${Field}>
+      <${Field} label="Consignes" id="ex-cues" wide=${true}><${Area} id="ex-cues" value=${f.cues} onValue=${set('cues')} placeholder="Què ha de sentir o controlar el pacient" /></${Field}>
     </div>
     ${BLOCKS.map((b) => html`<datalist id=${`focus-${b.key}`}>${b.focus.map((x) => html`<option value=${x}></option>`)}</datalist>`)}
   </${Dialog}>`;
@@ -16371,7 +16556,7 @@ function MethodList() {
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca mètodes i apunts…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca mètodes" /></label>
     </div>
-    <p class="muted small">Els mètodes per no fer sempre el mateix: a cada bloc o subbloc de la sessió es pot triar el mètode i surt a la fitxa del client. Obre'n un per afegir-hi els vostres apunts (cursos, universitat, articles).</p>
+    <p class="muted small">Els mètodes per no fer sempre el mateix: a cada bloc o subbloc de la sessió es pot triar el mètode i surt a la fitxa del pacient. Obre'n un per afegir-hi els vostres apunts (cursos, universitat, articles).</p>
     ${BLOCKS.filter((b) => inBlock(b.key).length).map((b) => html`<div class="libgroup">
       <div class="libgroup-head"><${BlockTag} k=${b.key} /><span class="muted">${U.plural(inBlock(b.key).length, 'mètode', 'mètodes')}</span></div>
       <div class="methods">${inBlock(b.key).map((t) => html`<button type="button" class="method" onClick=${() => openMethod(t)}>
@@ -16496,8 +16681,8 @@ function SettingsView() {
   };
   const resetLocal = async (withDemo) => {
     const ok = await UI.confirm({
-      title: withDemo ? 'Tornar a carregar els clients de prova?' : 'Començar amb l\'app buida?',
-      text: withDemo ? 'Se substituiran totes les dades d\'aquest navegador pels clients ficticis.' : 'S\'esborraran totes les dades d\'aquest navegador (clients de prova inclosos). Si tens dades reals, descarrega abans una còpia.',
+      title: withDemo ? 'Tornar a carregar els pacients de prova?' : 'Començar amb l\'app buida?',
+      text: withDemo ? 'Se substituiran totes les dades d\'aquest navegador pels pacients ficticis.' : 'S\'esborraran totes les dades d\'aquest navegador (pacients de prova inclosos). Si tens dades reals, descarrega abans una còpia.',
       ok: withDemo ? 'Carrega la demo' : 'Esborra-ho tot', danger: !withDemo,
     });
     if (!ok) return;
@@ -16518,16 +16703,16 @@ function SettingsView() {
     <section class="card">
       <div class="card-head"><h2 class="h2">On es guarden les dades</h2>
         <${Pill} tone=${cloud ? 'ok' : 'warn'} icon=${cloud ? 'cloud' : 'device'}>${google ? 'Google Sheets · núvol del centre' : m365 ? 'Microsoft 365 · carpeta del centre' : 'Només en aquest navegador'}</${Pill}></div>
-      ${m365 ? html`<${M365DataCard} />` : google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a clients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada client.</p>
+      ${m365 ? html`<${M365DataCard} />` : google ? html`<p>Totes les dades es desen automàticament al full de càlcul del centre (una pestanya per a pacients, valoracions, sessions i el registre d'exercicis). Els vídeos i els PDF van a la carpeta de Drive de cada pacient.</p>
         ${Store.meta.user && html`<p class="muted">Connectat com a <strong>${Store.meta.user}</strong>.</p>`}
         <div class="row-actions">
           ${Store.meta.spreadsheetUrl && html`<${Btn} icon="clipboard" href=${Store.meta.spreadsheetUrl}>Obre el full de càlcul</${Btn}>`}
-          ${Store.meta.rootFolderUrl && html`<${Btn} icon="folder" href=${Store.meta.rootFolderUrl}>Carpeta de clients</${Btn}>`}
+          ${Store.meta.rootFolderUrl && html`<${Btn} icon="folder" href=${Store.meta.rootFolderUrl}>Carpeta de pacients</${Btn}>`}
         </div>`
         : html`<p>Estàs fent servir l'app en <strong>mode local</strong>: les dades només es guarden en aquest navegador i no les veu ningú més. Per treballar tot l'equip amb les mateixes dades, cal publicar l'app per al centre amb Microsoft 365 (guia <em>docs/INSTALLACIO-M365.md</em>) o amb Google (<em>docs/INSTALLACIO.md</em>).</p>
           ${!LocalBackend.persistent && html`<p class="warn-text"><${Icon} name="alert" size=${15} /> Aquest navegador no permet guardar dades: si tanques la pàgina es perdran els canvis. Descarrega una còpia abans de sortir.</p>`}
           <div class="row-actions">
-            <${Btn} icon="refresh" onClick=${() => resetLocal(true)}>Carrega els clients de prova</${Btn}>
+            <${Btn} icon="refresh" onClick=${() => resetLocal(true)}>Carrega els pacients de prova</${Btn}>
             <${Btn} variant="danger" icon="trash" onClick=${() => resetLocal(false)}>Comença amb l'app buida</${Btn}>
           </div>`}
     </section>
@@ -16626,12 +16811,12 @@ function M365DataCard() {
     await Store.init();
     go('inici');
   };
-  return html`<p>Totes les dades es desen automàticament a l'Excel <strong>«EON Life · Base de dades»</strong>${m.dataFolderName ? html` de la carpeta <strong>«${m.dataFolderName}»</strong>` : ''}: una pestanya per a clients, valoracions, sessions i el registre d'exercicis, amb una fila per registre i una columna per test. Els vídeos i els PDF van a la carpeta de cada client, dins de «EON Life · Clients».</p>
+  return html`<p>Totes les dades es desen automàticament a l'Excel <strong>«EON Life · Base de dades»</strong>${m.dataFolderName ? html` de la carpeta <strong>«${m.dataFolderName}»</strong>` : ''}: una pestanya per a pacients, valoracions, sessions i el registre d'exercicis, amb una fila per registre i una columna per test. Els vídeos i els PDF van a la carpeta de cada pacient, dins de «EON Life · Pacients».</p>
     <p class="muted">Tothom qui tingui accés a la carpeta pot obrir l'Excel per consultar-lo, filtrar-lo o descarregar-lo. Les dades, però, s'omplen i es corregeixen sempre des de l'app.</p>
     ${m.user && html`<p class="muted">Connectat com a <strong>${m.userName ? `${m.userName} · ` : ''}${m.user}</strong>.</p>`}
     <div class="row-actions">
       ${m.spreadsheetUrl && html`<${Btn} icon="table" href=${m.spreadsheetUrl}>Obre l'Excel</${Btn}>`}
-      ${m.rootFolderUrl && html`<${Btn} icon="folder" href=${m.rootFolderUrl}>Carpetes dels clients</${Btn}>`}
+      ${m.rootFolderUrl && html`<${Btn} icon="folder" href=${m.rootFolderUrl}>Carpetes dels pacients</${Btn}>`}
       ${m.dataFolderUrl && html`<${Btn} icon="folder" href=${m.dataFolderUrl}>Carpeta compartida</${Btn}>`}
     </div>
     <div class="row-actions">
@@ -16694,7 +16879,7 @@ function DatabaseView({ table = 'valoracions', pid = '' }) {
 
   return html`<div class="page page-wide">
     <header class="page-head">
-      <div><p class="eyebrow">Totes les dades dels clients</p><h1 class="h1">Base de dades</h1></div>
+      <div><p class="eyebrow">Totes les dades dels pacients</p><h1 class="h1">Base de dades</h1></div>
       <div class="page-actions">
         ${U.canDownload() && html`<${Btn} icon="download" onClick=${exportCsv}>Exporta a Excel</${Btn}>`}
         ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
@@ -16709,15 +16894,15 @@ function DatabaseView({ table = 'valoracions', pid = '' }) {
     <section class="card dbcard">
       <div class="dbbar">
         <label class="search"><${Icon} name="search" size=${17} />
-          <input class="input" type="search" placeholder="Cerca un client…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca un client" /></label>
-        <${Select} value=${client} onValue=${(v) => go('dades', def.id, v)} placeholder="Tots els clients" options=${patients.map((p) => ({ v: p.id, label: U.fullName(p) }))} ariaLabel="Client" />
+          <input class="input" type="search" placeholder="Cerca un pacient…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca un pacient" /></label>
+        <${Select} value=${client} onValue=${(v) => go('dades', def.id, v)} placeholder="Tots els pacients" options=${patients.map((p) => ({ v: p.id, label: U.fullName(p) }))} ariaLabel="Pacient" />
         <${Select} value=${prof} onValue=${setProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
-        ${def.kind === 'assessments' && html`<label class="check"><input type="checkbox" checked=${latest} onChange=${(e) => setLatest(e.currentTarget.checked)} /> Només l'última de cada client</label>`}
+        ${def.kind === 'assessments' && html`<label class="check"><input type="checkbox" checked=${latest} onChange=${(e) => setLatest(e.currentTarget.checked)} /> Només l'última de cada pacient</label>`}
       </div>
       <p class="dbhint"><span>${def.hint}</span> <span class="muted">${U.plural(list.length, 'fila', 'files')}${def.kind === 'assessments' || def.kind === 'patients' || def.kind === 'sessions' ? ' · toca una fila per obrir-la' : ''}</span></p>
       ${list.length ? html`<${DbTable} cols=${cols} rows=${shown} sort=${s} onSort=${toggleSort} onOpen=${open} />`
         : html`<${Empty} icon="table" title="Encara no hi ha dades en aquesta taula"
-            text=${def.kind === 'assessments' ? 'Toca el botó per afegir-hi mesures d\'un client: s\'obrirà el formulari directament en aquest apartat.' : 'Quan n\'hi hagi, apareixeran aquí.'}>
+            text=${def.kind === 'assessments' ? 'Toca el botó per afegir-hi mesures d\'un pacient: s\'obrirà el formulari directament en aquest apartat.' : 'Quan n\'hi hagi, apareixeran aquí.'}>
             ${def.add && html`<${Btn} variant="primary" icon="plus" onClick=${add}>${def.add}</${Btn}>`}
           </${Empty}>`}
       ${list.length > shown.length && html`<div class="row-actions"><${Btn} onClick=${() => setLimit(limit + 300)}>Mostra'n més (${list.length - shown.length})</${Btn}></div>`}
@@ -16785,7 +16970,7 @@ function DbCell({ c, r, gstart }) {
 
 // ── Afegir mesures: tria el client i la data i obre el formulari a l'apartat corresponent ──
 function openAddMeasurement(focus, pid) {
-  if (!Store.patients().length) { UI.toast('Primer crea un client.', 'bad'); openNewPatient(); return; }
+  if (!Store.patients().length) { UI.toast('Primer crea un pacient.', 'bad'); openNewPatient(); return; }
   let close = null;
   close = UI.open(() => html`<${AddMeasurementDialog} focus=${focus} pid=${pid} onClose=${() => close()} />`);
 }
@@ -16812,11 +16997,11 @@ function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
     onClose();
     go('valoracio', a.id, what === 'dades' ? '' : what);
   };
-  return html`<${Dialog} title="Afegeix mesures" onClose=${onClose} footer=${html`
+  return html`<${Dialog} title="Nou test" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="right" onClick=${go_}>Continua</${Btn}>`}>
     <div class="form-grid">
-      <${Field} label="Client" id="am-client" wide=${true}>
+      <${Field} label="Pacient" id="am-client" wide=${true}>
         <${Select} id="am-client" value=${p} onValue=${(v) => { setP(v); setType(null); }} options=${patients.map((x) => ({ v: x.id, label: U.fullName(x) }))} />
       </${Field}>
       <${Field} label="Què vols registrar?" id="am-what" wide=${true}>
@@ -16826,9 +17011,9 @@ function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {
       ${!existing && html`<${Field} label="Tipus" id="am-type"><${Select} id="am-type" value=${t} onValue=${setType} options=${OPT.assessmentTypes.map((o) => ({ v: o.v, label: o.label }))} /></${Field}>`}
     </div>
     <p class="dialog-text">${existing
-      ? `Aquest client ja té una valoració el ${U.fmtDate(date)} (${(OPT.assessmentTypes.find((o) => o.v === existing.type) || {}).label.toLowerCase()}): les mesures s'hi afegiran.`
+      ? `Aquest pacient ja té una valoració el ${U.fmtDate(date)} (${(OPT.assessmentTypes.find((o) => o.v === existing.type) || {}).label.toLowerCase()}): les mesures s'hi afegiran.`
       : prev.length ? `Es crearà una valoració nova del ${U.fmtDate(date)}. Només cal omplir el que mesureu avui; la resta pot quedar en blanc.`
-        : 'És la primera valoració d\'aquest client.'}</p>
+        : 'És la primera valoració d\'aquest pacient.'}</p>
   </${Dialog}>`;
 }
 
@@ -16938,7 +17123,7 @@ function ConnectLogin({ cfg, message }) {
       ${!cfg.baked.clientId && html`<${Btn} variant="ghost" onClick=${() => { M365.save({ clientId: '', tenantId: '' }); reconnect(); }}>Canvia els codis de l'app</${Btn}>`}
     </div>
     ${problem && html`<${RedirectInfo} />`}
-    <p class="muted small">Només vols veure com funciona? <a class="link" href="demo/">Obre la demostració amb clients ficticis</a> (sense compte).</p>`;
+    <p class="muted small">Només vols veure com funciona? <a class="link" href="demo/">Obre la demostració amb pacients ficticis</a> (sense compte).</p>`;
 }
 
 // Pas 2: carpeta compartida (enllaç de «Copia l'enllaç»).
@@ -16968,8 +17153,8 @@ function ConnectSetup({ cfg }) {
   return html`<h1 class="h2">Prepara la carpeta${cfg.folderName ? html` «${cfg.folderName}»` : ''}</h1>
     <p>És el primer cop que s'hi connecta l'app. Només cal fer-ho una vegada per a tot el centre. S'hi crearan:</p>
     <ul class="connect-list">
-      <li><${Icon} name="table" size=${18} /><span><strong>EON Life · Base de dades</strong> (Excel): una pestanya per a clients, valoracions, sessions i registre d'exercicis. Cada test és una columna i cada valoració o sessió, una fila.</span></li>
-      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per client amb <em>Valoracions</em> i <em>Sessions</em> (i els seus vídeos): hi van els Excel que l'app fa sola, els vídeos, les fotos i els PDF.</span></li>
+      <li><${Icon} name="table" size=${18} /><span><strong>EON Life · Base de dades</strong> (Excel): una pestanya per a pacients, valoracions, sessions i registre d'exercicis. Cada test és una columna i cada valoració o sessió, una fila.</span></li>
+      <li><${Icon} name="folder" size=${18} /><span><strong>EON Life · Clients</strong>: una carpeta per pacient amb <em>Valoracions</em> i <em>Sessions</em> (i els seus vídeos): hi van els Excel que l'app fa sola, els vídeos, les fotos i els PDF.</span></li>
     </ul>
     ${err && html`<${ConnectNote}>${err}</${ConnectNote}>`}
     <div class="connect-actions">
@@ -16993,7 +17178,7 @@ function ConnectError({ cfg, message, code }) {
 
 /* ── 32-plan.js ── */
 /* EON Life · pla d'entrenament: les sessions d'un client (S1…SN) preparades amb antelació i amb progressió.
-   Cada sessió del pla té els mateixos 6 blocs que una sessió normal. Quan el client ve, «Nova sessió › Del pla»
+   Cada sessió del pla té els mateixos 6 blocs que una sessió normal. Quan el pacient ve, «Nova sessió › Del pla»
    (o el calendari) crea la sessió del dia a partir de la del pla; la sessió es continua omplint com sempre. */
 
 const PLAN_PHASES = ['Adaptació', 'Hipertròfia', 'Força', 'Potència', 'Transferència', 'Descàrrega', 'Manteniment'];
@@ -17008,7 +17193,7 @@ function PatientPlan({ p }) {
   const plans = Store.plans(p.id);
   const progress = Store.sessionsOf(p.id).length >= 2 && html`<section class="card">
     <div class="card-head"><div class="grow"><h2 class="h2">Progrés</h2>
-      <p class="muted">Compara una sessió d'abans amb la d'ara, exercici per exercici: nivell, càrrega i velocitat de l'encoder. Per ensenyar-ho al client.</p></div>
+      <p class="muted">Compara una sessió d'abans amb la d'ara, exercici per exercici: nivell, càrrega i velocitat de l'encoder. Per ensenyar-ho al pacient.</p></div>
       <${Btn} icon="chart" onClick=${() => go('progres', p.id)}>Mira el progrés</${Btn}></div>
   </section>`;
   if (!plans.length) {
@@ -17171,7 +17356,7 @@ function PlanEditor({ id, n }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna al client" onClick=${() => go('client', plan.patientId, 'pla')} />
+      <${Btn} variant="ghost" icon="back" title="Torna al pacient" onClick=${() => go('client', plan.patientId, 'pla')} />
       <div class="editbar-title"><strong>${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
       <${SaveStatus} />
       ${real.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('progres', plan.patientId, plan.id)}>Progrés</${Btn}>`}
@@ -17280,10 +17465,10 @@ function ProgressView({ pid, planId }) {
   const [fromId, setFrom] = useState(list[0] ? list[0].id : '');
   const [toId, setTo] = useState((done[done.length - 1] || list[list.length - 1] || {}).id || '');
   const back = () => go('client', pid, 'pla');
-  if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest client" /></div>`;
+  if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest pacient" /></div>`;
   if (list.length < 2) {
     return html`<div class="present"><${PresentBar} title="Progrés" onClose=${back} />
-      <article class="sheet"><${Empty} icon="chart" title="Encara no hi ha prou sessions" text="Quan el client tingui almenys dues sessions, aquí es veurà com ha progressat." /></article></div>`;
+      <article class="sheet"><${Empty} icon="chart" title="Encara no hi ha prou sessions" text="Quan el pacient tingui almenys dues sessions, aquí es veurà com ha progressat." /></article></div>`;
   }
   const from = list.find((s) => s.id === fromId) || list[0];
   const to = list.find((s) => s.id === toId) || list[list.length - 1];
@@ -17387,7 +17572,7 @@ function ProgressCharts({ sessions, to }) {
 
 /* ── 34-excel-ui.js ── */
 /* EON Life · Excel de cada client a l'app: estat de la pujada a la carpeta, descàrrega i planificació del mes.
-   L'app fa sola un Excel per client, amb un full per mes (sessions) i les valoracions (09-sync.js); aquí s'hi veu
+   L'app fa sola un Excel per pacient, amb un full per mes (sessions) i les valoracions (09-sync.js); aquí s'hi veu
    si és al dia, es pot pujar a mà o descarregar i es planifiquen sessions per endavant. */
 
 // «fa 3 min», «fa 2 h», «el 02/10/2026»
@@ -17400,14 +17585,14 @@ function agoText(ts) {
   return `el ${U.fmtDate(U.iso(new Date(ts)))}`;
 }
 
-const failedText = (names, n) => `${n === 1 ? 'No s\'ha pogut fer 1 Excel' : `No s'han pogut fer ${n} Excel`}${names && names.length ? ` (${names.join(', ')})` : ''}: revisa les dades d'aquest client.`;
+const failedText = (names, n) => `${n === 1 ? 'No s\'ha pogut fer 1 Excel' : `No s'han pogut fer ${n} Excel`}${names && names.length ? ` (${names.join(', ')})` : ''}: revisa les dades d'aquest pacient.`;
 
 async function syncNow(pid, force) {
   try {
     const r = await Sync.now(pid, { force });
     UI.toast(r.uploaded || r.removed
-      ? `${r.uploaded ? 'Excel del client desat a la carpeta' : 'L\'Excel del client ja era al dia'}${r.removed ? ` · ${U.plural(r.removed, 'Excel antic retirat', 'Excel antics retirats')}` : ''}.`
-      : 'L\'Excel del client ja era al dia a la carpeta.');
+      ? `${r.uploaded ? 'Excel del pacient desat a la carpeta' : 'L\'Excel del pacient ja era al dia'}${r.removed ? ` · ${U.plural(r.removed, 'Excel antic retirat', 'Excel antics retirats')}` : ''}.`
+      : 'L\'Excel del pacient ja era al dia a la carpeta.');
     if (r.failed) UI.toast(failedText(r.failedNames, r.failed), 'bad');
   } catch (e) {
     UI.toast(e.message, 'bad');
@@ -17440,7 +17625,7 @@ function SyncBadge({ pid }) {
     running: ['neutral', 'refresh', 'Pujant l\'Excel a la carpeta…'],
     pending: ['warn', 'clock', 'Excel pendent de pujar (es puja sol)'],
     error: ['bad', 'alert', `Excel sense pujar: ${st.error}`],
-    partial: ['warn', 'alert', 'No s\'ha pogut fer l\'Excel: revisa les dades d\'aquest client'],
+    partial: ['warn', 'alert', 'No s\'ha pogut fer l\'Excel: revisa les dades d\'aquest pacient'],
     ok: ['ok', 'cloud', `Excel al dia a la carpeta · ${agoText(st.last && st.last.at)}`],
     never: ['neutral', 'table', 'Excel encara no pujat a la carpeta'],
     paused: ['neutral', 'table', 'Pujada automàtica de l\'Excel en pausa'],
@@ -17460,13 +17645,13 @@ function excelMenuItems(pid) {
   const open = (url) => () => window.open(url, '_blank', 'noopener');
   if (Sync.available()) {
     items.push({ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(pid) });
-    if (last.fileUrl) items.push({ label: 'Obre l\'Excel del client', icon: 'table', onClick: open(last.fileUrl) });
+    if (last.fileUrl) items.push({ label: 'Obre l\'Excel del pacient', icon: 'table', onClick: open(last.fileUrl) });
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
   }
   if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
-    items.push({ label: 'Descarrega l\'Excel del client', icon: 'download', onClick: () => downloadExcel(pid) });
+    items.push({ label: 'Descarrega l\'Excel del pacient', icon: 'download', onClick: () => downloadExcel(pid) });
   }
   return items;
 }
@@ -17474,7 +17659,7 @@ function excelMenuItems(pid) {
 function ExcelMenu({ p }) {
   const items = excelMenuItems(p.id);
   if (!items.length) return null;
-  return html`<${Menu} items=${items} icon="table" label="Excel" variant="secondary" title="Excel del client: pujar, obrir o descarregar" />`;
+  return html`<${Menu} items=${items} icon="table" label="Excel" variant="secondary" title="Excel del pacient: pujar, obrir o descarregar" />`;
 }
 
 // ── Planifica el mes: crea d'una vegada les sessions de tot un mes ──
@@ -17534,7 +17719,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   return html`<${Dialog} title="Planifica el mes" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="calendar" disabled=${!count} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
-    <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten al full del mes de l'Excel del client.</p>
+    <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten al full del mes de l'Excel del pacient.</p>
     <div class="form-grid">
       <${Field} label="Mes" id="pm-month"><${Select} id="pm-month" value=${month} onValue=${setMonth} options=${months.map((m) => ({ v: m, label: U.fmtMonth(m) }))} /></${Field}>
       <${Field} label="Progressió dels exercicis" id="pm-every" hint="Els exercicis que tenen nivells a la biblioteca pugen un nivell (p. ex. Goblet squat → Back squat).">
@@ -17594,16 +17779,16 @@ function ExcelSettingsCard() {
     Store.saveSettings({ autoExcel: v });
     if (v) Sync.all();
   };
-  const all = () => { Sync.all({ force: true }); UI.toast('Es torna a fer i pujar l\'Excel de cada client. Pot tardar uns minuts.'); };
+  const all = () => { Sync.all({ force: true }); UI.toast('Es torna a fer i pujar l\'Excel de cada pacient. Pot tardar uns minuts.'); };
   return html`<section class="card">
-    <div class="card-head"><h2 class="h2">Excel de cada client</h2>
+    <div class="card-head"><h2 class="h2">Excel de cada pacient</h2>
       <${Pill} tone=${cloud ? (on ? 'ok' : 'warn') : 'neutral'} icon="table">${cloud ? (on ? 'Pujada automàtica' : 'En pausa') : 'Només descàrrega'}</${Pill}></div>
-    <p>L'app fa sola, des del que s'omple a l'app, <strong>un Excel per client</strong> (<em>seguiment_nomcognoms_01.xlsx</em>): un resum, <strong>un full per mes</strong> amb el calendari i cada sessió (feta, planificada o prevista al pla), el registre de totes les sessions i les <strong>valoracions</strong> (l'evolució i el detall de cadascuna). Tot es registra a l'app: l'Excel és només de lectura i es refà sol quan hi ha canvis.</p>
-    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'l sol a la carpeta de cada client</span></label>
+    <p>L'app fa sola, des del que s'omple a l'app, <strong>un Excel per pacient</strong> (<em>seguiment_nomcognoms_01.xlsx</em>): un resum, <strong>un full per mes</strong> amb el calendari i cada sessió (feta, planificada o prevista al pla), el registre de totes les sessions i les <strong>valoracions</strong> (l'evolució i el detall de cadascuna). Tot es registra a l'app: l'Excel és només de lectura i es refà sol quan hi ha canvis.</p>
+    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Puja'l sol a la carpeta de cada pacient</span></label>
       <p class="muted small">Es puja uns segons després de l'últim canvi i substitueix l'anterior. Els Excel antics fets per l'app (els d'una sessió o una valoració, d'abans de l'Excel únic) es retiren de <em>Sessions</em> i <em>Valoracions</em> (queden a la paperera de reciclatge). Mai es toca cap altre fitxer.</p>
-      ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'client té l\'Excel pendent', 'clients tenen l\'Excel pendent')} de pujar.</p>`}
-      <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja l'Excel de tots els clients</${Btn}></div>`
-      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) l'Excel del client es descarrega des de la seva fitxa (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es puja sol a la carpeta del client.</p>`}
+      ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'pacient té l\'Excel pendent', 'pacients tenen l\'Excel pendent')} de pujar.</p>`}
+      <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja l'Excel de tots els pacients</${Btn}></div>`
+      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) l'Excel del pacient es descarrega des de la seva fitxa (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es puja sol a la carpeta del pacient.</p>`}
   </section>`;
 }
 
@@ -17701,14 +17886,14 @@ function Sidebar({ route, open, onClose }) {
       <span class="sidebar-sub">${Store.settings.centerTagline || 'Human Performance'}</span>
     </div>
     <nav class="nav">
-      ${item('inici', 'home', 'Inici i clients', clientRoutes.includes(r))}
+      ${item('inici', 'home', 'Inici i pacients', clientRoutes.includes(r))}
       ${item('dades', 'database', 'Base de dades', r === 'dades' || r === 'valoracio')}
       ${item('biblioteca', 'book', 'Biblioteca', r === 'biblioteca' || r === 'plantilla')}
       ${item('configuracio', 'settings', 'Configuració', r === 'configuracio')}
     </nav>
     <div class="nav-actions">
-      <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou client</button>
-      <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Afegeix mesures</button>
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou pacient</button>
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Nou test</button>
     </div>
     <div class="sidebar-foot">
       <span class="sidebar-mode"><${Icon} name=${Store.cloud() ? 'cloud' : 'device'} size=${16} />${{ google: 'Google Sheets', m365: 'Microsoft 365 · Excel' }[Store.meta.mode] || 'Mode local'}</span>

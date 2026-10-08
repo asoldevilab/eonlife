@@ -143,6 +143,14 @@ const U = {
     return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${y}`;
   },
 
+  // "Gener de 2027", "Abril de 2027" (la propera valoració a l'informe: sense dia, per no lligar-nos a una data)
+  fmtMonthYear(s) {
+    const d = U.parse(s);
+    if (!d) return '—';
+    const name = MONTHS[d.getMonth()];
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)} de ${d.getFullYear()}`;
+  },
+
   weekday(s) {
     const d = U.parse(s);
     return d ? WEEKDAYS[d.getDay()] : '';

@@ -59,11 +59,13 @@ function MonthView({ p, sessions }) {
               return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
                 ${list.map((s) => {
-                  const load = Calc.sessionLoad(s);
-                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)} title=${s.goal}>
-                    <span class="cal-s-n">S${s.number}</span>
+                  const quick = !sessionFilled(s);
+                  const nums = sessionNums(s);
+                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick')}
+                    onClick=${() => (quick ? openQuickSession(p, { s }) : go('sessio', s.id))} title=${sessionTitle(s, quick)}>
+                    <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
-                    ${s.status === 'feta' && html`<span class="cal-s-fb">RPE ${(s.feedback || {}).rpe || '—'} · ${(s.feedback || {}).duration || '—'}′${load != null ? ` · ${U.fmt(load, 0)}` : ''}</span>`}
+                    ${nums && html`<span class="cal-s-fb">${nums}</span>`}
                   </button>`;
                 })}
                 ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
@@ -72,7 +74,7 @@ function MonthView({ p, sessions }) {
                   <span class="cal-s-goal">${x.ps.goal || x.ps.phase || x.plan.goal || x.plan.name}</span>
                 </button>`)}
                 ${!list.length && !planned[date] && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
-                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openNewSession(p.id, date)}><${Icon} name="plus" size=${15} /></button>`}
+                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openCalendarAdd(p, date)}><${Icon} name="plus" size=${15} /></button>`}
               </div>`;
             })}
             <div class="cal-w">
@@ -82,7 +84,13 @@ function MonthView({ p, sessions }) {
             </div>`)}
         </div>
       </div>
-      <p class="muted small">Càrrega de sessió = RPE (0–10) × durada en minuts, en unitats arbitràries (UA). Toca un dia buit per planificar-hi una sessió, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del client.</p>
+      <div class="cal-legend" aria-label="Llegenda">
+        <span><i class="cal-key done"></i>Feta</span>
+        <span><i class="cal-key plan"></i>Programada (amb exercicis)</span>
+        <span><i class="cal-key quick"></i>Només l'objectiu</span>
+        <span><i class="cal-key ghost"></i>Prevista al pla</span>
+      </div>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i el dolor (EVA) del final de la sessió. Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -123,4 +131,107 @@ function LoadProgression({ sessions, blocks }) {
       return html`${head}<tr><td class="lp-name">${r.name}</td>${cols.map((s) => cell(s, r.key, r.name))}</tr>`;
     })}</tbody>
   </table></div>`;
+}
+
+// ── Sessions del calendari: sencera (amb exercicis) o només l'objectiu ──
+const sessionFilled = (s) => (s.blocks || []).some((b) => (b.items || []).some((i) => i.name));
+
+// "RPE 7 · Dolor 3" (el dolor és l'EVA del final de la sessió).
+function sessionNums(s) {
+  const f = s.feedback || {};
+  const rpe = U.num(f.rpe), pain = U.num(f.pain);
+  return [rpe != null && `RPE ${rpe}`, pain != null && `Dolor ${pain}`].filter(Boolean).join(' · ');
+}
+
+function sessionTitle(s, quick) {
+  const load = Calc.sessionLoad(s);
+  const f = s.feedback || {};
+  return [s.goal || 'Sessió', quick ? 'Només l\'objectiu (toca-la per editar-la o programar-la sencera)' : '',
+    U.num(f.duration) != null ? `${f.duration} min` : '', load != null ? `${U.fmt(load, 0)} UA` : ''].filter(Boolean).join(' · ');
+}
+
+// El + d'un dia del calendari: programar la sessió sencera (com sempre) o anotar-ne només l'objectiu.
+function openCalendarAdd(p, date) {
+  let close = null;
+  close = UI.open(() => html`<${CalendarAddDialog} p=${p} date=${date} onClose=${() => close()} />`);
+}
+
+function CalendarAddDialog({ p, date, onClose }) {
+  const [mode, setMode] = useState('quick');
+  const option = (v, title, text) => html`<label class=${U.cls('choice', mode === v && 'on')}>
+    <input type="radio" name="ca-mode" checked=${mode === v} onChange=${() => setMode(v)} />
+    <span class="choice-body"><span class="choice-title">${title}</span><span class="choice-text">${text}</span></span>
+  </label>`;
+  if (mode === 'quick-form') return html`<${QuickSessionDialog} p=${p} date=${date} onClose=${onClose} />`;
+  const next = () => {
+    if (mode === 'full') { onClose(); openNewSession(p.id, date); } else setMode('quick-form');
+  };
+  return html`<${Dialog} title=${`Nova sessió · ${U.fmtDateLong(date)}`} onClose=${onClose} footer=${html`
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="right" onClick=${next}>Continua</${Btn}>`}>
+    <div class="choices">
+      ${option('quick', 'Només l\'objectiu', 'Per omplir el calendari ràpid: s\'anota l\'objectiu (i el pilar, si vols) i surt al quadre del dia. Més endavant la pots programar sencera.')}
+      ${option('full', 'Programa la sessió sencera', 'Amb els blocs i els exercicis: del pla, copiant l\'última, d\'una plantilla o en blanc.')}
+    </div>
+  </${Dialog}>`;
+}
+
+function openQuickSession(p, { s, date } = {}) {
+  let close = null;
+  close = UI.open(() => html`<${QuickSessionDialog} p=${p} s=${s} date=${date} onClose=${() => close()} />`);
+}
+
+// Sessió amb només l'objectiu: crear-la, editar-la, marcar-la com a feta amb l'RPE i el dolor, o passar-la a sencera.
+function QuickSessionDialog({ p, s, date, onClose }) {
+  const f0 = (s && s.feedback) || {};
+  const [f, setF] = useState({
+    goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
+    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '',
+  });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const when = (s && s.date) || date;
+  const save = (thenFull) => {
+    if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
+    const apply = (x) => {
+      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status;
+      x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
+    };
+    let rec;
+    if (s) rec = Store.update('sessions', s.id, apply);
+    else { rec = Store.addPlanned(p.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar }); rec = Store.update('sessions', rec.id, apply); }
+    onClose();
+    if (thenFull) go('sessio', rec.id);
+    else UI.toast(s ? 'Sessió desada.' : `Sessió anotada el ${U.fmtDate(when)}.`);
+    return rec;
+  };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: 'Eliminar aquesta sessió?', text: `S${s.number} · ${U.fmtDate(s.date)} · ${s.goal || 'sense objectiu'}`, ok: 'Elimina-la', danger: true }))) return;
+    Store.remove('sessions', s.id);
+    onClose();
+  };
+  const done = f.status === 'feta';
+  return html`<${Dialog} title=${s ? `Sessió ${s.number} · ${U.fmtDateLong(when)}` : `Només l'objectiu · ${U.fmtDateLong(when)}`} onClose=${onClose} footer=${html`
+    ${s && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Elimina</${Btn}>`}
+    <${Btn} variant="ghost" icon="edit" onClick=${() => save(true)}>Programa-la sencera</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${() => save(false)}>${s ? 'Desa' : 'Anota-la al calendari'}</${Btn}>`}>
+    <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); save(false); }}>
+      <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
+        <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
+      </${Field}>
+      <${Field} label="Pilar" id="qs-pillar"><${Select} id="qs-pillar" value=${f.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
+      <${Field} label="Estat" id="qs-status">
+        <${Seg} value=${f.status} onValue=${set('status')} allowEmpty=${false} ariaLabel="Estat" options=${OPT.sessionStatus.map((o) => ({ v: o.v, label: o.label }))} />
+      </${Field}>
+      ${done && html`
+        <${Field} label="RPE de la sessió (1–10)" id="qs-rpe" wide=${true} hint=${RPE_HINT}>
+          <${Seg} value=${f.rpe} onValue=${set('rpe')} options=${RPE_SCALE} ariaLabel="RPE de la sessió" />
+        </${Field}>
+        <${Field} label="Dolor en acabar (EVA 0–10)" id="qs-pain" wide=${true}>
+          <${Seg} value=${f.pain} onValue=${set('pain')} options=${EVA_SCALE} ariaLabel="Dolor en acabar" />
+        </${Field}>
+        <${Field} label="Durada" id="qs-dur"><${NumInput} id="qs-dur" value=${f.duration} onValue=${set('duration')} unit="min" /></${Field}>`}
+      <button type="submit" hidden></button>
+    </form>
+    ${!done && html`<p class="dialog-text">Quan el pacient l'hagi feta, torna-la a obrir i marca-la com a <strong>Feta</strong> per anotar-hi l'RPE i el dolor: surten al quadre del dia.</p>`}
+  </${Dialog}>`;
 }
