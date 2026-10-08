@@ -923,7 +923,7 @@ input[type="search"].input { -webkit-appearance: none; }
 
 /* ── Gràfics ── */
 .chart { position: relative; width: 100%; }
-.chart-svg { display: block; overflow: visible; }
+.chart-svg { display: block; overflow: visible; max-width: 100%; height: auto; }
 .chart .grid { stroke: var(--grid); stroke-width: 1; }
 .chart .baseline { stroke: var(--baseline); stroke-width: 1; }
 .chart .axis { fill: var(--axis); font-size: 11.5px; font-variant-numeric: tabular-nums; }
@@ -1464,3 +1464,65 @@ tfoot .rpc { font-size: 14px; }
 .cal-key.plan { background: var(--brand-soft); box-shadow: inset 0 0 0 1px var(--brand-2); }
 .cal-key.quick { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); border-left: 4px solid var(--blk-cal); }
 .cal-key.ghost { border: 1.5px dashed var(--line-2); }
+
+/* ── Informe en mode clar o fosc ──
+   Es tria a la barra de l'informe (es desa a la fitxa del pacient). El clar és el de sempre, encara que l'app estigui
+   en tema fosc; el fosc fa servir els mateixos colors de la marca combinats al revés: fons granat i text crema.
+   Dreta i esquerra al fons granat: rosa i daurat (validats per contrast i daltonisme). */
+.report-light {
+  color-scheme: light;
+  --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #FAF8F6; --surface-3: #F0EBE6;
+  --line: #E6DFD8; --line-2: #D2C9C0; --ink: #231416; --ink-2: #5B4A4B; --ink-3: #8A7B78;
+  --brand: #421215; --brand-2: #5C3435; --brand-soft: #F4E9E7; --brand-ink: #FFFFFF; --link: #7A2A31;
+  --ok-ink: #3D6B2E; --warn-ink: #875D0A; --bad-ink: #A3302A; --ok-bg: #EEF4EA; --warn-bg: #FBF2E0; --bad-bg: #FBEBE9;
+  --side-d: #8A2F36; --side-e: #B8862F; --series-1: #8A2F36; --series-2: #B8862F; --series-3: #2F6FB0;
+  --grid: #ECE6E0; --axis: #978985; --baseline: #CFC7BF; --pic-prop: #CEC5BB; --pain: #8E8680;
+}
+.report-dark {
+  color-scheme: dark;
+  --bg: #421215; --surface: #4C1A1E; --surface-2: #511E22; --surface-3: #5D292D;
+  --line: #6A3539; --line-2: #84504F; --ink: #F7EEEA; --ink-2: #E5D2CC; --ink-3: #C9ABA5;
+  --brand: #F3E5DF; --brand-2: #DCC3BC; --brand-soft: #5A2529; --brand-ink: #421215; --link: #F4C8C1;
+  --ok-ink: #B3DCA2; --warn-ink: #F2CB7E; --bad-ink: #F8A9A1; --ok-bg: #34391F; --warn-bg: #4F3419; --bad-bg: #5F1D21;
+  --ok: #9CC98B; --warn: #E6C55A; --bad: #EE7A8A; --pain: #BFA9A4;
+  --side-d: #EE7A8A; --side-e: #E6C55A; --series-1: #EE7A8A; --series-2: #E6C55A; --series-3: #9CC6F0;
+  --grid: #5C282C; --axis: #C9ABA5; --baseline: #84504F; --pic-prop: #7A4A4C;
+}
+.present.report-light, .present.report-dark, .report.report-light, .report.report-dark { background: var(--bg); color: var(--ink); }
+.report-theme .seg-btn { min-width: 64px; }
+@media print {
+  html:has(.report.report-dark), body:has(.report.report-dark) { background: #421215; }
+}
+
+/* ── Informes d'evolució (tests i sessions) ── */
+.report.report-narrow { max-width: 860px; }
+.rpick { max-width: 860px; margin: 18px auto 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); display: flex; flex-direction: column; gap: 14px; }
+.rpick-range { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; }
+.rpick-range .field { min-width: 150px; margin: 0; }
+.rpick-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.rpick-groups { display: grid; gap: 12px; }
+.rpick-ghead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.rpick-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rpick-chip { cursor: pointer; }
+.rpick-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.rpick-chip.on, .rpick-presets .chip.on { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.rpick-chip.on .muted { color: inherit; opacity: 0.75; }
+.rpick-opts { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.tblock { padding: 14px 0 18px; border-bottom: 1px solid var(--line); break-inside: avoid; }
+.tblock:last-child { border-bottom: 0; }
+.tblock-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin-bottom: 8px; }
+.tblock-head .h3 { margin: 0; }
+.tblock-change { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tblock .chart { margin-bottom: 8px; }
+.ttable td, .ttable th { padding-top: 6px; padding-bottom: 6px; }
+.tasym { font-weight: 700; }
+.tasym.tone-warn { color: var(--warn-ink); }
+.tasym.tone-bad { color: var(--bad-ink); }
+.tasym.tone-ok { color: var(--ok-ink); }
+.tsmall { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 0 22px; }
+@media print {
+  .rpick { display: none !important; }
+  .report.report-narrow { max-width: none; }
+}
+.tblock-head .h3 { font-size: 16.5px; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.tchange .delta { margin-left: 4px; }

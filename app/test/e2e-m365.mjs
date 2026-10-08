@@ -283,6 +283,15 @@ let pid = null;
     if (await page.locator('.rvideos').count()) throw new Error('a mobilitat no hi ha vídeos');
     await page.click('.presentbar >> text=Torna');
     await page.waitForSelector('#sec-forca >> text=Informe de força');
+    // L'informe d'evolució de les sessions va a «Sessions» de la carpeta, en mode fosc si així està triat
+    const pid = await page.evaluate((id) => Store.get('assessments', id).patientId, aid);
+    await page.evaluate((x) => { Store.update('patients', x, (p) => { p.reportTheme = 'dark'; }); go('informesessions', x); }, pid);
+    await page.waitForSelector('.present.report-dark .report');
+    await page.click('.presentbar >> text=Desa el PDF a la carpeta');
+    await page.waitForSelector('.toast >> text=PDF desat a la carpeta del pacient: informeevoluciosessions_', { timeout: 120000 });
+    if (!files('Sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Sessions: ${files('Sessions')}`);
+    await page.evaluate((x) => { go('valoracio', x); }, aid);
+    await page.waitForSelector('#sec-forca >> text=Informe de força');
   });
   await step('sessió des de plantilla → Sessions i Registre_exercicis', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);

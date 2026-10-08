@@ -182,6 +182,64 @@ const step = async (label, fn) => {
     await page.waitForSelector('.presentbar >> text=Descarrega el PDF');
     if (await page.locator('.pdf-stage').count()) throw new Error('no s\'ha netejat l\'escenari del PDF');
   });
+  await step('informe en mode fosc (fons granat): es desa a la fitxa i el PDF també surt fosc', async () => {
+    await page.click('[aria-label="Disseny de l\'informe"] >> text=Fosc');
+    await page.waitForSelector('.present.report-dark article.report.report-dark');
+    const bg = await page.$eval('article.report', (e) => getComputedStyle(e).backgroundColor);
+    if (bg !== 'rgb(66, 18, 21)') throw new Error(`fons ${bg}`);
+    if (await page.evaluate(() => Store.get('patients', 'P-DEMO-LAURA').reportTheme) !== 'dark') throw new Error('no es desa a la fitxa');
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 120000 }), page.click('.presentbar >> text=Descarrega el PDF')]);
+    const pdf = readFileSync(await dl.path());
+    if (shots) writeFileSync(join(shots, 'informe-fosc.pdf'), pdf);
+    await shot(page, '07b-informe-fosc');
+    await page.click('[aria-label="Disseny de l\'informe"] >> text=Clar');
+    await page.waitForSelector('article.report.report-light');
+  });
+  await step('informe de tests: triar tests i dates, taula i gràfica de cada test, i PDF', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA/valoracions');
+    await page.click('.card-head >> text=Informe de tests');
+    await page.waitForSelector('.rpick');
+    await page.waitForSelector('.report .tblock[data-test="cmj"] .chart svg');
+    // Treure i tornar a posar un test
+    await page.click('.rpick-chip:has-text("CMJ · millor altura")');
+    if (await page.$('.report .tblock[data-test="cmj"]')) throw new Error('el test tret encara surt');
+    await page.click('.rpick-chip:has-text("CMJ · millor altura")');
+    await page.waitForSelector('.report .tblock[data-test="cmj"] table tbody tr');
+    // Sense gràfiques: només la taula
+    await page.click('text=Gràfiques d\'evolució de cada test');
+    if (await page.$('.report .tblock .chart')) throw new Error('les gràfiques no s\'amaguen');
+    await page.click('text=Gràfiques d\'evolució de cada test');
+    // Un rang sense valoracions
+    await page.fill('#rr-from', '2001-01-01'); await page.fill('#rr-to', '2001-12-31');
+    await page.waitForSelector('.rpick >> text=No hi ha cap test amb dades');
+    await page.click('.rpick-presets >> text=Tot');
+    await page.waitForSelector('.report .tblock[data-test="cmj"]');
+    const txt = await page.$eval('.report', (e) => e.innerText);
+    if (txt.includes('XYZ')) throw new Error('els comentaris del professional surten a l\'informe de tests');
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 120000 }), page.click('.presentbar >> text=Descarrega el PDF')]);
+    if (!/^informeevoluciotests_lauravidalserra_\d{8}_01\.pdf$/.test(dl.suggestedFilename())) throw new Error(dl.suggestedFilename());
+    const pdf = readFileSync(await dl.path());
+    if ((pdf.toString('latin1').match(/\/Type \/Page\b/g) || []).length < 2) throw new Error('PDF massa curt');
+    if (shots) writeFileSync(join(shots, 'informe-tests.pdf'), pdf);
+    await shot(page, '07c-informe-tests');
+    await page.click('.presentbar >> text=Torna');
+    await page.waitForSelector('.alist');
+  });
+  await step('informe d\'evolució de les sessions: RPE, dolor i wellness', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA/sessions');
+    await page.click('.card-head >> text=Informe d\'evolució');
+    await page.waitForSelector('.report .rtiles >> text=RPE mitjà');
+    await page.waitForSelector('.report >> text=Dolor en acabar (EVA)');
+    await page.waitForSelector('.report >> text=Wellness en arribar');
+    if ((await page.locator('.report .chart svg').count()) < 3) throw new Error('falten gràfiques');
+    await page.click('text=Wellness per pregunta');
+    await page.waitForSelector('.report .tsmall .chart svg');
+    const rows = await page.locator('.report table tbody tr').count();
+    if (rows < 3) throw new Error(`files: ${rows}`);
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 120000 }), page.click('.presentbar >> text=Descarrega el PDF')]);
+    if (!/^informeevoluciosessions_lauravidalserra_\d{8}_01\.pdf$/.test(dl.suggestedFilename())) throw new Error(dl.suggestedFilename());
+    await shot(page, '07d-informe-sessions');
+  });
   await step('editor de sessió', async () => {
     await goHash(page, '#/client/P-DEMO-LAURA/sessions');
     await page.click('.srow-main >> nth=0');

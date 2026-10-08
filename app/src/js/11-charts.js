@@ -32,14 +32,31 @@ function niceTicks(min, max, count = 4) {
   return { ticks, lo: start, hi: end, step };
 }
 
+// Colors del tema resolts (var(--grid) → #ECE6E0) per posar-los als atributs de l'SVG: el PDF de l'informe copia l'SVG
+// tal qual, sense els fulls d'estil, i així surt amb els mateixos colors (clar o fosc) que a la pantalla.
+function useCssColors(ref, names) {
+  const [vals, setVals] = useState({});
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const cs = getComputedStyle(el);
+    const next = {};
+    for (const n of names) next[n] = cs.getPropertyValue(n).trim();
+    if (names.some((n) => next[n] !== vals[n])) setVals(next);
+  });
+  return (v) => { const m = /^var\((--[\w-]+)\)$/.exec(String(v || '')); return m ? (vals[m[1]] || v) : v; };
+}
+
 function Legend({ items }) {
   return html`<div class="legend">${items.map((it) => html`<span class="legend-item"><span class=${U.cls('legend-swatch', it.line && 'legend-line')} style=${`background:${it.color}`}></span>${it.label}</span>`)}</div>`;
 }
 
 // Evolució en el temps (una o dues sèries: p. ex. dreta i esquerra).
-function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel }) {
+// yMin / yMax: escala fixa (p. ex. RPE 0–10). L'SVG s'escala amb el contenidor (PDF de l'informe).
+function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax }) {
   const [ref, W] = useWidth();
   const [hover, setHover] = useState(null);
+  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
   const clean = series.map((s) => ({ ...s, points: s.points.filter((p) => p.y != null && Number.isFinite(p.y) && U.parse(p.x)) }))
     .filter((s) => s.points.length);
   const all = clean.flatMap((s) => s.points);
@@ -51,7 +68,7 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel })
   let t0 = U.parse(times[0]).getTime(), t1 = U.parse(times[times.length - 1]).getTime();
   if (t0 === t1) { t0 -= 86400000 * 20; t1 += 86400000 * 20; }
   const ys = all.map((p) => p.y);
-  const { ticks, lo, hi } = niceTicks(Math.min(...ys), Math.max(...ys));
+  const { ticks, lo, hi } = yMin != null && yMax != null ? niceTicks(Math.min(yMin, ...ys), Math.max(yMax, ...ys), 5) : niceTicks(Math.min(...ys), Math.max(...ys));
   const iw = Math.max(40, W - padL - padR), ih = H - padT - padB;
   const sx = (x) => padL + ((U.parse(x).getTime() - t0) / (t1 - t0)) * iw;
   const sy = (y) => padT + ih - ((y - lo) / (hi - lo || 1)) * ih;
@@ -77,16 +94,16 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel })
   const hx = hover ? sx(hover) : 0;
   return html`<div class="chart" ref=${ref}>
     ${clean.length > 1 && html`<${Legend} items=${clean.map((s) => ({ label: s.name, color: s.color, line: true }))} />`}
-    <svg width=${W} height=${H} role="img" aria-label=${ariaLabel || 'Gràfic d\'evolució'} class="chart-svg">
-      ${ticks.map((t) => html`<g><line x1=${padL} x2=${padL + iw} y1=${sy(t)} y2=${sy(t)} class="grid" />
-        <text x=${padL - 8} y=${sy(t) + 4} text-anchor="end" class="axis">${fmtY(t)}</text></g>`)}
-      ${xLabels.map((t) => html`<text x=${sx(t)} y=${H - 8} text-anchor="middle" class="axis">${U.fmtDateShort(t)}${times.length > 1 && U.parse(times[0]).getFullYear() !== U.parse(times[times.length - 1]).getFullYear() ? ` ${t.slice(2, 4)}` : ''}</text>`)}
+    <svg width=${W} height=${H} viewBox=${`0 0 ${W} ${H}`} preserveAspectRatio="xMinYMin meet" role="img" aria-label=${ariaLabel || 'Gràfic d\'evolució'} class="chart-svg">
+      ${ticks.map((t) => html`<g><line x1=${padL} x2=${padL + iw} y1=${sy(t)} y2=${sy(t)} class="grid" stroke=${col('var(--grid)')} stroke-width="1" />
+        <text x=${padL - 8} y=${sy(t) + 4} text-anchor="end" class="axis" fill=${col('var(--axis)')} font-size="11.5">${fmtY(t)}</text></g>`)}
+      ${xLabels.map((t) => html`<text x=${sx(t)} y=${H - 8} text-anchor="middle" class="axis" fill=${col('var(--axis)')} font-size="11.5">${U.fmtDateShort(t)}${times.length > 1 && U.parse(times[0]).getFullYear() !== U.parse(times[times.length - 1]).getFullYear() ? ` ${t.slice(2, 4)}` : ''}</text>`)}
       ${hover && html`<line x1=${hx} x2=${hx} y1=${padT} y2=${padT + ih} class="crosshair" />`}
       ${clean.map((s) => html`<g>
-        <path d=${s.points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join('')} fill="none" stroke=${s.color} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-        ${s.points.map((p) => html`<circle cx=${sx(p.x)} cy=${sy(p.y)} r=${hover === p.x ? 5.5 : 4} fill=${s.color} stroke="var(--surface)" stroke-width="2" />`)}
+        <path d=${s.points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join('')} fill="none" stroke=${col(s.color)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+        ${s.points.map((p) => html`<circle cx=${sx(p.x)} cy=${sy(p.y)} r=${hover === p.x ? 5.5 : 4} fill=${col(s.color)} stroke=${col('var(--surface)')} stroke-width="2" />`)}
       </g>`)}
-      ${endsOk && ends.map((e) => html`<text x=${sx(e.p.x) + 9} y=${e.y + 4} class="endlabel">${fmtY(e.p.y)}${unit ? ` ${unit}` : ''}</text>`)}
+      ${endsOk && ends.map((e) => html`<text x=${sx(e.p.x) + 9} y=${e.y + 4} class="endlabel" fill=${col('var(--ink)')} font-size="12.5" font-weight="650">${fmtY(e.p.y)}${unit ? ` ${unit}` : ''}</text>`)}
       <rect x=${padL - 10} y=${padT} width=${iw + 20} height=${ih} fill="transparent" onPointerMove=${onMove} onPointerLeave=${() => setHover(null)} />
     </svg>
     ${hover && html`<div class="tip" style=${`left:${Math.min(Math.max(hx, 70), W - 70)}px;top:${padT}px`}>

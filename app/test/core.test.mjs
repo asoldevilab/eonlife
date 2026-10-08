@@ -694,3 +694,49 @@ test('informe: la propera valoració només amb el mes i l\'any; tipus de pacien
   assert.deepEqual([...OPT.services.map((o) => o.v)], ['membership', 'bo']);
   assert.ok(OPT.pillars.includes('Readaptació'));
 });
+
+test('informe de tests: una fila per valoració dins del rang, canvi del primer al darrer i direcció de la millora', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const { Store, Evol } = core;
+  const all = Store.assessmentsOf('P-DEMO-LAURA');
+  const tests = Evol.tests(all);
+  const cmj = tests.find((t) => t.id === 'cmj');
+  assert.equal(cmj.rows.length, all.filter((a) => core.Calc.cmj(a) && core.Calc.cmj(a).best != null).length);
+  assert.equal(cmj.area, 'rendiment');
+  assert.equal(cmj.change.delta > 0, cmj.change.better, 'més alt és millor');
+  const knee = tests.find((t) => t.id === 'dyn_knee_ext');
+  assert.ok(knee.bi && knee.rows.every((r) => 'd' in r && 'e' in r && 'asym' in r));
+  const w = tests.find((t) => t.id === 'weight');
+  if (w && w.change) assert.equal(w.change.better, null, 'el pes no té direcció');
+  // Rang que només agafa l'última valoració: una fila i sense canvi
+  const last = all[all.length - 1].date;
+  const one = Evol.tests(all, { from: last, to: last }).find((t) => t.id === 'cmj');
+  assert.equal(one.rows.length, 1);
+  assert.equal(one.change, null);
+  assert.equal(Evol.tests(all, { from: '2000-01-01', to: '2000-12-31' }).length, 0);
+  // Un test on menys és millor
+  const lower = Object.values(core.TEST_INDEX).find((t) => t.lowerBetter && t.kind === 'single');
+  if (lower) {
+    const fake = [{ id: 'a1', date: '2026-01-01', values: { [lower.id]: { v: 10 } } }, { id: 'a2', date: '2026-02-01', values: { [lower.id]: { v: 8 } } }];
+    assert.equal(Evol.tests(fake).find((t) => t.id === lower.id).change.better, true);
+  }
+});
+
+test('informe de sessions: RPE, dolor en acabar i wellness de cada sessió, mitjanes i tendència', () => {
+  const { Evol } = loadCore();
+  const s = (n, date, rpe, pain, wl) => ({ id: `S${n}`, number: n, date, goal: 'Força', status: 'feta',
+    feedback: { rpe: rpe == null ? '' : String(rpe), pain: pain == null ? '' : String(pain), duration: '60' },
+    wellness: wl == null ? {} : { fatigue: wl, sleep: wl, soreness: wl, stress: wl, mood: wl } });
+  const list = [s(1, '2026-09-01', 5, 4, 3), s(2, '2026-09-03', 6, 3, 3), s(3, '2026-09-05', 7, 1, 4), s(4, '2026-09-08', 8, 0, 5),
+    s(5, '2026-09-10', null, null, null), s(6, '2026-10-20', 6, 2, 4)];
+  const ev = Evol.sessions(list, { from: '2026-09-01', to: '2026-09-30' });
+  assert.deepEqual([...ev.rows.map((r) => r.number)], [1, 2, 3, 4], 'sense la sessió buida ni la de fora del rang');
+  assert.equal(ev.rpe.avg, 6.5);
+  assert.equal(ev.pain.trend, -3, 'el dolor baixa');
+  assert.equal(ev.wellness.first, 15);
+  assert.equal(ev.wellness.last, 25);
+  assert.equal(ev.rows[0].load, 300);
+  assert.equal(ev.rows[3].items.mood, 5);
+  assert.equal(Evol.sessions([], {}).rpe, null);
+});

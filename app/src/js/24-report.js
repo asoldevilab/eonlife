@@ -68,14 +68,16 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
 
   const ScoreCell = ({ s, pain }) => html`<span class="rscore"><${ScoreDot} v=${s} pain=${pain} size="sm" />${s ? Calc.scoreInfo(s).label : ''}</span>`;
 
-  return html`<div class="present">
-    <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)}
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`${typeLabel} · ${U.fullName(p)}`} onClose=${() => go('valoracio', a.id)} noTheme=${true}
       actions=${html`<${ReportPdfButton} a=${a} p=${p} typeLabel=${typeLabel} scopeSec=${scopeSec} />`}>
+      <${ReportThemeSwitch} p=${p} />
       ${areas.length > 1 && html`<${Select} value=${scope} onValue=${setScope} class="select-sm" ariaLabel="Apartat de l'informe"
         options=${[{ v: 'tot', label: 'Informe complet' }, ...areas.map((s) => ({ v: s.id, label: `Només ${s.short.toLowerCase()}` }))]} />`}
       <${Btn} variant="ghost" icon=${notes ? 'eye' : 'eyeoff'} onClick=${() => setNotes(!notes)} title="Mostra o amaga les observacions de cada test">${notes ? 'Amb notes' : 'Sense notes'}</${Btn}>
     </${PresentBar}>
-    <article class="report">
+    <article class=${`report ${theme}`}>
       <header class="report-cover">
         <${BrandMark} />
         <div class="report-id">
@@ -234,12 +236,24 @@ function reportPdfName(a, p, typeLabel, scopeSec) {
 }
 
 function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
+  const center = Store.settings.centerName || 'EON Life';
+  return html`<${PdfSaveButton} p=${p} name=${reportPdfName(a, p, typeLabel, scopeSec)} where="assess"
+    title=${`${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`}
+    footer=${`${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)}`}
+    onSaved=${(res) => Store.update('assessments', a.id, (x) => {
+      x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al pacient', date: U.today() }];
+    })} />`;
+}
+
+// Botó del PDF d'un informe (el de la valoració, el de tests i el de sessions): fa el PDF de l'informe de la pantalla
+// (.present .report) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'assess' = Valoracions,
+// 'sessions' = Sessions), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
+function PdfSaveButton({ p, name, title, footer, where = 'assess', onSaved }) {
   const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
   const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
   const cloud = Store.cloud() && !!(Store.backend && Store.backend.uploadFile);
   if (!cloud && !U.canDownload()) return null;
-  const name = reportPdfName(a, p, typeLabel, scopeSec);
-  const center = Store.settings.centerName || 'EON Life';
+  const folder = (EXPORT_FOLDERS[where] || ['Valoracions'])[0];
   const run = async () => {
     if (busy != null) return;
     const el = document.querySelector('.present .report');
@@ -247,15 +261,10 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
     setBusy(0);
     setSaved(null);
     try {
-      const bytes = await ReportPdf.render(el, {
-        title: `${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`, author: center,
-        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)}`, onProgress: setBusy,
-      });
+      const bytes = await ReportPdf.render(el, { title, author: Store.settings.centerName || 'EON Life', footer, onProgress: setBusy });
       if (cloud) {
-        const res = await uploadToClient(p, new File([bytes], name, { type: 'application/pdf' }), { name, replace: true, where: 'assess' });
-        Store.update('assessments', a.id, (x) => {
-          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al pacient', date: U.today() }];
-        });
+        const res = await uploadToClient(p, new File([bytes], name, { type: 'application/pdf' }), { name, replace: true, where });
+        if (onSaved) onSaved(res);
         setSaved({ name: res.name, url: res.url });
         UI.toast(`PDF desat a la carpeta del pacient: ${res.name}`);
       } else {
@@ -270,8 +279,17 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
   return html`<span class="inline">
     ${saved && saved.url && html`<a class="btn btn-ghost" href=${saved.url} target="_blank" rel="noopener" title=${saved.name}><${Icon} name="note" size=${16} /><span>Obre el PDF</span></a>`}
     <${Btn} variant="primary" icon=${cloud ? 'upload' : 'download'} disabled=${busy != null} onClick=${run}
-      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el pacient'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
+      title=${cloud ? `Fa el PDF i el desa a «${folder}» de la carpeta de ${p.firstName || 'el pacient'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
   </span>`;
+}
+
+// Informe en mode clar o fosc (fons granat): es tria a la barra i es desa a la fitxa del pacient, perquè depèn del pacient.
+const reportThemeClass = (p) => ((p && p.reportTheme) === 'dark' ? 'report-dark' : 'report-light');
+function ReportThemeSwitch({ p }) {
+  if (!p || !p.id) return null;
+  return html`<${Seg} class="report-theme" value=${p.reportTheme === 'dark' ? 'dark' : 'light'} allowEmpty=${false} ariaLabel="Disseny de l'informe"
+    onValue=${(v) => Store.update('patients', p.id, (x) => { x.reportTheme = v; })}
+    options=${[{ v: 'light', label: 'Clar', title: 'Fons blanc (com sempre)' }, { v: 'dark', label: 'Fosc', title: 'Fons granat EON Life' }]} />`;
 }
 
 // ── Vídeos a l'informe ──

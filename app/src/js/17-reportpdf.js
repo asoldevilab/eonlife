@@ -116,17 +116,22 @@ const ReportPdf = (() => {
   // source: l'element de l'informe a la pantalla. Retorna els bytes del PDF.
   async function render(source, { title = '', author = '', footer = '', scale = 2, quality = 0.9, onProgress } = {}) {
     if (typeof htmlToImage === 'undefined') throw new Error('Aquesta versió no pot fer el PDF.');
+    // Informe en mode fosc (fons granat): les pàgines senceres, marges inclosos, del mateix color.
+    const theme = source.classList.contains('report-dark') ? 'report-dark' : 'report-light';
+    const pageBg = theme === 'report-dark' ? '#421215' : '#FFFFFF';
     const style = document.createElement('style');
     style.textContent = `${printCss()}
       /* l'escenari no es veu (1 px i retallat), però el que hi ha a dins es dibuixa a la mida real; html-to-image en fa la
          imatge (una pàgina posada fora de la pantalla amb left negatiu sortiria en blanc) */
       .pdf-stage { position: fixed; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none; z-index: -1; }
-      .pdf-host, .pdf-page { position: relative; background: #FFFFFF; color: var(--ink); font-family: var(--font-body); }
+      .pdf-host, .pdf-page { position: relative; background: ${pageBg}; color: var(--ink); font-family: var(--font-ui); }
       .pdf-host { width: ${CONTENT_W}px; }
       .pdf-page { width: ${PAGE.w}px; height: ${PAGE.h}px; padding: ${PAGE.m}px; box-sizing: border-box; overflow: hidden; }
       .pdf-view { position: relative; width: ${CONTENT_W}px; overflow: hidden; }
       .pdf-foot { position: absolute; left: ${PAGE.m}px; right: ${PAGE.m}px; bottom: ${PAGE.m - 6}px; display: flex; justify-content: space-between; gap: 12px;
         font-size: 7.5pt; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 5px; }
+      /* (els colors del mode de l'informe són a l'article; el peu de pàgina, fora, els porta aquí) */
+      .pdf-page.report-dark .pdf-foot { color: #C9ABA5; border-top-color: #6A3539; }
       /* el marge de cada pàgina el fa .pdf-page (en imprimir el fa l'informe mateix) */
       .pdf-mode .report, .pdf-mode .sheet { padding: 0 !important; }
       /* el peu de l'informe ja hi és a cada pàgina */
@@ -153,14 +158,14 @@ const ReportPdf = (() => {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       const cuts = breaks(doc);
       const n = cuts.length - 1;
-      const opts = { pixelRatio: scale, backgroundColor: '#FFFFFF', width: PAGE.w, height: PAGE.h, cacheBust: false,
+      const opts = { pixelRatio: scale, backgroundColor: pageBg, width: PAGE.w, height: PAGE.h, cacheBust: false,
         imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' };
       opts.fontEmbedCSS = await fontCss(); // (així html-to-image no va a llegir els fulls d'estil d'un altre domini)
       const pages = [];
       for (let i = 0; i < n; i++) {
         if (onProgress) onProgress(i / n);
         const page = document.createElement('div');
-        page.className = 'pdf-mode pdf-page';
+        page.className = `pdf-mode pdf-page ${theme}`;
         const view = document.createElement('div');
         view.className = 'pdf-view';
         view.style.height = `${cuts[i + 1] - cuts[i]}px`;

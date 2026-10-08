@@ -1,7 +1,7 @@
 /* EON Life · fitxa de sessió per ensenyar al client (pantalla) i per imprimir o desar en PDF. */
 
 // actions: botons que van al final (p. ex. «Desa el PDF a la carpeta» a l'informe); aleshores imprimir passa a ser secundari.
-function PresentBar({ onClose, children, title, actions }) {
+function PresentBar({ onClose, children, title, actions, noTheme }) {
   const [dark, setDark] = useState(document.documentElement.getAttribute('data-theme') === 'dark');
   const toggleTheme = () => {
     const next = dark ? 'light' : 'dark';
@@ -19,7 +19,7 @@ function PresentBar({ onClose, children, title, actions }) {
     <${Btn} variant="ghost" icon="back" onClick=${onClose}>Torna</${Btn}>
     <span class="presentbar-title">${title}</span>
     ${children}
-    <${Btn} variant="ghost" icon=${dark ? 'sun' : 'moon'} title=${dark ? 'Tema clar' : 'Tema fosc'} onClick=${toggleTheme} />
+    ${!noTheme && html`<${Btn} variant="ghost" icon=${dark ? 'sun' : 'moon'} title=${dark ? 'Tema clar' : 'Tema fosc'} onClick=${toggleTheme} />`}
     <${Btn} variant="ghost" icon="expand" title="Pantalla completa" onClick=${full} />
     ${!IS_ARTIFACT && (actions ? html`<${Btn} variant="ghost" icon="print" onClick=${printPage} title="Imprimeix en paper">Imprimeix</${Btn}>`
       : html`<${Btn} variant="primary" icon="print" onClick=${printPage}>Imprimeix / PDF</${Btn}>`)}
