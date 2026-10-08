@@ -11,10 +11,10 @@ function ProgressView({ pid, planId }) {
   const [fromId, setFrom] = useState(list[0] ? list[0].id : '');
   const [toId, setTo] = useState((done[done.length - 1] || list[list.length - 1] || {}).id || '');
   const back = () => go('client', pid, 'pla');
-  if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest client" /></div>`;
+  if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest pacient" /></div>`;
   if (list.length < 2) {
     return html`<div class="present"><${PresentBar} title="Progrés" onClose=${back} />
-      <article class="sheet"><${Empty} icon="chart" title="Encara no hi ha prou sessions" text="Quan el client tingui almenys dues sessions, aquí es veurà com ha progressat." /></article></div>`;
+      <article class="sheet"><${Empty} icon="chart" title="Encara no hi ha prou sessions" text="Quan el pacient tingui almenys dues sessions, aquí es veurà com ha progressat." /></article></div>`;
   }
   const from = list.find((s) => s.id === fromId) || list[0];
   const to = list.find((s) => s.id === toId) || list[list.length - 1];

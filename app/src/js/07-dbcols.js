@@ -1,10 +1,10 @@
 /* EON Life · base de dades: definició de les taules (files i columnes).
-   Cada taula correspon a una pestanya del sistema EON v1 (clients, valoracions, Kinvent ROM,
+   Cada taula correspon a una pestanya del sistema EON v1 (pacients, valoracions, Kinvent ROM,
    dinamometria, postural, Y-Balance, My Jump, patrons, sessions, registre d'exercicis).
-   Les mesures viuen dins de cada valoració: una fila = una valoració d'un client en una data. */
+   Les mesures viuen dins de cada valoració: una fila = una valoració d'un pacient en una data. */
 
 const DB_TABLES = [
-  { id: 'clients', label: 'Clients', kind: 'patients', add: 'Nou client', hint: 'Una fila per client.' },
+  { id: 'clients', label: 'Pacients', kind: 'patients', add: 'Nou pacient', hint: 'Una fila per pacient.' },
   { id: 'valoracions', label: 'Valoracions', kind: 'assessments', focus: 'dades', add: 'Nova valoració', hint: 'Una fila per valoració, amb les dades clau de cada àrea.' },
   { id: 'mobilitat', label: 'Mobilitat · K-Move', kind: 'assessments', focus: 'rom', add: 'Afegeix mobilitat', hint: 'Goniometria digital (Kinvent K-Move) i knee-to-wall. Graus i cm.' },
   { id: 'postural', label: 'Anàlisi postural', kind: 'assessments', focus: 'postural', add: 'Afegeix tests posturals', hint: 'Adams, Thomas, Windlass i single leg squat.' },
@@ -36,7 +36,7 @@ const DB = (() => {
   ];
 
   const lead = () => [
-    { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+    { id: 'client', label: 'Pacient', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
     { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.a.date },
     { id: 'type', label: 'Tipus', kind: 'text', lead: true, get: (r) => typeShort(r.a.type) },
   ];
@@ -99,7 +99,7 @@ const DB = (() => {
 
   const COLUMNS = {
     clients: () => [
-      { id: 'client', label: 'Client', kind: 'client', get: (r) => U.fullName(r.p) },
+      { id: 'client', label: 'Pacient', kind: 'client', get: (r) => U.fullName(r.p) },
       { id: 'age', label: 'Edat', kind: 'num', dec: 0, get: (r) => U.age(r.p.birthDate) },
       { id: 'service', label: 'Servei', kind: 'text', get: (r) => (OPT.services.find((o) => o.v === r.p.service) || {}).label || '' },
       { id: 'prof', label: 'Professional', kind: 'text', get: (r) => r.p.professional || '' },
@@ -202,7 +202,7 @@ const DB = (() => {
     ],
 
     sessions: () => [
-      { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+      { id: 'client', label: 'Pacient', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
       { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.s.date },
       { id: 'num', label: 'Nº', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
@@ -217,7 +217,7 @@ const DB = (() => {
     ],
 
     exercicis: () => [
-      { id: 'client', label: 'Client', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
+      { id: 'client', label: 'Pacient', kind: 'client', lead: true, get: (r) => U.fullName(r.p) },
       { id: 'date', label: 'Data', kind: 'date', lead: true, get: (r) => r.s.date },
       { id: 'num', label: 'Sessió', kind: 'num', dec: 0, lead: true, get: (r) => num(r.s.number) },
       { id: 'block', label: 'Bloc', kind: 'block', get: (r) => r.b.key },

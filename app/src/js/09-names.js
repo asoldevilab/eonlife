@@ -1,6 +1,6 @@
 /* EON Life · carpetes i noms dels fitxers de cada client.
-   Carpeta del client: «Cognoms, Nom · P-xxxx», amb l'Excel del client i dues branques:
-     seguiment_lauravidalserra_01.xlsx    l'Excel del client: sessions (un full per mes) i valoracions
+   Carpeta del pacient: «Cognoms, Nom · P-xxxx», amb l'Excel del pacient i dues branques:
+     seguiment_lauravidalserra_01.xlsx    l'Excel del pacient: sessions (un full per mes) i valoracions
      Valoracions/                         PDF de Kinvent, informe mèdic i fotos
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/

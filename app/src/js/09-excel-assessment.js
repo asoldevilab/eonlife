@@ -112,7 +112,7 @@ const ExcelAssessment = (() => {
     const age = U.age(p.birthDate, a.date);
     const at = {};
     r = xlKv(ws, r, [
-      ['Client', U.fullName(p)],
+      ['Pacient', U.fullName(p)],
       ['Data', { date: a.date }, { style: { h: 'left' } }],
       ['Tipus', typeLabel(a)],
       ['Professional', xlStr(a.professional)],

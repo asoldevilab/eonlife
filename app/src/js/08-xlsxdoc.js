@@ -2,7 +2,7 @@
    A diferència de Xlsx (08-xlsx.js, que només crea la plantilla de la base de dades), aquest escriptor fa
    llibres per llegir: colors, cel·les combinades, text enriquit, fórmules amb el valor ja calculat, enllaços,
    format condicional, files i columnes fixades, protecció suau i configuració d'impressió. L'app el fa servir
-   per a l'Excel que genera sola per a cada client (sessions per mes i valoracions).
+   per a l'Excel que genera sola per a cada pacient (sessions per mes i valoracions).
 
    Ús:
      const doc = XlsxDoc.create({ title: 'Sessió 12', creator: 'EON Life' });

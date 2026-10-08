@@ -38,6 +38,7 @@ const ICONS = {
   clipboard: html`<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6M9 18h3"/>`,
   dumbbell: html`<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>`,
   clock: html`<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>`,
+  lock: html`<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>`,
   layers: html`<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>`,
   upload: html`<path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>`,
   download: html`<path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>`,
@@ -412,7 +413,7 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
       const res = await uploadToClient({ ...patient, folderId }, file, { label: title, date, where, onProgress: (pct) => setUp({ pct }) });
       setUp(null);
       setFolderId(res.folderId);
-      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el pacient'}.`);
       if (res.url) onSave(res.url);
       else loadFiles(res.folderId);
     } catch (e) {
@@ -430,13 +431,13 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
       <input type="file" accept="video/*" capture="environment" hidden ref=${recRef} data-kind="record" onChange=${(e) => upload(e.currentTarget.files[0])} />
       <input type="file" accept="video/*,image/*" hidden ref=${fileRef} data-kind="gallery" onChange=${(e) => upload(e.currentTarget.files[0])} />
       ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
-          <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el client'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
+          <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el pacient'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
           <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
         : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
           <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
-          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del client.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el client'}.`}</span>`}
+          <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del pacient.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el pacient'}.`}</span>`}
     </div>`}
-    <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del client (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del client, YouTube…).'}>
+    <${Field} label="Enllaç al vídeo" id="video-url" hint=${cloud ? `Enganxa l'enllaç d'un fitxer de la carpeta del pacient (${Store.cloudName()}) o tria'l de la llista.` : 'Enganxa l\'enllaç del vídeo (carpeta del pacient, YouTube…).'}>
       <${TextInput} id="video-url" value=${v} onValue=${setV} placeholder="https://…" autoFocus=${!canUpload} />
     </${Field}>
     ${U.isUrl(v) && html`<p><a class="link" href=${v} target="_blank" rel="noopener"><${Icon} name="video" size=${15} /> Obre el vídeo</a></p>`}

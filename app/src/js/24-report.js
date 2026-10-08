@@ -215,12 +215,11 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
       ${scope === 'tot' && (c.plan || a.nextRetest) && html`<section class="rsec rplan">
         <h2 class="rsec-title">Pla de treball</h2>
         ${c.plan && html`<p class="prose">${c.plan}</p>`}
-        ${a.nextRetest && html`<p class="rnext"><${Icon} name="calendar" size=${17} />Propera valoració: <strong>${U.fmtDateLong(a.nextRetest, false)}</strong></p>`}
+        ${a.nextRetest && html`<p class="rnext"><${Icon} name="calendar" size=${17} />Propera valoració: <strong>${U.fmtMonthYear(a.nextRetest)}</strong></p>`}
       </section>`}
 
       <footer class="sheet-foot">
         <span>${Store.settings.centerName || 'EON Life'} · ${scopeSec ? `Informe de ${scopeSec.short.toLowerCase()}` : 'Valoració funcional'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
-        <span>${U.fmtDate(a.date)}</span>
       </footer>
     </article>
   </div>`;
@@ -250,15 +249,15 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
     try {
       const bytes = await ReportPdf.render(el, {
         title: `${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`, author: center,
-        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)} · ${U.fmtDate(a.date)}`, onProgress: setBusy,
+        footer: `${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)}`, onProgress: setBusy,
       });
       if (cloud) {
         const res = await uploadToClient(p, new File([bytes], name, { type: 'application/pdf' }), { name, replace: true, where: 'assess' });
         Store.update('assessments', a.id, (x) => {
-          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al client', date: U.today() }];
+          x.files = [...(x.files || []).filter((f) => f.name !== res.name), { id: U.uid('F'), name: res.name, url: res.url, label: 'Informe per al pacient', date: U.today() }];
         });
         setSaved({ name: res.name, url: res.url });
-        UI.toast(`PDF desat a la carpeta del client: ${res.name}`);
+        UI.toast(`PDF desat a la carpeta del pacient: ${res.name}`);
       } else {
         savedToast(await U.downloadBytes(name, bytes, 'application/pdf'), `PDF descarregat: ${name}`);
       }
@@ -271,7 +270,7 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
   return html`<span class="inline">
     ${saved && saved.url && html`<a class="btn btn-ghost" href=${saved.url} target="_blank" rel="noopener" title=${saved.name}><${Icon} name="note" size=${16} /><span>Obre el PDF</span></a>`}
     <${Btn} variant="primary" icon=${cloud ? 'upload' : 'download'} disabled=${busy != null} onClick=${run}
-      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el client'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
+      title=${cloud ? `Fa el PDF i el desa a «Valoracions» de la carpeta de ${p.firstName || 'el pacient'} (${name})` : `Fa el PDF i el descarrega (${name})`}>${label}</${Btn}>
   </span>`;
 }
 

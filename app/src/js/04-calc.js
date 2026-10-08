@@ -508,7 +508,7 @@ const Flat = {
       'Objectiu': p.goal || '', 'Motiu de consulta': p.reason || '', 'Antecedents': p.history || '',
       'Data IQ': p.surgeryDate || '', 'IQ': p.surgeryNote || '',
       'Data lesió': p.injuryDate || '', 'Lesió': p.injuryNote || '',
-      'Carpeta del client': p.folderUrl || '', 'Notes': p.notes || '',
+      'Carpeta del pacient': p.folderUrl || '', 'Comentaris del professional': p.notes || '',
       'Alçada (cm)': U.num(p.height) ?? '', 'Pes (kg)': U.num(p.weight) ?? '',
       'Dominància': (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || '',
       'Nivell d\'activitat': (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '',
@@ -532,7 +532,7 @@ const Flat = {
     });
     const v = a.values || {};
     const n = (x) => (x == null ? '' : U.round(x, 2));
-    o['Client'] = U.fullName(p);
+    o['Pacient'] = U.fullName(p);
     o['Data'] = a.date || '';
     o['Tipus'] = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || '';
     o['Professional'] = a.professional || '';
@@ -673,7 +673,7 @@ const Flat = {
   session(s, p, settings) {
     const f = s.feedback || {};
     const o = {
-      'Client': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
+      'Pacient': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
@@ -705,7 +705,7 @@ const Flat = {
       const meth = (it) => { const x = grp(it); return (x && x.g.methodName) || b.methodName || ''; };
       (b.items || []).filter((i) => i.name).forEach((it, idx) => {
         rows.push({
-          'Client': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
+          'Pacient': U.fullName(p), 'Data': s.date || '', 'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
           'Bloc': blockName(b.key, settings), 'Subbloc': sub(it), 'Mètode': meth(it), 'Ordre': `${blockNum(b.key)}.${idx + 1}`, 'Exercici': it.name,
           'Grup muscular': it.gm || '', 'Zona corporal': it.gm ? (MUSCLE_ZONES.find((z) => z.key === muscleZone(it.gm)) || {}).label || '' : '', 'Contracció': it.cont || '', 'Posició': it.pos || '', 'Lateralitat': it.lat || '',
           'Material': it.material || '', 'Sèries': U.num(it.sets) ?? it.sets ?? '', 'Reps / temps': it.reps || '',
@@ -733,15 +733,15 @@ const Flat = {
       : (t.items || []).map((i) => i.name).join(', ');
     if (t.kind === 'method') {
       return { 'Nom': t.name || '', 'Tipus': 'Mètode', 'Bloc': (t.blocks || []).map((k) => blockName(k)).join(', '), 'Exercicis': t.example || '',
-        'Descripció': [t.aim, t.how, t.notes].filter(Boolean).join(' · '), 'Client': '' };
+        'Descripció': [t.aim, t.how, t.notes].filter(Boolean).join(' · '), 'Pacient': '' };
     }
     if (t.kind === 'plan') {
       const p = t.patientId && typeof Store !== 'undefined' && Store.get ? Store.get('patients', t.patientId) : null;
       return { 'Nom': t.name || '', 'Tipus': 'Pla', 'Bloc': '', 'Exercicis': `${(t.sessions || []).length} sessions`,
-        'Descripció': [t.goal, t.start && `Inici ${t.start}`].filter(Boolean).join(' · '), 'Client': p ? U.fullName(p) : '' };
+        'Descripció': [t.goal, t.start && `Inici ${t.start}`].filter(Boolean).join(' · '), 'Pacient': p ? U.fullName(p) : '' };
     }
     return { 'Nom': t.name || '', 'Tipus': t.kind === 'session' ? 'Sessió' : 'Bloc', 'Bloc': t.kind === 'block' ? blockName(t.block) : '', 'Exercicis': items,
-      'Descripció': t.desc || t.goal || '', 'Client': '' };
+      'Descripció': t.desc || t.goal || '', 'Pacient': '' };
   },
 };
 

@@ -600,7 +600,7 @@ function ThumbEditor({ f, setF }) {
         ${yt && yt.kind === 'youtube' && !f.photo && f.pic && html`<${Btn} size="sm" variant="ghost" icon="video" onClick=${() => setF({ ...f, pic: '' })}>Imatge del vídeo</${Btn}>`}
         ${f.photo && html`<${Btn} size="sm" variant="ghost" icon="x" onClick=${() => setF({ ...f, photo: '' })}>Treu la foto</${Btn}>`}
       </div>
-      <p class="muted small">La foto, d'un entrenador fent l'exercici (mai d'un client). Si l'exercici té un vídeo de YouTube, la miniatura és la imatge del vídeo; si no, el dibuix.</p>
+      <p class="muted small">La foto, d'un entrenador fent l'exercici (mai d'un pacient). Si l'exercici té un vídeo de YouTube, la miniatura és la imatge del vídeo; si no, el dibuix.</p>
       <input ref=${fileRef} type="file" accept="image/*" hidden onChange=${onFile} aria-label="Foto de l'exercici" />
     </div>
   </div>`;

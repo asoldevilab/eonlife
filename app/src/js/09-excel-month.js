@@ -217,7 +217,7 @@ const ExcelMonth = (() => {
       if (it.done) nameRuns.push(['✔ ', { b: true, color: '3D6B2E', sz: 9 }]);
       nameRuns.push([it.name, { b: true, sz: 9, ...(url ? { color: XL_C.LINK, u: true } : {}) }]);
       ws.merge(r, C(5), r, C(8), { rich: nameRuns }, cell);
-      if (url) ws.link(r, C(5), url, vid ? 'Vídeo del client' : 'Vídeo de demostració');
+      if (url) ws.link(r, C(5), url, vid ? 'Vídeo del pacient' : 'Vídeo de demostració');
       ws.merge(r, C(9), r, C(10), xlStr(it.material), cell);
       ws.set(r, C(11), Calc.load(it.load) || xlStr(it.load), cell);
       ws.set(r, C(12), xlNumOrText(it.sets), cell);

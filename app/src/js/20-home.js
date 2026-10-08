@@ -39,15 +39,15 @@ function HomeView() {
         <h1 class="h1">${greeting()}</h1>
       </div>
       <div class="page-actions">
-        <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Afegeix mesures</${Btn}>
-        <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou client</${Btn}>
+        <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Nou test</${Btn}>
+        <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou pacient</${Btn}>
       </div>
     </header>
 
     ${Store.meta.demo && html`<${DemoBanner} />`}
 
     <section class="stats">
-      <${Stat} icon="users" label="Clients actius" value=${active.length} sub=${`${patients.length} en total`} />
+      <${Stat} icon="users" label="Pacients actius" value=${active.length} sub=${`${patients.length} en total`} />
       <${Stat} icon="calendar" label="Sessions d'avui" value=${todays.length} sub=${todays.length ? `${todays.filter((s) => s.status === 'feta').length} fetes` : 'Cap sessió planificada'} />
       <${Stat} icon="dumbbell" label="Aquesta setmana" value=${week.filter((s) => s.status === 'feta').length} unit=${`/ ${week.length}`} sub="sessions fetes / planificades" />
       <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && x.r.days <= 0) ? 'warn' : ''} />
@@ -57,7 +57,7 @@ function HomeView() {
       <section class="card">
         <div class="card-head"><h2 class="h2">Sessions d'avui</h2></div>
         ${todays.length ? html`<div class="slist">${todays.map((s) => html`<${SessionRow} s=${s} showPatient=${true} />`)}</div>`
-          : html`<${Empty} icon="calendar" title="Avui no hi ha cap sessió" text="Crea una sessió des de la fitxa del client." />`}
+          : html`<${Empty} icon="calendar" title="Avui no hi ha cap sessió" text="Crea una sessió des de la fitxa del pacient." />`}
         ${upcoming.length > 0 && html`<h3 class="h3 mt">Propers 7 dies</h3>
           <div class="slist">${upcoming.slice(0, 8).map((s) => html`<${SessionRow} s=${s} showPatient=${true} compact=${true} />`)}</div>`}
       </section>
@@ -75,20 +75,20 @@ function HomeView() {
 
     <section class="card">
       <div class="card-head">
-        <h2 class="h2">Clients</h2>
-        <span class="muted">${U.plural(list.length, 'client', 'clients')}</span>
+        <h2 class="h2">Pacients</h2>
+        <span class="muted">${U.plural(list.length, 'pacient', 'pacients')}</span>
       </div>
       <div class="filters">
         <label class="search"><${Icon} name="search" size=${17} />
-          <input class="input" type="search" placeholder="Cerca per nom…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca clients" />
+          <input class="input" type="search" placeholder="Cerca per nom…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca pacients" />
         </label>
         <${Select} value=${fStatus} onValue=${setFStatus} placeholder="Tots els estats" options=${OPT.status} ariaLabel="Estat" />
-        <${Select} value=${fService} onValue=${setFService} placeholder="Tots els serveis" options=${OPT.services} ariaLabel="Servei" />
+        <${Select} value=${fService} onValue=${setFService} placeholder="Tots els tipus" options=${OPT.services} ariaLabel="Tipus de pacient" />
         <${Select} value=${fProf} onValue=${setFProf} placeholder="Tots els professionals" options=${Store.professionals()} ariaLabel="Professional" />
       </div>
       ${list.length ? html`<div class="clist">${list.map((p) => html`<${ClientRow} p=${p} sessions=${byPatient[p.id] || []} />`)}</div>`
-        : html`<${Empty} icon="users" title=${patients.length ? 'Cap client coincideix amb la cerca' : 'Encara no hi ha clients'} text=${patients.length ? 'Prova amb uns altres filtres.' : 'Crea el primer client per començar.'}>
-          ${!patients.length && html`<${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou client</${Btn}>`}
+        : html`<${Empty} icon="users" title=${patients.length ? 'Cap pacient coincideix amb la cerca' : 'Encara no hi ha pacients'} text=${patients.length ? 'Prova amb uns altres filtres.' : 'Crea el primer pacient per començar.'}>
+          ${!patients.length && html`<${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou pacient</${Btn}>`}
         </${Empty}>`}
     </section>
   </div>`;
@@ -106,7 +106,7 @@ function ClientRow({ p, sessions }) {
       <span class="crow-name">${U.fullName(p)}</span>
       <span class="crow-meta">${[age != null && `${age} anys`, p.professional].filter(Boolean).join(' · ')}</span>
     </span>
-    <span class="crow-profile"><${Pill} tone=${p.service === 'membership' ? 'brand' : 'neutral'}>${(OPT.services.find((o) => o.v === p.service) || {}).label || 'Sense servei'}</${Pill}></span>
+    <span class="crow-profile"><${Pill} tone=${p.service === 'membership' ? 'brand' : p.service === 'bo' ? 'warn' : 'neutral'}>${(OPT.services.find((o) => o.v === p.service) || {}).label || 'Sense servei'}</${Pill}></span>
     <span class="crow-col"><span class="crow-k">Última sessió</span><span>${done ? U.since(done.date) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Propera</span><span>${next ? (next.date === today ? 'Avui' : U.fmtDateShort(next.date)) : '—'}</span></span>
     <span class="crow-col"><span class="crow-k">Valoració</span><span>${last ? U.fmtDateShort(last.date) : html`<span class="warn-text">Pendent</span>`}</span></span>
@@ -117,7 +117,7 @@ function ClientRow({ p, sessions }) {
 function DemoBanner() {
   return html`<div class="banner">
     <${Icon} name="info" />
-    <div><strong>${IS_ARTIFACT ? 'Enllaç de prova amb clients ficticis.' : 'Mode de prova amb clients ficticis.'}</strong> Les dades es guarden només en aquest ${IS_ARTIFACT ? 'dispositiu' : 'navegador'}. Quan l'app estigui connectada al Microsoft 365 de la clínica, tot es desarà a l'Excel de la carpeta compartida.</div>
+    <div><strong>${IS_ARTIFACT ? 'Enllaç de prova amb pacients ficticis.' : 'Mode de prova amb pacients ficticis.'}</strong> Les dades es guarden només en aquest ${IS_ARTIFACT ? 'dispositiu' : 'navegador'}. Quan l'app estigui connectada al Microsoft 365 de la clínica, tot es desarà a l'Excel de la carpeta compartida.</div>
     <${Btn} size="sm" variant="ghost" onClick=${() => go('configuracio')}>Configuració</${Btn}>
   </div>`;
 }

@@ -38,7 +38,7 @@ function SessionRow({ s, showPatient, compact }) {
     </button>
     <div class="srow-actions">
       ${statusPill(s)}
-      <${Btn} variant="ghost" icon="play" title="Presenta la sessió al client" onClick=${() => go('fitxa', s.id)} />
+      <${Btn} variant="ghost" icon="play" title="Presenta la sessió al pacient" onClick=${() => go('fitxa', s.id)} />
     </div>
   </div>`;
 }
@@ -59,24 +59,24 @@ function NewPatientDialog({ onClose }) {
   const [f, setF] = useState({ firstName: '', lastName: '', service: 'valoracio', professional: Store.professionals()[0] || '', birthDate: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
-    if (!f.firstName.trim()) { UI.toast('Escriu el nom del client.', 'bad'); return; }
+    if (!f.firstName.trim()) { UI.toast('Escriu el nom del pacient.', 'bad'); return; }
     const p = Store.newPatient({ ...f, firstName: f.firstName.trim(), lastName: f.lastName.trim() });
     onClose();
     if (Store.cloud()) ensureFolder(p);
     go('client', p.id, 'fitxa');
   };
-  return html`<${Dialog} title="Nou client" onClose=${onClose} footer=${html`
+  return html`<${Dialog} title="Nou pacient" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="plus" onClick=${create}>Crea el client</${Btn}>`}>
+    <${Btn} variant="primary" icon="plus" onClick=${create}>Crea el pacient</${Btn}>`}>
     <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); create(); }}>
+      <${Field} label="Tipus de pacient" id="np-service" wide=${true} hint=${(OPT.services.find((o) => o.v === f.service) || {}).desc}>
+        <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Tipus de pacient" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
+      </${Field}>
       <${Field} label="Nom" id="np-first"><${TextInput} id="np-first" value=${f.firstName} onValue=${set('firstName')} autoFocus=${true} /></${Field}>
       <${Field} label="Cognoms" id="np-last"><${TextInput} id="np-last" value=${f.lastName} onValue=${set('lastName')} /></${Field}>
       <${Field} label="Data de naixement" id="np-birth"><${TextInput} id="np-birth" type="date" value=${f.birthDate} onValue=${set('birthDate')} /></${Field}>
       <${Field} label="Professional de referència" id="np-prof">
         <${ProfSelect} id="np-prof" value=${f.professional} onValue=${set('professional')} />
-      </${Field}>
-      <${Field} label="Servei" id="np-service" wide=${true}>
-        <${Seg} value=${f.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
@@ -95,7 +95,7 @@ async function ensureFolder(p, { silent } = {}) {
     const res = await Store.backend.ensureFolder(p);
     if (res && res.folderUrl) {
       Store.update('patients', p.id, (x) => { x.folderUrl = res.folderUrl; x.folderId = res.folderId; });
-      if (!silent) UI.toast(`Carpeta del client creada a ${Store.cloudName()}.`);
+      if (!silent) UI.toast(`Carpeta del pacient creada a ${Store.cloudName()}.`);
     }
     return res;
   } catch (e) {
@@ -138,7 +138,7 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
     const res = await ensureFolder(Store.get('patients', patient.id) || patient, { silent: true });
     fid = (res && res.folderId) || '';
   }
-  if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+  if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
   const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
   const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
@@ -192,7 +192,7 @@ function NewSessionDialog({ pid, date, onClose }) {
             options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
         </div>`)}
       ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
-      ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el client (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
+      ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el pacient (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
       ${option('template', 'A partir d\'una plantilla', 'Els blocs i els exercicis d\'una sessió tipus.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}
     </div>
@@ -238,7 +238,7 @@ function WellnessCard({ value, onSet, id }) {
     </div>`)}</div>
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
-        placeholder="El que el client us comenti o el que observeu (son, feina, molèsties, viatges…)" />
+        placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />
     </${Field}>
   </section>`;
 }

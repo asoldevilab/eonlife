@@ -1,9 +1,9 @@
 /* EON Life · dades: magatzem en memòria + desament automàtic.
    Tres modes:
    · Google        → quan l'app s'obre des de Google Apps Script: les dades van al full de càlcul del centre
-                     (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del client.
+                     (una fila per registre, amb columnes llegibles) i els vídeos/PDF a la carpeta Drive del pacient.
    · Microsoft 365 → quan s'obre la versió publicada per al centre (09-m365.js): les dades van a l'Excel de la
-                     carpeta compartida de OneDrive/SharePoint i els vídeos a la carpeta de cada client.
+                     carpeta compartida de OneDrive/SharePoint i els vídeos a la carpeta de cada pacient.
    · Local         → quan s'obre el fitxer directament: les dades es guarden en aquest navegador (mode prova). */
 
 const KINDS = ['patients', 'assessments', 'sessions', 'exercises', 'templates'];
@@ -113,7 +113,7 @@ function removeDemoClients(db) {
 
 // Les dades de prova d'abans portaven professionals ficticis: es canvien pels de l'equip.
 function migrateDemo(db) {
-  const rename = { 'Pau Roca': 'Arnau', 'Marta Soler': 'Richy' };
+  const rename = { 'Pau Roca': 'Arnau', 'Marta Soler': 'Ricardo Villamizar' };
   for (const k of ['patients', 'assessments', 'sessions']) {
     for (const r of Object.values(db[k] || {})) if (rename[r.professional]) r.professional = rename[r.professional];
   }
@@ -180,13 +180,29 @@ const Store = {
       this.settings.blocks = BLOCKS.map((b) => ({ key: b.key, name: b.name, desc: b.desc, ...((this.settings.blocks || []).find((x) => x.key === b.key) || {}) }));
       this.ready = true;
       this.replayOutbox();
+      this.renameProfessionals();
       if (typeof Sync !== 'undefined') Sync.resume();
-      if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els clients de prova. Ja podeu afegir els vostres.'), 400);
+      if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els pacients de prova. Ja podeu afegir els vostres.'), 400);
     } catch (err) {
       this.error = err.message || String(err);
       this.errorCode = err.code || '';
     }
     this.emit();
+  },
+
+  // Noms de l'equip que han canviat (PROFESSIONAL_RENAMES, a 02-catalog.js): es canvien a les fitxes, valoracions, sessions
+  // i plans ja desats, i a la llista de Configuració. Un sol cop: després ja no queda cap registre amb el nom antic.
+  renameProfessionals() {
+    const map = PROFESSIONAL_RENAMES;
+    for (const k of ['patients', 'assessments', 'sessions', 'templates']) {
+      for (const r of Object.values(this.data[k] || {})) {
+        if (r && map[r.professional]) this.put(k, { ...r, professional: map[r.professional] });
+      }
+    }
+    const list = this.settings.professionals;
+    if (Array.isArray(list) && list.some((n) => map[n])) {
+      this.saveSettings({ professionals: [...new Set(list.map((n) => map[n] || n))] });
+    }
   },
 
   // Canvis que no s'havien pogut desar (sense connexió, sessió caducada, pàgina tancada): es tornen a enviar.

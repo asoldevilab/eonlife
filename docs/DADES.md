@@ -8,7 +8,7 @@ Les dues versions fan servir la mateixa estructura. A Microsoft 365 és l'Excel
 
 | Pestanya | Una fila per… | Columnes llegibles |
 |---|---|---|
-| `Pacients` | client | Nom, cognoms, servei (valoració inicial / seguiment membership), professional, estat, objectiu, antecedents, dates IQ i lesió, carpeta del client, alçada, pes, dominància, nivell d'activitat, esport, professió, disponibilitat, condicions de salut, limitacions per entrenar, medicació, contacte d'emergència… |
+| `Pacients` | client | Nom, cognoms, tipus de pacient (valoració inicial / membership / bo puntual), professional, estat, objectiu, antecedents, dates IQ i lesió, carpeta del pacient, comentaris del professional, alçada, pes, dominància, nivell d'activitat, esport, professió, disponibilitat, condicions de salut, limitacions per entrenar, medicació, contacte d'emergència… |
 | `Valoracions` | valoració | Una columna per test i costat (`ROM RI maluc D (°)`, `Knee-to-wall E (cm)`, `Força quàdriceps D (N/kg)`, `YBT composite D (%)`, `CMJ millor altura (cm)`, `Squat (puntuació)`…), punts d'atenció i conclusions |
 | `Sessions` | sessió | Data, setmana, nº, professional, objectiu, pla i nº de sessió del pla, son/energia/dolor, RPE, minuts, **càrrega (UA)**, observacions, decisió i un resum de cada bloc (focus, mètode i exercicis) |
 | `Registre_exercicis` | exercici de cada sessió | Bloc, subbloc (Bloc 1, Bloc 2…), ordre (4.2), exercici, grup muscular, contracció, posició, lateralitat, material, sèries, reps, càrrega, intensitat, descans, fet i, si s'ha fet servir, l'encoder ADR (V 1a rep, pèrdua de velocitat, potència) i ADR Jumping (altura del salt) |

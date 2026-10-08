@@ -88,7 +88,7 @@ test('desa, actualitza i torna a llegir registres sense duplicar files', async (
   assert.equal(rows[0].Cognoms, 'Puig Serra');
   assert.equal(rows[0].updated_by, 'laura@eonlife.test');
   assert.equal(rows[0]['Telèfon'], '+34 600 11 22 33', 'el + inicial no es converteix en fórmula');
-  assert.equal(rows[0].Notes, '=HYPERLINK("http://x","clic")', 'les fórmules queden com a text');
+  assert.equal(rows[0]['Comentaris del professional'], '=HYPERLINK("http://x","clic")', 'les fórmules queden com a text');
   const recs = await a.bootstrap();
   assert.equal(recs.patients.length, 1);
   assert.equal(recs.patients[0].lastName, 'Puig Serra');
@@ -304,4 +304,34 @@ test('pla d\'entrenament llarg: es reparteix en més cel·les i es torna a llegi
   const back = (await a.bootstrap()).templates.find((x) => x.id === 'PL-1');
   assert.equal(back.sessions.length, 8);
   assert.equal(JSON.stringify(back.sessions), JSON.stringify(plan.sessions));
+});
+
+test('base de dades d\'abans: les columnes «Client», «Carpeta del client» i «Notes» es reanomenen (no se\'n fan de noves)', async () => {
+  const { core, mock, shared, api } = setup();
+  const a = await api();
+  const { Flat } = core;
+  // Una base de dades feta amb la plantilla d'abans: les capçaleres amb els noms vells
+  const { ExcelDb, Xlsx } = { ...core.M365, Xlsx: core.Xlsx };
+  const lay0 = await a.db.layout('Pacients');
+  for (const [now, before] of [['Carpeta del pacient', 'Carpeta del client'], ['Comentaris del professional', 'Notes']]) {
+    const i = lay0.headers.indexOf(now);
+    if (i >= 0) await a.db.call('PATCH', ExcelDb.rangePath('Pacients', `${Xlsx.colName(lay0.startCol + i)}${lay0.headerRow}`), { body: { values: [[before]] } });
+  }
+  const p = { id: 'P-OLD', firstName: 'Laura', lastName: 'Puig', folderUrl: 'https://x.sharepoint.com/c', notes: 'Li costa dormir' };
+  // Com ho desava la versió anterior
+  const old = { ...Flat.patient(p) };
+  old['Carpeta del client'] = old['Carpeta del pacient']; delete old['Carpeta del pacient'];
+  old.Notes = old['Comentaris del professional']; delete old['Comentaris del professional'];
+  await a.db.upsert('patients', p, old, null, a.user);
+  const head0 = Object.keys(wbRows(mock, shared, 'tPacients')[0]);
+  assert.ok(head0.includes('Carpeta del client') && head0.includes('Notes'));
+  // La versió nova
+  await a.db.upsert('patients', { ...p, notes: 'Dorm millor' }, Flat.patient({ ...p, notes: 'Dorm millor' }), null, a.user);
+  const rows = wbRows(mock, shared, 'tPacients').filter((r) => r.id);
+  const head = Object.keys(rows[0]);
+  assert.ok(!head.includes('Carpeta del client') && !head.includes('Notes'), 'les capçaleres d\'abans ja no hi són');
+  assert.equal(head.indexOf('Carpeta del pacient'), head0.indexOf('Carpeta del client'), 'mateixa columna');
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0]['Comentaris del professional'], 'Dorm millor');
+  assert.equal(rows[0]['Carpeta del pacient'], 'https://x.sharepoint.com/c');
 });

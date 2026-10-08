@@ -153,7 +153,7 @@ function upsert_(kind, record, flat, log) {
 
 // Crea (o recupera) la carpeta de Drive del client amb les subcarpetes.
 function ensureFolder_(p) {
-  if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new Error('Client sense identificador vàlid.');
+  if (!p.id || !/^[A-Za-z0-9_-]{1,80}$/.test(String(p.id))) throw new Error('Pacient sense identificador vàlid.');
   if (p.folderId) {
     try {
       var existing = DriveApp.getFolderById(p.folderId);

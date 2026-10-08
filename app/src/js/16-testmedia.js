@@ -1,7 +1,7 @@
 /* EON Life · fotos i vídeos per costat dels tests de la valoració.
    - Fotos: els tests que es documenten amb una foto i no amb vídeo (test de Thomas, dreta i esquerra; flexió de tronc).
    - Vídeos per costat: el single leg squat, amb un vídeo de la dreta i un de l'esquerra.
-   Es fan amb la càmera de la tauleta o es trien de la galeria. Amb Microsoft 365 van a la carpeta del client (fotos a
+   Es fan amb la càmera de la tauleta o es trien de la galeria. Amb Microsoft 365 van a la carpeta del pacient (fotos a
    «Valoracions», vídeos a «Valoracions › Vídeos valoracions»); a la versió local, a la mateixa tauleta. Al registre hi queda l'enllaç. */
 
 // Foto més lleugera abans de desar-la: costat llarg de 1600 px en JPEG. L'<img> ja la gira segons l'EXIF de la càmera.
@@ -102,7 +102,7 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
       const res = await uploadToClient(patient, file, { label: title, date, where: 'assessVideos', onProgress: (pct) => setUp(pct) });
       if (!res.url) throw new Error('No s\'ha pogut desar el vídeo.');
       onChange(res.url);
-      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el pacient'}.`);
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
@@ -122,7 +122,7 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
               <${Btn} size="sm" variant=${has ? 'ghost' : 'primary'} icon="video" title=${has ? 'Torna a gravar el vídeo' : 'Grava el vídeo amb la càmera'}
                 onClick=${() => recRef.current && recRef.current.click()}>${has ? '' : 'Grava'}</${Btn}>
               <${Btn} size="sm" variant="ghost" icon="upload" title="Tria un vídeo de la galeria" onClick=${() => galRef.current && galRef.current.click()}>${has ? '' : 'Tria\'n un'}</${Btn}>`}
-            <${Btn} size="sm" variant="ghost" icon="link" title="Enllaç al vídeo (carpeta del client, YouTube…)"
+            <${Btn} size="sm" variant="ghost" icon="link" title="Enllaç al vídeo (carpeta del pacient, YouTube…)"
               onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where: 'assessVideos' })}>${can ? '' : 'Enllaç'}</${Btn}>
           </div>`}
     </div>
@@ -145,14 +145,14 @@ function PhotoSlot({ url, label, title, patient, date, onChange }) {
       if (!res.url) throw new Error('No s\'ha pogut desar la foto.');
       PhotoSrc.set(res.url, URL.createObjectURL(photo));
       onChange(res.url);
-      UI.toast(filesOnDevice() ? 'Foto desada a la tauleta.' : `Foto desada a la carpeta de ${patient.firstName || 'el client'}.`);
+      UI.toast(filesOnDevice() ? 'Foto desada a la tauleta.' : `Foto desada a la carpeta de ${patient.firstName || 'el pacient'}.`);
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
     setBusy(false);
   };
   const remove = async () => {
-    if (await UI.confirm({ title: 'Treure la foto?', text: 'Es treu de la valoració. Si és a la carpeta del client, el fitxer s\'hi queda.', ok: 'Treu-la', danger: true })) onChange('');
+    if (await UI.confirm({ title: 'Treure la foto?', text: 'Es treu de la valoració. Si és a la carpeta del pacient, el fitxer s\'hi queda.', ok: 'Treu-la', danger: true })) onChange('');
   };
   return html`<div class=${U.cls('tphoto', url && 'has')}>
     <button type="button" class="tphoto-img" disabled=${!url} onClick=${() => openPhoto(url, src, title)}

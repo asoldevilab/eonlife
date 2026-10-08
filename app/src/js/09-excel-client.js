@@ -36,7 +36,7 @@ const ExcelClient = (() => {
   function build({ patient: p, items, plans, assessments, settings, today }) {
     const rows = items.map((s) => rowOf(s, today, settings));
     const months = monthsOf(items, today);
-    const doc = XlsxDoc.create({ title: `Seguiment · ${U.fullName(p)}`, subject: 'Seguiment del client: sessions i valoracions', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
+    const doc = XlsxDoc.create({ title: `Seguiment · ${U.fullName(p)}`, subject: 'Seguiment del pacient: sessions i valoracions', creator: 'EON Life', company: (settings && settings.centerName) || 'EON Life' });
     const wsRes = doc.sheet('Resum', { grid: false, landscape: true, tab: XL_C.BRAND, zoom: 100 });
     // Valoracions: l'evolució i, al final del llibre, el detall de cadascuna.
     const taken = new Set(['resum', 'valoracions', REG.toLowerCase(), ...months.map((m) => ExcelMonth.sheetName(m).toLowerCase())]);
@@ -60,7 +60,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor', 7], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -101,7 +101,7 @@ const ExcelClient = (() => {
   function summarySheet(ws, { p, rows, plans, assessments, settings, today, R, aNames, monthSheets }) {
     ws.cols([30, 17, 17, 17, 17, 17, 17]);
     const service = (OPT.services.find((o) => o.v === p.service) || {}).label || '';
-    let r = xlTitle(ws, `Seguiment · ${U.fullName(p)}`, [service, p.professional, p.startDate ? `client des del ${U.fmtDate(p.startDate)}` : ''].filter(Boolean).join(' · '), RC);
+    let r = xlTitle(ws, `Seguiment · ${U.fullName(p)}`, [service, p.professional, p.startDate ? `pacient des del ${U.fmtDate(p.startDate)}` : ''].filter(Boolean).join(' · '), RC);
 
     // Targetes (fórmules sobre el registre)
     const done = rows.filter((x) => x.state.key === 'feta');
@@ -126,7 +126,7 @@ const ExcelClient = (() => {
     ws.rowH(r + 1, 36);
     r += 3;
 
-    r = xlSection(ws, r, 'Perfil del client', RC);
+    r = xlSection(ws, r, 'Perfil del pacient', RC);
     const body = Calc.body(p, assessments);
     const age = U.age(p.birthDate);
     const level = (OPT.activityLevels.find((o) => o.v === p.activityLevel) || {}).label || '';
@@ -143,7 +143,7 @@ const ExcelClient = (() => {
       ['Professió', xlStr(p.occupation)],
       ['Disponibilitat', xlStr(p.availability)],
       ['Dominància', (OPT.dominance.find((o) => o.v === p.dominance) || {}).label || ''],
-      ['Observacions de l\'equip', xlStr(p.notes)],
+      // (els comentaris del professional no hi van: la carpeta es pot compartir amb el pacient)
     ], RC) + 1;
 
     // Dates clau (dies des de la data, en viu)
@@ -239,7 +239,7 @@ const ExcelClient = (() => {
     // Informes mèdics i altres documents del client (PDF a la carpeta «Valoracions»)
     const docs = (p.docs || []).filter((f) => f && f.url);
     if (docs.length) {
-      r = xlSection(ws, r, 'Informes i documents del client (carpeta «Valoracions»)', RC);
+      r = xlSection(ws, r, 'Informes i documents del pacient (carpeta «Valoracions»)', RC);
       r = xlHeader(ws, r, [['Fitxer', 4], 'Data', ['Enllaç', 2]]);
       for (const f of docs) {
         ws.merge(r, 1, r, 4, xlStr(f.name), XS.text);
@@ -258,7 +258,7 @@ const ExcelClient = (() => {
       ['Un full per mes', `«${lastMonth}» i els altres: a dalt, el calendari de cada setmana amb l'objectiu, l'RPE, el temps, la càrrega, el wellness i el dolor de cada dia; a sota, cada sessió sencera amb els exercicis de cada bloc (GM, contracció, posició, lateralitat, exercici, material, càrrega, sèries, repeticions i observacions). Verd = feta, beix = planificada, taronja = sense tancar, gris = prevista al pla o descans. Clica la data d'un dia per anar a la sessió.`],
       ['Valoracions', 'Totes les valoracions l\'una al costat de l\'altra, amb el canvi entre les dues últimes; i, al final del llibre, una pestanya per valoració amb tot el detall, les fotos, els vídeos i els informes.'],
       ['Registre', 'Una fila per sessió, per filtrar i ordenar (o fer taules dinàmiques).'],
-      ['Fotos, vídeos i PDF', 'Són a les carpetes «Valoracions» i «Sessions» del client; des d\'aquí s\'obren amb els enllaços.'],
+      ['Fotos, vídeos i PDF', 'Són a les carpetes «Valoracions» i «Sessions» del pacient; des d\'aquí s\'obren amb els enllaços.'],
     ];
     r = xlKv(ws, r, guide, RC);
     return r;

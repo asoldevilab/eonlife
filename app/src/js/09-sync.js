@@ -1,10 +1,10 @@
 /* EON Life · sincronització de l'Excel del client amb la seva carpeta (Microsoft 365).
-   Cada cop que es canvia alguna cosa d'un client (dades, valoració, sessió o pla) es deixa un avís a una cua que
-   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer l'Excel d'aquell client
+   Cada cop que es canvia alguna cosa d'un pacient (dades, valoració, sessió o pla) es deixa un avís a una cua que
+   sobreviu al tancament de l'app. Passats uns segons sense més canvis, l'app torna a fer l'Excel d'aquell pacient
    (seguiment_<client>_01.xlsx, a l'arrel de la seva carpeta: un full per mes amb les sessions i les valoracions) i
    només el puja si ha canviat (substituint el fitxer anterior, sense còpies repetides).
    Els Excel antics fets per l'app que ja no toquen (els d'abans de l'Excel únic, a «Sessions» i «Valoracions», o el
-   d'un client reanomenat) es treuen de la carpeta (queden a la paperera de reciclatge). Mai es toca cap altre fitxer:
+   d'un pacient reanomenat) es treuen de la carpeta (queden a la paperera de reciclatge). Mai es toca cap altre fitxer:
    només els que tenen el nom d'un Excel fet per l'app. */
 
 const SYNC_KEYS = { queue: 'eonlife:sync:queue', hashes: 'eonlife:sync:hashes', done: 'eonlife:sync:done', day: 'eonlife:sync:day', format: 'eonlife:sync:format' };
@@ -92,7 +92,7 @@ const Sync = (() => {
     // La carpeta del client: si no n'hi ha, es crea; si algú l'ha esborrat o canviat de lloc, es torna a trobar o a fer.
     const folder = await b.ensureFolder(d.patient);
     const fid = folder && folder.folderId;
-    if (!fid) throw new Error('No s\'ha pogut crear la carpeta del client.');
+    if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
     if (fid !== d.patient.folderId || folder.folderUrl !== d.patient.folderUrl) {
       own = true; // desar la carpeta a la fitxa no ha de posar el client altre cop a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
@@ -226,7 +226,7 @@ const Sync = (() => {
     // Puja ara mateix els Excel d'un client (botó «Sincronitza ara»). Retorna { uploaded, kept, removed }.
     async now(pid, { force = false } = {}) {
       if (!available()) throw new Error('Aquesta versió no té carpeta al núvol.');
-      if (running) throw new Error('Ja s\'està pujant un altre client. Torna-ho a provar d\'aquí a un moment.');
+      if (running) throw new Error('Ja s\'està pujant un altre pacient. Torna-ho a provar d\'aquí a un moment.');
       running = pid;
       emit();
       try {
@@ -295,7 +295,7 @@ const Exports = {
   // L'Excel del client: { name, bytes }
   async file(pid, key = 'C:client') {
     const d = ExcelSet.data(pid);
-    if (!d) throw new Error('No trobo aquest client.');
+    if (!d) throw new Error('No trobo aquest pacient.');
     const f = ExcelSet.plan(d).find((x) => x.key === key);
     if (!f) throw new Error('No trobo aquest fitxer.');
     const { bytes } = await f.make({}).build({ stamp: xlStampText() });

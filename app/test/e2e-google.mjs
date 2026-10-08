@@ -59,20 +59,20 @@ let pid = null;
 {
   const { ctx, page } = await openApp();
   await step('mode Google sense dades', async () => {
-    await page.waitForSelector('text=Encara no hi ha clients');
+    await page.waitForSelector('text=Encara no hi ha pacients');
     await page.waitForSelector('.sidebar-mode >> text=Google Sheets');
   });
   await step('nou client → fila al full i carpeta a Drive', async () => {
-    await page.click('.page-actions >> text=Nou client');
+    await page.click('.page-actions >> text=Nou pacient');
     await page.fill('#np-first', 'Marta');
     await page.fill('#np-last', 'Riera');
-    await page.click('.dialog-foot >> text=Crea el client');
+    await page.click('.dialog-foot >> text=Crea el pacient');
     await page.waitForSelector('text=Dades personals');
     await page.waitForSelector('.phead-actions >> text=Carpeta');
     await waitSaved(page);
     const rows = sheetRows('Pacients');
     if (rows.length !== 1) throw new Error(`files: ${rows.length}`);
-    if (rows[0].Nom !== 'Marta' || !String(rows[0]['Carpeta del client']).includes('drive.google.com')) throw new Error(JSON.stringify(rows[0]).slice(0, 200));
+    if (rows[0].Nom !== 'Marta' || !String(rows[0]['Carpeta del pacient']).includes('drive.google.com')) throw new Error(JSON.stringify(rows[0]).slice(0, 200));
     pid = rows[0].id;
     const folder = env.myDrive.folders[0].folders[0];
     if (!folder || folder.getName() !== `Riera, Marta · ${pid}`) throw new Error('carpeta no creada');

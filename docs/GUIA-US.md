@@ -31,18 +31,23 @@ Y-Balance · Salts (My Jump) · Assault bike · Patrons · Sessions · Registre 
   filtrar-lo o descarregar-lo; les dades s'omplen i es corregeixen sempre des de l'app (si es
   canvia una cel·la directament al full, l'app no la veu i es perd la pròxima vegada que es desi aquell registre).
 
-També es pot començar des de **Afegeix mesures** (menú lateral i inici) o des de la fitxa de cada
-client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / Patrons**.
+També es pot començar des de **Nou test** (menú lateral i inici) o des de la fitxa de cada
+pacient: botó **Nou test** de la capçalera (ja amb el pacient triat) o **Resum › Nou test › Mobilitat / Dinamometria /
+Y-Balance / Salts / Patrons**.
 
-## Clients
+## Pacients
 
 - **Inici** mostra les sessions d'avui i dels propers 7 dies, els re-tests pendents
-  (cada 3 mesos) i la llista de clients amb filtres per estat, servei i professional.
-- **Nou client**: nom, cognoms, servei i professional. Amb Microsoft 365 o Google es crea automàticament
-  la carpeta del client (amb *Valoracions* i *Sessions*, i dins de cadascuna la carpeta dels seus vídeos).
-- **Servei**: *Valoració inicial* o *Seguiment membership*. Surt a la capçalera de la fitxa, al filtre de l'inici
+  (cada 3 mesos) i la llista de pacients amb filtres per estat, tipus de pacient i professional.
+- **Nou pacient**: primer el **tipus de pacient**, després nom, cognoms i professional. Amb Microsoft 365 o Google es
+  crea automàticament la carpeta del pacient (amb *Valoracions* i *Sessions*, i dins de cadascuna la carpeta dels seus vídeos).
+- **Tipus de pacient**: *Valoració inicial*, *Membership* (entrenament continuat amb quota) o *Bo (pacient puntual)*
+  (ha comprat un entrenament o un bo de sessions). Surt a la capçalera de la fitxa, al filtre de l'inici
   i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
-- **Professional de referència**: Richy, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
+- **Professional de referència**: Ricardo Villamizar, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
+- **Comentaris del professional**: el primer quadre de la pestanya *Fitxa*, per anar-hi escrivint mentre parles amb el
+  pacient a la primera trobada. Només els veu l'equip a l'app (i a la base de dades): **no surten mai** a l'informe, al
+  PDF ni a l'Excel de la carpeta del pacient (aquesta carpeta es pot compartir amb ell).
 - **Dates clau**: data de la intervenció (IQ) i de la lesió. A la capçalera es veuen els dies i
   setmanes que han passat (com el full *DB* de l'Excel mensual).
 - **Fitxa del client** (pestanya *Fitxa*), a més de les dades personals i el contacte d'emergència:
@@ -51,7 +56,6 @@ client: **Registrar mesures › Mobilitat / Dinamometria / Y-Balance / Salts / P
     recent també s'actualitzen aquí.
   - **Salut, lesions i precaucions**: limitacions i precaucions per entrenar, condicions de salut, antecedents i
     lesions i medicació rellevant. Només el que cal per entrenar: la informació clínica completa és a Nubimed.
-  - **Observacions**: només per a l'equip; no surten als informes.
 - **Resum**: a dalt de tot hi ha el **Perfil del client**: edat, alçada, pes, IMC, dominància i activitat; les
   limitacions per entrenar ben visibles (en groc); l'esport, la professió, la disponibilitat, la salut i les
   lesions, i les observacions.
@@ -151,7 +155,7 @@ Consells:
   del client (detall de la valoració i evolució) i a la taula *Valoracions* de la base de dades.
 - **Informe per apartat**: al costat del títol de cada apartat (Mobilitat, Força, Rendiment, Patrons) hi ha
   *Informe de …*: només aquell apartat, els seus vídeos i la comparació amb l'última vegada que es va mesurar.
-  Quan es repeteix un apartat (per exemple, els patrons al cap d'un mes), es fa amb **Afegeix mesures** i el seu
+  Quan es repeteix un apartat (per exemple, els patrons al cap d'un mes), es fa amb **Nou test** i el seu
   informe ja surt comparat amb l'anterior. A la barra de l'informe es pot canviar entre *Informe complet* i cada apartat.
 - **PDF de l'informe a la carpeta del client**: a la barra de l'informe, **Desa el PDF a la carpeta** fa el PDF (A4,
   com quan s'imprimeix, sense vídeos i amb el número de pàgina) a la mateixa app, sense passar pel diàleg d'imprimir, i
@@ -159,7 +163,7 @@ Consells:
   (`informeretest_…`, o `informeforca_…` si és l'informe d'un sol apartat). Si es torna a desar el de la mateixa
   valoració, substitueix l'anterior (no en fa còpies). Queda enllaçat a la valoració (*Informes i fitxers*) i a l'Excel
   del client, i el botó *Obre el PDF* l'obre a SharePoint. Triga uns segons (el botó diu el percentatge). A la versió
-  sense Microsoft 365, el mateix botó es diu **Descarrega el PDF**. *Imprimeix* continua servint per treure'l en paper.
+  sense Microsoft 365, el mateix botó es diu **Descarrega el PDF**. *Imprimeix* continua servint per treure'l en paper (sense la data, el títol ni l'enllaç que el navegador posava a les cantonades). La **propera valoració** surt només amb el mes i l'any (p. ex. «Gener de 2027»).
 - **Vídeos a l'informe**: a la pantalla, tots els vídeos enllaçats surten a l'informe, amb la miniatura (amb
   Microsoft 365 es reprodueixen allà mateix) i un codi QR per obrir-los des del mòbil. Al **PDF per al client** no
   hi surten (en paper només en quedaria una captura): els vídeos no s'esborren i es continuen veient a l'app i a la
@@ -330,8 +334,13 @@ Es pot posar a pantalla completa o desar en PDF.
 Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de control). També hi surten les
 sessions previstes del pla d'entrenament.
 
-- Calendari del mes amb cada sessió: número, objectiu, RPE, minuts i càrrega. Els diumenges sense
-  sessió surten com a **OFF**.
+- Calendari del mes amb cada sessió: número, objectiu i, a sota, l'**RPE** i el **dolor (EVA)** del final de la
+  sessió, per veure d'un cop d'ull si pugen o baixen. Els diumenges sense sessió surten com a **OFF**.
+- El **+** d'un dia buit dona dues opcions: **Programa la sessió sencera** (com sempre: del pla, copiant l'última,
+  d'una plantilla o en blanc) o **Només l'objectiu**, per omplir el calendari ràpid: s'escriu l'objectiu (i el pilar,
+  si vols) i surt al quadre del dia amb una vora daurada. Tocant-la es pot editar, marcar com a **Feta** amb l'RPE,
+  el dolor i la durada, o **Programa-la sencera** per afegir-hi els blocs i els exercicis. Colors: granat = feta,
+  rosa = programada amb exercicis, blanc amb vora daurada = només l'objectiu, discontínua = prevista al pla.
 - Columna **Setmana**: càrrega total, sessions fetes i RPE mitjà.
 - **Progressió de càrregues**: taula exercici × sessió amb la càrrega i les sèries × reps de cada dia.
 - **Planifica el mes**: crea d'una vegada les sessions d'un mes ja **planificades**. Tries el mes, els dies
@@ -438,7 +447,7 @@ ensenyar l'app amb clients ficticis, **Configuració › Carrega els clients de 
 
 ## Configuració
 
-- Professionals de l'equip (Richy, Arnau, Oriol Pastor), nom del centre i noms dels blocs.
+- Professionals de l'equip (Ricardo Villamizar, Arnau, Oriol Pastor), nom del centre i noms dels blocs.
 - **Material del centre**: barra olímpica, cònica isoinercial, Keiser, mancuernes Technogym, kettlebell, Skillmill,
   AlterG, leg extension, premsa, lower back bench, GHD, politja Technogym, Biostrength, abductor/adductor 700,
   Pulley Pro C2, kBox Lite, mobility ball, gomes, Flowin, bike, Skill Up, loop band i Power Personal. És el que surt

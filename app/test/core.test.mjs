@@ -112,7 +112,7 @@ test('columnes per al full de càlcul', () => {
   const flat = Flat.assessment(a, db.patients['P-DEMO-LAURA']);
   for (const x of Object.values(db.assessments)) Flat.assessment(x, db.patients[x.patientId]);
   Flat.strict = false;
-  assert.equal(flat['Client'], 'Laura Vidal Serra');
+  assert.equal(flat['Pacient'], 'Laura Vidal Serra');
   assert.equal(flat['Knee-to-wall D (cm)'], 7);
   assert.equal(flat['Knee-to-wall diferència (cm)'], -4);
   assert.equal(flat['ROM RE espatlla asimetria (%)'], 2.97);
@@ -259,17 +259,18 @@ test('professionals del centre i servei del client', () => {
   const db = makeDemoData();
   const profs = new Set(Object.values(db.patients).map((p) => p.professional));
   assert.ok(!profs.has('Pau Roca') && !profs.has('Marta Soler'));
-  assert.deepEqual(Array.from(db.settings.professionals), ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
-  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Valoració inicial', 'Seguiment membership']);
-  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Seguiment membership');
+  assert.deepEqual(Array.from(db.settings.professionals), ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
+  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Valoració inicial', 'Membership', 'Bo (pacient puntual)']);
+  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Membership');
+  assert.equal(Flat.patient({ service: 'bo' }).Servei, 'Bo (pacient puntual)');
   // Dades de prova antigues guardades a la tauleta.
   const old = { demo: true, patients: { 'P-DEMO-LAURA': { professional: 'Pau Roca' } }, assessments: {}, sessions: { s: { professional: 'Marta Soler' } },
     settings: { professionals: ['Pau Roca', 'Marta Soler'] } };
   migrateDemo(old);
   assert.equal(old.patients['P-DEMO-LAURA'].professional, 'Arnau');
   assert.equal(old.patients['P-DEMO-LAURA'].service, 'membership');
-  assert.equal(old.sessions.s.professional, 'Richy');
-  assert.deepEqual(Array.from(old.settings.professionals), ['Richy', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
+  assert.equal(old.sessions.s.professional, 'Ricardo Villamizar');
+  assert.deepEqual(Array.from(old.settings.professionals), ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
 });
 
 test('subblocs d\'un bloc: ordre, Excel i còpia a la sessió següent', () => {
@@ -665,4 +666,29 @@ test('app de les tauletes: treu els clients de prova i manté la resta; si es to
   r = await demo.LocalBackend.init();
   assert.equal(Object.keys(r.records.patients).length, 4);
   assert.equal(r.meta.demo, true);
+});
+
+test('Richy passa a dir-se Ricardo Villamizar a les dades ja desades i a la llista de l\'equip', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const { Store } = core;
+  Store.data.patients['P-R'] = { id: 'P-R', firstName: 'Anna', lastName: 'Prova', professional: 'Richy' };
+  Store.data.sessions['S-R'] = { id: 'S-R', patientId: 'P-R', date: '2026-10-01', professional: 'Richy', blocks: [], feedback: {} };
+  Store.data.assessments['A-R'] = { id: 'A-R', patientId: 'P-R', date: '2026-10-01', professional: 'Arnau', values: {} };
+  Store.settings.professionals = ['Richy', 'Arnau', 'Ricardo Villamizar'];
+  Store.renameProfessionals();
+  assert.equal(Store.get('patients', 'P-R').professional, 'Ricardo Villamizar');
+  assert.equal(Store.get('sessions', 'S-R').professional, 'Ricardo Villamizar');
+  assert.equal(Store.get('assessments', 'A-R').professional, 'Arnau');
+  assert.deepEqual([...Store.settings.professionals], ['Ricardo Villamizar', 'Arnau']);
+  assert.ok(![...Store.professionals()].includes('Richy'));
+});
+
+test('informe: la propera valoració només amb el mes i l\'any; tipus de pacient i pilar de readaptació', () => {
+  const { U, OPT } = loadCore();
+  assert.equal(U.fmtMonthYear('2027-01-14'), 'Gener de 2027');
+  assert.equal(U.fmtMonthYear('2027-04-02'), 'Abril de 2027');
+  assert.equal(U.fmtMonthYear(''), '—');
+  assert.deepEqual([...OPT.services.map((o) => o.v)], ['valoracio', 'membership', 'bo']);
+  assert.ok(OPT.pillars.includes('Readaptació'));
 });

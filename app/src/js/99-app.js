@@ -11,14 +11,14 @@ function Sidebar({ route, open, onClose }) {
       <span class="sidebar-sub">${Store.settings.centerTagline || 'Human Performance'}</span>
     </div>
     <nav class="nav">
-      ${item('inici', 'home', 'Inici i clients', clientRoutes.includes(r))}
+      ${item('inici', 'home', 'Inici i pacients', clientRoutes.includes(r))}
       ${item('dades', 'database', 'Base de dades', r === 'dades' || r === 'valoracio')}
       ${item('biblioteca', 'book', 'Biblioteca', r === 'biblioteca' || r === 'plantilla')}
       ${item('configuracio', 'settings', 'Configuració', r === 'configuracio')}
     </nav>
     <div class="nav-actions">
-      <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou client</button>
-      <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Afegeix mesures</button>
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openNewPatient(); }}><${Icon} name="plus" size=${18} />Nou pacient</button>
+      <button type="button" class="nav-new" onClick=${() => { onClose(); openAddMeasurement('dades'); }}><${Icon} name="clipboard" size=${18} />Nou test</button>
     </div>
     <div class="sidebar-foot">
       <span class="sidebar-mode"><${Icon} name=${Store.cloud() ? 'cloud' : 'device'} size=${16} />${{ google: 'Google Sheets', m365: 'Microsoft 365 · Excel' }[Store.meta.mode] || 'Mode local'}</span>

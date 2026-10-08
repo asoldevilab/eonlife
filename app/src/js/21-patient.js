@@ -2,7 +2,7 @@
 
 function PatientView({ id, tab = 'resum' }) {
   const p = Store.get('patients', id);
-  if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest client" text="Potser s'ha eliminat.">
+  if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest pacient" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
   const sessions = Store.sessionsOf(id);
   const assessments = Store.assessmentsOf(id);
@@ -15,21 +15,21 @@ function PatientView({ id, tab = 'resum' }) {
   useEffect(() => { if (Sync.enabled() && Sync.info(id).state === 'never') Sync.touch(id); }, [id]);
 
   const remove = async () => {
-    const ok = await UI.confirm({ title: `Eliminar ${U.fullName(p)}?`, text: 'S\'amagaran el client, les seves valoracions i les sessions. Al full de càlcul queden marcats com a eliminats i es poden recuperar.', ok: 'Elimina', danger: true });
+    const ok = await UI.confirm({ title: `Eliminar ${U.fullName(p)}?`, text: 'S\'amagaran el pacient, les seves valoracions i les sessions. Al full de càlcul queden marcats com a eliminats i es poden recuperar.', ok: 'Elimina', danger: true });
     if (!ok) return;
     Store.remove('patients', p.id);
-    UI.toast('Client eliminat.');
+    UI.toast('Pacient eliminat.');
     go('inici');
   };
 
   return html`<div class="page">
-    <nav class="crumbs"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Clients</button></nav>
+    <nav class="crumbs"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Pacients</button></nav>
     <header class="phead">
       <${Avatar} p=${p} size="lg" />
       <div class="phead-main">
         <p class="eyebrow">${service ? service.label : 'Sense servei'}${status && status.v !== 'actiu' ? ` · ${status.label}` : ''}</p>
         <h1 class="h1">${U.fullName(p)}</h1>
-        <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Client des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
+        <p class="phead-meta">${[age != null && `${age} anys`, p.professional, p.startDate && `Pacient des del ${U.fmtDate(p.startDate)}`].filter(Boolean).join(' · ')}</p>
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
         <${KeyDates} p=${p} />
         <${SyncBadge} pid=${p.id} />
@@ -37,13 +37,14 @@ function PatientView({ id, tab = 'resum' }) {
       <div class="phead-actions">
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
         <${Btn} icon="clipboard" onClick=${() => createAssessment(p.id)}>${assessments.length ? 'Nova valoració' : 'Valoració inicial'}</${Btn}>
+        <${Btn} icon="plus" onClick=${() => openAddMeasurement('dades', p.id)}>Nou test</${Btn}>
         ${p.folderUrl ? html`<${Btn} icon="folder" href=${p.folderUrl}>Carpeta</${Btn}>`
           : Store.cloud() ? html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta</${Btn}>` : null}
         <${ExcelMenu} p=${p} />
         <${Menu} items=${[
           { label: 'Edita les dades', icon: 'edit', onClick: () => setTab('fitxa') },
           { sep: true },
-          { label: 'Elimina el client', icon: 'trash', danger: true, onClick: remove },
+          { label: 'Elimina el pacient', icon: 'trash', danger: true, onClick: remove },
         ]} />
       </div>
     </header>
@@ -76,7 +77,7 @@ function PatientSummary({ p, sessions, assessments }) {
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
   return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">
-    <div class="quickadd-head"><h2 class="h2">Registrar mesures</h2><span class="muted small">Obre el formulari directament a l'apartat</span></div>
+    <div class="quickadd-head"><h2 class="h2">Nou test</h2><span class="muted small">Obre el formulari d'aquest pacient directament a l'apartat</span></div>
     <div class="quickadd-chips">
       ${quick.map(([f, label]) => html`<button type="button" class="chip" onClick=${() => openAddMeasurement(f, p.id)}><${Icon} name="plus" size=${14} />${label}</button>`)}
       <button type="button" class="chip" onClick=${() => go('dades', 'valoracions', p.id)}><${Icon} name="table" size=${14} />Veure totes les dades</button>
@@ -87,7 +88,7 @@ function PatientSummary({ p, sessions, assessments }) {
       <div class="card-head"><h2 class="h2">Propera sessió</h2>
         <${Btn} size="sm" variant="ghost" icon="plus" onClick=${() => openNewSession(p.id)}>Nova</${Btn}></div>
       ${next ? html`<div class="slist"><${SessionRow} s=${next} /></div>
-        <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('fitxa', next.id)}>Presenta al client</${Btn}>
+        <div class="row-actions"><${Btn} variant="primary" icon="play" onClick=${() => go('fitxa', next.id)}>Presenta al pacient</${Btn}>
         <${Btn} icon="edit" onClick=${() => go('sessio', next.id)}>Edita</${Btn}></div>`
         : html`<${Empty} icon="calendar" title="Cap sessió planificada" text="Crea la propera sessió copiant l'última o des d'una plantilla." />`}
       ${lastDone && html`<div class="lastfb">
@@ -153,7 +154,7 @@ function ClientProfileCard({ p, assessments }) {
   ].filter((x) => x && x[1]);
   const empty = !facts.filter((f) => f.k !== 'Edat').length && !info.length && !health.length && !p.limitations && !p.notes;
   return html`<section class="card cprof">
-    <div class="card-head"><h2 class="h2">Perfil del client</h2>
+    <div class="card-head"><h2 class="h2">Perfil del pacient</h2>
       <${Btn} size="sm" variant="ghost" icon="edit" onClick=${() => go('client', p.id, 'fitxa')}>${empty ? 'Completa la fitxa' : 'Edita'}</${Btn}></div>
     ${facts.length > 0 && html`<div class="cprof-facts">${facts.map((f) => html`<div class="cprof-fact" title=${f.t ? f.t.slice(3) : ''}>
       <span class="cprof-k">${f.k}</span><strong>${f.v}</strong>${f.t && html`<span class="muted small">${f.t.slice(3)}</span>`}</div>`)}</div>`}
@@ -162,8 +163,8 @@ function ClientProfileCard({ p, assessments }) {
       ${info.length > 0 && html`<dl class="cprof-dl">${info.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
       ${health.length > 0 && html`<dl class="cprof-dl">${health.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`}
     </div>`}
-    ${p.notes && html`<div class="cprof-notes"><span class="cprof-k">Observacions</span><p>${p.notes}</p></div>`}
-    ${empty && html`<p class="muted">Encara no hi ha dades del client: alçada, pes, activitat, salut, limitacions per entrenar i observacions. Afegeix-les a la fitxa.</p>`}
+    ${p.notes && html`<div class="cprof-notes"><span class="cprof-k"><${Icon} name="lock" size=${13} />Comentaris del professional · només per a l'equip</span><p>${p.notes}</p></div>`}
+    ${empty && html`<p class="muted">Encara no hi ha dades del pacient: alçada, pes, activitat, salut, limitacions per entrenar i comentaris del professional. Afegeix-les a la fitxa.</p>`}
   </section>`;
 }
 
@@ -235,7 +236,7 @@ function PatientAssessments({ p, assessments }) {
             </span>
           </button>
           <div class="arow-actions">
-            <${Btn} variant="ghost" icon="play" title="Informe per al client" onClick=${() => go('informe', a.id)} />
+            <${Btn} variant="ghost" icon="play" title="Informe per al pacient" onClick=${() => go('informe', a.id)} />
             <${Menu} items=${[{ label: 'Edita', icon: 'edit', onClick: () => go('valoracio', a.id) }, { label: 'Elimina', icon: 'trash', danger: true, onClick: () => remove(a) }]} />
           </div>
         </div>`;
@@ -272,8 +273,13 @@ function PatientForm({ p, onRemove }) {
       : html`<${TextInput} id=${`pf-${k}`} type=${opts.type || 'text'} value=${p[k]} onValue=${set(k)} placeholder=${opts.placeholder} list=${opts.list} />`}
   </${Field}>`;
   return html`<div class="stack">
+    <section class="card pnotes">
+      <div class="card-head"><h2 class="h2"><${Icon} name="lock" size=${18} />Comentaris del professional</h2><${SaveStatus} /></div>
+      <p class="muted small">Només els veu l'equip a l'app: no surten mai als informes, ni al PDF ni a l'Excel de la carpeta del pacient.</p>
+      <${Area} id="pf-notes" value=${p.notes} onValue=${set('notes')} placeholder="El que t'explica el pacient a la primera trobada, com és, què li agrada, què li costa, acords…" rows=${5} ariaLabel="Comentaris del professional" />
+    </section>
     <section class="card">
-      <div class="card-head"><h2 class="h2">Dades personals</h2><${SaveStatus} /></div>
+      <div class="card-head"><h2 class="h2">Dades personals</h2></div>
       <div class="form-grid">
         ${F('Nom', 'firstName')}${F('Cognoms', 'lastName')}
         ${F('Data de naixement', 'birthDate', { type: 'date' })}${F('Sexe', 'sex', { options: OPT.sex, empty: '—' })}
@@ -310,13 +316,13 @@ function PatientForm({ p, onRemove }) {
     <section class="card">
       <div class="card-head"><h2 class="h2">Seguiment al centre</h2></div>
       <div class="form-grid">
-        <${Field} label="Servei" id="pf-service" wide=${true}>
+        <${Field} label="Tipus de pacient" id="pf-service" wide=${true}>
           <${Seg} value=${p.service} onValue=${set('service')} allowEmpty=${false} ariaLabel="Servei" options=${OPT.services.map((o) => ({ v: o.v, label: o.label, title: o.desc }))} />
         </${Field}>
         <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
-        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el client?' })}
+        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el pacient?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
       </div>
     </section>
@@ -329,21 +335,17 @@ function PatientForm({ p, onRemove }) {
     </section>
     <section class="card">
       <div class="card-head"><h2 class="h2">Carpeta al núvol</h2></div>
-      <p class="muted">Vídeos de la valoració i dels exercicis, informes en PDF i documents del client. Es pot compartir amb el client en mode lectura.</p>
+      <p class="muted">Vídeos de la valoració i dels exercicis, informes en PDF i documents del pacient. Es pot compartir amb el pacient en mode lectura.</p>
       <div class="form-grid">
-        ${F(Store.cloud() ? `Enllaç de la carpeta (${Store.cloudName()})` : 'Enllaç de la carpeta del client', 'folderUrl', { wide: true, placeholder: 'https://…' })}
+        ${F(Store.cloud() ? `Enllaç de la carpeta (${Store.cloudName()})` : 'Enllaç de la carpeta del pacient', 'folderUrl', { wide: true, placeholder: 'https://…' })}
       </div>
       <div class="row-actions">
         ${p.folderUrl && html`<${Btn} icon="folder" href=${p.folderUrl}>Obre la carpeta</${Btn}>`}
-        ${!p.folderUrl && Store.cloud() && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta del client</${Btn}>`}
+        ${!p.folderUrl && Store.cloud() && html`<${Btn} icon="folder" onClick=${() => ensureFolder(p)}>Crea la carpeta del pacient</${Btn}>`}
       </div>
     </section>
-    <section class="card">
-      <div class="card-head"><h2 class="h2">Observacions</h2><span class="muted">Només per a l'equip; no surten als informes</span></div>
-      <${Area} value=${p.notes} onValue=${set('notes')} placeholder="Com és el client, què li agrada, què li costa, acords…" rows=${3} ariaLabel="Observacions" />
-    </section>
     <div class="danger-zone">
-      <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el client</${Btn}>
+      <${Btn} variant="danger" icon="trash" onClick=${onRemove}>Elimina el pacient</${Btn}>
     </div>
   </div>`;
 }
@@ -374,7 +376,7 @@ function DoctorReportCard({ p }) {
     try {
       const res = await uploadToClient(p, file, { label: 'Informe mèdic', where: 'assess', onProgress: setPct });
       Store.update('patients', p.id, (x) => { x.docs = [...(x.docs || []), { id: U.uid('F'), name: res.name, url: res.url, date: U.today() }]; });
-      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del client.');
+      UI.toast(filesOnDevice() ? 'Informe desat a la tauleta.' : 'Informe desat a la carpeta del pacient.');
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
@@ -386,7 +388,7 @@ function DoctorReportCard({ p }) {
     <${Area} value=${text} onValue=${setText} rows=${4} ariaLabel="Text de l'informe de la doctora"
       placeholder=${'Motiu de consulta: …\nAntecedents: …\nDiagnòstic: …\nObjectiu: …'} />
     <div class="row-actions">
-      <${Btn} variant="primary" icon="check" disabled=${!text.trim()} onClick=${() => openDoctorPreview(p, text)}>Omple les dades del client</${Btn}>
+      <${Btn} variant="primary" icon="check" disabled=${!text.trim()} onClick=${() => openDoctorPreview(p, text)}>Omple les dades del pacient</${Btn}>
       <input type="file" accept=".docx,.txt,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden ref=${fileRef} onChange=${(e) => readFile(e.currentTarget.files[0])} />
       <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Llegeix un Word</${Btn}>
       ${canUploadFiles() && html`<input type="file" accept=".pdf,application/pdf,image/*,.docx" hidden ref=${pdfRef} onChange=${(e) => uploadPdf(e.currentTarget.files[0])} />
@@ -421,7 +423,7 @@ function DoctorPreview({ p, text, found, onClose }) {
       x.medicalDate = U.today();
     });
     onClose();
-    UI.toast('Dades del client actualitzades amb l\'informe de la doctora.');
+    UI.toast('Dades del pacient actualitzades amb l\'informe de la doctora.');
   };
   return html`<${Dialog} title="Informe de la doctora" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
