@@ -1505,10 +1505,10 @@ tfoot .rpc { font-size: 14px; }
   --side-d: #EE7A8A; --side-e: #E6C55A; --series-1: #EE7A8A; --series-2: #E6C55A; --series-3: #9CC6F0;
   --grid: #5C282C; --axis: #C9ABA5; --baseline: #84504F; --pic-prop: #7A4A4C;
 }
-.present.report-light, .present.report-dark, .report.report-light, .report.report-dark { background: var(--bg); color: var(--ink); }
+.present.report-light, .present.report-dark, .report.report-light, .report.report-dark, .sheet.report-light, .sheet.report-dark { background: var(--bg); color: var(--ink); }
 .report-theme .seg-btn { min-width: 64px; }
 @media print {
-  html:has(.report.report-dark), body:has(.report.report-dark) { background: #421215; }
+  html:has(.report.report-dark), body:has(.report.report-dark), html:has(.sheet.report-dark), body:has(.sheet.report-dark) { background: #421215; }
 }
 
 /* ── Informes d'evolució (tests i sessions) ── */
@@ -1543,6 +1543,13 @@ tfoot .rpc { font-size: 14px; }
 }
 .tblock-head .h3 { font-size: 16.5px; letter-spacing: 0; text-transform: none; color: var(--ink); }
 .tchange .delta { margin-left: 4px; }
+
+/* Objectiu del pacient: el primer quadre de la fitxa i del resum */
+.pgoal { border-left: 4px solid var(--blk-cal); }
+.pgoal .h2 { display: inline-flex; align-items: center; gap: 8px; }
+.pgoal .h2 svg { color: var(--blk-cal); }
+.pgoal textarea { font-size: 17px; font-weight: 600; line-height: 1.4; }
+.pgoal-compact .card-head { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -3854,7 +3861,7 @@ var qrcode = function() {
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-08 14:45";
+window.EON_BUILD = "2026-10-08 15:36";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6133,7 +6140,24 @@ const Evol = {
         trend: vals.length >= 4 ? avg(vals.slice(half)) - avg(vals.slice(0, half)) : null,
       };
     };
-    return { rows, rpe: stat('rpe'), pain: stat('pain'), wellness: stat('wellness'), load: stat('load') };
+    return { rows, rpe: stat('rpe'), pain: stat('pain'), wellness: stat('wellness'), load: stat('load'),
+      weeks: Evol.groups(rows, 'week'), months: Evol.groups(rows, 'month') };
+  },
+
+  // Per setmana (dilluns) o per mes (AAAA-MM): sessions, mitjanes d'RPE, EVA i wellness, i la càrrega total.
+  groups(rows, by = 'week') {
+    const map = new Map();
+    for (const r of rows) {
+      const key = by === 'month' ? U.monthKey(r.date) : U.weekStart(r.date);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(r);
+    }
+    const avg = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+    const vals = (list, k) => list.map((r) => r[k]).filter((x) => x != null);
+    return [...map.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([key, list]) => ({
+      key, n: list.length, rpe: avg(vals(list, 'rpe')), pain: avg(vals(list, 'pain')), wellness: avg(vals(list, 'wellness')),
+      load: vals(list, 'load').length ? vals(list, 'load').reduce((a, b) => a + b, 0) : null,
+    }));
   },
 };
 
@@ -7016,14 +7040,17 @@ function makeDemoData() {
     db.sessions[s.id] = s;
   };
 
-  // Laura: dilluns, dimecres i divendres (dia A genoll / dia B maluc) durant 5 setmanes.
-  const w0 = U.addDays(U.weekStart(today), -35);
+  // Laura: dilluns i dijous (dia A genoll / dia B maluc) durant 13 setmanes (uns 3 mesos), amb una setmana de
+  // descàrrega cada quatre; l'RPE puja a poc a poc, el dolor del genoll baixa i el wellness va amb el son i la feina.
+  const W = 13;
+  const w0 = U.addDays(U.weekStart(today), -7 * W);
   let k = 0;
-  for (let w = 0; w < 5; w++) {
-    for (const off of [0, 2, 4]) {
+  for (let w = 0; w < W; w++) {
+    const deload = w % 4 === 3;
+    for (const off of [0, 3]) {
       const date = U.addDays(w0, w * 7 + off);
       const kneeDay = k % 2 === 0;
-      const sq = 40 + w * 2.5, hip = 60 + w * 5, rdl = 40 + w * 2.5;
+      const sq = 35 + Math.round(w * 1.5 * 2) / 2, hip = 50 + w * 4, rdl = 35 + Math.round(w * 1.5 * 2) / 2;
       const spec = kneeDay ? {
         mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
         act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
@@ -7040,11 +7067,13 @@ function makeDemoData() {
         cal: { focus: 'Parasimpàtic', items: [['X-CAL-03'], ['X-CAL-02']] },
       };
       if (date < today) {
+        const rpe = Math.min(9, (deload ? 5 : 6 + Math.floor(w / 5)) + (kneeDay ? 1 : 0) - (k % 5 === 4 ? 1 : 0));
+        const pain = kneeDay ? Math.max(0, 3 - Math.floor(w / 2)) : (w < 2 ? 1 : 0);
         session(laura, date, 'Arnau', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
-          rpe: [6, 7, 7, 8, 7][w] + (kneeDay ? 0 : -1), min: [60, 65, 60, 70, 65][w], pain: w < 2 && kneeDay ? 2 : 0,
-          sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: w < 2 && kneeDay ? 1 : 0,
-          notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : '',
-          decision: kneeDay ? `Pujar a ${U.fmt(sq + 2.5)} kg al back squat si manté RIR 2.` : 'Mantenir càrregues i prioritzar la tècnica de l\'RDL.',
+          rpe, min: deload ? 50 : [60, 65, 70, 65][k % 4], pain,
+          sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: pain >= 2 ? 1 : 0,
+          notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : deload ? 'Setmana de descàrrega.' : '',
+          decision: kneeDay ? `Pujar a ${U.fmt(sq + 1.5)} kg al back squat si manté RIR 2.` : 'Mantenir càrregues i prioritzar la tècnica de l\'RDL.',
         });
       }
       k++;
@@ -12157,17 +12186,18 @@ function Legend({ items }) {
 
 // Evolució en el temps (una o dues sèries: p. ex. dreta i esquerra).
 // yMin / yMax: escala fixa (p. ex. RPE 0–10). L'SVG s'escala amb el contenidor (PDF de l'informe).
-function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax }) {
+// pointLabels: el valor escrit sobre cada punt (per llegir-lo exacte a l'informe i al PDF).
+function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax, pointLabels }) {
   const [ref, W] = useWidth();
   const [hover, setHover] = useState(null);
-  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
+  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--ink-2', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
   const clean = series.map((s) => ({ ...s, points: s.points.filter((p) => p.y != null && Number.isFinite(p.y) && U.parse(p.x)) }))
     .filter((s) => s.points.length);
   const all = clean.flatMap((s) => s.points);
   if (!all.length) return html`<div class="chart" ref=${ref}><div class="chart-empty">Encara no hi ha dades per dibuixar aquest gràfic.</div></div>`;
 
   const H = height;
-  const padL = 44, padR = 64, padT = 14, padB = 30;
+  const padL = 44, padR = 64, padT = pointLabels ? 24 : 14, padB = 30;
   const times = [...new Set(all.map((p) => p.x))].sort();
   let t0 = U.parse(times[0]).getTime(), t1 = U.parse(times[times.length - 1]).getTime();
   if (t0 === t1) { t0 -= 86400000 * 20; t1 += 86400000 * 20; }
@@ -12206,6 +12236,7 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, y
       ${clean.map((s) => html`<g>
         <path d=${s.points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join('')} fill="none" stroke=${col(s.color)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
         ${s.points.map((p) => html`<circle cx=${sx(p.x)} cy=${sy(p.y)} r=${hover === p.x ? 5.5 : 4} fill=${col(s.color)} stroke=${col('var(--surface)')} stroke-width="2" />`)}
+        ${pointLabels && s.points.slice(0, -1).map((p) => html`<text x=${sx(p.x)} y=${sy(p.y) - 9} text-anchor="middle" class="ptlabel" fill=${col('var(--ink-2)')} font-size="10.5" font-weight="650">${fmtY(p.y)}</text>`)}
       </g>`)}
       ${endsOk && ends.map((e) => html`<text x=${sx(e.p.x) + 9} y=${e.y + 4} class="endlabel" fill=${col('var(--ink)')} font-size="12.5" font-weight="650">${fmtY(e.p.y)}${unit ? ` ${unit}` : ''}</text>`)}
       <rect x=${padL - 10} y=${padT} width=${iw + 20} height=${ih} fill="transparent" onPointerMove=${onMove} onPointerLeave=${() => setHover(null)} />
@@ -13995,6 +14026,16 @@ function PatientView({ id, tab = 'resum' }) {
   </div>`;
 }
 
+// Objectiu que es treballa amb el pacient: el primer quadre de la fitxa i del resum (també surt a la capçalera i als informes).
+function GoalCard({ p, compact }) {
+  const set = (v) => Store.update('patients', p.id, (x) => { x.goal = v; });
+  return html`<section class=${U.cls('card pgoal', compact && 'pgoal-compact')}>
+    <div class="card-head"><h2 class="h2"><${Icon} name="target" size=${18} />Objectiu</h2>${!compact && html`<${SaveStatus} />`}</div>
+    <${Area} id=${compact ? 'rs-goal' : 'pf-goal'} value=${p.goal} onValue=${set} rows=${compact ? 2 : 3} ariaLabel="Objectiu del pacient"
+      placeholder="Què vol aconseguir el pacient i què treballarem (p. ex. tornar a córrer 10 km sense dolor al genoll)" />
+  </section>`;
+}
+
 function PatientSummary({ p, sessions, assessments }) {
   const today = U.today();
   const next = sessions.filter((s) => s.date >= today && s.status !== 'feta')[0];
@@ -14003,7 +14044,8 @@ function PatientSummary({ p, sessions, assessments }) {
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
-  return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
+  return html`<${GoalCard} p=${p} compact=${true} />
+  <${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">
     <div class="quickadd-head"><h2 class="h2">Nou test</h2><span class="muted small">Obre el formulari d'aquest pacient directament a l'apartat</span></div>
     <div class="quickadd-chips">
@@ -14205,6 +14247,7 @@ function PatientForm({ p, onRemove }) {
       : html`<${TextInput} id=${`pf-${k}`} type=${opts.type || 'text'} value=${p[k]} onValue=${set(k)} placeholder=${opts.placeholder} list=${opts.list} />`}
   </${Field}>`;
   return html`<div class="stack">
+    <${GoalCard} p=${p} />
     <section class="card pnotes">
       <div class="card-head"><h2 class="h2"><${Icon} name="lock" size=${18} />Comentaris del professional</h2><${SaveStatus} /></div>
       <p class="muted small">Només els veu l'equip a l'app: no surten mai als informes, ni al PDF ni a l'Excel de la carpeta del pacient.</p>
@@ -14254,7 +14297,6 @@ function PatientForm({ p, onRemove }) {
         <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
-        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el pacient?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
       </div>
     </section>
@@ -15232,7 +15274,7 @@ function TestBlock({ t, charts }) {
         ? html`<${ChangeText} c=${t.change.d} unit=${t.unit} side="D" /><${ChangeText} c=${t.change.e} unit=${t.unit} side="E" />`
         : html`<${ChangeText} c=${t.change} unit=${t.unit} />`}</div>
     </div>
-    ${charts && t.rows.length >= 2 && html`<${LineChart} series=${series} unit=${t.unit} decimals=${dec} height=${190} ariaLabel=${`Evolució: ${t.label}`} />`}
+    ${charts && t.rows.length >= 2 && html`<${LineChart} series=${series} unit=${t.unit} decimals=${dec} height=${200} ariaLabel=${`Evolució: ${t.label}`} pointLabels=${!t.bi && t.rows.length <= 12} />`}
     <div class="table-wrap"><table class="table rtable ttable">
       <thead><tr><th>Data</th>${t.bi ? html`<th class="num">Dreta</th><th class="num">Esquerra</th><th class="num">Asimetria</th>` : html`<th class="num">Valor</th>`}</tr></thead>
       <tbody>${t.rows.map((r) => html`<tr>
@@ -15314,6 +15356,21 @@ function SessionsReport({ pid }) {
   if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest pacient" /></div>`;
   const ev = Evol.sessions(all, { from, to });
   const pts = (k) => ev.rows.map((r) => ({ x: r.date, y: r[k] }));
+  // Taula de xifres: mitjana, mínim, màxim, primera i última sessió, i tendència (2a meitat − 1a meitat).
+  const numRow = (label, st, unit, dec, better) => st && html`<tr>
+    <td><strong>${label}</strong></td><td class="num">${st.n}</td><td class="num"><strong>${U.fmt(st.avg, dec)}</strong>${unit}</td>
+    <td class="num">${U.fmt(st.min, dec)}</td><td class="num">${U.fmt(st.max, dec)}</td><td class="num">${U.fmt(st.first, dec)}</td><td class="num">${U.fmt(st.last, dec)}</td>
+    <td class="num">${st.trend == null ? '—' : html`<span class=${U.cls('delta', better && st.trend !== 0 && ((st.trend > 0) === (better === 'up') ? 'delta-up' : 'delta-down'))}>${U.fmtSigned(st.trend, 1)}</span>`}</td></tr>`;
+  const groupTable = (title, list, label) => html`<h3 class="h3">${title}</h3>
+    <div class="table-wrap"><table class="table rtable ttable">
+      <thead><tr><th>${label}</th><th class="num">Sessions</th>${show.rpe && html`<th class="num">RPE mitjà</th>`}${show.pain && html`<th class="num">EVA mitjana</th>`}${show.wellness && html`<th class="num">Wellness mitjà</th>`}${show.load && html`<th class="num">Càrrega (UA)</th>`}</tr></thead>
+      <tbody>${list.map((g) => html`<tr>
+        <td>${label === 'Mes' ? U.fmtMonth(g.key) : `${U.fmtDate(g.key)} – ${U.fmtDate(U.addDays(g.key, 6))}`}</td><td class="num">${g.n}</td>
+        ${show.rpe && html`<td class="num">${g.rpe == null ? '—' : U.fmt(g.rpe, 1)}</td>`}
+        ${show.pain && html`<td class="num"><span class=${U.cls('tasym', tone(g.pain, true) && `tone-${tone(g.pain, true)}`)}>${g.pain == null ? '—' : U.fmt(g.pain, 1)}</span></td>`}
+        ${show.wellness && html`<td class="num">${g.wellness == null ? '—' : U.fmt(g.wellness, 1)}</td>`}
+        ${show.load && html`<td class="num">${g.load == null ? '—' : U.fmt(g.load, 0)}</td>`}
+      </tr>`)}</tbody></table></div>`;
   const opt = (k, label) => html`<label class="check"><input type="checkbox" checked=${show[k]} onChange=${(e) => setShow({ ...show, [k]: e.currentTarget.checked })} /> ${label}</label>`;
   const theme = reportThemeClass(p);
   const center = Store.settings.centerName || 'EON Life';
@@ -15321,7 +15378,7 @@ function SessionsReport({ pid }) {
   const avg = (st, dec = 1) => (st ? U.fmt(st.avg, dec) : '—');
   const chart = (title, sub, k, yMin, yMax, color = 'var(--series-1)') => html`<div class="tblock">
     <div class="tblock-head"><h3 class="h3">${title}</h3><span class="muted small">${sub}</span></div>
-    ${pts(k).some((x) => x.y != null) ? html`<${LineChart} series=${[{ name: title, color, points: pts(k) }]} decimals=${0} yMin=${yMin} yMax=${yMax} height=${200} ariaLabel=${title} />`
+    ${pts(k).some((x) => x.y != null) ? html`<${LineChart} series=${[{ name: title, color, points: pts(k) }]} decimals=${0} yMin=${yMin} yMax=${yMax} height=${210} ariaLabel=${title} pointLabels=${ev.rows.length <= 40} />`
       : html`<p class="muted small">Cap sessió d'aquest rang té aquesta dada.</p>`}
   </div>`;
   const tone = (v, hiBad) => (v == null ? '' : hiBad ? (v >= 6 ? 'bad' : v >= 3 ? 'warn' : 'ok') : '');
@@ -15332,7 +15389,7 @@ function SessionsReport({ pid }) {
     </${PresentBar}>
     <section class="rpick no-print" aria-label="Tria del contingut de l'informe">
       <${ReportRange} from=${from} to=${to} setFrom=${setFrom} setTo=${setTo} first=${first} />
-      <div class="rpick-opts">${opt('rpe', 'RPE')}${opt('pain', 'Dolor (EVA)')}${opt('wellness', 'Wellness total')}${opt('items', 'Wellness per pregunta')}${opt('load', 'Càrrega (RPE × minuts)')}</div>
+      <div class="rpick-opts">${opt('rpe', 'RPE')}${opt('pain', 'EVA (dolor en acabar)')}${opt('wellness', 'Wellness total')}${opt('items', 'Wellness per pregunta')}${opt('load', 'Càrrega (RPE × minuts)')}</div>
     </section>
     <article class=${`report report-narrow ${theme}`}>
       <${EvolCover} p=${p} eyebrow="Informe d'evolució · Sessions" from=${from} to=${to} count=${U.plural(ev.rows.length, 'sessió', 'sessions')} />
@@ -15341,15 +15398,26 @@ function SessionsReport({ pid }) {
           <h2 class="rsec-title">Resum</h2>
           <div class="rtiles">
             ${show.rpe && html`<${Stat} label="RPE mitjà" value=${avg(ev.rpe)} unit="/10" sub=${ev.rpe ? html`${U.fmt(ev.rpe.min, 0)}–${U.fmt(ev.rpe.max, 0)} · ${trendWord(ev.rpe, null)}` : 'Sense dades'} />`}
-            ${show.pain && html`<${Stat} label="Dolor mitjà en acabar" value=${avg(ev.pain)} unit="/10" sub=${ev.pain ? html`EVA ${U.fmt(ev.pain.min, 0)}–${U.fmt(ev.pain.max, 0)} · ${trendWord(ev.pain, 'down')}` : 'Sense dades'} />`}
+            ${show.pain && html`<${Stat} label="EVA mitjana (dolor en acabar)" value=${avg(ev.pain)} unit="/10" sub=${ev.pain ? html`${U.fmt(ev.pain.min, 0)}–${U.fmt(ev.pain.max, 0)} · ${trendWord(ev.pain, 'down')}` : 'Sense dades'} />`}
             ${show.wellness && html`<${Stat} label="Wellness mitjà" value=${avg(ev.wellness)} unit="/25" sub=${ev.wellness ? html`${U.fmt(ev.wellness.min, 0)}–${U.fmt(ev.wellness.max, 0)} · ${trendWord(ev.wellness, 'up')}` : 'Sense dades'} />`}
             ${show.load && html`<${Stat} label="Càrrega mitjana" value=${avg(ev.load, 0)} unit="UA" sub=${ev.load ? `${U.plural(ev.load.n, 'sessió', 'sessions')} amb durada` : 'Sense dades'} />`}
           </div>
+          <h3 class="h3">Xifres del període</h3>
+          <div class="table-wrap"><table class="table rtable ttable tnums">
+            <thead><tr><th></th><th class="num">Sessions</th><th class="num">Mitjana</th><th class="num">Mínim</th><th class="num">Màxim</th><th class="num">Primera</th><th class="num">Última</th><th class="num">Tendència</th></tr></thead>
+            <tbody>
+              ${show.rpe && numRow('RPE (1–10)', ev.rpe, '', 1, null)}
+              ${show.pain && numRow('EVA (0–10)', ev.pain, '', 1, 'down')}
+              ${show.wellness && numRow('Wellness (/25)', ev.wellness, '', 1, 'up')}
+              ${show.load && numRow('Càrrega (UA)', ev.load, '', 0, null)}
+            </tbody>
+          </table></div>
+          <p class="muted small">Tendència: mitjana de la segona meitat de les sessions menys la de la primera (amb 4 sessions o més).</p>
         </section>
         <section class="rsec">
           <h2 class="rsec-title">Evolució</h2>
           ${show.rpe && chart('RPE de cada sessió', '1 = molt suau · 10 = esforç màxim', 'rpe', 0, 10)}
-          ${show.pain && chart('Dolor en acabar (EVA)', '0 = sense dolor · 10 = el pitjor imaginable', 'pain', 0, 10, 'var(--series-2)')}
+          ${show.pain && chart('EVA · dolor en acabar', '0 = sense dolor · 10 = el pitjor imaginable', 'pain', 0, 10, 'var(--series-2)')}
           ${show.wellness && chart('Wellness en arribar', 'Suma de les 5 preguntes (màxim 25)', 'wellness', 5, 25)}
           ${show.load && chart('Càrrega de la sessió', 'RPE × minuts (UA)', 'load', null, null)}
           ${show.items && html`<h3 class="h3">Wellness per pregunta <span class="muted small">· de l'1 al 5 (5 = el millor estat)</span></h3>
@@ -15359,9 +15427,14 @@ function SessionsReport({ pid }) {
             </div>`)}</div>`}
         </section>
         <section class="rsec">
+          <h2 class="rsec-title">Per mesos i per setmanes</h2>
+          ${groupTable('Per mesos', ev.months, 'Mes')}
+          ${groupTable('Per setmanes', ev.weeks, 'Setmana')}
+        </section>
+        <section class="rsec">
           <h2 class="rsec-title">Sessió a sessió</h2>
           <div class="table-wrap"><table class="table rtable ttable">
-            <thead><tr><th>Data</th><th>Sessió</th><th>Objectiu</th>${show.rpe && html`<th class="num">RPE</th>`}${show.pain && html`<th class="num">Dolor</th>`}${show.wellness && html`<th class="num">Wellness</th>`}${show.load && html`<th class="num">UA</th>`}</tr></thead>
+            <thead><tr><th>Data</th><th>Sessió</th><th>Objectiu</th>${show.rpe && html`<th class="num">RPE</th>`}${show.pain && html`<th class="num">EVA</th>`}${show.wellness && html`<th class="num">Wellness</th>`}${show.load && html`<th class="num">UA</th>`}</tr></thead>
             <tbody>${ev.rows.map((r) => html`<tr>
               <td>${U.fmtDate(r.date)}</td><td>S${r.number}</td><td>${r.goal || '—'}</td>
               ${show.rpe && html`<td class="num">${r.rpe ?? '—'}</td>`}
@@ -16312,11 +16385,13 @@ function SessionSheet({ id }) {
   const warm = blocks.filter((b) => ['mob', 'act', 'pot'].includes(b.key)).length;
   const fin = blocks.filter((b) => ['acc', 'cal'].includes(b.key)).length;
   const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
-  return html`<div class="present">
-    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)}>
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}>
+      <${ReportThemeSwitch} p=${p} />
       <${Btn} variant="ghost" icon="edit" onClick=${() => go('sessio', s.id)}>Edita</${Btn}>
     </${PresentBar}>
-    <article class="sheet">
+    <article class=${`sheet ${theme}`}>
       <header class="sheet-head">
         <${BrandMark} />
         <div class="sheet-id">
@@ -16524,7 +16599,7 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i el dolor (EVA) del final de la sessió. Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -16579,7 +16654,7 @@ function sessionNums(s) {
   if (rpe == null && pain == null) return null;
   return html`<span class="cal-s-fb">
     ${rpe != null && html`<span class="cal-m cal-m-rpe" title="RPE de la sessió (1–10)"><small>RPE</small>${rpe}</span>`}
-    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>Dolor</small>${pain}</span>`}
+    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>EVA</small>${pain}</span>`}
   </span>`;
 }
 
@@ -17877,7 +17952,9 @@ function ProgressView({ pid, planId }) {
   const list = inPlan.length >= 2 ? inPlan : all;
   const done = list.filter((s) => s.status === 'feta');
   const [fromId, setFrom] = useState(list[0] ? list[0].id : '');
-  const [toId, setTo] = useState((done[done.length - 1] || list[list.length - 1] || {}).id || '');
+  // Per defecte, l'última sessió feta del mateix tipus que la primera (mateix objectiu: dia de genoll amb dia de genoll).
+  const sameKind = list[0] ? done.filter((s) => s.id !== list[0].id && (s.goal || '') === (list[0].goal || '')) : [];
+  const [toId, setTo] = useState((sameKind[sameKind.length - 1] || done[done.length - 1] || list[list.length - 1] || {}).id || '');
   const back = () => go('client', pid, 'pla');
   if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest pacient" /></div>`;
   if (list.length < 2) {
@@ -17892,12 +17969,14 @@ function ProgressView({ pid, planId }) {
   const anySpeed = res.blocks.some((b) => b.rows.some((r) => r.v1.b != null || r.v1.a != null));
   const options = list.map((s) => ({ v: s.id, label: `${s.planN && plan ? `S${s.planN}` : `S${s.number}`} · ${U.fmtDateShort(s.date)}${s.status === 'feta' ? '' : ' (prevista)'}` }));
 
-  return html`<div class="present">
-    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back}>
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back} noTheme=${true}>
+      <${ReportThemeSwitch} p=${p} />
       <label class="pv-pick"><span>De</span><${Select} value=${from.id} onValue=${setFrom} ariaLabel="Sessió d'abans" options=${options} /></label>
       <label class="pv-pick"><span>a</span><${Select} value=${to.id} onValue=${setTo} ariaLabel="Sessió d'ara" options=${options} /></label>
     </${PresentBar}>
-    <article class="sheet pv">
+    <article class=${`sheet pv ${theme}`}>
       <header class="sheet-head">
         <${BrandMark} />
         <div class="sheet-id">

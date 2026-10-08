@@ -173,14 +173,17 @@ function makeDemoData() {
     db.sessions[s.id] = s;
   };
 
-  // Laura: dilluns, dimecres i divendres (dia A genoll / dia B maluc) durant 5 setmanes.
-  const w0 = U.addDays(U.weekStart(today), -35);
+  // Laura: dilluns i dijous (dia A genoll / dia B maluc) durant 13 setmanes (uns 3 mesos), amb una setmana de
+  // descàrrega cada quatre; l'RPE puja a poc a poc, el dolor del genoll baixa i el wellness va amb el son i la feina.
+  const W = 13;
+  const w0 = U.addDays(U.weekStart(today), -7 * W);
   let k = 0;
-  for (let w = 0; w < 5; w++) {
-    for (const off of [0, 2, 4]) {
+  for (let w = 0; w < W; w++) {
+    const deload = w % 4 === 3;
+    for (const off of [0, 3]) {
       const date = U.addDays(w0, w * 7 + off);
       const kneeDay = k % 2 === 0;
-      const sq = 40 + w * 2.5, hip = 60 + w * 5, rdl = 40 + w * 2.5;
+      const sq = 35 + Math.round(w * 1.5 * 2) / 2, hip = 50 + w * 4, rdl = 35 + Math.round(w * 1.5 * 2) / 2;
       const spec = kneeDay ? {
         mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
         act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
@@ -197,11 +200,13 @@ function makeDemoData() {
         cal: { focus: 'Parasimpàtic', items: [['X-CAL-03'], ['X-CAL-02']] },
       };
       if (date < today) {
+        const rpe = Math.min(9, (deload ? 5 : 6 + Math.floor(w / 5)) + (kneeDay ? 1 : 0) - (k % 5 === 4 ? 1 : 0));
+        const pain = kneeDay ? Math.max(0, 3 - Math.floor(w / 2)) : (w < 2 ? 1 : 0);
         session(laura, date, 'Arnau', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
-          rpe: [6, 7, 7, 8, 7][w] + (kneeDay ? 0 : -1), min: [60, 65, 60, 70, 65][w], pain: w < 2 && kneeDay ? 2 : 0,
-          sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: w < 2 && kneeDay ? 1 : 0,
-          notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : '',
-          decision: kneeDay ? `Pujar a ${U.fmt(sq + 2.5)} kg al back squat si manté RIR 2.` : 'Mantenir càrregues i prioritzar la tècnica de l\'RDL.',
+          rpe, min: deload ? 50 : [60, 65, 70, 65][k % 4], pain,
+          sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: pain >= 2 ? 1 : 0,
+          notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : deload ? 'Setmana de descàrrega.' : '',
+          decision: kneeDay ? `Pujar a ${U.fmt(sq + 1.5)} kg al back squat si manté RIR 2.` : 'Mantenir càrregues i prioritzar la tècnica de l\'RDL.',
         });
       }
       k++;

@@ -45,7 +45,9 @@ Y-Balance / Salts / Patrons**.
   (ha comprat un entrenament o un bo de sessions). Surt a la capçalera de la fitxa, al filtre de l'inici
   i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
 - **Professional de referència**: Ricardo Villamizar, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
-- **Comentaris del professional**: el primer quadre de la pestanya *Fitxa*, per anar-hi escrivint mentre parles amb el
+- **Objectiu**: el primer quadre de la pestanya *Fitxa* i del *Resum*: el que el pacient vol aconseguir i el que es
+  treballa. També surt a la capçalera i als informes.
+- **Comentaris del professional**: el segon quadre de la pestanya *Fitxa*, per anar-hi escrivint mentre parles amb el
   pacient a la primera trobada. Només els veu l'equip a l'app (i a la base de dades): **no surten mai** a l'informe, al
   PDF ni a l'Excel de la carpeta del pacient (aquesta carpeta es pot compartir amb ell).
 - **Dates clau**: data de la intervenció (IQ) i de la lesió. A la capçalera es veuen els dies i
@@ -340,9 +342,10 @@ Es pot posar a pantalla completa o desar en PDF.
   i, amb Microsoft 365, es desa a *Valoracions* de la carpeta del pacient.
 - **Informe d'evolució de les sessions** (pestanya *Sessions › Informe d'evolució*): l'**RPE**, el **dolor en acabar
   (EVA)** i el **wellness** que el pacient omple a cada sessió, en un rang de dates (per defecte, els últims 3 mesos).
-  Resum amb les mitjanes i si pugen o baixen, una gràfica de cada dada, opcionalment el wellness pregunta per pregunta i
-  la càrrega (RPE × minuts), i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Sessions*.
-- **Clar o fosc**: a la barra de qualsevol informe (el de la valoració i aquests dos) hi ha **Clar | Fosc**. El fosc fa
+  Resum amb les mitjanes i si pugen o baixen, la taula de **xifres del període** (sessions, mitjana, mínim, màxim, primera,
+  última i tendència), una gràfica de cada dada amb el **valor escrit a cada punt**, opcionalment el wellness pregunta per
+  pregunta i la càrrega (RPE × minuts), les mitjanes **per mesos i per setmanes** i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Sessions*.
+- **Clar o fosc**: a la barra de qualsevol informe (el de la valoració, aquests dos, la fitxa de la sessió i el progrés) hi ha **Clar | Fosc**. El fosc fa
   servir els colors d'EON Life al revés: **fons granat** i text crema (dreta en rosa i esquerra en daurat). Es recorda
   per a cada pacient, i el PDF i el paper surten igual que a la pantalla.
 - Els **comentaris del professional** no surten mai en cap d'aquests informes.
@@ -353,7 +356,7 @@ Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de 
 sessions previstes del pla d'entrenament.
 
 - Calendari del mes amb cada sessió: número, objectiu i, a sota, l'**RPE** i el **dolor (EVA)** del final de la
-  sessió, en dues etiquetes (el dolor en verd, groc o vermell segons la intensitat), per veure d'un cop d'ull si pugen o baixen. Els diumenges sense sessió surten com a **OFF**.
+  sessió, en dues etiquetes: **RPE** i **EVA** (l'EVA en verd, groc o vermell segons la intensitat), per veure d'un cop d'ull si pugen o baixen. Els diumenges sense sessió surten com a **OFF**.
 - El **+** d'un dia buit dona dues opcions: **Programa la sessió sencera** (com sempre: del pla, copiant l'última,
   d'una plantilla o en blanc) o **Només l'objectiu**, per omplir el calendari ràpid: s'escriu l'objectiu (i el pilar,
   si vols) i surt al quadre del dia amb una vora daurada. Tocant-la es pot editar, marcar com a **Feta** amb l'RPE,

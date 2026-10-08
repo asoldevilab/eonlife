@@ -1488,10 +1488,10 @@ tfoot .rpc { font-size: 14px; }
   --side-d: #EE7A8A; --side-e: #E6C55A; --series-1: #EE7A8A; --series-2: #E6C55A; --series-3: #9CC6F0;
   --grid: #5C282C; --axis: #C9ABA5; --baseline: #84504F; --pic-prop: #7A4A4C;
 }
-.present.report-light, .present.report-dark, .report.report-light, .report.report-dark { background: var(--bg); color: var(--ink); }
+.present.report-light, .present.report-dark, .report.report-light, .report.report-dark, .sheet.report-light, .sheet.report-dark { background: var(--bg); color: var(--ink); }
 .report-theme .seg-btn { min-width: 64px; }
 @media print {
-  html:has(.report.report-dark), body:has(.report.report-dark) { background: #421215; }
+  html:has(.report.report-dark), body:has(.report.report-dark), html:has(.sheet.report-dark), body:has(.sheet.report-dark) { background: #421215; }
 }
 
 /* ── Informes d'evolució (tests i sessions) ── */
@@ -1526,3 +1526,10 @@ tfoot .rpc { font-size: 14px; }
 }
 .tblock-head .h3 { font-size: 16.5px; letter-spacing: 0; text-transform: none; color: var(--ink); }
 .tchange .delta { margin-left: 4px; }
+
+/* Objectiu del pacient: el primer quadre de la fitxa i del resum */
+.pgoal { border-left: 4px solid var(--blk-cal); }
+.pgoal .h2 { display: inline-flex; align-items: center; gap: 8px; }
+.pgoal .h2 svg { color: var(--blk-cal); }
+.pgoal textarea { font-size: 17px; font-weight: 600; line-height: 1.4; }
+.pgoal-compact .card-head { margin-bottom: 6px; }

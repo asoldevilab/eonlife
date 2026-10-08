@@ -71,6 +71,23 @@ const Evol = {
         trend: vals.length >= 4 ? avg(vals.slice(half)) - avg(vals.slice(0, half)) : null,
       };
     };
-    return { rows, rpe: stat('rpe'), pain: stat('pain'), wellness: stat('wellness'), load: stat('load') };
+    return { rows, rpe: stat('rpe'), pain: stat('pain'), wellness: stat('wellness'), load: stat('load'),
+      weeks: Evol.groups(rows, 'week'), months: Evol.groups(rows, 'month') };
+  },
+
+  // Per setmana (dilluns) o per mes (AAAA-MM): sessions, mitjanes d'RPE, EVA i wellness, i la càrrega total.
+  groups(rows, by = 'week') {
+    const map = new Map();
+    for (const r of rows) {
+      const key = by === 'month' ? U.monthKey(r.date) : U.weekStart(r.date);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(r);
+    }
+    const avg = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+    const vals = (list, k) => list.map((r) => r[k]).filter((x) => x != null);
+    return [...map.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([key, list]) => ({
+      key, n: list.length, rpe: avg(vals(list, 'rpe')), pain: avg(vals(list, 'pain')), wellness: avg(vals(list, 'wellness')),
+      load: vals(list, 'load').length ? vals(list, 'load').reduce((a, b) => a + b, 0) : null,
+    }));
   },
 };

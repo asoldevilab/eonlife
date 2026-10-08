@@ -90,7 +90,7 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i el dolor (EVA) del final de la sessió. Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -145,7 +145,7 @@ function sessionNums(s) {
   if (rpe == null && pain == null) return null;
   return html`<span class="cal-s-fb">
     ${rpe != null && html`<span class="cal-m cal-m-rpe" title="RPE de la sessió (1–10)"><small>RPE</small>${rpe}</span>`}
-    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>Dolor</small>${pain}</span>`}
+    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>EVA</small>${pain}</span>`}
   </span>`;
 }
 

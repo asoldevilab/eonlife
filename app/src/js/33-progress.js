@@ -9,7 +9,9 @@ function ProgressView({ pid, planId }) {
   const list = inPlan.length >= 2 ? inPlan : all;
   const done = list.filter((s) => s.status === 'feta');
   const [fromId, setFrom] = useState(list[0] ? list[0].id : '');
-  const [toId, setTo] = useState((done[done.length - 1] || list[list.length - 1] || {}).id || '');
+  // Per defecte, l'última sessió feta del mateix tipus que la primera (mateix objectiu: dia de genoll amb dia de genoll).
+  const sameKind = list[0] ? done.filter((s) => s.id !== list[0].id && (s.goal || '') === (list[0].goal || '')) : [];
+  const [toId, setTo] = useState((sameKind[sameKind.length - 1] || done[done.length - 1] || list[list.length - 1] || {}).id || '');
   const back = () => go('client', pid, 'pla');
   if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest pacient" /></div>`;
   if (list.length < 2) {
@@ -24,12 +26,14 @@ function ProgressView({ pid, planId }) {
   const anySpeed = res.blocks.some((b) => b.rows.some((r) => r.v1.b != null || r.v1.a != null));
   const options = list.map((s) => ({ v: s.id, label: `${s.planN && plan ? `S${s.planN}` : `S${s.number}`} · ${U.fmtDateShort(s.date)}${s.status === 'feta' ? '' : ' (prevista)'}` }));
 
-  return html`<div class="present">
-    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back}>
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back} noTheme=${true}>
+      <${ReportThemeSwitch} p=${p} />
       <label class="pv-pick"><span>De</span><${Select} value=${from.id} onValue=${setFrom} ariaLabel="Sessió d'abans" options=${options} /></label>
       <label class="pv-pick"><span>a</span><${Select} value=${to.id} onValue=${setTo} ariaLabel="Sessió d'ara" options=${options} /></label>
     </${PresentBar}>
-    <article class="sheet pv">
+    <article class=${`sheet pv ${theme}`}>
       <header class="sheet-head">
         <${BrandMark} />
         <div class="sheet-id">

@@ -1498,10 +1498,10 @@ tfoot .rpc { font-size: 14px; }
   --side-d: #EE7A8A; --side-e: #E6C55A; --series-1: #EE7A8A; --series-2: #E6C55A; --series-3: #9CC6F0;
   --grid: #5C282C; --axis: #C9ABA5; --baseline: #84504F; --pic-prop: #7A4A4C;
 }
-.present.report-light, .present.report-dark, .report.report-light, .report.report-dark { background: var(--bg); color: var(--ink); }
+.present.report-light, .present.report-dark, .report.report-light, .report.report-dark, .sheet.report-light, .sheet.report-dark { background: var(--bg); color: var(--ink); }
 .report-theme .seg-btn { min-width: 64px; }
 @media print {
-  html:has(.report.report-dark), body:has(.report.report-dark) { background: #421215; }
+  html:has(.report.report-dark), body:has(.report.report-dark), html:has(.sheet.report-dark), body:has(.sheet.report-dark) { background: #421215; }
 }
 
 /* ── Informes d'evolució (tests i sessions) ── */
@@ -1536,6 +1536,13 @@ tfoot .rpc { font-size: 14px; }
 }
 .tblock-head .h3 { font-size: 16.5px; letter-spacing: 0; text-transform: none; color: var(--ink); }
 .tchange .delta { margin-left: 4px; }
+
+/* Objectiu del pacient: el primer quadre de la fitxa i del resum */
+.pgoal { border-left: 4px solid var(--blk-cal); }
+.pgoal .h2 { display: inline-flex; align-items: center; gap: 8px; }
+.pgoal .h2 svg { color: var(--blk-cal); }
+.pgoal textarea { font-size: 17px; font-weight: 600; line-height: 1.4; }
+.pgoal-compact .card-head { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -3845,7 +3852,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-08 14:45";
+<script>window.EON_BUILD = "2026-10-08 15:36";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6124,7 +6131,24 @@ const Evol = {
         trend: vals.length >= 4 ? avg(vals.slice(half)) - avg(vals.slice(0, half)) : null,
       };
     };
-    return { rows, rpe: stat('rpe'), pain: stat('pain'), wellness: stat('wellness'), load: stat('load') };
+    return { rows, rpe: stat('rpe'), pain: stat('pain'), wellness: stat('wellness'), load: stat('load'),
+      weeks: Evol.groups(rows, 'week'), months: Evol.groups(rows, 'month') };
+  },
+
+  // Per setmana (dilluns) o per mes (AAAA-MM): sessions, mitjanes d'RPE, EVA i wellness, i la càrrega total.
+  groups(rows, by = 'week') {
+    const map = new Map();
+    for (const r of rows) {
+      const key = by === 'month' ? U.monthKey(r.date) : U.weekStart(r.date);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(r);
+    }
+    const avg = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+    const vals = (list, k) => list.map((r) => r[k]).filter((x) => x != null);
+    return [...map.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([key, list]) => ({
+      key, n: list.length, rpe: avg(vals(list, 'rpe')), pain: avg(vals(list, 'pain')), wellness: avg(vals(list, 'wellness')),
+      load: vals(list, 'load').length ? vals(list, 'load').reduce((a, b) => a + b, 0) : null,
+    }));
   },
 };
 
@@ -7007,14 +7031,17 @@ function makeDemoData() {
     db.sessions[s.id] = s;
   };
 
-  // Laura: dilluns, dimecres i divendres (dia A genoll / dia B maluc) durant 5 setmanes.
-  const w0 = U.addDays(U.weekStart(today), -35);
+  // Laura: dilluns i dijous (dia A genoll / dia B maluc) durant 13 setmanes (uns 3 mesos), amb una setmana de
+  // descàrrega cada quatre; l'RPE puja a poc a poc, el dolor del genoll baixa i el wellness va amb el son i la feina.
+  const W = 13;
+  const w0 = U.addDays(U.weekStart(today), -7 * W);
   let k = 0;
-  for (let w = 0; w < 5; w++) {
-    for (const off of [0, 2, 4]) {
+  for (let w = 0; w < W; w++) {
+    const deload = w % 4 === 3;
+    for (const off of [0, 3]) {
       const date = U.addDays(w0, w * 7 + off);
       const kneeDay = k % 2 === 0;
-      const sq = 40 + w * 2.5, hip = 60 + w * 5, rdl = 40 + w * 2.5;
+      const sq = 35 + Math.round(w * 1.5 * 2) / 2, hip = 50 + w * 4, rdl = 35 + Math.round(w * 1.5 * 2) / 2;
       const spec = kneeDay ? {
         mob: { focus: 'Maluc i turmell', items: [['X-MOB-01'], ['X-MOB-02'], ['X-MOB-03']] },
         act: { focus: 'Glutis', items: [['X-ACT-05'], ['X-ACT-12', { sets: '3', reps: '30 s' }]] },
@@ -7031,11 +7058,13 @@ function makeDemoData() {
         cal: { focus: 'Parasimpàtic', items: [['X-CAL-03'], ['X-CAL-02']] },
       };
       if (date < today) {
+        const rpe = Math.min(9, (deload ? 5 : 6 + Math.floor(w / 5)) + (kneeDay ? 1 : 0) - (k % 5 === 4 ? 1 : 0));
+        const pain = kneeDay ? Math.max(0, 3 - Math.floor(w / 2)) : (w < 2 ? 1 : 0);
         session(laura, date, 'Arnau', kneeDay ? 'Força de tren inferior · dominant de genoll' : 'Força de tren inferior · dominant de maluc', spec, {
-          rpe: [6, 7, 7, 8, 7][w] + (kneeDay ? 0 : -1), min: [60, 65, 60, 70, 65][w], pain: w < 2 && kneeDay ? 2 : 0,
-          sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: w < 2 && kneeDay ? 1 : 0,
-          notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : '',
-          decision: kneeDay ? `Pujar a ${U.fmt(sq + 2.5)} kg al back squat si manté RIR 2.` : 'Mantenir càrregues i prioritzar la tècnica de l\'RDL.',
+          rpe, min: deload ? 50 : [60, 65, 70, 65][k % 4], pain,
+          sleep: 3 + ((k + w) % 3), energy: 3 + (k % 3), painPre: pain >= 2 ? 1 : 0,
+          notes: kneeDay && w === 1 ? 'Molèstia lleu al genoll dret en el split squat (2/10). Es redueix recorregut.' : deload ? 'Setmana de descàrrega.' : '',
+          decision: kneeDay ? `Pujar a ${U.fmt(sq + 1.5)} kg al back squat si manté RIR 2.` : 'Mantenir càrregues i prioritzar la tècnica de l\'RDL.',
         });
       }
       k++;
@@ -12148,17 +12177,18 @@ function Legend({ items }) {
 
 // Evolució en el temps (una o dues sèries: p. ex. dreta i esquerra).
 // yMin / yMax: escala fixa (p. ex. RPE 0–10). L'SVG s'escala amb el contenidor (PDF de l'informe).
-function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax }) {
+// pointLabels: el valor escrit sobre cada punt (per llegir-lo exacte a l'informe i al PDF).
+function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax, pointLabels }) {
   const [ref, W] = useWidth();
   const [hover, setHover] = useState(null);
-  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
+  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--ink-2', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
   const clean = series.map((s) => ({ ...s, points: s.points.filter((p) => p.y != null && Number.isFinite(p.y) && U.parse(p.x)) }))
     .filter((s) => s.points.length);
   const all = clean.flatMap((s) => s.points);
   if (!all.length) return html`<div class="chart" ref=${ref}><div class="chart-empty">Encara no hi ha dades per dibuixar aquest gràfic.</div></div>`;
 
   const H = height;
-  const padL = 44, padR = 64, padT = 14, padB = 30;
+  const padL = 44, padR = 64, padT = pointLabels ? 24 : 14, padB = 30;
   const times = [...new Set(all.map((p) => p.x))].sort();
   let t0 = U.parse(times[0]).getTime(), t1 = U.parse(times[times.length - 1]).getTime();
   if (t0 === t1) { t0 -= 86400000 * 20; t1 += 86400000 * 20; }
@@ -12197,6 +12227,7 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, y
       ${clean.map((s) => html`<g>
         <path d=${s.points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join('')} fill="none" stroke=${col(s.color)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
         ${s.points.map((p) => html`<circle cx=${sx(p.x)} cy=${sy(p.y)} r=${hover === p.x ? 5.5 : 4} fill=${col(s.color)} stroke=${col('var(--surface)')} stroke-width="2" />`)}
+        ${pointLabels && s.points.slice(0, -1).map((p) => html`<text x=${sx(p.x)} y=${sy(p.y) - 9} text-anchor="middle" class="ptlabel" fill=${col('var(--ink-2)')} font-size="10.5" font-weight="650">${fmtY(p.y)}</text>`)}
       </g>`)}
       ${endsOk && ends.map((e) => html`<text x=${sx(e.p.x) + 9} y=${e.y + 4} class="endlabel" fill=${col('var(--ink)')} font-size="12.5" font-weight="650">${fmtY(e.p.y)}${unit ? ` ${unit}` : ''}</text>`)}
       <rect x=${padL - 10} y=${padT} width=${iw + 20} height=${ih} fill="transparent" onPointerMove=${onMove} onPointerLeave=${() => setHover(null)} />
@@ -13986,6 +14017,16 @@ function PatientView({ id, tab = 'resum' }) {
   </div>`;
 }
 
+// Objectiu que es treballa amb el pacient: el primer quadre de la fitxa i del resum (també surt a la capçalera i als informes).
+function GoalCard({ p, compact }) {
+  const set = (v) => Store.update('patients', p.id, (x) => { x.goal = v; });
+  return html`<section class=${U.cls('card pgoal', compact && 'pgoal-compact')}>
+    <div class="card-head"><h2 class="h2"><${Icon} name="target" size=${18} />Objectiu</h2>${!compact && html`<${SaveStatus} />`}</div>
+    <${Area} id=${compact ? 'rs-goal' : 'pf-goal'} value=${p.goal} onValue=${set} rows=${compact ? 2 : 3} ariaLabel="Objectiu del pacient"
+      placeholder="Què vol aconseguir el pacient i què treballarem (p. ex. tornar a córrer 10 km sense dolor al genoll)" />
+  </section>`;
+}
+
 function PatientSummary({ p, sessions, assessments }) {
   const today = U.today();
   const next = sessions.filter((s) => s.date >= today && s.status !== 'feta')[0];
@@ -13994,7 +14035,8 @@ function PatientSummary({ p, sessions, assessments }) {
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
-  return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
+  return html`<${GoalCard} p=${p} compact=${true} />
+  <${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">
     <div class="quickadd-head"><h2 class="h2">Nou test</h2><span class="muted small">Obre el formulari d'aquest pacient directament a l'apartat</span></div>
     <div class="quickadd-chips">
@@ -14196,6 +14238,7 @@ function PatientForm({ p, onRemove }) {
       : html`<${TextInput} id=${`pf-${k}`} type=${opts.type || 'text'} value=${p[k]} onValue=${set(k)} placeholder=${opts.placeholder} list=${opts.list} />`}
   </${Field}>`;
   return html`<div class="stack">
+    <${GoalCard} p=${p} />
     <section class="card pnotes">
       <div class="card-head"><h2 class="h2"><${Icon} name="lock" size=${18} />Comentaris del professional</h2><${SaveStatus} /></div>
       <p class="muted small">Només els veu l'equip a l'app: no surten mai als informes, ni al PDF ni a l'Excel de la carpeta del pacient.</p>
@@ -14245,7 +14288,6 @@ function PatientForm({ p, onRemove }) {
         <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
-        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el pacient?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
       </div>
     </section>
@@ -15223,7 +15265,7 @@ function TestBlock({ t, charts }) {
         ? html`<${ChangeText} c=${t.change.d} unit=${t.unit} side="D" /><${ChangeText} c=${t.change.e} unit=${t.unit} side="E" />`
         : html`<${ChangeText} c=${t.change} unit=${t.unit} />`}</div>
     </div>
-    ${charts && t.rows.length >= 2 && html`<${LineChart} series=${series} unit=${t.unit} decimals=${dec} height=${190} ariaLabel=${`Evolució: ${t.label}`} />`}
+    ${charts && t.rows.length >= 2 && html`<${LineChart} series=${series} unit=${t.unit} decimals=${dec} height=${200} ariaLabel=${`Evolució: ${t.label}`} pointLabels=${!t.bi && t.rows.length <= 12} />`}
     <div class="table-wrap"><table class="table rtable ttable">
       <thead><tr><th>Data</th>${t.bi ? html`<th class="num">Dreta</th><th class="num">Esquerra</th><th class="num">Asimetria</th>` : html`<th class="num">Valor</th>`}</tr></thead>
       <tbody>${t.rows.map((r) => html`<tr>
@@ -15305,6 +15347,21 @@ function SessionsReport({ pid }) {
   if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest pacient" /></div>`;
   const ev = Evol.sessions(all, { from, to });
   const pts = (k) => ev.rows.map((r) => ({ x: r.date, y: r[k] }));
+  // Taula de xifres: mitjana, mínim, màxim, primera i última sessió, i tendència (2a meitat − 1a meitat).
+  const numRow = (label, st, unit, dec, better) => st && html`<tr>
+    <td><strong>${label}</strong></td><td class="num">${st.n}</td><td class="num"><strong>${U.fmt(st.avg, dec)}</strong>${unit}</td>
+    <td class="num">${U.fmt(st.min, dec)}</td><td class="num">${U.fmt(st.max, dec)}</td><td class="num">${U.fmt(st.first, dec)}</td><td class="num">${U.fmt(st.last, dec)}</td>
+    <td class="num">${st.trend == null ? '—' : html`<span class=${U.cls('delta', better && st.trend !== 0 && ((st.trend > 0) === (better === 'up') ? 'delta-up' : 'delta-down'))}>${U.fmtSigned(st.trend, 1)}</span>`}</td></tr>`;
+  const groupTable = (title, list, label) => html`<h3 class="h3">${title}</h3>
+    <div class="table-wrap"><table class="table rtable ttable">
+      <thead><tr><th>${label}</th><th class="num">Sessions</th>${show.rpe && html`<th class="num">RPE mitjà</th>`}${show.pain && html`<th class="num">EVA mitjana</th>`}${show.wellness && html`<th class="num">Wellness mitjà</th>`}${show.load && html`<th class="num">Càrrega (UA)</th>`}</tr></thead>
+      <tbody>${list.map((g) => html`<tr>
+        <td>${label === 'Mes' ? U.fmtMonth(g.key) : `${U.fmtDate(g.key)} – ${U.fmtDate(U.addDays(g.key, 6))}`}</td><td class="num">${g.n}</td>
+        ${show.rpe && html`<td class="num">${g.rpe == null ? '—' : U.fmt(g.rpe, 1)}</td>`}
+        ${show.pain && html`<td class="num"><span class=${U.cls('tasym', tone(g.pain, true) && `tone-${tone(g.pain, true)}`)}>${g.pain == null ? '—' : U.fmt(g.pain, 1)}</span></td>`}
+        ${show.wellness && html`<td class="num">${g.wellness == null ? '—' : U.fmt(g.wellness, 1)}</td>`}
+        ${show.load && html`<td class="num">${g.load == null ? '—' : U.fmt(g.load, 0)}</td>`}
+      </tr>`)}</tbody></table></div>`;
   const opt = (k, label) => html`<label class="check"><input type="checkbox" checked=${show[k]} onChange=${(e) => setShow({ ...show, [k]: e.currentTarget.checked })} /> ${label}</label>`;
   const theme = reportThemeClass(p);
   const center = Store.settings.centerName || 'EON Life';
@@ -15312,7 +15369,7 @@ function SessionsReport({ pid }) {
   const avg = (st, dec = 1) => (st ? U.fmt(st.avg, dec) : '—');
   const chart = (title, sub, k, yMin, yMax, color = 'var(--series-1)') => html`<div class="tblock">
     <div class="tblock-head"><h3 class="h3">${title}</h3><span class="muted small">${sub}</span></div>
-    ${pts(k).some((x) => x.y != null) ? html`<${LineChart} series=${[{ name: title, color, points: pts(k) }]} decimals=${0} yMin=${yMin} yMax=${yMax} height=${200} ariaLabel=${title} />`
+    ${pts(k).some((x) => x.y != null) ? html`<${LineChart} series=${[{ name: title, color, points: pts(k) }]} decimals=${0} yMin=${yMin} yMax=${yMax} height=${210} ariaLabel=${title} pointLabels=${ev.rows.length <= 40} />`
       : html`<p class="muted small">Cap sessió d'aquest rang té aquesta dada.</p>`}
   </div>`;
   const tone = (v, hiBad) => (v == null ? '' : hiBad ? (v >= 6 ? 'bad' : v >= 3 ? 'warn' : 'ok') : '');
@@ -15323,7 +15380,7 @@ function SessionsReport({ pid }) {
     </${PresentBar}>
     <section class="rpick no-print" aria-label="Tria del contingut de l'informe">
       <${ReportRange} from=${from} to=${to} setFrom=${setFrom} setTo=${setTo} first=${first} />
-      <div class="rpick-opts">${opt('rpe', 'RPE')}${opt('pain', 'Dolor (EVA)')}${opt('wellness', 'Wellness total')}${opt('items', 'Wellness per pregunta')}${opt('load', 'Càrrega (RPE × minuts)')}</div>
+      <div class="rpick-opts">${opt('rpe', 'RPE')}${opt('pain', 'EVA (dolor en acabar)')}${opt('wellness', 'Wellness total')}${opt('items', 'Wellness per pregunta')}${opt('load', 'Càrrega (RPE × minuts)')}</div>
     </section>
     <article class=${`report report-narrow ${theme}`}>
       <${EvolCover} p=${p} eyebrow="Informe d'evolució · Sessions" from=${from} to=${to} count=${U.plural(ev.rows.length, 'sessió', 'sessions')} />
@@ -15332,15 +15389,26 @@ function SessionsReport({ pid }) {
           <h2 class="rsec-title">Resum</h2>
           <div class="rtiles">
             ${show.rpe && html`<${Stat} label="RPE mitjà" value=${avg(ev.rpe)} unit="/10" sub=${ev.rpe ? html`${U.fmt(ev.rpe.min, 0)}–${U.fmt(ev.rpe.max, 0)} · ${trendWord(ev.rpe, null)}` : 'Sense dades'} />`}
-            ${show.pain && html`<${Stat} label="Dolor mitjà en acabar" value=${avg(ev.pain)} unit="/10" sub=${ev.pain ? html`EVA ${U.fmt(ev.pain.min, 0)}–${U.fmt(ev.pain.max, 0)} · ${trendWord(ev.pain, 'down')}` : 'Sense dades'} />`}
+            ${show.pain && html`<${Stat} label="EVA mitjana (dolor en acabar)" value=${avg(ev.pain)} unit="/10" sub=${ev.pain ? html`${U.fmt(ev.pain.min, 0)}–${U.fmt(ev.pain.max, 0)} · ${trendWord(ev.pain, 'down')}` : 'Sense dades'} />`}
             ${show.wellness && html`<${Stat} label="Wellness mitjà" value=${avg(ev.wellness)} unit="/25" sub=${ev.wellness ? html`${U.fmt(ev.wellness.min, 0)}–${U.fmt(ev.wellness.max, 0)} · ${trendWord(ev.wellness, 'up')}` : 'Sense dades'} />`}
             ${show.load && html`<${Stat} label="Càrrega mitjana" value=${avg(ev.load, 0)} unit="UA" sub=${ev.load ? `${U.plural(ev.load.n, 'sessió', 'sessions')} amb durada` : 'Sense dades'} />`}
           </div>
+          <h3 class="h3">Xifres del període</h3>
+          <div class="table-wrap"><table class="table rtable ttable tnums">
+            <thead><tr><th></th><th class="num">Sessions</th><th class="num">Mitjana</th><th class="num">Mínim</th><th class="num">Màxim</th><th class="num">Primera</th><th class="num">Última</th><th class="num">Tendència</th></tr></thead>
+            <tbody>
+              ${show.rpe && numRow('RPE (1–10)', ev.rpe, '', 1, null)}
+              ${show.pain && numRow('EVA (0–10)', ev.pain, '', 1, 'down')}
+              ${show.wellness && numRow('Wellness (/25)', ev.wellness, '', 1, 'up')}
+              ${show.load && numRow('Càrrega (UA)', ev.load, '', 0, null)}
+            </tbody>
+          </table></div>
+          <p class="muted small">Tendència: mitjana de la segona meitat de les sessions menys la de la primera (amb 4 sessions o més).</p>
         </section>
         <section class="rsec">
           <h2 class="rsec-title">Evolució</h2>
           ${show.rpe && chart('RPE de cada sessió', '1 = molt suau · 10 = esforç màxim', 'rpe', 0, 10)}
-          ${show.pain && chart('Dolor en acabar (EVA)', '0 = sense dolor · 10 = el pitjor imaginable', 'pain', 0, 10, 'var(--series-2)')}
+          ${show.pain && chart('EVA · dolor en acabar', '0 = sense dolor · 10 = el pitjor imaginable', 'pain', 0, 10, 'var(--series-2)')}
           ${show.wellness && chart('Wellness en arribar', 'Suma de les 5 preguntes (màxim 25)', 'wellness', 5, 25)}
           ${show.load && chart('Càrrega de la sessió', 'RPE × minuts (UA)', 'load', null, null)}
           ${show.items && html`<h3 class="h3">Wellness per pregunta <span class="muted small">· de l'1 al 5 (5 = el millor estat)</span></h3>
@@ -15350,9 +15418,14 @@ function SessionsReport({ pid }) {
             </div>`)}</div>`}
         </section>
         <section class="rsec">
+          <h2 class="rsec-title">Per mesos i per setmanes</h2>
+          ${groupTable('Per mesos', ev.months, 'Mes')}
+          ${groupTable('Per setmanes', ev.weeks, 'Setmana')}
+        </section>
+        <section class="rsec">
           <h2 class="rsec-title">Sessió a sessió</h2>
           <div class="table-wrap"><table class="table rtable ttable">
-            <thead><tr><th>Data</th><th>Sessió</th><th>Objectiu</th>${show.rpe && html`<th class="num">RPE</th>`}${show.pain && html`<th class="num">Dolor</th>`}${show.wellness && html`<th class="num">Wellness</th>`}${show.load && html`<th class="num">UA</th>`}</tr></thead>
+            <thead><tr><th>Data</th><th>Sessió</th><th>Objectiu</th>${show.rpe && html`<th class="num">RPE</th>`}${show.pain && html`<th class="num">EVA</th>`}${show.wellness && html`<th class="num">Wellness</th>`}${show.load && html`<th class="num">UA</th>`}</tr></thead>
             <tbody>${ev.rows.map((r) => html`<tr>
               <td>${U.fmtDate(r.date)}</td><td>S${r.number}</td><td>${r.goal || '—'}</td>
               ${show.rpe && html`<td class="num">${r.rpe ?? '—'}</td>`}
@@ -16303,11 +16376,13 @@ function SessionSheet({ id }) {
   const warm = blocks.filter((b) => ['mob', 'act', 'pot'].includes(b.key)).length;
   const fin = blocks.filter((b) => ['acc', 'cal'].includes(b.key)).length;
   const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
-  return html`<div class="present">
-    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)}>
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}>
+      <${ReportThemeSwitch} p=${p} />
       <${Btn} variant="ghost" icon="edit" onClick=${() => go('sessio', s.id)}>Edita</${Btn}>
     </${PresentBar}>
-    <article class="sheet">
+    <article class=${`sheet ${theme}`}>
       <header class="sheet-head">
         <${BrandMark} />
         <div class="sheet-id">
@@ -16515,7 +16590,7 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i el dolor (EVA) del final de la sessió. Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -16570,7 +16645,7 @@ function sessionNums(s) {
   if (rpe == null && pain == null) return null;
   return html`<span class="cal-s-fb">
     ${rpe != null && html`<span class="cal-m cal-m-rpe" title="RPE de la sessió (1–10)"><small>RPE</small>${rpe}</span>`}
-    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>Dolor</small>${pain}</span>`}
+    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>EVA</small>${pain}</span>`}
   </span>`;
 }
 
@@ -17868,7 +17943,9 @@ function ProgressView({ pid, planId }) {
   const list = inPlan.length >= 2 ? inPlan : all;
   const done = list.filter((s) => s.status === 'feta');
   const [fromId, setFrom] = useState(list[0] ? list[0].id : '');
-  const [toId, setTo] = useState((done[done.length - 1] || list[list.length - 1] || {}).id || '');
+  // Per defecte, l'última sessió feta del mateix tipus que la primera (mateix objectiu: dia de genoll amb dia de genoll).
+  const sameKind = list[0] ? done.filter((s) => s.id !== list[0].id && (s.goal || '') === (list[0].goal || '')) : [];
+  const [toId, setTo] = useState((sameKind[sameKind.length - 1] || done[done.length - 1] || list[list.length - 1] || {}).id || '');
   const back = () => go('client', pid, 'pla');
   if (!p) return html`<div class="page"><${Empty} icon="chart" title="No trobo aquest pacient" /></div>`;
   if (list.length < 2) {
@@ -17883,12 +17960,14 @@ function ProgressView({ pid, planId }) {
   const anySpeed = res.blocks.some((b) => b.rows.some((r) => r.v1.b != null || r.v1.a != null));
   const options = list.map((s) => ({ v: s.id, label: `${s.planN && plan ? `S${s.planN}` : `S${s.number}`} · ${U.fmtDateShort(s.date)}${s.status === 'feta' ? '' : ' (prevista)'}` }));
 
-  return html`<div class="present">
-    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back}>
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`Progrés · ${U.fullName(p)}`} onClose=${back} noTheme=${true}>
+      <${ReportThemeSwitch} p=${p} />
       <label class="pv-pick"><span>De</span><${Select} value=${from.id} onValue=${setFrom} ariaLabel="Sessió d'abans" options=${options} /></label>
       <label class="pv-pick"><span>a</span><${Select} value=${to.id} onValue=${setTo} ariaLabel="Sessió d'ara" options=${options} /></label>
     </${PresentBar}>
-    <article class="sheet pv">
+    <article class=${`sheet pv ${theme}`}>
       <header class="sheet-head">
         <${BrandMark} />
         <div class="sheet-id">
