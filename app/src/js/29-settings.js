@@ -93,6 +93,8 @@ function SettingsView() {
 
     <${ExcelSettingsCard} />
 
+    <${PicMotionCard} />
+
     <section class="card">
       <div class="card-head"><h2 class="h2">Versió de l'app</h2><span class="muted">${window.EON_BUILD || ''}</span></div>
       ${AppUpdate.enabled() ? html`<p class="muted">L'app mira sola si n'hi ha una versió nova cada cop que s'obre. Si veus alguna cosa antiga, comprova-ho aquí.</p>
@@ -197,4 +199,16 @@ function M365DataCard() {
       <${Btn} variant="ghost" icon="refresh" onClick=${changeFolder}>Canvia de carpeta</${Btn}>
       <${Btn} variant="ghost" icon="x" onClick=${logout}>Tanca la sessió</${Btn}>
     </div>`;
+}
+
+// Dibuixos dels exercicis en moviment (opció d'aquest aparell): es poden aturar si la tauleta va lenta o distreuen.
+function PicMotionCard() {
+  const [on, setOn] = useState(() => PicMotion.on());
+  const toggle = (v) => { PicMotion.set(v); PIC_CACHE.clear(); setOn(PicMotion.on()); Store.emit(); };
+  return html`<section class="card">
+    <div class="card-head"><h2 class="h2">Dibuixos dels exercicis</h2></div>
+    <label class="check"><input type="checkbox" id="pic-motion" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} />
+      <span>En moviment (de la posició inicial a la final)</span></label>
+    <p class="muted small">Només en aquest aparell. Si el sistema demana menys moviment, es queden quiets. A la fitxa de la sessió impresa o en PDF, cada exercici surt amb la posició inicial i la final.</p>
+  </section>`;
 }

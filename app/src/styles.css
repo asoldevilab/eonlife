@@ -1129,7 +1129,14 @@ tfoot .rpc { font-size: 14px; }
   .sblock-name { font-size: 18pt; }
   .sblock-num { width: 26pt; height: 26pt; font-size: 15pt; }
   .sx-item { padding: 6pt 0; grid-template-columns: 26pt 30pt minmax(0, 1fr); }
+  /* amb inici → final, les dues imatges a dalt i el nom a sota, a tota l'amplada */
+  .sx-item:has(.has-seq) { grid-template-columns: 22pt minmax(0, 1fr); row-gap: 4pt; }
+  .sx-item:has(.has-seq) > .sx-body { grid-column: 2; }
   .sx-thumb { --thumb: 30pt !important; }
+  /* al paper i al PDF, cada exercici amb la posició inicial i la final (el moviment no s'hi veu) */
+  .exthumb.has-seq { width: auto; height: auto; background: none; border-radius: 0; overflow: visible; }
+  .exthumb.has-seq .exthumb-pic { display: none; }
+  .exthumb.has-seq .exthumb-seq { display: inline-flex; }
   .sx-name, .sblock-main .sx-name { font-size: 11.5pt; }
   .sx-rx, .sblock-main .sx-rx { font-size: 11pt; }
   .sx-note { font-size: 9.5pt; }
@@ -1365,6 +1372,9 @@ tfoot .rpc { font-size: 14px; }
 .exthumb { --pic-bg: var(--surface-3); --pic-bg: color-mix(in srgb, var(--blk, var(--brand)) 10%, var(--surface)); flex: none; display: inline-block; width: var(--thumb, 52px); height: var(--thumb, 52px); border-radius: 22%; background: var(--pic-bg); overflow: hidden; vertical-align: middle; }
 .exthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .exthumb-pic { display: block; width: 100%; height: 100%; }
+.exthumb-seq { display: none; align-items: center; gap: 2px; }
+.exthumb-step { display: block; width: var(--thumb, 52px); height: var(--thumb, 52px); border-radius: 22%; background: var(--pic-bg); overflow: hidden; }
+.exthumb-arrow { font-weight: 800; color: var(--blk, var(--brand)); font-size: 0.9em; padding: 0 1px; }
 .pic { display: block; width: 100%; height: 100%; }
 .pic .pf { stroke: var(--ink); }
 .pic .phd { fill: var(--ink); }

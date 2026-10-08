@@ -1146,7 +1146,14 @@ tfoot .rpc { font-size: 14px; }
   .sblock-name { font-size: 18pt; }
   .sblock-num { width: 26pt; height: 26pt; font-size: 15pt; }
   .sx-item { padding: 6pt 0; grid-template-columns: 26pt 30pt minmax(0, 1fr); }
+  /* amb inici → final, les dues imatges a dalt i el nom a sota, a tota l'amplada */
+  .sx-item:has(.has-seq) { grid-template-columns: 22pt minmax(0, 1fr); row-gap: 4pt; }
+  .sx-item:has(.has-seq) > .sx-body { grid-column: 2; }
   .sx-thumb { --thumb: 30pt !important; }
+  /* al paper i al PDF, cada exercici amb la posició inicial i la final (el moviment no s'hi veu) */
+  .exthumb.has-seq { width: auto; height: auto; background: none; border-radius: 0; overflow: visible; }
+  .exthumb.has-seq .exthumb-pic { display: none; }
+  .exthumb.has-seq .exthumb-seq { display: inline-flex; }
   .sx-name, .sblock-main .sx-name { font-size: 11.5pt; }
   .sx-rx, .sblock-main .sx-rx { font-size: 11pt; }
   .sx-note { font-size: 9.5pt; }
@@ -1382,6 +1389,9 @@ tfoot .rpc { font-size: 14px; }
 .exthumb { --pic-bg: var(--surface-3); --pic-bg: color-mix(in srgb, var(--blk, var(--brand)) 10%, var(--surface)); flex: none; display: inline-block; width: var(--thumb, 52px); height: var(--thumb, 52px); border-radius: 22%; background: var(--pic-bg); overflow: hidden; vertical-align: middle; }
 .exthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .exthumb-pic { display: block; width: 100%; height: 100%; }
+.exthumb-seq { display: none; align-items: center; gap: 2px; }
+.exthumb-step { display: block; width: var(--thumb, 52px); height: var(--thumb, 52px); border-radius: 22%; background: var(--pic-bg); overflow: hidden; }
+.exthumb-arrow { font-weight: 800; color: var(--blk, var(--brand)); font-size: 0.9em; padding: 0 1px; }
 .pic { display: block; width: 100%; height: 100%; }
 .pic .pf { stroke: var(--ink); }
 .pic .phd { fill: var(--ink); }
@@ -3876,7 +3886,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-08 15:57";
+window.EON_BUILD = "2026-10-08 17:50";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -12895,18 +12905,56 @@ function picMove(B, dx, dy) {
 }
 
 // Col·loca la figura: centrada i amb el punt més baix a terra (o «lift» per sobre). Si no hi cap, s'encongeix.
-function picLayout(P) {
-  const box = (B) => {
-    const pts = picPoints(B);
-    const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
-    return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
-  };
-  let B = picBody(P, 1);
-  let bx = box(B);
+// Per als fotogrames del moviment (opt): la mateixa escala a tots (opt.s), el punt de suport a la mateixa x (opt.ax:
+// el peu, o el maluc si P.anchor és 'hip') i, si la figura penja (P.hang), les mans a la mateixa alçada (opt.hy).
+const picBox = (B) => {
+  const pts = picPoints(B);
+  const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+  return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+};
+const picAnchor = (P, B) => (P.anchor === 'hip' ? B.p[0] : B.front ? (B.l[2][0] + B.m[2][0]) / 2 : B.l[2][0]);
+function picScale(P) {
+  const bx = picBox(picBody(P, 1));
   const lift = P.lift || 0;
-  const s = Math.min(1, 86 / (bx.x1 - bx.x0), (PIC_FLOOR - lift - 6) / (bx.y1 - bx.y0)) * (P.s || 1);
-  if (s !== 1) { B = picBody(P, s); bx = box(B); }
-  return picMove(B, 50 - (bx.x0 + bx.x1) / 2 + (P.dx || 0) * s, PIC_FLOOR - lift * s - bx.y1);
+  return Math.min(1, 86 / (bx.x1 - bx.x0), (PIC_FLOOR - lift - 6) / (bx.y1 - bx.y0)) * (P.s || 1);
+}
+function picLayout(P, opt = {}) {
+  const s = opt.s ?? picScale(P);
+  const B = picBody(P, s);
+  const bx = picBox(B);
+  const lift = P.lift || 0;
+  const dx = opt.ax != null ? opt.ax - picAnchor(P, B) : 50 - (bx.x0 + bx.x1) / 2 + (P.dx || 0) * s;
+  const dy = P.hang && opt.hy != null ? opt.hy - B.a[2][1] : PIC_FLOOR - lift * s - bx.y1;
+  return picMove(B, dx, dy);
+}
+
+// ── Moviment ──
+// Cada postura dinàmica té la posició inicial (from: només els angles que canvien) i la final (la postura mateixa).
+// Els fotogrames s'interpolen angle a angle (no punt a punt, perquè els braços i les cames no s'escurcin).
+const picLerpN = (x, y, k) => x + (y - x) * k;
+function picLerp(A, B, k) {
+  const out = { ...B };
+  for (const f of ['t', 'hd', 'lift', 'dx']) if (A[f] != null || B[f] != null) out[f] = picLerpN(A[f] || 0, B[f] || 0, k);
+  const arr = (P, f) => P[f] || (f === 'a' ? [92, 88] : f === 'b' ? (P.a || [92, 88]) : f === 'l' ? [90, 90, 0] : (P.l || [90, 90, 0]));
+  for (const f of ['a', 'b', 'l', 'm']) {
+    const x = arr(A, f), y = arr(B, f);
+    out[f] = y.map((v, i) => (v == null ? v : picLerpN(x[i] ?? v, v, k)));
+  }
+  return out;
+}
+const picStart = (P) => ({ ...P, ...(P.from || {}) });
+const PIC_STEPS = 5;
+function picFrames(P) {
+  const A = picStart(P);
+  const ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * x);
+  const poses = Array.from({ length: PIC_STEPS + 1 }, (_, i) => picLerp(A, P, ease(i / PIC_STEPS)));
+  const s = Math.min(...poses.map(picScale));
+  const end = picLayout(P, { s });
+  // si algun fotograma no hi cap amb el suport fix, es centra cada un pel seu compte
+  const opt = { s, ax: picAnchor(P, end), hy: end.a[2][1] };
+  const out = poses.map((Q) => picLayout(Q, opt));
+  const fits = out.every((B) => { const b = picBox(B); return b.x0 > 1 && b.x1 < 99 && b.y0 > 1; });
+  return { poses, layouts: fits ? out : poses.map((Q) => picLayout(Q, { s })) };
 }
 
 // ── Peces SVG ──
@@ -12931,137 +12979,138 @@ const PROP = {
 const PICS = {
   stand: { label: 'Dempeus', a: [95, 80], b: [85, 95], m: [92, 88, 0] },
   stand_hold: { label: 'Dempeus amb pes', a: [92, 90], b: [88, 92], m: [92, 88, 0], grip: 'hands' },
-  squat: { band: 'knees', label: 'Squat', t: -64, l: [10, 106, 0], a: [72, -72], grip: 'chest' },
-  squat_back: { label: 'Squat amb barra', t: -62, l: [10, 106, 0], a: [150, -105], grip: 'back' },
-  squat_box: { label: 'Squat a caixa', t: -64, l: [10, 106, 0], a: [5, 0], props: (B) => PROP.box(B.p[0] - 13, B.p[0] + 2, B.p[1] + 3.5) },
-  squat_oh: { label: 'Squat amb braços amunt', t: -72, hd: 16, l: [12, 106, 0], a: [-94, -96], grip: 'hands' },
-  pistol: { label: 'Squat a una cama', t: -55, l: [12, 108, 0], m: [-4, -4], a: [-6, -4], grip: 'chest' },
-  split: { label: 'Estocada', t: -88, l: [8, 92, 0], m: [104, 172, 98], a: [92, 90], grip: 'hands' },
-  split_bench: { label: 'Squat búlgar', t: -84, l: [8, 94, 0], m: [112, -150, 180], a: [92, 90], grip: 'hands',
+  squat: { from: { t: -88, l: [92, 88, 0] }, band: 'knees', label: 'Squat', t: -64, l: [10, 106, 0], a: [72, -72], grip: 'chest' },
+  squat_back: { from: { t: -89, l: [91, 89, 0] }, label: 'Squat amb barra', t: -62, l: [10, 106, 0], a: [150, -105], grip: 'back' },
+  squat_box: { from: { t: -88, l: [92, 88, 0] }, label: 'Squat a caixa', t: -64, l: [10, 106, 0], a: [5, 0], props: (B) => PROP.box(B.p[0] - 13, B.p[0] + 2, B.p[1] + 3.5) },
+  squat_oh: { from: { t: -90, l: [92, 88, 0] }, label: 'Squat amb braços amunt', t: -72, hd: 16, l: [12, 106, 0], a: [-94, -96], grip: 'hands' },
+  pistol: { from: { t: -86, l: [90, 90, 0] }, label: 'Squat a una cama', t: -55, l: [12, 108, 0], m: [-4, -4], a: [-6, -4], grip: 'chest' },
+  split: { from: { t: -90, l: [62, 100, 0], m: [114, 128, 98] }, label: 'Estocada', t: -88, l: [8, 92, 0], m: [104, 172, 98], a: [92, 90], grip: 'hands' },
+  split_bench: { from: { t: -88, l: [62, 100, 0] }, label: 'Squat búlgar', t: -84, l: [8, 94, 0], m: [112, -150, 180], a: [92, 90], grip: 'hands',
     props: (B) => PROP.bench(B.m[3][0] - 8, B.m[2][0] + 5, B.m[2][1] + 2.5) },
-  split_oh: { label: 'Estocada amb braços amunt', t: -88, hd: 24, l: [8, 92, 0], m: [104, 172, 98], a: [-90, -92], grip: 'hands' },
-  lateral_lunge: { label: 'Estocada lateral', front: true, t: -95, l: [40, 100], m: [140, 140], a: [125, -20], b: [55, 200] },
-  side_step: { band: 'knees', label: 'Passes laterals', front: true, t: -90, l: [70, 98], m: [110, 82], a: [70, 140], b: [110, 40] },
-  stand_abd: { band: 'knees', label: 'Abducció dempeus', front: true, t: -92, l: [62, 62], m: [92, 90], a: [70, 140], b: [110, 40] },
+  split_oh: { from: { t: -90, l: [62, 100, 0], m: [114, 128, 98] }, label: 'Estocada amb braços amunt', t: -88, hd: 24, l: [8, 92, 0], m: [104, 172, 98], a: [-90, -92], grip: 'hands' },
+  lateral_lunge: { from: { t: -90, l: [66, 96], m: [114, 84] }, label: 'Estocada lateral', front: true, t: -95, l: [40, 100], m: [140, 140], a: [125, -20], b: [55, 200] },
+  side_step: { from: { l: [82, 94], m: [98, 86] }, band: 'knees', label: 'Passes laterals', front: true, t: -90, l: [70, 98], m: [110, 82], a: [70, 140], b: [110, 40] },
+  stand_abd: { from: { l: [90, 90] }, band: 'knees', label: 'Abducció dempeus', front: true, t: -92, l: [62, 62], m: [92, 90], a: [70, 140], b: [110, 40] },
   // La cama de darrere ben estirada enrere i amunt, el tronc una mica endavant i les mans a la paret.
-  stand_kick: { label: 'Extensió de maluc dempeus', t: -76, l: [146, 150, 60], m: [92, 90, 0], a: [14, 4],
+  stand_kick: { from: { l: [100, 96, 20] }, label: 'Extensió de maluc dempeus', t: -76, l: [146, 150, 60], m: [92, 90, 0], a: [14, 4],
     props: (B) => PROP.wall(B.a[2][0] + 3) },
-  stepup: { label: 'Step-up', t: -84, l: [-8, 96, 0], m: [100, 96, 30], a: [94, 86], grip: 'hands',
+  stepup: { from: { t: -84, l: [-8, 96, 0], m: [100, 96, 30], lift: 0 }, label: 'Step-up', t: -88, l: [88, 92, 0], m: [60, 120, 40], lift: 14, a: [94, 86], grip: 'hands',
     props: (B) => PROP.box(B.l[2][0] - 9, B.l[2][0] + 14, B.l[2][1] + 3) },
-  hinge: { label: 'Bisagra (pes mort)', t: -28, l: [82, 98, 0], a: [90, 90], grip: 'hands' },
-  goodmorning: { label: 'Good morning', t: -25, l: [84, 96, 0], a: [175, -100], grip: 'back' },
-  hinge_sl: { label: 'Pes mort a una cama', t: -14, l: [92, 90, 0], m: [176, 178, 100], a: [90, 90], grip: 'hands' },
-  swing: { label: 'Swing', t: -88, l: [88, 92, 0], a: [8, 4], grip: 'chest' },
-  swing_oh: { label: 'Swing per sobre del cap', t: -92, a: [-62, -66], grip: 'chest' },
-  bridge: { band: 'knees', label: 'Pont de glutis', t: 158, hd: -10, l: [-30, 98, 0], a: [12, 4], grip: 'hips' },
-  bridge_sl: { label: 'Pont de glutis a una cama', t: 158, hd: -10, l: [-22, -22, -100], m: [-30, 98, 0], a: [12, 4], grip: 'hips' },
-  bridge_ball: { label: 'Curl femoral amb fitball', t: 160, hd: -10, l: [-24, 16, -60], a: [14, 4],
+  hinge: { from: { t: -88, l: [92, 88, 0] }, label: 'Bisagra (pes mort)', t: -28, l: [82, 98, 0], a: [90, 90], grip: 'hands' },
+  goodmorning: { from: { t: -88, l: [92, 88, 0] }, label: 'Good morning', t: -25, l: [84, 96, 0], a: [175, -100], grip: 'back' },
+  hinge_sl: { from: { t: -88, m: [96, 92, 10] }, label: 'Pes mort a una cama', t: -14, l: [92, 90, 0], m: [176, 178, 100], a: [90, 90], grip: 'hands' },
+  swing: { from: { t: -30, l: [78, 100, 0], a: [98, 102] }, label: 'Swing', t: -88, l: [88, 92, 0], a: [8, 4], grip: 'chest' },
+  swing_oh: { from: { t: -30, l: [78, 100, 0], a: [98, 102] }, label: 'Swing per sobre del cap', t: -92, a: [-62, -66], grip: 'chest' },
+  bridge: { from: { t: 176, l: [-46, 62, 0] }, band: 'knees', label: 'Pont de glutis', t: 158, hd: -10, l: [-30, 98, 0], a: [12, 4], grip: 'hips' },
+  bridge_sl: { from: { t: 176, m: [-46, 62, 0] }, label: 'Pont de glutis a una cama', t: 158, hd: -10, l: [-22, -22, -100], m: [-30, 98, 0], a: [12, 4], grip: 'hips' },
+  bridge_ball: { propsMove: true, from: { t: 172, l: [-10, -6, -60] }, label: 'Curl femoral amb fitball', t: 160, hd: -10, l: [-24, 16, -60], a: [14, 4],
     props: (B) => picCircle([B.l[2][0] + 2, B.l[2][1] + 7], 7, 'pg') },
-  slide_curl: { label: 'Curl femoral amb lliscadors', t: 156, hd: -10, l: [16, 30, -62], a: [14, 4] },
-  hipthrust: { label: 'Hip thrust', t: 178, hd: -6, l: [-4, 92, 0], a: [40, 0], grip: 'hips',
+  slide_curl: { from: { t: 170, l: [2, 4, -80] }, label: 'Curl femoral amb lliscadors', t: 156, hd: -10, l: [16, 30, -62], a: [14, 4] },
+  hipthrust: { from: { t: 212, l: [-44, 100, 0] }, anchor: 'hip', label: 'Hip thrust', t: 178, hd: -6, l: [-4, 92, 0], a: [40, 0], grip: 'hips',
     props: (B) => PROP.bench(B.n[0] - 12, B.n[0] + 5, B.n[1] + 4) },
-  nordic: { label: 'Nordic', t: -58, l: [122, 180, 270], a: [40, -30], props: (B) => PROP.pad([B.l[2][0] + 2, B.l[2][1] - 6]) },
-  hyperext: { label: 'Hiperextensió', t: -40, l: [140, 140, 225], a: [60, -150], lift: 10,
+  nordic: { from: { t: -88, a: [80, 70] }, label: 'Nordic', t: -58, l: [122, 180, 270], a: [40, -30], props: (B) => PROP.pad([B.l[2][0] + 2, B.l[2][1] - 6]) },
+  hyperext: { from: { t: 38 }, label: 'Hiperextensió', t: -40, l: [140, 140, 225], a: [60, -150], lift: 10,
     props: (B) => PROP.pad([B.p[0] + 4, B.p[1] + 5], 4.5) + picLine([[B.p[0] + 4, B.p[1] + 9], [B.p[0] - 4, PIC_FLOOR]], 'pl', 3) + PROP.pad([B.l[2][0] - 1, B.l[2][1] + 5], 3) },
-  legext: { label: 'Extensió de genoll a màquina', t: -98, l: [0, 8, -80], a: [70, 70], lift: 30,
+  legext: { propsMove: true, from: { l: [0, 88, -10] }, anchor: 'hip', label: 'Extensió de genoll a màquina', t: -98, l: [0, 8, -80], a: [70, 70], lift: 30,
     props: (B) => PROP.seat(B.p[0] - 8, B.l[1][0] + 1, B.p[1] + 4) + picRect(B.p[0] - 13, B.n[1] - 2, 4.5, B.p[1] - B.n[1] + 6) + PROP.pad([B.l[2][0] + 1, B.l[2][1] + 4], 3.5, 'pg') },
-  seated_curl: { label: 'Curl femoral a màquina', t: -95, l: [0, 120, 30], a: [70, 70], lift: 24,
+  seated_curl: { propsMove: true, from: { l: [0, 10, -80] }, anchor: 'hip', label: 'Curl femoral a màquina', t: -95, l: [0, 120, 30], a: [70, 70], lift: 24,
     props: (B) => PROP.seat(B.p[0] - 8, B.l[1][0] + 2, B.p[1] + 4) + picRect(B.p[0] - 13, B.n[1] - 2, 4.5, B.p[1] - B.n[1] + 6) + PROP.pad([B.l[2][0] - 2, B.l[2][1] - 4], 3.5, 'pg') },
-  legpress: { label: 'Premsa', t: -152, hd: 25, l: [-48, 2, -88], a: [60, 20], lift: 20,
+  legpress: { propsMove: true, from: { l: [-78, 30, -88] }, anchor: 'hip', label: 'Premsa', t: -152, hd: 25, l: [-48, 2, -88], a: [60, 20], lift: 20,
     props: (B) => picLine([[B.n[0] - 4, B.n[1] - 4], [B.p[0] + 2, B.p[1] + 5]], 'pl', 4.5) + picLine([[B.p[0] + 2, B.p[1] + 5], [B.p[0] + 2, PIC_FLOOR]], 'pl', 3)
       + picLine([[B.l[2][0] + 3, B.l[2][1] - 9], [B.l[2][0] + 3, B.l[2][1] + 9]], 'pgl', 4) },
-  calf: { label: 'Elevació de talons', t: -90, l: [90, 90, 40], a: [94, 86], lift: 9, grip: 'hands',
+  calf: { from: { l: [90, 90, 5] }, label: 'Elevació de talons', t: -90, l: [90, 90, 40], a: [94, 86], lift: 9, grip: 'hands',
     props: (B) => PROP.box(B.l[3][0] - 7, B.l[3][0] + 9, B.l[3][1] + 2) },
-  calf_bent: { label: 'Elevació de talons amb genolls flexionats (soli)', t: -84, l: [62, 116, 40], a: [80, 92], lift: 9, grip: 'hands',
+  calf_bent: { from: { l: [62, 116, 5] }, label: 'Elevació de talons amb genolls flexionats (soli)', t: -84, l: [62, 116, 40], a: [80, 92], lift: 9, grip: 'hands',
     props: (B) => PROP.box(B.l[3][0] - 7, B.l[3][0] + 9, B.l[3][1] + 2) },
-  abd_machine: { label: 'Abductor / adductor a màquina', front: true, t: -90, l: [38, 92], m: [142, 88], a: [100, 70], b: [80, 110], lift: 2,
+  abd_machine: { propsMove: true, from: { l: [70, 92], m: [110, 88] }, label: 'Abductor / adductor a màquina', front: true, t: -90, l: [38, 92], m: [142, 88], a: [100, 70], b: [80, 110], lift: 2,
     props: (B) => picRect(B.p[0] - 13, B.p[1] + 3, 26, 5) + picLine([[B.p[0], B.p[1] + 8], [B.p[0], PIC_FLOOR]], 'pl', 3)
       + PROP.pad([B.l[1][0] + 3.5, B.l[1][1]], 3, 'pg') + PROP.pad([B.m[1][0] - 3.5, B.m[1][1]], 3, 'pg') },
   copenhagen: { label: 'Copenhagen', front: true, t: 196, hd: -6, l: [-14, -14], m: [-14, -14], a: [90, 180], b: [-70, -80],
     props: (B) => PROP.box(B.l[2][0] - 9, B.l[2][0] + 7, B.l[2][1] + 3) },
   side_plank: { label: 'Planxa lateral', front: true, t: 192, hd: -6, l: [12, 12], m: [12, 12], a: [90, 180], b: [-70, -80] },
-  side_abd: { band: 'knees', label: 'Abducció estirat de costat', front: true, t: 186, hd: -12, l: [-24, -24], m: [4, 4], a: [90, 180], b: [30, 20] },
-  clamshell: { band: 'knees', label: 'Clamshell', front: true, t: 186, hd: -12, l: [-28, 150], m: [24, 168], a: [90, 180], b: [20, 30] },
+  side_abd: { from: { l: [-6, -6] }, anchor: 'hip', band: 'knees', label: 'Abducció estirat de costat', front: true, t: 186, hd: -12, l: [-24, -24], m: [4, 4], a: [90, 180], b: [30, 20] },
+  clamshell: { from: { l: [16, 166] }, anchor: 'hip', band: 'knees', label: 'Clamshell', front: true, t: 186, hd: -12, l: [-28, 150], m: [24, 168], a: [90, 180], b: [20, 30] },
   quadruped: { label: 'Quadrupèdia', t: -19, hd: 12, l: [90, 180, 180], a: [90, 90] },
-  birddog: { label: 'Bird dog', t: -19, hd: 12, l: [90, 180, 180], m: [180, 176, 100], a: [-8, -8], b: [90, 90] },
-  quad_kick: { label: 'Kickback en quadrupèdia', t: -19, hd: 12, l: [200, 176, 260], m: [90, 180, 180], a: [90, 90] },
-  quad_rot: { label: 'Rotació en quadrupèdia', t: -19, hd: 0, l: [90, 180, 180], a: [-100, -100], b: [90, 90] },
+  birddog: { from: { m: [90, 180, 180], a: [90, 90] }, label: 'Bird dog', t: -19, hd: 12, l: [90, 180, 180], m: [180, 176, 100], a: [-8, -8], b: [90, 90] },
+  quad_kick: { from: { l: [90, 180, 180] }, label: 'Kickback en quadrupèdia', t: -19, hd: 12, l: [200, 176, 260], m: [90, 180, 180], a: [90, 90] },
+  quad_rot: { from: { a: [60, 30] }, label: 'Rotació en quadrupèdia', t: -19, hd: 0, l: [90, 180, 180], a: [-100, -100], b: [90, 90] },
   child: { label: 'Postura del nen', t: 12, hd: 30, l: [38, 182, 180], a: [6, 0] },
   plank: { label: 'Planxa', t: -12.4, hd: 6, l: [167.6, 167.6, 100], a: [90, 0] },
   plank_high: { label: 'Planxa de braços estirats', t: -25, hd: 6, l: [155, 155, 100], a: [90, 90] },
+  pushup: { from: { t: -25, a: [90, 90] }, label: 'Flexions', t: -12, hd: 6, l: [155, 155, 100], a: [128, 62] },
   pushup_incline: { label: 'Flexions amb les mans al banc', t: -38, hd: 6, l: [142, 142, 100], a: [90, 90],
     props: (B) => PROP.bench(B.a[2][0] - 8, B.a[2][0] + 8, B.a[2][1] + 1) },
-  climber: { label: 'Mountain climber', t: -25, hd: 6, l: [62, 150, 70], m: [155, 155, 100], a: [90, 90] },
-  rollout: { label: 'Ab wheel', t: -22, hd: 10, l: [112, 180, 180], a: [56, 58], props: (B) => PROP.roller([B.a[2][0] + 1, B.a[2][1] + 4], 5) },
+  climber: { from: { l: [155, 155, 100], m: [62, 150, 70] }, label: 'Mountain climber', t: -25, hd: 6, l: [62, 150, 70], m: [155, 155, 100], a: [90, 90] },
+  rollout: { propsMove: true, from: { t: -58, a: [78, 80] }, label: 'Ab wheel', t: -22, hd: 10, l: [112, 180, 180], a: [56, 58], props: (B) => PROP.roller([B.a[2][0] + 1, B.a[2][1] + 4], 5) },
   reverse_plank: { label: 'Planxa invertida', t: 205, hd: -20, l: [-15, -15, -100], a: [92, 92] },
-  superman: { label: 'Superman', t: -11, hd: -16, l: [195, 190, 110], a: [-24, -20] },
-  deadbug: { label: 'Dead bug', t: 180, hd: -8, l: [-88, 0, -90], m: [-20, -16, -100], a: [-84, -86], b: [-160, -168] },
-  crunch: { label: 'Crunch', t: -150, hd: 10, l: [-45, 62, 0], a: [-28, -24] },
-  crunch_legs: { label: 'Crunch amb cames elevades', t: -158, hd: 10, l: [-88, 0, -90], a: [-40, -30] },
-  toe_touch: { label: 'Crunch tocant els peus', t: -150, hd: 10, l: [-92, -92, 0], a: [-55, -60] },
+  superman: { from: { t: 0, hd: -4, l: [180, 180, 100], a: [-2, -2] }, anchor: 'hip', label: 'Superman', t: -11, hd: -16, l: [195, 190, 110], a: [-24, -20] },
+  deadbug: { from: { l: [-88, 0, -90], m: [-88, 0, -90], a: [-84, -86], b: [-84, -86] }, anchor: 'hip', label: 'Dead bug', t: 180, hd: -8, l: [-88, 0, -90], m: [-20, -16, -100], a: [-84, -86], b: [-160, -168] },
+  crunch: { from: { t: -176, hd: 4 }, anchor: 'hip', label: 'Crunch', t: -150, hd: 10, l: [-45, 62, 0], a: [-28, -24] },
+  crunch_legs: { from: { t: -176 }, anchor: 'hip', label: 'Crunch amb cames elevades', t: -158, hd: 10, l: [-88, 0, -90], a: [-40, -30] },
+  toe_touch: { from: { t: -178, a: [-150, -150] }, anchor: 'hip', label: 'Crunch tocant els peus', t: -150, hd: 10, l: [-92, -92, 0], a: [-55, -60] },
   boat: { label: 'Posició de barca', t: -128, hd: 10, l: [-36, 12, -70], a: [-20, -10], grip: 'chest' },
-  pallof: { label: 'Pallof press', t: -88, l: [80, 98, 0], m: [100, 84, 0], a: [2, 0], grip: 'chest', anchor: 'back' },
-  woodchop: { label: 'Woodchop', t: -80, l: [80, 98, 0], m: [102, 82, 0], a: [32, 34], grip: 'chest', anchor: 'high' },
-  carry: { label: 'Carry', t: -88, l: [72, 102, 0], m: [112, 90, 0], a: [93, 90], b: [87, 90], grip: 'hands' },
-  curl: { label: 'Curl de bíceps', t: -90, a: [96, -24], b: [94, 88], grip: 'hands' },
-  pushdown: { label: 'Extensió de tríceps', t: -84, a: [96, 70], grip: 'hands', anchor: 'over' },
-  triceps_oh: { label: 'Tríceps per sobre del cap', t: -90, a: [-82, 160], grip: 'hands' },
-  tri_kickback: { label: 'Kickback de tríceps', t: -24, l: [82, 98, 0], a: [172, 174], b: [90, 90], grip: 'hands' },
+  pallof: { from: { a: [70, -40] }, label: 'Pallof press', t: -88, l: [80, 98, 0], m: [100, 84, 0], a: [2, 0], grip: 'chest', anchor: 'back' },
+  woodchop: { from: { t: -96, a: [-50, -46] }, label: 'Woodchop', t: -80, l: [80, 98, 0], m: [102, 82, 0], a: [32, 34], grip: 'chest', anchor: 'high' },
+  carry: { from: { l: [112, 90, 0], m: [72, 102, 0] }, label: 'Carry', t: -88, l: [72, 102, 0], m: [112, 90, 0], a: [93, 90], b: [87, 90], grip: 'hands' },
+  curl: { from: { a: [96, 92] }, label: 'Curl de bíceps', t: -90, a: [96, -24], b: [94, 88], grip: 'hands' },
+  pushdown: { from: { a: [96, -6] }, label: 'Extensió de tríceps', t: -84, a: [96, 70], grip: 'hands', anchor: 'over' },
+  triceps_oh: { from: { a: [-82, 160] }, label: 'Tríceps per sobre del cap', t: -90, a: [-82, -88], grip: 'hands' },
+  tri_kickback: { from: { a: [172, 92] }, label: 'Kickback de tríceps', t: -24, l: [82, 98, 0], a: [172, 174], b: [90, 90], grip: 'hands' },
   // Fons al banc: les mans a la vora del banc, darrere; el maluc baixa per davant del banc (més avall que les mans).
-  dip: { label: 'Fons de tríceps', t: -88, l: [2, 84, 0], a: [204, 90],
+  dip: { from: { a: [118, 92] }, label: 'Fons de tríceps', t: -88, l: [2, 84, 0], a: [204, 90],
     props: (B) => PROP.bench(B.a[2][0] - 17, B.a[2][0] + 3, B.a[2][1] + 1) },
-  lat_raise: { label: 'Elevacions laterals', front: true, t: -90, a: [8, 4], b: [172, 176], grip: 'hands' },
-  front_raise: { label: 'Elevacions frontals', t: -90, a: [2, 0], b: [92, 88], grip: 'hands' },
-  rear_fly: { label: 'Ocells', t: -22, l: [82, 98, 0], a: [60, 64], b: [104, 100], grip: 'hands' },
-  ext_rot: { label: 'Rotació externa d\'espatlla', t: -90, a: [92, 0], b: [94, 88], grip: 'hands', anchor: 'front' },
-  row: { label: 'Rem', t: -28, l: [82, 98, 0], a: [-158, 92], grip: 'hands' },
-  upright_row: { label: 'Rem vertical', t: -90, a: [-22, 138], grip: 'chest' },
-  inverted_row: { label: 'Rem invertit', t: -158, hd: 6, l: [22, 22, -70], a: [-86, -70], grip: 'none',
+  lat_raise: { from: { a: [82, 86], b: [98, 94] }, label: 'Elevacions laterals', front: true, t: -90, a: [8, 4], b: [172, 176], grip: 'hands' },
+  front_raise: { from: { a: [86, 88] }, label: 'Elevacions frontals', t: -90, a: [2, 0], b: [92, 88], grip: 'hands' },
+  rear_fly: { from: { a: [86, 88], b: [94, 92] }, label: 'Ocells', t: -22, l: [82, 98, 0], a: [60, 64], b: [104, 100], grip: 'hands' },
+  ext_rot: { from: { a: [92, 60] }, label: 'Rotació externa d\'espatlla', t: -90, a: [92, 0], b: [94, 88], grip: 'hands', anchor: 'front' },
+  row: { from: { a: [90, 90] }, label: 'Rem', t: -28, l: [82, 98, 0], a: [-158, 92], grip: 'hands' },
+  upright_row: { from: { a: [92, 88] }, label: 'Rem vertical', t: -90, a: [-22, 138], grip: 'chest' },
+  inverted_row: { hang: true, from: { t: -164, a: [-66, -64] }, label: 'Rem invertit', t: -158, hd: 6, l: [22, 22, -70], a: [-86, -70], grip: 'none',
     props: (B) => PROP.bar([B.a[2][0], B.a[2][1] - 1.5], 9) + picLine([[B.a[2][0] + 8, B.a[2][1]], [B.a[2][0] + 8, PIC_FLOOR]], 'pl', 2.4) },
-  seated_row: { label: 'Rem assegut', t: -90, l: [0, 10, -80], a: [125, -4], lift: 10, grip: 'hands', anchor: 'front',
+  seated_row: { from: { t: -82, a: [4, 2] }, label: 'Rem assegut', t: -90, l: [0, 10, -80], a: [125, -4], lift: 10, grip: 'hands', anchor: 'front',
     props: (B) => picRect(B.p[0] - 10, B.p[1] + 3, 18, PIC_FLOOR - B.p[1] - 3) },
-  row_standing: { label: 'Rem dempeus', t: -84, l: [80, 98, 0], m: [104, 84, 0], a: [125, -4], grip: 'hands', anchor: 'front' },
-  face_pull: { label: 'Face pull', t: -86, l: [80, 98, 0], m: [104, 84, 0], a: [-175, -48], grip: 'hands', anchor: 'face' },
-  crossover: { label: 'Creuament a la politja', t: -74, l: [80, 98, 0], m: [104, 84, 0], a: [55, 48], grip: 'hands', anchor: 'high' },
-  pullover: { label: 'Pullover', t: -58, l: [82, 98, 0], a: [36, 36], grip: 'hands', anchor: 'over' },
-  pullup: { label: 'Dominades', t: -90, hd: 22, l: [100, 118, 30], a: [-94, -88], lift: 10, grip: 'none', props: (B) => PROP.bar([B.a[2][0], B.a[2][1] - 1.5], 13) },
-  pulldown: { label: 'Jaló al pit', t: -96, l: [0, 90, 0], a: [-108, -70], grip: 'none',
+  row_standing: { from: { a: [4, 2] }, label: 'Rem dempeus', t: -84, l: [80, 98, 0], m: [104, 84, 0], a: [125, -4], grip: 'hands', anchor: 'front' },
+  face_pull: { from: { a: [-12, -8] }, label: 'Face pull', t: -86, l: [80, 98, 0], m: [104, 84, 0], a: [-175, -48], grip: 'hands', anchor: 'face' },
+  crossover: { from: { t: -82, a: [-30, -36] }, label: 'Creuament a la politja', t: -74, l: [80, 98, 0], m: [104, 84, 0], a: [55, 48], grip: 'hands', anchor: 'high' },
+  pullover: { from: { a: [-62, -70] }, label: 'Pullover', t: -58, l: [82, 98, 0], a: [36, 36], grip: 'hands', anchor: 'over' },
+  pullup: { from: { hd: 18, a: [-92, -90] }, anchor: 'hip', label: 'Dominades', t: -90, hd: 4, l: [100, 118, 30], a: [116, -84], lift: 10, grip: 'none', hang: true, props: (B) => PROP.bar([B.a[2][0], B.a[2][1] - 1.5], 13) },
+  pulldown: { propsMove: true, from: { t: -96, a: [-108, -74] }, label: 'Jaló al pit', t: -100, l: [0, 90, 0], a: [122, -62], grip: 'none',
     props: (B) => picRect(B.p[0] - 9, B.p[1] + 3, 15, 5) + picLine([[B.p[0] - 1.5, B.p[1] + 8], [B.p[0] - 1.5, PIC_FLOOR]], 'pl', 3)
       + PROP.bar([B.a[2][0], B.a[2][1] - 1], 12) + picLine([[B.a[2][0], B.a[2][1] - 1], [B.a[2][0], 3]], 'pg', 2) },
-  ohpress: { label: 'Press per sobre del cap', t: -90, hd: 24, a: [-90, -92], b: [-94, -90], grip: 'hands' },
-  ohpress_seated: { label: 'Press assegut', t: -90, hd: 24, l: [0, 90, 0], a: [-90, -92], grip: 'hands',
+  ohpress: { from: { a: [62, -96], b: [66, -94] }, label: 'Press per sobre del cap', t: -90, hd: 24, a: [-90, -92], b: [-94, -90], grip: 'hands' },
+  ohpress_seated: { from: { a: [62, -96] }, label: 'Press assegut', t: -90, hd: 24, l: [0, 90, 0], a: [-90, -92], grip: 'hands',
     props: (B) => PROP.bench(B.p[0] - 10, B.p[0] + 12, B.p[1] + 3) },
   halo: { label: 'Halo', t: -90, a: [-60, -168], grip: 'hands' },
-  bench: { label: 'Press de banca', t: 180, hd: -4, l: [26, 92, 0], a: [-90, -90], lift: 0, grip: 'hands',
+  bench: { from: { a: [150, -90] }, anchor: 'hip', label: 'Press de banca', t: 180, hd: -4, l: [26, 92, 0], a: [-90, -90], lift: 0, grip: 'hands',
     props: (B) => PROP.bench(B.n[0] - 10, B.p[0] + 4, B.p[1] + 4) },
-  bench_incline: { label: 'Press inclinat', t: -146, hd: 0, l: [10, 96, 0], a: [-64, -64], grip: 'hands',
+  bench_incline: { from: { a: [170, -70] }, anchor: 'hip', label: 'Press inclinat', t: -146, hd: 0, l: [10, 96, 0], a: [-64, -64], grip: 'hands',
     props: (B) => picLine([[B.n[0] - 3, B.n[1] - 3], [B.p[0] + 2, B.p[1] + 5]], 'pl', 4.5) + PROP.bench(B.p[0] - 6, B.p[0] + 10, B.p[1] + 4) },
-  floor_press: { label: 'Press estirat a terra', t: 180, hd: -8, l: [-48, 54, 0], a: [-90, -90], grip: 'hands' },
-  seated_press: { label: 'Press de pit assegut', t: -94, l: [0, 90, 0], a: [2, 0], grip: 'hands', anchor: 'back',
+  floor_press: { from: { a: [160, -90] }, anchor: 'hip', label: 'Press estirat a terra', t: 180, hd: -8, l: [-48, 54, 0], a: [-90, -90], grip: 'hands' },
+  seated_press: { from: { a: [150, 0] }, anchor: 'hip', label: 'Press de pit assegut', t: -94, l: [0, 90, 0], a: [2, 0], grip: 'hands', anchor: 'back',
     props: (B) => picRect(B.p[0] - 9, B.p[1] + 3, 15, 5) + picLine([[B.p[0] - 1.5, B.p[1] + 8], [B.p[0] - 1.5, PIC_FLOOR]], 'pl', 3) + picRect(B.p[0] - 13, B.n[1] - 2, 4.5, B.p[1] - B.n[1] + 6) },
-  jump: { label: 'Salt vertical', t: -90, hd: 22, l: [96, 82, 60], m: [92, 94, 60], a: [-88, -90], b: [-94, -96], lift: 10,
+  jump: { from: { t: -62, hd: 10, l: [18, 106, 0], m: [18, 106, 0], a: [150, 150], b: [150, 150], lift: 0 }, label: 'Salt vertical', t: -90, hd: 22, l: [96, 82, 60], m: [92, 94, 60], a: [-88, -90], b: [-94, -96], lift: 10,
     props: () => picLine([[40, PIC_FLOOR - 4], [40, PIC_FLOOR - 1]], 'pl', 2) + picLine([[60, PIC_FLOOR - 4], [60, PIC_FLOOR - 1]], 'pl', 2) },
-  hop: { label: 'Salt amb càrrega', t: -88, l: [96, 84, 55], m: [92, 94, 55], a: [94, 88], lift: 8, grip: 'hands' },
-  jump_fwd: { label: 'Salt horitzontal', t: -62, l: [10, 100, 20], m: [52, 140, 40], a: [-32, -26], lift: 14 },
+  hop: { from: { t: -80, l: [60, 112, 0], m: [60, 112, 0], lift: 0 }, label: 'Salt amb càrrega', t: -88, l: [96, 84, 55], m: [92, 94, 55], a: [94, 88], lift: 8, grip: 'hands' },
+  jump_fwd: { from: { t: -50, l: [18, 108, 0], m: [18, 108, 0], a: [150, 150], lift: 0 }, label: 'Salt horitzontal', t: -62, l: [10, 100, 20], m: [52, 140, 40], a: [-32, -26], lift: 14 },
   box_jump: { label: 'Box jump', t: -66, l: [14, 104, 0], a: [-10, -6], lift: 18,
     props: (B) => PROP.box(B.l[2][0] - 14, B.l[2][0] + 12, B.l[2][1] + 3) },
   drop_jump: { label: 'Drop jump', t: -84, l: [92, 90, 0], a: [130, 120], lift: 24,
     props: (B) => PROP.box(B.l[2][0] - 18, B.l[2][0] + 7, B.l[2][1] + 3) },
-  land: { label: 'Aterratge', t: -55, l: [18, 110, 0], a: [148, 150] },
-  chest_pass: { label: 'Passada de pit', t: -82, l: [70, 100, 0], m: [108, 88, 0], a: [-4, -2], grip: 'throw' },
-  slam: { label: 'Slam', t: -94, hd: 24, a: [-88, -90], grip: 'chest' },
-  rot_throw: { label: 'Llançament rotacional', t: -70, l: [72, 102, 0], m: [112, 86, 0], a: [-36, -30], grip: 'throw' },
-  clean: { label: 'Cargolada', t: -82, l: [42, 118, 0], a: [-6, -152], grip: 'hands' },
-  high_pull: { label: 'High pull', t: -88, l: [90, 92, 50], a: [-30, 128], grip: 'chest', lift: 3 },
-  sprint: { label: 'Sprint', t: -70, hd: 8, l: [-18, 82, -10], m: [122, 150, 70], a: [132, 52], b: [34, -66], lift: 4 },
-  skipping: { label: 'Skipping', t: -88, l: [-6, 88, 0], m: [92, 90, 30], a: [128, 52], b: [44, -56], lift: 2 },
+  land: { from: { t: -86, l: [86, 92, 0], a: [-90, -90] }, label: 'Aterratge', t: -55, l: [18, 110, 0], a: [148, 150] },
+  chest_pass: { from: { a: [150, -60] }, label: 'Passada de pit', t: -82, l: [70, 100, 0], m: [108, 88, 0], a: [-4, -2], grip: 'throw' },
+  slam: { from: { t: -94, hd: 24, l: [90, 90, 0], a: [-88, -90] }, label: 'Slam', t: -40, hd: 10, l: [50, 110, 0], a: [88, 90], grip: 'chest' },
+  rot_throw: { from: { t: -80, a: [150, 120] }, label: 'Llançament rotacional', t: -70, l: [72, 102, 0], m: [112, 86, 0], a: [-36, -30], grip: 'throw' },
+  clean: { from: { t: -30, l: [80, 98, 0], a: [90, 90] }, label: 'Cargolada', t: -82, l: [42, 118, 0], a: [-6, -152], grip: 'hands' },
+  high_pull: { from: { t: -40, l: [80, 98, 0], a: [90, 90], lift: 0 }, label: 'High pull', t: -88, l: [90, 92, 50], a: [-30, 128], grip: 'chest', lift: 3 },
+  sprint: { from: { l: [122, 150, 70], m: [-18, 82, -10], a: [34, -66], b: [132, 52] }, label: 'Sprint', t: -70, hd: 8, l: [-18, 82, -10], m: [122, 150, 70], a: [132, 52], b: [34, -66], lift: 4 },
+  skipping: { from: { l: [92, 90, 30], m: [-6, 88, 0], a: [44, -56], b: [128, 52] }, label: 'Skipping', t: -88, l: [-6, 88, 0], m: [92, 90, 30], a: [128, 52], b: [44, -56], lift: 2 },
   cod: { label: 'Canvi de direcció', front: true, t: -112, l: [58, 64], m: [104, 96], a: [-30, -10], b: [150, 120] },
-  sled: { label: 'Empenta de trineu', t: -42, hd: 10, l: [26, 116, 0], m: [128, 150, 60], a: [-14, -6],
+  sled: { from: { l: [128, 150, 60], m: [26, 116, 0] }, label: 'Empenta de trineu', t: -42, hd: 10, l: [26, 116, 0], m: [128, 150, 60], a: [-14, -6],
     props: (B) => picLine([[B.a[2][0] + 3, B.a[2][1] - 2], [B.a[2][0] + 3, PIC_FLOOR]], 'pl', 3) + picLine([[6, PIC_FLOOR + 1], [94, PIC_FLOOR + 1]], 'pl', 3) },
-  run_tread: { label: 'Cinta / AlterG', t: -78, hd: 4, l: [-8, 84, -10], m: [118, 146, 70], a: [130, 56], b: [36, -66], lift: 3,
+  run_tread: { from: { l: [118, 146, 70], m: [-8, 84, -10], a: [36, -66], b: [130, 56] }, label: 'Cinta / AlterG', t: -78, hd: 4, l: [-8, 84, -10], m: [118, 146, 70], a: [130, 56], b: [36, -66], lift: 3,
     props: () => picLine([[8, PIC_FLOOR + 1], [92, PIC_FLOOR + 1]], 'pl', 4) + picLine([[86, PIC_FLOOR], [80, 46]], 'pl', 3) },
   // Bicicleta estàtica de costat: seient, tija, base a terra, columna fins al manillar i el volant davant dels pedals.
-  bike: { label: 'Bicicleta', t: -70, hd: 6, l: [28, 104, 10], m: [62, 70, -10], a: [16, 30], lift: 12,
+  bike: { from: { l: [62, 70, -10], m: [28, 104, 10] }, label: 'Bicicleta', t: -70, hd: 6, l: [28, 104, 10], m: [62, 70, -10], a: [16, 30], lift: 12,
     props: (B) => {
       const seat = [B.p[0], B.p[1] + 4];
       const base = PIC_FLOOR - 2;
@@ -13073,11 +13122,11 @@ const PICS = {
         + picLine([[front - 4, B.a[2][1] + 1], [front + 3, B.a[2][1] + 1]], 'pl', 3)
         + picCircle([front - 3, base - 9], 6.5, 'pg');
     } },
-  ankle_mob: { label: 'Mobilitat de turmell', t: -86, l: [-2, 62, 0], m: [94, 180, 180], a: [-12, -6],
+  ankle_mob: { from: { l: [-2, 80, 0] }, label: 'Mobilitat de turmell', t: -86, l: [-2, 62, 0], m: [94, 180, 180], a: [-12, -6],
     props: (B) => PROP.wall(B.l[2][0] + 11) },
   half_kneel: { label: 'Mig genoll', t: -92, l: [6, 88, 0], m: [100, 180, 180], a: [-95, -92] },
   sit_9090: { label: '90/90', t: -88, l: [4, 168, 180], m: [168, 22, -60], a: [70, 30] },
-  openbook: { label: 'Open book', front: true, t: 180, hd: -10, l: [-6, 168], m: [0, 172], a: [-90, -90], b: [6, 0] },
+  openbook: { from: { a: [6, 0] }, label: 'Open book', front: true, t: 180, hd: -10, l: [-6, 168], m: [0, 172], a: [-90, -90], b: [6, 0] },
   legs_wall: { label: 'Cames a la paret', t: 180, hd: -6, l: [-90, -90, 0], a: [20, 4], props: (B) => PROP.wall(B.l[2][0] + 4) },
   supine: { label: 'Estirat panxa amunt', t: 180, hd: -6, l: [-50, 50, 0], a: [8, -40] },
   breath_9090: { label: 'Respiració 90/90', t: 180, hd: -6, l: [-90, 0, -90], a: [8, -40], props: (B) => PROP.box(B.l[1][0] - 2, B.l[2][0] + 6, B.l[1][1] + 3.5) },
@@ -13101,16 +13150,16 @@ const PICS = {
   vor_seated: { label: 'Mirada (assegut)', t: -90, l: [0, 90, 0], a: [-8, -6],
     props: (B) => picRect(B.a[2][0] + 1, B.a[2][1] - 6, 5, 8, 'pg', 1) + PROP.bench(B.p[0] - 10, B.p[0] + 12, B.p[1] + 3) },
   tgu: { label: 'Turkish get-up', t: -125, hd: 12, l: [-40, 58, 0], m: [-2, 0, -80], a: [-92, -92], b: [138, 100], grip: 'hands' },
-  windmill: { label: 'Windmill', front: true, t: -140, l: [62, 80], m: [112, 102], a: [-92, -92], b: [100, 100], grip: 'near' },
-  side_bend: { label: 'Flexió lateral', front: true, t: -106, l: [86, 90], m: [96, 90], a: [100, 96], b: [-150, 30], grip: 'near' },
-  pullover_supine: { label: 'Pullover estirat', t: 180, hd: -4, l: [26, 92, 0], a: [-150, -170], lift: 0, grip: 'chest',
+  windmill: { from: { t: -92 }, label: 'Windmill', front: true, t: -140, l: [62, 80], m: [112, 102], a: [-92, -92], b: [100, 100], grip: 'near' },
+  side_bend: { from: { t: -90 }, label: 'Flexió lateral', front: true, t: -106, l: [86, 90], m: [96, 90], a: [100, 96], b: [-150, 30], grip: 'near' },
+  pullover_supine: { from: { a: [-90, -90] }, anchor: 'hip', label: 'Pullover estirat', t: 180, hd: -4, l: [26, 92, 0], a: [-150, -170], lift: 0, grip: 'chest',
     props: (B) => PROP.bench(B.n[0] - 6, B.p[0] + 4, B.p[1] + 4) },
   stretch_stand: { label: 'Estirament dempeus', front: true, t: -98, l: [86, 90], m: [96, 90], a: [-105, -110], b: [-110, -100] },
-  wall_slide: { label: 'Wall slide', t: -90, a: [-150, -96], b: [-150, -96], props: (B) => PROP.wall(B.p[0] - 7) },
-  incline_prone: { label: 'Estirat sobre banc inclinat', t: -36, hd: -4, l: [116, 98, 0], a: [-26, -24],
+  wall_slide: { from: { a: [-170, -80], b: [-170, -80] }, label: 'Wall slide', t: -90, a: [-150, -96], b: [-150, -96], props: (B) => PROP.wall(B.p[0] - 7) },
+  incline_prone: { from: { a: [90, 90] }, label: 'Estirat sobre banc inclinat', t: -36, hd: -4, l: [116, 98, 0], a: [-26, -24],
     props: (B) => picLine([[B.p[0] - 2, B.p[1] + 5], [B.n[0] + 2, B.n[1] + 5]], 'pl', 4.5) + picLine([[B.p[0] + 2, B.p[1] + 5], [B.p[0] + 2, PIC_FLOOR]], 'pl', 3) },
   squeeze: { label: 'Squeeze amb pilota', t: 180, hd: -6, l: [-50, 50, 0], a: [8, -40], props: (B) => picCircle([B.l[1][0] + 1, B.l[1][1] - 5], 4.5, 'pg') },
-  ghd_situp: { label: 'GHD sit-up', t: -168, hd: 4, l: [4, 30, -60], a: [-150, -160], lift: 26,
+  ghd_situp: { from: { t: 180 }, anchor: 'hip', label: 'GHD sit-up', t: -168, hd: 4, l: [4, 30, -60], a: [-150, -160], lift: 26,
     props: (B) => PROP.pad([B.p[0] + 3, B.p[1] + 5.5], 5) + picLine([[B.p[0] + 3, B.p[1] + 10], [B.p[0] + 3, PIC_FLOOR]], 'pl', 3) + PROP.pad([B.l[2][0] + 1, B.l[2][1] + 5], 3) },
 };
 
@@ -13199,7 +13248,7 @@ function picGear(B, P, g) {
   if (g.kind === 'bar') return plate(at);
   if (g.kind === 'stick') {
     // La pica, al llarg de l'esquena (bisagra de maluc amb pica: cap, esquena i sacre en contacte).
-    if (P === PICS.hinge || P === PICS.goodmorning) {
+    if (P.label === PICS.hinge.label || P.label === PICS.goodmorning.label) {
       const d = [B.n[0] - B.p[0], B.n[1] - B.p[1]];
       const len = Math.hypot(d[0], d[1]) || 1;
       const u = [d[0] / len, d[1] / len], nb = [u[1], -u[0]];
@@ -13218,10 +13267,14 @@ function picGear(B, P, g) {
 
 function picSvg(key, gear) {
   const P = PICS[key] || PICS.stand;
-  const B = picLayout(P);
+  return picSvgOf(P, picLayout(P), gear);
+}
+
+// propsB: on es dibuixa el material fix (banc, caixa, paret…): la postura final, perquè no es mogui amb el cos.
+function picSvgOf(P, B, gear, propsB) {
   const w = { limb: 6.4 * B.s, torso: (B.front ? 9.5 : 8.6) * B.s };
   const parts = [`<path class="pfl" d="M5 ${PIC_FLOOR + 1.6}H95" stroke-width="1.6"/>`];
-  if (P.props) parts.push(P.props(B));
+  if (P.props) parts.push(P.props(propsB || B));
   parts.push(`<g class="pfar">${picLine(B.b, 'pf', w.limb)}${picLine(B.m, 'pf', w.limb)}</g>`);
   if (B.front) parts.push(picLine(B.sh, 'pf', w.limb) + picLine(B.hp, 'pf', w.limb));
   parts.push(picLine([B.p, B.n], 'pf', w.torso));
@@ -13232,6 +13285,41 @@ function picSvg(key, gear) {
   parts.push(halo(B.l), picLine(B.l, 'pf', w.limb), halo(B.a), picLine(B.a, 'pf', w.limb));
   parts.push(picGear(B, P, gear || { kind: '' }));
   return `<svg class="pic" viewBox="0 0 100 100" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">${parts.join('')}</svg>`;
+}
+
+// Animació: els fotogrames tenen els mateixos elements (només canvien els números), i cada atribut que canvia porta un
+// <animate> (SMIL) amb els valors de tots els fotogrames: el navegador fa el moviment sol, sense JavaScript a cada
+// fotograma. Inici quiet, baixa, quiet a baix i torna (2,6 s). Si l'estructura no coincideix, el dibuix queda quiet.
+const PIC_DUR = 2.6;
+function picAnimate(frames) {
+  const re = /<(\/?)([a-zA-Z]+)((?:\s+[\w:-]+="[^"]*")*)\s*(\/?)>/g;
+  const parse = (svg) => [...svg.matchAll(re)].map((m) => ({ close: !!m[1], tag: m[2], self: !!m[4], text: m[0],
+    attrs: [...m[3].matchAll(/([\w:-]+)="([^"]*)"/g)].map((a) => [a[1], a[2]]) }));
+  const toks = frames.map(parse);
+  const n = toks[0].length;
+  if (toks.some((t) => t.length !== n)) return null;
+  for (let i = 0; i < n; i++) {
+    const a = toks[0][i];
+    if (toks.some((t) => t[i].tag !== a.tag || t[i].close !== a.close || t[i].attrs.length !== a.attrs.length || t[i].attrs.some((x, j) => x[0] !== a.attrs[j][0]))) return null;
+  }
+  const K = frames.length - 1;
+  const seq = [0, 0, ...Array.from({ length: K }, (_, i) => i + 1), K, ...Array.from({ length: K }, (_, i) => K - 1 - i)];
+  const times = [0, 0.12, ...Array.from({ length: K }, (_, i) => 0.12 + (0.38 * (i + 1)) / K), 0.62, ...Array.from({ length: K }, (_, i) => 0.62 + (0.38 * (i + 1)) / K)];
+  const keyTimes = times.map((x) => Math.min(1, Math.round(x * 1000) / 1000)).join(';');
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const a = toks[0][i];
+    if (a.close) { out += a.text; continue; }
+    const anims = a.attrs.map(([name], j) => {
+      const vals = toks.map((t) => t[i].attrs[j][1]);
+      if (vals.every((v) => v === vals[0])) return '';
+      return `<animate attributeName="${name}" dur="${PIC_DUR}s" repeatCount="indefinite" keyTimes="${keyTimes}" values="${seq.map((k) => vals[k]).join(';')}"/>`;
+    }).join('');
+    if (!anims) { out += a.text; continue; }
+    const open = a.text.replace(/\s*\/>$/, '>');
+    out += a.self ? `${open}${anims}</${a.tag}>` : `${open}${anims}`;
+  }
+  return out;
 }
 
 // ── Quina postura té cada exercici ──
@@ -13283,6 +13371,7 @@ const PIC_RULES = [
   [/estirat de costat|recolzat al colze|side-lying/, 'side_abd'],
   [/mountain climber|flexio(ns)? de maluc (alternes? )?(amb bracos estirats|en planxa)/, 'climber'],
   [/flexion.*(inclinad|mans elevades|mans al banc)/, 'pushup_incline'],
+  [/^flexions?\b(?! de maluc)|\bflexions (sobre|amb)|push-?ups?\b(?! escapular)/, 'pushup'],
   [/planxa|plank|push-up escapular|flexio(ns)?(?! de maluc)\b|renegade|flexions/, (t) => (/planxa frontal|^planxa$/.test(t) ? 'plank' : 'plank_high')],
   [/pont de glutis|glute bridge/, (t) => (/unipodal|una cama/.test(t) ? 'bridge_sl' : 'bridge')],
   [/hip thrust/, 'hipthrust'],
@@ -13376,12 +13465,41 @@ function picKeyOf(e) {
   return PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
 }
 
+// Dibuixos en moviment: es poden aturar a Configuració (en aquest aparell) i s'aturen sols si el sistema demana menys
+// moviment. mode: 'auto' (en moviment si es pot), 'still' (la postura quieta), 'start' i 'end' (la posició inicial i
+// la final, amb la mateixa escala que el moviment: per al paper i el PDF de la sessió, «inici → final»).
+const PicMotion = {
+  KEY: 'eonlife:pic-motion',
+  on() {
+    try { if (localStorage.getItem(this.KEY) === 'off') return false; } catch (e) { /* res */ }
+    try { if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false; } catch (e) { /* res */ }
+    return true;
+  },
+  set(v) { try { localStorage.setItem(this.KEY, v ? 'on' : 'off'); } catch (e) { /* res */ } },
+};
+// Es mou si la postura té posició inicial i l'exercici no és isomètric (planxes, aguants…: quiets).
+const picIsometric = (e) => /isometr|aguant|\bhold\b|estatic/.test(U.norm(`${(e && e.name) || ''} ${(e && e.tg) || ''}`));
+const picMoves = (key, e) => !!(PICS[key] && PICS[key].from) && !picIsometric(e);
+
 const PIC_CACHE = new Map();
-function exercisePicSvg(e, keyOverride) {
+function exercisePicSvg(e, keyOverride, mode = 'auto') {
   const key = keyOverride || picKeyOf(e);
   const g = picGearOf(e || {}, key);
-  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}`;
-  if (!PIC_CACHE.has(id)) PIC_CACHE.set(id, picSvg(key, g));
+  const P = PICS[key] || PICS.stand;
+  const m = !picMoves(key, e) ? 'still' : mode === 'auto' ? (PicMotion.on() ? 'anim' : 'still') : mode;
+  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
+  if (!PIC_CACHE.has(id)) {
+    let svg;
+    if (m === 'still') svg = picSvg(key, g);
+    else {
+      const { poses, layouts } = picFrames(P);
+      const fixed = P.propsMove ? null : layouts[layouts.length - 1];
+      if (m === 'start') svg = picSvgOf(poses[0], layouts[0], g, fixed);
+      else if (m === 'end') svg = picSvgOf(poses[poses.length - 1], layouts[layouts.length - 1], g, fixed);
+      else svg = picAnimate(poses.map((Q, i) => picSvgOf(Q, layouts[i], g, fixed))) || picSvg(key, g);
+    }
+    PIC_CACHE.set(id, svg);
+  }
   return PIC_CACHE.get(id);
 }
 
@@ -13395,17 +13513,24 @@ function exerciseVideoThumb(e) {
   return v && v.kind === 'youtube' ? `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg` : '';
 }
 
-function ExThumb({ ex, it, block, size = 52, class: c }) {
+// seq: al paper i al PDF (fitxa de la sessió), la posició inicial i la final en lloc del dibuix en moviment.
+// still: el dibuix quiet (p. ex. al triar-ne un d'entre tots).
+function ExThumb({ ex, it, block, size = 52, class: c, seq, still }) {
   const [failed, setFailed] = useState('');
   const lib = ex || (it && it.exId ? Store.exercise(it.exId) : null);
   const e = it ? (lib ? { ...lib, material: it.material || lib.material } : { name: it.name, material: it.material, block }) : lib;
   const k = block || (e && e.block) || '';
   // Foto pròpia > imatge del vídeo de YouTube > dibuix. Si la imatge no carrega (sense internet, vídeo privat…), el dibuix.
   const src = (lib && lib.photo) || exerciseVideoThumb(lib);
-  return html`<span class=${U.cls('exthumb', k && `blk-${k}`, c)} style=${`--thumb:${size}px`} aria-hidden="true">
-    ${src && failed !== src ? html`<img src=${src} alt="" loading="lazy" onError=${() => setFailed(src)}
+  const pic = !(src && failed !== src);
+  const key = pic ? picKeyOf(e) : '';
+  const both = seq && pic && picMoves(key, e);
+  return html`<span class=${U.cls('exthumb', k && `blk-${k}`, c, both && 'has-seq')} style=${`--thumb:${size}px`} aria-hidden="true">
+    ${!pic ? html`<img src=${src} alt="" loading="lazy" onError=${() => setFailed(src)}
         onLoad=${(ev) => { if (src.includes('ytimg.com') && ev.currentTarget.naturalWidth <= 120) setFailed(src); }} />`
-      : html`<span class="exthumb-pic" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e) }}></span>`}
+      : html`<span class="exthumb-pic" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e, key, still ? 'still' : 'auto') }}></span>`}
+    ${both && html`<span class="exthumb-seq"><span class="exthumb-step" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e, key, 'start') }}></span>
+      <span class="exthumb-arrow">→</span><span class="exthumb-step" dangerouslySetInnerHTML=${{ __html: exercisePicSvg(e, key, 'end') }}></span></span>`}
   </span>`;
 }
 
@@ -13489,7 +13614,7 @@ function PicChooser({ ex, auto, onPick, onClose }) {
   const cur = ex.pic || auto;
   return html`<${Dialog} wide=${true} title="Tria el dibuix" onClose=${onClose} footer=${html`<span class="grow"></span><${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>`}>
     <div class="picgrid">${Object.keys(PICS).map((k) => html`<button type="button" class=${U.cls('picopt', k === cur && 'on')} onClick=${() => onPick(k)} aria-pressed=${k === cur}>
-      <${ExThumb} ex=${{ ...ex, photo: '', pic: k }} size=${76} />
+      <${ExThumb} ex=${{ ...ex, photo: '', pic: k }} size=${76} still=${true} />
       <span class="picopt-name">${PICS[k].label}${k === auto ? ' · automàtic' : ''}</span>
     </button>`)}</div>
   </${Dialog}>`;
@@ -16610,7 +16735,7 @@ function SessionSheet({ id }) {
                 const withVideo = b.items.filter((x) => x.name && demoOf(x));
                 return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
-                  <${ExThumb} it=${it} block=${b.key} size=${52} class="sx-thumb" />
+                  <${ExThumb} it=${it} block=${b.key} size=${52} class="sx-thumb" seq=${true} />
                   <div class="sx-body">
                     <div class="sx-line"><span class="sx-name">${it.name}${demoOf(it) && html` <button type="button" class="sx-play no-print" title="Mira el vídeo" onClick=${() => openBlockVideos(b, withVideo.indexOf(it))}><${Icon} name="playfill" size=${12} /></button>`}</span><span class="sx-rx">${Calc.presc(it)}</span></div>
                     ${(tags.length > 0 || it.note) && html`<div class="sx-meta">${tags.map((t) => html`<span class="tag">${t}</span>`)}${it.note && html`<span class="sx-note">${it.note}</span>`}</div>`}
@@ -17398,6 +17523,8 @@ function SettingsView() {
 
     <${ExcelSettingsCard} />
 
+    <${PicMotionCard} />
+
     <section class="card">
       <div class="card-head"><h2 class="h2">Versió de l'app</h2><span class="muted">${window.EON_BUILD || ''}</span></div>
       ${AppUpdate.enabled() ? html`<p class="muted">L'app mira sola si n'hi ha una versió nova cada cop que s'obre. Si veus alguna cosa antiga, comprova-ho aquí.</p>
@@ -17502,6 +17629,18 @@ function M365DataCard() {
       <${Btn} variant="ghost" icon="refresh" onClick=${changeFolder}>Canvia de carpeta</${Btn}>
       <${Btn} variant="ghost" icon="x" onClick=${logout}>Tanca la sessió</${Btn}>
     </div>`;
+}
+
+// Dibuixos dels exercicis en moviment (opció d'aquest aparell): es poden aturar si la tauleta va lenta o distreuen.
+function PicMotionCard() {
+  const [on, setOn] = useState(() => PicMotion.on());
+  const toggle = (v) => { PicMotion.set(v); PIC_CACHE.clear(); setOn(PicMotion.on()); Store.emit(); };
+  return html`<section class="card">
+    <div class="card-head"><h2 class="h2">Dibuixos dels exercicis</h2></div>
+    <label class="check"><input type="checkbox" id="pic-motion" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} />
+      <span>En moviment (de la posició inicial a la final)</span></label>
+    <p class="muted small">Només en aquest aparell. Si el sistema demana menys moviment, es queden quiets. A la fitxa de la sessió impresa o en PDF, cada exercici surt amb la posició inicial i la final.</p>
+  </section>`;
 }
 
 

@@ -256,7 +256,7 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
 ### Presentar-la al client
 
 Botó **Presenta**: fitxa neta amb el logotip, l'objectiu d'avui, els 6 blocs i cada exercici ben
-escrit, amb la seva miniatura. Es pot posar a pantalla completa, en tema fosc, o **Imprimeix / PDF** (A4) per desar-la a
+escrit, amb la seva miniatura (en moviment a la pantalla; al PDF, dos dibuixos: inici → final). Es pot posar a pantalla completa, en tema fosc, o **Imprimeix / PDF** (A4) per desar-la a
 la carpeta del client.
 
 **Vídeos de cada bloc**: els blocs que tenen vídeos de demostració porten el botó **▶ n vídeos**. En tocar-lo
@@ -456,6 +456,13 @@ Cada exercici té una miniatura: un **dibuix propi** de la postura (squat, pes m
 material en el color del bloc (barra, mancuernes, kettlebell, goma als genolls, politja…). Es posa sol segons el nom
 de l'exercici i, a la sessió, segons el material triat. Surt a «Afegeix exercici», a la biblioteca (vista
 **Miniatures**, a la llista i a les progressions), a l'editor de la sessió i a la fitxa del client.
+
+**En moviment**: el dibuix fa l'exercici: va de la posició inicial a la final i torna (uns 2,5 s, sense parar). Els
+exercicis isomètrics (planxa, aguantar…) es queden quiets. Es pot aturar a **Configuració › Dibuixos dels exercicis ›
+En moviment** (val per a aquell aparell); si la tauleta té activat «reduir el moviment», ja surten quiets.
+
+**A la fitxa impresa (PDF)**: com que el paper no es mou, cada exercici surt amb **dos dibuixos, inici → final**, i el
+nom a sota. Les fotos pròpies i les imatges de vídeo surten com sempre (una sola imatge).
 
 Per canviar-la, obre l'exercici a la biblioteca:
 - **Canvia el dibuix**: tria'n un altre d'entre tots els dibuixos.

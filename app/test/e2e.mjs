@@ -850,6 +850,27 @@ const step = async (label, fn) => {
     await page.waitForSelector('.xb-here >> text=Nou exercici en aquesta carpeta');
     await page.click('.dialog-foot >> text=Cancel·la');
   });
+  await step('dibuixos en moviment a la biblioteca; es poden aturar; a la fitxa impresa, inici → final', async () => {
+    await goHash(page, '#/biblioteca');
+    await page.fill('input[aria-label="Cerca exercicis"]', 'Back squat');
+    await page.waitForSelector('.exrow:has-text("Back squat") .exthumb animate', { state: 'attached' });
+    await goHash(page, '#/configuracio');
+    await page.uncheck('#pic-motion');
+    await goHash(page, '#/biblioteca');
+    await page.fill('input[aria-label="Cerca exercicis"]', 'Back squat');
+    await page.waitForSelector('.exrow:has-text("Back squat") .exthumb svg');
+    if (await page.locator('.exrow:has-text("Back squat") .exthumb animate').count()) throw new Error('no s\'ha aturat');
+    await goHash(page, '#/configuracio');
+    await page.check('#pic-motion');
+    const sid = await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').filter((x) => x.status === 'feta').pop().id);
+    await goHash(page, `#/fitxa/${sid}`);
+    await page.waitForSelector('.sx-thumb.has-seq .exthumb-seq .exthumb-step svg', { state: 'attached' });
+    await page.emulateMedia({ media: 'print' });
+    const vis = await page.$eval('.sx-thumb.has-seq', (e) => [getComputedStyle(e.querySelector('.exthumb-seq')).display, getComputedStyle(e.querySelector('.exthumb-pic')).display]);
+    await page.emulateMedia({ media: 'screen' });
+    await goHash(page, '#/inici');
+    if (vis[0] === 'none' || vis[1] !== 'none') throw new Error(`en imprimir: ${vis}`);
+  });
   await step('persistència local', async () => {
     const before = await page.evaluate(() => ({ pending: Store.pending(), stored: (localStorage.getItem('eonlife:data:v1') || '').includes('Automàtica') }));
     await page.evaluate(() => { window.__beforeReload = true; });
