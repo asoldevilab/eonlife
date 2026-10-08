@@ -157,16 +157,21 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
 
   function addItem(driveId, parentId, name, extra) {
     const it = { id: id('I'), driveId, parentId, name, createdDateTime: now(), lastModifiedDateTime: now(), ...extra };
-    it.webUrl = `https://eonlife.sharepoint.com/sites/centre/${encodeURIComponent(name)}?id=${it.id}`;
     items.set(it.id, it);
     return it;
+  }
+  // Com a SharePoint, l'enllaç és la ruta: si es canvia el nom d'una carpeta (o es mou), canvia el de tot el que hi ha a dins.
+  function webUrlOf(it) {
+    const parts = [];
+    for (let x = it; x; x = items.get(x.parentId)) parts.unshift(encodeURIComponent(x.name));
+    return `https://eonlife.sharepoint.com/sites/centre/${parts.join('/')}`;
   }
   function childOf(parentId, name) {
     for (const it of items.values()) if (it.parentId === parentId && it.name.toLowerCase() === name.toLowerCase() && !it.deleted) return it;
     return null;
   }
   const view = (it) => {
-    const v = { id: it.id, name: it.name, webUrl: it.webUrl, lastModifiedDateTime: it.lastModifiedDateTime, createdDateTime: it.createdDateTime, parentReference: { driveId: it.driveId, id: it.parentId } };
+    const v = { id: it.id, name: it.name, webUrl: webUrlOf(it), lastModifiedDateTime: it.lastModifiedDateTime, createdDateTime: it.createdDateTime, parentReference: { driveId: it.driveId, id: it.parentId } };
     if (it.folder) v.folder = { childCount: [...items.values()].filter((x) => x.parentId === it.id).length };
     if (it.file) v.file = { mimeType: it.file.mimeType };
     if (it.content) v.size = it.content.length;
@@ -288,6 +293,14 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
       if (!itemId) throw httpError(404, 'itemNotFound', 'The sharing link no longer exists');
       return { body: view(items.get(itemId)) };
     }
+    // Cerca per nom a tota la unitat: /drives/{id}/root/search(q='…')
+    if ((m = path.match(/^\/drives\/([^/]+)\/root\/search\(q='(.*)'\)$/))) {
+      const q = decodeURIComponent(m[2]).replace(/''/g, "'").toLowerCase();
+      if (!drives.has(m[1])) throw httpError(404, 'itemNotFound', 'Drive not found');
+      const alive = (x) => { for (let y = x; y; y = items.get(y.parentId)) if (y.deleted) return false; return true; };
+      const hits = [...items.values()].filter((x) => x.driveId === m[1] && x.name.toLowerCase().includes(q) && alive(x) && !state.unindexed?.has(x.id));
+      return { body: { value: hits.map(view) } };
+    }
     if ((m = path.match(/^\/drives\/([^/]+)\/items\/([^/:]+)(.*)$/))) {
       const [, driveId, itemId, restRaw] = m;
       if (!drives.has(driveId)) throw httpError(404, 'itemNotFound', 'Drive not found');
@@ -339,6 +352,12 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
         if (existing && body['@microsoft.graph.conflictBehavior'] === 'fail') throw httpError(409, 'nameAlreadyExists', 'The specified item name already exists.');
         if (/["*:<>?/\\|]/.test(body.name)) throw httpError(400, 'invalidRequest', 'Invalid name');
         return { status: 201, body: view(addItem(driveId, itemId, body.name, { folder: {} })) };
+      }
+      if (rest === '' && method === 'PATCH') {
+        if (readOnly.has(user.email)) throw httpError(403, 'accessDenied', 'Access denied');
+        if (body.name) it.name = body.name;
+        if (body.parentReference && body.parentReference.id) it.parentId = body.parentReference.id;
+        return { body: view(it) };
       }
       if (rest === '' && method === 'DELETE') {
         if (readOnly.has(user.email)) throw httpError(403, 'accessDenied', 'Access denied');
@@ -433,6 +452,11 @@ export function createGraphMock({ users = {}, now = () => new Date().toISOString
       return f ? workbookOf(f.id) : null;
     },
     child: childOf,
+    webUrlOf,
+    // Canvis fets a mà a SharePoint (fora de l'app): canviar el nom, moure, esborrar.
+    rename(itemId, name) { items.get(itemId).name = name; },
+    move(itemId, parentId) { items.get(itemId).parentId = parentId; },
+    remove(itemId) { const kill = (x) => { x.deleted = true; for (const c of items.values()) if (c.parentId === x.id) kill(c); }; kill(items.get(itemId)); },
     childrenOf(parentId) { return [...items.values()].filter((x) => x.parentId === parentId && !x.deleted); },
   };
 }

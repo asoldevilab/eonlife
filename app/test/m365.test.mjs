@@ -211,6 +211,74 @@ test('carpeta del client, llistat de fitxers i pujada de vídeo per trossos', as
   assert.match(m.thumb, /thumb/);
 });
 
+test('fotos de la valoració: es troben encara que es canviï el nom de les carpetes, es moguin o s\'esborrin', async () => {
+  const { core, mock, api } = setup();
+  const a = await api();
+  const { M365Backend, mediaNameFromUrl, mediaUrlKey, isCloudFileUrl } = core.M365;
+  const info = (urls, metas) => M365Backend.mediaInfo.call({ api: a }, f.folderId, urls, metas);
+  const p = { id: 'P-77', firstName: 'Pacient', lastName: 'Prova' };
+  const f = await a.ensureFolder(p);
+  const jpg = new Blob([new Uint8Array(4000).fill(3)], { type: 'image/jpeg' });
+  const up = await a.uploadFile(f.folderId, jpg, { stem: 'testthomas_dreta_pacientprova_20261001', ext: '.jpg', path: ['Valoracions'] });
+  assert.ok(up.id && up.url);
+  assert.equal(mediaNameFromUrl(up.url), 'testthomas_dreta_pacientprova_20261001_01.jpg');
+  assert.equal(mediaUrlKey(up.url), mediaUrlKey(decodeURI(up.url)));
+  assert.ok(isCloudFileUrl(up.url) && !isCloudFileUrl('https://youtu.be/abc'));
+  // Tal com es va desar
+  let r = await info([up.url, 'https://youtu.be/abc']);
+  assert.equal(r[up.url].id, up.id);
+  assert.equal(r[up.url].url, up.url);
+  assert.match(r[up.url].thumb, /thumb/);
+  assert.ok(!('https://youtu.be/abc' in r), 'els enllaços de YouTube no es busquen a la carpeta');
+  // Algú canvia el nom de la carpeta del pacient i de la de pacients: l'enllaç desat ja no hi és (Not Found)…
+  mock.rename(f.folderId, 'David B');
+  mock.rename(a.clientsItem.id, 'EON Life · Pacients');
+  const now = mock.webUrlOf(mock.items.get(up.id));
+  assert.notEqual(now, up.url);
+  // …però la foto es troba pel nom, amb l'enllaç d'ara
+  r = await info([up.url]);
+  assert.equal(r[up.url].id, up.id);
+  assert.equal(r[up.url].url, now);
+  // Amb l'identificador desat, directament (sense mirar la carpeta)
+  mock.log.length = 0;
+  r = await info([up.url], { [up.url]: { id: up.id, name: up.name } });
+  assert.equal(r[up.url].url, now);
+  assert.ok(!mock.log.some((x) => /children/.test(x.url)), 'no cal llistar la carpeta');
+  // Moguda fora de la carpeta del pacient: es troba cercant el nom a tota la unitat
+  mock.move(up.id, a.cfg.folderId);
+  r = await info([up.url]);
+  assert.equal(r[up.url].id, up.id);
+  assert.equal(r[up.url].url, mock.webUrlOf(mock.items.get(up.id)));
+  // Un error de pas en mirar-la no és «esborrada»
+  mock.fault({ match: /\$batch/, status: 500, times: 3 });
+  r = await info([up.url], { [up.url]: { id: up.id, name: up.name } }).catch((e) => ({ thrown: e }));
+  assert.ok(r.thrown || (r[up.url] && r[up.url].error && !r[up.url].missing), JSON.stringify(r));
+  mock.faults.length = 0;
+  // Esborrada: es diu clarament (amb el nom per buscar-la a la paperera)
+  mock.remove(up.id);
+  r = await info([up.url], { [up.url]: { id: up.id, name: up.name } });
+  assert.deepEqual(JSON.parse(JSON.stringify(r[up.url])), { missing: true, name: up.name });
+});
+
+test('carpeta del pacient: un error de pas no en fa una de nova, i la de pacients reanomenada es continua fent servir', async () => {
+  const { mock, api } = setup();
+  const a = await api();
+  const p = { id: 'P-78', firstName: 'Pacient', lastName: 'Prova' };
+  const f = await a.ensureFolder(p);
+  mock.rename(f.folderId, 'Pacient Prova'); // sense l'identificador al nom
+  mock.fault({ method: 'GET', match: new RegExp(`items/${f.folderId}\\?`), status: 503, times: 20 });
+  await assert.rejects(a.ensureFolder({ ...p, folderId: f.folderId }));
+  assert.equal(mock.childrenOf(a.clientsItem.id).length, 1, 'no s\'ha fet cap carpeta nova');
+  mock.faults.length = 0;
+  assert.equal((await a.ensureFolder({ ...p, folderId: f.folderId })).folderId, f.folderId);
+  const clients = a.clientsItem.id;
+  mock.rename(clients, 'EON Life · Pacients');
+  const b = await api();
+  assert.equal(b.clientsItem.id, clients);
+  const q = await b.ensureFolder({ id: 'P-79', firstName: 'Nou' });
+  assert.equal(mock.items.get(q.folderId).parentId, clients);
+});
+
 test('sense permís d\'edició: missatge clar', async () => {
   const { core, mock, api } = setup();
   const a = await api();

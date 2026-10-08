@@ -23,7 +23,8 @@ if (shots) mkdirSync(shots, { recursive: true });
 const CLIENT_ID = '11111111-2222-3333-4444-555555555555';
 const TENANT_ID = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 const html = readFileSync(join(root, 'dist', 'm365', 'index.html'), 'utf8')
-  .replace(/window\.EON_M365 = \{[^\n]*\};/, `window.EON_M365 = ${JSON.stringify({ clientId: CLIENT_ID, tenantId: TENANT_ID, folderUrl: '' })};`);
+  .replace(/window\.EON_M365 = \{[^\n]*\};/, `window.EON_M365 = ${JSON.stringify({ clientId: CLIENT_ID, tenantId: TENANT_ID, folderUrl: '' })};`)
+  .replace("window.EON_AI = 'ai/';", ''); // el retall de les fotos amb IA es prova a e2e-ai.mjs
 
 // version.json: la mateixa versió que la pàgina, tret que la prova en publiqui una de «nova».
 const served = { build: (html.match(/window\.EON_BUILD = "([^"]+)"/) || [])[1] };
@@ -141,7 +142,9 @@ const waitSaved = async (page) => {
 };
 const wb = () => mock.workbookIn(shared.folder.id);
 // Carpeta del client i les seves subcarpetes: Valoracions (› Vídeos valoracions) i Sessions (› Vídeos sessions d'entrenament).
-const clientFolder = () => mock.childrenOf(mock.child(shared.folder.id, 'EON Life · Clients').id)[0];
+// La carpeta de pacients es busca pel nom el primer cop i després per identificador (un pas de la prova la reanomena).
+let clientsId = null;
+const clientFolder = () => mock.childrenOf(clientsId || (clientsId = mock.child(shared.folder.id, 'EON Life · Clients').id))[0];
 const sub = (...path) => path.reduce((cur, n) => mock.child(cur.id, n), clientFolder());
 const files = (...path) => mock.childrenOf(sub(...path).id).filter((x) => x.file).map((x) => x.name).sort();
 const rows = (t) => wb().rows(t).filter((r) => r.id || r.session_id);
@@ -292,6 +295,58 @@ let pid = null;
     if (!files('Sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Sessions: ${files('Sessions')}`);
     await page.evaluate((x) => { go('valoracio', x); }, aid);
     await page.waitForSelector('#sec-forca >> text=Informe de força');
+  });
+  await step('fotos de la valoració: surten a l\'informe encara que algú canviï el nom de les carpetes; si s\'esborren, avís clar', async () => {
+    const aid = await page.evaluate(() => location.hash.split('/')[2]);
+    await page.locator('input[data-kind="camera"]').first().setInputFiles(join(root, 'app', 'test', 'fixtures', 'persona-cc0.jpg'));
+    await page.waitForSelector('.toast >> text=Foto desada a la carpeta', { timeout: 15000 });
+    await waitSaved(page);
+    const photos = files('Valoracions').filter((n) => /\.jpg$/.test(n));
+    if (photos.length !== 1) throw new Error(`fotos: ${files('Valoracions')}`);
+    const item = mock.child(sub('Valoracions').id, photos[0]);
+    const saved = await page.evaluate((id) => { const a = Store.get('assessments', id); return { url: a.values.adams.photo, media: a.media || {} }; }, aid);
+    if (!saved.media[saved.url] || saved.media[saved.url].id !== item.id) throw new Error(`identificador no desat: ${JSON.stringify(saved)}`);
+    // Com una valoració d'abans (sense identificador) i algú canvia el nom de les carpetes a SharePoint:
+    // l'enllaç desat ja no existeix («Not Found»).
+    await page.evaluate((id) => { Store.update('assessments', id, (x) => { delete x.media; }); }, aid);
+    await waitSaved(page);
+    mock.rename(clientFolder().id, 'Montse Riera');
+    mock.rename(clientFolder().parentId, 'EON Life · Pacients');
+    const now = mock.webUrlOf(item);
+    if (now === saved.url) throw new Error('l\'enllaç no ha canviat');
+    await page.reload();
+    await page.waitForFunction(() => typeof Store !== 'undefined' && Store.ready && typeof go === 'function');
+    await page.evaluate((id) => go('informe', id), aid);
+    await page.waitForSelector('.rphoto img[src*="download.mock.test/thumb"]', { timeout: 15000 });
+    // La valoració s'arregla sola: enllaç nou i identificador
+    await page.waitForFunction((id) => { const a = Store.get('assessments', id); return a.media && a.media[a.values.adams.photo]; }, aid, { timeout: 10000 });
+    const fixed = await page.evaluate((id) => { const a = Store.get('assessments', id); return { url: a.values.adams.photo, id: a.media[a.values.adams.photo].id }; }, aid);
+    if (fixed.url !== now || fixed.id !== item.id) throw new Error(`no s'ha arreglat: ${JSON.stringify(fixed)}`);
+    await waitSaved(page);
+    await shot(page, 'm365-07b-foto-retrobada');
+    // Esborrada de la carpeta: a l'informe, avís (no un requadre buit) i, en tocar-la, què fer; mai un enllaç mort
+    mock.remove(item.id);
+    await page.reload();
+    await page.waitForFunction(() => typeof Store !== 'undefined' && Store.ready && typeof go === 'function');
+    await page.evaluate((id) => go('informe', id), aid);
+    await page.waitForSelector('.rphoto-lost >> text=No es troba a la carpeta', { timeout: 15000 });
+    const popups = [];
+    page.context().on('page', (p) => popups.push(p.url()));
+    await page.click('.rphoto-lost .rphoto-img');
+    await page.waitForSelector('.dialog >> text=paperera de reciclatge');
+    if (!(await page.locator(`.dialog >> text=${photos[0]}`).count())) throw new Error('no diu el nom del fitxer');
+    await shot(page, 'm365-07c-foto-esborrada');
+    await page.click('.dialog >> text=D\'acord');
+    if (popups.length) throw new Error(`ha obert ${popups}`);
+    await page.emulateMedia({ media: 'print' });
+    if (await page.locator('.rphoto-lost').isVisible()) throw new Error('el requadre buit surt al PDF');
+    await page.emulateMedia({ media: 'screen' });
+    // Restaurada de la paperera: torna a sortir sola
+    item.deleted = false;
+    await page.reload();
+    await page.waitForFunction(() => typeof Store !== 'undefined' && Store.ready && typeof go === 'function');
+    await page.evaluate((id) => go('valoracio', id), aid);
+    await page.waitForSelector('.tphoto img[src*="download.mock.test/thumb"]', { timeout: 15000 });
   });
   await step('sessió des de plantilla → Sessions i Registre_exercicis', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);

@@ -644,6 +644,28 @@ function m365TemplateFile() {
 }
 
 // ── Carpetes i fitxers (OneDrive / SharePoint) ──
+// Fotos i vídeos de la carpeta del pacient: nom del fitxer a partir del seu enllaç (…/Valoracions/foto_01.jpg, o
+// …/Doc.aspx?…&file=nom.xlsx) i clau per comparar enllaços escrits diferent (codificats o no, majúscules).
+const mediaDecode = (s) => { try { return decodeURIComponent(s); } catch (e) { return s; } };
+function mediaNameFromUrl(u) {
+  try {
+    const x = new URL(u);
+    return x.searchParams.get('file') || mediaDecode(x.pathname.split('/').filter(Boolean).pop() || '');
+  } catch (e) {
+    return '';
+  }
+}
+function mediaUrlKey(u) {
+  try {
+    const x = new URL(u);
+    return `${x.host}${mediaDecode(x.pathname)}${x.search}`.toLowerCase();
+  } catch (e) {
+    return String(u || '').toLowerCase();
+  }
+}
+// Enllaç a un fitxer de SharePoint o OneDrive (no a YouTube ni a cap altre lloc).
+const isCloudFileUrl = (u) => { try { return /(^|\.)(sharepoint\.(com|us|de|cn)|onedrive\.live\.com|1drv\.ms)$/i.test(new URL(u).host); } catch (e) { return false; } };
+
 const safeName = (s) => String(s || '').replace(/["*:<>?/\\|#%]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^\.+|\.+$/g, '').slice(0, 120);
 
 class M365Api {
@@ -713,9 +735,20 @@ class M365Api {
   // Existeix la base de dades a la carpeta?
   async locate() {
     this.workbookItem = await this.child(this.cfg.folderId, M365_NAMES.workbook);
-    this.clientsItem = await this.child(this.cfg.folderId, M365_NAMES.clients);
+    this.clientsItem = await this.child(this.cfg.folderId, M365_NAMES.clients) || await this.renamedClients();
     if (this.workbookItem) this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
     return !!this.workbookItem;
+  }
+
+  // Si algú ha canviat el nom de la carpeta de pacients («EON Life · Clients» → «EON Life · Pacients»…), es continua
+  // fent servir aquella i no se'n fa una altra de buida.
+  async renamedClients() {
+    try {
+      const dirs = (await this.children(this.cfg.folderId)).filter((x) => x.folder && /client|pacient/i.test(x.name));
+      return dirs.length === 1 ? dirs[0] : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   // Primer cop: crea l'Excel (plantilla) i la carpeta de clients.
@@ -733,7 +766,7 @@ class M365Api {
         this.workbookItem = await this.child(this.cfg.folderId, M365_NAMES.workbook);
       }
     }
-    this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
+    this.clientsItem = this.clientsItem || await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
     this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
   }
 
@@ -750,7 +783,9 @@ class M365Api {
         const f = await this.g.req('GET', `${this.drive}/items/${p.folderId}?$select=id,webUrl,folder,deleted`);
         if (f && f.folder && !f.deleted) return { folderId: f.id, folderUrl: f.webUrl };
       } catch (e) {
-        if (e.code === 'network') throw e;
+        // Només si la carpeta ja no hi és (o l'identificador no és vàlid) se'n busca o se'n fa una altra; un error de pas (sense connexió,
+        // massa peticions, permís) no ha de deixar el pacient amb una carpeta nova i buida.
+        if (![400, 404, 410].includes(e.status)) throw e;
       }
     }
     if (!this.clientsItem) this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
@@ -774,13 +809,13 @@ class M365Api {
   }
 
   // Tots els fitxers de la carpeta d'un client (fins a dos nivells de subcarpetes: Valoracions › Vídeos valoracions…).
-  async listFiles(folderId) {
+  async listFiles(folderId, { limit = 400 } = {}) {
     if (!folderId) return [];
     const out = [];
     const walk = async (id, rel, depth) => {
       const items = await this.children(id);
       for (const it of items) {
-        if (it.file && out.length < 400) out.push({ id: it.id, name: it.name, url: it.webUrl, mimeType: (it.file && it.file.mimeType) || '', folder: rel, updated: it.lastModifiedDateTime || '' });
+        if (it.file && out.length < limit) out.push({ id: it.id, name: it.name, url: it.webUrl, mimeType: (it.file && it.file.mimeType) || '', folder: rel, updated: it.lastModifiedDateTime || '' });
       }
       if (depth < 2) for (const sub of items.filter((x) => x.folder)) await walk(sub.id, rel ? `${rel}/${sub.name}` : sub.name, depth + 1);
     };
@@ -788,15 +823,28 @@ class M365Api {
     return out.sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : 0));
   }
 
-  // Miniatura i adreça temporal de reproducció (una hora) de fitxers de la carpeta, per veure els vídeos a l'informe.
+  // Miniatura, adreça temporal de reproducció (una hora), nom i enllaç d'ara de fitxers de la carpeta, per identificador.
+  // Un fitxer que ja no hi és (esborrat) torna { id, gone: true }; si no s'ha pogut mirar, { id, error }.
   async media(ids) {
+    if (!ids.length) return [];
     const res = await this.g.batch(ids.map((id) => ({ url: `${this.drive}/items/${id}?$expand=thumbnails` })));
     return res.map((r, i) => {
-      if (!r || r.error) return { id: ids[i] };
+      if (!r || r.error) return r && r.error && r.error.status === 404 ? { id: ids[i], gone: true } : { id: ids[i], error: (r && r.error && r.error.message) || 'error' };
       const b = r.body || {};
+      if (b.deleted || !b.file) return { id: ids[i], gone: true };
       const t = (b.thumbnails || [])[0] || {};
-      return { id: ids[i], play: b['@microsoft.graph.downloadUrl'] || '', thumb: (t.large || t.medium || t.small || {}).url || '' };
+      return { id: ids[i], name: b.name || '', url: b.webUrl || '', play: b['@microsoft.graph.downloadUrl'] || '', thumb: (t.large || t.medium || t.small || {}).url || '' };
     });
+  }
+
+  // Fitxers amb aquest nom exacte a tota la unitat (per si algú els ha mogut de carpeta). La cerca de Graph pot trigar
+  // uns minuts a veure els fitxers nous; aquí es fa servir per a fitxers d'abans.
+  async findByName(name) {
+    if (!name) return [];
+    const q = encodeURIComponent(String(name).replace(/'/g, "''"));
+    const res = await this.g.req('GET', `${this.drive}/root/search(q='${q}')?$select=id,name,webUrl,file,parentReference&$top=50`);
+    const want = String(name).toLowerCase();
+    return ((res && res.value) || []).filter((x) => x.file && String(x.name || '').toLowerCase() === want);
   }
 
   // Puja un fitxer de la tauleta a una carpeta del client (path = ['Valoracions', 'Vídeos valoracions']), per trossos i amb progrés.
@@ -944,13 +992,50 @@ const M365Backend = {
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
-  // { enllaç del vídeo → { thumb, play } } per als vídeos que són a la carpeta del client.
-  async mediaInfo(folderId, urls) {
-    const files = await this.api.listFiles(folderId);
-    const byUrl = new Map(files.map((f) => [f.url, f.id]));
-    const wanted = [...new Set(urls)].filter((u) => byUrl.has(u));
-    if (!wanted.length) return {};
-    const info = await this.api.media(wanted.map((u) => byUrl.get(u)));
-    return Object.fromEntries(wanted.map((u, i) => [u, info[i]]));
+  // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
+  // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:
+  // per identificador (es desa en pujar-lo), per l'enllaç, pel nom del fitxer dins de la carpeta del pacient i pel nom
+  // a tota la unitat. url és l'enllaç d'ara. El que no es troba enlloc torna { missing: true, name }.
+  // metas: { enllaç → { id, name } }.
+  async mediaInfo(folderId, urls, metas = {}) {
+    const out = {}, errs = {};
+    const todo = [...new Set(urls)].filter(isCloudFileUrl);
+    const meta = (u) => metas[u] || {};
+    const nameOf = (u) => meta(u).name || mediaNameFromUrl(u);
+    const settle = async (pairs) => {
+      const got = await this.api.media(pairs.map(([, id]) => id));
+      pairs.forEach(([u], i) => {
+        if (got[i] && got[i].url) { out[u] = got[i]; delete errs[u]; } else if (got[i] && got[i].error) errs[u] = got[i].error;
+      });
+    };
+    // 1. Per identificador
+    const byId = todo.filter((u) => meta(u).id);
+    if (byId.length) await settle(byId.map((u) => [u, meta(u).id]));
+    // 2. Enllaç i nom dins de la carpeta del pacient
+    let left = todo.filter((u) => !out[u]);
+    if (left.length && folderId) {
+      const files = await this.api.listFiles(folderId, { limit: 5000 });
+      const byUrl = new Map(files.map((f) => [mediaUrlKey(f.url), f.id]));
+      const byName = new Map();
+      for (const f of files) if (!byName.has(f.name.toLowerCase())) byName.set(f.name.toLowerCase(), f.id);
+      const pairs = [];
+      for (const u of left) {
+        const id = byUrl.get(mediaUrlKey(u)) || byName.get(String(nameOf(u)).toLowerCase());
+        if (id) pairs.push([u, id]);
+      }
+      if (pairs.length) await settle(pairs);
+    }
+    // 3. Pel nom, a tota la unitat (carpeta moguda fora de la del pacient)
+    left = todo.filter((u) => !out[u]);
+    for (const u of left) {
+      const name = nameOf(u);
+      if (!name || !/\.[a-z0-9]{2,5}$/i.test(name)) continue;
+      let hits = [];
+      try { hits = await this.api.findByName(name); } catch (e) { hits = []; }
+      if (hits.length) await settle([[u, hits[0].id]]);
+    }
+    // Un error de pas (sense connexió, massa peticions) no és «no es troba»: es tornarà a provar.
+    for (const u of todo) if (!out[u]) out[u] = errs[u] ? { error: errs[u] } : { missing: true, name: nameOf(u) };
+    return out;
   },
 };
