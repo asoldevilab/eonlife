@@ -77,5 +77,5 @@ const PhotoCrop = (() => {
     }
   }
 
-  return { available, crop, frame, known, RATIO };
+  return { available, crop, frame, known, remember, RATIO };
 })();

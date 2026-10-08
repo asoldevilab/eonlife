@@ -757,6 +757,11 @@ input[type="search"].input { -webkit-appearance: none; }
 .rphoto-frame img { position: absolute; max-width: none; height: auto !important; object-fit: fill !important; background: none !important; }
 .rphoto-img img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--surface-3); }
 .rphoto figcaption { padding: 8px 10px; font-size: 13px; font-weight: 650; }
+.rphoto-lost .rphoto-img { background: var(--bad-bg, var(--surface-3)); color: var(--bad, var(--ink-2)); }
+.rphoto-lost-msg { display: grid; justify-items: center; gap: 6px; padding: 12px; font-size: 13px; font-weight: 650; text-align: center; }
+.bad-text { color: var(--bad); font-weight: 650; }
+.tmedia-missing { display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; padding: 2px 8px; border: 0; border-radius: 999px;
+  background: var(--bad-bg, var(--surface-3)); color: var(--bad, var(--ink-2)); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
 @media print { .rphotos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
 .trow-note { grid-column: 1 / -1; }
 @media (max-width: 820px) {

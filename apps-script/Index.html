@@ -767,6 +767,11 @@ input[type="search"].input { -webkit-appearance: none; }
 .rphoto-frame img { position: absolute; max-width: none; height: auto !important; object-fit: fill !important; background: none !important; }
 .rphoto-img img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--surface-3); }
 .rphoto figcaption { padding: 8px 10px; font-size: 13px; font-weight: 650; }
+.rphoto-lost .rphoto-img { background: var(--bad-bg, var(--surface-3)); color: var(--bad, var(--ink-2)); }
+.rphoto-lost-msg { display: grid; justify-items: center; gap: 6px; padding: 12px; font-size: 13px; font-weight: 650; text-align: center; }
+.bad-text { color: var(--bad); font-weight: 650; }
+.tmedia-missing { display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; padding: 2px 8px; border: 0; border-radius: 999px;
+  background: var(--bad-bg, var(--surface-3)); color: var(--bad, var(--ink-2)); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
 @media print { .rphotos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
 .trow-note { grid-column: 1 / -1; }
 @media (max-width: 820px) {
@@ -3876,7 +3881,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-08 17:50";
+<script>window.EON_BUILD = "2026-10-08 18:12";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -10904,6 +10909,28 @@ function m365TemplateFile() {
 }
 
 // ── Carpetes i fitxers (OneDrive / SharePoint) ──
+// Fotos i vídeos de la carpeta del pacient: nom del fitxer a partir del seu enllaç (…/Valoracions/foto_01.jpg, o
+// …/Doc.aspx?…&file=nom.xlsx) i clau per comparar enllaços escrits diferent (codificats o no, majúscules).
+const mediaDecode = (s) => { try { return decodeURIComponent(s); } catch (e) { return s; } };
+function mediaNameFromUrl(u) {
+  try {
+    const x = new URL(u);
+    return x.searchParams.get('file') || mediaDecode(x.pathname.split('/').filter(Boolean).pop() || '');
+  } catch (e) {
+    return '';
+  }
+}
+function mediaUrlKey(u) {
+  try {
+    const x = new URL(u);
+    return `${x.host}${mediaDecode(x.pathname)}${x.search}`.toLowerCase();
+  } catch (e) {
+    return String(u || '').toLowerCase();
+  }
+}
+// Enllaç a un fitxer de SharePoint o OneDrive (no a YouTube ni a cap altre lloc).
+const isCloudFileUrl = (u) => { try { return /(^|\.)(sharepoint\.(com|us|de|cn)|onedrive\.live\.com|1drv\.ms)$/i.test(new URL(u).host); } catch (e) { return false; } };
+
 const safeName = (s) => String(s || '').replace(/["*:<>?/\\|#%]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^\.+|\.+$/g, '').slice(0, 120);
 
 class M365Api {
@@ -10973,9 +11000,20 @@ class M365Api {
   // Existeix la base de dades a la carpeta?
   async locate() {
     this.workbookItem = await this.child(this.cfg.folderId, M365_NAMES.workbook);
-    this.clientsItem = await this.child(this.cfg.folderId, M365_NAMES.clients);
+    this.clientsItem = await this.child(this.cfg.folderId, M365_NAMES.clients) || await this.renamedClients();
     if (this.workbookItem) this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
     return !!this.workbookItem;
+  }
+
+  // Si algú ha canviat el nom de la carpeta de pacients («EON Life · Clients» → «EON Life · Pacients»…), es continua
+  // fent servir aquella i no se'n fa una altra de buida.
+  async renamedClients() {
+    try {
+      const dirs = (await this.children(this.cfg.folderId)).filter((x) => x.folder && /client|pacient/i.test(x.name));
+      return dirs.length === 1 ? dirs[0] : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   // Primer cop: crea l'Excel (plantilla) i la carpeta de clients.
@@ -10993,7 +11031,7 @@ class M365Api {
         this.workbookItem = await this.child(this.cfg.folderId, M365_NAMES.workbook);
       }
     }
-    this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
+    this.clientsItem = this.clientsItem || await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
     this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
   }
 
@@ -11010,7 +11048,9 @@ class M365Api {
         const f = await this.g.req('GET', `${this.drive}/items/${p.folderId}?$select=id,webUrl,folder,deleted`);
         if (f && f.folder && !f.deleted) return { folderId: f.id, folderUrl: f.webUrl };
       } catch (e) {
-        if (e.code === 'network') throw e;
+        // Només si la carpeta ja no hi és (o l'identificador no és vàlid) se'n busca o se'n fa una altra; un error de pas (sense connexió,
+        // massa peticions, permís) no ha de deixar el pacient amb una carpeta nova i buida.
+        if (![400, 404, 410].includes(e.status)) throw e;
       }
     }
     if (!this.clientsItem) this.clientsItem = await this.ensureChildFolder(this.cfg.folderId, M365_NAMES.clients);
@@ -11034,13 +11074,13 @@ class M365Api {
   }
 
   // Tots els fitxers de la carpeta d'un client (fins a dos nivells de subcarpetes: Valoracions › Vídeos valoracions…).
-  async listFiles(folderId) {
+  async listFiles(folderId, { limit = 400 } = {}) {
     if (!folderId) return [];
     const out = [];
     const walk = async (id, rel, depth) => {
       const items = await this.children(id);
       for (const it of items) {
-        if (it.file && out.length < 400) out.push({ id: it.id, name: it.name, url: it.webUrl, mimeType: (it.file && it.file.mimeType) || '', folder: rel, updated: it.lastModifiedDateTime || '' });
+        if (it.file && out.length < limit) out.push({ id: it.id, name: it.name, url: it.webUrl, mimeType: (it.file && it.file.mimeType) || '', folder: rel, updated: it.lastModifiedDateTime || '' });
       }
       if (depth < 2) for (const sub of items.filter((x) => x.folder)) await walk(sub.id, rel ? `${rel}/${sub.name}` : sub.name, depth + 1);
     };
@@ -11048,15 +11088,28 @@ class M365Api {
     return out.sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : 0));
   }
 
-  // Miniatura i adreça temporal de reproducció (una hora) de fitxers de la carpeta, per veure els vídeos a l'informe.
+  // Miniatura, adreça temporal de reproducció (una hora), nom i enllaç d'ara de fitxers de la carpeta, per identificador.
+  // Un fitxer que ja no hi és (esborrat) torna { id, gone: true }; si no s'ha pogut mirar, { id, error }.
   async media(ids) {
+    if (!ids.length) return [];
     const res = await this.g.batch(ids.map((id) => ({ url: `${this.drive}/items/${id}?$expand=thumbnails` })));
     return res.map((r, i) => {
-      if (!r || r.error) return { id: ids[i] };
+      if (!r || r.error) return r && r.error && r.error.status === 404 ? { id: ids[i], gone: true } : { id: ids[i], error: (r && r.error && r.error.message) || 'error' };
       const b = r.body || {};
+      if (b.deleted || !b.file) return { id: ids[i], gone: true };
       const t = (b.thumbnails || [])[0] || {};
-      return { id: ids[i], play: b['@microsoft.graph.downloadUrl'] || '', thumb: (t.large || t.medium || t.small || {}).url || '' };
+      return { id: ids[i], name: b.name || '', url: b.webUrl || '', play: b['@microsoft.graph.downloadUrl'] || '', thumb: (t.large || t.medium || t.small || {}).url || '' };
     });
+  }
+
+  // Fitxers amb aquest nom exacte a tota la unitat (per si algú els ha mogut de carpeta). La cerca de Graph pot trigar
+  // uns minuts a veure els fitxers nous; aquí es fa servir per a fitxers d'abans.
+  async findByName(name) {
+    if (!name) return [];
+    const q = encodeURIComponent(String(name).replace(/'/g, "''"));
+    const res = await this.g.req('GET', `${this.drive}/root/search(q='${q}')?$select=id,name,webUrl,file,parentReference&$top=50`);
+    const want = String(name).toLowerCase();
+    return ((res && res.value) || []).filter((x) => x.file && String(x.name || '').toLowerCase() === want);
   }
 
   // Puja un fitxer de la tauleta a una carpeta del client (path = ['Valoracions', 'Vídeos valoracions']), per trossos i amb progrés.
@@ -11204,14 +11257,51 @@ const M365Backend = {
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
-  // { enllaç del vídeo → { thumb, play } } per als vídeos que són a la carpeta del client.
-  async mediaInfo(folderId, urls) {
-    const files = await this.api.listFiles(folderId);
-    const byUrl = new Map(files.map((f) => [f.url, f.id]));
-    const wanted = [...new Set(urls)].filter((u) => byUrl.has(u));
-    if (!wanted.length) return {};
-    const info = await this.api.media(wanted.map((u) => byUrl.get(u)));
-    return Object.fromEntries(wanted.map((u, i) => [u, info[i]]));
+  // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
+  // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:
+  // per identificador (es desa en pujar-lo), per l'enllaç, pel nom del fitxer dins de la carpeta del pacient i pel nom
+  // a tota la unitat. url és l'enllaç d'ara. El que no es troba enlloc torna { missing: true, name }.
+  // metas: { enllaç → { id, name } }.
+  async mediaInfo(folderId, urls, metas = {}) {
+    const out = {}, errs = {};
+    const todo = [...new Set(urls)].filter(isCloudFileUrl);
+    const meta = (u) => metas[u] || {};
+    const nameOf = (u) => meta(u).name || mediaNameFromUrl(u);
+    const settle = async (pairs) => {
+      const got = await this.api.media(pairs.map(([, id]) => id));
+      pairs.forEach(([u], i) => {
+        if (got[i] && got[i].url) { out[u] = got[i]; delete errs[u]; } else if (got[i] && got[i].error) errs[u] = got[i].error;
+      });
+    };
+    // 1. Per identificador
+    const byId = todo.filter((u) => meta(u).id);
+    if (byId.length) await settle(byId.map((u) => [u, meta(u).id]));
+    // 2. Enllaç i nom dins de la carpeta del pacient
+    let left = todo.filter((u) => !out[u]);
+    if (left.length && folderId) {
+      const files = await this.api.listFiles(folderId, { limit: 5000 });
+      const byUrl = new Map(files.map((f) => [mediaUrlKey(f.url), f.id]));
+      const byName = new Map();
+      for (const f of files) if (!byName.has(f.name.toLowerCase())) byName.set(f.name.toLowerCase(), f.id);
+      const pairs = [];
+      for (const u of left) {
+        const id = byUrl.get(mediaUrlKey(u)) || byName.get(String(nameOf(u)).toLowerCase());
+        if (id) pairs.push([u, id]);
+      }
+      if (pairs.length) await settle(pairs);
+    }
+    // 3. Pel nom, a tota la unitat (carpeta moguda fora de la del pacient)
+    left = todo.filter((u) => !out[u]);
+    for (const u of left) {
+      const name = nameOf(u);
+      if (!name || !/\.[a-z0-9]{2,5}$/i.test(name)) continue;
+      let hits = [];
+      try { hits = await this.api.findByName(name); } catch (e) { hits = []; }
+      if (hits.length) await settle([[u, hits[0].id]]);
+    }
+    // Un error de pas (sense connexió, massa peticions) no és «no es troba»: es tornarà a provar.
+    for (const u of todo) if (!out[u]) out[u] = errs[u] ? { error: errs[u] } : { missing: true, name: nameOf(u) };
+    return out;
   },
 };
 
@@ -13691,7 +13781,7 @@ const PhotoCrop = (() => {
     }
   }
 
-  return { available, crop, frame, known, RATIO };
+  return { available, crop, frame, known, remember, RATIO };
 })();
 
 
@@ -13728,45 +13818,156 @@ async function preparePhoto(file, max = 1600) {
   }
 }
 
-// Enllaç desat → imatge que es pot mostrar: la de la tauleta, la miniatura de la carpeta del client o l'enllaç mateix.
-const PhotoSrc = {
-  cache: {},
-  set(url, src) { if (url && src) this.cache[url] = src; },
-  async get(url, patient) {
-    if (!url) return null;
-    if (this.cache[url]) return this.cache[url];
-    let src = null;
-    if (LocalFiles.is(url)) src = await LocalFiles.objectUrl(url);
-    else if (Store.backend && Store.backend.mediaInfo && patient && patient.folderId) {
-      try {
-        const info = (await Store.backend.mediaInfo(patient.folderId, [url]))[url];
-        src = (info && (info.thumb || info.play)) || null;
-      } catch (e) { src = null; }
-    } else if (/\.(jpe?g|png|webp|gif)(\?|$)/i.test(url)) src = url;
-    if (src) this.cache[url] = src;
-    return src;
+// Fotos i vídeos de la carpeta del pacient (Microsoft 365). L'enllaç d'un fitxer canvia si algú canvia el nom d'una
+// carpeta per sobre seu (la del pacient, «EON Life · Clients»…) o el mou; per això, en pujar-lo, a la valoració es desa
+// també el seu identificador i el nom (a.media = { enllaç → { id, name } }). Quan es mira, es busca per identificador o
+// pel nom (09-m365.js, mediaInfo) i, si ara té un altre enllaç, la valoració s'arregla sola.
+const MediaLinks = {
+  meta(rec, url) { return (url && rec && rec.media && rec.media[url]) || null; },
+  // Desa l'identificador d'un enllaç i, si el fitxer té un enllaç nou, el canvia a tot el registre.
+  relink(kind, id, oldUrl, info) {
+    if (!id || !oldUrl || !info || !info.id) return;
+    const rec = Store.get(kind, id);
+    if (!rec) return;
+    const url = info.url || oldUrl;
+    const m = MediaLinks.meta(rec, url);
+    if (url === oldUrl && m && m.id === info.id) return;
+    if (url !== oldUrl) {
+      PhotoSrc.alias(oldUrl, url);
+      const crop = PhotoCrop.known(oldUrl);
+      if (crop !== undefined) PhotoCrop.remember(url, crop);
+    }
+    Store.update(kind, id, (x) => {
+      if (url !== oldUrl) MediaLinks.swap(x, oldUrl, url);
+      x.media = { ...(x.media || {}) };
+      delete x.media[oldUrl];
+      x.media[url] = { id: info.id, name: info.name || '' };
+    });
+  },
+  swap(o, from, to) {
+    for (const k of Object.keys(o)) {
+      if (k === 'media') continue;
+      if (o[k] === from) o[k] = to;
+      else if (o[k] && typeof o[k] === 'object') MediaLinks.swap(o[k], from, to);
+    }
   },
 };
 
-function usePhotoSrc(url, patient) {
-  const [src, setSrc] = useState(PhotoSrc.cache[url] || null);
+// Enllaç desat → imatge que es pot mostrar: la de la tauleta, la miniatura de la carpeta del pacient o l'enllaç mateix.
+// info[enllaç]: { id, name, url (l'enllaç d'ara), play (la foto sencera, una hora) } o { missing: true } o { error }.
+const PhotoSrc = {
+  cache: {},
+  info: {},
+  wait: {},
+  queue: new Map(),
+  set(url, src, info) {
+    if (url && src) this.cache[url] = src;
+    if (url && info) this.info[url] = info;
+  },
+  alias(from, to) {
+    if (this.cache[from]) this.cache[to] = this.cache[from];
+    if (this.info[from]) this.info[to] = { ...this.info[from], url: to };
+  },
+  get(url, patient, meta) {
+    if (!url) return Promise.resolve(null);
+    if (this.cache[url]) return Promise.resolve(this.cache[url]);
+    if (!this.wait[url]) {
+      this.wait[url] = this.load(url, patient, meta).catch(() => null).then((src) => {
+        if (src) this.cache[url] = src;
+        delete this.wait[url]; // si no s'ha trobat, es torna a provar la propera vegada (potser l'han restaurat)
+        return src;
+      });
+    }
+    return this.wait[url];
+  },
+  async load(url, patient, meta) {
+    if (LocalFiles.is(url)) return LocalFiles.objectUrl(url);
+    if (isCloudFileUrl(url)) {
+      const b = Store.backend;
+      if (!(b && b.mediaInfo && patient && patient.folderId)) { this.info[url] = { url }; return null; }
+      try {
+        const info = await this.ask(patient.folderId, url, meta);
+        this.info[url] = info || { missing: true };
+        return (info && (info.thumb || info.play)) || null;
+      } catch (e) {
+        this.info[url] = { error: (e && e.message) || 'error de connexió' };
+        return null;
+      }
+    }
+    return /\.(jpe?g|png|webp|gif)(\?|$)/i.test(url) ? url : null;
+  },
+  // Les fotos d'una mateixa carpeta es demanen juntes (una sola volta per la carpeta).
+  ask(folderId, url, meta) {
+    return new Promise((resolve, reject) => {
+      let q = this.queue.get(folderId);
+      if (!q) {
+        q = [];
+        this.queue.set(folderId, q);
+        setTimeout(async () => {
+          this.queue.delete(folderId);
+          const metas = Object.fromEntries(q.filter((x) => x.meta && x.meta.id).map((x) => [x.url, x.meta]));
+          try {
+            const res = await Store.backend.mediaInfo(folderId, q.map((x) => x.url), metas);
+            for (const x of q) x.resolve(res[x.url] || null);
+          } catch (e) {
+            for (const x of q) x.reject(e);
+          }
+        }, 30);
+      }
+      q.push({ url, meta, resolve, reject });
+    });
+  },
+};
+
+// [imatge, info] d'una foto; onFound(info) quan s'ha trobat a la carpeta (per desar-ne l'identificador o l'enllaç nou).
+function usePhoto(url, patient, meta, onFound) {
+  const [, setTick] = useState(0);
   useEffect(() => {
     let alive = true;
-    setSrc(PhotoSrc.cache[url] || null);
-    if (url) PhotoSrc.get(url, patient).then((s) => { if (alive) setSrc(s); }).catch(() => {});
+    if (url) {
+      PhotoSrc.get(url, patient, meta).then(() => {
+        if (!alive) return;
+        setTick((n) => n + 1);
+        const info = PhotoSrc.info[url];
+        if (onFound && info && info.id) onFound(info);
+      });
+    }
     return () => { alive = false; };
   }, [url]);
-  return src;
+  return [(url && PhotoSrc.cache[url]) || null, (url && PhotoSrc.info[url]) || null];
 }
 
-// Foto en gran: a la versió local, amb el visor de fitxers de la tauleta; si no, la imatge o l'enllaç a la carpeta.
-function openPhoto(url, src, title) {
+// Una foto o un vídeo que no es pot obrir: s'explica per què, en lloc d'obrir un enllaç que dona «Not Found».
+function mediaProblem({ title, info, patient, what = 'la foto' }) {
+  let close = null;
+  close = UI.open(() => html`<${Dialog} title=${title} onClose=${() => close()} footer=${html`
+    ${patient && patient.folderUrl && html`<a class="btn btn-secondary" href=${patient.folderUrl} target="_blank" rel="noopener"><${Icon} name="folder" size=${16} /><span>Obre la carpeta del pacient</span></a>`}
+    <span class="grow"></span>
+    <${Btn} variant="primary" onClick=${() => close()}>D'acord</${Btn}>`}>
+    ${info && info.missing ? html`
+      <p>No trobo ${what} a la carpeta del pacient ni enlloc més de la carpeta compartida: potser s'ha esborrat.</p>
+      <p class="muted">Mira la <strong>paperera de reciclatge</strong> de SharePoint (hi queda 93 dies). Si hi és, restaura-la i torna a obrir aquesta pantalla: l'app la trobarà sola. Si no, torna-la a fer des de la valoració.</p>
+      ${info.name && html`<p class="muted small">Nom del fitxer: <code>${info.name}</code></p>`}`
+    : html`
+      <p>Ara no s'ha pogut carregar ${what}${info && info.error ? `: ${info.error}` : '.'}</p>
+      <p class="muted">Comprova la connexió i que has entrat amb el compte del centre, i torna-ho a provar.</p>`}
+  </${Dialog}>`, { onDismiss: () => close() });
+}
+
+// Foto en gran: a la versió local, amb el visor de fitxers de la tauleta; si no, la imatge (sencera) de la carpeta.
+function openPhoto(url, src, title, info, patient) {
   if (LocalFiles.is(url)) { LocalFiles.show(url); return; }
-  if (!src) { window.open(url, '_blank', 'noopener'); return; }
+  const live = (info && info.url) || url;
+  if (!src) {
+    if (info && (info.missing || info.error)) { mediaProblem({ title, info, patient }); return; }
+    if (isCloudFileUrl(url) && !info) { UI.toast('Encara s\'està carregant la foto…'); return; }
+    window.open(live, '_blank', 'noopener');
+    return;
+  }
   let close = null;
   close = UI.open(() => html`<${Dialog} title=${title} wide=${true} onClose=${() => close()} footer=${html`
-    <a class="btn btn-secondary" href=${url} target="_blank" rel="noopener"><${Icon} name="folder" size=${16} /><span>Obre a la carpeta</span></a>`}>
-    <img class="localfile-img" src=${src} alt=${title} />
+    <a class="btn btn-secondary" href=${live} target="_blank" rel="noopener"><${Icon} name="folder" size=${16} /><span>Obre a la carpeta</span></a>`}>
+    <img class="localfile-img" src=${(info && info.play) || src} alt=${title} />
   </${Dialog}>`, { onDismiss: () => close() });
 }
 
@@ -13776,20 +13977,34 @@ const mediaTitle = (t, list, m) => (list.length > 1 ? `${t.name} · ${m.label.to
 // Les fotos i els vídeos per costat d'un test, a sota de la seva fila.
 function TestMedia({ t, a, p, setVal }) {
   const x = (a.values || {})[t.id] || {};
+  // En pujar una foto o un vídeo, es desa també el seu identificador a la carpeta (a.media), per trobar-lo sempre.
+  const setMedia = (k) => (v, meta) => {
+    if (!(meta && meta.id) && !(x[k] && MediaLinks.meta(a, x[k]))) { setVal(t.id, k, v); return; }
+    Store.update('assessments', a.id, (y) => {
+      const old = ((y.values || {})[t.id] || {})[k];
+      y.values = y.values || {};
+      y.values[t.id] = { ...(y.values[t.id] || {}), [k]: v };
+      y.media = { ...(y.media || {}) };
+      if (old && old !== v) delete y.media[old];
+      if (v && meta && meta.id) y.media[v] = { id: meta.id, name: meta.name || '' };
+    });
+  };
+  const found = (url, info) => MediaLinks.relink('assessments', a.id, url, info);
   return html`<div class="tmedia">
-    ${(t.photos || []).map((m) => html`<${PhotoSlot} key=${m.k} url=${x[m.k]} label=${`Foto ${m.label.toLowerCase()}`.replace(/^Foto foto$/, 'Foto')}
-      title=${mediaTitle(t, t.photos, m)} patient=${p} date=${a.date} onChange=${(v) => setVal(t.id, m.k, v)} />`)}
-    ${(t.videos || []).map((m) => html`<${VideoSlot} key=${m.k} url=${x[m.k]} label=${`Vídeo ${m.label.toLowerCase()}`}
-      title=${mediaTitle(t, t.videos, m)} patient=${p} date=${a.date} onChange=${(v) => setVal(t.id, m.k, v)} />`)}
+    ${(t.photos || []).map((m) => html`<${PhotoSlot} key=${m.k} url=${x[m.k]} meta=${MediaLinks.meta(a, x[m.k])} label=${`Foto ${m.label.toLowerCase()}`.replace(/^Foto foto$/, 'Foto')}
+      title=${mediaTitle(t, t.photos, m)} patient=${p} date=${a.date} onChange=${setMedia(m.k)} onFound=${found} />`)}
+    ${(t.videos || []).map((m) => html`<${VideoSlot} key=${m.k} url=${x[m.k]} meta=${MediaLinks.meta(a, x[m.k])} label=${`Vídeo ${m.label.toLowerCase()}`}
+      title=${mediaTitle(t, t.videos, m)} patient=${p} date=${a.date} onChange=${setMedia(m.k)} onFound=${found} />`)}
   </div>`;
 }
 
 // Un vídeo d'un costat: es grava amb la càmera o es tria de la galeria i es desa sol; «Enllaç» per triar-ne un de la
 // carpeta del client o enganxar-ne l'enllaç.
-function VideoSlot({ url, label, title, patient, date, onChange }) {
+function VideoSlot({ url, meta, label, title, patient, date, onChange, onFound }) {
   const recRef = useRef(null);
   const galRef = useRef(null);
   const [up, setUp] = useState(null);
+  const [, info] = usePhoto(url, patient, meta, onFound && ((i) => onFound(url, i)));
   const can = canUploadFiles() && !!patient && !!patient.id;
   const has = U.isUrl(url);
   const save = async (file) => {
@@ -13799,20 +14014,26 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
     try {
       const res = await uploadToClient(patient, file, { label: title, date, where: 'assessVideos', onProgress: (pct) => setUp(pct) });
       if (!res.url) throw new Error('No s\'ha pogut desar el vídeo.');
-      onChange(res.url);
+      PhotoSrc.set(res.url, null, { id: res.id, name: res.name, url: res.url });
+      onChange(res.url, { id: res.id, name: res.name });
       UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat a la carpeta de ${patient.firstName || 'el pacient'}.`);
     } catch (e) {
       UI.toast(e.message, 'bad');
     }
     setUp(null);
   };
-  const play = () => (LocalFiles.is(url) ? LocalFiles.show(url) : window.open(url, '_blank', 'noopener'));
+  const play = () => {
+    if (LocalFiles.is(url)) { LocalFiles.show(url); return; }
+    if (info && (info.missing || info.error)) { mediaProblem({ title, info, patient, what: 'el vídeo' }); return; }
+    window.open((info && info.url) || url, '_blank', 'noopener');
+  };
   return html`<div class=${U.cls('tphoto tvideo', has && 'has')}>
     <button type="button" class="tphoto-img" disabled=${!has} onClick=${play} aria-label=${has ? `Mira el vídeo: ${title}` : `Sense vídeo: ${title}`}>
       <${Icon} name=${has ? 'playfill' : 'video'} size=${22} />
     </button>
     <div class="tphoto-body">
       <span class="tphoto-label">${label}</span>
+      ${has && info && info.missing && html`<${MediaMissing} what="el vídeo" title=${title} info=${info} patient=${patient} />`}
       ${up != null ? html`<span class="muted small"><span class="spinner"></span> ${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo… ${Math.round(up * 100)} %`}</span>`
         : html`<div class="tphoto-actions">
             ${can && html`<input type="file" accept="video/*" capture="environment" hidden ref=${recRef} data-kind="record" onChange=${(e) => save(e.currentTarget.files[0])} />
@@ -13827,11 +14048,17 @@ function VideoSlot({ url, label, title, patient, date, onChange }) {
   </div>`;
 }
 
-function PhotoSlot({ url, label, title, patient, date, onChange }) {
+// Avís a la valoració: la foto (o el vídeo) ja no es troba a la carpeta.
+function MediaMissing({ what = 'la foto', title, info, patient }) {
+  return html`<button type="button" class="tmedia-missing" onClick=${() => mediaProblem({ title, info, patient, what })}>
+    <${Icon} name="alert" size=${14} /><span>No es troba a la carpeta · què puc fer?</span></button>`;
+}
+
+function PhotoSlot({ url, meta, label, title, patient, date, onChange, onFound }) {
   const camRef = useRef(null);
   const galRef = useRef(null);
   const [busy, setBusy] = useState(false);
-  const src = usePhotoSrc(url, patient);
+  const [src, info] = usePhoto(url, patient, meta, onFound && ((i) => onFound(url, i)));
   const can = canUploadFiles() && !!patient && !!patient.id;
   const save = async (file) => {
     for (const r of [camRef, galRef]) if (r.current) r.current.value = '';
@@ -13841,8 +14068,8 @@ function PhotoSlot({ url, label, title, patient, date, onChange }) {
       const photo = await preparePhoto(file);
       const res = await uploadToClient(patient, photo, { label: title, date, where: 'assess' });
       if (!res.url) throw new Error('No s\'ha pogut desar la foto.');
-      PhotoSrc.set(res.url, URL.createObjectURL(photo));
-      onChange(res.url);
+      PhotoSrc.set(res.url, URL.createObjectURL(photo), { id: res.id, name: res.name, url: res.url });
+      onChange(res.url, { id: res.id, name: res.name });
       UI.toast(filesOnDevice() ? 'Foto desada a la tauleta.' : `Foto desada a la carpeta de ${patient.firstName || 'el pacient'}.`);
     } catch (e) {
       UI.toast(e.message, 'bad');
@@ -13853,12 +14080,13 @@ function PhotoSlot({ url, label, title, patient, date, onChange }) {
     if (await UI.confirm({ title: 'Treure la foto?', text: 'Es treu de la valoració. Si és a la carpeta del pacient, el fitxer s\'hi queda.', ok: 'Treu-la', danger: true })) onChange('');
   };
   return html`<div class=${U.cls('tphoto', url && 'has')}>
-    <button type="button" class="tphoto-img" disabled=${!url} onClick=${() => openPhoto(url, src, title)}
+    <button type="button" class="tphoto-img" disabled=${!url} onClick=${() => openPhoto(url, src, title, info, patient)}
       aria-label=${url ? `Mira la foto: ${title}` : `Sense foto: ${title}`}>
-      ${url && src ? html`<img src=${src} alt="" />` : html`<${Icon} name="camera" size=${22} />`}
+      ${url && src ? html`<img src=${src} alt="" />` : html`<${Icon} name=${url && info && info.missing ? 'alert' : 'camera'} size=${22} />`}
     </button>
     <div class="tphoto-body">
       <span class="tphoto-label">${label}</span>
+      ${url && info && info.missing && html`<${MediaMissing} title=${title} info=${info} patient=${patient} />`}
       ${busy ? html`<span class="muted small"><span class="spinner"></span> Desant la foto…</span>`
         : can ? html`<div class="tphoto-actions">
             <input type="file" accept="image/*" capture="environment" hidden ref=${camRef} data-kind="camera" onChange=${(e) => save(e.currentTarget.files[0])} />
@@ -13885,12 +14113,13 @@ function ReportPhotos({ a, p, tests }) {
     }
   }
   if (!list.length) return null;
-  return html`<div class="rphotos">${list.map((x) => html`<${ReportPhoto} key=${x.url} url=${x.url} title=${x.title} patient=${p} />`)}</div>`;
+  const found = (url, info) => MediaLinks.relink('assessments', a.id, url, info);
+  return html`<div class="rphotos">${list.map((x) => html`<${ReportPhoto} key=${x.url} url=${x.url} meta=${MediaLinks.meta(a, x.url)} title=${x.title} patient=${p} onFound=${found} />`)}</div>`;
 }
 
 // La persona sencera enquadrada en vertical (PhotoCrop, amb IA); si no es detecta, la foto sencera.
-function ReportPhoto({ url, title, patient }) {
-  const src = usePhotoSrc(url, patient);
+function ReportPhoto({ url, meta, title, patient, onFound }) {
+  const [src, info] = usePhoto(url, patient, meta, onFound && ((i) => onFound(url, i)));
   const [box, setBox] = useState(() => PhotoCrop.known(url) || null);
   useEffect(() => {
     let alive = true;
@@ -13898,9 +14127,12 @@ function ReportPhoto({ url, title, patient }) {
     return () => { alive = false; };
   }, [src, url]);
   const pct = (v) => `${Math.round(v * 100000) / 1000}%`;
-  return html`<figure class=${U.cls('rphoto', box && 'rphoto-cropped')}>
-    <button type="button" class="rphoto-img" onClick=${() => openPhoto(url, src, title)} aria-label=${`Mira la foto: ${title}`}>
-      ${!src ? html`<${Icon} name="camera" size=${22} />`
+  const lost = !src && info && (info.missing || info.error);
+  // Al PDF per al client no hi surt el requadre d'una foto que no es troba; a la pantalla, sí, amb l'avís.
+  return html`<figure class=${U.cls('rphoto', box && 'rphoto-cropped', lost && 'rphoto-lost no-print')}>
+    <button type="button" class="rphoto-img" onClick=${() => openPhoto(url, src, title, info, patient)} aria-label=${`Mira la foto: ${title}`}>
+      ${lost ? html`<span class="rphoto-lost-msg"><${Icon} name="alert" size=${22} /><span>${info.missing ? 'No es troba a la carpeta' : 'No s\'ha pogut carregar'}</span></span>`
+        : !src ? html`<${Icon} name="camera" size=${22} />`
         : box ? html`<span class="rphoto-frame"><img src=${src} alt=${title} data-crop="1"
             style=${`width:${pct(1 / box.w)};left:${pct(-box.x / box.w)};top:${pct(-box.y / box.h)}`} /></span>`
         : html`<img src=${src} alt=${title} />`}
@@ -15943,7 +16175,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         <tbody>${a.free.filter((r) => r.name).map((r) => html`<tr><td>${r.name}</td><td>${[r.d !== '' && r.d != null && `D ${r.d}`, r.e !== '' && r.e != null && `E ${r.e}`, r.v !== '' && r.v != null && r.v].filter(Boolean).join(' · ')} ${r.unit || ''}</td></tr>`)}</tbody></table></div>
       </section>`}
 
-      ${videos.length > 0 && html`<${ReportVideos} videos=${videos} patient=${p} grouped=${scope === 'tot'} />`}
+      ${videos.length > 0 && html`<${ReportVideos} videos=${videos} a=${a} patient=${p} grouped=${scope === 'tot'} />`}
 
       ${(cmp.length > 0 || patternsCmp.length > 0) && html`<section class="rsec">
         <h2 class="rsec-title">Evolució des de la valoració anterior</h2>
@@ -16037,7 +16269,7 @@ function ReportThemeSwitch({ p }) {
 // ── Vídeos a l'informe ──
 // A la pantalla: miniatura, reproducció dins de l'informe (Microsoft 365) i codi QR per obrir-lo des del mòbil.
 // Al PDF per al client no hi surten (styles.css): els vídeos es queden a la carpeta del client i a l'app.
-function ReportVideos({ videos, patient, grouped }) {
+function ReportVideos({ videos, a, patient, grouped }) {
   const [media, setMedia] = useState({});
   const [playing, setPlaying] = useState('');
   const key = videos.map((v) => v.url).join('|');
@@ -16045,7 +16277,13 @@ function ReportVideos({ videos, patient, grouped }) {
     let alive = true;
     const merge = (m) => { if (alive) setMedia((cur) => ({ ...cur, ...(m || {}) })); };
     if (Store.backend && Store.backend.mediaInfo && patient.folderId) {
-      Store.backend.mediaInfo(patient.folderId, videos.map((v) => v.url)).then(merge).catch(() => {});
+      const urls = videos.map((v) => v.url);
+      const metas = Object.fromEntries(urls.map((u) => [u, MediaLinks.meta(a, u)]).filter(([, m]) => m && m.id));
+      Store.backend.mediaInfo(patient.folderId, urls, metas).then((m) => {
+        merge(m);
+        // Si algú ha canviat el nom d'una carpeta, l'enllaç del vídeo s'arregla a la valoració (vegeu MediaLinks).
+        for (const [u, info] of Object.entries(m || {})) if (a && info && info.id) MediaLinks.relink('assessments', a.id, u, info);
+      }).catch(() => {});
     }
     // Versió de prova: vídeos desats a la tauleta.
     Promise.all(videos.filter((v) => LocalFiles.is(v.url)).map(async (v) => {
@@ -16061,7 +16299,9 @@ function ReportVideos({ videos, patient, grouped }) {
     <div class="rvid-grid">${videos.map((vd) => {
       const m = media[vd.url] || {};
       const local = LocalFiles.is(vd.url);
-      const open = () => (m.play ? setPlaying(vd.url) : local ? LocalFiles.show(vd.url) : window.open(vd.url, '_blank', 'noopener'));
+      const link = m.url || vd.url;
+      const open = () => (m.play ? setPlaying(vd.url) : local ? LocalFiles.show(vd.url)
+        : m.missing || m.error ? mediaProblem({ title: vd.label, info: m, patient, what: 'el vídeo' }) : window.open(link, '_blank', 'noopener'));
       return html`<figure class="rvid" key=${vd.url}>
         <div class="rvid-media">
           ${playing === vd.url && m.play ? html`<video src=${m.play} controls autoplay playsinline preload="metadata"></video>`
@@ -16072,8 +16312,9 @@ function ReportVideos({ videos, patient, grouped }) {
         </div>
         <figcaption>
           <span class="rvid-text"><strong>${vd.label}</strong>${grouped && html`<span class="muted small">${areaName(vd.area)}</span>`}
-            <a class="link small no-print" href=${vd.url} target="_blank" rel="noopener">${local ? 'Obre' : 'Obre a la carpeta'}</a></span>
-          ${!local && html`<${QrCode} text=${vd.url} size=${76} />`}
+            ${m.missing ? html`<span class="small bad-text">No es troba a la carpeta</span>`
+              : html`<a class="link small no-print" href=${link} target="_blank" rel="noopener">${local ? 'Obre' : 'Obre a la carpeta'}</a>`}</span>
+          ${!local && !m.missing && html`<${QrCode} text=${link} size=${76} />`}
         </figcaption>
       </figure>`;
     })}</div>

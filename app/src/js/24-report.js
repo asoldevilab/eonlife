@@ -201,7 +201,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
         <tbody>${a.free.filter((r) => r.name).map((r) => html`<tr><td>${r.name}</td><td>${[r.d !== '' && r.d != null && `D ${r.d}`, r.e !== '' && r.e != null && `E ${r.e}`, r.v !== '' && r.v != null && r.v].filter(Boolean).join(' · ')} ${r.unit || ''}</td></tr>`)}</tbody></table></div>
       </section>`}
 
-      ${videos.length > 0 && html`<${ReportVideos} videos=${videos} patient=${p} grouped=${scope === 'tot'} />`}
+      ${videos.length > 0 && html`<${ReportVideos} videos=${videos} a=${a} patient=${p} grouped=${scope === 'tot'} />`}
 
       ${(cmp.length > 0 || patternsCmp.length > 0) && html`<section class="rsec">
         <h2 class="rsec-title">Evolució des de la valoració anterior</h2>
@@ -295,7 +295,7 @@ function ReportThemeSwitch({ p }) {
 // ── Vídeos a l'informe ──
 // A la pantalla: miniatura, reproducció dins de l'informe (Microsoft 365) i codi QR per obrir-lo des del mòbil.
 // Al PDF per al client no hi surten (styles.css): els vídeos es queden a la carpeta del client i a l'app.
-function ReportVideos({ videos, patient, grouped }) {
+function ReportVideos({ videos, a, patient, grouped }) {
   const [media, setMedia] = useState({});
   const [playing, setPlaying] = useState('');
   const key = videos.map((v) => v.url).join('|');
@@ -303,7 +303,13 @@ function ReportVideos({ videos, patient, grouped }) {
     let alive = true;
     const merge = (m) => { if (alive) setMedia((cur) => ({ ...cur, ...(m || {}) })); };
     if (Store.backend && Store.backend.mediaInfo && patient.folderId) {
-      Store.backend.mediaInfo(patient.folderId, videos.map((v) => v.url)).then(merge).catch(() => {});
+      const urls = videos.map((v) => v.url);
+      const metas = Object.fromEntries(urls.map((u) => [u, MediaLinks.meta(a, u)]).filter(([, m]) => m && m.id));
+      Store.backend.mediaInfo(patient.folderId, urls, metas).then((m) => {
+        merge(m);
+        // Si algú ha canviat el nom d'una carpeta, l'enllaç del vídeo s'arregla a la valoració (vegeu MediaLinks).
+        for (const [u, info] of Object.entries(m || {})) if (a && info && info.id) MediaLinks.relink('assessments', a.id, u, info);
+      }).catch(() => {});
     }
     // Versió de prova: vídeos desats a la tauleta.
     Promise.all(videos.filter((v) => LocalFiles.is(v.url)).map(async (v) => {
@@ -319,7 +325,9 @@ function ReportVideos({ videos, patient, grouped }) {
     <div class="rvid-grid">${videos.map((vd) => {
       const m = media[vd.url] || {};
       const local = LocalFiles.is(vd.url);
-      const open = () => (m.play ? setPlaying(vd.url) : local ? LocalFiles.show(vd.url) : window.open(vd.url, '_blank', 'noopener'));
+      const link = m.url || vd.url;
+      const open = () => (m.play ? setPlaying(vd.url) : local ? LocalFiles.show(vd.url)
+        : m.missing || m.error ? mediaProblem({ title: vd.label, info: m, patient, what: 'el vídeo' }) : window.open(link, '_blank', 'noopener'));
       return html`<figure class="rvid" key=${vd.url}>
         <div class="rvid-media">
           ${playing === vd.url && m.play ? html`<video src=${m.play} controls autoplay playsinline preload="metadata"></video>`
@@ -330,8 +338,9 @@ function ReportVideos({ videos, patient, grouped }) {
         </div>
         <figcaption>
           <span class="rvid-text"><strong>${vd.label}</strong>${grouped && html`<span class="muted small">${areaName(vd.area)}</span>`}
-            <a class="link small no-print" href=${vd.url} target="_blank" rel="noopener">${local ? 'Obre' : 'Obre a la carpeta'}</a></span>
-          ${!local && html`<${QrCode} text=${vd.url} size=${76} />`}
+            ${m.missing ? html`<span class="small bad-text">No es troba a la carpeta</span>`
+              : html`<a class="link small no-print" href=${link} target="_blank" rel="noopener">${local ? 'Obre' : 'Obre a la carpeta'}</a>`}</span>
+          ${!local && !m.missing && html`<${QrCode} text=${link} size=${76} />`}
         </figcaption>
       </figure>`;
     })}</div>

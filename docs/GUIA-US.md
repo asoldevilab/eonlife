@@ -120,6 +120,15 @@ Consells:
   sencera. La detecció es fa a la mateixa tauleta (cap foto surt de l'aparell) i es recorda, i la primera vegada
   baixa el detector (uns 14 MB). Els vídeos, i les seves captures, només surten a l'apartat de vídeos de la pantalla
   (al PDF per al client no hi surten), amb el costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
+
+  **Si es canvia el nom d'una carpeta** (la del pacient, *EON Life · Clients*…) o es mou un fitxer, l'enllaç antic
+  deixa de funcionar a SharePoint («Not Found»). L'app no en depèn: de cada foto i vídeo es desa també l'identificador,
+  i el busca per identificador, pel nom del fitxer dins de la carpeta del pacient i, si cal, a tota la carpeta
+  compartida. Quan el troba, arregla sol l'enllaç de la valoració (i de l'Excel, a la propera pujada). Les fotos fetes
+  abans d'aquest canvi (octubre de 2026) es retroben pel nom i, en obrir-les, queden arreglades de la mateixa manera.
+  Si una foto s'ha **esborrat**, a l'informe surt *No es troba a la carpeta* (no un requadre buit; al PDF no hi surt)
+  i, en tocar-la, què fer: mirar la paperera de reciclatge de SharePoint (hi queda 93 dies), restaurar-la i tornar a
+  obrir la pantalla, o tornar-la a fer. Millor no canviar el nom de les carpetes que fa l'app.
 - **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *Valoracions*
   de la carpeta del client (`informekinvent_…_01.pdf`) (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
   A la **versió de prova** (sense Microsoft 365) també es tria el PDF o es grava el vídeo, però es queden només en
