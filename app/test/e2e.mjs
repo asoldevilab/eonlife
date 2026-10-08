@@ -229,7 +229,7 @@ const step = async (label, fn) => {
     await goHash(page, '#/client/P-DEMO-LAURA/sessions');
     await page.click('.card-head >> text=Informe d\'evolució');
     await page.waitForSelector('.report .rtiles >> text=RPE mitjà');
-    await page.waitForSelector('.report >> text=Dolor en acabar (EVA)');
+    await page.waitForSelector('.report >> text=EVA · dolor en acabar');
     await page.waitForSelector('.report >> text=Wellness en arribar');
     if ((await page.locator('.report .chart svg').count()) < 3) throw new Error('falten gràfiques');
     await page.click('text=Wellness per pregunta');
@@ -775,7 +775,14 @@ const step = async (label, fn) => {
   await step('fitxa: comentaris del professional al principi, tipus «Bo» i «Nou test» del pacient', async () => {
     await goHash(page, '#/client/P-DEMO-JORDI/fitxa');
     await page.waitForSelector('.pnotes');
-    if (!(await page.evaluate(() => document.querySelector('.page .stack > section').classList.contains('pnotes')))) throw new Error('els comentaris no són al principi de la fitxa');
+    const firsts = await page.evaluate(() => [...document.querySelectorAll('.page .stack > section')].slice(0, 2).map((x) => x.className));
+    if (!/pgoal/.test(firsts[0]) || !/pnotes/.test(firsts[1])) throw new Error(`l'objectiu i els comentaris no són al principi de la fitxa: ${firsts}`);
+    await page.fill('#pf-goal', 'Tornar a esquiar sense dolor');
+    await page.waitForSelector('.phead-goal >> text=Tornar a esquiar sense dolor');
+    await goHash(page, '#/client/P-DEMO-JORDI/resum');
+    if (await page.$eval('#rs-goal', (e) => e.value) !== 'Tornar a esquiar sense dolor') throw new Error('l\'objectiu no surt al resum');
+    await goHash(page, '#/client/P-DEMO-JORDI/fitxa');
+    await page.waitForSelector('.pnotes');
     await page.fill('#pf-notes', 'Primera trobada: li fa por el salt');
     await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Bo (pacient puntual)');
     await page.waitForSelector('.phead .eyebrow >> text=Bo (pacient puntual)');

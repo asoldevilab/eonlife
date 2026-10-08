@@ -53,17 +53,18 @@ function Legend({ items }) {
 
 // Evolució en el temps (una o dues sèries: p. ex. dreta i esquerra).
 // yMin / yMax: escala fixa (p. ex. RPE 0–10). L'SVG s'escala amb el contenidor (PDF de l'informe).
-function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax }) {
+// pointLabels: el valor escrit sobre cada punt (per llegir-lo exacte a l'informe i al PDF).
+function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, yMin, yMax, pointLabels }) {
   const [ref, W] = useWidth();
   const [hover, setHover] = useState(null);
-  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
+  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--ink-2', '--surface', '--line-2', ...series.map((s) => (/^var\((--[\w-]+)\)$/.exec(s.color) || [])[1]).filter(Boolean)]);
   const clean = series.map((s) => ({ ...s, points: s.points.filter((p) => p.y != null && Number.isFinite(p.y) && U.parse(p.x)) }))
     .filter((s) => s.points.length);
   const all = clean.flatMap((s) => s.points);
   if (!all.length) return html`<div class="chart" ref=${ref}><div class="chart-empty">Encara no hi ha dades per dibuixar aquest gràfic.</div></div>`;
 
   const H = height;
-  const padL = 44, padR = 64, padT = 14, padB = 30;
+  const padL = 44, padR = 64, padT = pointLabels ? 24 : 14, padB = 30;
   const times = [...new Set(all.map((p) => p.x))].sort();
   let t0 = U.parse(times[0]).getTime(), t1 = U.parse(times[times.length - 1]).getTime();
   if (t0 === t1) { t0 -= 86400000 * 20; t1 += 86400000 * 20; }
@@ -102,6 +103,7 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, y
       ${clean.map((s) => html`<g>
         <path d=${s.points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join('')} fill="none" stroke=${col(s.color)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
         ${s.points.map((p) => html`<circle cx=${sx(p.x)} cy=${sy(p.y)} r=${hover === p.x ? 5.5 : 4} fill=${col(s.color)} stroke=${col('var(--surface)')} stroke-width="2" />`)}
+        ${pointLabels && s.points.slice(0, -1).map((p) => html`<text x=${sx(p.x)} y=${sy(p.y) - 9} text-anchor="middle" class="ptlabel" fill=${col('var(--ink-2)')} font-size="10.5" font-weight="650">${fmtY(p.y)}</text>`)}
       </g>`)}
       ${endsOk && ends.map((e) => html`<text x=${sx(e.p.x) + 9} y=${e.y + 4} class="endlabel" fill=${col('var(--ink)')} font-size="12.5" font-weight="650">${fmtY(e.p.y)}${unit ? ` ${unit}` : ''}</text>`)}
       <rect x=${padL - 10} y=${padT} width=${iw + 20} height=${ih} fill="transparent" onPointerMove=${onMove} onPointerLeave=${() => setHover(null)} />

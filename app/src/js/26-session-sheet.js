@@ -44,11 +44,13 @@ function SessionSheet({ id }) {
   const warm = blocks.filter((b) => ['mob', 'act', 'pot'].includes(b.key)).length;
   const fin = blocks.filter((b) => ['acc', 'cal'].includes(b.key)).length;
   const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
-  return html`<div class="present">
-    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)}>
+  const theme = reportThemeClass(p);
+  return html`<div class=${`present ${theme}`}>
+    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}>
+      <${ReportThemeSwitch} p=${p} />
       <${Btn} variant="ghost" icon="edit" onClick=${() => go('sessio', s.id)}>Edita</${Btn}>
     </${PresentBar}>
-    <article class="sheet">
+    <article class=${`sheet ${theme}`}>
       <header class="sheet-head">
         <${BrandMark} />
         <div class="sheet-id">

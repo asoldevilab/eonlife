@@ -142,9 +142,9 @@ test('Excel del client: un sol fitxer amb resum, valoracions, un full per mes, r
   assert.equal(files[0].key, 'C:client');
   assert.equal(files[0].folder, 'root', 'a l\'arrel de la carpeta del client');
   assert.equal(files[0].name, 'seguiment_lauravidalserra_01.xlsx');
-  assert.deepEqual(x.names, ['Resum', 'Valoracions', 'Ago26', 'Set26', 'Oct26', 'Registre', 'Val. inicial 02-07-26', 'Re-test 01-10-26']);
+  assert.deepEqual(x.names, ['Resum', 'Valoracions', 'Jul26', 'Ago26', 'Set26', 'Oct26', 'Registre', 'Val. inicial 02-07-26', 'Re-test 01-10-26']);
   // S'obre pel mes actual
-  assert.match(x.zip['xl/workbook.xml'].data.toString('utf8'), /activeTab="4"/);
+  assert.match(x.zip['xl/workbook.xml'].data.toString('utf8'), /activeTab="5"/);
   // Registre: una fila per sessió (reals i previstes), amb l'enllaç a la sessió dins del full del mes
   const items = ExcelSet.items(d);
   const reg = x.sheet('Registre');
@@ -153,15 +153,15 @@ test('Excel del client: un sol fitxer amb resum, valoracions, un full per mes, r
   assert.ok([...reg.cells.entries()].some(([k, c]) => /^L\d+$/.test(k) && /^IF\(COUNT\(J\d+,K\d+\)=2,J\d+\*K\d+,""\)$/.test(c.f || '')));
   const states = new Set([...reg.cells.entries()].filter(([k]) => /^E\d+$/.test(k) && reg.rowOf(k) >= 6).map(([, c]) => c.v));
   assert.deepEqual([...states].sort(), ['Feta', 'Planificada', 'Prevista al pla'].sort());
-  const months = new Set(['Ago26', 'Set26', 'Oct26']);
+  const months = new Set(['Jul26', 'Ago26', 'Set26', 'Oct26']);
   const regLinks = reg.links.filter((l) => /^Q\d+$/.test(l.ref));
   assert.equal(regLinks.length, items.filter((s) => s.date <= '2026-10-31').length, 'cada sessió enllaça amb el seu full del mes');
   assert.ok(regLinks.every((l) => months.has(l.location.match(/^'([^']+)'!/)[1])));
   // Resum: targetes amb fórmules sobre el registre, perfil i enllaços al detall de cada valoració
   const res = x.sheet('Resum');
-  assert.equal(res.get('A6'), 15);
+  assert.equal(res.get('A6'), 26);
   assert.match(res.formula('A6'), /COUNTIF\('Registre'!\$E\$6:\$E\$\d+,"Feta"\)/);
-  assert.equal(res.get('C6'), 6295);
+  assert.equal(res.get('C6'), 10680);
   assert.match(res.text(), /Tornar a competir en trail de 42 km/);
   assert.match(res.text(), /Evitar baixades i salts/);
   assert.deepEqual(res.links.map((l) => l.location), ['\'Val. inicial 02-07-26\'!A1', '\'Re-test 01-10-26\'!A1']);
@@ -187,23 +187,23 @@ test('full del mes a l\'estil de l\'Oriol: calendari, dades de cada dia i les se
   // Setmana 1 (del 28 de setembre al 4 d'octubre): dates, sessió, estat, RPE · temps
   assert.equal(o.get('A1'), 'S1');
   assert.equal(o.get('B1'), core.XlsxDoc.serial('2026-09-28'));
-  assert.equal(o.get('B2'), 'Sessió 13');
+  assert.equal(o.get('B2'), 'Sessió 25');
   assert.equal(o.get('B3'), 'Feta ✔');
   assert.equal(o.get('N3'), 'OFF', 'el diumenge sense sessió és descans');
   // Càrrega del dia = RPE × temps i total de la setmana, calculats per l'Excel
   assert.equal(o.formula('B8'), 'IF(COUNT(B6,B7)=2,B6*B7,"")');
-  assert.equal(o.get('B8'), 455);
+  assert.equal(o.get('B8'), 480);
   assert.equal(o.formula('B12'), 'SUM(B8,D8,F8,H8,J8,L8,N8)');
-  assert.equal(o.get('B12'), 1300);
+  assert.equal(o.get('B12'), 1000);
   // La data del calendari porta a la sessió, que és a sota amb totes les columnes de l'Oriol
-  const s15 = o.find(/^SESSIÓ 15 · FETA/);
-  assert.ok(s15);
-  assert.equal(o.links.find((l) => l.ref === 'J1').location, `'Oct26'!${s15}`);
+  const s26 = o.find(/^SESSIÓ 26 · FETA/);
+  assert.ok(s26);
+  assert.equal(o.links.find((l) => l.ref === 'H1').location, `'Oct26'!${s26}`);
   const txt = o.text();
   for (const h of ['GM', 'Cont', 'Pos', 'A', 'Exercici', 'Material', '+', 'S', 'R', 'Obs', 'PROFESSIONAL', 'SETMANA']) assert.ok(txt.split('\n').includes(h), `falta la columna ${h}`);
   assert.ok(txt.includes('Back squat'));
-  assert.match(txt, /Encoder · S1: 50 kg ×6 0,76→0,61 m\/s PV 20 %/);
-  assert.match(txt, /RPE 7 · 65 min · 455 UA · dolor 0\/10/);
+  assert.match(txt, /Encoder · S1: 53 kg ×6 0,8→0,64 m\/s PV 20 %/);
+  assert.match(txt, /RPE 8 · 65 min · 520 UA · dolor 0\/10/);
   assert.ok(txt.includes('4 · FORÇA PRINCIPAL'));
   // Planificades i previstes al pla
   assert.ok(txt.includes('Planificada'));
@@ -211,10 +211,10 @@ test('full del mes a l\'estil de l\'Oriol: calendari, dades de cada dia i les se
   assert.match(txt, /S\d+ del pla/);
   // En imprimir, cada setmana va a la seva pàgina (Oct26 té 5 setmanes: 4 salts)
   assert.match(o.xml, /<colBreaks count="4" manualBreakCount="4"><brk id="15" max="1048575" man="1"\/><brk id="30" /);
-  // Al full d'agost només hi ha les setmanes d'agost i la sessió del 31
-  const ago = x.sheet('Ago26');
-  assert.equal(ago.get('A1'), 'S1');
-  assert.ok(ago.find(/^SESSIÓ 1 · FETA/));
+  // Al full de juliol hi ha les primeres sessions (des del 6 de juliol)
+  const jul = x.sheet('Jul26');
+  assert.equal(jul.get('A1'), 'S1');
+  assert.ok(jul.find(/^SESSIÓ 1 · FETA/));
 });
 
 test('Excel d\'un client nou, sense sessions ni valoracions: resum, el mes actual i el registre buit', async () => {
@@ -494,12 +494,12 @@ test('sincronització: un sol Excel a la carpeta del client, sense repetir, subs
     const book = () => readXlsx(mock.child(p.folderId, 'seguiment_lauravidalserra_01.xlsx').content);
     assert.ok(book().names.includes('Oct26'));
     // Canvi d'una sessió: es refà i se substitueix (mateixa ruta, sense còpies)
-    const s15 = Object.values(db.sessions).find((s) => s.patientId === pid && s.number === 15);
-    Store.update('sessions', s15.id, (x) => { x.feedback = { ...x.feedback, rpe: '9' }; });
+    const s26 = Object.values(db.sessions).find((s) => s.patientId === pid && s.number === 26);
+    Store.update('sessions', s26.id, (x) => { x.feedback = { ...x.feedback, rpe: '9' }; });
     const r3 = await Sync.syncClient(pid);
     assert.equal(r3.uploaded, 1);
     assert.deepEqual(names(p, []), ['seguiment_lauravidalserra_01.xlsx']);
-    assert.equal(book().sheet('Oct26').get('J6'), 9, 'el canvi surt al fitxer de la carpeta (RPE del divendres 2)');
+    assert.equal(book().sheet('Oct26').get('H6'), 9, 'el canvi surt al fitxer de la carpeta (RPE del dijous 1)');
     // Els Excel d'abans (un per sessió, un per valoració i la visió general) es retiren; cap altre fitxer es toca
     const sdir = mock.child(p.folderId, 'Sessions'), vdir = mock.child(p.folderId, 'Valoracions');
     const one = new Uint8Array([1]);
@@ -704,15 +704,15 @@ test('planifica el mes: una sessió per dia triat, amb progressió i sense trepi
 test('copia una setmana a les següents (amb progressió) saltant els dies ocupats', () => {
   const { Store } = setup();
   const pid = 'P-DEMO-LAURA';
-  const wk = '2026-09-28'; // dilluns: conté les sessions 13, 14 i 15
+  const wk = '2026-09-28'; // dilluns: conté les sessions 25 (dilluns) i 26 (dijous)
   const src = Store.sessionsOf(pid).filter((s) => s.date >= wk && s.date <= '2026-10-04');
-  assert.equal(src.length, 3);
+  assert.equal(src.length, 2);
   const res = Store.copyWeek(pid, wk, { weeks: 2, progress: true });
-  // 2 setmanes × 3 sessions, menys els dies que ja tenien sessió (la setmana del 5/10 ja en té una el dilluns)
-  assert.equal(res.created.length + res.skipped.length, 6);
+  // 2 setmanes × 2 sessions, menys els dies que ja tenien sessió (la setmana del 5/10 ja en té una el dilluns)
+  assert.equal(res.created.length + res.skipped.length, 4);
   assert.ok([...res.skipped].includes('2026-10-05'));
   assert.ok(res.created.every((s) => s.status === 'planificada'));
-  assert.deepEqual([...res.created.map((s) => s.date)], ['2026-10-07', '2026-10-09', '2026-10-12', '2026-10-14', '2026-10-16']);
+  assert.deepEqual([...res.created.map((s) => s.date)], ['2026-10-08', '2026-10-12', '2026-10-15']);
 });
 
 // ── Validació amb programes reals (opcional: només si hi ha python3 amb openpyxl o LibreOffice) ──

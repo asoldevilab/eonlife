@@ -69,6 +69,16 @@ function PatientView({ id, tab = 'resum' }) {
   </div>`;
 }
 
+// Objectiu que es treballa amb el pacient: el primer quadre de la fitxa i del resum (també surt a la capçalera i als informes).
+function GoalCard({ p, compact }) {
+  const set = (v) => Store.update('patients', p.id, (x) => { x.goal = v; });
+  return html`<section class=${U.cls('card pgoal', compact && 'pgoal-compact')}>
+    <div class="card-head"><h2 class="h2"><${Icon} name="target" size=${18} />Objectiu</h2>${!compact && html`<${SaveStatus} />`}</div>
+    <${Area} id=${compact ? 'rs-goal' : 'pf-goal'} value=${p.goal} onValue=${set} rows=${compact ? 2 : 3} ariaLabel="Objectiu del pacient"
+      placeholder="Què vol aconseguir el pacient i què treballarem (p. ex. tornar a córrer 10 km sense dolor al genoll)" />
+  </section>`;
+}
+
 function PatientSummary({ p, sessions, assessments }) {
   const today = U.today();
   const next = sessions.filter((s) => s.date >= today && s.status !== 'feta')[0];
@@ -77,7 +87,8 @@ function PatientSummary({ p, sessions, assessments }) {
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
   const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
-  return html`<${ClientProfileCard} p=${p} assessments=${assessments} />
+  return html`<${GoalCard} p=${p} compact=${true} />
+  <${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">
     <div class="quickadd-head"><h2 class="h2">Nou test</h2><span class="muted small">Obre el formulari d'aquest pacient directament a l'apartat</span></div>
     <div class="quickadd-chips">
@@ -279,6 +290,7 @@ function PatientForm({ p, onRemove }) {
       : html`<${TextInput} id=${`pf-${k}`} type=${opts.type || 'text'} value=${p[k]} onValue=${set(k)} placeholder=${opts.placeholder} list=${opts.list} />`}
   </${Field}>`;
   return html`<div class="stack">
+    <${GoalCard} p=${p} />
     <section class="card pnotes">
       <div class="card-head"><h2 class="h2"><${Icon} name="lock" size=${18} />Comentaris del professional</h2><${SaveStatus} /></div>
       <p class="muted small">Només els veu l'equip a l'app: no surten mai als informes, ni al PDF ni a l'Excel de la carpeta del pacient.</p>
@@ -328,7 +340,6 @@ function PatientForm({ p, onRemove }) {
         <${Field} label="Professional de referència" id="pf-professional"><${ProfSelect} id="pf-professional" value=${p.professional} onValue=${set('professional')} /></${Field}>
         ${F('Estat', 'status', { options: OPT.status })}
         ${F('Data d\'alta al centre', 'startDate', { type: 'date' })}
-        ${F('Objectiu', 'goal', { area: true, wide: true, placeholder: 'Què vol aconseguir el pacient?' })}
         ${F('Motiu de consulta', 'reason', { area: true, wide: true })}
       </div>
     </section>
