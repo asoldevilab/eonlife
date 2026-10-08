@@ -765,9 +765,13 @@ input[type="search"].input { -webkit-appearance: none; }
 .tphoto-label { font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .tphoto-actions { display: flex; flex-wrap: wrap; gap: 4px; }
 /* Fotos dels tests a l'informe. */
-.rphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+.rphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-top: 12px; }
 .rphoto { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); break-inside: avoid; }
-.rphoto-img { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; background: var(--surface-3); color: var(--ink-3); cursor: pointer; }
+.rphoto-img { display: grid; place-items: center; width: 100%; aspect-ratio: 3 / 4; padding: 0; border: 0; background: var(--surface-3); color: var(--ink-3); cursor: pointer; overflow: hidden; }
+/* retallada: la persona sencera dins d'un marc 3:4 (la imatge, desplaçada i ampliada dins del marc) */
+.rphoto-cropped .rphoto-img { position: relative; display: block; }
+.rphoto-frame { position: absolute; inset: 0; display: block; overflow: hidden; }
+.rphoto-frame img { position: absolute; max-width: none; height: auto !important; object-fit: fill !important; background: none !important; }
 .rphoto-img img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--surface-3); }
 .rphoto figcaption { padding: 8px 10px; font-size: 13px; font-weight: 650; }
 @media print { .rphotos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
@@ -1550,6 +1554,16 @@ tfoot .rpc { font-size: 14px; }
 .pgoal .h2 svg { color: var(--blk-cal); }
 .pgoal textarea { font-size: 17px; font-weight: 600; line-height: 1.4; }
 .pgoal-compact .card-head { margin-bottom: 6px; }
+
+/* Exercicis propis */
+.own-chip { display: inline-block; padding: 1px 6px; margin-left: 4px; border-radius: 6px; font-size: 10.5px; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; background: color-mix(in srgb, var(--blk-cal) 20%, var(--surface)); color: var(--ink); vertical-align: 1px; }
+.explaces { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 14px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.explaces svg { margin-top: 2px; color: var(--blk-cal); flex: none; }
+.explaces ul { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; }
+.xb-here { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
+.libhelp { margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.libhelp summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.libhelp ol { margin: 10px 0 6px; padding-left: 20px; display: grid; gap: 4px; }
 </style>
 </head>
 <body>
@@ -3860,8 +3874,9 @@ var qrcode = function() {
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
+window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-08 15:36";
+window.EON_BUILD = "2026-10-08 15:57";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -12686,6 +12701,34 @@ function ExCard({ e, onClick, sub }) {
   </button>`;
 }
 
+// Exercicis creats per l'equip (no venen amb l'app): els de SEED_EXERCISES són els de sèrie.
+const SEED_IDS = new Set(SEED_EXERCISES.map((e) => e.id));
+const isOwnExercise = (e) => !!e && !SEED_IDS.has(e.id);
+
+// «Els nostres exercicis»: els que ha creat l'equip, en una carpeta per bloc (també surten a la carpeta del seu múscul i material).
+function ownFolders(list) {
+  const mine = list.filter(isOwnExercise);
+  const list2 = BLOCKS.map((b) => ({ name: `own-${b.key}`, label: `${b.num} · ${blockName(b.key)}`, items: U.sortBy(mine.filter((e) => e.block === b.key), (e) => U.norm(e.name)) }))
+    .filter((f) => f.items.length);
+  return { key: 'own', label: 'Els nostres exercicis', count: mine.length, list: list2 };
+}
+
+// On surt un exercici a les carpetes de «Afegeix exercici» (es veu en directe al formulari de l'exercici).
+function exercisePlaces(e) {
+  const out = [];
+  if (!e) return out;
+  const b = BLOCKS.find((x) => x.key === e.block);
+  for (const m of exerciseMuscles(e)) {
+    const z = MUSCLE_ZONES.find((x) => x.muscles.includes(m));
+    if (z && z.key !== 'tot') out.push(`${z.label} › ${muscleLabel(m)}`);
+  }
+  if (!out.length) out.push(`${(MUSCLE_ZONES.find((x) => x.key === 'tot') || {}).label || 'Cos sencer i altres'} › ${exerciseMuscles(e).map(muscleLabel)[0] || e.cat || 'Altres'}`);
+  for (const m of (e.materials && e.materials.length ? e.materials : [e.material]).filter(Boolean)) out.push(`Per material › ${m}`);
+  if (isOwnExercise(e) && b) out.push(`Els nostres exercicis › ${b.num} · ${blockName(b.key)}`);
+  if (Calc.codeKey(e.code)) out.push(`Exercicis EON › ${e.code}`);
+  return out;
+}
+
 // Exercicis EON (gravats pel centre), en una carpeta per bloc i per ordre de codi: 1.0, 1.1, 1.2…
 function eonFolders(list) {
   const mine = list.filter((e) => Calc.codeKey(e.code));
@@ -12711,7 +12754,8 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
   const eon = eonFolders(pool);
-  const zones = [...(eon.count ? [eon] : []), ...exerciseFolders(pool), materialFolders(pool)];
+  const own = ownFolders(pool);
+  const zones = [...(eon.count ? [eon] : []), ...(own.count ? [own] : []), ...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
@@ -12750,13 +12794,17 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
             <div class="xb-folders">${ex.materials.map((m, i) => html`<button type="button" class="xb-folder xb-matbtn" onClick=${() => onPick(ex, m)}>
               <${Icon} name="dumbbell" size=${18} /><span class="xb-folder-name">${m}</span>${i === 0 && html`<span class="xb-folder-n">per defecte</span>`}</button>`)}</div>
           </div>`
-        : f ? html`<div class="xb-grid">${f.items.map(row)}</div>`
+        : f ? html`<div class="xb-grid">${f.items.map(row)}</div>
+          <div class="xb-here"><${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, {
+            block: block || 'for',
+            ...(zone === 'mat' ? { material: f.name, materials: [f.name] } : zone !== 'eon' && zone !== 'own' && MUSCLE_ZONES.some((m) => m.muscles.includes(f.name)) ? { gm: f.name } : {}),
+          })}>Nou exercici en aquesta carpeta</${Btn}><span class="muted small">Es desa a la biblioteca i surt aquí i a «Els nostres exercicis».</span></div>`
         : z ? html`<div class="xb-folders">${z.list.map((x) => html`<button type="button" class="xb-folder" onClick=${() => setFolder(x.name)}>
             <${Icon} name="folder" size=${18} /><span class="xb-folder-name">${x.label}</span><span class="xb-folder-n">${x.items.length}</span></button>`)}</div>`
         : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-z-${x.key}`} onClick=${() => setZone(x.key)}>
             <${Icon} name="folder" size=${22} />
             <span class="xb-zone-name">${x.label}</span>
-            <span class="xb-zone-sub">${x.key === 'eon' ? 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' : `${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}`}</span>
+            <span class="xb-zone-sub">${x.key === 'eon' ? 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' : x.key === 'own' ? 'Els que heu creat vosaltres, per blocs' : `${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}`}</span>
             <span class="xb-folder-n">${U.plural(x.count, 'exercici', 'exercicis')}</span></button>`)}</div>`}`}
   </${Dialog}>`;
 }
@@ -12895,7 +12943,9 @@ const PICS = {
   lateral_lunge: { label: 'Estocada lateral', front: true, t: -95, l: [40, 100], m: [140, 140], a: [125, -20], b: [55, 200] },
   side_step: { band: 'knees', label: 'Passes laterals', front: true, t: -90, l: [70, 98], m: [110, 82], a: [70, 140], b: [110, 40] },
   stand_abd: { band: 'knees', label: 'Abducció dempeus', front: true, t: -92, l: [62, 62], m: [92, 90], a: [70, 140], b: [110, 40] },
-  stand_kick: { label: 'Extensió de maluc dempeus', t: -85, l: [118, 112, 30], m: [90, 90, 0], a: [40, 20] },
+  // La cama de darrere ben estirada enrere i amunt, el tronc una mica endavant i les mans a la paret.
+  stand_kick: { label: 'Extensió de maluc dempeus', t: -76, l: [146, 150, 60], m: [92, 90, 0], a: [14, 4],
+    props: (B) => PROP.wall(B.a[2][0] + 3) },
   stepup: { label: 'Step-up', t: -84, l: [-8, 96, 0], m: [100, 96, 30], a: [94, 86], grip: 'hands',
     props: (B) => PROP.box(B.l[2][0] - 9, B.l[2][0] + 14, B.l[2][1] + 3) },
   hinge: { label: 'Bisagra (pes mort)', t: -28, l: [82, 98, 0], a: [90, 90], grip: 'hands' },
@@ -12907,6 +12957,7 @@ const PICS = {
   bridge_sl: { label: 'Pont de glutis a una cama', t: 158, hd: -10, l: [-22, -22, -100], m: [-30, 98, 0], a: [12, 4], grip: 'hips' },
   bridge_ball: { label: 'Curl femoral amb fitball', t: 160, hd: -10, l: [-24, 16, -60], a: [14, 4],
     props: (B) => picCircle([B.l[2][0] + 2, B.l[2][1] + 7], 7, 'pg') },
+  slide_curl: { label: 'Curl femoral amb lliscadors', t: 156, hd: -10, l: [16, 30, -62], a: [14, 4] },
   hipthrust: { label: 'Hip thrust', t: 178, hd: -6, l: [-4, 92, 0], a: [40, 0], grip: 'hips',
     props: (B) => PROP.bench(B.n[0] - 12, B.n[0] + 5, B.n[1] + 4) },
   nordic: { label: 'Nordic', t: -58, l: [122, 180, 270], a: [40, -30], props: (B) => PROP.pad([B.l[2][0] + 2, B.l[2][1] - 6]) },
@@ -12920,6 +12971,8 @@ const PICS = {
     props: (B) => picLine([[B.n[0] - 4, B.n[1] - 4], [B.p[0] + 2, B.p[1] + 5]], 'pl', 4.5) + picLine([[B.p[0] + 2, B.p[1] + 5], [B.p[0] + 2, PIC_FLOOR]], 'pl', 3)
       + picLine([[B.l[2][0] + 3, B.l[2][1] - 9], [B.l[2][0] + 3, B.l[2][1] + 9]], 'pgl', 4) },
   calf: { label: 'Elevació de talons', t: -90, l: [90, 90, 40], a: [94, 86], lift: 9, grip: 'hands',
+    props: (B) => PROP.box(B.l[3][0] - 7, B.l[3][0] + 9, B.l[3][1] + 2) },
+  calf_bent: { label: 'Elevació de talons amb genolls flexionats (soli)', t: -84, l: [62, 116, 40], a: [80, 92], lift: 9, grip: 'hands',
     props: (B) => PROP.box(B.l[3][0] - 7, B.l[3][0] + 9, B.l[3][1] + 2) },
   abd_machine: { label: 'Abductor / adductor a màquina', front: true, t: -90, l: [38, 92], m: [142, 88], a: [100, 70], b: [80, 110], lift: 2,
     props: (B) => picRect(B.p[0] - 13, B.p[1] + 3, 26, 5) + picLine([[B.p[0], B.p[1] + 8], [B.p[0], PIC_FLOOR]], 'pl', 3)
@@ -12936,10 +12989,12 @@ const PICS = {
   child: { label: 'Postura del nen', t: 12, hd: 30, l: [38, 182, 180], a: [6, 0] },
   plank: { label: 'Planxa', t: -12.4, hd: 6, l: [167.6, 167.6, 100], a: [90, 0] },
   plank_high: { label: 'Planxa de braços estirats', t: -25, hd: 6, l: [155, 155, 100], a: [90, 90] },
+  pushup_incline: { label: 'Flexions amb les mans al banc', t: -38, hd: 6, l: [142, 142, 100], a: [90, 90],
+    props: (B) => PROP.bench(B.a[2][0] - 8, B.a[2][0] + 8, B.a[2][1] + 1) },
   climber: { label: 'Mountain climber', t: -25, hd: 6, l: [62, 150, 70], m: [155, 155, 100], a: [90, 90] },
-  rollout: { label: 'Ab wheel', t: -6, hd: 12, l: [148, 180, 180], a: [40, 40], props: (B) => PROP.roller([B.a[2][0] + 1, PIC_FLOOR - 5], 5) },
+  rollout: { label: 'Ab wheel', t: -22, hd: 10, l: [112, 180, 180], a: [56, 58], props: (B) => PROP.roller([B.a[2][0] + 1, B.a[2][1] + 4], 5) },
   reverse_plank: { label: 'Planxa invertida', t: 205, hd: -20, l: [-15, -15, -100], a: [92, 92] },
-  superman: { label: 'Superman', t: -8, hd: -10, l: [176, 176, 110], a: [-14, -10] },
+  superman: { label: 'Superman', t: -11, hd: -16, l: [195, 190, 110], a: [-24, -20] },
   deadbug: { label: 'Dead bug', t: 180, hd: -8, l: [-88, 0, -90], m: [-20, -16, -100], a: [-84, -86], b: [-160, -168] },
   crunch: { label: 'Crunch', t: -150, hd: 10, l: [-45, 62, 0], a: [-28, -24] },
   crunch_legs: { label: 'Crunch amb cames elevades', t: -158, hd: 10, l: [-88, 0, -90], a: [-40, -30] },
@@ -12952,8 +13007,9 @@ const PICS = {
   pushdown: { label: 'Extensió de tríceps', t: -84, a: [96, 70], grip: 'hands', anchor: 'over' },
   triceps_oh: { label: 'Tríceps per sobre del cap', t: -90, a: [-82, 160], grip: 'hands' },
   tri_kickback: { label: 'Kickback de tríceps', t: -24, l: [82, 98, 0], a: [172, 174], b: [90, 90], grip: 'hands' },
-  dip: { label: 'Fons de tríceps', t: -92, l: [-4, 30, -60], a: [128, 90], lift: 12,
-    props: (B) => PROP.bench(B.a[2][0] - 14, B.a[2][0] + 4, B.a[2][1] + 1) },
+  // Fons al banc: les mans a la vora del banc, darrere; el maluc baixa per davant del banc (més avall que les mans).
+  dip: { label: 'Fons de tríceps', t: -88, l: [2, 84, 0], a: [204, 90],
+    props: (B) => PROP.bench(B.a[2][0] - 17, B.a[2][0] + 3, B.a[2][1] + 1) },
   lat_raise: { label: 'Elevacions laterals', front: true, t: -90, a: [8, 4], b: [172, 176], grip: 'hands' },
   front_raise: { label: 'Elevacions frontals', t: -90, a: [2, 0], b: [92, 88], grip: 'hands' },
   rear_fly: { label: 'Ocells', t: -22, l: [82, 98, 0], a: [60, 64], b: [104, 100], grip: 'hands' },
@@ -13004,10 +13060,19 @@ const PICS = {
     props: (B) => picLine([[B.a[2][0] + 3, B.a[2][1] - 2], [B.a[2][0] + 3, PIC_FLOOR]], 'pl', 3) + picLine([[6, PIC_FLOOR + 1], [94, PIC_FLOOR + 1]], 'pl', 3) },
   run_tread: { label: 'Cinta / AlterG', t: -78, hd: 4, l: [-8, 84, -10], m: [118, 146, 70], a: [130, 56], b: [36, -66], lift: 3,
     props: () => picLine([[8, PIC_FLOOR + 1], [92, PIC_FLOOR + 1]], 'pl', 4) + picLine([[86, PIC_FLOOR], [80, 46]], 'pl', 3) },
-  bike: { label: 'Bicicleta', t: -62, l: [-12, 92, 0], m: [52, 112, 10], a: [24, 14], lift: 14,
-    props: (B) => picLine([[B.p[0] - 1, B.p[1] + 3], [B.p[0] + 6, PIC_FLOOR - 8]], 'pl', 3) + picLine([[B.p[0] - 6, B.p[1] + 3], [B.p[0] + 5, B.p[1] + 3]], 'pl', 3.5)
-      + picLine([[B.a[2][0] + 2, B.a[2][1]], [B.a[2][0] - 2, PIC_FLOOR - 8]], 'pl', 3) + picCircle([B.p[0] + 10, PIC_FLOOR - 8], 6, 'pg')
-      + picLine([[B.p[0] - 12, PIC_FLOOR], [B.a[2][0] + 6, PIC_FLOOR]], 'pl', 3) },
+  // Bicicleta estàtica de costat: seient, tija, base a terra, columna fins al manillar i el volant davant dels pedals.
+  bike: { label: 'Bicicleta', t: -70, hd: 6, l: [28, 104, 10], m: [62, 70, -10], a: [16, 30], lift: 12,
+    props: (B) => {
+      const seat = [B.p[0], B.p[1] + 4];
+      const base = PIC_FLOOR - 2;
+      const front = B.a[2][0] + 3;
+      return picLine([[seat[0] - 6, seat[1]], [seat[0] + 5, seat[1]]], 'pl', 3.5)
+        + picLine([seat, [seat[0] + 4, base]], 'pl', 3)
+        + picLine([[seat[0] - 8, base], [front + 6, base]], 'pl', 3.4)
+        + picLine([[front + 2, base], [front, B.a[2][1] + 1]], 'pl', 3)
+        + picLine([[front - 4, B.a[2][1] + 1], [front + 3, B.a[2][1] + 1]], 'pl', 3)
+        + picCircle([front - 3, base - 9], 6.5, 'pg');
+    } },
   ankle_mob: { label: 'Mobilitat de turmell', t: -86, l: [-2, 62, 0], m: [94, 180, 180], a: [-12, -6],
     props: (B) => PROP.wall(B.l[2][0] + 11) },
   half_kneel: { label: 'Mig genoll', t: -92, l: [6, 88, 0], m: [100, 180, 180], a: [-95, -92] },
@@ -13132,7 +13197,19 @@ function picGear(B, P, g) {
   const one = grip === 'chest' || grip === 'near' || (g.kind === 'kb' && g.one) || Math.hypot(wa[0] - wb[0], wa[1] - wb[1]) < 5;
   const at = grip === 'chest' ? mid : wa;
   if (g.kind === 'bar') return plate(at);
-  if (g.kind === 'stick') return picCircle(at, 2.6, 'pg');
+  if (g.kind === 'stick') {
+    // La pica, al llarg de l'esquena (bisagra de maluc amb pica: cap, esquena i sacre en contacte).
+    if (P === PICS.hinge || P === PICS.goodmorning) {
+      const d = [B.n[0] - B.p[0], B.n[1] - B.p[1]];
+      const len = Math.hypot(d[0], d[1]) || 1;
+      const u = [d[0] / len, d[1] / len], nb = [u[1], -u[0]];
+      const off = 5.2 * s;
+      const a0 = [B.p[0] - u[0] * 6 * s + nb[0] * off, B.p[1] - u[1] * 6 * s + nb[1] * off];
+      const a1 = [B.h[0] + u[0] * 8 * s + nb[0] * off, B.h[1] + u[1] * 8 * s + nb[1] * off];
+      return picLine([a0, a1], 'pgl', 2.6);
+    }
+    return picCircle(at, 2.6, 'pg');
+  }
   if (g.kind === 'ball') return picCircle([at[0] + 2, at[1]], 6.5 * s, 'pg');
   if (g.kind === 'db') return (one ? '' : dumbbell(wb, true)) + dumbbell(at);
   if (g.kind === 'kb') return (one ? '' : kettlebell(wb, true)) + kettlebell(at);
@@ -13205,16 +13282,17 @@ const PIC_RULES = [
   [/clamshell/, 'clamshell'],
   [/estirat de costat|recolzat al colze|side-lying/, 'side_abd'],
   [/mountain climber|flexio(ns)? de maluc (alternes? )?(amb bracos estirats|en planxa)/, 'climber'],
+  [/flexion.*(inclinad|mans elevades|mans al banc)/, 'pushup_incline'],
   [/planxa|plank|push-up escapular|flexio(ns)?(?! de maluc)\b|renegade|flexions/, (t) => (/planxa frontal|^planxa$/.test(t) ? 'plank' : 'plank_high')],
   [/pont de glutis|glute bridge/, (t) => (/unipodal|una cama/.test(t) ? 'bridge_sl' : 'bridge')],
   [/hip thrust/, 'hipthrust'],
-  [/curl femoral/, (t) => (/fitball|lliscador/.test(t) ? 'bridge_ball' : 'seated_curl')],
+  [/curl femoral/, (t) => (/lliscador|flowin|slider/.test(t) ? 'slide_curl' : /fitball/.test(t) ? 'bridge_ball' : 'seated_curl')],
   [/nordic|glute-ham/, 'nordic'],
   [/hiperextensio|lower back/, 'hyperext'],
   [/leg press|premsa/, 'legpress'],
   [/leg extension|extensio de genoll/, 'legext'],
   [/(abductor|adductor) a la maquina/, 'abd_machine'],
-  [/elevacio de talons|calf raise/, 'calf'],
+  [/elevacio de talons|calf raise/, (t) => (/soli|genolls? flexionats?/.test(t) ? 'calf_bent' : 'calf')],
   [/squeeze/, 'squeeze'],
   [/pallof/, 'pallof'],
   [/woodchop|llenyataire/, 'woodchop'],
@@ -13222,7 +13300,7 @@ const PIC_RULES = [
   [/windmill/, 'windmill'],
   [/halo/, 'halo'],
   [/sots press|overhead squat/, 'squat_oh'],
-  [/snatch|arrencada/, (t) => (/high pull/.test(t) ? 'high_pull' : 'squat_oh')],
+  [/snatch|arrencada/, (t) => (/high pull/.test(t) ? 'high_pull' : /kettlebell|\bkb\b/.test(t) ? 'ohpress' : 'squat_oh')],
   [/jump shrug|high pull/, 'high_pull'],
   [/clean|cargolada/, 'clean'],
   [/split jerk|(estocada|lunge).*(per sobre del cap|overhead)/, 'split_oh'],
@@ -13418,6 +13496,90 @@ function PicChooser({ ex, auto, onPick, onClose }) {
 }
 
 
+/* ── 16-photocrop.js ── */
+/* EON Life · retall de les fotos de l'informe (Adams, Thomas, Windlass…): es detecta la persona sencera amb IA
+   (MediaPipe, detector d'objectes EfficientDet-Lite0, a vendor/mediapipe i publicat al costat de l'app a ai/) i
+   s'enquadra en vertical (3:4), amb una mica d'aire al voltant. Si no es detecta bé, o si la versió no té la IA
+   (fitxer local, Google), la foto surt sencera. El resultat es recorda en aquest aparell per no repetir-ho. */
+
+const PhotoCrop = (() => {
+  const RATIO = 3 / 4;                         // amplada / alçada del marc de la foto a l'informe
+  const base = () => (typeof window !== 'undefined' && window.EON_AI) || '';
+  const abs = (p) => new URL(p, document.baseURI).href;
+  let loading = null;
+
+  const available = () => !!base() && typeof WebAssembly !== 'undefined' && typeof createImageBitmap === 'function';
+
+  // El detector es carrega un sol cop (uns 14 MB la primera vegada; després, de la memòria cau del navegador).
+  function detector() {
+    if (!loading) {
+      loading = (async () => {
+        const mod = await import(abs(`${base()}vision_bundle.mjs`));
+        const fileset = { wasmLoaderPath: abs(`${base()}vision_wasm_internal.js`), wasmBinaryPath: abs(`${base()}vision_wasm_internal.wasm`) };
+        return mod.ObjectDetector.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: abs(`${base()}efficientdet_lite0.tflite`) },
+          runningMode: 'IMAGE', scoreThreshold: 0.3, maxResults: 5, categoryAllowlist: ['person'],
+        });
+      })();
+    }
+    return loading;
+  }
+
+  // Marc 3:4 al voltant de la persona més clara. boxes: [{ x, y, w, h, score }] en píxels; W × H: mida de la foto.
+  // Torna { x, y, w, h } en fraccions de la foto (0–1), o null si cal ensenyar-la sencera.
+  function frame(boxes, W, H, ratio = RATIO) {
+    if (!W || !H) return null;
+    const ok = (boxes || []).filter((b) => b && b.w > 0 && b.h > 0 && (b.score == null || b.score >= 0.3) && b.h >= H * 0.25);
+    if (!ok.length) return null;
+    const best = ok.reduce((a, b) => ((b.w * b.h * (b.score || 1)) > (a.w * a.h * (a.score || 1)) ? b : a));
+    // aire: als costats i a dalt, i una mica menys a sota (els peus a prop de la vora queden bé)
+    let cw = best.w * 1.24, ch = best.h * 1.12;
+    const cx = best.x + best.w / 2, cy = best.y + best.h / 2 - best.h * 0.01;
+    if (cw / ch < ratio) cw = ch * ratio; else ch = cw / ratio;
+    if (cw > W) { cw = W; ch = Math.min(H, cw / ratio); }
+    if (ch > H) { ch = H; cw = Math.min(W, ch * ratio); }
+    const x = Math.min(Math.max(cx - cw / 2, 0), W - cw);
+    const y = Math.min(Math.max(cy - ch / 2, 0), H - ch);
+    // gairebé tota la foto: millor sencera
+    if ((cw * ch) / (W * H) > 0.9) return null;
+    const r = (v) => Math.round(v * 10000) / 10000;
+    return { x: r(x / W), y: r(y / H), w: r(cw / W), h: r(ch / H) };
+  }
+
+  const KEY = 'eonlife:crop:';
+  const mem = new Map();
+  const remember = (url, v) => { mem.set(url, v); try { localStorage.setItem(KEY + url.slice(0, 300), JSON.stringify(v)); } catch (e) { /* sense espai */ } };
+  function known(url) {
+    if (mem.has(url)) return mem.get(url);
+    try { const s = localStorage.getItem(KEY + url.slice(0, 300)); if (s != null) { const v = JSON.parse(s); mem.set(url, v); return v; } } catch (e) { /* res */ }
+    return undefined;
+  }
+
+  // url: la de la foto a la valoració (clau per recordar-ho); src: l'adreça que es pot llegir ara (blob o descàrrega).
+  async function crop(url, src) {
+    const k = known(url);
+    if (k !== undefined) return k;
+    if (!available() || !src) return null;
+    try {
+      const blob = await (await fetch(src)).blob();
+      const bmp = await createImageBitmap(blob);
+      const det = await detector();
+      const res = det.detect(bmp);
+      const boxes = (res.detections || []).map((d) => ({ x: d.boundingBox.originX, y: d.boundingBox.originY, w: d.boundingBox.width, h: d.boundingBox.height,
+        score: d.categories && d.categories[0] ? d.categories[0].score : 1 }));
+      const out = frame(boxes, bmp.width, bmp.height);
+      if (bmp.close) bmp.close();
+      remember(url, out);
+      return out;
+    } catch (e) {
+      return null; // sense IA (o sense connexió la primera vegada): foto sencera, i es tornarà a provar un altre dia
+    }
+  }
+
+  return { available, crop, frame, known, RATIO };
+})();
+
+
 /* ── 16-testmedia.js ── */
 /* EON Life · fotos i vídeos per costat dels tests de la valoració.
    - Fotos: els tests que es documenten amb una foto i no amb vídeo (test de Thomas, dreta i esquerra; flexió de tronc).
@@ -13611,11 +13773,22 @@ function ReportPhotos({ a, p, tests }) {
   return html`<div class="rphotos">${list.map((x) => html`<${ReportPhoto} key=${x.url} url=${x.url} title=${x.title} patient=${p} />`)}</div>`;
 }
 
+// La persona sencera enquadrada en vertical (PhotoCrop, amb IA); si no es detecta, la foto sencera.
 function ReportPhoto({ url, title, patient }) {
   const src = usePhotoSrc(url, patient);
-  return html`<figure class="rphoto">
+  const [box, setBox] = useState(() => PhotoCrop.known(url) || null);
+  useEffect(() => {
+    let alive = true;
+    if (src && PhotoCrop.known(url) === undefined) PhotoCrop.crop(url, src).then((b) => { if (alive) setBox(b); });
+    return () => { alive = false; };
+  }, [src, url]);
+  const pct = (v) => `${Math.round(v * 100000) / 1000}%`;
+  return html`<figure class=${U.cls('rphoto', box && 'rphoto-cropped')}>
     <button type="button" class="rphoto-img" onClick=${() => openPhoto(url, src, title)} aria-label=${`Mira la foto: ${title}`}>
-      ${src ? html`<img src=${src} alt=${title} />` : html`<${Icon} name="camera" size=${22} />`}
+      ${!src ? html`<${Icon} name="camera" size=${22} />`
+        : box ? html`<span class="rphoto-frame"><img src=${src} alt=${title} data-crop="1"
+            style=${`width:${pct(1 / box.w)};left:${pct(-box.x / box.w)};top:${pct(-box.y / box.h)}`} /></span>`
+        : html`<img src=${src} alt=${title} />`}
     </button>
     <figcaption>${title}</figcaption>
   </figure>`;
@@ -13683,6 +13856,7 @@ const ReportPdf = (() => {
     const spans = [];
     let total = 0;                                                   // on acaba el contingut (sense marges ni vores buides al final)
     for (const el of root.querySelectorAll('*')) {
+      if (el.matches('[data-crop]')) continue;           // foto retallada: el marc (que sí compta) la talla
       const r = el.getBoundingClientRect();
       if (!r.height) continue;
       const a = r.top - top0, b = r.bottom - top0;
@@ -16783,11 +16957,23 @@ function ExerciseList() {
   const [blk, setBlk] = useState('');
   const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
+  const [own, setOwn] = useState(false);
+  const all = Store.exercises().filter((e) => (!own || isOwnExercise(e)) && (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
   return html`<section class="card">
+    <details class="libhelp">
+      <summary><${Icon} name="info" size=${16} />Com afegir els vostres exercicis</summary>
+      <ol>
+        <li><strong>Biblioteca › Nou exercici</strong> (o, dins d'una sessió, <em>Afegeix exercici</em> › una carpeta › <em>Nou exercici en aquesta carpeta</em>).</li>
+        <li>Nom, <strong>bloc</strong> (1 a 6), <strong>múscul principal</strong> (i els altres que treballa) i el <strong>material</strong> amb què es pot fer. Al formulari veuràs en directe a quines carpetes sortirà.</li>
+        <li>Si en teniu vídeo, enganxeu l'enllaç de YouTube: en serà la miniatura. Si no, tria un dibuix o puja una foto d'un entrenador.</li>
+        <li>Opcional: família i nivell (per als botons ▲ ▼ de progressió) i la prescripció per defecte.</li>
+      </ol>
+      <p class="muted small">Surt a <em>Afegeix exercici</em> a la carpeta del seu múscul, a la del material, i a <strong>Els nostres exercicis</strong> (per bloc). Aquí, la casella <em>Només els nostres</em> us els ensenya sols. Amb Microsoft 365 es desen a l'Excel del centre i els veu tot l'equip.</p>
+    </details>
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
+      <label class="check"><input type="checkbox" checked=${own} onChange=${(e) => setOwn(e.currentTarget.checked)} /> Només els nostres (${Store.exercises().filter(isOwnExercise).length})</label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
         options=${[{ v: 'eon', label: 'Exercicis EON', title: 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' }, { v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tren superior, tren inferior i core, múscul per múscul' },
@@ -16801,7 +16987,7 @@ function ExerciseList() {
       ${view === 'graella' ? html`<div class="xb-grid xb-grid-lib">${all.filter((e) => e.block === b.key).map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.material || ''} />`)}</div>`
       : html`<div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${isOwnExercise(e) && html` <span class="own-chip">Nostre</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
         <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
@@ -16885,6 +17071,7 @@ function ExerciseDialog({ ex, init, onClose }) {
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.name.trim()) { UI.toast('Escriu el nom de l\'exercici.', 'bad'); return; }
+    if (!f.gm && !(f.muscles || []).length && !Calc.codeKey(f.code)) { UI.toast('Tria el múscul principal: és la carpeta on sortirà l\'exercici.', 'bad'); return; }
     const rec = { ...f, name: f.name.trim() };
     delete rec.seed;
     Store.put('exercises', rec, { immediate: true });
@@ -16902,6 +17089,9 @@ function ExerciseDialog({ ex, init, onClose }) {
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
     <${ThumbEditor} f=${f} setF=${setF} />
+    <div class="explaces" aria-live="polite"><${Icon} name="folder" size=${16} /><div><strong>On sortirà a «Afegeix exercici»</strong>
+      ${f.gm || (f.muscles || []).length || f.material ? html`<ul>${exercisePlaces({ ...f, id: f.id }).map((x) => html`<li>${x}</li>`)}</ul>`
+        : html`<p class="muted small">Tria el bloc, el múscul principal i el material: aquí veuràs a quines carpetes surt.</p>`}</div></div>
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>

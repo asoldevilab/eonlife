@@ -190,11 +190,22 @@ function ReportPhotos({ a, p, tests }) {
   return html`<div class="rphotos">${list.map((x) => html`<${ReportPhoto} key=${x.url} url=${x.url} title=${x.title} patient=${p} />`)}</div>`;
 }
 
+// La persona sencera enquadrada en vertical (PhotoCrop, amb IA); si no es detecta, la foto sencera.
 function ReportPhoto({ url, title, patient }) {
   const src = usePhotoSrc(url, patient);
-  return html`<figure class="rphoto">
+  const [box, setBox] = useState(() => PhotoCrop.known(url) || null);
+  useEffect(() => {
+    let alive = true;
+    if (src && PhotoCrop.known(url) === undefined) PhotoCrop.crop(url, src).then((b) => { if (alive) setBox(b); });
+    return () => { alive = false; };
+  }, [src, url]);
+  const pct = (v) => `${Math.round(v * 100000) / 1000}%`;
+  return html`<figure class=${U.cls('rphoto', box && 'rphoto-cropped')}>
     <button type="button" class="rphoto-img" onClick=${() => openPhoto(url, src, title)} aria-label=${`Mira la foto: ${title}`}>
-      ${src ? html`<img src=${src} alt=${title} />` : html`<${Icon} name="camera" size=${22} />`}
+      ${!src ? html`<${Icon} name="camera" size=${22} />`
+        : box ? html`<span class="rphoto-frame"><img src=${src} alt=${title} data-crop="1"
+            style=${`width:${pct(1 / box.w)};left:${pct(-box.x / box.w)};top:${pct(-box.y / box.h)}`} /></span>`
+        : html`<img src=${src} alt=${title} />`}
     </button>
     <figcaption>${title}</figcaption>
   </figure>`;

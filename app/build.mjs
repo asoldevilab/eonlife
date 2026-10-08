@@ -59,12 +59,16 @@ const updatable = (h) => h.replace('window.EON_BUILD =', () => 'window.EON_UPDAT
 const version = JSON.stringify({ build: stamp });
 const m365Html = updatable(html
   .replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${installable}`)
-  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_BUILD =`));
+  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_AI = 'ai/';\nwindow.EON_BUILD =`));
 const m365Dir = join(repo, 'dist', 'm365');
 mkdirSync(m365Dir, { recursive: true });
 writeFileSync(join(m365Dir, 'index.html'), m365Html);
 writeFileSync(join(m365Dir, 'version.json'), version);
 for (const f of readdirSync(join(src, 'assets', 'icons'))) copyFileSync(join(src, 'assets', 'icons', f), join(m365Dir, f));
+// Detecció del cos per retallar les fotos de l'informe (MediaPipe, 16-photocrop.js): al costat de l'app, sense dependre
+// de cap altre servidor. No es desa a git (es copia de app/src/vendor/mediapipe a cada build).
+mkdirSync(join(m365Dir, 'ai'), { recursive: true });
+for (const f of readdirSync(join(src, 'vendor', 'mediapipe'))) copyFileSync(join(src, 'vendor', 'mediapipe', f), join(m365Dir, 'ai', f));
 writeFileSync(join(m365Dir, 'manifest.webmanifest'), JSON.stringify({
   name: 'EON Life · Human Performance',
   short_name: 'EON Life',
@@ -93,7 +97,7 @@ const demoHead = installable
   .replace('href="icon-192.png"', 'href="../icon-192.png"').replace('href="apple-touch-icon.png"', 'href="../apple-touch-icon.png"')
   .replace('content="EON Life">', 'content="EON Life demo">');
 writeFileSync(join(demoDir, 'index.html'), updatable(html.replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${demoHead}`))
-  .replace('window.EON_BUILD =', () => 'window.EON_NO_DEMO = true;\nwindow.EON_BUILD ='));
+  .replace('window.EON_BUILD =', () => 'window.EON_NO_DEMO = true;\nwindow.EON_AI = \'../ai/\';\nwindow.EON_BUILD ='));
 writeFileSync(join(demoDir, 'version.json'), version);
 writeFileSync(join(demoDir, 'manifest.webmanifest'), JSON.stringify({
   name: 'EON Life · demostració',
@@ -127,7 +131,7 @@ if (ai > 0 && process.argv[ai + 1]) {
     /<meta name="viewport"[^>]*>\s*/i, /<meta name="theme-color"[^>]*>\s*/i, /<\/head>\s*/i, /<body>\s*/i, /<\/body>\s*/i, /<\/html>\s*/i]) {
     art = once(art, re);
   }
-  art = art.replace('window.EON_BUILD =', () => 'window.EON_ENV = "artifact";\nwindow.EON_BUILD =');
+  art = art.replace('window.EON_BUILD =', () => 'window.EON_ENV = "artifact";\nwindow.EON_AI = "ai/";\nwindow.EON_BUILD =');
   const out = process.argv[ai + 1];
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, art);

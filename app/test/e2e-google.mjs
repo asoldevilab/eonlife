@@ -110,6 +110,7 @@ let pid = null;
     await page.evaluate(() => { location.hash = '#/biblioteca'; });
     await page.click('.page-actions >> text=Nou exercici');
     await page.fill('#ex-name', 'Hip thrust a la politja cònica');
+    await page.selectOption('#ex-gm', 'GMax');
     await page.click('.dialog-foot >> text=Desa');
     await waitSaved(page);
     if (!sheetRows('Biblioteca').some((r) => r.Nom === 'Hip thrust a la politja cònica')) throw new Error('no desat');

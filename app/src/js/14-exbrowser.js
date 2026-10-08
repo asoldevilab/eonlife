@@ -53,6 +53,34 @@ function ExCard({ e, onClick, sub }) {
   </button>`;
 }
 
+// Exercicis creats per l'equip (no venen amb l'app): els de SEED_EXERCISES són els de sèrie.
+const SEED_IDS = new Set(SEED_EXERCISES.map((e) => e.id));
+const isOwnExercise = (e) => !!e && !SEED_IDS.has(e.id);
+
+// «Els nostres exercicis»: els que ha creat l'equip, en una carpeta per bloc (també surten a la carpeta del seu múscul i material).
+function ownFolders(list) {
+  const mine = list.filter(isOwnExercise);
+  const list2 = BLOCKS.map((b) => ({ name: `own-${b.key}`, label: `${b.num} · ${blockName(b.key)}`, items: U.sortBy(mine.filter((e) => e.block === b.key), (e) => U.norm(e.name)) }))
+    .filter((f) => f.items.length);
+  return { key: 'own', label: 'Els nostres exercicis', count: mine.length, list: list2 };
+}
+
+// On surt un exercici a les carpetes de «Afegeix exercici» (es veu en directe al formulari de l'exercici).
+function exercisePlaces(e) {
+  const out = [];
+  if (!e) return out;
+  const b = BLOCKS.find((x) => x.key === e.block);
+  for (const m of exerciseMuscles(e)) {
+    const z = MUSCLE_ZONES.find((x) => x.muscles.includes(m));
+    if (z && z.key !== 'tot') out.push(`${z.label} › ${muscleLabel(m)}`);
+  }
+  if (!out.length) out.push(`${(MUSCLE_ZONES.find((x) => x.key === 'tot') || {}).label || 'Cos sencer i altres'} › ${exerciseMuscles(e).map(muscleLabel)[0] || e.cat || 'Altres'}`);
+  for (const m of (e.materials && e.materials.length ? e.materials : [e.material]).filter(Boolean)) out.push(`Per material › ${m}`);
+  if (isOwnExercise(e) && b) out.push(`Els nostres exercicis › ${b.num} · ${blockName(b.key)}`);
+  if (Calc.codeKey(e.code)) out.push(`Exercicis EON › ${e.code}`);
+  return out;
+}
+
 // Exercicis EON (gravats pel centre), en una carpeta per bloc i per ordre de codi: 1.0, 1.1, 1.2…
 function eonFolders(list) {
   const mine = list.filter((e) => Calc.codeKey(e.code));
@@ -78,7 +106,8 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
   const eon = eonFolders(pool);
-  const zones = [...(eon.count ? [eon] : []), ...exerciseFolders(pool), materialFolders(pool)];
+  const own = ownFolders(pool);
+  const zones = [...(eon.count ? [eon] : []), ...(own.count ? [own] : []), ...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
@@ -117,13 +146,17 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
             <div class="xb-folders">${ex.materials.map((m, i) => html`<button type="button" class="xb-folder xb-matbtn" onClick=${() => onPick(ex, m)}>
               <${Icon} name="dumbbell" size=${18} /><span class="xb-folder-name">${m}</span>${i === 0 && html`<span class="xb-folder-n">per defecte</span>`}</button>`)}</div>
           </div>`
-        : f ? html`<div class="xb-grid">${f.items.map(row)}</div>`
+        : f ? html`<div class="xb-grid">${f.items.map(row)}</div>
+          <div class="xb-here"><${Btn} size="sm" icon="plus" onClick=${() => openExercise(null, {
+            block: block || 'for',
+            ...(zone === 'mat' ? { material: f.name, materials: [f.name] } : zone !== 'eon' && zone !== 'own' && MUSCLE_ZONES.some((m) => m.muscles.includes(f.name)) ? { gm: f.name } : {}),
+          })}>Nou exercici en aquesta carpeta</${Btn}><span class="muted small">Es desa a la biblioteca i surt aquí i a «Els nostres exercicis».</span></div>`
         : z ? html`<div class="xb-folders">${z.list.map((x) => html`<button type="button" class="xb-folder" onClick=${() => setFolder(x.name)}>
             <${Icon} name="folder" size=${18} /><span class="xb-folder-name">${x.label}</span><span class="xb-folder-n">${x.items.length}</span></button>`)}</div>`
         : html`<div class="xb-zones">${zones.map((x) => html`<button type="button" class=${`xb-zone xb-z-${x.key}`} onClick=${() => setZone(x.key)}>
             <${Icon} name="folder" size=${22} />
             <span class="xb-zone-name">${x.label}</span>
-            <span class="xb-zone-sub">${x.key === 'eon' ? 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' : `${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}`}</span>
+            <span class="xb-zone-sub">${x.key === 'eon' ? 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' : x.key === 'own' ? 'Els que heu creat vosaltres, per blocs' : `${x.list.slice(0, 6).map((y) => y.label).join(' · ')}${x.list.length > 6 ? '…' : ''}`}</span>
             <span class="xb-folder-n">${U.plural(x.count, 'exercici', 'exercicis')}</span></button>`)}</div>`}`}
   </${Dialog}>`;
 }

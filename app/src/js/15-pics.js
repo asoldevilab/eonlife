@@ -94,7 +94,9 @@ const PICS = {
   lateral_lunge: { label: 'Estocada lateral', front: true, t: -95, l: [40, 100], m: [140, 140], a: [125, -20], b: [55, 200] },
   side_step: { band: 'knees', label: 'Passes laterals', front: true, t: -90, l: [70, 98], m: [110, 82], a: [70, 140], b: [110, 40] },
   stand_abd: { band: 'knees', label: 'Abducció dempeus', front: true, t: -92, l: [62, 62], m: [92, 90], a: [70, 140], b: [110, 40] },
-  stand_kick: { label: 'Extensió de maluc dempeus', t: -85, l: [118, 112, 30], m: [90, 90, 0], a: [40, 20] },
+  // La cama de darrere ben estirada enrere i amunt, el tronc una mica endavant i les mans a la paret.
+  stand_kick: { label: 'Extensió de maluc dempeus', t: -76, l: [146, 150, 60], m: [92, 90, 0], a: [14, 4],
+    props: (B) => PROP.wall(B.a[2][0] + 3) },
   stepup: { label: 'Step-up', t: -84, l: [-8, 96, 0], m: [100, 96, 30], a: [94, 86], grip: 'hands',
     props: (B) => PROP.box(B.l[2][0] - 9, B.l[2][0] + 14, B.l[2][1] + 3) },
   hinge: { label: 'Bisagra (pes mort)', t: -28, l: [82, 98, 0], a: [90, 90], grip: 'hands' },
@@ -106,6 +108,7 @@ const PICS = {
   bridge_sl: { label: 'Pont de glutis a una cama', t: 158, hd: -10, l: [-22, -22, -100], m: [-30, 98, 0], a: [12, 4], grip: 'hips' },
   bridge_ball: { label: 'Curl femoral amb fitball', t: 160, hd: -10, l: [-24, 16, -60], a: [14, 4],
     props: (B) => picCircle([B.l[2][0] + 2, B.l[2][1] + 7], 7, 'pg') },
+  slide_curl: { label: 'Curl femoral amb lliscadors', t: 156, hd: -10, l: [16, 30, -62], a: [14, 4] },
   hipthrust: { label: 'Hip thrust', t: 178, hd: -6, l: [-4, 92, 0], a: [40, 0], grip: 'hips',
     props: (B) => PROP.bench(B.n[0] - 12, B.n[0] + 5, B.n[1] + 4) },
   nordic: { label: 'Nordic', t: -58, l: [122, 180, 270], a: [40, -30], props: (B) => PROP.pad([B.l[2][0] + 2, B.l[2][1] - 6]) },
@@ -119,6 +122,8 @@ const PICS = {
     props: (B) => picLine([[B.n[0] - 4, B.n[1] - 4], [B.p[0] + 2, B.p[1] + 5]], 'pl', 4.5) + picLine([[B.p[0] + 2, B.p[1] + 5], [B.p[0] + 2, PIC_FLOOR]], 'pl', 3)
       + picLine([[B.l[2][0] + 3, B.l[2][1] - 9], [B.l[2][0] + 3, B.l[2][1] + 9]], 'pgl', 4) },
   calf: { label: 'Elevació de talons', t: -90, l: [90, 90, 40], a: [94, 86], lift: 9, grip: 'hands',
+    props: (B) => PROP.box(B.l[3][0] - 7, B.l[3][0] + 9, B.l[3][1] + 2) },
+  calf_bent: { label: 'Elevació de talons amb genolls flexionats (soli)', t: -84, l: [62, 116, 40], a: [80, 92], lift: 9, grip: 'hands',
     props: (B) => PROP.box(B.l[3][0] - 7, B.l[3][0] + 9, B.l[3][1] + 2) },
   abd_machine: { label: 'Abductor / adductor a màquina', front: true, t: -90, l: [38, 92], m: [142, 88], a: [100, 70], b: [80, 110], lift: 2,
     props: (B) => picRect(B.p[0] - 13, B.p[1] + 3, 26, 5) + picLine([[B.p[0], B.p[1] + 8], [B.p[0], PIC_FLOOR]], 'pl', 3)
@@ -135,10 +140,12 @@ const PICS = {
   child: { label: 'Postura del nen', t: 12, hd: 30, l: [38, 182, 180], a: [6, 0] },
   plank: { label: 'Planxa', t: -12.4, hd: 6, l: [167.6, 167.6, 100], a: [90, 0] },
   plank_high: { label: 'Planxa de braços estirats', t: -25, hd: 6, l: [155, 155, 100], a: [90, 90] },
+  pushup_incline: { label: 'Flexions amb les mans al banc', t: -38, hd: 6, l: [142, 142, 100], a: [90, 90],
+    props: (B) => PROP.bench(B.a[2][0] - 8, B.a[2][0] + 8, B.a[2][1] + 1) },
   climber: { label: 'Mountain climber', t: -25, hd: 6, l: [62, 150, 70], m: [155, 155, 100], a: [90, 90] },
-  rollout: { label: 'Ab wheel', t: -6, hd: 12, l: [148, 180, 180], a: [40, 40], props: (B) => PROP.roller([B.a[2][0] + 1, PIC_FLOOR - 5], 5) },
+  rollout: { label: 'Ab wheel', t: -22, hd: 10, l: [112, 180, 180], a: [56, 58], props: (B) => PROP.roller([B.a[2][0] + 1, B.a[2][1] + 4], 5) },
   reverse_plank: { label: 'Planxa invertida', t: 205, hd: -20, l: [-15, -15, -100], a: [92, 92] },
-  superman: { label: 'Superman', t: -8, hd: -10, l: [176, 176, 110], a: [-14, -10] },
+  superman: { label: 'Superman', t: -11, hd: -16, l: [195, 190, 110], a: [-24, -20] },
   deadbug: { label: 'Dead bug', t: 180, hd: -8, l: [-88, 0, -90], m: [-20, -16, -100], a: [-84, -86], b: [-160, -168] },
   crunch: { label: 'Crunch', t: -150, hd: 10, l: [-45, 62, 0], a: [-28, -24] },
   crunch_legs: { label: 'Crunch amb cames elevades', t: -158, hd: 10, l: [-88, 0, -90], a: [-40, -30] },
@@ -151,8 +158,9 @@ const PICS = {
   pushdown: { label: 'Extensió de tríceps', t: -84, a: [96, 70], grip: 'hands', anchor: 'over' },
   triceps_oh: { label: 'Tríceps per sobre del cap', t: -90, a: [-82, 160], grip: 'hands' },
   tri_kickback: { label: 'Kickback de tríceps', t: -24, l: [82, 98, 0], a: [172, 174], b: [90, 90], grip: 'hands' },
-  dip: { label: 'Fons de tríceps', t: -92, l: [-4, 30, -60], a: [128, 90], lift: 12,
-    props: (B) => PROP.bench(B.a[2][0] - 14, B.a[2][0] + 4, B.a[2][1] + 1) },
+  // Fons al banc: les mans a la vora del banc, darrere; el maluc baixa per davant del banc (més avall que les mans).
+  dip: { label: 'Fons de tríceps', t: -88, l: [2, 84, 0], a: [204, 90],
+    props: (B) => PROP.bench(B.a[2][0] - 17, B.a[2][0] + 3, B.a[2][1] + 1) },
   lat_raise: { label: 'Elevacions laterals', front: true, t: -90, a: [8, 4], b: [172, 176], grip: 'hands' },
   front_raise: { label: 'Elevacions frontals', t: -90, a: [2, 0], b: [92, 88], grip: 'hands' },
   rear_fly: { label: 'Ocells', t: -22, l: [82, 98, 0], a: [60, 64], b: [104, 100], grip: 'hands' },
@@ -203,10 +211,19 @@ const PICS = {
     props: (B) => picLine([[B.a[2][0] + 3, B.a[2][1] - 2], [B.a[2][0] + 3, PIC_FLOOR]], 'pl', 3) + picLine([[6, PIC_FLOOR + 1], [94, PIC_FLOOR + 1]], 'pl', 3) },
   run_tread: { label: 'Cinta / AlterG', t: -78, hd: 4, l: [-8, 84, -10], m: [118, 146, 70], a: [130, 56], b: [36, -66], lift: 3,
     props: () => picLine([[8, PIC_FLOOR + 1], [92, PIC_FLOOR + 1]], 'pl', 4) + picLine([[86, PIC_FLOOR], [80, 46]], 'pl', 3) },
-  bike: { label: 'Bicicleta', t: -62, l: [-12, 92, 0], m: [52, 112, 10], a: [24, 14], lift: 14,
-    props: (B) => picLine([[B.p[0] - 1, B.p[1] + 3], [B.p[0] + 6, PIC_FLOOR - 8]], 'pl', 3) + picLine([[B.p[0] - 6, B.p[1] + 3], [B.p[0] + 5, B.p[1] + 3]], 'pl', 3.5)
-      + picLine([[B.a[2][0] + 2, B.a[2][1]], [B.a[2][0] - 2, PIC_FLOOR - 8]], 'pl', 3) + picCircle([B.p[0] + 10, PIC_FLOOR - 8], 6, 'pg')
-      + picLine([[B.p[0] - 12, PIC_FLOOR], [B.a[2][0] + 6, PIC_FLOOR]], 'pl', 3) },
+  // Bicicleta estàtica de costat: seient, tija, base a terra, columna fins al manillar i el volant davant dels pedals.
+  bike: { label: 'Bicicleta', t: -70, hd: 6, l: [28, 104, 10], m: [62, 70, -10], a: [16, 30], lift: 12,
+    props: (B) => {
+      const seat = [B.p[0], B.p[1] + 4];
+      const base = PIC_FLOOR - 2;
+      const front = B.a[2][0] + 3;
+      return picLine([[seat[0] - 6, seat[1]], [seat[0] + 5, seat[1]]], 'pl', 3.5)
+        + picLine([seat, [seat[0] + 4, base]], 'pl', 3)
+        + picLine([[seat[0] - 8, base], [front + 6, base]], 'pl', 3.4)
+        + picLine([[front + 2, base], [front, B.a[2][1] + 1]], 'pl', 3)
+        + picLine([[front - 4, B.a[2][1] + 1], [front + 3, B.a[2][1] + 1]], 'pl', 3)
+        + picCircle([front - 3, base - 9], 6.5, 'pg');
+    } },
   ankle_mob: { label: 'Mobilitat de turmell', t: -86, l: [-2, 62, 0], m: [94, 180, 180], a: [-12, -6],
     props: (B) => PROP.wall(B.l[2][0] + 11) },
   half_kneel: { label: 'Mig genoll', t: -92, l: [6, 88, 0], m: [100, 180, 180], a: [-95, -92] },
@@ -331,7 +348,19 @@ function picGear(B, P, g) {
   const one = grip === 'chest' || grip === 'near' || (g.kind === 'kb' && g.one) || Math.hypot(wa[0] - wb[0], wa[1] - wb[1]) < 5;
   const at = grip === 'chest' ? mid : wa;
   if (g.kind === 'bar') return plate(at);
-  if (g.kind === 'stick') return picCircle(at, 2.6, 'pg');
+  if (g.kind === 'stick') {
+    // La pica, al llarg de l'esquena (bisagra de maluc amb pica: cap, esquena i sacre en contacte).
+    if (P === PICS.hinge || P === PICS.goodmorning) {
+      const d = [B.n[0] - B.p[0], B.n[1] - B.p[1]];
+      const len = Math.hypot(d[0], d[1]) || 1;
+      const u = [d[0] / len, d[1] / len], nb = [u[1], -u[0]];
+      const off = 5.2 * s;
+      const a0 = [B.p[0] - u[0] * 6 * s + nb[0] * off, B.p[1] - u[1] * 6 * s + nb[1] * off];
+      const a1 = [B.h[0] + u[0] * 8 * s + nb[0] * off, B.h[1] + u[1] * 8 * s + nb[1] * off];
+      return picLine([a0, a1], 'pgl', 2.6);
+    }
+    return picCircle(at, 2.6, 'pg');
+  }
   if (g.kind === 'ball') return picCircle([at[0] + 2, at[1]], 6.5 * s, 'pg');
   if (g.kind === 'db') return (one ? '' : dumbbell(wb, true)) + dumbbell(at);
   if (g.kind === 'kb') return (one ? '' : kettlebell(wb, true)) + kettlebell(at);
@@ -404,16 +433,17 @@ const PIC_RULES = [
   [/clamshell/, 'clamshell'],
   [/estirat de costat|recolzat al colze|side-lying/, 'side_abd'],
   [/mountain climber|flexio(ns)? de maluc (alternes? )?(amb bracos estirats|en planxa)/, 'climber'],
+  [/flexion.*(inclinad|mans elevades|mans al banc)/, 'pushup_incline'],
   [/planxa|plank|push-up escapular|flexio(ns)?(?! de maluc)\b|renegade|flexions/, (t) => (/planxa frontal|^planxa$/.test(t) ? 'plank' : 'plank_high')],
   [/pont de glutis|glute bridge/, (t) => (/unipodal|una cama/.test(t) ? 'bridge_sl' : 'bridge')],
   [/hip thrust/, 'hipthrust'],
-  [/curl femoral/, (t) => (/fitball|lliscador/.test(t) ? 'bridge_ball' : 'seated_curl')],
+  [/curl femoral/, (t) => (/lliscador|flowin|slider/.test(t) ? 'slide_curl' : /fitball/.test(t) ? 'bridge_ball' : 'seated_curl')],
   [/nordic|glute-ham/, 'nordic'],
   [/hiperextensio|lower back/, 'hyperext'],
   [/leg press|premsa/, 'legpress'],
   [/leg extension|extensio de genoll/, 'legext'],
   [/(abductor|adductor) a la maquina/, 'abd_machine'],
-  [/elevacio de talons|calf raise/, 'calf'],
+  [/elevacio de talons|calf raise/, (t) => (/soli|genolls? flexionats?/.test(t) ? 'calf_bent' : 'calf')],
   [/squeeze/, 'squeeze'],
   [/pallof/, 'pallof'],
   [/woodchop|llenyataire/, 'woodchop'],
@@ -421,7 +451,7 @@ const PIC_RULES = [
   [/windmill/, 'windmill'],
   [/halo/, 'halo'],
   [/sots press|overhead squat/, 'squat_oh'],
-  [/snatch|arrencada/, (t) => (/high pull/.test(t) ? 'high_pull' : 'squat_oh')],
+  [/snatch|arrencada/, (t) => (/high pull/.test(t) ? 'high_pull' : /kettlebell|\bkb\b/.test(t) ? 'ohpress' : 'squat_oh')],
   [/jump shrug|high pull/, 'high_pull'],
   [/clean|cargolada/, 'clean'],
   [/split jerk|(estocada|lunge).*(per sobre del cap|overhead)/, 'split_oh'],

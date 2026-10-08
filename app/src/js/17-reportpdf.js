@@ -58,6 +58,7 @@ const ReportPdf = (() => {
     const spans = [];
     let total = 0;                                                   // on acaba el contingut (sense marges ni vores buides al final)
     for (const el of root.querySelectorAll('*')) {
+      if (el.matches('[data-crop]')) continue;           // foto retallada: el marc (que sí compta) la talla
       const r = el.getBoundingClientRect();
       if (!r.height) continue;
       const a = r.top - top0, b = r.bottom - top0;

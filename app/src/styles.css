@@ -748,9 +748,13 @@ input[type="search"].input { -webkit-appearance: none; }
 .tphoto-label { font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .tphoto-actions { display: flex; flex-wrap: wrap; gap: 4px; }
 /* Fotos dels tests a l'informe. */
-.rphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+.rphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-top: 12px; }
 .rphoto { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); break-inside: avoid; }
-.rphoto-img { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; background: var(--surface-3); color: var(--ink-3); cursor: pointer; }
+.rphoto-img { display: grid; place-items: center; width: 100%; aspect-ratio: 3 / 4; padding: 0; border: 0; background: var(--surface-3); color: var(--ink-3); cursor: pointer; overflow: hidden; }
+/* retallada: la persona sencera dins d'un marc 3:4 (la imatge, desplaçada i ampliada dins del marc) */
+.rphoto-cropped .rphoto-img { position: relative; display: block; }
+.rphoto-frame { position: absolute; inset: 0; display: block; overflow: hidden; }
+.rphoto-frame img { position: absolute; max-width: none; height: auto !important; object-fit: fill !important; background: none !important; }
 .rphoto-img img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--surface-3); }
 .rphoto figcaption { padding: 8px 10px; font-size: 13px; font-weight: 650; }
 @media print { .rphotos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
@@ -1533,3 +1537,13 @@ tfoot .rpc { font-size: 14px; }
 .pgoal .h2 svg { color: var(--blk-cal); }
 .pgoal textarea { font-size: 17px; font-weight: 600; line-height: 1.4; }
 .pgoal-compact .card-head { margin-bottom: 6px; }
+
+/* Exercicis propis */
+.own-chip { display: inline-block; padding: 1px 6px; margin-left: 4px; border-radius: 6px; font-size: 10.5px; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; background: color-mix(in srgb, var(--blk-cal) 20%, var(--surface)); color: var(--ink); vertical-align: 1px; }
+.explaces { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 14px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.explaces svg { margin-top: 2px; color: var(--blk-cal); flex: none; }
+.explaces ul { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; }
+.xb-here { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
+.libhelp { margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.libhelp summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.libhelp ol { margin: 10px 0 6px; padding-left: 20px; display: grid; gap: 4px; }
