@@ -41,7 +41,7 @@ Y-Balance / Salts / Patrons**.
   (cada 3 mesos) i la llista de pacients amb filtres per estat, tipus de pacient i professional.
 - **Nou pacient**: primer el **tipus de pacient**, després nom, cognoms i professional. Amb Microsoft 365 o Google es
   crea automàticament la carpeta del pacient (amb *Valoracions* i *Sessions*, i dins de cadascuna la carpeta dels seus vídeos).
-- **Tipus de pacient**: *Valoració inicial*, *Membership* (entrenament continuat amb quota) o *Bo (pacient puntual)*
+- **Tipus de pacient**: *Valoració inicial (Membership)* (la valoració inicial només la fa qui té la quota de membership) o *Bo (pacient puntual)*
   (ha comprat un entrenament o un bo de sessions). Surt a la capçalera de la fitxa, al filtre de l'inici
   i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
 - **Professional de referència**: Ricardo Villamizar, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
@@ -335,7 +335,7 @@ Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de 
 sessions previstes del pla d'entrenament.
 
 - Calendari del mes amb cada sessió: número, objectiu i, a sota, l'**RPE** i el **dolor (EVA)** del final de la
-  sessió, per veure d'un cop d'ull si pugen o baixen. Els diumenges sense sessió surten com a **OFF**.
+  sessió, en dues etiquetes (el dolor en verd, groc o vermell segons la intensitat), per veure d'un cop d'ull si pugen o baixen. Els diumenges sense sessió surten com a **OFF**.
 - El **+** d'un dia buit dona dues opcions: **Programa la sessió sencera** (com sempre: del pla, copiant l'última,
   d'una plantilla o en blanc) o **Només l'objectiu**, per omplir el calendari ràpid: s'escriu l'objectiu (i el pilar,
   si vols) i surt al quadre del dia amb una vora daurada. Tocant-la es pot editar, marcar com a **Feta** amb l'RPE,

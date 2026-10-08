@@ -260,8 +260,8 @@ test('professionals del centre i servei del client', () => {
   const profs = new Set(Object.values(db.patients).map((p) => p.professional));
   assert.ok(!profs.has('Pau Roca') && !profs.has('Marta Soler'));
   assert.deepEqual(Array.from(db.settings.professionals), ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
-  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Valoració inicial', 'Membership', 'Bo (pacient puntual)']);
-  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Membership');
+  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Valoració inicial (Membership)', 'Bo (pacient puntual)']);
+  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Valoració inicial (Membership)');
   assert.equal(Flat.patient({ service: 'bo' }).Servei, 'Bo (pacient puntual)');
   // Dades de prova antigues guardades a la tauleta.
   const old = { demo: true, patients: { 'P-DEMO-LAURA': { professional: 'Pau Roca' } }, assessments: {}, sessions: { s: { professional: 'Marta Soler' } },
@@ -675,8 +675,10 @@ test('Richy passa a dir-se Ricardo Villamizar a les dades ja desades i a la llis
   Store.data.patients['P-R'] = { id: 'P-R', firstName: 'Anna', lastName: 'Prova', professional: 'Richy' };
   Store.data.sessions['S-R'] = { id: 'S-R', patientId: 'P-R', date: '2026-10-01', professional: 'Richy', blocks: [], feedback: {} };
   Store.data.assessments['A-R'] = { id: 'A-R', patientId: 'P-R', date: '2026-10-01', professional: 'Arnau', values: {} };
+  Store.data.patients['P-V'] = { id: 'P-V', firstName: 'Pere', lastName: 'Prova', service: 'valoracio' };
   Store.settings.professionals = ['Richy', 'Arnau', 'Ricardo Villamizar'];
   Store.renameProfessionals();
+  assert.equal(Store.get('patients', 'P-V').service, 'membership', 'la valoració inicial va amb la membership');
   assert.equal(Store.get('patients', 'P-R').professional, 'Ricardo Villamizar');
   assert.equal(Store.get('sessions', 'S-R').professional, 'Ricardo Villamizar');
   assert.equal(Store.get('assessments', 'A-R').professional, 'Arnau');
@@ -689,6 +691,6 @@ test('informe: la propera valoració només amb el mes i l\'any; tipus de pacien
   assert.equal(U.fmtMonthYear('2027-01-14'), 'Gener de 2027');
   assert.equal(U.fmtMonthYear('2027-04-02'), 'Abril de 2027');
   assert.equal(U.fmtMonthYear(''), '—');
-  assert.deepEqual([...OPT.services.map((o) => o.v)], ['valoracio', 'membership', 'bo']);
+  assert.deepEqual([...OPT.services.map((o) => o.v)], ['membership', 'bo']);
   assert.ok(OPT.pillars.includes('Readaptació'));
 });

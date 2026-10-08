@@ -65,7 +65,7 @@ function MonthView({ p, sessions }) {
                     onClick=${() => (quick ? openQuickSession(p, { s }) : go('sessio', s.id))} title=${sessionTitle(s, quick)}>
                     <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
-                    ${nums && html`<span class="cal-s-fb">${nums}</span>`}
+                    ${nums}
                   </button>`;
                 })}
                 ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
@@ -136,11 +136,17 @@ function LoadProgression({ sessions, blocks }) {
 // ── Sessions del calendari: sencera (amb exercicis) o només l'objectiu ──
 const sessionFilled = (s) => (s.blocks || []).some((b) => (b.items || []).some((i) => i.name));
 
-// "RPE 7 · Dolor 3" (el dolor és l'EVA del final de la sessió).
+// L'RPE i el dolor (EVA del final de la sessió) com a dues etiquetes ben visibles sota l'objectiu. El dolor es pinta
+// segons la intensitat (0–2 verd, 3–5 groc, 6–10 vermell) per veure d'un cop d'ull si puja o baixa durant el mes.
+const painTone = (v) => (v == null ? '' : v >= 6 ? 'bad' : v >= 3 ? 'warn' : 'ok');
 function sessionNums(s) {
   const f = s.feedback || {};
   const rpe = U.num(f.rpe), pain = U.num(f.pain);
-  return [rpe != null && `RPE ${rpe}`, pain != null && `Dolor ${pain}`].filter(Boolean).join(' · ');
+  if (rpe == null && pain == null) return null;
+  return html`<span class="cal-s-fb">
+    ${rpe != null && html`<span class="cal-m cal-m-rpe" title="RPE de la sessió (1–10)"><small>RPE</small>${rpe}</span>`}
+    ${pain != null && html`<span class=${`cal-m cal-m-pain cal-m-${painTone(pain)}`} title="Dolor en acabar (EVA 0–10)"><small>Dolor</small>${pain}</span>`}
+  </span>`;
 }
 
 function sessionTitle(s, quick) {

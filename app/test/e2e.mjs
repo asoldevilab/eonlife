@@ -416,9 +416,12 @@ const step = async (label, fn) => {
     await page.waitForSelector('text=Dades personals');
   });
   await step('servei i professionals del centre', async () => {
-    await page.waitForSelector('[role="radiogroup"][aria-label="Servei"] >> text=Valoració inicial');
-    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Membership');
-    await page.waitForSelector('.phead .eyebrow >> text=Membership');
+    await page.waitForSelector('.phead .eyebrow >> text=Valoració inicial (Membership)');
+    if (await page.locator('[role="radiogroup"][aria-label="Servei"] button').count() !== 2) throw new Error('han de ser dos tipus de pacient');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Bo (pacient puntual)');
+    await page.waitForSelector('.phead .eyebrow >> text=Bo (pacient puntual)');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Valoració inicial (Membership)');
+    await page.waitForSelector('.phead .eyebrow >> text=Valoració inicial (Membership)');
     const profs = await page.$$eval('#pf-professional option', (o) => o.map((x) => x.value));
     for (const n of ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']) if (!profs.includes(n)) throw new Error(`falta ${n}: ${profs}`);
     if (profs.some((n) => /Pau Roca|Marta Soler/.test(n))) throw new Error(`noms ficticis: ${profs}`);
@@ -745,7 +748,8 @@ const step = async (label, fn) => {
     await page.click('[role="radiogroup"][aria-label="RPE de la sessió"] >> text="7"');
     await page.click('[role="radiogroup"][aria-label="Dolor en acabar"] >> text="3"');
     await page.click('.dialog-foot >> text=Desa');
-    await page.waitForSelector('.cal-s.quick.done .cal-s-fb >> text=RPE 7 · Dolor 3');
+    await page.waitForSelector('.cal-s.quick.done .cal-m-rpe >> text=7');
+    await page.waitForSelector('.cal-s.quick.done .cal-m-pain.cal-m-warn >> text=3');
     await shot(page, '12-calendari-rapid');
     // La sessió sencera: els blocs es poden afegir després
     await page.click('.cal-s.quick >> text=Readaptació ràpida de prova');

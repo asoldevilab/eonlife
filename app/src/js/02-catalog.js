@@ -58,8 +58,7 @@ const OPT = {
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control', 'Readaptació'],
   // Servei que fa el client al centre.
   services: [
-    { v: 'valoracio', label: 'Valoració inicial', desc: 'Només la valoració funcional i l\'informe' },
-    { v: 'membership', label: 'Membership', desc: 'Entrenament i seguiment continuat al centre (quota de membership)' },
+    { v: 'membership', label: 'Valoració inicial (Membership)', desc: 'Quota de membership: valoració inicial i entrenament i seguiment continuat al centre' },
     { v: 'bo', label: 'Bo (pacient puntual)', desc: 'Ha comprat un entrenament o un bo de sessions puntuals, sense membership' },
   ],
   status: [
@@ -342,6 +341,8 @@ const TEST_INDEX = (() => {
 const CENTER_PROFESSIONALS = ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)'];
 // Noms de l'equip que han canviat: l'app els canvia sola a les dades ja desades (Store.renameProfessionals).
 const PROFESSIONAL_RENAMES = { Richy: 'Ricardo Villamizar' };
+// Tipus de pacient que ja no hi són: la valoració inicial només la fa qui té la quota de membership.
+const SERVICE_RENAMES = { valoracio: 'membership' };
 
 // Material del centre (es pot canviar a Configuració).
 const CENTER_MATERIALS = [
