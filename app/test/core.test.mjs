@@ -456,6 +456,33 @@ test('miniatures: cada exercici té un pictograma propi amb el material', async 
   assert.equal(keyOf('Fons de tríceps al banc'), 'dip');
   assert.ok(/class="pgl"/.test(P.exercisePicSvg({ name: 'Bisagra de maluc amb pica', material: 'Pica' })), 'la pica al llarg de l\'esquena');
   assert.equal(P.picGearOf({ name: 'Curl femoral amb lliscadors Flowin', material: 'Lliscadors Flowin' }, 'slide_curl').kind, 'sliders');
+});
+
+test('dibuixos en moviment: posició inicial i final, animació SMIL, isomètrics quiets i inici → final per al paper', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES } = loadCore();
+  const win = { matchMedia: () => ({ matches: false }) };
+  const P = new Function('U', 'window', 'localStorage', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg, picFrames, picAnimate, picMoves, PIC_CACHE };`)(U, win, { getItem: () => null, setItem() {} });
+  const moving = Object.keys(P.PICS).filter((k) => P.PICS[k].from);
+  assert.ok(moving.length >= 90, `${moving.length} postures amb moviment`);
+  // Cada postura amb moviment fa una animació vàlida (mateixa estructura a tots els fotogrames) que hi cap
+  for (const k of moving) {
+    const svg = P.exercisePicSvg({ name: 'x' }, k, 'auto');
+    assert.ok(/<animate attributeName=/.test(svg), `${k} no es mou`);
+    assert.ok(!/NaN|undefined/.test(svg), k);
+    const start = P.exercisePicSvg({ name: 'x' }, k, 'start'), end = P.exercisePicSvg({ name: 'x' }, k, 'end');
+    assert.ok(!/<animate/.test(start) && !/<animate/.test(end) && start !== end, `${k}: inici i final`);
+  }
+  // Tots els exercicis de la biblioteca: el dibuix es pot fer (en moviment o quiet)
+  for (const e of SEED_EXERCISES) assert.ok(P.exercisePicSvg(e).startsWith('<svg'), e.name);
+  assert.equal(P.picKeyOf({ name: 'Flexions' }), 'pushup');
+  assert.ok(P.picMoves('pallof', { name: 'Pallof press dinàmic' }));
+  assert.ok(!P.picMoves('pallof', { name: 'Pallof press isomètric' }), 'els isomètrics no es mouen');
+  assert.ok(!/<animate/.test(P.exercisePicSvg({ name: 'Pallof press isomètric' })));
+  assert.ok(!P.picMoves('plank', { name: 'Planxa' }));
+  // Estructura diferent entre fotogrames: no s'anima (millor quiet que trencat)
+  assert.equal(P.picAnimate(['<svg><path d="M1 1"/></svg>', '<svg><circle r="1"/></svg>']), null);
   assert.equal(P.picGearOf({ name: 'Goblet squat', material: 'Kettlebell' }, 'squat').kind, 'kb');
   assert.equal(P.picGearOf({ name: 'Monster walk · banda als genolls', material: 'Loop band Technogym' }, 'side_step').at, 'knees');
   assert.equal(P.picGearOf({ name: 'Rem inclinat al Power Personal', material: 'Power Personal Technogym' }, 'row').kind, 'bar');
