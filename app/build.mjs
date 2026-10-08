@@ -131,7 +131,7 @@ if (ai > 0 && process.argv[ai + 1]) {
     /<meta name="viewport"[^>]*>\s*/i, /<meta name="theme-color"[^>]*>\s*/i, /<\/head>\s*/i, /<body>\s*/i, /<\/body>\s*/i, /<\/html>\s*/i]) {
     art = once(art, re);
   }
-  art = art.replace('window.EON_BUILD =', () => 'window.EON_ENV = "artifact";\nwindow.EON_AI = "ai/";\nwindow.EON_BUILD =');
+  art = art.replace('window.EON_BUILD =', () => 'window.EON_ENV = "artifact";\nwindow.EON_BUILD =');
   const out = process.argv[ai + 1];
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, art);
