@@ -119,7 +119,7 @@ function migrateDemo(db) {
   }
   const st = db.settings;
   if (st && Array.isArray(st.professionals) && st.professionals.every((n) => rename[n])) st.professionals = [...CENTER_PROFESSIONALS];
-  const svc = { 'P-DEMO-LAURA': 'membership', 'P-DEMO-JORDI': 'membership', 'P-DEMO-MONTSE': 'membership', 'P-DEMO-ALEX': 'valoracio' };
+  const svc = { 'P-DEMO-LAURA': 'membership', 'P-DEMO-JORDI': 'membership', 'P-DEMO-MONTSE': 'membership', 'P-DEMO-ALEX': 'membership' };
   for (const [id, v] of Object.entries(svc)) if (db.patients[id] && !db.patients[id].service) db.patients[id].service = v;
   // Dades de prova d'abans del pla d'entrenament i de l'encoder.
   for (const s of Object.values(db.sessions || {})) {
@@ -190,7 +190,7 @@ const Store = {
     this.emit();
   },
 
-  // Noms de l'equip que han canviat (PROFESSIONAL_RENAMES, a 02-catalog.js): es canvien a les fitxes, valoracions, sessions
+  // Noms de l'equip i tipus de pacient que han canviat (PROFESSIONAL_RENAMES i SERVICE_RENAMES, a 02-catalog.js): es canvien a les fitxes, valoracions, sessions
   // i plans ja desats, i a la llista de Configuració. Un sol cop: després ja no queda cap registre amb el nom antic.
   renameProfessionals() {
     const map = PROFESSIONAL_RENAMES;
@@ -198,6 +198,9 @@ const Store = {
       for (const r of Object.values(this.data[k] || {})) {
         if (r && map[r.professional]) this.put(k, { ...r, professional: map[r.professional] });
       }
+    }
+    for (const r of Object.values(this.data.patients || {})) {
+      if (r && SERVICE_RENAMES[r.service]) this.put('patients', { ...r, service: SERVICE_RENAMES[r.service] });
     }
     const list = this.settings.professionals;
     if (Array.isArray(list) && list.some((n) => map[n])) {
@@ -391,7 +394,7 @@ const Store = {
   newPatient(fields = {}) {
     const p = {
       id: U.uid('P'), firstName: '', lastName: '', birthDate: '', sex: '', email: '', phone: '',
-      service: 'valoracio', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
+      service: 'membership', professional: this.settings.professionals[0] || '', status: 'actiu', startDate: U.today(),
       goal: '', reason: '', history: '', surgeryDate: '', surgeryNote: '', injuryDate: '', injuryNote: '',
       folderUrl: '', folderId: '', notes: '', createdAt: new Date().toISOString(), ...fields,
     };

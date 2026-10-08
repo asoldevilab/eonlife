@@ -56,7 +56,7 @@ function openNewPatient() {
 }
 
 function NewPatientDialog({ onClose }) {
-  const [f, setF] = useState({ firstName: '', lastName: '', service: 'valoracio', professional: Store.professionals()[0] || '', birthDate: '' });
+  const [f, setF] = useState({ firstName: '', lastName: '', service: 'membership', professional: Store.professionals()[0] || '', birthDate: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del pacient.', 'bad'); return; }

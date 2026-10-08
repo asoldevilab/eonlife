@@ -44,7 +44,7 @@ function makeDemoData() {
     goal: 'Guanyar autonomia i confiança per caminar per la muntanya amb els néts.',
     reason: 'Osteopènia i por a caure.',
     history: 'Osteopènia (2023). Pròtesi de maluc dret (2019).' });
-  const alex = patient({ id: 'P-DEMO-ALEX', firstName: 'Àlex', lastName: 'Martí Soler', birthDate: '1999-06-30', sex: 'H', service: 'valoracio',
+  const alex = patient({ id: 'P-DEMO-ALEX', firstName: 'Àlex', lastName: 'Martí Soler', birthDate: '1999-06-30', sex: 'H', service: 'membership',
     professional: 'Arnau', startDate: D(-2), email: 'alex.marti@example.com',
     goal: 'Rendiment en futbol semiprofessional i prevenció de recaigudes.',
     reason: 'Valoració de pretemporada.',
