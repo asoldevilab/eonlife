@@ -691,6 +691,7 @@ const step = async (label, fn) => {
     if ((await page.inputValue('#ex-name')) !== 'Exercici gravat al centre') throw new Error('el nom no ve de la cerca');
     await page.fill('#ex-video', 'https://youtu.be/FiuU4aBaUb0');
     await page.waitForSelector('.thumbedit >> text=Imatge del vídeo de YouTube');
+    await page.selectOption('#ex-gm', 'Quàdriceps'); // el múscul principal és la carpeta on surt (obligatori)
     await page.click('.dialog-foot >> text=Desa');
     await page.waitForSelector('.dialog', { state: 'detached' });
     await page.waitForSelector('.exrow:has-text("Exercici gravat al centre") .exthumb img[src="https://i.ytimg.com/vi/FiuU4aBaUb0/mqdefault.jpg"]');
@@ -821,6 +822,33 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Programa-la sencera');
     await page.waitForSelector('#se-pillar');
     if (await page.$eval('#se-pillar', (e) => e.value) !== 'Readaptació') throw new Error('pilar');
+  });
+  await step('biblioteca: un exercici propi, ben classificat, surt a «Els nostres exercicis» i a la carpeta del seu múscul', async () => {
+    await goHash(page, '#/biblioteca');
+    await page.click('.libhelp summary');
+    await page.waitForSelector('.libhelp >> text=Nou exercici en aquesta carpeta');
+    await page.click('.page-actions >> text=Nou exercici');
+    await page.fill('#ex-name', 'Pont de glutis EON amb pausa');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.toast >> text=Tria el múscul principal');
+    await page.selectOption('#ex-gm', 'GMax');
+    await page.waitForSelector('.explaces li >> text=Els nostres exercicis');
+    await page.click('.dialog-foot >> text=Desa');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    await page.click('label.check:has-text("Només els nostres")');
+    await page.waitForSelector('.exrow >> text=Pont de glutis EON amb pausa');
+    const rows = await page.locator('.exrow').count(), own = await page.locator('.exrow .own-chip').count();
+    if (!rows || rows !== own || rows > 10) throw new Error(`el filtre «Només els nostres» no funciona: ${rows} files, ${own} nostres`);
+    // A la sessió: «Afegeix exercici» › Els nostres exercicis
+    await goHash(page, '#/client/P-DEMO-LAURA/sessions');
+    await page.click('.srow-main >> nth=0');
+    await page.waitForSelector('.block');
+    await page.locator('section.block.blk-for .add-item:not(.add-group)').first().click();
+    await page.click('.xb-zone >> text=Els nostres exercicis');
+    await page.click('.xb-folder >> text=Força principal');
+    await page.waitForSelector('.xb-ex >> text=Pont de glutis EON amb pausa');
+    await page.waitForSelector('.xb-here >> text=Nou exercici en aquesta carpeta');
+    await page.click('.dialog-foot >> text=Cancel·la');
   });
   await step('persistència local', async () => {
     const before = await page.evaluate(() => ({ pending: Store.pending(), stored: (localStorage.getItem('eonlife:data:v1') || '').includes('Automàtica') }));

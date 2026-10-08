@@ -28,11 +28,23 @@ function ExerciseList() {
   const [blk, setBlk] = useState('');
   const [view, setView] = useState('llista');
   const nq = U.norm(q);
-  const all = Store.exercises().filter((e) => (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
+  const [own, setOwn] = useState(false);
+  const all = Store.exercises().filter((e) => (!own || isOwnExercise(e)) && (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
   return html`<section class="card">
+    <details class="libhelp">
+      <summary><${Icon} name="info" size=${16} />Com afegir els vostres exercicis</summary>
+      <ol>
+        <li><strong>Biblioteca › Nou exercici</strong> (o, dins d'una sessió, <em>Afegeix exercici</em> › una carpeta › <em>Nou exercici en aquesta carpeta</em>).</li>
+        <li>Nom, <strong>bloc</strong> (1 a 6), <strong>múscul principal</strong> (i els altres que treballa) i el <strong>material</strong> amb què es pot fer. Al formulari veuràs en directe a quines carpetes sortirà.</li>
+        <li>Si en teniu vídeo, enganxeu l'enllaç de YouTube: en serà la miniatura. Si no, tria un dibuix o puja una foto d'un entrenador.</li>
+        <li>Opcional: família i nivell (per als botons ▲ ▼ de progressió) i la prescripció per defecte.</li>
+      </ol>
+      <p class="muted small">Surt a <em>Afegeix exercici</em> a la carpeta del seu múscul, a la del material, i a <strong>Els nostres exercicis</strong> (per bloc). Aquí, la casella <em>Només els nostres</em> us els ensenya sols. Amb Microsoft 365 es desen a l'Excel del centre i els veu tot l'equip.</p>
+    </details>
     <div class="filters">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca exercicis…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
+      <label class="check"><input type="checkbox" checked=${own} onChange=${(e) => setOwn(e.currentTarget.checked)} /> Només els nostres (${Store.exercises().filter(isOwnExercise).length})</label>
       <${Seg} value=${blk} onValue=${setBlk} ariaLabel="Bloc" options=${[{ v: '', label: 'Tots' }, ...BLOCKS.map((b) => ({ v: b.key, label: `${b.num}. ${blockName(b.key)}` }))]} allowEmpty=${false} class="seg-wrap" />
       <${Seg} value=${view} onValue=${setView} ariaLabel="Vista" allowEmpty=${false}
         options=${[{ v: 'eon', label: 'Exercicis EON', title: 'Els vostres exercicis gravats, per blocs: 1.0, 1.1, 1.2…' }, { v: 'llista', label: 'Llista' }, { v: 'graella', label: 'Miniatures', title: 'Tots els exercicis amb el dibuix o la foto' }, { v: 'musculs', label: 'Per grup muscular', title: 'Tren superior, tren inferior i core, múscul per múscul' },
@@ -46,7 +58,7 @@ function ExerciseList() {
       ${view === 'graella' ? html`<div class="xb-grid xb-grid-lib">${all.filter((e) => e.block === b.key).map((e) => html`<${ExCard} e=${e} onClick=${() => openExercise(e)} sub=${e.material || ''} />`)}</div>`
       : html`<div class="exlist">${all.filter((e) => e.block === b.key).map((e) => html`<button type="button" class="exrow" onClick=${() => openExercise(e)}>
         <${ExThumb} ex=${e} size=${44} />
-        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
+        <span class="exrow-name"><${CodeChip} e=${e} />${e.name}${e.level && html` <span class="lvl-chip">N${e.level}</span>`}${isOwnExercise(e) && html` <span class="own-chip">Nostre</span>`}${e.video && html` <${Icon} name="video" size=${14} />`}</span>
         <span class="exrow-meta">${[e.family || e.cat, e.material, e.gm].filter(Boolean).join(' · ')}</span>
         <span class="exrow-rx">${Calc.presc(e)}</span>
       </button>`)}</div>`}
@@ -130,6 +142,7 @@ function ExerciseDialog({ ex, init, onClose }) {
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const save = () => {
     if (!f.name.trim()) { UI.toast('Escriu el nom de l\'exercici.', 'bad'); return; }
+    if (!f.gm && !(f.muscles || []).length && !Calc.codeKey(f.code)) { UI.toast('Tria el múscul principal: és la carpeta on sortirà l\'exercici.', 'bad'); return; }
     const rec = { ...f, name: f.name.trim() };
     delete rec.seed;
     Store.put('exercises', rec, { immediate: true });
@@ -147,6 +160,9 @@ function ExerciseDialog({ ex, init, onClose }) {
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="check" onClick=${save}>Desa</${Btn}>`}>
     <${ThumbEditor} f=${f} setF=${setF} />
+    <div class="explaces" aria-live="polite"><${Icon} name="folder" size=${16} /><div><strong>On sortirà a «Afegeix exercici»</strong>
+      ${f.gm || (f.muscles || []).length || f.material ? html`<ul>${exercisePlaces({ ...f, id: f.id }).map((x) => html`<li>${x}</li>`)}</ul>`
+        : html`<p class="muted small">Tria el bloc, el múscul principal i el material: aquí veuràs a quines carpetes surt.</p>`}</div></div>
     <div class="form-grid">
       <${Field} label="Nom" id="ex-name" wide=${true}><${TextInput} id="ex-name" value=${f.name} onValue=${set('name')} autoFocus=${!ex} /></${Field}>
       <${Field} label="Nom a l'app de Technogym" id="ex-tg" wide=${true}><${TextInput} id="ex-tg" value=${f.tg} onValue=${set('tg')} placeholder="Si és d'un material Technogym, el nom que hi surt (per trobar-lo ràpid)" /></${Field}>

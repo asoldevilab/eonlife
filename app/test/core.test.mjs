@@ -445,6 +445,17 @@ test('miniatures: cada exercici té un pictograma propi amb el material', async 
   assert.equal(keyOf('Alliberament miofascial del quàdriceps · cercles'), 'roll_prone');
   assert.equal(keyOf('Exercici nou', { gm: 'Bíceps' }), 'curl');
   assert.equal(keyOf('Back squat', { pic: 'bench' }), 'bench');
+  // Revisió dels dibujos: cada exercici amb la postura que toca
+  assert.equal(keyOf('Curl femoral amb lliscadors Flowin'), 'slide_curl');
+  assert.equal(keyOf('Curl femoral amb fitball'), 'bridge_ball');
+  assert.equal(keyOf('Kettlebell snatch'), 'ohpress');
+  assert.equal(keyOf('Arrencada completa (snatch)'), 'squat_oh');
+  assert.equal(keyOf('Flexions inclinades (mans elevades)'), 'pushup_incline');
+  assert.equal(keyOf('Elevació de talons amb genoll flexionat (soli)'), 'calf_bent');
+  assert.equal(keyOf('Elevació de talons bipodal'), 'calf');
+  assert.equal(keyOf('Fons de tríceps al banc'), 'dip');
+  assert.ok(/class="pgl"/.test(P.exercisePicSvg({ name: 'Bisagra de maluc amb pica', material: 'Pica' })), 'la pica al llarg de l\'esquena');
+  assert.equal(P.picGearOf({ name: 'Curl femoral amb lliscadors Flowin', material: 'Lliscadors Flowin' }, 'slide_curl').kind, 'sliders');
   assert.equal(P.picGearOf({ name: 'Goblet squat', material: 'Kettlebell' }, 'squat').kind, 'kb');
   assert.equal(P.picGearOf({ name: 'Monster walk · banda als genolls', material: 'Loop band Technogym' }, 'side_step').at, 'knees');
   assert.equal(P.picGearOf({ name: 'Rem inclinat al Power Personal', material: 'Power Personal Technogym' }, 'row').kind, 'bar');

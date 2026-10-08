@@ -115,7 +115,10 @@ Consells:
   - **Patrons unilaterals de la Sessió 1** (Lunge, Lateral Lunge i Copenhagen Plank): dos vídeos, el de la dreta
     i el de l'esquerra.
 
-  Les fotos surten a l'informe, al costat de l'anàlisi postural, i els vídeos, a l'apartat de vídeos de la pantalla
+  Les fotos surten a l'informe (també al PDF i en paper), al costat de l'anàlisi postural, **retallades amb IA**: l'app
+  troba la persona sencera a la foto i l'enquadra en vertical, amb una mica d'aire; si no la detecta bé, surt la foto
+  sencera. La detecció es fa a la mateixa tauleta (cap foto surt de l'aparell) i es recorda, i la primera vegada
+  baixa el detector (uns 14 MB). Els vídeos, i les seves captures, només surten a l'apartat de vídeos de la pantalla
   (al PDF per al client no hi surten), amb el costat al nom. A l'Excel hi ha l'enllaç de cada foto i de cada vídeo.
 - **Informes i fitxers**: *Adjunta l'informe de Kinvent* puja el PDF desat a la tauleta a *Valoracions*
   de la carpeta del client (`informekinvent_…_01.pdf`) (amb Microsoft 365). Els valors de dreta i esquerra s'escriuen igualment als tests.
@@ -433,6 +436,18 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   S'obre la fitxa de l'exercici nou amb el nom ja escrit: trieu el bloc, el múscul i el material, i enganxeu
   l'enllaç de YouTube a **Vídeo de demostració**. La miniatura serà la imatge del vídeo. També es pot crear des
   d'«Afegeix exercici» a la sessió.
+- **Els vostres exercicis** (*Biblioteca › Com afegir els vostres exercicis* ho explica també a l'app):
+  1. **Biblioteca › Nou exercici**, o dins d'una sessió **Afegeix exercici ›** una carpeta **› Nou exercici en
+     aquesta carpeta** (ja hi posa el múscul o el material de la carpeta).
+  2. Nom, **bloc** (1 a 6), **múscul principal** (obligatori: és la carpeta on surt) i els altres músculs que treballa,
+     i el **material** amb què es pot fer. A dalt del formulari, **On sortirà a «Afegeix exercici»** ensenya en directe
+     les carpetes: *Tren inferior › Gluti major*, *Per material › Kettlebell*, *Els nostres exercicis › 4 · Força principal*…
+  3. Vídeo de YouTube (en serà la miniatura) o, si no, un dibuix o una foto d'un entrenador.
+  4. Opcional: família i nivell (botons ▲ ▼ de progressió), prescripció per defecte i consignes.
+
+  Surten a la carpeta del seu múscul i del seu material, i a la carpeta **Els nostres exercicis** (per bloc). A la
+  biblioteca, la casella **Només els nostres** els ensenya sols i porten l'etiqueta *Nostre*. Amb Microsoft 365 es desen
+  a l'Excel del centre i els veu tot l'equip.
 - **Plantilles** de bloc i de sessió. Qualsevol sessió es pot desar com a plantilla des del seu menú.
 
 ### Miniatures dels exercicis
@@ -451,6 +466,11 @@ Per canviar-la, obre l'exercici a la biblioteca:
 - **Treu la foto** torna al dibuix.
 
 Els dibuixos són propis de l'app; no són imatges de Technogym ni de cap altra aplicació.
+
+Els ~400 dibuixos es van revisar un a un (octubre de 2026): fons de tríceps al banc, ab wheel, bicicleta, extensió de
+maluc dempeus, superman, curl femoral amb lliscadors, kettlebell snatch, bisagra amb pica (la pica a l'esquena),
+flexions amb les mans al banc i elevació de talons amb genolls flexionats. Si en veieu un que no s'entengui, digueu-ne
+el nom (o feu-ne una captura): es corregeix el dibuix o, per a aquell exercici, **Canvia el dibuix**.
 
 ## Actualitzacions de l'app
 

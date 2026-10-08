@@ -4,3 +4,4 @@ node_modules/
 captures/
 app/test/openxml-validator/bin/
 app/test/openxml-validator/obj/
+dist/m365/ai/
