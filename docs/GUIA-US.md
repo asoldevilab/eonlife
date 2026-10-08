@@ -329,6 +329,24 @@ d'abans i una d'ara (per defecte la primera i l'última feta) i surt, bloc per b
 
 Es pot posar a pantalla completa o desar en PDF.
 
+## Informes d'evolució i disseny clar o fosc
+
+- **Informe de tests** (pestanya *Valoracions › Informe de tests*, o el menú **⋯** de la fitxa): tries el **rang de
+  dates** (o *Tot*, *Últims 3 mesos*, *Últims 6 mesos*, *Aquest any*) i **els tests** que vols, agrupats per apartat
+  (Mobilitat, Força, Rendiment, Patrons i General), amb *Tots* / *Cap* a cada apartat. Per a cada test surt el canvi del
+  primer al darrer valor (▲ verd si ha millorat, ▼ vermell si ha empitjorat; el pes no té direcció), una **gràfica
+  d'evolució** (dreta i esquerra si és bilateral) i la taula amb cada valoració i l'asimetria. Les gràfiques es poden
+  treure amb la casella *Gràfiques d'evolució de cada test*. El PDF es diu `informeevoluciotests_nomcognoms_aaaammdd_01.pdf`
+  i, amb Microsoft 365, es desa a *Valoracions* de la carpeta del pacient.
+- **Informe d'evolució de les sessions** (pestanya *Sessions › Informe d'evolució*): l'**RPE**, el **dolor en acabar
+  (EVA)** i el **wellness** que el pacient omple a cada sessió, en un rang de dates (per defecte, els últims 3 mesos).
+  Resum amb les mitjanes i si pugen o baixen, una gràfica de cada dada, opcionalment el wellness pregunta per pregunta i
+  la càrrega (RPE × minuts), i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Sessions*.
+- **Clar o fosc**: a la barra de qualsevol informe (el de la valoració i aquests dos) hi ha **Clar | Fosc**. El fosc fa
+  servir els colors d'EON Life al revés: **fons granat** i text crema (dreta en rosa i esquerra en daurat). Es recorda
+  per a cada pacient, i el PDF i el paper surten igual que a la pantalla.
+- Els **comentaris del professional** no surten mai en cap d'aquests informes.
+
 ## Seguiment mensual
 
 Pestanya **Seguiment mensual** de la fitxa del client (el mateix que l'Excel de control). També hi surten les

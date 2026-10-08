@@ -14,6 +14,7 @@ Substitueix l'Excel mensual per client, la plantilla de sessió, la plantilla de
 | Ficha de sesión / `12_FICHA_SESION` | Sessió de **6 blocs**: Mobilitat · Activació · Potència · Força principal · Accessoris · Tornada a la calma · **fitxa per al client** en pantalla o PDF |
 | Excel mensual (Obj, RPE, T, Càrrega, Obs) | **Seguiment mensual**: calendari, càrrega RPE × minuts, resum setmanal i progressió de càrregues, i **Planifica el mes** per dissenyar sessions futures |
 | L'Excel de control de cada client (un full per mes) i els de sessions i valoracions | **Excel del client automàtic**: l'app en fa un per client (`seguiment_…_01.xlsx`) amb el resum, un full per mes amb el calendari i les sessions senceres, el registre i les valoracions, i amb Microsoft 365 el deixa a la carpeta del client |
+| Informes d'evolució fets a mà | **Informe de tests** (tests i dates triats, gràfica i taula per test) i **informe d'evolució de les sessions** (RPE, dolor EVA i wellness), en disseny clar o fosc (granat), en PDF a la carpeta del pacient |
 | Full *DB* (dates IQ i lesió) | Dates clau a la fitxa del client amb dies i setmanes |
 | Taules centrals amb `PATIENT_ID` (Kinvent ROM, dinamometria, Y-Balance, My Jump…) | **Base de dades** dins de l'app, amb una taula per àrea i botó «+ Afegeix», i el mateix a un full de càlcul central (una fila per registre, una columna per test) |
 

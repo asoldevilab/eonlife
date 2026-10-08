@@ -52,6 +52,8 @@ function renderRoute(r) {
     case 'valoracio': return html`<${AssessmentEditor} id=${a} focus=${b} />`;
     case 'dades': return html`<${DatabaseView} table=${a || 'valoracions'} pid=${b || ''} />`;
     case 'informe': return html`<${AssessmentReport} id=${a} scope=${b || 'tot'} />`;
+    case 'informetests': return html`<${TestsReport} key=${a} pid=${a} />`;
+    case 'informesessions': return html`<${SessionsReport} key=${a} pid=${a} />`;
     case 'sessio': return html`<${SessionEditor} id=${a} />`;
     case 'fitxa': return html`<${SessionSheet} id=${a} />`;
     case 'biblioteca': return html`<${LibraryView} tab=${a || 'exercicis'} />`;

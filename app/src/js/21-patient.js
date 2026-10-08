@@ -43,6 +43,8 @@ function PatientView({ id, tab = 'resum' }) {
         <${ExcelMenu} p=${p} />
         <${Menu} items=${[
           { label: 'Edita les dades', icon: 'edit', onClick: () => setTab('fitxa') },
+          { label: 'Informe de tests', icon: 'chart', onClick: () => go('informetests', p.id) },
+          { label: 'Informe d\'evolució de les sessions', icon: 'chart', onClick: () => go('informesessions', p.id) },
           { sep: true },
           { label: 'Elimina el pacient', icon: 'trash', danger: true, onClick: remove },
         ]} />
@@ -194,6 +196,7 @@ function PatientSessions({ p, sessions }) {
   return html`<section class="card">
     <div class="card-head"><h2 class="h2">Sessions</h2>
       <div class="inline">
+        <${Btn} icon="chart" onClick=${() => go('informesessions', p.id)}>Informe d'evolució</${Btn}>
         <${Btn} icon="calendar" onClick=${() => openPlanMonth(p, U.monthKey(U.today()))}>Planifica el mes</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
       </div></div>
@@ -222,7 +225,10 @@ function PatientAssessments({ p, assessments }) {
   return html`<div class="stack">
     <section class="card">
       <div class="card-head"><h2 class="h2">Valoracions</h2>
-        <${Btn} variant="primary" icon="clipboard" onClick=${() => createAssessment(p.id)}>${list.length ? 'Nou re-test' : 'Valoració inicial'}</${Btn}></div>
+        <div class="inline">
+          ${list.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('informetests', p.id)}>Informe de tests</${Btn}>`}
+          <${Btn} variant="primary" icon="clipboard" onClick=${() => createAssessment(p.id)}>${list.length ? 'Nou re-test' : 'Valoració inicial'}</${Btn}>
+        </div></div>
       ${list.length ? html`<div class="alist">${list.map((a) => {
         const c = Calc.cmj(a), pc = Calc.patterns(a), al = Calc.alerts(a);
         return html`<div class="arow">
