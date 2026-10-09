@@ -112,6 +112,17 @@ const ReportPdf = (() => {
     } catch (e) { return ''; }
   }
 
+  // Els dibuixos SVG (pictogrames, gràfiques) es pinten amb classes i variables de color (fill: var(--pic-body)…): en fer-ne la
+  // imatge de la pàgina el color es perdia i tot sortia negre. S'hi posa ja resolt, com a estil propi de cada element.
+  const SVG_PAINT = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'opacity', 'fill-opacity', 'stroke-opacity', 'stop-color', 'font-size', 'font-weight', 'font-family', 'text-anchor'];
+  function paintSvg(root) {
+    for (const el of root.querySelectorAll('svg *')) {
+      if (!(el instanceof SVGElement) || /^(animate|animateTransform|set|style|title|desc|defs)$/i.test(el.tagName)) continue;
+      const cs = getComputedStyle(el);
+      for (const k of SVG_PAINT) { const v = cs.getPropertyValue(k); if (v) el.style.setProperty(k, v); }
+    }
+  }
+
   const toBytes = (canvas, quality) => new Promise((ok, ko) => canvas.toBlob((b) => (b ? b.arrayBuffer().then((x) => ok(new Uint8Array(x)), ko) : ko(new Error('No s\'ha pogut fer la imatge de la pàgina.'))), 'image/jpeg', quality));
 
   // source: l'element de l'informe a la pantalla. Retorna els bytes del PDF.
@@ -156,6 +167,7 @@ const ReportPdf = (() => {
       for (const el of [...doc.querySelectorAll('video, iframe, audio')]) el.remove();
       for (const el of [...doc.querySelectorAll('*')]) if (el.isConnected && getComputedStyle(el).display === 'none') el.remove();
       urls = await localImages(doc);
+      paintSvg(doc);
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       const cuts = breaks(doc);
       const n = cuts.length - 1;

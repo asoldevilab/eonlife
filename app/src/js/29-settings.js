@@ -93,6 +93,8 @@ function SettingsView() {
 
     <${ExcelSettingsCard} />
 
+    <${PdfSettingsCard} />
+
     <${PicMotionCard} />
 
     <section class="card">

@@ -64,6 +64,42 @@ function SyncBadge({ pid }) {
   </div>`;
 }
 
+// Estat dels PDF dels informes d'un pacient (només amb Microsoft 365).
+async function pdfNow(pid, force) {
+  try {
+    const r = await PdfSync.now(pid, { force });
+    const bits = [];
+    if (r.made) bits.push(`${U.plural(r.made, 'PDF fet', 'PDF fets')}`);
+    if (r.archived) bits.push(`${U.plural(r.archived, 'PDF mogut', 'PDF moguts')} a «Arxiu»`);
+    UI.toast(bits.length ? `${bits.join(' · ')} a la carpeta «Informes».` : 'Els PDF del pacient ja eren al dia.');
+    if (r.failed) UI.toast(`No s'${r.failed === 1 ? 'ha' : 'han'} pogut fer ${U.plural(r.failed, 'PDF', 'PDF')}${r.failedNames && r.failedNames.length ? ` (${r.failedNames.join(', ')})` : ''}: revisa les dades d'aquest pacient.`, 'bad');
+  } catch (e) {
+    UI.toast(e.message, 'bad');
+  }
+}
+
+function PdfBadge({ pid }) {
+  const [, force] = useState(0);
+  useEffect(() => PdfSync.subscribe(() => force((n) => n + 1)), []);
+  useEffect(() => { const t = setInterval(() => force((n) => n + 1), 30000); return () => clearInterval(t); }, []);
+  const st = PdfSync.info(pid);
+  if (st.state === 'off') return null;
+  const map = {
+    running: ['neutral', 'refresh', st.step || 'Fent els PDF dels informes…'],
+    pending: ['warn', 'clock', 'PDF dels informes pendents (es fan sols)'],
+    error: ['bad', 'alert', `PDF dels informes sense desar: ${st.error}`],
+    partial: ['warn', 'alert', 'No s\'ha pogut fer algun PDF: revisa les dades d\'aquest pacient'],
+    ok: ['ok', 'note', `PDF dels informes al dia · ${agoText(st.last && st.last.at)}`],
+    never: ['neutral', 'note', 'PDF dels informes encara no fets'],
+    paused: ['neutral', 'note', 'PDF dels informes en pausa'],
+  };
+  const [tone, icon, text] = map[st.state] || map.never;
+  return html`<div class="syncbadge" role="status">
+    <${Pill} tone=${tone} icon=${icon}>${text}</${Pill}>
+    ${st.state !== 'running' && html`<button type="button" class="link" onClick=${() => pdfNow(pid)}>Fes-los ara</button>`}
+  </div>`;
+}
+
 // Elements de menú per a un client: pujar ara, obrir a la carpeta i descarregar.
 function excelMenuItems(pid) {
   const items = [];
@@ -75,6 +111,13 @@ function excelMenuItems(pid) {
     if (last.fileUrl) items.push({ label: 'Obre l\'Excel del pacient', icon: 'table', onClick: open(last.fileUrl) });
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
+  }
+  if (PdfSync.available()) {
+    items.push({ sep: true });
+    items.push({ label: 'Fes ara els PDF dels informes', icon: 'note', onClick: () => pdfNow(pid) });
+    items.push({ label: 'Refés tots els PDF d\'aquest pacient', icon: 'refresh', onClick: () => pdfNow(pid, true) });
+    const pl = (PdfSync.info(pid).last || {}).folderUrl;
+    if (pl) items.push({ label: 'Obre la carpeta «Informes»', icon: 'folder', onClick: open(pl) });
   }
   if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
@@ -216,5 +259,28 @@ function ExcelSettingsCard() {
       ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'pacient té l\'Excel pendent', 'pacients tenen l\'Excel pendent')} de pujar.</p>`}
       <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja l'Excel de tots els pacients</${Btn}></div>`
       : html`<p class="muted">En aquesta versió (sense carpeta al núvol) l'Excel del pacient es descarrega des de la seva fitxa (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es puja sol a la carpeta del pacient.</p>`}
+  </section>`;
+}
+
+// ── Configuració: PDF dels informes ──
+function PdfSettingsCard() {
+  const [, force] = useState(0);
+  useEffect(() => PdfSync.subscribe(() => force((n) => n + 1)), []);
+  const cloud = PdfSync.available();
+  const on = Store.settings.autoPdf !== false;
+  const toggle = (v) => Store.saveSettings({ autoPdf: v });
+  const all = (f) => { const n = PdfSync.all({ force: f }); UI.toast(`Es miren els PDF de ${U.plural(n, 'pacient', 'pacients')}. Pot tardar uns minuts.`); };
+  return html`<section class="card">
+    <div class="card-head"><h2 class="h2">PDF dels informes</h2>
+      <${Pill} tone=${cloud ? (on ? 'ok' : 'warn') : 'neutral'} icon="note">${cloud ? (on ? 'Automàtic' : 'En pausa') : 'Només manual'}</${Pill}></div>
+    <p>L'app fa sola els <strong>PDF dels informes</strong> de cada pacient i els deixa a la seva carpeta, dins <em>Informes</em>: a <em>Valoracions</em>, un per valoració; a <em>Tests</em>, un sol PDF amb l'evolució dels tests; i a <em>Sessions</em>, un per sessió feta i un amb l'evolució de les sessions. Surten en el disseny (clar o fosc) que té el pacient.</p>
+    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Fes-los i desa'ls sols a la carpeta de cada pacient</span></label>
+      <p class="muted small">Quan algú canvia una valoració, una sessió o les dades del pacient, i fa un minut que no hi toca, l'app refà només els PDF que han canviat i substitueix el fitxer (el nom és sempre el mateix: no se'n fan còpies). Si s'esborra una valoració o una sessió, el seu PDF <strong>no s'esborra</strong>: es mou a <em>Informes › Arxiu</em>. Les sessions només tenen PDF quan són <em>fetes</em>. Només es fan amb l'app oberta i visible.</p>
+      ${PdfSync.queued() > 0 && html`<p class="muted">${U.plural(PdfSync.queued(), 'pacient té els PDF pendents', 'pacients tenen els PDF pendents')} de fer.</p>`}
+      <div class="row-actions">
+        <${Btn} icon="note" disabled=${!on} onClick=${() => all(false)}>Fes ara els PDF de tots els pacients</${Btn}>
+        <${Btn} variant="ghost" icon="refresh" disabled=${!on} onClick=${() => all(true)}>Refés-los tots (encara que no hagin canviat)</${Btn}>
+      </div>`
+      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) el PDF d'un informe es descarrega des del botó <em>Descarrega el PDF</em> de cada informe. Amb Microsoft 365 es fan i es desen sols a la carpeta del pacient.</p>`}
   </section>`;
 }

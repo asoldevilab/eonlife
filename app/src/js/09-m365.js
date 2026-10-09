@@ -905,6 +905,12 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || name, url: (item && item.webUrl) || '' };
   }
 
+  // Mou un fitxer a una altra carpeta (si ja hi ha un fitxer amb el mateix nom, el que arriba pren un nom nou: no se'n perd cap).
+  async moveItem(itemId, parentId) {
+    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body: { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' } });
+    return { id: item && item.id, name: (item && item.name) || '', url: (item && item.webUrl) || '' };
+  }
+
   // Esborra un fitxer (va a la paperera de reciclatge de OneDrive/SharePoint, es pot recuperar).
   async removeItem(itemId) {
     try {
@@ -991,6 +997,7 @@ const M365Backend = {
   children(folderId) { return this.api.children(folderId); },
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
+  moveItem(itemId, parentId) { return this.api.moveItem(itemId, parentId); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
   // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
   // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:

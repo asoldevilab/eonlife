@@ -45,7 +45,7 @@ function AssessmentEditor({ id, focus }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); PdfSync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
       <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
