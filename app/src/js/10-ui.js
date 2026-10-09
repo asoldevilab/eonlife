@@ -91,7 +91,21 @@ function useId(prefix = 'f') {
 }
 
 function Field({ label, hint, children, class: c, id, wide }) {
-  return html`<div class=${U.cls('field', wide && 'field-wide', c)}>
+  // Si el camp de dins no té nom propi (ni id ni aria-label), el nom és l'etiqueta de dalt: així els lectors de pantalla
+  // i les eines d'accessibilitat sempre saben de quin camp es tracta.
+  const ref = useRef(null);
+  const lid = useId('fl');
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const lab = el.querySelector(':scope > label.field-label');
+    const inp = el.querySelector('input:not([type="hidden"]), select, textarea');
+    if (lab && inp && !inp.id && !inp.getAttribute('aria-label') && !inp.getAttribute('aria-labelledby')) {
+      lab.id = lab.id || lid;
+      inp.setAttribute('aria-labelledby', lab.id);
+    }
+  });
+  return html`<div ref=${ref} class=${U.cls('field', wide && 'field-wide', c)}>
     ${label && html`<label class="field-label" for=${id}>${label}</label>`}
     ${children}
     ${hint && html`<div class="field-hint">${hint}</div>`}

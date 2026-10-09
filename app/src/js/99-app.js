@@ -74,6 +74,10 @@ function App() {
     setV(Store.version); // per si les dades ja s'han carregat abans de subscriure's
     return off;
   }, []);
+  // Les taules que es desplacen de costat (mòbil) s'han de poder moure també amb el teclat.
+  useEffect(() => {
+    for (const el of document.querySelectorAll('.table-wrap:not([tabindex])')) if (el.scrollWidth > el.clientWidth + 1) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'region'); if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', 'Taula (es pot desplaçar)'); }
+  });
   useEffect(() => {
     // Amb Microsoft 365 els canvis pendents ja queden guardats a la tauleta: no cal avisar en sortir.
     const warn = (e) => { if (Store.pending() && !(Store.backend && Store.backend.outbox)) { e.preventDefault(); e.returnValue = ''; } };
