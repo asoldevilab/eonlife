@@ -92,7 +92,7 @@ Les seccions segueixen el document *Valoració funcional · Human Performance*:
 |---|---|---|
 | Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
 | Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i squeeze), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
-| Rendiment | CMJ (My Jump), Assault bike 30 s (fase 2) | Millor salt, mitjana, W/kg, RSI-mod, índex de fatiga |
+| Rendiment | CMJ (My Jump, amb importació del CSV), Assault bike 30 s (amb la foto de la pantalla) | Millor salt, mitjana, potència (My Jump o Sayers), W/kg, RSI-mod, variabilitat; watts, treball, distància, energia, índex de fatiga i comparació amb l'anterior |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
 | Altres mesures | Qualsevol mesura nova | Es desa també al full |
 
@@ -161,8 +161,44 @@ Consells:
 
   Amb *Adjunta també el PDF*, el PDF també queda desat a la valoració. Està provat amb l'informe en castellà, que és
   el que feu servir.
-- **Importa CSV de My Jump**: exporta el CSV des de My Jump Lab i puja'l; l'app detecta les
-  columnes (tipus de salt, altura, força, velocitat, potència, RSI-mod) i afegeix els intents.
+- **Importa CSV de My Jump** (a *Rendiment · Salts*): My Jump Lab exporta sempre **tots els atletes** del compte en un
+  mateix fitxer; no cal que el netegeu. Puja'l tal com surt i l'app:
+  - **Llegeix el nom** de cada fila i només n'agafa les del pacient (no importa l'ordre dels cognoms, els accents, les
+    majúscules ni una errada d'una lletra: «Soler Ferrer, Aina» també és «Aina Ferrer Soler»). El diàleg diu a qui ha
+    trobat i quantes files d'altres persones **no** importa; **les dades d'altres persones no es desen enlloc**.
+    Si no troba el nom (a My Jump s'ha escrit diferent), podeu triar a mà quin nom del fitxer és el del pacient.
+  - Ensenya els intents (marcats per defecte els del dia de la valoració, o els de l'última sessió que hi ha al
+    fitxer) i **només importa els que deixeu marcats**. Tornar a pujar el mateix fitxer no duplica res («ja importat»).
+  - Omple, per a cada intent, el tipus de salt, l'altura, el temps de vol, la velocitat, la força, la potència, el RSI-mod,
+    i (a la fletxa *Més dades* de cada fila) el pes i la distància d'empenta de My Jump, el temps fins al despegament,
+    el contacte, la càrrega, l'impuls, el DRI, el RSI i la rigidesa, la data i l'hora i el color d'*Estat de forma*.
+    Els números amb punt de milers (`1.671,98`) es llegeixen bé; un `---` o un `0,00` d'una mesura que My Jump no ha
+    pogut calcular queda en blanc (no es fa passar per una mesura).
+  - **Anàlisi** sota la taula (també a l'informe del pacient i a l'Excel): millor salt i mitjana, temps de vol, velocitat
+    d'enlairament (√(2·g·h)), potència (la de My Jump o, si no hi ha el pes de l'intent, la **pic estimada amb la fórmula
+    de Sayers** — 60,7·altura(cm) + 45,3·pes(kg) − 2055 — amb el pes de la valoració), W/kg, RSI-mod, variabilitat entre
+    intents (CV %) i la comparació amb la valoració anterior.
+  - **Avisos** (només per a qui introdueix les dades, no surten a l'informe): distància d'empenta fora de 0,10–0,60 m,
+    pes que My Jump no té, altura que no quadra amb el temps de vol i variabilitat alta entre intents.
+- **Assault bike 30 s all-out** (a *Rendiment*): caselles per als **watts pic, mitjans i mínims**, i per a les dades de
+  la pantalla de l'aparell: **temps, distància, calories, velocitat mitjana i RPM mitjanes**. Hi ha un interruptor de
+  **unitats** (milles / km): si a la pantalla sota la distància hi diu MILES (i la velocitat va en M/HR), són milles.
+  - **Omple amb una foto de la pantalla**: feu una foto de prop a la pantalla quan ensenya el resum de la prova (o trieu-la
+    de la galeria). Marqueu amb el dit els **quatre cantons del vidre** (dalt-esquerra, dalt-dreta, baix-dreta,
+    baix-esquerra; no cal que siguin exactes) i premeu *Llegeix la pantalla*. L'app «redreça» la imatge i llegeix els
+    números dígit a dígit (la lectura passa a la mateixa tauleta; la foto no surt enlloc). Es fan unes quantes lectures
+    movent una mica els cantons i es queda amb la que més es repeteix: cada casella diu **Llegit** o **Revisa-ho**.
+  - **Compareu sempre amb la pantalla dreçada** que surt al costat i corregiu el que calgui: *no es desa res fins que
+    premeu* **Aplica a la valoració**. Opcionalment, la foto es desa com a prova a la carpeta del pacient (a *Valoracions*).
+  - La pantalla **no porta** els watts pic ni mínims: es posen a mà (si no hi són, no es calcula l'índex de fatiga).
+  - **Càlculs** (a l'informe i a l'Excel): W/kg (pic i mitjana), la mitjana com a % del pic, **treball total** (kJ =
+    watts mitjans × temps), J/kg, distància en metres i velocitat en km/h, ritme d'energia (kcal/min i kcal/kg), índex de
+    fatiga i la comparació amb la valoració anterior. Els watts de la bicicleta d'aire no són comparables amb els d'un
+    Wingate: serveixen per comparar el pacient amb ell mateix.
+  - **Avisos**: temps que no és de 30 s, pic per sota de la mitjana, mínima per sobre de la mitjana, watts o RPM fora del
+    rang, una distància que no quadra amb la velocitat mitjana i el temps, i que falta el pes per fer els W/kg.
+  - Si no surt bé: si les lectures surten «Revisa-ho» repetidament, torneu a marcar els cantons (*Torna a marcar els
+    cantons*) o feu la foto més de cara i sense reflexos.
 - A **Conclusions i pla** hi ha els punts d'atenció calculats sols. Hi afegiu els punts forts,
   les prioritats, les decisions i la data del re-test (per defecte, 3 mesos després).
 - Al final, **Esforç percebut de la valoració**: l'RPE de 1 a 10 (1 = molt suau, 10 = esforç màxim). Surt a l'Excel

@@ -158,6 +158,151 @@ test('importació CSV de My Jump', () => {
   assert.equal(en.attempts[0].height, '35.1');
 });
 
+// El fitxer de My Jump porta TOTS els atletes del compte (noms inventats: cap dada real al repositori).
+const MJ_HEAD = 'Date;Team;Name;Body weight(kg);Push-off distance (hp0, in m);Jump type;Box height (m);Load (kg);Jump height (cm);RSI mod (m/s);Time to takeoff (ms);Flight time (ms);Contact time (ms);DRI;Force (N);Velocity (m/s);Power (W);Impulse (N*kg);Reactive strength index;Stiffness (kN/m);Readiness colour';
+const MJ_CSV = [
+  MJ_HEAD,
+  '6.10.2026, 14:12;CLUB;Aina Ferrer Soler;62,00;0,20;CMJ;0,00;0,00;28,70;---;---;483,75;0,00;---;1.371,98;1,19;1.483,63;166,10;0,00;0,00;green',
+  '6.10.2026, 14:20;CLUB;Aina Ferrer Soler;62,00;0,20;CMJ;0,00;0,00;30,10;---;---;496,00;0,00;---;1.401,10;1,21;1.530,00;170,00;0,00;0,00;yellow',
+  '6.10.2026, 20:52;CLUB;Marc Puig Vidal;0,00;1,05;CMJ;0,00;0,00;23,03;---;---;433,33;0,00;---;0,00;1,06;0,00;0,00;0,00;0,00;green',
+  '',
+].join('\n');
+const AINA = { firstName: 'Aina', lastName: 'Ferrer Soler' };
+
+test('My Jump: el fitxer porta tots els atletes i només s\'agafen les files del pacient', () => {
+  const r = C.parseMyJumpCsv(MJ_CSV, AINA);
+  assert.equal(r.error, null);
+  assert.equal(r.hasName, true);
+  assert.equal(r.attempts.length, 3);
+  assert.deepEqual([...r.match.names], ['Aina Ferrer Soler']);
+  assert.equal(r.match.attempts.length, 2);
+  assert.ok(r.match.attempts.every((x) => x.athlete === 'Aina Ferrer Soler'));
+  assert.equal(JSON.stringify(r.people.map((x) => [x.name, x.n])), JSON.stringify([['Aina Ferrer Soler', 2], ['Marc Puig Vidal', 1]]));
+  // Un pacient que no surt al fitxer: no se n'agafa cap fila (la persona tria el nom a mà).
+  const none = C.parseMyJumpCsv(MJ_CSV, { firstName: 'Júlia', lastName: 'Roca Mas' });
+  assert.deepEqual([...none.match.names], []);
+  assert.equal(none.match.attempts.length, 0);
+});
+
+test('My Jump: números amb punt de milers, zeros que no són mesures i data amb hora', () => {
+  const [a1, , marc] = C.parseMyJumpCsv(MJ_CSV, AINA).attempts;
+  assert.equal(a1.force, '1371,98');
+  assert.equal(a1.power, '1483,63');
+  assert.equal(a1.height, '28,70');
+  assert.equal(a1.bodyweight, '62,00');
+  assert.equal(a1.when, '2026-10-06T14:12');
+  assert.equal(a1.readiness, 'verd');
+  assert.equal(a1.rsimod, '');                // «---» = sense valor
+  assert.equal(a1.takeoff, '');
+  // Una força, potència o pes de 0,00 vol dir que My Jump no ho ha pogut calcular: no s'importa com si fos una mesura.
+  assert.equal(marc.force, '');
+  assert.equal(marc.power, '');
+  assert.equal(marc.bodyweight, '');
+  assert.equal(marc.pushoff, '1,05');
+  // Dues importacions del mateix intent es reconeixen (src).
+  assert.equal(a1.src, C.parseMyJumpCsv(MJ_CSV, AINA).attempts[0].src);
+  assert.notEqual(a1.src, C.parseMyJumpCsv(MJ_CSV, AINA).attempts[1].src);
+});
+
+test('My Jump: coincidència de noms (ordre, accents, majúscules, errades d\'una lletra)', () => {
+  const m = (n, p = AINA) => C.matchPersonName(n, p);
+  assert.ok(m('Aina Ferrer Soler') >= 0.9);
+  assert.ok(m('Ferrer Soler, Aina') >= 0.7);
+  assert.ok(m('SOLER FERRER AINA') >= 0.7);
+  assert.ok(m('aina ferrer') >= 0.7);
+  assert.ok(m('Aïna Ferrer Soler') >= 0.7);
+  assert.ok(m('Aina Ferrer Soller') >= 0.7);   // una l de més
+  assert.ok(m('Marc Puig Vidal') < 0.7);
+  assert.ok(m('Aina Roca Mas') < 0.7);          // només coincideix el nom de pila
+  assert.ok(m('Ferrer') < 0.7);
+});
+
+test('My Jump: anàlisi del CMJ (potència, temps de vol, variabilitat i comparació)', () => {
+  const rows = C.parseMyJumpCsv(MJ_CSV, AINA).match.attempts.map(({ athlete, ...x }) => x);
+  const a = { date: '2026-10-06', general: { weight: '62' }, jumps: { attempts: rows } };
+  const prev = { date: '2026-09-01', jumps: { attempts: [{ type: 'CMJ', height: '27,0' }] } };
+  const { CMJ } = Calc.jumpAnalysis(a, prev);
+  assert.equal(CMJ.n, 2);
+  assert.equal(CMJ.best, 30.1);
+  assert.equal(Math.round(CMJ.mean * 100) / 100, 29.4);
+  assert.equal(Math.round(CMJ.cv * 10) / 10, 3.4);
+  assert.equal(CMJ.powerKind, 'My Jump');
+  assert.equal(CMJ.power, 1530);
+  assert.equal(Math.round(CMJ.relPower * 10) / 10, 24.7);
+  assert.equal(Math.round(CMJ.hFlight * 10) / 10, 30.2);   // g·t²/8 amb 496 ms
+  assert.equal(Math.round(CMJ.vTo * 100) / 100, 2.43);
+  assert.equal(Math.round(CMJ.cmp.diff * 10) / 10, 3.1);
+  assert.equal(Math.round(CMJ.cmp.pct * 10) / 10, 11.5);
+  assert.deepEqual([...CMJ.warns], []);
+  assert.match(CMJ.lines[0], /^Millor CMJ: 30,1 cm \(mitjana 29,4 cm en 2 intents\)\.$/);
+  assert.ok(CMJ.lines.some((l) => /valoració anterior/.test(l) && /\+3,1 cm/.test(l)));
+});
+
+test('My Jump: sense el pes ni la potència de My Jump, s\'estima amb Sayers i s\'avisa de les dades dubtoses', () => {
+  const rows = C.parseMyJumpCsv(MJ_CSV, { firstName: 'Marc', lastName: 'Puig Vidal' }).match.attempts.map(({ athlete, ...x }) => x);
+  const { CMJ } = Calc.jumpAnalysis({ date: '2026-10-06', general: { weight: '77,2' }, jumps: { attempts: rows } }, null);
+  assert.equal(CMJ.powerKind, 'Sayers');
+  assert.equal(Math.round(CMJ.sayers), 2840);        // 60,7·23,03 + 45,3·77,2 − 2055
+  assert.equal(Math.round(CMJ.relPower * 10) / 10, 36.8);
+  assert.ok(CMJ.warns.some((w) => /1,05 m/.test(w)), 'avís de la distància d\'empenta');
+  assert.ok(CMJ.warns.some((w) => /pes d'aquest intent/.test(w)), 'avís del pes');
+  // Sense el pes de la valoració tampoc, no s'inventa res.
+  const none = Calc.jumpAnalysis({ date: '2026-10-06', jumps: { attempts: rows } }, null).CMJ;
+  assert.equal(none.sayers, null);
+  assert.equal(none.relPower, null);
+});
+
+const BIKE = { peak: '1100', mean: '915', min: '600', time: '30', dist: '0,2', unit: 'mi', cal: '21,1', speed: '34,7', rpm: '90' };
+
+test('Assault bike: càlculs amb les dades de la pantalla', () => {
+  const b = Calc.bike({ general: { weight: '80' }, bike: BIKE });
+  assert.equal(b.peak, 1100);
+  assert.equal(b.time, 30);
+  assert.equal(Math.round(b.distKm * 1000), 322);       // 0,2 milles
+  assert.equal(Math.round(b.speedKmh * 10) / 10, 55.8);  // 34,7 mi/h
+  assert.equal(Math.round(b.meanRel * 100) / 100, 11.44);
+  assert.equal(Math.round(b.peakRel * 100) / 100, 13.75);
+  assert.equal(Math.round(b.fatigue * 10) / 10, 45.5);
+  assert.equal(Math.round(b.meanPeak * 10) / 10, 83.2);
+  assert.equal(b.work, 27.45);                          // 915 W × 30 s
+  assert.equal(Math.round(b.workKg), 343);
+  assert.equal(Math.round(b.calMin * 10) / 10, 42.2);
+  assert.equal(Math.round(b.calKg * 1000) / 1000, 0.264);
+  // En km, la pantalla ja ho dona en km.
+  const k = Calc.bike({ bike: { ...BIKE, unit: 'km', dist: '0,32', speed: '55,8' } });
+  assert.equal(k.distKm, 0.32);
+  assert.equal(k.speedKmh, 55.8);
+  // Valoracions d'abans (només els watts) segueixen funcionant.
+  const old = Calc.bike({ general: { weight: '70' }, bike: { peak: '720', mean: '520', min: '390' } });
+  assert.equal(old.peak, 720);
+  assert.equal(Math.round(old.fatigue * 10) / 10, 45.8);
+  assert.equal(old.work, null);
+  assert.equal(old.any, true);
+  assert.equal(Calc.bike({}).any, false);
+});
+
+test('Assault bike: anàlisi, comparació amb l\'anterior i avisos', () => {
+  const a = { date: '2026-10-06', general: { weight: '80' }, bike: BIKE };
+  const prev = { date: '2026-07-06', general: { weight: '82' }, bike: { peak: '1000', mean: '800', min: '560', time: '30', unit: 'mi', dist: '0,18', speed: '31' } };
+  const an = Calc.bikeAnalysis(a, prev);
+  assert.deepEqual([...an.warns], []);
+  assert.ok(an.lines.some((l) => /^Potència mitjana 915 W \(11,4 W\/kg\)/.test(l)));
+  assert.ok(an.lines.some((l) => /Treball total 27,5 kJ en 30 s/.test(l)));
+  assert.ok(an.lines.some((l) => /Distància 0,2 milles \(322 m\)/.test(l) && /34,7 mi\/h \(55,8 km\/h\)/.test(l) && /90 RPM/.test(l)));
+  assert.ok(an.lines.some((l) => /Respecte de la valoració anterior/.test(l) && /potència mitjana \+115 W \(\+14,4 %\)/.test(l)));
+  assert.ok(an.more.length > 0 && an.more.length < an.lines.length + 3, 'l\'informe només porta el que les targetes no repeteixen');
+  assert.ok(!an.more.some((l) => /^Potència pic/.test(l)));
+  const warn = (bike, extra = {}) => Calc.bikeAnalysis({ general: { weight: '80' }, bike: { ...BIKE, ...bike }, ...extra }, null).warns.join(' | ');
+  assert.match(warn({ time: '20' }), /temps és de 20 s/);
+  assert.match(warn({ dist: '0,9' }), /no quadra amb la velocitat/);
+  assert.match(warn({ peak: '800' }), /pic és més baixa que la mitjana/);
+  assert.match(warn({ min: '950' }), /mínima és més alta que la mitjana/);
+  assert.match(warn({ mean: '40' }), /fora del rang habitual/);
+  assert.match(warn({ rpm: '10' }), /RPM/);
+  assert.match(Calc.bikeAnalysis({ bike: BIKE }, null).warns.join(' '), /Falta el pes/);
+  assert.equal(Calc.bikeAnalysis({}, null), null);
+});
+
 test('mode local: cada canvi es desa al navegador a l\'instant', async () => {
   const core = loadCore();
   await core.LocalBackend.init();

@@ -189,6 +189,10 @@ const DB = (() => {
       { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
       { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },
       { id: 'bikefat', group: 'Assault bike 30 s', label: 'Fatiga', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).fatigue },
+      { id: 'bikework', group: 'Assault bike 30 s', label: 'Treball', unit: 'kJ', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).work },
+      { id: 'bikedist', group: 'Assault bike 30 s', label: 'Distància', unit: 'm', kind: 'num', dec: 0, get: (r) => { const d = Calc.bike(r.a).distKm; return d != null ? d * 1000 : null; } },
+      { id: 'bikecal', group: 'Assault bike 30 s', label: 'Calories', unit: 'kcal', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).cal },
+      { id: 'bikerpm', group: 'Assault bike 30 s', label: 'RPM mitjanes', unit: 'RPM', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).rpm },
     ],
 
     patrons: () => [

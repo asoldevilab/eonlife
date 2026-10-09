@@ -123,16 +123,141 @@ const Calc = {
 
   cmj(a) { return Calc.jumps(a).CMJ || null; },
 
+  // Anàlisi dels salts per tipus: el millor intent, la variabilitat, el temps de vol i la velocitat d'enlairament, la
+  // potència (la de My Jump o, si no hi ha el pes, l'estimada amb la fórmula de Sayers i el pes de la valoració),
+  // el RSI-mod, l'evolució respecte de la valoració anterior i els avisos de dades dubtoses.
+  // lines: el que surt a l'informe (resultats); warns: només per a qui introdueix les dades.
+  jumpAnalysis(a, prev) {
+    const G = 9.81;
+    const list = ((a && a.jumps && a.jumps.attempts) || []).filter((x) => U.num(x.height) != null);
+    const w = Calc.weight(a);
+    const prevJumps = prev ? Calc.jumps(prev) : {};
+    const out = {};
+    const f1 = (n) => U.fmt(n, 1), f0 = (n) => U.fmt(n, 0);
+    for (const type of [...new Set(list.map((x) => x.type || 'CMJ'))]) {
+      const rows = list.filter((x) => (x.type || 'CMJ') === type);
+      const hs = rows.map((x) => U.num(x.height));
+      const best = Math.max(...hs);
+      const at = rows[hs.indexOf(best)];
+      const mean = hs.reduce((s, n) => s + n, 0) / hs.length;
+      const sd = hs.length > 1 ? Math.sqrt(hs.reduce((s, n) => s + (n - mean) ** 2, 0) / (hs.length - 1)) : null;
+      const cv = sd != null && mean ? (sd / mean) * 100 : null;
+      const num = (k) => U.num(at[k]);
+      const flight = num('flight');
+      const hFlight = flight ? (G * (flight / 1000) ** 2 / 8) * 100 : null;
+      const vTo = Math.sqrt(2 * G * (best / 100));
+      const mjMass = num('bodyweight');
+      const mass = mjMass || w || null;
+      const massFrom = mjMass ? 'My Jump' : w ? 'valoració' : null;
+      const power = num('power'), force = num('force');
+      const sayers = mass && type.startsWith('CMJ') ? 60.7 * best + 45.3 * mass - 2055 : null;
+      const takeoff = num('takeoff');
+      const rsimod = num('rsimod') != null ? num('rsimod') : takeoff ? (best / 100) / (takeoff / 1000) : null;
+      const pj = prevJumps[type];
+      const cmp = pj && pj.best != null ? { date: prev.date || '', best: pj.best, diff: best - pj.best, pct: pj.best ? ((best - pj.best) / pj.best) * 100 : null } : null;
+      const lines = [], warns = [];
+      lines.push(`Millor ${type}: ${f1(best)} cm${rows.length > 1 ? ` (mitjana ${f1(mean)} cm en ${rows.length} intents)` : ''}.`);
+      lines.push(`${flight ? `Temps de vol ${f0(flight)} ms · ` : ''}velocitat d'enlairament ${U.fmt(vTo, 2)} m/s.`);
+      let relPower = null, powerKind = '';
+      if (power != null) { powerKind = 'My Jump'; relPower = mass ? power / mass : null; lines.push(`Potència mitjana de l'empenta ${f0(power)} W${relPower != null ? ` (${f1(relPower)} W/kg)` : ''}.`); }
+      else if (sayers != null && sayers > 0) { powerKind = 'Sayers'; relPower = sayers / mass; lines.push(`Potència pic estimada (Sayers) ${f0(sayers)} W (${f1(relPower)} W/kg), amb ${f1(mass)} kg.`); }
+      if (force != null && mass) lines.push(`Força mitjana ${f0(force)} N (${U.fmt(force / (mass * G), 2)} vegades el pes).`);
+      if (rsimod != null) lines.push(`RSI-mod ${U.fmt(rsimod, 2)} m/s.`);
+      if (cv != null) lines.push(`Variabilitat entre intents: ${f1(cv)} %${cv < 5 ? ' (consistent)' : ''}.`);
+      if (cmp) lines.push(`Respecte de la valoració anterior${cmp.date ? ` (${U.fmtDate(cmp.date)})` : ''}: ${U.fmtSigned(cmp.diff, 1)} cm${cmp.pct != null ? ` (${U.fmtSigned(cmp.pct, 1)} %)` : ''}.`);
+      const color = at.readiness || (a.jumps && a.jumps.readiness) || '';
+      if (color) lines.push(`Estat de forma (My Jump): ${((OPT.readiness.find((o) => o.v === color) || {}).label || color).toLowerCase()}.`);
+      // Avisos de dades
+      const po = num('pushoff');
+      if (po != null && (po < 0.1 || po > 0.6)) warns.push(`La distància d'empenta és de ${U.fmt(po, 2)} m: és fora del rang habitual (0,10–0,60 m). Revisa-la a My Jump: afecta la força i la potència.`);
+      if (!mjMass && (power == null || force == null)) warns.push(`My Jump no té el pes d'aquest intent, per això no calcula la força ni la potència${w ? `; s'ha fet servir el pes de la valoració (${f1(w)} kg) per estimar-la` : '. Afegeix el pes a la valoració per estimar-la'}.`);
+      if (hFlight != null && Math.abs(best - hFlight) / best > 0.05) warns.push(`L'altura (${f1(best)} cm) no quadra amb el temps de vol (${f1(hFlight)} cm): revisa l'intent.`);
+      if (cv != null && cv > 8) warns.push(`La variabilitat entre intents és alta (${f1(cv)} %): potser cal repetir la prova.`);
+      out[type] = { type, n: rows.length, best, mean, sd, cv, flight, hFlight, vTo, mass, massFrom, power, force, sayers, relPower, powerKind, rsimod, cmp, color, lines, warns };
+    }
+    return out;
+  },
+
+  // Assault bike 30 s all-out. Les dades de la pantalla (temps, distància, calories, velocitat i RPM mitjanes) i els watts.
+  // La pantalla pot anar en milles o en km: la unitat (unit) es desa amb la distància i la velocitat.
   bike(a) {
     const b = (a && a.bike) || {};
     const w = Calc.weight(a);
     const peak = U.num(b.peak), mean = U.num(b.mean), min = U.num(b.min);
+    const time = U.num(b.time), cal = U.num(b.cal), rpm = U.num(b.rpm);
+    const unit = b.unit === 'km' ? 'km' : 'mi';
+    const k = unit === 'km' ? 1 : 1.609344;
+    const dist = U.num(b.dist), speed = U.num(b.speed);
     return {
-      peak, mean, min,
+      peak, mean, min, time, cal, rpm, unit, dist, speed, w,
+      distKm: dist != null ? dist * k : null,
+      speedKmh: speed != null ? speed * k : null,
       peakRel: peak != null && w ? peak / w : null,
       meanRel: mean != null && w ? mean / w : null,
       fatigue: peak && min != null ? ((peak - min) / peak) * 100 : null,
+      meanPeak: peak && mean != null ? (mean / peak) * 100 : null,
+      work: mean != null && time ? (mean * time) / 1000 : null,
+      workKg: mean != null && time && w ? (mean * time) / w : null,
+      calMin: cal != null && time ? cal / (time / 60) : null,
+      calKg: cal != null && w ? cal / w : null,
+      any: [peak, mean, min, time, cal, rpm, dist, speed].some((x) => x != null),
     };
+  },
+
+  // Anàlisi de la bicicleta: resultats (lines, tot el que es calcula), more (el que no repeteixen les targetes de l'informe),
+  // la comparació amb la valoració anterior i avisos de dades dubtoses (warns, només per a qui les introdueix).
+  // Retorna null si no hi ha cap dada.
+  bikeAnalysis(a, prev) {
+    const b = Calc.bike(a);
+    if (!b.any) return null;
+    const pb = prev ? Calc.bike(prev) : null;
+    const f0 = (n) => U.fmt(n, 0), f1 = (n) => U.fmt(n, 1);
+    const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
+    const lines = [], more = [], warns = [];
+    const add = (text, extra) => { lines.push(text); if (extra) more.push(text); };
+    if (b.mean != null) add(`Potència mitjana ${f0(b.mean)} W${b.meanRel != null ? ` (${f1(b.meanRel)} W/kg)` : ''}${b.meanPeak != null ? `: el ${f0(b.meanPeak)} % de la potència pic` : ''}.`, false);
+    if (b.meanPeak != null) more.push(`La potència mitjana és el ${f0(b.meanPeak)} % de la potència pic: com més a prop del 100 %, més sostinguda ha estat la potència.`);
+    if (b.peak != null) add(`Potència pic ${f0(b.peak)} W${b.peakRel != null ? ` (${f1(b.peakRel)} W/kg)` : ''}.`, false);
+    if (b.work != null) { add(`Treball total ${f1(b.work)} kJ en ${f0(b.time)} s${b.workKg != null ? ` (${f0(b.workKg)} J/kg)` : ''}.`, false); if (b.workKg != null) more.push(`Treball relatiu al pes: ${f0(b.workKg)} J/kg.`); }
+    {
+      const bits = [];
+      if (b.dist != null) bits.push(`distància ${U.fmt(b.dist, 2)} ${unitName}${b.unit === 'mi' ? ` (${f0(b.distKm * 1000)} m)` : ''}`);
+      if (b.speed != null) bits.push(`velocitat mitjana ${f1(b.speed)} ${speedUnit}${b.unit === 'mi' ? ` (${f1(b.speedKmh)} km/h)` : ''}`);
+      if (b.rpm != null) bits.push(`cadència mitjana ${f0(b.rpm)} RPM`);
+      if (bits.length) add(`${bits.join(' · ').replace(/^./, (c) => c.toUpperCase())}.`, false);
+    }
+    if (b.cal != null) {
+      add(`Energia ${f1(b.cal)} kcal${b.calMin != null ? ` (${f1(b.calMin)} kcal/min${b.calKg != null ? `, ${U.fmt(b.calKg, 2)} kcal/kg` : ''})` : ''}.`, false);
+      if (b.calMin != null) more.push(`Ritme d'energia: ${f1(b.calMin)} kcal/min${b.calKg != null ? ` (${U.fmt(b.calKg, 2)} kcal per kg de pes)` : ''}.`);
+    }
+    if (b.fatigue != null) add(`Índex de fatiga ${f1(b.fatigue)} % (de ${f0(b.peak)} W de pic a ${f0(b.min)} W de mínima): com més baix, més bona resistència a la fatiga.`, true);
+    if (pb && pb.any) {
+      const bits = [];
+      const cmp = (label, now, before, d, unit) => {
+        if (now == null || before == null) return;
+        const diff = now - before;
+        bits.push(`${label} ${U.fmtSigned(diff, d)} ${unit}${before ? ` (${U.fmtSigned((diff / before) * 100, 1)} %)` : ''}`);
+      };
+      cmp('potència mitjana', b.mean, pb.mean, 0, 'W');
+      cmp('pic', b.peak, pb.peak, 0, 'W');
+      cmp('W/kg mitjans', b.meanRel, pb.meanRel, 1, 'W/kg');
+      cmp('distància', b.distKm, pb.distKm, 2, 'km');
+      if (b.fatigue != null && pb.fatigue != null) bits.push(`fatiga ${U.fmtSigned(b.fatigue - pb.fatigue, 1)} punts`);
+      if (bits.length) add(`Respecte de la valoració anterior${prev.date ? ` (${U.fmtDate(prev.date)})` : ''}: ${bits.join(' · ')}.`, true);
+    }
+    // Avisos de dades
+    if (b.time != null && Math.abs(b.time - 30) > 2) warns.push(`El temps és de ${f0(b.time)} s: la prova és de 30 s all-out. Comprova que sigui el resum del final de la prova.`);
+    if (b.peak != null && b.mean != null && b.peak < b.mean) warns.push('La potència pic és més baixa que la mitjana: revisa-les.');
+    if (b.min != null && b.mean != null && b.min > b.mean) warns.push('La potència mínima és més alta que la mitjana: revisa-les.');
+    if (b.mean != null && (b.mean < 60 || b.mean > 1500)) warns.push(`La potència mitjana (${f0(b.mean)} W) és fora del rang habitual: revisa si s'ha llegit bé.`);
+    if (b.rpm != null && (b.rpm < 20 || b.rpm > 200)) warns.push(`Les RPM (${f0(b.rpm)}) són fora del rang habitual: revisa-les.`);
+    if (b.dist != null && b.speed != null && b.time) {
+      // Distància esperada = velocitat mitjana × temps. La pantalla treu un sol decimal: es deixa un marge d'una dècima i un 10 %.
+      const exp = (b.speed * b.time) / 3600;
+      if (Math.abs(exp - b.dist) > 0.1 + 0.1 * exp) warns.push(`La distància (${U.fmt(b.dist, 2)} ${unitName}) no quadra amb la velocitat mitjana i el temps (en sortirien unes ${U.fmt(exp, 2)} ${unitName}): revisa els números.`);
+    }
+    if (b.meanRel == null && (b.mean != null || b.peak != null)) warns.push('Falta el pes del pacient a la valoració: sense ell no es poden calcular els W/kg.');
+    return { ...b, lines, more, warns };
   },
 
   // Puntuació d'un patró: als unilaterals ens quedem amb el pitjor costat.
@@ -621,6 +746,8 @@ const Flat = {
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);
           o['Bike mitjana (W)'] = n(b.mean); o['Bike mitjana (W/kg)'] = n(b.meanRel);
           o['Bike índex de fatiga (%)'] = n(b.fatigue);
+          o['Bike temps (s)'] = n(b.time); o['Bike distància (km)'] = n(b.distKm); o['Bike calories (kcal)'] = n(b.cal);
+          o['Bike velocitat mitjana (km/h)'] = n(b.speedKmh); o['Bike RPM mitjanes'] = n(b.rpm); o['Bike treball (kJ)'] = n(b.work);
         }
         if (g.kind === 'patterns') {
           for (const pt of PATTERNS) {
@@ -769,18 +896,29 @@ function blockDesc(key, settings) {
 }
 
 // ── Importació de CSV de My Jump Lab ──
-// El CSV pot variar segons la versió i l'idioma de l'app: detectem les columnes pel nom.
+// El CSV pot variar segons la versió i l'idioma de l'app: detectem les columnes pel nom. L'exportació de My Jump Lab porta
+// TOTS els atletes del compte: es llegeix el nom de cada fila i només s'agafen les files del pacient (matchPersonName).
+// exact: la capçalera ha de ser igual (no només contenir-ho); zero: un 0 vol dir «no introduït» i es deixa buit.
 const MYJUMP_COLUMNS = [
-  { key: 'rsimod', label: 'RSI-mod', match: ['rsi mod', 'rsi-mod', 'rsimod', 'reactive strength index modified'] },
+  { key: 'name', label: 'Nom', match: ['name', 'nombre', 'nom', 'atleta', 'athlete', 'jugador', 'player', 'deportista', 'esportista'], exact: true },
+  { key: 'rsimod', label: 'RSI-mod', match: ['rsi mod', 'rsi-mod', 'rsimod', 'reactive strength index modified'], zero: true },
   { key: 'type', label: 'Tipus de prova', match: ['tipo de prueba', 'tipo de salto', 'tipo', 'test type', 'jump type', 'tipus', 'test', 'type'] },
   { key: 'date', label: 'Data / hora', match: ['fecha', 'date', 'data'] },
-  { key: 'load', label: 'Càrrega (kg)', match: ['carga', 'load'] },
+  { key: 'bodyweight', label: 'Pes (kg)', match: ['body weight', 'peso corporal', 'pes corporal', 'body mass', 'peso (kg)', 'pes (kg)'], zero: true },
+  { key: 'pushoff', label: 'Distància d\'empenta (m)', match: ['push-off', 'push off', 'pushoff', 'hp0', 'distancia de empuje'], zero: true },
+  { key: 'load', label: 'Càrrega (kg)', match: ['carga', 'load'], zero: true },
   { key: 'height', label: 'Altura (cm)', match: ['altura salto', 'altura del salto', 'jump height', 'height', 'altura'], exclude: /cajon|box|caida|drop/ },
-  { key: 'force', label: 'Força (N)', match: ['fuerza', 'force'], exclude: /indice|index|reactiv|rsi/ },
-  { key: 'velocity', label: 'Velocitat (m/s)', match: ['velocidad', 'velocity'] },
-  { key: 'power', label: 'Potència (W)', match: ['potencia', 'power'] },
-  { key: 'flight', label: 'Temps de vol (ms)', match: ['tiempo vuelo', 'tiempo de vuelo', 'flight time', 'flight'] },
-  { key: 'contact', label: 'Temps de contacte (ms)', match: ['tiempo contacto', 'tiempo de contacto', 'contact time', 'contact'] },
+  { key: 'takeoff', label: 'Temps fins al despegament (ms)', match: ['time to takeoff', 'time to take off', 'tiempo hasta el despegue', 'tiempo al despegue', 'temps fins'], zero: true },
+  { key: 'force', label: 'Força (N)', match: ['fuerza', 'force'], exclude: /indice|index|reactiv|rsi/, zero: true },
+  { key: 'velocity', label: 'Velocitat (m/s)', match: ['velocidad', 'velocity'], zero: true },
+  { key: 'power', label: 'Potència (W)', match: ['potencia', 'power'], zero: true },
+  { key: 'flight', label: 'Temps de vol (ms)', match: ['tiempo vuelo', 'tiempo de vuelo', 'flight time', 'flight'], zero: true },
+  { key: 'contact', label: 'Temps de contacte (ms)', match: ['tiempo contacto', 'tiempo de contacto', 'contact time', 'contact'], zero: true },
+  { key: 'dri', label: 'DRI', match: ['dri'], exact: true, zero: true },
+  { key: 'impulse', label: 'Impuls', match: ['impulse', 'impulso'], zero: true },
+  { key: 'rsi', label: 'RSI', match: ['reactive strength index', 'indice fuerza reactiva', 'indice de fuerza reactiva'], exclude: /mod/, zero: true },
+  { key: 'stiffness', label: 'Rigidesa (kN/m)', match: ['stiffness', 'rigidez', 'rigidesa'], zero: true },
+  { key: 'readiness', label: 'Estat de forma', match: ['readiness', 'estado de forma', 'estat de forma'] },
 ];
 
 function mapMyJumpHeader(headers) {
@@ -790,7 +928,7 @@ function mapMyJumpHeader(headers) {
   for (const col of MYJUMP_COLUMNS) {
     let found = -1;
     for (const m of col.match) {
-      found = norm.findIndex((hd, i) => !used.has(i) && hd.includes(m) && !(col.exclude && col.exclude.test(hd)));
+      found = norm.findIndex((hd, i) => !used.has(i) && (col.exact ? hd === m : hd.includes(m)) && !(col.exclude && col.exclude.test(hd)));
       if (found >= 0) break;
     }
     if (found >= 0) { map[col.key] = found; used.add(found); }
@@ -812,26 +950,99 @@ function normalizeJumpType(s) {
   return String(s).trim();
 }
 
-function parseMyJumpCsv(text) {
+// Un valor del CSV: buit si és «---» o ∞; els milers amb punt («1.671,98») es treuen; un 0 de les mesures que no s'han
+// introduït (pes, força, potència…) es deixa buit.
+function myJumpValue(col, val) {
+  let s = String(val == null ? '' : val).trim();
+  if (!s || s === '---' || s.includes('∞')) return '';
+  if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '');
+  if (col && col.zero && /^-?[\d.,]+$/.test(s) && U.num(s) === 0) return '';
+  return s;
+}
+
+// Data i hora del CSV: «6.10.2026, 14:12», «28/09/2026 10:00», «2026-09-28 10:00»… → { date: 'AAAA-MM-DD', time: 'HH:MM' }.
+function myJumpWhen(raw) {
+  const s = String(raw || '').trim();
+  let m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
+  let y, mo, d, hh = '', mm = '';
+  if (m) { d = +m[1]; mo = +m[2]; y = +m[3]; hh = m[4]; mm = m[5]; }
+  else if ((m = s.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})(?:[ ,T]+(\d{1,2}):(\d{2}))?/))) { y = +m[1]; mo = +m[2]; d = +m[3]; hh = m[4]; mm = m[5]; }
+  else return { date: '', time: '' };
+  if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return { date: '', time: '' };
+  const z = (n) => String(n).padStart(2, '0');
+  return { date: `${y}-${z(mo)}-${z(d)}`, time: hh != null && hh !== undefined && hh !== '' ? `${z(+hh)}:${mm}` : '' };
+}
+
+// ── Qui és cada fila: el nom del fitxer contra el del pacient ──
+const NAME_PARTICLES = new Set(['de', 'del', 'la', 'las', 'los', 'el', 'i', 'y', 'da', 'di', 'do', 'van', 'von', 'le']);
+function nameTokens(s) {
+  return [...new Set(U.norm(s).replace(/[^a-z0-9ñç\s'-]/g, ' ').replace(/['-]/g, ' ').split(/\s+/).filter((t) => t && !NAME_PARTICLES.has(t)))];
+}
+function editDistance(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (Math.abs(m - n) > 2) return 3;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+// Puntuació 0–1 de si el nom d'una fila del fitxer és el del pacient: sense importar l'ordre («Berruezo, David»), els accents,
+// les majúscules, ni un segon cognom que hi falti; tolera una errada d'una lletra als noms llargs. Amb un sol nom
+// («David») no n'hi ha prou per estar-ne segur: surt com a coincidència dèbil (0,4) perquè el triï la persona.
+function matchPersonName(fileName, patient) {
+  const a = nameTokens(fileName);
+  const b = nameTokens([patient && patient.firstName, patient && patient.lastName].filter(Boolean).join(' '));
+  if (!a.length || !b.length) return 0;
+  let common = 0, exact = 0;
+  const left = [...b];
+  for (const t of a) {
+    let k = left.indexOf(t);
+    if (k >= 0) { common++; exact++; left.splice(k, 1); continue; }
+    k = left.findIndex((u) => t.length >= 5 && u.length >= 5 && editDistance(t, u) <= 1);
+    if (k >= 0) { common++; left.splice(k, 1); }
+  }
+  if (common < 2) return common === 1 && a.length === 1 ? 0.4 : 0;
+  if (common === a.length && common === b.length) return exact === common ? 1 : 0.8;
+  if (common === Math.min(a.length, b.length)) return exact === common ? 0.9 : 0.75;
+  return 0.5;
+}
+
+function parseMyJumpCsv(text, patient) {
   const rows = U.parseCsv(text);
-  if (rows.length < 2) return { error: 'El fitxer no té files de dades.', attempts: [], map: {} };
+  if (rows.length < 2) return { error: 'El fitxer no té files de dades.', attempts: [], map: {}, people: [], match: null };
   // La capçalera és la primera fila que conté una columna d'altura o potència.
   let hi = rows.findIndex((r) => { const m = mapMyJumpHeader(r); return m.height != null || m.power != null; });
-  if (hi < 0) return { error: 'No trobo les columnes d\'altura o potència. Revisa que sigui l\'exportació CSV de My Jump Lab.', attempts: [], map: {} };
+  if (hi < 0) return { error: 'No trobo les columnes d\'altura o potència. Revisa que sigui l\'exportació CSV de My Jump Lab.', attempts: [], map: {}, people: [], match: null };
   const headers = rows[hi];
   const map = mapMyJumpHeader(headers);
-  const clean = (val) => {
-    const s = String(val == null ? '' : val).trim();
-    if (!s || s === '---' || s.includes('∞')) return '';
-    return s;
-  };
+  const colOf = Object.fromEntries(MYJUMP_COLUMNS.map((c) => [c.key, c]));
   const attempts = rows.slice(hi + 1).map((r) => {
-    const g = (k) => (map[k] != null ? clean(r[map[k]]) : '');
-    return {
+    const g = (k) => (map[k] != null ? myJumpValue(colOf[k], r[map[k]]) : '');
+    const when = myJumpWhen(g('date'));
+    const at = {
       id: U.uid('J'), type: normalizeJumpType(g('type')), load: g('load'), height: g('height'), rsimod: g('rsimod'),
       force: g('force'), velocity: g('velocity'), power: g('power'), flight: g('flight'), contact: g('contact'),
+      bodyweight: g('bodyweight'), pushoff: g('pushoff'), takeoff: g('takeoff'), dri: g('dri'), impulse: g('impulse'), rsi: g('rsi'), stiffness: g('stiffness'),
+      when: when.date ? `${when.date}${when.time ? `T${when.time}` : ''}` : '',
       note: g('date') ? `Importat · ${g('date')}` : 'Importat de My Jump',
     };
+    const color = U.norm(g('readiness'));
+    if (color) at.readiness = /green|verd|verde/.test(color) ? 'verd' : /yellow|groc|amarill|orange|taronja|naranja/.test(color) ? 'groc' : /red|vermell|rojo/.test(color) ? 'vermell' : '';
+    // Perquè la mateixa fila no es pugui importar dues vegades.
+    at.src = ['MyJump', at.when, at.type, at.height, at.flight].join('|');
+    at.athlete = g('name');
+    return at;
   }).filter((x) => x.height !== '' || x.power !== '');
-  return { headers, map, attempts, error: attempts.length ? null : 'No hi ha cap intent amb altura o potència.' };
+  // Persones del fitxer i quines coincideixen amb el pacient. Sense columna de nom (versions antigues) no es pot filtrar.
+  const hasName = map.name != null;
+  const counts = new Map();
+  for (const x of attempts) counts.set(x.athlete, (counts.get(x.athlete) || 0) + 1);
+  const people = hasName ? [...counts.entries()].filter(([n]) => n).map(([name, n]) => ({ name, n, score: patient ? matchPersonName(name, patient) : 0 })).sort((p, q) => q.score - p.score || p.name.localeCompare(q.name)) : [];
+  const names = people.filter((p) => p.score >= 0.7).map((p) => p.name);
+  return { headers, map, attempts, hasName, people, match: patient && hasName ? { names, attempts: attempts.filter((x) => names.includes(x.athlete)) } : null,
+    error: attempts.length ? null : 'No hi ha cap intent amb altura o potència.' };
 }

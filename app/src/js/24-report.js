@@ -30,9 +30,11 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const alerts = Calc.alerts(a);
   const cmj = Calc.cmj(a);
   const jumps = Calc.jumps(a);
+  const jumpAn = Calc.jumpAnalysis(a, prev);
   const ybt = Calc.ybt(a);
   const pc = Calc.patterns(a);
   const bike = Calc.bike(a);
+  const bikeAn = Calc.bikeAnalysis(a, prev);
   const hq = Calc.hq(a);
   const typeLabel = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
   const service = OPT.services.find((o) => o.v === p.service);
@@ -152,24 +154,30 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           </tbody></table></div>`}
       </section>`}
 
-      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null) && html`<section class="rsec">
+      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null || bike.mean != null) && html`<section class="rsec">
         <h2 class="rsec-title">Rendiment</h2>
         ${Object.keys(jumps).length > 0 && html`<h3 class="h3">Salts <span class="muted">· My Jump Lab</span></h3>
           <div class="jump-sum">${Object.entries(jumps).map(([type, sm]) => html`<div class="jump-card">
             <div class="jump-type">${type}</div>
             <div class="jump-best">${U.fmt(sm.best, 1)}<small> cm</small></div>
             <div class="jump-meta">Mitjana ${U.fmt(sm.mean, 1)} cm${sm.bestPower != null ? ` · ${U.fmt(sm.bestPower, 0)} W` : ''}${sm.relPower != null ? ` · ${U.fmt(sm.relPower, 1)} W/kg` : ''}${sm.bestRsi != null ? ` · RSI-mod ${U.fmt(sm.bestRsi, 2)}` : ''}</div>
-          </div>`)}</div>`}
+          </div>`)}</div>
+          ${Object.values(jumpAn).some((x) => x.lines.length > 1) && html`<ul class="rjump-analysis">${Object.values(jumpAn).flatMap((x) => x.lines.slice(1)).map((l) => html`<li>${l}</li>`)}</ul>`}`}
         ${enc.length > 0 && html`<h3 class="h3">Encoder <span class="muted">· velocitat d'execució</span></h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Exercici</th><th class="num">Càrrega</th><th class="num">Velocitat mitjana</th><th class="num">Potència</th></tr></thead>
           <tbody>${enc.map((r) => html`<tr><td>${r.name}</td><td class="num">${U.num(r.load) != null ? `${U.fmt(U.num(r.load), 1)} kg` : '—'}</td>
             <td class="num">${U.num(r.vel) != null ? `${U.fmt(U.num(r.vel), 2)} m/s` : '—'}</td><td class="num">${U.num(r.power) != null ? `${U.fmt(U.num(r.power), 0)} W` : '—'}</td></tr>`)}</tbody></table></div>`}
-        ${bike.peak != null && html`<h3 class="h3">Assault bike · 30 s all-out</h3>
+        ${(bike.peak != null || bike.mean != null) && html`<h3 class="h3">Assault bike · 30 s all-out</h3>
           <div class="kv-row">
-            <div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>
-            <div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>
-            <div class="kv"><span>Índex de fatiga</span><strong>${bike.fatigue != null ? `${U.fmt(bike.fatigue, 1)} %` : '—'}</strong></div>
-          </div>`}
+            ${bike.peak != null && html`<div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>`}
+            ${bike.mean != null && html`<div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>`}
+            ${bike.fatigue != null && html`<div class="kv"><span>Índex de fatiga</span><strong>${U.fmt(bike.fatigue, 1)} %</strong></div>`}
+            ${bike.work != null && html`<div class="kv"><span>Treball total</span><strong>${U.fmt(bike.work, 1)} kJ</strong></div>`}
+            ${bike.distKm != null && html`<div class="kv"><span>Distància</span><strong>${U.fmt(bike.distKm * 1000, 0)} m</strong>${bike.speedKmh != null && html`<small>${U.fmt(bike.speedKmh, 1)} km/h de mitjana</small>`}</div>`}
+            ${bike.cal != null && html`<div class="kv"><span>Energia</span><strong>${U.fmt(bike.cal, 1)} kcal</strong>${bike.calMin != null && html`<small>${U.fmt(bike.calMin, 1)} kcal/min</small>`}</div>`}
+            ${bike.rpm != null && html`<div class="kv"><span>Cadència mitjana</span><strong>${U.fmt(bike.rpm, 0)} RPM</strong></div>`}
+          </div>
+          ${bikeAn && bikeAn.more.length > 0 && html`<ul class="rjump-analysis">${bikeAn.more.map((l) => html`<li>${l}</li>`)}</ul>`}`}
       </section>`}
 
       ${show('patrons') && hasPatterns && html`<section class="rsec">

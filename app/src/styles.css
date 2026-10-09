@@ -711,6 +711,28 @@ input[type="search"].input { -webkit-appearance: none; }
 @media (max-width: 640px) { .block-focus { flex-basis: 100%; } }
 
 .bike .kv-row { margin-top: 14px; }
+.bike-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.bike .inline { margin-top: 12px; }
+.bike .tmedia { margin-top: 12px; }
+.lcd-stage { position: relative; display: inline-block; max-width: 100%; margin: 6px 0 10px; line-height: 0; border-radius: 12px; overflow: hidden; background: #000; }
+.lcd-stage img { display: block; max-width: 100%; max-height: 58vh; width: auto; height: auto; user-select: none; -webkit-user-drag: none; }
+.lcd-quad { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; user-select: none; }
+.lcd-poly { fill: rgba(231, 211, 205, 0.16); stroke: #fff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.lcd-handle { cursor: grab; }
+.lcd-hit { fill: transparent; }
+.lcd-dot { fill: var(--brand); stroke: #fff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.lcd-num { fill: #fff; font-weight: 800; pointer-events: none; font-family: inherit; }
+.lcd-n { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font-size: 12px; font-weight: 800; }
+.lcd-err { padding: 8px 12px; border-radius: 10px; background: var(--bad-bg); color: var(--bad-ink); font-weight: 600; }
+.lcd-result { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 18px; align-items: start; }
+.lcd-flat { display: grid; gap: 4px; justify-items: center; }
+.lcd-flat canvas { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.lcd-fields { display: grid; gap: 12px; min-width: 0; }
+.lcd-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; vertical-align: middle; }
+.lcd-ok { background: var(--ok-bg); color: var(--ok-ink); }
+.lcd-warn { background: var(--warn-bg); color: var(--warn-ink, #8A5A00); }
+.lcd-bad { background: var(--bad-bg); color: var(--bad-ink); }
+@media (max-width: 640px) { .lcd-result { grid-template-columns: 1fr; } .lcd-flat canvas { max-width: 180px; } }
 .fb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
 .computed { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--surface-2); font-weight: 650; font-variant-numeric: tabular-nums; }
 .computed .ic { color: var(--link); }
@@ -793,6 +815,14 @@ input[type="search"].input { -webkit-appearance: none; }
 .jump-best { font-size: 36px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; }
 .jump-best small { font-size: 16px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
 .jump-meta { font-size: 13px; color: var(--ink-2); }
+.jumps-extra td { padding-top: 0; background: var(--surface-2); }
+.jump-analysis { margin-top: 14px; padding: 12px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
+.jump-analysis .h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.analysis-list { margin: 0 0 6px; padding-left: 18px; display: grid; gap: 3px; }
+.analysis-warns { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.analysis-warns li { display: flex; gap: 8px; align-items: flex-start; padding: 7px 10px; border-radius: 10px; background: var(--warn-bg, var(--surface-3)); color: var(--warn-ink, var(--ink)); font-size: 13px; }
+.analysis-warns svg { flex: none; margin-top: 2px; }
+.rjump-analysis { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 2px; font-size: 13.5px; color: var(--ink-2); }
 
 .scale { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .scale-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; }
