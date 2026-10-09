@@ -13,7 +13,7 @@
   --line-2: #D2C9C0;
   --ink: #231416;
   --ink-2: #5B4A4B;
-  --ink-3: #8A7B78;
+  --ink-3: #716360;
   --brand: #421215;
   --brand-2: #5C3435;
   --brand-soft: #F4E9E7;
@@ -864,7 +864,7 @@ input[type="search"].input { -webkit-appearance: none; }
 .cal-d { position: relative; min-height: 108px; padding: 6px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
 .cal-d.wkend { background: var(--surface-2); }
 .cal-d.out { background: var(--surface-2); }
-.cal-d.out .cal-dn { color: var(--line-2); }
+.cal-d.out .cal-dn { color: var(--ink-3); }
 .cal-dn { width: 26px; height: 26px; display: grid; place-items: center; font-size: 13px; font-weight: 750; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .cal-d.today .cal-dn { background: var(--brand); color: var(--brand-ink); border-radius: 999px; }
 .cal-s { display: flex; flex-direction: column; gap: 1px; padding: 6px 7px; border: 0; border-radius: 9px; text-align: left; cursor: pointer; font-size: 12px; line-height: 1.25; min-width: 0; }
@@ -875,7 +875,7 @@ input[type="search"].input { -webkit-appearance: none; }
 .cal-s-fb { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; font-variant-numeric: tabular-nums; }
 /* RPE i dolor sota l'objectiu: etiquetes amb el número gran */
 .cal-m { display: inline-flex; align-items: baseline; gap: 2px; padding: 1px 5px; border-radius: 6px; font-size: 13.5px; font-weight: 800; line-height: 1.2; background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); }
-.cal-m small { font-size: 8.5px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; opacity: 0.75; }
+.cal-m small { font-size: 8.5px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .cal-m-ok { background: var(--ok-bg); color: var(--ok-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok-ink) 35%, transparent); }
 .cal-m-warn { background: var(--warn-bg); color: var(--warn-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn-ink) 35%, transparent); }
 .cal-m-bad { background: var(--bad-bg); color: var(--bad-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bad-ink) 35%, transparent); }
@@ -1034,7 +1034,8 @@ input[type="search"].input { -webkit-appearance: none; }
 .flow-num { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-weight: 750; }
 .flow-name { font-size: 15px; font-weight: 650; line-height: 1.2; }
 .flow-n { font-size: 12.5px; color: var(--ink-3); }
-.flow-empty { opacity: 0.45; }
+.flow-empty .flow-name { color: var(--ink-3); font-weight: 550; }
+.flow-empty .flow-num { opacity: 0.55; }
 @media (max-width: 900px) { .sheet-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .sheet-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sheet-id { text-align: left; } }
 .sheet-blocks { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
@@ -1144,7 +1145,7 @@ tfoot .rpc { font-size: 14px; }
   :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
     color-scheme: light;
     --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #FAF8F6; --surface-3: #F0EBE6;
-    --line: #E2DBD4; --line-2: #D2C9C0; --ink: #231416; --ink-2: #5B4A4B; --ink-3: #8A7B78;
+    --line: #E2DBD4; --line-2: #D2C9C0; --ink: #231416; --ink-2: #5B4A4B; --ink-3: #716360;
     --brand: #421215; --brand-2: #5C3435; --brand-soft: #F4E9E7; --brand-ink: #FFFFFF; --link: #7A2A31;
     --ok-ink: #3D6B2E; --warn-ink: #875D0A; --bad-ink: #A3302A; --ok-bg: #EEF4EA; --warn-bg: #FBF2E0; --bad-bg: #FBEBE9;
     --side-d: #8A2F36; --side-e: #B8862F; --series-1: #8A2F36;
@@ -1534,7 +1535,7 @@ tfoot .rpc { font-size: 14px; }
 .report-light {
   color-scheme: light;
   --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #FAF8F6; --surface-3: #F0EBE6;
-  --line: #E6DFD8; --line-2: #D2C9C0; --ink: #231416; --ink-2: #5B4A4B; --ink-3: #8A7B78;
+  --line: #E6DFD8; --line-2: #D2C9C0; --ink: #231416; --ink-2: #5B4A4B; --ink-3: #716360;
   --brand: #421215; --brand-2: #5C3435; --brand-soft: #F4E9E7; --brand-ink: #FFFFFF; --link: #7A2A31;
   --ok-ink: #3D6B2E; --warn-ink: #875D0A; --bad-ink: #A3302A; --ok-bg: #EEF4EA; --warn-bg: #FBF2E0; --bad-bg: #FBEBE9;
   --side-d: #8A2F36; --side-e: #B8862F; --series-1: #8A2F36; --series-2: #B8862F; --series-3: #2F6FB0;

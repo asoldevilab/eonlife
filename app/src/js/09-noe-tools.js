@@ -102,7 +102,6 @@ const NoeTools = (() => {
   // ── Ajudes de lectura ──
   const enc = (ctx, t) => (ctx.privacy ? ctx.ps.encode(str(t)) : str(t));
   const pat = (ctx, arg) => { const r = ctx.ps.resolve(arg); return r.error ? { err: r } : { pid: r.pid, p: Store.get('patients', r.pid) }; };
-  const lastDone = (pid) => Store.sessionsOf(pid).filter((s) => s.status === 'feta').pop() || null;
   const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total }); };
 
   function itemOut(it) {
