@@ -95,6 +95,8 @@ function SettingsView() {
 
     <${PdfSettingsCard} />
 
+    <${NoeSettingsCard} />
+
     <${PicMotionCard} />
 
     <section class="card">

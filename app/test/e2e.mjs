@@ -32,7 +32,7 @@ async function open(viewport, scheme = 'light') {
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   page.on('console', (m) => {
     const where = `${m.text()} ${(m.location() || {}).url || ''}`;
-    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|ytimg\.com/.test(where)) errors.push(`console: ${m.text()}`);
+    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|ytimg\.com|api\.anthropic\.com/.test(where)) errors.push(`console: ${m.text()}`);
   });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   await page.route(/youtube/, (r) => r.abort());
@@ -724,6 +724,123 @@ const step = async (label, fn) => {
     await page.waitForSelector('.rsec .kv >> text=Treball total');
     await page.waitForSelector('.rsec .kv >> text=Distància');
     await shot(page, '06g-bike-informe', false);
+  });
+  await step('NOE: mode demostració → planificar un mes amb una proposta que només s\'aplica en confirmar, i es pot desfer', async () => {
+    await goHash(page, '#/inici');
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); });
+    await page.waitForSelector('.noe-fab');
+    await page.click('.noe-fab');
+    await page.waitForSelector('.noe-panel .noe-setup');
+    await shot(page, '10a-noe-sense-configurar', false);
+    await page.click('.noe-setup >> text=Prova la demostració');
+    await page.waitForSelector('.noe-panel .noe-empty');
+    const before = await page.evaluate(() => Store.sessionsOf('P-DEMO-JORDI').length);
+    await page.fill('.noe-input', 'Planifica el mes de gener per a Jordi Puig Ferrer');
+    await page.click('.noe-foot >> button[title="Envia"]');
+    await page.waitForSelector('.noe-card[data-proposal="PR-1"]', { timeout: 20000 });
+    await page.waitForSelector('.noe-tool.done >> text=calendari');
+    const card = page.locator('.noe-card[data-proposal="PR-1"]');
+    await card.locator('text=Planificació de gener').first().waitFor();
+    if ((await page.evaluate(() => Store.sessionsOf('P-DEMO-JORDI').length)) !== before) throw new Error('la proposta ha canviat dades sense confirmar');
+    await card.locator('text=Mira-ho en detall').click();
+    await card.locator('.noe-sess').first().waitFor();
+    await shot(page, '10b-noe-proposta', false);
+    await card.locator('button:has-text("Aplica")').click();
+    await card.locator('.pill:has-text("Aplicada")').waitFor();
+    const after = await page.evaluate(() => Store.sessionsOf('P-DEMO-JORDI').filter((s) => s.date.slice(5, 7) === '01' && s.status === 'planificada').length);
+    if (after < 6) throw new Error(`sessions creades: ${after}`);
+    // El que ha creat és visible al calendari del pacient.
+    await card.locator('button:has-text("Obre")').click();
+    await page.waitForSelector('.cal, .calendar, .month-head');
+    await card.locator('button:has-text("Desfés")').click().catch(async () => { await page.click('.noe-fab').catch(() => {}); });
+    await page.waitForFunction(() => Store.sessionsOf('P-DEMO-JORDI').filter((s) => s.date.slice(5, 7) === '01' && s.status === 'planificada').length === 0, null, { timeout: 8000 });
+    if ((await page.evaluate(() => Store.sessionsOf('P-DEMO-JORDI').length)) !== before) throw new Error('desfer no ha deixat les sessions com estaven');
+    await page.click('.noe-head >> button[title="Tanca"]');
+    await page.waitForSelector('.noe-panel', { state: 'detached' });
+  });
+  await step('NOE: amb la IA (API simulada): privacitat, eines, enllaços als pacients i errors clars', async () => {
+    await goHash(page, '#/inici');
+    const reqs = [];
+    await page.route('https://api.anthropic.com/v1/messages', async (route) => {
+      const req = route.request();
+      const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS' };
+      if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+      const body = req.postDataJSON();
+      reqs.push({ headers: req.headers(), body });
+      const hasResult = body.messages.some((m) => Array.isArray(m.content) && m.content.some((c) => c.type === 'tool_result'));
+      const ev = (e) => `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`;
+      let events;
+      if (/KABOOM/.test(JSON.stringify(body.messages))) return route.fulfill({ status: 401, headers: cors, contentType: 'application/json', body: JSON.stringify({ type: 'error', error: { type: 'authentication_error', message: 'invalid x-api-key' } }) });
+      if (!hasResult) events = [{ type: 'message_start', message: { usage: { input_tokens: 5 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }, { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Ho miro. ' } }, { type: 'content_block_stop', index: 0 },
+        { type: 'content_block_start', index: 1, content_block: { type: 'tool_use', id: 'tu_1', name: 'llista_pacients', input: {} } }, { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: '{"limit"' } }, { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: ': 3}' } }, { type: 'content_block_stop', index: 1 },
+        { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { output_tokens: 9 } }, { type: 'message_stop' }];
+      else events = [{ type: 'message_start', message: { usage: { input_tokens: 5 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Tens **3 pacients**: [[pacient:PAC-1]] i _la resta_.\n\n- Primer punt\n- Segon punt' } }, { type: 'content_block_stop', index: 0 },
+        { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 20 } }, { type: 'message_stop' }];
+      return route.fulfill({ status: 200, headers: cors, contentType: 'text/event-stream', body: events.map(ev).join('') });
+    });
+    // Configuració: clau i consentiment des de Configuració › NOE
+    await goHash(page, '#/configuracio');
+    await page.waitForSelector('#noe-settings');
+    await page.locator('#noe-settings label.check', { hasText: 'Mode demostració' }).locator('input').uncheck();
+    await page.fill('#noe-key', 'sk-ant-prova-1234');
+    await page.click('#noe-settings >> button:has-text("Desa")');
+    await page.waitForSelector('#noe-settings >> text=Falta acceptar');
+    await page.locator('#noe-settings label.check', { hasText: 'Entenc que NOE envia' }).locator('input').check();
+    await page.waitForSelector('#noe-settings >> text=IA connectada');
+    await shot(page, '10c-noe-configuracio', true);
+    await page.click('#noe-settings >> button:has-text("Prova la connexió")');
+    await page.waitForSelector('#noe-settings >> text=Connexió correcta');
+    if (page.url().includes('sk-ant')) throw new Error('la clau no ha d\'anar a l\'adreça');
+    const stored = await page.evaluate(() => JSON.stringify(Store.settings) + JSON.stringify(Object.values(Store.data).map((o) => Object.values(o))));
+    if (stored.includes('sk-ant-prova')) throw new Error('la clau no s\'ha de desar a les dades compartides');
+    // Xat
+    await goHash(page, '#/client/P-DEMO-JORDI');
+    await page.click('.noe-fab');
+    await page.click('.noe-head >> button[title="Conversa nova"]');
+    await page.waitForSelector('.noe-sugg');
+    const base = reqs.length; // (la prova de connexió de Configuració ja n'ha fet una)
+    await page.fill('.noe-input', 'Quins pacients tinc? Per exemple en Jordi Puig Ferrer');
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('.noe-asst >> text=Tens 3 pacients', { timeout: 15000 });
+    await page.waitForSelector('.noe-tool.done >> text=llista de pacients');
+    await shot(page, '10d-noe-resposta', false);
+    if (reqs.length - base !== 2) throw new Error(`peticions: ${reqs.length - base}`);
+    const h = reqs[base].headers;
+    if (h['x-api-key'] !== 'sk-ant-prova-1234' || h['anthropic-dangerous-direct-browser-access'] !== 'true' || h['anthropic-version'] !== '2023-06-01') throw new Error(JSON.stringify(h));
+    const sent = JSON.stringify(reqs[base + 1].body);
+    for (const bad of ['Jordi', 'Puig Ferrer', 'jordi']) if (sent.includes(bad)) throw new Error(`s'ha enviat «${bad}» a la IA`);
+    if (!/La persona està mirant la fitxa del pacient PAC-1/.test(sent)) throw new Error('falta el context de la pantalla');
+    if (reqs[base].body.model !== 'claude-sonnet-5-5' || reqs[base].body.stream !== true) throw new Error('model o streaming');
+    if (!reqs[base].body.tools.length || reqs[base].body.system[0].cache_control.type !== 'ephemeral') throw new Error('eines o memòria cau');
+    // Format, llistes i enllaç al pacient (amb el nom, no el codi)
+    await page.waitForSelector('.noe-asst strong:has-text("3 pacients")');
+    await page.waitForSelector('.noe-asst em:has-text("la resta")');
+    if ((await page.locator('.noe-asst li').count()) !== 2) throw new Error('llistes');
+    const chip = page.locator('.noe-chip-pacient').first();
+    const name = (await chip.textContent()).trim();
+    if (/PAC-/.test(name) || !name) throw new Error(`enllaç: ${name}`);
+    await goHash(page, '#/inici');
+    await page.waitForSelector('.noe-panel');
+    await chip.click();
+    await page.waitForSelector('.phead');
+    // Error de l'API: missatge clar en català, i el text torna al quadre per reenviar-lo
+    await page.fill('.noe-input', 'KABOOM prova');
+    await page.click('.noe-foot >> button[title="Envia"]');
+    await page.waitForSelector('.noe-error >> text=clau de l\'API no és vàlida');
+    if ((await page.inputValue('.noe-input')) !== 'KABOOM prova') throw new Error('el text no ha tornat al quadre');
+    // Historial de converses
+    await page.click('.noe-head >> button[title="Converses anteriors"]');
+    await page.waitForSelector('.noe-hist-row');
+    await page.click('.noe-head >> button[title="Converses anteriors"]');
+    // Netejar la configuració perquè no afecti les altres proves
+    await page.unroute('https://api.anthropic.com/v1/messages');
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
+  });
+  await step('NOE: es deixa tancat i sense configuració per a les altres proves', async () => {
+    await page.unroute('https://api.anthropic.com/v1/messages').catch(() => {});
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
+    await page.waitForSelector('.noe-panel', { state: 'detached' });
   });
   await step('PDF dels informes: quins n\'hi ha per pacient, com es diuen i quan es refan', async () => {
     const r = await page.evaluate(() => {
