@@ -327,6 +327,24 @@ test('mode local: cada canvi es desa al navegador a l\'instant', async () => {
   assert.ok(raw && raw.includes('P-INSTANT'), 'no s\'ha desat de seguida');
 });
 
+test('mode local: una ràfega de canvis no reescriu tota la base a cada registre', async () => {
+  const core = loadCore();
+  await core.LocalBackend.init();
+  let writes = 0;
+  const set = core.__storage.set.bind(core.__storage);
+  core.__storage.set = (k, v) => { writes++; return set(k, v); };
+  for (let i = 0; i < 400; i++) core.LocalBackend.save('patients', { id: `P-R${i}`, firstName: 'Ràfega' });
+  assert.ok(writes <= 5, `massa escriptures: ${writes}`);
+  // En ocultar o tancar la pàgina es desa el que quedava pendent, sense perdre cap registre.
+  core.LocalBackend.persistNow();
+  const raw = JSON.parse(core.__storage.get('eonlife:data:v1'));
+  assert.equal(Object.keys(raw.patients).filter((k) => k.startsWith('P-R')).length, 400);
+  // Restaurar i tornar a obrir llegeix l'últim estat (no un de vell)
+  core.LocalBackend.save('patients', { id: 'P-ULTIM', firstName: 'Últim' });
+  const r = await core.LocalBackend.init();
+  assert.ok(r.records.patients['P-ULTIM']);
+});
+
 test('base de dades: totes les taules es poden calcular amb les dades de prova', async () => {
   const core = loadCore();
   await core.Store.init();
