@@ -48,6 +48,8 @@
   --blk-ink-light: #FFFFFF;
   --blk-ink-dark: #231416;
   --pic-prop: #CEC5BB;
+  --pic-prop-top: #DDD6CE; --pic-prop-side: #BCB1A5;
+  --pic-metal: #3F5F7F; --pic-metal-2: #8DA2B6; --pic-elastic: #E5592C; --pic-soft: #1F9A8B;
   --grid: #ECE6E0;
   --axis: #978985;
   --baseline: #CFC7BF;
@@ -102,6 +104,8 @@
     --blk-ink-light: #16090A;
     --blk-ink-dark: #16090A;
     --pic-prop: #5E5250;
+    --pic-prop-top: #6E6260; --pic-prop-side: #514644;
+    --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
     --grid: #33242A;
     --axis: #9B8C88;
     --baseline: #56423F;
@@ -149,6 +153,8 @@
   --blk-ink-light: #16090A;
   --blk-ink-dark: #16090A;
   --pic-prop: #5E5250;
+  --pic-prop-top: #6E6260; --pic-prop-side: #514644;
+  --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
   --grid: #33242A;
   --axis: #9B8C88;
   --baseline: #56423F;
@@ -1380,17 +1386,24 @@ tfoot .rpc { font-size: 14px; }
 .exthumb-seq { display: none; align-items: center; gap: 2px; }
 .exthumb-step { display: block; width: var(--thumb, 52px); height: var(--thumb, 52px); border-radius: 22%; background: var(--pic-bg); overflow: hidden; }
 .exthumb-arrow { font-weight: 800; color: var(--blk, var(--brand)); font-size: 0.9em; padding: 0 1px; }
-.pic { display: block; width: 100%; height: 100%; }
-.pic .pf { stroke: var(--ink); }
-.pic .phd { fill: var(--ink); }
-.pic .pfar { opacity: 0.36; }
-.pic .phalo { stroke: var(--pic-bg); }
-.pic .pfl { stroke: var(--line-2); }
-.pic .pp { fill: var(--pic-prop); }
-.pic .pl { stroke: var(--pic-prop); }
-.pic .pg { fill: var(--blk, var(--brand)); }
-.pic .pgl { stroke: var(--blk, var(--brand)); }
-.pic .phole { fill: var(--pic-bg); }
+/* El dibuix: el cos (a prop més fosc, l'altre costat més clar), el material de pes (acer), gomes i cables (taronja),
+   material tou (turquesa) i l'entorn (banc, caixa, paret). Una vora fina del color del fons separa les peces. */
+.pic { display: block; width: 100%; height: 100%; --pic-body: var(--ink); --pic-far: color-mix(in srgb, var(--ink) 40%, var(--pic-bg, var(--surface))); }
+.pic path { stroke-linejoin: round; stroke-linecap: round; }
+.pic .pk { fill: var(--pic-body); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
+.pic .pkf { fill: var(--pic-far); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
+.pic .pm { fill: var(--pic-metal); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pmh { fill: var(--pic-metal-2); }
+.pic .pml { fill: none; stroke: var(--pic-metal); }
+.pic .pe { fill: none; stroke: var(--pic-elastic); }
+.pic .pe-ring { fill: none; stroke: var(--pic-elastic); stroke-width: 1.2; }
+.pic .ps { fill: var(--pic-soft); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pp { fill: var(--pic-prop); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pp.pp-top { fill: var(--pic-prop-top); }
+.pic .pp.pp-side { fill: var(--pic-prop-side); }
+.pic .pl { fill: none; stroke: var(--pic-prop); }
+.pic .pfl { fill: none; stroke: var(--line-2); }
+.pic .psh { fill: var(--ink); opacity: 0.08; }
 .ladder-step .exthumb { border-radius: 8px; }
 .thumbedit { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; }
 .thumbedit-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }

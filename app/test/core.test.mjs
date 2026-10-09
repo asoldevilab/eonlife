@@ -422,7 +422,7 @@ test('exercicis de kettlebell, mobility ball, Power Personal i mancuernes de Tec
 
 test('miniatures: cada exercici té un pictograma propi amb el material', async () => {
   const { readFileSync } = await import('node:fs');
-  const src = readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
   const { SEED_EXERCISES } = loadCore();
   const P = new Function('U', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg };`)(U);
   const keyOf = (name, extra = {}) => P.picKeyOf({ name, ...extra });
@@ -433,14 +433,14 @@ test('miniatures: cada exercici té un pictograma propi amb el material', async 
     assert.ok(svg.startsWith('<svg') && !/NaN|undefined/.test(svg), e.name);
   }
   assert.equal(keyOf('Back squat'), 'squat_back');
-  assert.equal(keyOf('Front squat al Power Personal'), 'squat');
+  assert.equal(keyOf('Front squat al Power Personal'), 'squat_front');
   assert.equal(keyOf('Press de banca'), 'bench');
   assert.equal(keyOf('Dominades'), 'pullup');
   assert.equal(keyOf('Dead bug'), 'deadbug');
   assert.equal(keyOf('Kettlebell swing'), 'swing');
   assert.equal(keyOf('Pont de glutis amb loop band'), 'bridge');
   assert.equal(keyOf('Flexions de maluc alternes en planxa · banda als peus'), 'climber');
-  assert.equal(keyOf('Crunch bicicleta amb loop band'), 'crunch_legs');
+  assert.equal(keyOf('Crunch bicicleta amb loop band'), 'bicycle');
   assert.equal(keyOf('Bike suau'), 'bike');
   assert.equal(keyOf('Alliberament miofascial del quàdriceps · cercles'), 'roll_prone');
   assert.equal(keyOf('Exercici nou', { gm: 'Bíceps' }), 'curl');
@@ -448,19 +448,19 @@ test('miniatures: cada exercici té un pictograma propi amb el material', async 
   // Revisió dels dibujos: cada exercici amb la postura que toca
   assert.equal(keyOf('Curl femoral amb lliscadors Flowin'), 'slide_curl');
   assert.equal(keyOf('Curl femoral amb fitball'), 'bridge_ball');
-  assert.equal(keyOf('Kettlebell snatch'), 'ohpress');
-  assert.equal(keyOf('Arrencada completa (snatch)'), 'squat_oh');
+  assert.equal(keyOf('Kettlebell snatch'), 'kb_snatch');
+  assert.equal(keyOf('Arrencada completa (snatch)'), 'snatch');
   assert.equal(keyOf('Flexions inclinades (mans elevades)'), 'pushup_incline');
   assert.equal(keyOf('Elevació de talons amb genoll flexionat (soli)'), 'calf_bent');
   assert.equal(keyOf('Elevació de talons bipodal'), 'calf');
   assert.equal(keyOf('Fons de tríceps al banc'), 'dip');
-  assert.ok(/class="pgl"/.test(P.exercisePicSvg({ name: 'Bisagra de maluc amb pica', material: 'Pica' })), 'la pica al llarg de l\'esquena');
+  assert.ok(/class="pmh"/.test(P.exercisePicSvg({ name: 'Bisagra de maluc amb pica', material: 'Pica' })), 'la pica al llarg de l\'esquena');
   assert.equal(P.picGearOf({ name: 'Curl femoral amb lliscadors Flowin', material: 'Lliscadors Flowin' }, 'slide_curl').kind, 'sliders');
 });
 
 test('dibuixos en moviment: posició inicial i final, animació SMIL, isomètrics quiets i inici → final per al paper', async () => {
   const { readFileSync } = await import('node:fs');
-  const src = readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
   const { SEED_EXERCISES } = loadCore();
   const win = { matchMedia: () => ({ matches: false }) };
   const P = new Function('U', 'window', 'localStorage', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg, picFrames, picAnimate, picMoves, PIC_CACHE };`)(U, win, { getItem: () => null, setItem() {} });
@@ -487,6 +487,41 @@ test('dibuixos en moviment: posició inicial i final, animació SMIL, isomètric
   assert.equal(P.picGearOf({ name: 'Monster walk · banda als genolls', material: 'Loop band Technogym' }, 'side_step').at, 'knees');
   assert.equal(P.picGearOf({ name: 'Rem inclinat al Power Personal', material: 'Power Personal Technogym' }, 'row').kind, 'bar');
   assert.equal(P.picGearOf({ name: 'Sit-up al Power Personal', material: 'Power Personal Technogym' }, 'crunch').kind, '');
+});
+
+test('dibuixos en 3D: cada moviment en la seva vista, el material de colors propis i el knee-to-wall dempeus', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES } = loadCore();
+  const P = new Function('U', 'window', 'localStorage', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg, picJoints, picViewOf };`)(U, { matchMedia: () => ({ matches: false }) }, { getItem: () => null, setItem() {} });
+  const ex = (name) => SEED_EXERCISES.find((e) => e.name === name);
+  // Knee-to-wall: dempeus (el tronc vertical i la cama de darrere estirada a terra), amb la paret davant del genoll
+  const kw = P.picKeyOf(ex('Knee-to-wall · mobilitat de turmell'));
+  assert.equal(kw, 'ankle_wall');
+  const J = P.picJoints(P.PICS[kw]);
+  assert.ok(J.u[1] > 0.95, 'tronc vertical');
+  assert.ok(J.leg[1].k[1] - J.leg[1].a[1] > 15, 'la cama de darrere estirada, no agenollada');
+  assert.ok(/class="pp[ "]/.test(P.exercisePicSvg(ex('Knee-to-wall · mobilitat de turmell'), null, 'still')), 'la paret');
+  // Cada pla en la seva vista: frontal de cara, rotacions en tres quarts, la resta de costat
+  assert.equal(P.picViewOf(P.PICS[P.picKeyOf(ex('Elevacions laterals'))]), 'front');
+  assert.equal(P.picViewOf(P.PICS[P.picKeyOf(ex('Estocada lateral alterna amb KB'))]), 'front');
+  assert.equal(P.picViewOf(P.PICS[P.picKeyOf(ex('Woodchop a la politja'))]), 'q');
+  assert.equal(P.picViewOf(P.PICS[P.picKeyOf(ex('Back squat'))]), 'side');
+  // El material, amb colors diferents del cos: pesos d'acer (pm), gomes i cables (pe), material tou (ps)
+  const svg = (name) => P.exercisePicSvg(ex(name), null, 'still');
+  assert.ok(/class="pm"/.test(svg('Back squat')) && /class="pk"/.test(svg('Back squat')));
+  assert.ok(/class="pm"/.test(svg('Goblet squat')));
+  assert.ok(/class="pe"/.test(svg('Monster walk · banda als genolls')));
+  assert.ok(/class="pe"/.test(svg('Pallof press dinàmic')));
+  assert.ok(/class="ps"/.test(svg('Med ball slam')));
+  assert.ok(/class="ps"/.test(svg('Curl femoral amb fitball')));
+  // Cap exercici de la biblioteca es queda sense dibuix ni amb números trencats
+  for (const e of SEED_EXERCISES) {
+    for (const m of ['still', 'auto', 'start', 'end']) {
+      const s = P.exercisePicSvg(e, null, m);
+      assert.ok(s.startsWith('<svg') && !/NaN|undefined|Infinity/.test(s), `${e.name} (${m})`);
+    }
+  }
 });
 
 test('sessió en blanc sense blocs; plantilla i última sessió només amb els blocs que tenen alguna cosa', async () => {
