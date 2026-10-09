@@ -10,7 +10,7 @@ function Sidebar({ route, open, onClose }) {
       <span class="logo-mark" role="img" aria-label=${Store.settings.centerName || 'EON Life'}></span>
       <span class="sidebar-sub">${Store.settings.centerTagline || 'Human Performance'}</span>
     </div>
-    <nav class="nav">
+    <nav class="nav" aria-label="Navegació principal">
       ${item('inici', 'home', 'Inici i pacients', clientRoutes.includes(r))}
       ${item('dades', 'database', 'Base de dades', r === 'dades' || r === 'valoracio')}
       ${item('biblioteca', 'book', 'Biblioteca', r === 'biblioteca' || r === 'plantilla')}
@@ -76,7 +76,15 @@ function App() {
   }, []);
   // Les taules que es desplacen de costat (mòbil) s'han de poder moure també amb el teclat.
   useEffect(() => {
-    for (const el of document.querySelectorAll('.table-wrap:not([tabindex])')) if (el.scrollWidth > el.clientWidth + 1) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'region'); if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', 'Taula (es pot desplaçar)'); }
+    const all = Array.from(document.querySelectorAll('.table-wrap'));
+    for (const el of all) {
+      if (el.hasAttribute('tabindex') || el.scrollWidth <= el.clientWidth + 1) continue;
+      const sec = el.closest('section, .card');
+      const h = sec && sec.querySelector('h2, h3');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'region');
+      if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', `${h ? `${h.textContent.trim()} · ` : ''}taula ${all.indexOf(el) + 1} (es pot desplaçar)`);
+    }
   });
   useEffect(() => {
     // Amb Microsoft 365 els canvis pendents ja queden guardats a la tauleta: no cal avisar en sortir.
@@ -99,11 +107,14 @@ function App() {
 
   const present = route.name === 'fitxa' || route.name === 'informe' || route.name === 'progres';
   return html`<div class=${U.cls('shell', present && 'shell-present')}>
+    ${!present && html`<a class="skip-link" href="#main" onClick=${(e) => { e.preventDefault(); const m = document.getElementById('main'); if (m) { m.focus(); m.scrollIntoView(); } }}>Salta al contingut</a>`}
     ${!present && html`<${Sidebar} route=${route} open=${menu} onClose=${() => setMenu(false)} />`}
     ${!present && menu && html`<div class="scrim" onClick=${() => setMenu(false)}></div>`}
     <div class="main">
       ${!present && html`<${Topbar} onMenu=${() => setMenu(true)} />`}
-      ${renderRoute(route)}
+      <main id="main" tabindex="-1">
+        ${renderRoute(route)}
+      </main>
     </div>
     <${SharedLists} />
     <${UpdateBanner} />

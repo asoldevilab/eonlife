@@ -23,7 +23,7 @@ function PatientView({ id, tab = 'resum' }) {
   };
 
   return html`<div class="page">
-    <nav class="crumbs"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Pacients</button></nav>
+    <nav class="crumbs" aria-label="Camí"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Pacients</button></nav>
     <header class="phead">
       <${Avatar} p=${p} size="lg" />
       <div class="phead-main">

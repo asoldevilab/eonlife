@@ -143,6 +143,17 @@ const U = {
     return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${y}`;
   },
 
+  // «de novembre de 2026», «d'octubre de 2026»: el mes dins d'una frase (en minúscula, amb la preposició)
+  ofMonth(key) {
+    const [y, m] = key.split('-').map(Number);
+    return `${U.deMonth(m - 1)} de ${y}`;
+  },
+  // «novembre de 2026»: el mes dins d'una frase, sense preposició (per a …)
+  monthLow(key) {
+    const [y, m] = key.split('-').map(Number);
+    return `${MONTHS[m - 1]} de ${y}`;
+  },
+
   // "Gener de 2027", "Abril de 2027" (la propera valoració a l'informe: sense dia, per no lligar-nos a una data)
   fmtMonthYear(s) {
     const d = U.parse(s);

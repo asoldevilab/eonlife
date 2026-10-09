@@ -48,7 +48,7 @@ function MonthView({ p, sessions }) {
         </div>
       </div>
       <div class="cal-wrap">
-        <div class="cal" role="group" aria-label=${`Calendari de ${U.fmtMonth(month)}`}>
+        <div class="cal" role="group" aria-label=${`Calendari ${U.ofMonth(month)}`}>
           ${['dl', 'dt', 'dc', 'dj', 'dv', 'ds', 'dg'].map((d) => html`<div class="cal-h">${d}</div>`)}
           <div class="cal-h cal-h-week">Setmana</div>
           ${weeks.map((w) => html`

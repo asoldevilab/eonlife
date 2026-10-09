@@ -22,6 +22,11 @@ test('dates', () => {
   assert.equal(U.fmtDateLong('2026-10-06'), 'dimarts, 6 d\'octubre de 2026');
   assert.equal(U.fmtDateLong('2026-09-28', false), '28 de setembre de 2026');
   assert.equal(U.age('1991-04-12', '2026-09-28'), 35);
+  // El mes dins d'una frase va en minúscula i amb la preposició que toca
+  assert.equal(U.fmtMonth('2026-11'), 'Novembre 2026');
+  assert.equal(U.ofMonth('2026-11'), 'de novembre de 2026');
+  assert.equal(U.ofMonth('2026-10'), 'd\'octubre de 2026');
+  assert.equal(U.monthLow('2027-01'), 'gener de 2027');
 });
 
 test('asimetria', () => {

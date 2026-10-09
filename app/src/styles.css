@@ -224,6 +224,9 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .shell { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
 .shell-present { display: block; }
 .main { min-width: 0; }
+.main main:focus { outline: none; }
+.skip-link { position: fixed; left: 12px; top: -60px; z-index: 300; padding: 10px 16px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-weight: 700; text-decoration: none; box-shadow: var(--shadow-2); }
+.skip-link:focus { top: 12px; }
 .sidebar {
   position: sticky; top: 0; height: 100vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 28px;
@@ -448,6 +451,7 @@ input[type="search"].input { -webkit-appearance: none; }
 
 .overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(24, 10, 12, 0.45); }
 .overlay-under { background: rgba(24, 10, 12, 0.2); }
+.dialog:focus, .dialog:focus-visible { outline: none; }
 .dialog { width: min(580px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-2); }
 .dialog-wide { width: min(840px, 100%); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 14px 6px 22px; }

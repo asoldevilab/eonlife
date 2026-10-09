@@ -355,7 +355,7 @@ const NoeTools = (() => {
         if (s.busy.length) { s.skip = true; warns.push(`${s.date} ja té sessió: no es crearà.`); }
       }
       const n = sessions.filter((s) => !s.skip).length;
-      const prop = addProposal(ctx, { kind: 'mes', pid: r.pid, ref: ctx.ps.ref(r.pid), title: `${month ? `Planificació de ${U.fmtMonth(month)}` : 'Planificació'} · ${U.plural(n, 'sessió', 'sessions')}`, why: str(i.motiu), warnings: warns, data: { sessions, month } });
+      const prop = addProposal(ctx, { kind: 'mes', pid: r.pid, ref: ctx.ps.ref(r.pid), title: `${month ? `Planificació ${U.ofMonth(month)}` : 'Planificació'} · ${U.plural(n, 'sessió', 'sessions')}`, why: str(i.motiu), warnings: warns, data: { sessions, month } });
       return reply(prop, { sessions_a_crear: n });
     },
 

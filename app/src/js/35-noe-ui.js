@@ -194,7 +194,7 @@ function NoeProposal({ conv, id }) {
     <div class="noe-sess-h"><strong>${U.fmtDate(s.date)}</strong>${s.goal ? html` · ${s.goal}` : ''}${s.skip ? html` <span class="pill pill-warn">no es crearà (dia ocupat o repetit)</span>` : ''}</div>
     ${s.blocks.map((b) => html`<div class="noe-blk" key=${b.key}><span class=${`noe-blk-k blk-${b.key}`}>${blockName(b.key)}</span>${b.items.map((it) => `${it.name}${it.over && (it.over.sets || it.over.reps) ? ` ${it.over.sets || ''}×${it.over.reps || ''}` : ''}`).join(' · ')}</div>`)}
   </div>`);
-  const details = open && html`<div class="noe-details">
+  const details = open && html`<div class="noe-details" tabindex="0" role="region" aria-label=${`Detall de la proposta: ${prop.title}`}>
     ${prop.data.sessions && sessionsList(prop.data.sessions)}
     ${prop.kind === 'canvi' && html`<ul class="noe-ops">${prop.data.ops.map((o, i) => html`<li key=${i}>${({ canviar_objectiu: `Objectiu → «${o.valor}»`, canviar_data: `Data → ${U.fmtDate(o.valor)}`, afegir: `Afegeix a ${blockName(o.key)}: ${o.spec && o.spec.name}`, treure: `Treu de ${blockName(o.key)}: ${o.label}`, substituir: `Canvia ${o.label} per ${o.spec && o.spec.name}`, prescripcio: `${o.label}: ${Object.entries(o.over).map(([k, v]) => `${({ sets: 'sèries', reps: 'reps', load: 'càrrega', intensity: 'intensitat', rest: 'descans', tempo: 'tempo', note: 'nota' })[k]} ${v}`).join(', ')}` })[o.a]}</li>`)}</ul>`}
     ${prop.kind === 'pla' && prop.data.sessions.map((s) => html`<div class="noe-sess" key=${s.n}><div class="noe-sess-h"><strong>S${s.n}</strong>${s.phase ? ` · ${s.phase}` : ''}${s.goal ? ` · ${s.goal}` : ''}</div>
@@ -235,10 +235,9 @@ function NoePanel() {
   }, [S.open, conv && conv.log.length, conv && conv.log[conv.log.length - 1] && conv.log[conv.log.length - 1].text, S.busy, S.error]);
   useEffect(() => {
     if (!S.open) return undefined;
-    const esc = (e) => { if (e.key === 'Escape') NoeUI.open(false); };
-    document.addEventListener('keydown', esc);
+    const unEsc = EscStack.push(() => NoeUI.open(false));
     if (taRef.current) taRef.current.focus();
-    return () => document.removeEventListener('keydown', esc);
+    return unEsc;
   }, [S.open]);
   // El missatge que no s'ha pogut enviar torna al quadre perquè es pugui reenviar.
   useEffect(() => {
@@ -262,7 +261,7 @@ function NoePanel() {
       <${Btn} icon="sparkles" onClick=${() => { NoeConfig.set({ demo: true }); NoeUI.emit(); }}>Prova la demostració</${Btn}></div>
   </div>`;
 
-  return html`<aside class="noe-panel" role="dialog" aria-label="NOE, l'assistent d'IA" aria-modal="false">
+  return html`<aside class="noe-panel" aria-label="NOE, l'assistent d'IA">
     <header class="noe-head">
       <span class="noe-logo"><${Icon} name="sparkles" size=${18} /></span>
       <div class="noe-title"><strong>NOE</strong><span class="muted small">${mode === 'demo' ? 'Mode demostració (sense IA)' : mode === 'ai' ? 'Assistent d\'IA d\'EON Life' : 'Sense connectar'}</span></div>

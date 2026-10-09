@@ -6,6 +6,7 @@
 
 const NoeDemo = (() => {
   const MONTHS = ['gener', 'febrer', 'marc', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
+  const DAYS = [[1, 'dilluns'], [2, 'dimarts'], [3, 'dimecres'], [4, 'dijous'], [5, 'divendres'], [6, 'dissabte'], [0, 'diumenge']];
   const NOTE = '_Mode demostració: respostes preparades, no és la IA real._\n\n';
   const usage = { input_tokens: 0, output_tokens: 0 };
 
@@ -47,8 +48,10 @@ const NoeDemo = (() => {
     const cal = results.find((r) => r.name === 'calendari_pacient');
     const pacient = cal.input.pacient;
     const month = cal.input.mes;
+    // Si la demanda diu els dies («dimarts i divendres»), els fa servir; si no, els habituals del pacient.
+    const named = DAYS.filter((d) => new RegExp(`\\b${d[1]}`).test(U.norm(text))).map((d) => d[0]);
     const days = ((cal.data && cal.data.dies_habituals_d_entrenament) || []).map((d) => d.dia_setmana);
-    const use = days.length ? days : [1, 4];
+    const use = named.length ? named : days.length ? days : [1, 4];
     const taken = new Set((cal.data && cal.data.dies_ocupats) || []);
     const by = {};
     for (const r of results) if (r.name === 'buscar_exercicis' && r.data) by[r.input.bloc] = r.data.exercicis || [];
