@@ -46,7 +46,7 @@ function AssessmentEditor({ id, focus }) {
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); PdfSync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
-      <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
+      <div class="editbar-title"><strong role="heading" aria-level="1">${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
@@ -254,7 +254,7 @@ function YbtBlock({ a, p, upd }) {
   const rows = [['ant', 'Anterior', 'antDiff'], ['pm', 'Posteromedial', 'pmDiff'], ['pl', 'Posterolateral', 'plDiff'], ['len', 'Longitud de la cama', null]];
   return html`<div class="ybt">
     <div class="table-wrap"><table class="table ybt-table">
-      <thead><tr><th></th><th>Dreta</th><th>Esquerra</th><th class="num">Diferència</th></tr></thead>
+      <thead><tr><th><span class="sr-only">Direcció</span></th><th>Dreta</th><th>Esquerra</th><th class="num">Diferència</th></tr></thead>
       <tbody>
         ${rows.map(([k, label, dk]) => html`<tr>
           <th scope="row">${label}</th>
@@ -317,7 +317,7 @@ function ImportJumpsDialog({ res, a, p, onSave, onClose }) {
       ${names.length > 0 && res.people.length > names.length && html`<p class="muted small">No és ell? <button type="button" class="link" onClick=${() => pick('')}>Tria un altre nom del fitxer</button></p>`}`
       : html`<p>Aquest fitxer no porta el nom de la persona: s'importen totes les files. Revisa que siguin de <strong>${person}</strong>.</p>`}
     ${mine.length > 0 && html`<div class="table-wrap"><table class="table">
-      <thead><tr><th></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
+      <thead><tr><th><span class="sr-only">Importa</span></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
       <tbody>${mine.map((x) => html`<tr class=${known.has(x.src) ? 'muted' : ''}>
         <td><input type="checkbox" checked=${picked.has(x.id)} disabled=${known.has(x.src)} onChange=${() => toggle(x.id)} aria-label=${`Importa l'intent del ${fmtWhen(x.when)}`} /></td>
         <td>${fmtWhen(x.when)}${known.has(x.src) ? ' · ja importat' : ''}</td><td>${x.type}</td>
@@ -384,7 +384,7 @@ function JumpsBlock({ a, p, upd }) {
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
     ${list.length > 0 && html`<div class="table-wrap"><table class="table jumps-table">
-      <thead><tr><th>#</th><th>Tipus</th>${cols.map((c) => html`<th>${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th></th></tr></thead>
+      <thead><tr><th>#</th><th>Tipus</th>${cols.map((c) => html`<th>${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${list.map((at, i) => html`<tr>
         <td class="muted">${i + 1}</td>
         <td><${Select} value=${at.type} onValue=${setAt(at.id, 'type')} options=${OPT.jumpTypes} ariaLabel="Tipus de salt" /></td>
@@ -419,7 +419,7 @@ function EncoderBlock({ a, upd }) {
   const del = (rid) => upd((x) => { x.encoder.rows = x.encoder.rows.filter((z) => z.id !== rid); });
   return html`<div>
     ${rows.length > 0 && html`<div class="table-wrap"><table class="table">
-      <thead><tr><th>Exercici</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Potència <span class="muted">W</span></th><th></th></tr></thead>
+      <thead><tr><th>Exercici</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Potència <span class="muted">W</span></th><th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${rows.map((r) => html`<tr>
         <td><${TextInput} value=${r.name} onValue=${setR(r.id, 'name')} placeholder="Exercici" ariaLabel="Exercici" /></td>
         <td><${NumInput} value=${r.load} onValue=${setR(r.id, 'load')} ariaLabel=${`${r.name} càrrega`} /></td>
@@ -593,7 +593,7 @@ function FreeBlock({ a, upd }) {
   return html`<div>
     <p class="muted small">Qualsevol altra mesura que vulgueu registrar (també es desa al full de càlcul).</p>
     ${rows.length > 0 && html`<div class="table-wrap"><table class="table">
-      <thead><tr><th>Mesura</th><th>Dreta</th><th>Esquerra</th><th>Valor únic</th><th>Unitat</th><th></th></tr></thead>
+      <thead><tr><th>Mesura</th><th>Dreta</th><th>Esquerra</th><th>Valor únic</th><th>Unitat</th><th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${rows.map((r) => html`<tr>
         <td><${TextInput} value=${r.name} onValue=${setR(r.id, 'name')} placeholder="Nom de la mesura" ariaLabel="Nom de la mesura" /></td>
         <td><${NumInput} value=${r.d} onValue=${setR(r.id, 'd')} ariaLabel="Dreta" /></td>

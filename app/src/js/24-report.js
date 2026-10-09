@@ -147,7 +147,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           ${(sls.chips || []).length > 0 && html`<span class="muted">${sls.chips.join(' · ')}</span>`}</div>
           ${notes && sls.note && html`<p class="rnote">${sls.note}</p>`}`}
         ${(ybt.d.comp != null || ybt.e.comp != null) && html`<h3 class="h3">Y-Balance Test <span class="muted">· cm</span></h3>
-          <div class="table-wrap"><table class="table rtable"><thead><tr><th></th><th class="num">Anterior</th><th class="num">Posteromedial</th><th class="num">Posterolateral</th><th class="num">Composite</th></tr></thead>
+          <div class="table-wrap"><table class="table rtable"><thead><tr><th><span class="sr-only">Costat</span></th><th class="num">Anterior</th><th class="num">Posteromedial</th><th class="num">Posterolateral</th><th class="num">Composite</th></tr></thead>
           <tbody>${[['d', 'Dreta'], ['e', 'Esquerra']].map(([s, lab]) => html`<tr><th scope="row"><span class=${`side-dot side-dot-${s}`}></span>${lab}</th>
             <td class="num">${U.fmt(ybt[s].ant, 1)}</td><td class="num">${U.fmt(ybt[s].pm, 1)}</td><td class="num">${U.fmt(ybt[s].pl, 1)}</td><td class="num"><strong>${ybt[s].comp != null ? `${U.fmt(ybt[s].comp, 1)} %` : '—'}</strong></td></tr>`)}
             ${ybt.antDiff != null && html`<tr class="rdiff"><th scope="row">Diferència</th><td class="num">${U.fmt(ybt.antDiff, 1)}</td><td class="num">${U.fmt(ybt.pmDiff, 1)}</td><td class="num">${U.fmt(ybt.plDiff, 1)}</td><td class="num">${U.fmt(ybt.compDiff, 1)}</td></tr>`}

@@ -842,6 +842,32 @@ const step = async (label, fn) => {
     await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
     await page.waitForSelector('.noe-panel', { state: 'detached' });
   });
+  await step('Estructura accessible: un sol <main>, un títol principal per pantalla i cap capçalera de taula buida', async () => {
+    const ids = await page.evaluate(() => ({ p: 'P-DEMO-JORDI', a: Store.assessmentsOf('P-DEMO-JORDI')[0].id, s: Store.sessionsOf('P-DEMO-JORDI')[0].id, t: (Store.templates().find((x) => x.kind === 'session') || {}).id }));
+    const routes = ['#/inici', `#/client/${ids.p}`, `#/client/${ids.p}/mes`, `#/valoracio/${ids.a}`, `#/sessio/${ids.s}`, '#/biblioteca', `#/plantilla/${ids.t}`, '#/dades/valoracions', '#/configuracio'];
+    for (const r of routes) {
+      await goHash(page, r);
+      await page.waitForTimeout(250);
+      const o = await page.evaluate(() => ({
+        main: document.querySelectorAll('main').length,
+        h1: document.querySelectorAll('h1, [role="heading"][aria-level="1"]').length,
+        banners: document.querySelectorAll('body > * header.topbar, header.topbar').length,
+        emptyTh: Array.from(document.querySelectorAll('th')).filter((x) => !x.textContent.trim() && !x.getAttribute('aria-label')).length,
+        firstEmpty: (Array.from(document.querySelectorAll('th')).find((x) => !x.textContent.trim() && !x.getAttribute('aria-label')) || { outerHTML: '' }).outerHTML.slice(0, 120) + ' <- ' + ((Array.from(document.querySelectorAll('th')).find((x) => !x.textContent.trim() && !x.getAttribute('aria-label')) || { closest: () => null }).closest('table') || { className: '' }).className,
+      }));
+      if (o.main !== 1) throw new Error(`${r}: hi ha ${o.main} <main>`);
+      if (o.h1 < 1) throw new Error(`${r}: no hi ha cap títol principal`);
+      if (o.emptyTh) throw new Error(`${r}: ${o.emptyTh} capçaleres de taula buides (${o.firstEmpty})`);
+    }
+    // «Salta al contingut» porta el focus al contingut sense tocar la ruta
+    await goHash(page, '#/inici');
+    const first = await page.evaluate(() => { const f = document.querySelector('.shell a[href], .shell button, .shell input, .shell select, .shell textarea, .shell [tabindex]:not([tabindex="-1"])'); return f ? f.className : ''; });
+    if (!String(first).includes('skip-link')) throw new Error(`El primer element enfocable hauria de ser «Salta al contingut» (és ${first})`);
+    await page.focus('.skip-link');
+    await page.keyboard.press('Enter');
+    const after = await page.evaluate(() => ({ id: document.activeElement && document.activeElement.id, hash: location.hash }));
+    if (after.id !== 'main' || after.hash !== '#/inici') throw new Error(`«Salta al contingut» ha fallat: ${JSON.stringify(after)}`);
+  });
   await step('Diàlegs: Escape tanca només el de dalt, el focus hi queda atrapat i torna on era', async () => {
     await goHash(page, '#/inici');
     await page.waitForSelector('.page');

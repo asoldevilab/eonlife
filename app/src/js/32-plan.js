@@ -178,7 +178,7 @@ function PlanEditor({ id, n }) {
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna al pacient" onClick=${() => go('client', plan.patientId, 'pla')} />
-      <div class="editbar-title"><strong>${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
+      <div class="editbar-title"><strong role="heading" aria-level="1">${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
       <${SaveStatus} />
       ${real.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('progres', plan.patientId, plan.id)}>Progrés</${Btn}>`}
       <${Menu} items=${[

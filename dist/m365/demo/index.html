@@ -241,6 +241,9 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .shell { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
 .shell-present { display: block; }
 .main { min-width: 0; }
+.main main:focus { outline: none; }
+.skip-link { position: fixed; left: 12px; top: -60px; z-index: 300; padding: 10px 16px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-weight: 700; text-decoration: none; box-shadow: var(--shadow-2); }
+.skip-link:focus { top: 12px; }
 .sidebar {
   position: sticky; top: 0; height: 100vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 28px;
@@ -4000,7 +4003,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-09 18:16";
+window.EON_BUILD = "2026-10-09 18:39";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -13592,7 +13595,8 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 
 function Dialog({ title, children, footer, onClose, wide }) {
   const ref = useRef(null);
-  useEffect(() => {
+  // useLayoutEffect: el focus entra al diàleg i les dreceres hi són des del primer instant (no després de pintar).
+  useLayoutEffect(() => {
     const el = ref.current;
     const before = document.activeElement;
     // El focus entra al diàleg (si un camp ja l'ha agafat, es respecta) i hi queda atrapat amb Tab.
@@ -17626,7 +17630,7 @@ function PatientView({ id, tab = 'resum' }) {
   };
 
   return html`<div class="page">
-    <nav class="crumbs"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Pacients</button></nav>
+    <nav class="crumbs" aria-label="Camí"><button type="button" class="link" onClick=${() => go('inici')}><${Icon} name="back" size=${16} />Pacients</button></nav>
     <header class="phead">
       <${Avatar} p=${p} size="lg" />
       <div class="phead-main">
@@ -18108,7 +18112,7 @@ function AssessmentEditor({ id, focus }) {
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); PdfSync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
-      <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
+      <div class="editbar-title"><strong role="heading" aria-level="1">${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
       <${Menu} items=${[
@@ -18316,7 +18320,7 @@ function YbtBlock({ a, p, upd }) {
   const rows = [['ant', 'Anterior', 'antDiff'], ['pm', 'Posteromedial', 'pmDiff'], ['pl', 'Posterolateral', 'plDiff'], ['len', 'Longitud de la cama', null]];
   return html`<div class="ybt">
     <div class="table-wrap"><table class="table ybt-table">
-      <thead><tr><th></th><th>Dreta</th><th>Esquerra</th><th class="num">Diferència</th></tr></thead>
+      <thead><tr><th><span class="sr-only">Direcció</span></th><th>Dreta</th><th>Esquerra</th><th class="num">Diferència</th></tr></thead>
       <tbody>
         ${rows.map(([k, label, dk]) => html`<tr>
           <th scope="row">${label}</th>
@@ -18379,7 +18383,7 @@ function ImportJumpsDialog({ res, a, p, onSave, onClose }) {
       ${names.length > 0 && res.people.length > names.length && html`<p class="muted small">No és ell? <button type="button" class="link" onClick=${() => pick('')}>Tria un altre nom del fitxer</button></p>`}`
       : html`<p>Aquest fitxer no porta el nom de la persona: s'importen totes les files. Revisa que siguin de <strong>${person}</strong>.</p>`}
     ${mine.length > 0 && html`<div class="table-wrap"><table class="table">
-      <thead><tr><th></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
+      <thead><tr><th><span class="sr-only">Importa</span></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
       <tbody>${mine.map((x) => html`<tr class=${known.has(x.src) ? 'muted' : ''}>
         <td><input type="checkbox" checked=${picked.has(x.id)} disabled=${known.has(x.src)} onChange=${() => toggle(x.id)} aria-label=${`Importa l'intent del ${fmtWhen(x.when)}`} /></td>
         <td>${fmtWhen(x.when)}${known.has(x.src) ? ' · ja importat' : ''}</td><td>${x.type}</td>
@@ -18446,7 +18450,7 @@ function JumpsBlock({ a, p, upd }) {
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
     ${list.length > 0 && html`<div class="table-wrap"><table class="table jumps-table">
-      <thead><tr><th>#</th><th>Tipus</th>${cols.map((c) => html`<th>${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th></th></tr></thead>
+      <thead><tr><th>#</th><th>Tipus</th>${cols.map((c) => html`<th>${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${list.map((at, i) => html`<tr>
         <td class="muted">${i + 1}</td>
         <td><${Select} value=${at.type} onValue=${setAt(at.id, 'type')} options=${OPT.jumpTypes} ariaLabel="Tipus de salt" /></td>
@@ -18481,7 +18485,7 @@ function EncoderBlock({ a, upd }) {
   const del = (rid) => upd((x) => { x.encoder.rows = x.encoder.rows.filter((z) => z.id !== rid); });
   return html`<div>
     ${rows.length > 0 && html`<div class="table-wrap"><table class="table">
-      <thead><tr><th>Exercici</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Potència <span class="muted">W</span></th><th></th></tr></thead>
+      <thead><tr><th>Exercici</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Potència <span class="muted">W</span></th><th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${rows.map((r) => html`<tr>
         <td><${TextInput} value=${r.name} onValue=${setR(r.id, 'name')} placeholder="Exercici" ariaLabel="Exercici" /></td>
         <td><${NumInput} value=${r.load} onValue=${setR(r.id, 'load')} ariaLabel=${`${r.name} càrrega`} /></td>
@@ -18655,7 +18659,7 @@ function FreeBlock({ a, upd }) {
   return html`<div>
     <p class="muted small">Qualsevol altra mesura que vulgueu registrar (també es desa al full de càlcul).</p>
     ${rows.length > 0 && html`<div class="table-wrap"><table class="table">
-      <thead><tr><th>Mesura</th><th>Dreta</th><th>Esquerra</th><th>Valor únic</th><th>Unitat</th><th></th></tr></thead>
+      <thead><tr><th>Mesura</th><th>Dreta</th><th>Esquerra</th><th>Valor únic</th><th>Unitat</th><th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${rows.map((r) => html`<tr>
         <td><${TextInput} value=${r.name} onValue=${setR(r.id, 'name')} placeholder="Nom de la mesura" ariaLabel="Nom de la mesura" /></td>
         <td><${NumInput} value=${r.d} onValue=${setR(r.id, 'd')} ariaLabel="Dreta" /></td>
@@ -19367,7 +19371,7 @@ function SessionsReport({ pid }) {
           </div>
           <h3 class="h3">Xifres del període</h3>
           <div class="table-wrap"><table class="table rtable ttable tnums">
-            <thead><tr><th></th><th class="num">Sessions</th><th class="num">Mitjana</th><th class="num">Mínim</th><th class="num">Màxim</th><th class="num">Primera</th><th class="num">Última</th><th class="num">Tendència</th></tr></thead>
+            <thead><tr><th><span class="sr-only">Mesura</span></th><th class="num">Sessions</th><th class="num">Mitjana</th><th class="num">Mínim</th><th class="num">Màxim</th><th class="num">Primera</th><th class="num">Última</th><th class="num">Tendència</th></tr></thead>
             <tbody>
               ${show.rpe && numRow('RPE (1–10)', ev.rpe, '', 1, null)}
               ${show.pain && numRow('EVA (0–10)', ev.pain, '', 1, 'down')}
@@ -19563,7 +19567,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           ${(sls.chips || []).length > 0 && html`<span class="muted">${sls.chips.join(' · ')}</span>`}</div>
           ${notes && sls.note && html`<p class="rnote">${sls.note}</p>`}`}
         ${(ybt.d.comp != null || ybt.e.comp != null) && html`<h3 class="h3">Y-Balance Test <span class="muted">· cm</span></h3>
-          <div class="table-wrap"><table class="table rtable"><thead><tr><th></th><th class="num">Anterior</th><th class="num">Posteromedial</th><th class="num">Posterolateral</th><th class="num">Composite</th></tr></thead>
+          <div class="table-wrap"><table class="table rtable"><thead><tr><th><span class="sr-only">Costat</span></th><th class="num">Anterior</th><th class="num">Posteromedial</th><th class="num">Posterolateral</th><th class="num">Composite</th></tr></thead>
           <tbody>${[['d', 'Dreta'], ['e', 'Esquerra']].map(([s, lab]) => html`<tr><th scope="row"><span class=${`side-dot side-dot-${s}`}></span>${lab}</th>
             <td class="num">${U.fmt(ybt[s].ant, 1)}</td><td class="num">${U.fmt(ybt[s].pm, 1)}</td><td class="num">${U.fmt(ybt[s].pl, 1)}</td><td class="num"><strong>${ybt[s].comp != null ? `${U.fmt(ybt[s].comp, 1)} %` : '—'}</strong></td></tr>`)}
             ${ybt.antDiff != null && html`<tr class="rdiff"><th scope="row">Diferència</th><td class="num">${U.fmt(ybt.antDiff, 1)}</td><td class="num">${U.fmt(ybt.pmDiff, 1)}</td><td class="num">${U.fmt(ybt.plDiff, 1)}</td><td class="num">${U.fmt(ybt.compDiff, 1)}</td></tr>`}
@@ -19879,7 +19883,7 @@ function SessionEditor({ id }) {
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${leave} />
       <div class="editbar-title">
-        <strong>Sessió ${s.number || ''}</strong>
+        <strong role="heading" aria-level="1">Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
       </div>
       ${s.planId && Store.get('templates', s.planId) && html`<button type="button" class="pill pill-neutral plan-pill" onClick=${() => go('pla', s.planId, s.planN)}
@@ -20304,7 +20308,7 @@ function VbtPanel({ it, onChange }) {
       ${sum && sum.text && html`<span class="vbt-sum">${sum.text}</span>`}
     </div>
     <div class="table-wrap"><table class="table vbt-table">
-      <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th></th></tr></thead>
+      <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${sets.map((st, i) => html`<tr key=${i}>
         <th scope="row">${i + 1}</th>
         ${cols.map((c) => html`<td><input class="input input-num vbt-in" inputmode="decimal" value=${st[c.k] || ''} aria-label=${`${c.label} · sèrie ${i + 1}`}
@@ -21002,7 +21006,7 @@ function TemplateEditor({ id }) {
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la biblioteca" onClick=${() => go('biblioteca', 'plantilles')} />
-      <div class="editbar-title"><strong>${t.kind === 'session' ? 'Plantilla de sessió' : `Plantilla · ${blockName(t.block)}`}</strong><span>${t.name}</span></div>
+      <div class="editbar-title"><strong role="heading" aria-level="1">${t.kind === 'session' ? 'Plantilla de sessió' : `Plantilla · ${blockName(t.block)}`}</strong><span>${t.name}</span></div>
       <${SaveStatus} />
       <${Menu} items=${[{ label: 'Elimina la plantilla', icon: 'trash', danger: true, onClick: remove }]} />
     </div>
@@ -21864,7 +21868,7 @@ function PlanEditor({ id, n }) {
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna al pacient" onClick=${() => go('client', plan.patientId, 'pla')} />
-      <div class="editbar-title"><strong>${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
+      <div class="editbar-title"><strong role="heading" aria-level="1">${plan.name}</strong><span>${U.fullName(p)} · ${list.length} sessions</span></div>
       <${SaveStatus} />
       ${real.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('progres', plan.patientId, plan.id)}>Progrés</${Btn}>`}
       <${Menu} items=${[
@@ -22567,7 +22571,7 @@ function NoeProposal({ conv, id }) {
     <div class="noe-sess-h"><strong>${U.fmtDate(s.date)}</strong>${s.goal ? html` · ${s.goal}` : ''}${s.skip ? html` <span class="pill pill-warn">no es crearà (dia ocupat o repetit)</span>` : ''}</div>
     ${s.blocks.map((b) => html`<div class="noe-blk" key=${b.key}><span class=${`noe-blk-k blk-${b.key}`}>${blockName(b.key)}</span>${b.items.map((it) => `${it.name}${it.over && (it.over.sets || it.over.reps) ? ` ${it.over.sets || ''}×${it.over.reps || ''}` : ''}`).join(' · ')}</div>`)}
   </div>`);
-  const details = open && html`<div class="noe-details">
+  const details = open && html`<div class="noe-details" tabindex="0" role="region" aria-label=${`Detall de la proposta: ${prop.title}`}>
     ${prop.data.sessions && sessionsList(prop.data.sessions)}
     ${prop.kind === 'canvi' && html`<ul class="noe-ops">${prop.data.ops.map((o, i) => html`<li key=${i}>${({ canviar_objectiu: `Objectiu → «${o.valor}»`, canviar_data: `Data → ${U.fmtDate(o.valor)}`, afegir: `Afegeix a ${blockName(o.key)}: ${o.spec && o.spec.name}`, treure: `Treu de ${blockName(o.key)}: ${o.label}`, substituir: `Canvia ${o.label} per ${o.spec && o.spec.name}`, prescripcio: `${o.label}: ${Object.entries(o.over).map(([k, v]) => `${({ sets: 'sèries', reps: 'reps', load: 'càrrega', intensity: 'intensitat', rest: 'descans', tempo: 'tempo', note: 'nota' })[k]} ${v}`).join(', ')}` })[o.a]}</li>`)}</ul>`}
     ${prop.kind === 'pla' && prop.data.sessions.map((s) => html`<div class="noe-sess" key=${s.n}><div class="noe-sess-h"><strong>S${s.n}</strong>${s.phase ? ` · ${s.phase}` : ''}${s.goal ? ` · ${s.goal}` : ''}</div>
@@ -22634,7 +22638,7 @@ function NoePanel() {
       <${Btn} icon="sparkles" onClick=${() => { NoeConfig.set({ demo: true }); NoeUI.emit(); }}>Prova la demostració</${Btn}></div>
   </div>`;
 
-  return html`<aside class="noe-panel" role="dialog" aria-label="NOE, l'assistent d'IA" aria-modal="false">
+  return html`<aside class="noe-panel" aria-label="NOE, l'assistent d'IA">
     <header class="noe-head">
       <span class="noe-logo"><${Icon} name="sparkles" size=${18} /></span>
       <div class="noe-title"><strong>NOE</strong><span class="muted small">${mode === 'demo' ? 'Mode demostració (sense IA)' : mode === 'ai' ? 'Assistent d\'IA d\'EON Life' : 'Sense connectar'}</span></div>
@@ -22822,7 +22826,7 @@ function Sidebar({ route, open, onClose }) {
       <span class="logo-mark" role="img" aria-label=${Store.settings.centerName || 'EON Life'}></span>
       <span class="sidebar-sub">${Store.settings.centerTagline || 'Human Performance'}</span>
     </div>
-    <nav class="nav">
+    <nav class="nav" aria-label="Navegació principal">
       ${item('inici', 'home', 'Inici i pacients', clientRoutes.includes(r))}
       ${item('dades', 'database', 'Base de dades', r === 'dades' || r === 'valoracio')}
       ${item('biblioteca', 'book', 'Biblioteca', r === 'biblioteca' || r === 'plantilla')}
@@ -22888,7 +22892,15 @@ function App() {
   }, []);
   // Les taules que es desplacen de costat (mòbil) s'han de poder moure també amb el teclat.
   useEffect(() => {
-    for (const el of document.querySelectorAll('.table-wrap:not([tabindex])')) if (el.scrollWidth > el.clientWidth + 1) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'region'); if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', 'Taula (es pot desplaçar)'); }
+    const all = Array.from(document.querySelectorAll('.table-wrap'));
+    for (const el of all) {
+      if (el.hasAttribute('tabindex') || el.scrollWidth <= el.clientWidth + 1) continue;
+      const sec = el.closest('section, .card');
+      const h = sec && sec.querySelector('h2, h3');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'region');
+      if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', `${h ? `${h.textContent.trim()} · ` : ''}taula ${all.indexOf(el) + 1} (es pot desplaçar)`);
+    }
   });
   useEffect(() => {
     // Amb Microsoft 365 els canvis pendents ja queden guardats a la tauleta: no cal avisar en sortir.
@@ -22911,11 +22923,14 @@ function App() {
 
   const present = route.name === 'fitxa' || route.name === 'informe' || route.name === 'progres';
   return html`<div class=${U.cls('shell', present && 'shell-present')}>
+    ${!present && html`<a class="skip-link" href="#main" onClick=${(e) => { e.preventDefault(); const m = document.getElementById('main'); if (m) { m.focus(); m.scrollIntoView(); } }}>Salta al contingut</a>`}
     ${!present && html`<${Sidebar} route=${route} open=${menu} onClose=${() => setMenu(false)} />`}
     ${!present && menu && html`<div class="scrim" onClick=${() => setMenu(false)}></div>`}
     <div class="main">
       ${!present && html`<${Topbar} onMenu=${() => setMenu(true)} />`}
-      ${renderRoute(route)}
+      <main id="main" tabindex="-1">
+        ${renderRoute(route)}
+      </main>
     </div>
     <${SharedLists} />
     <${UpdateBanner} />

@@ -305,7 +305,8 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 
 function Dialog({ title, children, footer, onClose, wide }) {
   const ref = useRef(null);
-  useEffect(() => {
+  // useLayoutEffect: el focus entra al diàleg i les dreceres hi són des del primer instant (no després de pintar).
+  useLayoutEffect(() => {
     const el = ref.current;
     const before = document.activeElement;
     // El focus entra al diàleg (si un camp ja l'ha agafat, es respecta) i hi queda atrapat amb Tab.

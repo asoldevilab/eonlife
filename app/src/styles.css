@@ -224,6 +224,9 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .shell { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
 .shell-present { display: block; }
 .main { min-width: 0; }
+.main main:focus { outline: none; }
+.skip-link { position: fixed; left: 12px; top: -60px; z-index: 300; padding: 10px 16px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-weight: 700; text-decoration: none; box-shadow: var(--shadow-2); }
+.skip-link:focus { top: 12px; }
 .sidebar {
   position: sticky; top: 0; height: 100vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 28px;

@@ -263,7 +263,7 @@ function TemplateEditor({ id }) {
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la biblioteca" onClick=${() => go('biblioteca', 'plantilles')} />
-      <div class="editbar-title"><strong>${t.kind === 'session' ? 'Plantilla de sessió' : `Plantilla · ${blockName(t.block)}`}</strong><span>${t.name}</span></div>
+      <div class="editbar-title"><strong role="heading" aria-level="1">${t.kind === 'session' ? 'Plantilla de sessió' : `Plantilla · ${blockName(t.block)}`}</strong><span>${t.name}</span></div>
       <${SaveStatus} />
       <${Menu} items=${[{ label: 'Elimina la plantilla', icon: 'trash', danger: true, onClick: remove }]} />
     </div>

@@ -81,7 +81,7 @@ function SessionEditor({ id }) {
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${leave} />
       <div class="editbar-title">
-        <strong>Sessió ${s.number || ''}</strong>
+        <strong role="heading" aria-level="1">Sessió ${s.number || ''}</strong>
         <span>${p ? U.fullName(p) : ''} · ${U.fmtDateLong(s.date)}</span>
       </div>
       ${s.planId && Store.get('templates', s.planId) && html`<button type="button" class="pill pill-neutral plan-pill" onClick=${() => go('pla', s.planId, s.planN)}
@@ -506,7 +506,7 @@ function VbtPanel({ it, onChange }) {
       ${sum && sum.text && html`<span class="vbt-sum">${sum.text}</span>`}
     </div>
     <div class="table-wrap"><table class="table vbt-table">
-      <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th></th></tr></thead>
+      <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th><span class="sr-only">Accions</span></th></tr></thead>
       <tbody>${sets.map((st, i) => html`<tr key=${i}>
         <th scope="row">${i + 1}</th>
         ${cols.map((c) => html`<td><input class="input input-num vbt-in" inputmode="decimal" value=${st[c.k] || ''} aria-label=${`${c.label} · sèrie ${i + 1}`}

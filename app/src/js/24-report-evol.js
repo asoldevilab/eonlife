@@ -193,7 +193,7 @@ function SessionsReport({ pid }) {
           </div>
           <h3 class="h3">Xifres del període</h3>
           <div class="table-wrap"><table class="table rtable ttable tnums">
-            <thead><tr><th></th><th class="num">Sessions</th><th class="num">Mitjana</th><th class="num">Mínim</th><th class="num">Màxim</th><th class="num">Primera</th><th class="num">Última</th><th class="num">Tendència</th></tr></thead>
+            <thead><tr><th><span class="sr-only">Mesura</span></th><th class="num">Sessions</th><th class="num">Mitjana</th><th class="num">Mínim</th><th class="num">Màxim</th><th class="num">Primera</th><th class="num">Última</th><th class="num">Tendència</th></tr></thead>
             <tbody>
               ${show.rpe && numRow('RPE (1–10)', ev.rpe, '', 1, null)}
               ${show.pain && numRow('EVA (0–10)', ev.pain, '', 1, 'down')}
