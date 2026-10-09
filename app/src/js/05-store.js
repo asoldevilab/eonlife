@@ -8,6 +8,7 @@
 
 const KINDS = ['patients', 'assessments', 'sessions', 'exercises', 'templates'];
 const LOCAL_KEY = 'eonlife:data:v1';
+const PERSIST_EVERY = 150;
 
 function hasGoogle() {
   return typeof google !== 'undefined' && google && google.script && google.script.run;
@@ -40,6 +41,7 @@ const LocalBackend = {
   db: null,
   persistent: true,
   load() {
+    this.persistNow();
     try {
       const raw = window.localStorage.getItem(LOCAL_KEY);
       return raw ? JSON.parse(raw) : null;
@@ -48,9 +50,22 @@ const LocalBackend = {
       return null;
     }
   },
-  // Es desa a l'instant: la cua de Store ja agrupa les pulsacions de cada registre, i així
-  // tancar o recarregar la pàgina just després d'un canvi no el perd.
+  // Els canvis solts es desen a l'instant (tancar o recarregar la pàgina just després no el perd). Una ràfega (restaurar
+  // una còpia, esborrar un pacient amb molts registres) s'agrupa: després de 3 escriptures en 150 ms, la resta esperen
+  // i es desen d'un cop; en ocultar o tancar la pàgina es desa el que quedi. Sense això, cada registre reescrivia tota la base.
   persist() {
+    this.dirty = true;
+    const now = Date.now();
+    if (now - (this.windowStart || 0) > PERSIST_EVERY) { this.windowStart = now; this.calls = 0; }
+    if (this.timer) return;
+    if (++this.calls <= 3) this.persistNow();
+    else this.timer = setTimeout(() => this.persistNow(), PERSIST_EVERY);
+  },
+  persistNow() {
+    clearTimeout(this.timer);
+    this.timer = 0;
+    if (!this.dirty || !this.db) return;
+    this.dirty = false;
     try {
       window.localStorage.setItem(LOCAL_KEY, JSON.stringify(this.db));
       this.persistent = true;
@@ -71,7 +86,8 @@ const LocalBackend = {
     if (NO_DEMO && db.demo && !db.demoLoaded) demoRemoved = removeDemoClients(db);
     if (db.demo) migrateDemo(db);
     this.db = db;
-    this.persist();
+    this.dirty = true;
+    this.persistNow();
     if (NO_DEMO) {
       try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* res */ }
     }
@@ -90,9 +106,16 @@ const LocalBackend = {
   reset(withDemo) {
     this.db = withDemo ? { ...makeDemoData(), demoLoaded: true } : emptyLocalDb();
     for (const k of KINDS) this.db[k] = this.db[k] || {};
-    this.persist();
+    this.dirty = true;
+    this.persistNow();
   },
 };
+
+// El que quedi pendent de desar es desa en ocultar o tancar la pàgina.
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('pagehide', () => LocalBackend.persistNow());
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') LocalBackend.persistNow(); });
+}
 
 function emptyLocalDb() {
   return { patients: {}, assessments: {}, sessions: {}, exercises: {}, templates: {}, settings: null, demo: false };
@@ -162,6 +185,11 @@ const Store = {
 
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); },
   emit() { this.version++; for (const fn of this.listeners) fn(this.version); },
+  // Per a l'estat de «desant…»: una ràfega de desaments avisa la pantalla com a molt cada 120 ms (no un cop per registre).
+  emitLater() {
+    if (this.emitTimer) return;
+    this.emitTimer = setTimeout(() => { this.emitTimer = 0; this.emit(); }, 120);
+  },
 
   async init() {
     this.backend = hasGoogle() ? GoogleBackend : (typeof M365 !== 'undefined' && M365.available()) ? M365Backend : LocalBackend;
@@ -368,7 +396,7 @@ const Store = {
     } catch (e) {
       flat = {};
     }
-    this.emit();
+    this.emitLater();
     const rev = this.rev[key];
     this.inflight[key] = this.backend.save(kind, rec, flat, log)
       .then((res) => {
@@ -389,7 +417,7 @@ const Store = {
       .finally(() => {
         delete this.inflight[key];
         if (this.again.has(key)) { this.again.delete(key); this.flush(kind, id); }
-        this.emit();
+        this.emitLater();
       });
   },
 
