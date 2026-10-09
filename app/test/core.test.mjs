@@ -303,6 +303,17 @@ test('Assault bike: anàlisi, comparació amb l\'anterior i avisos', () => {
   assert.equal(Calc.bikeAnalysis({}, null), null);
 });
 
+test('tots els mòduls de l\'app tenen sintaxi vàlida (un error trencaria l\'app sencera)', async () => {
+  const { readdirSync, readFileSync } = await import('node:fs');
+  const { default: vm } = await import('node:vm');
+  const dir = new URL('../src/js/', import.meta.url);
+  const files = readdirSync(dir).filter((f) => f.endsWith('.js'));
+  assert.ok(files.length > 50);
+  for (const f of files) assert.doesNotThrow(() => new vm.Script(readFileSync(new URL(f, dir), 'utf8'), { filename: f }), f);
+  // I tots junts, tal com es publiquen.
+  assert.doesNotThrow(() => new vm.Script(files.sort().map((f) => readFileSync(new URL(f, dir), 'utf8')).join('\n;\n'), { filename: 'eonlife.js' }));
+});
+
 test('mode local: cada canvi es desa al navegador a l\'instant', async () => {
   const core = loadCore();
   await core.LocalBackend.init();

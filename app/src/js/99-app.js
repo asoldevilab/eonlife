@@ -103,6 +103,7 @@ function App() {
     </div>
     <${SharedLists} />
     <${UpdateBanner} />
+    ${!present && html`<${NoeLauncher} />`}
     <${ModalHost} />
   </div>`;
 }

@@ -568,6 +568,24 @@ maluc dempeus, superman, curl femoral amb lliscadors, kettlebell snatch, bisagra
 flexions amb les mans al banc i elevació de talons amb genolls flexionats. Si en veieu un que no s'entengui, digueu-ne
 el nom (o feu-ne una captura): es corregeix el dibuix o, per a aquell exercici, **Canvia el dibuix**.
 
+## NOE · l'assistent d'IA
+
+El botó **NOE** (a baix a la dreta de qualsevol pantalla) obre el xat de l'assistent d'IA. Hi pots demanar, en català: *«qui no ha
+entrenat els últims 14 dies?»*, *«com està la Laura?»*, *«proposa-li una sessió de força de tren inferior»*, *«planifica el
+novembre per al Jordi»* o *«canvia el front squat d'aquesta sessió per una variant sense dolor de genoll»*. NOE llegeix les
+dades de l'app, fa servir els exercicis i el material de la biblioteca i proposa tenint en compte lesions, valoracions i com
+han respost a les últimes sessions.
+
+- **Els canvis són propostes**: surt una **targeta** amb el detall (sessions, blocs, exercicis, avisos). **No es crea ni es
+  canvia res fins que prems *Aplica***; després hi ha **Obre** i **Desfés**. Pots descartar-la amb *Descarta*.
+- Els pacients surten amb el seu nom a la pantalla, però **a la IA només arriben com a PAC-1, PAC-2… (sense nom, telèfon,
+  correu ni data de naixement)**.
+- NOE és una IA: **pot equivocar-se**. Revisa sempre el que proposa. No diagnostica ni substitueix el criteri del professional;
+  davant de signes d'alarma recomana derivar.
+- Cada aparell té **converses pròpies** (la icona del rellotge mostra les anteriors i *+* en comença una de nova).
+- **Configuració › NOE**: clau de l'API (es queda en aquest aparell), model, privacitat, consentiment, **Mode demostració**
+  (sense IA ni cost) i **Prova la connexió**. Més detalls (servidor intermediari, privacitat, cost) a `docs/NOE.md`.
+
 ## Actualitzacions de l'app
 
 Cada cop que s'obre l'app (també des de la icona de la tauleta) i cada cop que torna a primer pla, mira si s'ha
