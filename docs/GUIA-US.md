@@ -483,6 +483,20 @@ Per canviar-la, obre l'exercici a la biblioteca:
 
 Els dibuixos són propis de l'app; no són imatges de Technogym ni de cap altra aplicació.
 
+**Dibuixos en 3D (octubre de 2026)**: el maniquí té volum (cap, tronc en dos blocs, braços, mans, cames i peus) i es veu
+des del **pla del moviment**: de costat (squat, bisagra, press…), **de cara** (elevacions laterals, estocada lateral,
+planxa lateral, Copenhagen, dominades…), **en tres quarts** (rotacions: woodchop, Pallof, russian twist, quadrupèdia,
+world's greatest stretch…) o **des de dalt** (planxa jack). Cada exercici té la seva postura inicial i final segons la
+tècnica (p. ex. el **knee-to-wall es fa dempeus**, de cara a la paret, amb el taló a terra i el genoll tocant-la).
+El material surt de **colors diferents del cos**, per distingir-lo ben bé:
+- **blau acer**: barres, discos, mancuernes i kettlebells (la pica, més clara);
+- **taronja**: gomes, loop bands i cables (amb la politja i la torre);
+- **turquesa**: material tou (pilotes, fitball, foam roller, lliscadors);
+- **gris/beix**: l'entorn (banc, caixa, paret, seient de màquina).
+Més de 200 postures, amb banc, caixa, paret i màquines (premsa, extensió, curl, abductor, GHD, banc de lumbars…). En
+mode fosc els colors s'aclareixen. Els dibuixos només es mouen mentre són a la pantalla (la llista de 400 exercicis no
+carrega res de més).
+
 Els ~400 dibuixos es van revisar un a un (octubre de 2026): fons de tríceps al banc, ab wheel, bicicleta, extensió de
 maluc dempeus, superman, curl femoral amb lliscadors, kettlebell snatch, bisagra amb pica (la pica a l'esquena),
 flexions amb les mans al banc i elevació de talons amb genolls flexionats. Si en veieu un que no s'entengui, digueu-ne
