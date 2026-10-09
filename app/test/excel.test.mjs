@@ -409,7 +409,7 @@ test('auditoria de la valoració: cada test, valor i fitxer surt al detall i a l
     values, ybt: y,
     jumps: { readiness: 'groc', note: '‹nota salts›', video: 'https://eonlife.sharepoint.com/salts.mp4', attempts: [{ id: 'J1', type: 'CMJ', height: '33.3', power: '2999', force: '1777', velocity: '1.44', rsimod: '0.55', load: '12', flight: '480', contact: '210', note: '‹nota intent›' }] },
     encoder: { rows: [{ id: 'R1', name: '‹encoder›', load: '61', vel: '0.77', power: '444' }] },
-    bike: { peak: '800', mean: '600', min: '400' },
+    bike: { peak: '800', mean: '600', min: '400', time: '30', dist: '0,31', cal: '23,7', speed: '33,9', rpm: '88', unit: 'mi' },
     patterns, free: [{ id: 'F1', name: '‹mesura lliure›', d: '17', e: '19', v: '23', unit: 'mm' }],
     conclusions: { strengths: '‹forts›', priorities: '‹prioritats›', plan: '‹pla›' }, nextRetest: '2027-01-06', rpe: '9',
     files: [{ id: 'F', name: 'informekinvent_marcelauditoria_20261006_01.pdf', url: 'https://eonlife.sharepoint.com/kinvent.pdf', label: 'Informe Kinvent', date: '2026-10-06' }],
@@ -426,7 +426,7 @@ test('auditoria de la valoració: cada test, valor i fitxer surt al detall i a l
   // Tots els números: tests (dreta, esquerra, valor únic), Y-Balance, salts, encoder, bici, mesures lliures, pes, alçada i wellness
   for (const v of expectNums) assert.ok(hasNum(det, v), `falta el valor ${v}`);
   for (const v of [60, 90, 88, 85, 66, 93, 90]) assert.ok(hasNum(det, v), `Y-Balance ${v}`);
-  for (const v of [33.3, 2999, 1777, 1.44, 0.55, 12, 480, 210, 61, 0.77, 444, 800, 600, 400]) assert.ok(hasNum(det, v), `rendiment ${v}`);
+  for (const v of [33.3, 2999, 1777, 1.44, 0.55, 12, 480, 210, 61, 0.77, 444, 800, 600, 400, 30, 0.31, 23.7, 33.9, 88, 18]) assert.ok(hasNum(det, v), `rendiment ${v}`);
   for (const v of [17, 19, 23, 71.5, 178, 3, 4, 2, 5, 1, 15]) assert.ok(hasNum(det, v), `valor ${v}`);
   assert.ok([...det.cells.values()].some((c) => c.f && /'Re-test 06-10-26'!\$B\$\d+/.test(c.f)), 'N/kg amb el pes de la mateixa valoració');
   assert.equal(det.get(`B${det.rowOf(det.find(/^RPE de la valoració/))}`), 9, 'RPE de la valoració');

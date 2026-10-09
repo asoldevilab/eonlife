@@ -7,6 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { readXlsx } from './xlsx-read.mjs';
+import { screen as lcdScreen, photo as lcdPhoto, png as lcdPng } from './lcd-fixture.mjs';
 
 const require = createRequire(import.meta.url);
 let playwright;
@@ -636,6 +637,93 @@ const step = async (label, fn) => {
     // Excel: enllaços a les fotos i als vídeos.
     const flat = await page.evaluate((id) => { const a = Store.get('assessments', id); return Flat.assessment(a, Store.get('patients', a.patientId)); }, aid);
     if (!/^eonlocal:/.test(flat['Test de Thomas foto D']) || !/^eonlocal:/.test(flat['Single leg squat vídeo E'])) throw new Error('columnes de l\'Excel');
+  });
+  await step('valoració: importar el CSV de My Jump (porta tots els atletes: només s\'agafen les files del pacient)', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-JORDI').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    const head = 'Date;Team;Name;Body weight(kg);Push-off distance (hp0, in m);Jump type;Box height (m);Load (kg);Jump height (cm);RSI mod (m/s);Time to takeoff (ms);Flight time (ms);Contact time (ms);DRI;Force (N);Velocity (m/s);Power (W);Impulse (N*kg);Reactive strength index;Stiffness (kN/m);Readiness colour';
+    const csv = [head,
+      '6.10.2026, 14:12;CLUB;Eva Roca Mas;58,00;0,20;CMJ;0,00;0,00;24,10;---;---;443,00;0,00;---;1.201,50;1,09;1.301,00;120,10;0,00;0,00;green',
+      '6.10.2026, 14:30;CLUB;Jordi Puig Ferrer;84,00;0,25;CMJ;0,00;0,00;31,40;---;---;506,00;0,00;---;1.911,98;1,24;2.083,63;196,10;0,00;0,00;yellow',
+      '6.10.2026, 14:35;CLUB;Jordi Puig Ferrer;84,00;0,25;CMJ;0,00;0,00;32,00;---;---;512,00;0,00;---;1.931,10;1,25;2.130,00;199,00;0,00;0,00;green', ''].join('\n');
+    const before = await page.evaluate((id) => ((Store.get('assessments', id).jumps || {}).attempts || []).length, aid);
+    await page.locator('#grp-jumps input[data-kind="myjump"]').setInputFiles({ name: 'MyJumpLab_export.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+    await page.waitForSelector('.dialog >> text=Jordi Puig Ferrer');
+    const dlg = page.locator('.dialog');
+    if ((await dlg.locator('tbody tr').count()) !== 2) throw new Error('només han de sortir les dues files del pacient');
+    if (await dlg.locator('text=Eva Roca Mas').count()) throw new Error('no ha de sortir l\'altra persona');
+    await shot(page, '06f-myjump-importa', false);
+    await dlg.locator('.dialog-foot >> text=Importa 2 intents').click();
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    const after = await page.evaluate((id) => Store.get('assessments', id), aid);
+    const added = after.jumps.attempts.slice(before);
+    if (added.length !== 2 || added.some((x) => x.athlete || /Eva/.test(JSON.stringify(x)))) throw new Error(`intents: ${JSON.stringify(added)}`);
+    if (added[0].force !== '1911,98' || added[0].bodyweight !== '84,00' || added[1].height !== '32,00') throw new Error(JSON.stringify(added));
+    // L'anàlisi surt a sota dels salts i les dades d'Eva no s'han desat enlloc.
+    await page.waitForSelector('#grp-jumps .jump-analysis >> text=Millor CMJ');
+    const stored = await page.evaluate(() => JSON.stringify(Store.all('assessments')));
+    if (/Eva Roca|1\.201|1201,50/.test(stored)) throw new Error('s\'han desat dades d\'una altra persona');
+    // Tornar a importar el mateix fitxer no duplica els intents.
+    await page.locator('#grp-jumps input[data-kind="myjump"]').setInputFiles({ name: 'MyJumpLab_export.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+    await page.waitForSelector('.dialog >> text=ja importat');
+    await page.click('.dialog-head button[aria-label="Tanca"]');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    await shot(page, '06f-myjump-analisi', false);
+  });
+  await step('valoració: Assault bike amb una foto de la pantalla (cantons, lectura, comprovació i càlculs)', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-JORDI').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.waitForSelector('#grp-bike');
+    // Foto inventada de la pantalla (en perspectiva) a prop del centre; l'usuari arrossega els cantons fins a la pantalla.
+    const lcdSrc = readFileSync(join(root, 'app', 'src', 'js', '16-lcd.js'), 'utf8');
+    const homography = new Function(`${lcdSrc}\nreturn LcdReader.homography;`)();
+    const quad = [[250, 200], [640, 230], [620, 1060], [270, 1040]];
+    const ph = lcdPhoto(lcdScreen({ time: '0:30', dist: '0.2', cal: '21.1', watts: '915', speed: '34.7', rpm: '90' }), quad, 900, 1300, homography);
+    await page.locator('#grp-bike input[data-kind="bike-photo"]').setInputFiles({ name: 'IMG_bike.png', mimeType: 'image/png', buffer: lcdPng(ph, 900, 1300) });
+    await page.waitForSelector('.lcd-quad');
+    await page.waitForSelector('.lcd-stage img');
+    await page.waitForFunction(() => { const i = document.querySelector('.lcd-stage img'); return i && i.complete && i.naturalWidth > 0; });
+    const box = await page.locator('.lcd-quad').boundingBox();
+    const at = ([x, y]) => [box.x + (x / 900) * box.width, box.y + (y / 1300) * box.height];
+    for (let i = 0; i < 4; i++) {
+      const dot = await page.locator(`.lcd-handle[data-corner="${i}"] .lcd-dot`).boundingBox();
+      const from = [dot.x + dot.width / 2, dot.y + dot.height / 2];
+      // Uns píxels de més o de menys, com una mà de veritat.
+      const to = at([quad[i][0] + (i % 2 ? -6 : 6), quad[i][1] + (i < 2 ? -5 : 5)]);
+      await page.mouse.move(from[0], from[1]);
+      await page.mouse.down();
+      await page.mouse.move((from[0] + to[0]) / 2, (from[1] + to[1]) / 2, { steps: 4 });
+      await page.mouse.move(to[0], to[1], { steps: 4 });
+      await page.mouse.up();
+    }
+    await shot(page, '06g-bike-cantons', false);
+    await page.click('.dialog-foot >> text=Llegeix la pantalla');
+    await page.waitForSelector('.lcd-result', { timeout: 60000 });
+    const val = (label) => page.locator(`.lcd-fields input[aria-label="${label}"]`).inputValue();
+    const got = [await val('Temps'), await val('Distància'), await val('Calories'), await val('Watts mitjans'), await val('Velocitat mitjana'), await val('RPM mitjanes')].join(' | ');
+    if (got !== '30 | 0,2 | 21,1 | 915 | 34,7 | 90') throw new Error(`lectura: ${got}`);
+    await page.waitForSelector('.lcd-flat canvas');
+    await shot(page, '06g-bike-lectura', false);
+    // Es pot corregir a mà abans d'aplicar.
+    await page.fill('.lcd-fields input[aria-label="RPM mitjanes"]', '91');
+    const saved = await page.evaluate((id) => ((Store.get('assessments', id).bike || {}).mean || ''), aid);
+    if (saved === '915') throw new Error('no s\'ha de desar res abans d\'aplicar');
+    await page.click('.dialog-foot >> text=Aplica a la valoració');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    await page.waitForSelector('#grp-bike .tphoto.has', { timeout: 15000 });
+    const b = await page.evaluate((id) => Store.get('assessments', id).bike, aid);
+    for (const [k, v] of Object.entries({ time: '30', dist: '0,2', cal: '21,1', mean: '915', speed: '34,7', rpm: '91', unit: 'mi' })) if (b[k] !== v) throw new Error(`bike.${k}: ${JSON.stringify(b)}`);
+    if (!/^eonlocal:/.test(b.photo || '')) throw new Error(`foto de la pantalla: ${b.photo}`);
+    // Els càlculs i l'anàlisi surten a sota de les caselles.
+    await page.waitForSelector('#grp-bike .jump-analysis >> text=Treball total');
+    await page.waitForSelector('#grp-bike .jump-analysis >> text=milles');
+    await shot(page, '06g-bike-analisi', false);
+    // A l'informe: les targetes i les línies d'anàlisi.
+    await page.click('.editbar >> text=Informe');
+    await page.waitForSelector('.rsec >> text=Assault bike');
+    await page.waitForSelector('.rsec .kv >> text=Treball total');
+    await page.waitForSelector('.rsec .kv >> text=Distància');
+    await shot(page, '06g-bike-informe', false);
   });
   await step('wellness a l\'inici de la sessió i de la valoració (1-5 i observacions)', async () => {
     const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);

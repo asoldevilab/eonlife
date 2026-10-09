@@ -721,6 +721,28 @@ input[type="search"].input { -webkit-appearance: none; }
 @media (max-width: 640px) { .block-focus { flex-basis: 100%; } }
 
 .bike .kv-row { margin-top: 14px; }
+.bike-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.bike .inline { margin-top: 12px; }
+.bike .tmedia { margin-top: 12px; }
+.lcd-stage { position: relative; display: inline-block; max-width: 100%; margin: 6px 0 10px; line-height: 0; border-radius: 12px; overflow: hidden; background: #000; }
+.lcd-stage img { display: block; max-width: 100%; max-height: 58vh; width: auto; height: auto; user-select: none; -webkit-user-drag: none; }
+.lcd-quad { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; user-select: none; }
+.lcd-poly { fill: rgba(231, 211, 205, 0.16); stroke: #fff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.lcd-handle { cursor: grab; }
+.lcd-hit { fill: transparent; }
+.lcd-dot { fill: var(--brand); stroke: #fff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.lcd-num { fill: #fff; font-weight: 800; pointer-events: none; font-family: inherit; }
+.lcd-n { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font-size: 12px; font-weight: 800; }
+.lcd-err { padding: 8px 12px; border-radius: 10px; background: var(--bad-bg); color: var(--bad-ink); font-weight: 600; }
+.lcd-result { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 18px; align-items: start; }
+.lcd-flat { display: grid; gap: 4px; justify-items: center; }
+.lcd-flat canvas { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.lcd-fields { display: grid; gap: 12px; min-width: 0; }
+.lcd-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; vertical-align: middle; }
+.lcd-ok { background: var(--ok-bg); color: var(--ok-ink); }
+.lcd-warn { background: var(--warn-bg); color: var(--warn-ink, #8A5A00); }
+.lcd-bad { background: var(--bad-bg); color: var(--bad-ink); }
+@media (max-width: 640px) { .lcd-result { grid-template-columns: 1fr; } .lcd-flat canvas { max-width: 180px; } }
 .fb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
 .computed { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--surface-2); font-weight: 650; font-variant-numeric: tabular-nums; }
 .computed .ic { color: var(--link); }
@@ -803,6 +825,14 @@ input[type="search"].input { -webkit-appearance: none; }
 .jump-best { font-size: 36px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; }
 .jump-best small { font-size: 16px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
 .jump-meta { font-size: 13px; color: var(--ink-2); }
+.jumps-extra td { padding-top: 0; background: var(--surface-2); }
+.jump-analysis { margin-top: 14px; padding: 12px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
+.jump-analysis .h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.analysis-list { margin: 0 0 6px; padding-left: 18px; display: grid; gap: 3px; }
+.analysis-warns { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.analysis-warns li { display: flex; gap: 8px; align-items: flex-start; padding: 7px 10px; border-radius: 10px; background: var(--warn-bg, var(--surface-3)); color: var(--warn-ink, var(--ink)); font-size: 13px; }
+.analysis-warns svg { flex: none; margin-top: 2px; }
+.rjump-analysis { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 2px; font-size: 13.5px; color: var(--ink-2); }
 
 .scale { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .scale-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; }
@@ -3894,7 +3924,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-09 10:29";
+<script>window.EON_BUILD = "2026-10-09 16:24";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5385,16 +5415,141 @@ const Calc = {
 
   cmj(a) { return Calc.jumps(a).CMJ || null; },
 
+  // Anàlisi dels salts per tipus: el millor intent, la variabilitat, el temps de vol i la velocitat d'enlairament, la
+  // potència (la de My Jump o, si no hi ha el pes, l'estimada amb la fórmula de Sayers i el pes de la valoració),
+  // el RSI-mod, l'evolució respecte de la valoració anterior i els avisos de dades dubtoses.
+  // lines: el que surt a l'informe (resultats); warns: només per a qui introdueix les dades.
+  jumpAnalysis(a, prev) {
+    const G = 9.81;
+    const list = ((a && a.jumps && a.jumps.attempts) || []).filter((x) => U.num(x.height) != null);
+    const w = Calc.weight(a);
+    const prevJumps = prev ? Calc.jumps(prev) : {};
+    const out = {};
+    const f1 = (n) => U.fmt(n, 1), f0 = (n) => U.fmt(n, 0);
+    for (const type of [...new Set(list.map((x) => x.type || 'CMJ'))]) {
+      const rows = list.filter((x) => (x.type || 'CMJ') === type);
+      const hs = rows.map((x) => U.num(x.height));
+      const best = Math.max(...hs);
+      const at = rows[hs.indexOf(best)];
+      const mean = hs.reduce((s, n) => s + n, 0) / hs.length;
+      const sd = hs.length > 1 ? Math.sqrt(hs.reduce((s, n) => s + (n - mean) ** 2, 0) / (hs.length - 1)) : null;
+      const cv = sd != null && mean ? (sd / mean) * 100 : null;
+      const num = (k) => U.num(at[k]);
+      const flight = num('flight');
+      const hFlight = flight ? (G * (flight / 1000) ** 2 / 8) * 100 : null;
+      const vTo = Math.sqrt(2 * G * (best / 100));
+      const mjMass = num('bodyweight');
+      const mass = mjMass || w || null;
+      const massFrom = mjMass ? 'My Jump' : w ? 'valoració' : null;
+      const power = num('power'), force = num('force');
+      const sayers = mass && type.startsWith('CMJ') ? 60.7 * best + 45.3 * mass - 2055 : null;
+      const takeoff = num('takeoff');
+      const rsimod = num('rsimod') != null ? num('rsimod') : takeoff ? (best / 100) / (takeoff / 1000) : null;
+      const pj = prevJumps[type];
+      const cmp = pj && pj.best != null ? { date: prev.date || '', best: pj.best, diff: best - pj.best, pct: pj.best ? ((best - pj.best) / pj.best) * 100 : null } : null;
+      const lines = [], warns = [];
+      lines.push(`Millor ${type}: ${f1(best)} cm${rows.length > 1 ? ` (mitjana ${f1(mean)} cm en ${rows.length} intents)` : ''}.`);
+      lines.push(`${flight ? `Temps de vol ${f0(flight)} ms · ` : ''}velocitat d'enlairament ${U.fmt(vTo, 2)} m/s.`);
+      let relPower = null, powerKind = '';
+      if (power != null) { powerKind = 'My Jump'; relPower = mass ? power / mass : null; lines.push(`Potència mitjana de l'empenta ${f0(power)} W${relPower != null ? ` (${f1(relPower)} W/kg)` : ''}.`); }
+      else if (sayers != null && sayers > 0) { powerKind = 'Sayers'; relPower = sayers / mass; lines.push(`Potència pic estimada (Sayers) ${f0(sayers)} W (${f1(relPower)} W/kg), amb ${f1(mass)} kg.`); }
+      if (force != null && mass) lines.push(`Força mitjana ${f0(force)} N (${U.fmt(force / (mass * G), 2)} vegades el pes).`);
+      if (rsimod != null) lines.push(`RSI-mod ${U.fmt(rsimod, 2)} m/s.`);
+      if (cv != null) lines.push(`Variabilitat entre intents: ${f1(cv)} %${cv < 5 ? ' (consistent)' : ''}.`);
+      if (cmp) lines.push(`Respecte de la valoració anterior${cmp.date ? ` (${U.fmtDate(cmp.date)})` : ''}: ${U.fmtSigned(cmp.diff, 1)} cm${cmp.pct != null ? ` (${U.fmtSigned(cmp.pct, 1)} %)` : ''}.`);
+      const color = at.readiness || (a.jumps && a.jumps.readiness) || '';
+      if (color) lines.push(`Estat de forma (My Jump): ${((OPT.readiness.find((o) => o.v === color) || {}).label || color).toLowerCase()}.`);
+      // Avisos de dades
+      const po = num('pushoff');
+      if (po != null && (po < 0.1 || po > 0.6)) warns.push(`La distància d'empenta és de ${U.fmt(po, 2)} m: és fora del rang habitual (0,10–0,60 m). Revisa-la a My Jump: afecta la força i la potència.`);
+      if (!mjMass && (power == null || force == null)) warns.push(`My Jump no té el pes d'aquest intent, per això no calcula la força ni la potència${w ? `; s'ha fet servir el pes de la valoració (${f1(w)} kg) per estimar-la` : '. Afegeix el pes a la valoració per estimar-la'}.`);
+      if (hFlight != null && Math.abs(best - hFlight) / best > 0.05) warns.push(`L'altura (${f1(best)} cm) no quadra amb el temps de vol (${f1(hFlight)} cm): revisa l'intent.`);
+      if (cv != null && cv > 8) warns.push(`La variabilitat entre intents és alta (${f1(cv)} %): potser cal repetir la prova.`);
+      out[type] = { type, n: rows.length, best, mean, sd, cv, flight, hFlight, vTo, mass, massFrom, power, force, sayers, relPower, powerKind, rsimod, cmp, color, lines, warns };
+    }
+    return out;
+  },
+
+  // Assault bike 30 s all-out. Les dades de la pantalla (temps, distància, calories, velocitat i RPM mitjanes) i els watts.
+  // La pantalla pot anar en milles o en km: la unitat (unit) es desa amb la distància i la velocitat.
   bike(a) {
     const b = (a && a.bike) || {};
     const w = Calc.weight(a);
     const peak = U.num(b.peak), mean = U.num(b.mean), min = U.num(b.min);
+    const time = U.num(b.time), cal = U.num(b.cal), rpm = U.num(b.rpm);
+    const unit = b.unit === 'km' ? 'km' : 'mi';
+    const k = unit === 'km' ? 1 : 1.609344;
+    const dist = U.num(b.dist), speed = U.num(b.speed);
     return {
-      peak, mean, min,
+      peak, mean, min, time, cal, rpm, unit, dist, speed, w,
+      distKm: dist != null ? dist * k : null,
+      speedKmh: speed != null ? speed * k : null,
       peakRel: peak != null && w ? peak / w : null,
       meanRel: mean != null && w ? mean / w : null,
       fatigue: peak && min != null ? ((peak - min) / peak) * 100 : null,
+      meanPeak: peak && mean != null ? (mean / peak) * 100 : null,
+      work: mean != null && time ? (mean * time) / 1000 : null,
+      workKg: mean != null && time && w ? (mean * time) / w : null,
+      calMin: cal != null && time ? cal / (time / 60) : null,
+      calKg: cal != null && w ? cal / w : null,
+      any: [peak, mean, min, time, cal, rpm, dist, speed].some((x) => x != null),
     };
+  },
+
+  // Anàlisi de la bicicleta: resultats (lines, tot el que es calcula), more (el que no repeteixen les targetes de l'informe),
+  // la comparació amb la valoració anterior i avisos de dades dubtoses (warns, només per a qui les introdueix).
+  // Retorna null si no hi ha cap dada.
+  bikeAnalysis(a, prev) {
+    const b = Calc.bike(a);
+    if (!b.any) return null;
+    const pb = prev ? Calc.bike(prev) : null;
+    const f0 = (n) => U.fmt(n, 0), f1 = (n) => U.fmt(n, 1);
+    const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
+    const lines = [], more = [], warns = [];
+    const add = (text, extra) => { lines.push(text); if (extra) more.push(text); };
+    if (b.mean != null) add(`Potència mitjana ${f0(b.mean)} W${b.meanRel != null ? ` (${f1(b.meanRel)} W/kg)` : ''}${b.meanPeak != null ? `: el ${f0(b.meanPeak)} % de la potència pic` : ''}.`, false);
+    if (b.meanPeak != null) more.push(`La potència mitjana és el ${f0(b.meanPeak)} % de la potència pic: com més a prop del 100 %, més sostinguda ha estat la potència.`);
+    if (b.peak != null) add(`Potència pic ${f0(b.peak)} W${b.peakRel != null ? ` (${f1(b.peakRel)} W/kg)` : ''}.`, false);
+    if (b.work != null) { add(`Treball total ${f1(b.work)} kJ en ${f0(b.time)} s${b.workKg != null ? ` (${f0(b.workKg)} J/kg)` : ''}.`, false); if (b.workKg != null) more.push(`Treball relatiu al pes: ${f0(b.workKg)} J/kg.`); }
+    {
+      const bits = [];
+      if (b.dist != null) bits.push(`distància ${U.fmt(b.dist, 2)} ${unitName}${b.unit === 'mi' ? ` (${f0(b.distKm * 1000)} m)` : ''}`);
+      if (b.speed != null) bits.push(`velocitat mitjana ${f1(b.speed)} ${speedUnit}${b.unit === 'mi' ? ` (${f1(b.speedKmh)} km/h)` : ''}`);
+      if (b.rpm != null) bits.push(`cadència mitjana ${f0(b.rpm)} RPM`);
+      if (bits.length) add(`${bits.join(' · ').replace(/^./, (c) => c.toUpperCase())}.`, false);
+    }
+    if (b.cal != null) {
+      add(`Energia ${f1(b.cal)} kcal${b.calMin != null ? ` (${f1(b.calMin)} kcal/min${b.calKg != null ? `, ${U.fmt(b.calKg, 2)} kcal/kg` : ''})` : ''}.`, false);
+      if (b.calMin != null) more.push(`Ritme d'energia: ${f1(b.calMin)} kcal/min${b.calKg != null ? ` (${U.fmt(b.calKg, 2)} kcal per kg de pes)` : ''}.`);
+    }
+    if (b.fatigue != null) add(`Índex de fatiga ${f1(b.fatigue)} % (de ${f0(b.peak)} W de pic a ${f0(b.min)} W de mínima): com més baix, més bona resistència a la fatiga.`, true);
+    if (pb && pb.any) {
+      const bits = [];
+      const cmp = (label, now, before, d, unit) => {
+        if (now == null || before == null) return;
+        const diff = now - before;
+        bits.push(`${label} ${U.fmtSigned(diff, d)} ${unit}${before ? ` (${U.fmtSigned((diff / before) * 100, 1)} %)` : ''}`);
+      };
+      cmp('potència mitjana', b.mean, pb.mean, 0, 'W');
+      cmp('pic', b.peak, pb.peak, 0, 'W');
+      cmp('W/kg mitjans', b.meanRel, pb.meanRel, 1, 'W/kg');
+      cmp('distància', b.distKm, pb.distKm, 2, 'km');
+      if (b.fatigue != null && pb.fatigue != null) bits.push(`fatiga ${U.fmtSigned(b.fatigue - pb.fatigue, 1)} punts`);
+      if (bits.length) add(`Respecte de la valoració anterior${prev.date ? ` (${U.fmtDate(prev.date)})` : ''}: ${bits.join(' · ')}.`, true);
+    }
+    // Avisos de dades
+    if (b.time != null && Math.abs(b.time - 30) > 2) warns.push(`El temps és de ${f0(b.time)} s: la prova és de 30 s all-out. Comprova que sigui el resum del final de la prova.`);
+    if (b.peak != null && b.mean != null && b.peak < b.mean) warns.push('La potència pic és més baixa que la mitjana: revisa-les.');
+    if (b.min != null && b.mean != null && b.min > b.mean) warns.push('La potència mínima és més alta que la mitjana: revisa-les.');
+    if (b.mean != null && (b.mean < 60 || b.mean > 1500)) warns.push(`La potència mitjana (${f0(b.mean)} W) és fora del rang habitual: revisa si s'ha llegit bé.`);
+    if (b.rpm != null && (b.rpm < 20 || b.rpm > 200)) warns.push(`Les RPM (${f0(b.rpm)}) són fora del rang habitual: revisa-les.`);
+    if (b.dist != null && b.speed != null && b.time) {
+      // Distància esperada = velocitat mitjana × temps. La pantalla treu un sol decimal: es deixa un marge d'una dècima i un 10 %.
+      const exp = (b.speed * b.time) / 3600;
+      if (Math.abs(exp - b.dist) > 0.1 + 0.1 * exp) warns.push(`La distància (${U.fmt(b.dist, 2)} ${unitName}) no quadra amb la velocitat mitjana i el temps (en sortirien unes ${U.fmt(exp, 2)} ${unitName}): revisa els números.`);
+    }
+    if (b.meanRel == null && (b.mean != null || b.peak != null)) warns.push('Falta el pes del pacient a la valoració: sense ell no es poden calcular els W/kg.');
+    return { ...b, lines, more, warns };
   },
 
   // Puntuació d'un patró: als unilaterals ens quedem amb el pitjor costat.
@@ -5883,6 +6038,8 @@ const Flat = {
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);
           o['Bike mitjana (W)'] = n(b.mean); o['Bike mitjana (W/kg)'] = n(b.meanRel);
           o['Bike índex de fatiga (%)'] = n(b.fatigue);
+          o['Bike temps (s)'] = n(b.time); o['Bike distància (km)'] = n(b.distKm); o['Bike calories (kcal)'] = n(b.cal);
+          o['Bike velocitat mitjana (km/h)'] = n(b.speedKmh); o['Bike RPM mitjanes'] = n(b.rpm); o['Bike treball (kJ)'] = n(b.work);
         }
         if (g.kind === 'patterns') {
           for (const pt of PATTERNS) {
@@ -6031,18 +6188,29 @@ function blockDesc(key, settings) {
 }
 
 // ── Importació de CSV de My Jump Lab ──
-// El CSV pot variar segons la versió i l'idioma de l'app: detectem les columnes pel nom.
+// El CSV pot variar segons la versió i l'idioma de l'app: detectem les columnes pel nom. L'exportació de My Jump Lab porta
+// TOTS els atletes del compte: es llegeix el nom de cada fila i només s'agafen les files del pacient (matchPersonName).
+// exact: la capçalera ha de ser igual (no només contenir-ho); zero: un 0 vol dir «no introduït» i es deixa buit.
 const MYJUMP_COLUMNS = [
-  { key: 'rsimod', label: 'RSI-mod', match: ['rsi mod', 'rsi-mod', 'rsimod', 'reactive strength index modified'] },
+  { key: 'name', label: 'Nom', match: ['name', 'nombre', 'nom', 'atleta', 'athlete', 'jugador', 'player', 'deportista', 'esportista'], exact: true },
+  { key: 'rsimod', label: 'RSI-mod', match: ['rsi mod', 'rsi-mod', 'rsimod', 'reactive strength index modified'], zero: true },
   { key: 'type', label: 'Tipus de prova', match: ['tipo de prueba', 'tipo de salto', 'tipo', 'test type', 'jump type', 'tipus', 'test', 'type'] },
   { key: 'date', label: 'Data / hora', match: ['fecha', 'date', 'data'] },
-  { key: 'load', label: 'Càrrega (kg)', match: ['carga', 'load'] },
+  { key: 'bodyweight', label: 'Pes (kg)', match: ['body weight', 'peso corporal', 'pes corporal', 'body mass', 'peso (kg)', 'pes (kg)'], zero: true },
+  { key: 'pushoff', label: 'Distància d\'empenta (m)', match: ['push-off', 'push off', 'pushoff', 'hp0', 'distancia de empuje'], zero: true },
+  { key: 'load', label: 'Càrrega (kg)', match: ['carga', 'load'], zero: true },
   { key: 'height', label: 'Altura (cm)', match: ['altura salto', 'altura del salto', 'jump height', 'height', 'altura'], exclude: /cajon|box|caida|drop/ },
-  { key: 'force', label: 'Força (N)', match: ['fuerza', 'force'], exclude: /indice|index|reactiv|rsi/ },
-  { key: 'velocity', label: 'Velocitat (m/s)', match: ['velocidad', 'velocity'] },
-  { key: 'power', label: 'Potència (W)', match: ['potencia', 'power'] },
-  { key: 'flight', label: 'Temps de vol (ms)', match: ['tiempo vuelo', 'tiempo de vuelo', 'flight time', 'flight'] },
-  { key: 'contact', label: 'Temps de contacte (ms)', match: ['tiempo contacto', 'tiempo de contacto', 'contact time', 'contact'] },
+  { key: 'takeoff', label: 'Temps fins al despegament (ms)', match: ['time to takeoff', 'time to take off', 'tiempo hasta el despegue', 'tiempo al despegue', 'temps fins'], zero: true },
+  { key: 'force', label: 'Força (N)', match: ['fuerza', 'force'], exclude: /indice|index|reactiv|rsi/, zero: true },
+  { key: 'velocity', label: 'Velocitat (m/s)', match: ['velocidad', 'velocity'], zero: true },
+  { key: 'power', label: 'Potència (W)', match: ['potencia', 'power'], zero: true },
+  { key: 'flight', label: 'Temps de vol (ms)', match: ['tiempo vuelo', 'tiempo de vuelo', 'flight time', 'flight'], zero: true },
+  { key: 'contact', label: 'Temps de contacte (ms)', match: ['tiempo contacto', 'tiempo de contacto', 'contact time', 'contact'], zero: true },
+  { key: 'dri', label: 'DRI', match: ['dri'], exact: true, zero: true },
+  { key: 'impulse', label: 'Impuls', match: ['impulse', 'impulso'], zero: true },
+  { key: 'rsi', label: 'RSI', match: ['reactive strength index', 'indice fuerza reactiva', 'indice de fuerza reactiva'], exclude: /mod/, zero: true },
+  { key: 'stiffness', label: 'Rigidesa (kN/m)', match: ['stiffness', 'rigidez', 'rigidesa'], zero: true },
+  { key: 'readiness', label: 'Estat de forma', match: ['readiness', 'estado de forma', 'estat de forma'] },
 ];
 
 function mapMyJumpHeader(headers) {
@@ -6052,7 +6220,7 @@ function mapMyJumpHeader(headers) {
   for (const col of MYJUMP_COLUMNS) {
     let found = -1;
     for (const m of col.match) {
-      found = norm.findIndex((hd, i) => !used.has(i) && hd.includes(m) && !(col.exclude && col.exclude.test(hd)));
+      found = norm.findIndex((hd, i) => !used.has(i) && (col.exact ? hd === m : hd.includes(m)) && !(col.exclude && col.exclude.test(hd)));
       if (found >= 0) break;
     }
     if (found >= 0) { map[col.key] = found; used.add(found); }
@@ -6074,28 +6242,101 @@ function normalizeJumpType(s) {
   return String(s).trim();
 }
 
-function parseMyJumpCsv(text) {
+// Un valor del CSV: buit si és «---» o ∞; els milers amb punt («1.671,98») es treuen; un 0 de les mesures que no s'han
+// introduït (pes, força, potència…) es deixa buit.
+function myJumpValue(col, val) {
+  let s = String(val == null ? '' : val).trim();
+  if (!s || s === '---' || s.includes('∞')) return '';
+  if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '');
+  if (col && col.zero && /^-?[\d.,]+$/.test(s) && U.num(s) === 0) return '';
+  return s;
+}
+
+// Data i hora del CSV: «6.10.2026, 14:12», «28/09/2026 10:00», «2026-09-28 10:00»… → { date: 'AAAA-MM-DD', time: 'HH:MM' }.
+function myJumpWhen(raw) {
+  const s = String(raw || '').trim();
+  let m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
+  let y, mo, d, hh = '', mm = '';
+  if (m) { d = +m[1]; mo = +m[2]; y = +m[3]; hh = m[4]; mm = m[5]; }
+  else if ((m = s.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})(?:[ ,T]+(\d{1,2}):(\d{2}))?/))) { y = +m[1]; mo = +m[2]; d = +m[3]; hh = m[4]; mm = m[5]; }
+  else return { date: '', time: '' };
+  if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return { date: '', time: '' };
+  const z = (n) => String(n).padStart(2, '0');
+  return { date: `${y}-${z(mo)}-${z(d)}`, time: hh != null && hh !== undefined && hh !== '' ? `${z(+hh)}:${mm}` : '' };
+}
+
+// ── Qui és cada fila: el nom del fitxer contra el del pacient ──
+const NAME_PARTICLES = new Set(['de', 'del', 'la', 'las', 'los', 'el', 'i', 'y', 'da', 'di', 'do', 'van', 'von', 'le']);
+function nameTokens(s) {
+  return [...new Set(U.norm(s).replace(/[^a-z0-9ñç\s'-]/g, ' ').replace(/['-]/g, ' ').split(/\s+/).filter((t) => t && !NAME_PARTICLES.has(t)))];
+}
+function editDistance(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (Math.abs(m - n) > 2) return 3;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+// Puntuació 0–1 de si el nom d'una fila del fitxer és el del pacient: sense importar l'ordre («Berruezo, David»), els accents,
+// les majúscules, ni un segon cognom que hi falti; tolera una errada d'una lletra als noms llargs. Amb un sol nom
+// («David») no n'hi ha prou per estar-ne segur: surt com a coincidència dèbil (0,4) perquè el triï la persona.
+function matchPersonName(fileName, patient) {
+  const a = nameTokens(fileName);
+  const b = nameTokens([patient && patient.firstName, patient && patient.lastName].filter(Boolean).join(' '));
+  if (!a.length || !b.length) return 0;
+  let common = 0, exact = 0;
+  const left = [...b];
+  for (const t of a) {
+    let k = left.indexOf(t);
+    if (k >= 0) { common++; exact++; left.splice(k, 1); continue; }
+    k = left.findIndex((u) => t.length >= 5 && u.length >= 5 && editDistance(t, u) <= 1);
+    if (k >= 0) { common++; left.splice(k, 1); }
+  }
+  if (common < 2) return common === 1 && a.length === 1 ? 0.4 : 0;
+  if (common === a.length && common === b.length) return exact === common ? 1 : 0.8;
+  if (common === Math.min(a.length, b.length)) return exact === common ? 0.9 : 0.75;
+  return 0.5;
+}
+
+function parseMyJumpCsv(text, patient) {
   const rows = U.parseCsv(text);
-  if (rows.length < 2) return { error: 'El fitxer no té files de dades.', attempts: [], map: {} };
+  if (rows.length < 2) return { error: 'El fitxer no té files de dades.', attempts: [], map: {}, people: [], match: null };
   // La capçalera és la primera fila que conté una columna d'altura o potència.
   let hi = rows.findIndex((r) => { const m = mapMyJumpHeader(r); return m.height != null || m.power != null; });
-  if (hi < 0) return { error: 'No trobo les columnes d\'altura o potència. Revisa que sigui l\'exportació CSV de My Jump Lab.', attempts: [], map: {} };
+  if (hi < 0) return { error: 'No trobo les columnes d\'altura o potència. Revisa que sigui l\'exportació CSV de My Jump Lab.', attempts: [], map: {}, people: [], match: null };
   const headers = rows[hi];
   const map = mapMyJumpHeader(headers);
-  const clean = (val) => {
-    const s = String(val == null ? '' : val).trim();
-    if (!s || s === '---' || s.includes('∞')) return '';
-    return s;
-  };
+  const colOf = Object.fromEntries(MYJUMP_COLUMNS.map((c) => [c.key, c]));
   const attempts = rows.slice(hi + 1).map((r) => {
-    const g = (k) => (map[k] != null ? clean(r[map[k]]) : '');
-    return {
+    const g = (k) => (map[k] != null ? myJumpValue(colOf[k], r[map[k]]) : '');
+    const when = myJumpWhen(g('date'));
+    const at = {
       id: U.uid('J'), type: normalizeJumpType(g('type')), load: g('load'), height: g('height'), rsimod: g('rsimod'),
       force: g('force'), velocity: g('velocity'), power: g('power'), flight: g('flight'), contact: g('contact'),
+      bodyweight: g('bodyweight'), pushoff: g('pushoff'), takeoff: g('takeoff'), dri: g('dri'), impulse: g('impulse'), rsi: g('rsi'), stiffness: g('stiffness'),
+      when: when.date ? `${when.date}${when.time ? `T${when.time}` : ''}` : '',
       note: g('date') ? `Importat · ${g('date')}` : 'Importat de My Jump',
     };
+    const color = U.norm(g('readiness'));
+    if (color) at.readiness = /green|verd|verde/.test(color) ? 'verd' : /yellow|groc|amarill|orange|taronja|naranja/.test(color) ? 'groc' : /red|vermell|rojo/.test(color) ? 'vermell' : '';
+    // Perquè la mateixa fila no es pugui importar dues vegades.
+    at.src = ['MyJump', at.when, at.type, at.height, at.flight].join('|');
+    at.athlete = g('name');
+    return at;
   }).filter((x) => x.height !== '' || x.power !== '');
-  return { headers, map, attempts, error: attempts.length ? null : 'No hi ha cap intent amb altura o potència.' };
+  // Persones del fitxer i quines coincideixen amb el pacient. Sense columna de nom (versions antigues) no es pot filtrar.
+  const hasName = map.name != null;
+  const counts = new Map();
+  for (const x of attempts) counts.set(x.athlete, (counts.get(x.athlete) || 0) + 1);
+  const people = hasName ? [...counts.entries()].filter(([n]) => n).map(([name, n]) => ({ name, n, score: patient ? matchPersonName(name, patient) : 0 })).sort((p, q) => q.score - p.score || p.name.localeCompare(q.name)) : [];
+  const names = people.filter((p) => p.score >= 0.7).map((p) => p.name);
+  return { headers, map, attempts, hasName, people, match: patient && hasName ? { names, attempts: attempts.filter((x) => names.includes(x.athlete)) } : null,
+    error: attempts.length ? null : 'No hi ha cap intent amb altura o potència.' };
 }
 
 
@@ -7440,6 +7681,10 @@ const DB = (() => {
       { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
       { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },
       { id: 'bikefat', group: 'Assault bike 30 s', label: 'Fatiga', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).fatigue },
+      { id: 'bikework', group: 'Assault bike 30 s', label: 'Treball', unit: 'kJ', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).work },
+      { id: 'bikedist', group: 'Assault bike 30 s', label: 'Distància', unit: 'm', kind: 'num', dec: 0, get: (r) => { const d = Calc.bike(r.a).distKm; return d != null ? d * 1000 : null; } },
+      { id: 'bikecal', group: 'Assault bike 30 s', label: 'Calories', unit: 'kcal', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).cal },
+      { id: 'bikerpm', group: 'Assault bike 30 s', label: 'RPM mitjanes', unit: 'RPM', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).rpm },
     ],
 
     patrons: () => [
@@ -9126,7 +9371,7 @@ const ExcelAssessment = (() => {
   function detailSheet(doc, { p, a, previous = null, name, settings }) {
     const ws = doc.sheet(name, { grid: false, landscape: true, tab: XL_C.BRAND_L, zoom: 90 });
     ws.cols(WIDTHS);
-    const ref = { weight: null, files: media(a), name };
+    const ref = { weight: null, files: media(a), name, previous };
     let r = xlTitle(ws, `${typeLabel(a)} · ${U.fullName(p)}`, `${U.fmtDateLong(a.date)}${a.professional ? ` · ${a.professional}` : ''}`, NC);
     r = summary(ws, r, { p, a, previous, ref, settings });
     const skipped = [];
@@ -9427,6 +9672,26 @@ const ExcelAssessment = (() => {
         ws.merge(r, 10, r, 11, '', XS.text);
         r++;
       }
+      // Més dades de cada intent de My Jump (només si n'hi ha): data, pes, empenta, despegament, impuls, DRI, RSI i rigidesa.
+      const more = attempts.filter((x) => ['when', 'bodyweight', 'pushoff', 'takeoff', 'impulse', 'dri', 'rsi', 'stiffness'].some((k) => xlStr(x[k])));
+      if (more.length) {
+        r = xlHeader(ws, r, ['Intent', 'Data i hora', 'Pes (kg)', 'Empenta (m)', 'Despegament (ms)', 'Impuls', 'DRI', 'RSI', 'Rigidesa (kN/m)', ['', 2]]);
+        more.forEach((x) => {
+          ws.set(r, 1, `Intent ${attempts.indexOf(x) + 1}`, XS.text);
+          ws.set(r, 2, xlStr(x.when).replace('T', ' '), XS.text);
+          [['bodyweight', '0.0'], ['pushoff', '0.00'], ['takeoff', '0'], ['impulse', '0.0'], ['dri', '0.00'], ['rsi', '0.00'], ['stiffness', '0.0']].forEach(([k, fmt], j) => ws.set(r, 3 + j, xlNum(x[k]), [XS.cell, { fmt }]));
+          r++;
+        });
+        r++;
+      }
+      // Anàlisi: el mateix que surt a l'informe (resultats), més els avisos de dades dubtoses.
+      const an = Calc.jumpAnalysis(a, ref.previous);
+      const lines = [];
+      for (const x of Object.values(an)) {
+        lines.push([`Anàlisi · ${x.type}`, x.lines.join(' ')]);
+        if (x.warns.length) lines.push([`Avisos · ${x.type}`, x.warns.join(' ')]);
+      }
+      if (lines.length) r = xlKv(ws, r, lines, NC);
       const extra = [];
       if (xlStr((a.jumps || {}).readiness)) extra.push(['Estat de forma (My Jump)', (OPT.readiness.find((o) => o.v === a.jumps.readiness) || {}).label || a.jumps.readiness]);
       if (xlStr((a.jumps || {}).note)) extra.push(['Observacions dels salts', xlStr(a.jumps.note)]);
@@ -9447,7 +9712,7 @@ const ExcelAssessment = (() => {
       r++;
     }
     const b = Calc.bike(a);
-    if (b.peak != null) {
+    if (b.any) {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
       r = xlHeader(ws, r, ['Mesura', 'Valor', 'Unitat']);
       const w = ref.weight;
@@ -9460,7 +9725,23 @@ const ExcelAssessment = (() => {
       ws.set(r, 1, 'Índex de fatiga', XS.text);
       ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 2, 2)}),${xlRef(first, 2)}>0),(${xlRef(first, 2)}-${xlRef(first + 2, 2)})/${xlRef(first, 2)}*100,"")`, v: b.fatigue == null ? '' : b.fatigue }, [XS.cell, { fmt: '0.0' }]);
       ws.set(r, 3, '%', XS.cell); r++;
+      // Dades de la pantalla de l'aparell (en les unitats que té la pantalla: milles o km) i treball total.
+      const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
+      const screen = [['Temps', xlNum(a.bike.time), 's', '0'], ['Distància', xlNum(a.bike.dist), unitName, '0.00'], ['Calories', xlNum(a.bike.cal), 'kcal', '0.0'],
+        ['Velocitat mitjana', xlNum(a.bike.speed), speedUnit, '0.0'], ['RPM mitjanes', xlNum(a.bike.rpm), 'RPM', '0']];
+      const t0 = r;
+      for (const [l, val, u, fmt] of screen) { ws.set(r, 1, l, XS.text); ws.set(r, 2, val, [XS.cell, { fmt }]); ws.set(r, 3, u, XS.cell); r++; }
+      const mc = xlRef(first + 1, 2), tc = xlRef(t0, 2);
+      ws.set(r, 1, 'Treball total', XS.text);
+      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${mc}),ISNUMBER(${tc})),${mc}*${tc}/1000,"")`, v: b.work == null ? '' : b.work }, [XS.cell, { fmt: '0.0' }]);
+      ws.set(r, 3, 'kJ', XS.cell); r++;
       r++;
+      // Anàlisi: el mateix que surt a l'informe, més els avisos de dades dubtoses.
+      const an = Calc.bikeAnalysis(a, ref.previous);
+      const lines = [];
+      if (an && an.lines.length) lines.push(['Anàlisi · Assault bike', an.lines.join(' ')]);
+      if (an && an.warns.length) lines.push(['Avisos · Assault bike', an.warns.join(' ')]);
+      if (lines.length) r = xlKv(ws, r, lines, NC);
     }
     return r;
   }
@@ -9556,6 +9837,8 @@ const ExcelAssessment = (() => {
           rows.push({ label: 'Assault bike · potència pic', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).peak }) });
           rows.push({ label: 'Assault bike · potència mitjana', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).mean != null ? Calc.bike(a).mean : xlNum((a.bike || {}).mean) }) });
           rows.push({ label: 'Assault bike · índex de fatiga', unit: '%', fmt: '0.0', dir: -1, get: (a) => ({ v: Calc.bike(a).fatigue }) });
+          rows.push({ label: 'Assault bike · treball total', unit: 'kJ', fmt: '0.0', dir: 1, get: (a) => ({ v: Calc.bike(a).work }) });
+          rows.push({ label: 'Assault bike · distància', unit: 'm', fmt: '0', dir: 1, get: (a) => { const d = Calc.bike(a).distKm; return { v: d != null ? d * 1000 : null }; } });
           continue;
         }
         if (g.kind === 'patterns') {
@@ -14384,6 +14667,402 @@ function PicChooser({ ex, auto, onPick, onClose }) {
 }
 
 
+/* ── 16-lcd.js ── */
+/* EON Life · lectura de la pantalla de l'Assault Bike amb una foto.
+   La pantalla (LCD de segments) té sempre la mateixa disposició: el temps, la distància, les calories, i a sota els
+   watts, la velocitat i les RPM mitjanes. L'usuari marca els quatre cantons de la pantalla a la foto; amb això es
+   «dreça» la imatge (perspectiva) i cada casella es llegeix dígit a dígit comprovant quins dels 7 segments són foscos.
+   Tot passa a la tauleta: la foto no surt de l'aparell. Els valors surten a les caselles perquè es comprovin abans de
+   desar-los. Les funcions treballen sobre imatges en gris (Uint8Array) per poder-les provar fora del navegador. */
+
+const LcdReader = (() => {
+  // Mida de la pantalla dreçada i caselles (fraccions de la finestra de la pantalla: x0, y0, x1, y1).
+  // want: com s'interpreta el que es llegeix (time = m:ss, num = un número amb un decimal si hi ha el punt).
+  const W = 480, H = 1120;
+  const FIELDS = {
+    time: { label: 'Temps', box: [0.64, 0.338, 0.955, 0.440], want: 'time' },
+    dist: { label: 'Distància', box: [0.70, 0.455, 0.955, 0.540], want: 'num' },
+    cal: { label: 'Calories', box: [0.60, 0.556, 0.955, 0.640], want: 'num' },
+    watts: { label: 'Watts mitjans', box: [0.07, 0.718, 0.345, 0.792], want: 'num' },
+    speed: { label: 'Velocitat mitjana', box: [0.375, 0.718, 0.685, 0.792], want: 'num' },
+    rpm: { label: 'RPM mitjanes', box: [0.725, 0.718, 0.955, 0.792], want: 'num' },
+  };
+
+  // ── Perspectiva ──
+  // Sistema d'equacions 8×8 (eliminació de Gauss) per trobar l'homografia que porta el rectangle W×H a les quatre cantonades de la foto.
+  function homography(quad) {
+    const dst = [[0, 0], [W, 0], [W, H], [0, H]];
+    const A = [], b = [];
+    for (let i = 0; i < 4; i++) {
+      const [x, y] = dst[i], [u, v] = quad[i];
+      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
+      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
+    }
+    const n = 8;
+    for (let i = 0; i < n; i++) {
+      let m = i;
+      for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+      [A[i], A[m]] = [A[m], A[i]]; [b[i], b[m]] = [b[m], b[i]];
+      if (Math.abs(A[i][i]) < 1e-9) return null;
+      for (let r = i + 1; r < n; r++) {
+        const f = A[r][i] / A[i][i];
+        for (let c = i; c < n; c++) A[r][c] -= f * A[i][c];
+        b[r] -= f * b[i];
+      }
+    }
+    const h = new Array(n);
+    for (let i = n - 1; i >= 0; i--) {
+      let s = b[i];
+      for (let c = i + 1; c < n; c++) s -= A[i][c] * h[c];
+      h[i] = s / A[i][i];
+    }
+    return h;
+  }
+
+  // Imatge en gris (w × h) → pantalla dreçada W × H (interpolació bilineal).
+  function warp(gray, w, h, quad) {
+    const t = homography(quad);
+    if (!t) return null;
+    const out = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const d = t[6] * x + t[7] * y + 1;
+        const u = (t[0] * x + t[1] * y + t[2]) / d, v = (t[3] * x + t[4] * y + t[5]) / d;
+        const x0 = Math.floor(u), y0 = Math.floor(v);
+        if (x0 < 0 || y0 < 0 || x0 >= w - 1 || y0 >= h - 1) { out[y * W + x] = 255; continue; }
+        const fx = u - x0, fy = v - y0, i = y0 * w + x0;
+        out[y * W + x] = gray[i] * (1 - fx) * (1 - fy) + gray[i + 1] * fx * (1 - fy) + gray[i + w] * (1 - fx) * fy + gray[i + w + 1] * fx * fy;
+      }
+    }
+    return out;
+  }
+
+  // ── Segmentació d'una casella ──
+  // Llindar d'Otsu sobre la casella (la tinta és més fosca que el fons de la pantalla).
+  function otsu(vals) {
+    const hist = new Array(256).fill(0);
+    for (const v of vals) hist[v | 0]++;
+    const total = vals.length;
+    let sum = 0;
+    for (let i = 0; i < 256; i++) sum += i * hist[i];
+    let wb = 0, sb = 0, best = 0, first = 128, last = 128;
+    for (let i = 0; i < 256; i++) {
+      wb += hist[i];
+      if (!wb) continue;
+      const wf = total - wb;
+      if (!wf) break;
+      sb += i * hist[i];
+      const mb = sb / wb, mf = (sum - sb) / wf;
+      const between = wb * wf * (mb - mf) * (mb - mf);
+      if (between > best * (1 + 1e-9)) { best = between; first = last = i; }
+      else if (between >= best * (1 - 1e-9)) last = i; // un tram pla (imatge de dos tons): s'agafa el mig
+    }
+    return Math.round((first + last) / 2);
+  }
+
+  // Components connexos (8 veïns) de la màscara de tinta: [{ x0, y0, x1, y1, n }].
+  function components(mask, w, h) {
+    const lab = new Int32Array(w * h);
+    const out = [];
+    const stack = [];
+    for (let i = 0; i < w * h; i++) {
+      if (!mask[i] || lab[i]) continue;
+      const id = out.length + 1;
+      let x0 = w, y0 = h, x1 = 0, y1 = 0, n = 0;
+      stack.push(i); lab[i] = id;
+      while (stack.length) {
+        const p = stack.pop();
+        const px = p % w, py = (p / w) | 0;
+        n++;
+        if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const nx = px + dx, ny = py + dy;
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+          const q = ny * w + nx;
+          if (mask[q] && !lab[q]) { lab[q] = id; stack.push(q); }
+        }
+      }
+      out.push({ x0, y0, x1, y1, n });
+    }
+    return out;
+  }
+
+  // Segments d'un dígit (a b c d e f g) → xifra. Posicions normalitzades dins la caixa del dígit.
+  // Segments en ordre a b c d e f g (a dalt, b dalt dreta, c baix dreta, d baix, e baix esquerra, f dalt esquerra, g al mig).
+  const PATTERNS = { '1111110': '0', '0110000': '1', '1101101': '2', '1111001': '3', '0110011': '4', '1011011': '5', '1011111': '6', '0011111': '6',
+    '1110000': '7', '1110010': '7', '1111111': '8', '1111011': '9', '1110011': '9' };
+  // [x0, y0, x1, y1] de cada segment, i si és horitzontal.
+  const SEGS = [[0.22, 0.00, 0.78, 0.15], [0.80, 0.08, 1.00, 0.46], [0.80, 0.54, 1.00, 0.92], [0.22, 0.85, 0.78, 1.00], [0.00, 0.54, 0.20, 0.92], [0.00, 0.08, 0.20, 0.46], [0.22, 0.425, 0.78, 0.575]];
+
+  // Els dígits de la pantalla són en cursiva: el dígit s'inclina cap a la dreta per dalt. Per mostrejar un segment es
+  // desfà la inclinació (slant = fracció de l'alçada que es desplaça la part de dalt).
+  function digitAt(ink, w, box, slant) {
+    const bw = box.x1 - box.x0 + 1, bh = box.y1 - box.y0 + 1;
+    const sw = slant * bh, cw = Math.max(bw - sw, 1);
+    const frac = SEGS.map(([u0, v0, u1, v1]) => {
+      let on = 0, tot = 0;
+      for (let y = Math.floor(box.y0 + v0 * bh); y <= Math.ceil(box.y0 + v1 * bh - 1); y++) {
+        const v = (y - box.y0) / bh;
+        const left = box.x0 + sw * (1 - v);
+        for (let x = Math.floor(left + u0 * cw); x <= Math.ceil(left + u1 * cw - 1); x++) {
+          tot++;
+          if (x >= 0 && ink[y * w + x]) on++;
+        }
+      }
+      return tot ? on / tot : 0;
+    });
+    const key = frac.map((f) => (f > 0.38 ? '1' : '0')).join('');
+    const ch = PATTERNS[key] != null ? PATTERNS[key] : '?';
+    return { ch, frac, key, margin: Math.min(...frac.map((f) => Math.abs(f - 0.38))) };
+  }
+
+  // Llegeix una casella de la pantalla dreçada. Retorna { text, chars, conf }.
+  function readField(img, def, debug) {
+    let x0, y0, x1, y1;
+    if (def.px) [x0, y0, x1, y1] = def.px;
+    else { const [fx0, fy0, fx1, fy1] = def.box; x0 = Math.round(fx0 * W); y0 = Math.round(fy0 * H); x1 = Math.round(fx1 * W); y1 = Math.round(fy1 * H); }
+    x0 = Math.max(0, x0); y0 = Math.max(0, y0); x1 = Math.min(W, x1); y1 = Math.min(H, y1);
+    const w = x1 - x0, h = y1 - y0;
+    // Estirem el contrast (percentils 2–98) i binaritzem amb Otsu.
+    const px = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px[y * w + x] = img[(y0 + y) * W + x0 + x];
+    const sorted = Array.from(px).sort((a, b) => a - b);
+    const lo = sorted[Math.floor(sorted.length * 0.02)], hi = sorted[Math.floor(sorted.length * 0.98)];
+    const span = Math.max(hi - lo, 1);
+    const norm = px.map((v) => Math.max(0, Math.min(255, ((v - lo) / span) * 255)));
+    // Una mica per sota d'Otsu: així els segments i el punt decimal no es toquen per la imatge borrosa.
+    const thr = Math.min(otsu(norm) * 0.86, 190);
+    const ink = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) ink[i] = norm[i] < thr ? 1 : 0;
+    // Traiem les línies que separen les files i les vores de la pantalla: files i columnes gairebé senceres de tinta
+    // (un traç continu; els dos segments d'un 1 ocupen la mateixa columna però amb un buit pel mig).
+    const longest = (get, n) => { let best = 0, cur = 0; for (let i = 0; i < n; i++) { if (get(i)) { cur++; if (cur > best) best = cur; } else cur = 0; } return best; };
+    for (let y = 0; y < h; y++) {
+      if (longest((x) => ink[y * w + x], w) > w * 0.8) for (let yy = Math.max(0, y - 2); yy <= Math.min(h - 1, y + 2); yy++) for (let x = 0; x < w; x++) ink[yy * w + x] = 0;
+    }
+    for (let x = 0; x < w; x++) {
+      if (longest((y) => ink[y * w + x], h) > h * 0.8) for (let xx = Math.max(0, x - 2); xx <= Math.min(w - 1, x + 2); xx++) for (let y = 0; y < h; y++) ink[y * w + xx] = 0;
+    }
+    // Les línies inclinades (si els cantons no són exactes) no ocupen files senceres: també es treuen els traços massa
+    // llargs per ser un segment (més de 36 px en horitzontal o 52 en vertical, a l'escala de la pantalla dreçada).
+    for (let y = 0; y < h; y++) {
+      let x = 0;
+      while (x < w) {
+        if (!ink[y * w + x]) { x++; continue; }
+        let e = x;
+        while (e < w && ink[y * w + e]) e++;
+        if (e - x > 36) for (let k = x; k < e; k++) ink[y * w + k] = 0;
+        x = e;
+      }
+    }
+    for (let x = 0; x < w; x++) {
+      let y = 0;
+      while (y < h) {
+        if (!ink[y * w + x]) { y++; continue; }
+        let e = y;
+        while (e < h && ink[e * w + x]) e++;
+        if (e - y > 52) for (let k = y; k < e; k++) ink[k * w + x] = 0;
+        y = e;
+      }
+    }
+    // …i el soroll petit.
+    let comps = components(ink, w, h).filter((c) => c.n >= 10);
+    if (!comps.length) return { text: '', chars: [], conf: 0 };
+    // La franja dels dígits: la dels components alts (els segments verticals). Els que queden fora (lletres del nom de la
+    // casella, vores…) no compten.
+    const maxC = Math.max(...comps.map((c) => c.y1 - c.y0 + 1));
+    const tallC = comps.filter((c) => c.y1 - c.y0 + 1 >= maxC * 0.4);
+    const bandTop = Math.min(...tallC.map((c) => c.y0)), bandBottom = Math.max(...tallC.map((c) => c.y1));
+    // Els segments horitzontals de dalt i de baix queden centrats a la vora de la franja: un petit marge els deixa entrar.
+    const pad = Math.max(1, Math.round((bandBottom - bandTop + 1) * 0.06));
+    comps = comps.filter((c) => (c.y0 + c.y1) / 2 >= bandTop - pad && (c.y0 + c.y1) / 2 <= bandBottom + pad).sort((a, b2) => a.x0 - b2.x0);
+    if (!comps.length) return { text: '', chars: [], conf: 0 };
+    // Punts i dos punts: components diminuts (cap dimensió passa del 20 % de l'alçada dels dígits).
+    const bh0 = bandBottom - bandTop + 1;
+    const isDot = (c) => c.x1 - c.x0 + 1 <= bh0 * 0.2 && c.y1 - c.y0 + 1 <= bh0 * 0.2;
+    const dotComps = comps.filter(isDot);
+    const segs = comps.filter((c) => !isDot(c));
+    if (!segs.length) return { text: '', chars: [], conf: 0 };
+    // Cada segment és un component: s'agrupen en dígits quan se solapen (o gairebé es toquen) en x. Les barres uneixen els
+    // verticals d'un mateix dígit, i entre dos dígits sempre hi ha un buit.
+    const groups = [];
+    for (const c of segs) {
+      const g = groups[groups.length - 1];
+      if (g && c.x0 <= g.x1 + 1) {
+        g.x0 = Math.min(g.x0, c.x0); g.x1 = Math.max(g.x1, c.x1); g.y0 = Math.min(g.y0, c.y0); g.y1 = Math.max(g.y1, c.y1); g.parts.push(c);
+      } else groups.push({ x0: c.x0, y0: c.y0, x1: c.x1, y1: c.y1, parts: [c] });
+    }
+    const digits = groups.filter((d) => d.y1 - d.y0 + 1 >= bh0 * 0.5);
+    const valid = digits;
+    if (!valid.length) return { text: '', chars: [], conf: 0 };
+    // L'alçada dels dígits: dels segments de dalt als de baix (els verticals poden quedar una mica per dins).
+    const top = Math.min(...valid.map((d) => d.y0)), bottom = Math.max(...valid.map((d) => d.y1)), bh = bottom - top + 1;
+    // Els punts: un de sol a la part baixa és el decimal; dos amb la mateixa x, a mitja alçada, són el dos punts.
+    const dots = [];
+    dotComps.sort((p, q) => p.x0 - q.x0);
+    for (let i = 0; i < dotComps.length; i++) {
+      const c = dotComps[i], d = dotComps[i + 1];
+      if (d && Math.abs(c.x0 - d.x0) <= bh * 0.12) { dots.push({ x0: Math.min(c.x0, d.x0), y0: Math.min(c.y0, d.y0), y1: Math.max(c.y1, d.y1), parts: [c, d] }); i++; }
+      else dots.push({ x0: c.x0, y0: c.y0, y1: c.y1, parts: [c] });
+    }
+    // La inclinació de la cursiva: la que deixa els dígits més clars.
+    let best = null;
+    for (const slant of [0, 0.04, 0.08, 0.12, 0.16]) {
+      const res = valid.map((d) => (d.x1 - d.x0 + 1 < bh * 0.3 ? { ch: '1', margin: 0.2, key: 'narrow' } : digitAt(ink, w, { x0: d.x0, x1: d.x1, y0: top, y1: bottom }, slant)));
+      const score = res.reduce((s0, r) => s0 + (r.ch === '?' ? -1 : r.margin), 0);
+      if (!best || score > best.score) best = { slant, res, score };
+    }
+    const items = valid.map((d, i) => ({ x: d.x0, ...best.res[i] }));
+    // Punts (a la part baixa) i dos punts (dos blocs petits un sobre l'altre, a mitja alçada).
+    for (const d of dots) {
+      const cy = ((d.y0 + d.y1) / 2 - top) / bh;
+      if (d.parts.length >= 2 && cy > 0.25 && cy < 0.75) items.push({ x: d.x0, ch: ':', margin: 0.2 });
+      else if (d.parts.length === 1 && cy > 0.65) items.push({ x: d.x0, ch: '.', margin: 0.2 });
+    }
+    items.sort((a, b) => a.x - b.x);
+    const text = items.map((i) => i.ch).join('');
+    const conf = items.length ? Math.max(0, Math.min(1, Math.min(...items.map((i) => (i.ch === '?' ? 0 : i.margin))) / 0.2)) : 0;
+    return { text, chars: items.map((i) => i.ch), conf, keys: items.map((i) => i.key), dbg: debug ? { comps, groups, dots, thr, w, h, ink, top, bottom, digits, slant: best.slant, res: best.res, valid } : null };
+  }
+
+  // Interpreta el text d'una casella: m:ss → segons; números amb un decimal.
+  function parseValue(text, want) {
+    const t = String(text || '');
+    if (!t || /\?/.test(t)) return null;
+    if (want === 'time') {
+      const m = t.match(/^(\d{1,2}):(\d{2})$/) || t.match(/^(\d{1,2})(\d{2})$/);
+      return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+    }
+    return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
+  }
+
+  // ── On són realment les files ──
+  // Les files de la pantalla estan separades per línies fosques. Si els cantons marcats no són exactes, tota la imatge
+  // dreçada queda una mica desplaçada: es busquen aquestes línies (a prop d'on haurien de ser) i les caselles es posen
+  // entre elles. Si no se'n troba cap, es fan servir les posicions teòriques.
+  const SEP_Y = [0.297, 0.444, 0.545, 0.645, 0.793];
+  const SEP_X = [0.354, 0.698];
+  function lowThreshold(img) {
+    const v = [];
+    for (let i = 0; i < img.length; i += 7) v.push(img[i]);
+    v.sort((a, b) => a - b);
+    return v[Math.floor(v.length * 0.8)] * 0.6;
+  }
+  // Perfil suavitzat de la quantitat de tinta per fila (axis 'y') o per columna (axis 'x') dins d'un rang de l'altra direcció.
+  function profile(img, thr, axis, a0, a1) {
+    const len = axis === 'y' ? H : W, other = axis === 'y' ? W : H;
+    const raw = new Float32Array(len);
+    for (let i = 0; i < len; i++) {
+      let n = 0;
+      for (let j = a0; j < a1; j++) n += img[axis === 'y' ? i * W + j : j * W + i] < thr ? 1 : 0;
+      raw[i] = n / Math.max(a1 - a0, 1);
+    }
+    void other;
+    const sm = new Float32Array(len);
+    for (let i = 0; i < len; i++) {
+      let t = 0, c = 0;
+      for (let d = -4; d <= 4; d++) if (i + d >= 0 && i + d < len) { t += raw[i + d]; c++; }
+      sm[i] = t / c;
+    }
+    return sm;
+  }
+  function nearestPeak(sm, expect, tol, min) {
+    let best = -1, bv = min;
+    for (let i = Math.max(1, Math.round(expect - tol)); i < Math.min(sm.length - 1, Math.round(expect + tol)); i++) {
+      if (sm[i] > bv && sm[i] >= sm[i - 1] && sm[i] >= sm[i + 1]) { bv = sm[i]; best = i; }
+    }
+    return best;
+  }
+  function locate(img) {
+    const thr = lowThreshold(img);
+    const sy = profile(img, thr, 'y', Math.round(0.1 * W), Math.round(0.9 * W));
+    const ys = SEP_Y.map((e) => { const p = nearestPeak(sy, e * H, 0.05 * H, 0.22); return p >= 0 ? p : null; });
+    const y = ys.map((v, i) => (v == null ? Math.round(SEP_Y[i] * H) : v));
+    // La fila de baix: tres caselles separades per línies verticals.
+    const b0 = y[3] + 6, b1 = y[4] - 6;
+    const sx = profile(img, thr, 'x', b0, b1);
+    const xs = SEP_X.map((e) => { const p = nearestPeak(sx, e * W, 0.06 * W, 0.45); return p >= 0 ? p : null; });
+    const x = xs.map((v, i) => (v == null ? Math.round(SEP_X[i] * W) : v));
+    return { y, x, found: ys.filter((v) => v != null).length + xs.filter((v) => v != null).length };
+  }
+
+  // Caselles a partir de la geometria trobada: [x0, y0, x1, y1] en píxels de la pantalla dreçada.
+  function layout(img) {
+    const g = locate(img);
+    const m = 7;
+    const right = Math.round(0.975 * W);
+    const band = (a, b) => [a + m, b - m];
+    const row = (k, a, b, x0) => { const [y0, y1] = band(a, b); return { ...FIELDS[k], px: [Math.round(x0 * W), y0, right, y1] }; };
+    // A la fila de baix els números són a la part de sota de la casella (a sobre hi ha el nom i «AVERAGE»).
+    const bh = g.y[4] - g.y[3];
+    const dy0 = g.y[3] + Math.round(bh * 0.47), dy1 = g.y[4] - 5;
+    const cell = (k, a, b) => ({ ...FIELDS[k], px: [a, dy0, b, dy1] });
+    return {
+      geom: g,
+      fields: {
+        time: row('time', g.y[0], g.y[1], 0.56),
+        dist: row('dist', g.y[1], g.y[2], 0.56),
+        cal: row('cal', g.y[2], g.y[3], 0.56),
+        watts: cell('watts', 28, g.x[0] - 7), speed: cell('speed', g.x[0] + 13, g.x[1] - 7), rpm: cell('rpm', g.x[1] + 13, right - 14),
+      },
+    };
+  }
+
+  // Llegeix totes les caselles d'una pantalla dreçada.
+  function readAll(img) {
+    const lay = layout(img);
+    const out = {};
+    for (const [k, def] of Object.entries(lay.fields)) {
+      const r = readField(img, def);
+      out[k] = { text: r.text, value: parseValue(r.text, def.want), conf: r.conf };
+    }
+    out.geom = lay.geom;
+    return out;
+  }
+
+  // Lectura amb votació: els cantons marcats a mà mai són exactes, i un petit error (2–3 % de la pantalla) basta per fer
+  // llegir malament una casella. Es llegeix la pantalla amb diverses variacions dels cantons (desplaçaments i zoom) i
+  // per a cada casella guanya el valor que més surt; la proporció de coincidències és la confiança de la lectura.
+  async function readVoting(gray, w, h, quad, opts) {
+    const side = Math.hypot(quad[1][0] - quad[0][0], quad[1][1] - quad[0][1]);
+    const step = side * ((opts && opts.step) || 0.02);
+    const cx = quad.reduce((s0, p) => s0 + p[0], 0) / 4, cy = quad.reduce((s0, p) => s0 + p[1], 0) / 4;
+    const trials = [];
+    for (const z of [1, 0.97, 1.03]) for (const dy of [-1, 0, 1]) for (const dx of [-1, 0, 1]) {
+      trials.push(quad.map(([x, y]) => [cx + (x - cx) * z + dx * step, cy + (y - cy) * z + dy * step]));
+    }
+    const tally = {};
+    let used = 0;
+    for (let i = 0; i < trials.length; i++) {
+      if (opts && opts.onProgress) opts.onProgress(i / trials.length);
+      // Es cedeix el fil entre lectura i lectura perquè la pantalla no es quedi congelada.
+      if (typeof setTimeout === 'function') await new Promise((ok) => setTimeout(ok, 0));
+      const img = warp(gray, w, h, trials[i]);
+      if (!img) continue;
+      used++;
+      const r = readAll(img);
+      for (const k of Object.keys(FIELDS)) {
+        if (r[k].value == null) continue;
+        const key = String(r[k].value);
+        const t = (tally[k] = tally[k] || {});
+        t[key] = t[key] || { n: 0, conf: 0, text: r[k].text, value: r[k].value };
+        t[key].n++; t[key].conf += r[k].conf;
+      }
+    }
+    const out = {};
+    for (const k of Object.keys(FIELDS)) {
+      const cands = Object.values(tally[k] || {}).sort((a, b2) => b2.n - a.n || b2.conf - a.conf);
+      const top = cands[0];
+      out[k] = top ? { text: top.text, value: top.value, conf: used ? top.n / used : 0, alt: cands.slice(1, 3).map((c) => c.value) } : { text: '', value: null, conf: 0, alt: [] };
+    }
+    out.trials = used;
+    return out;
+  }
+
+  return { W, H, FIELDS, homography, warp, locate, layout, readField, readAll, readVoting, parseValue, otsu };
+})();
+
+
 /* ── 16-photocrop.js ── */
 /* EON Life · retall de les fotos de l'informe (Adams, Thomas, Windlass…): es detecta la persona sencera amb IA
    (MediaPipe, detector d'objectes EfficientDet-Lite0, a vendor/mediapipe i publicat al costat de l'app a ai/) i
@@ -15741,7 +16420,7 @@ function sectionProgress(a, sec, p) {
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
-    else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null) done++; }
+    else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null || U.num((a.bike || {}).mean) != null) done++; }
     else if (g.kind === 'free') { /* opcional */ }
     else for (const t of g.tests || []) { if (t.optional || t.retired) continue; total++; if (has((a.values || {})[t.id])) done++; }
   }
@@ -15755,7 +16434,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'ybt') body = html`<${YbtBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'jumps') body = html`<${JumpsBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
-  else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} upd=${upd} />`;
+  else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
   else body = html`<div class="trows">${(g.tests || []).filter((t0) => Calc.testOn(a, t0)).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
   const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'free' ? 'Mesures addicionals' : '');
@@ -15897,12 +16576,65 @@ function YbtBlock({ a, p, upd }) {
   </div>`;
 }
 
+// Valoració anterior del mateix pacient (per comparar-hi els salts i la bicicleta).
+function previousAssessment(a) {
+  const list = Store.assessmentsOf(a.patientId);
+  const i = list.findIndex((x) => x.id === a.id);
+  return i > 0 ? list[i - 1] : null;
+}
+
+// Més dades de cada intent de My Jump (a més de les de la taula): s'obren amb la fletxa de cada fila.
+const JUMP_EXTRA = [
+  ['bodyweight', 'Pes a My Jump', 'kg'], ['pushoff', 'Distància d\'empenta', 'm'], ['takeoff', 'Temps fins al despegament', 'ms'], ['contact', 'Temps de contacte', 'ms'],
+  ['load', 'Càrrega', 'kg'], ['impulse', 'Impuls', ''], ['dri', 'DRI', ''], ['rsi', 'RSI (força reactiva)', ''], ['stiffness', 'Rigidesa', 'kN/m'],
+];
+
+// Importar de My Jump: el fitxer porta tots els atletes; aquí només surten (i només es desen) les files del pacient.
+function ImportJumpsDialog({ res, a, p, onSave, onClose }) {
+  const known = new Set(((a.jumps && a.jumps.attempts) || []).map((x) => x.src).filter(Boolean));
+  const [names, setNames] = useState(res.match ? res.match.names : []);
+  const mine = res.attempts.filter((x) => !res.hasName || names.includes(x.athlete));
+  const sameDay = mine.filter((x) => x.when.slice(0, 10) === a.date);
+  const latest = mine.map((x) => x.when.slice(0, 10)).filter(Boolean).sort().pop();
+  const [picked, setPicked] = useState(() => new Set((sameDay.length ? sameDay : mine.filter((x) => x.when.slice(0, 10) === latest)).filter((x) => !known.has(x.src)).map((x) => x.id)));
+  const others = res.attempts.length - mine.length;
+  const toggle = (id) => setPicked((cur) => { const n = new Set(cur); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const pick = (name) => { setNames(name ? [name] : []); setPicked(new Set()); };
+  const fmtWhen = (w) => (w ? `${U.fmtDate(w.slice(0, 10))}${w.length > 10 ? ` · ${w.slice(11)}` : ''}` : '—');
+  const chosen = mine.filter((x) => picked.has(x.id));
+  const person = [p.firstName, p.lastName].filter(Boolean).join(' ');
+  return html`<${Dialog} title="Importa de My Jump" wide=${true} onClose=${onClose} footer=${html`
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" disabled=${!chosen.length} onClick=${() => onSave(chosen)}>${chosen.length ? `Importa ${U.plural(chosen.length, 'intent', 'intents')}` : 'Importa'}</${Btn}>`}>
+    ${res.hasName ? html`
+      ${names.length > 0
+        ? html`<p>He trobat <strong>${names.join(' · ')}</strong> al fitxer${others > 0 ? ` i no n'importo les altres ${U.plural(others, 'fila', 'files')} (altres persones)` : ''}.</p>`
+        : html`<p>No he trobat cap fila amb el nom de <strong>${person}</strong> al fitxer. Si s'ha escrit diferent a My Jump, tria'l aquí (només és el nom; no es llegeix res més fins que el triïs):</p>
+          <${Select} value="" onValue=${pick} placeholder="Tria el nom del fitxer…" options=${res.people.map((x) => x.name)} ariaLabel="Nom al fitxer de My Jump" />`}
+      ${names.length > 0 && res.people.length > names.length && html`<p class="muted small">No és ell? <button type="button" class="link" onClick=${() => pick('')}>Tria un altre nom del fitxer</button></p>`}`
+      : html`<p>Aquest fitxer no porta el nom de la persona: s'importen totes les files. Revisa que siguin de <strong>${person}</strong>.</p>`}
+    ${mine.length > 0 && html`<div class="table-wrap"><table class="table">
+      <thead><tr><th></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
+      <tbody>${mine.map((x) => html`<tr class=${known.has(x.src) ? 'muted' : ''}>
+        <td><input type="checkbox" checked=${picked.has(x.id)} disabled=${known.has(x.src)} onChange=${() => toggle(x.id)} aria-label=${`Importa l'intent del ${fmtWhen(x.when)}`} /></td>
+        <td>${fmtWhen(x.when)}${known.has(x.src) ? ' · ja importat' : ''}</td><td>${x.type}</td>
+        <td class="num">${x.height || '—'}</td><td class="num">${x.flight || '—'}</td><td class="num">${x.power || '—'}</td></tr>`)}</tbody>
+    </table></div>
+    ${sameDay.length === 0 && html`<p class="muted small">Cap d'aquests intents és del dia de la valoració (${U.fmtDate(a.date)}): marca els que vulguis.</p>`}`}
+    <p class="muted small">Del fitxer només es desen els intents que marquis. Les dades d'altres persones no es guarden enlloc.</p>
+  </${Dialog}>`;
+}
+
 function JumpsBlock({ a, p, upd }) {
   const j = a.jumps || { attempts: [] };
   const list = j.attempts || [];
+  const prev = previousAssessment(a);
+  const analysis = Calc.jumpAnalysis(a, prev);
   const summary = Calc.jumps(a);
   const w = Calc.weight(a);
   const [noteOpen, setNoteOpen] = useState(!!j.note);
+  const [open, setOpen] = useState({});
   const fileRef = useRef(null);
   const setJ = (k) => (v) => upd((x) => { x.jumps = { ...(x.jumps || { attempts: [] }), [k]: v }; });
   const setAt = (aid, k) => (v) => upd((x) => { const it = x.jumps.attempts.find((z) => z.id === aid); if (it) it[k] = v; });
@@ -15915,14 +16647,21 @@ function JumpsBlock({ a, p, upd }) {
   const importCsv = async (file) => {
     if (!file) return;
     try {
-      const text = await U.readFile(file);
-      const res = parseMyJumpCsv(text);
+      const res = parseMyJumpCsv(await U.readFile(file), p);
       if (res.error) { UI.toast(res.error, 'bad'); return; }
-      const ok = await UI.confirm({ title: `Importar ${U.plural(res.attempts.length, 'intent', 'intents')} de My Jump?`,
-        text: `Columnes detectades: ${Object.keys(res.map).map((k) => (MYJUMP_COLUMNS.find((c) => c.key === k) || {}).label).join(', ')}. Tipus: ${[...new Set(res.attempts.map((x) => x.type))].join(', ')}.`, ok: 'Importa' });
-      if (!ok) return;
-      upd((x) => { x.jumps = x.jumps || { attempts: [] }; x.jumps.attempts = [...x.jumps.attempts, ...res.attempts]; });
-      UI.toast('Intents importats.');
+      let close = null;
+      close = UI.open(() => html`<${ImportJumpsDialog} res=${res} a=${a} p=${p} onClose=${() => close()} onSave=${(rows) => {
+        // Només els intents triats, sense el nom de la persona (que no cal desar).
+        const clean = rows.map(({ athlete, ...x }) => x);
+        upd((x) => {
+          x.jumps = x.jumps || { attempts: [] };
+          x.jumps.attempts = [...x.jumps.attempts, ...clean];
+          const color = clean.map((r) => r.readiness).filter(Boolean).pop();
+          if (color && !x.jumps.readiness) x.jumps.readiness = color;
+        });
+        close();
+        UI.toast(`${U.plural(clean.length, 'intent importat', 'intents importats')}.`);
+      }} />`);
     } catch (e) {
       UI.toast(`No s'ha pogut llegir el fitxer: ${e.message}`, 'bad');
     } finally {
@@ -15930,14 +16669,15 @@ function JumpsBlock({ a, p, upd }) {
     }
   };
   const col = (k, label, unit) => ({ k, label, unit });
-  const cols = [col('height', 'Altura', 'cm'), col('power', 'Potència', 'W'), col('force', 'Força', 'N'), col('velocity', 'Velocitat', 'm/s'), col('rsimod', 'RSI-mod', '')];
+  const cols = [col('height', 'Altura', 'cm'), col('flight', 'Vol', 'ms'), col('velocity', 'Velocitat', 'm/s'), col('force', 'Força', 'N'), col('power', 'Potència', 'W'), col('rsimod', 'RSI-mod', '')];
+  const warns = Object.values(analysis).flatMap((x) => x.warns);
   return html`<div class="jumps">
     <div class="jumps-top">
       <div class="inline"><span class="field-label">Estat de forma</span>
         <${Seg} value=${j.readiness || ''} onValue=${setJ('readiness')} options=${OPT.readiness.map((o) => ({ v: o.v, label: o.label, tone: o.v === 'verd' ? 'ok' : o.v === 'groc' ? 'warn' : 'bad' }))} ariaLabel="Estat de forma" size="sm" /></div>
       <span class="grow"></span>
-      <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} onChange=${(e) => importCsv(e.currentTarget.files[0])} />
-      <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa CSV de My Jump</${Btn}>
+      <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} data-kind="myjump" onChange=${(e) => importCsv(e.currentTarget.files[0])} />
+      <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()} title="El fitxer de My Jump porta tots els atletes: només s'importen les files d'aquest pacient">Importa CSV de My Jump</${Btn}>
       <${Tools} x=${j} title="Salts" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
@@ -15947,8 +16687,12 @@ function JumpsBlock({ a, p, upd }) {
         <td class="muted">${i + 1}</td>
         <td><${Select} value=${at.type} onValue=${setAt(at.id, 'type')} options=${OPT.jumpTypes} ariaLabel="Tipus de salt" /></td>
         ${cols.map((c) => html`<td><${NumInput} value=${at[c.k]} onValue=${setAt(at.id, c.k)} ariaLabel=${`${c.label} intent ${i + 1}`} /></td>`)}
-        <td><${Btn} variant="ghost" icon="x" title="Treu l'intent" onClick=${() => del(at.id)} /></td>
-      </tr>`)}</tbody>
+        <td class="nowrap"><${Btn} variant=${open[at.id] ? 'secondary' : 'ghost'} icon="more" title="Més dades de l'intent" onClick=${() => setOpen({ ...open, [at.id]: !open[at.id] })} />
+          <${Btn} variant="ghost" icon="x" title="Treu l'intent" onClick=${() => del(at.id)} /></td>
+      </tr>${open[at.id] && html`<tr class="jumps-extra"><td></td><td colspan=${cols.length + 2}>
+        <div class="form-grid form-grid-4">${JUMP_EXTRA.map(([k, label, unit]) => html`<${Field} label=${label}><${NumInput} value=${at[k]} onValue=${setAt(at.id, k)} unit=${unit} /></${Field}>`)}</div>
+        ${at.when && html`<p class="muted small">Intent fet el ${U.fmtDate(at.when.slice(0, 10))}${at.when.length > 10 ? ` a les ${at.when.slice(11)}` : ''} (My Jump).</p>`}
+      </td></tr>`}`)}</tbody>
     </table></div>`}
     <div class="row-actions"><${Btn} size="sm" icon="plus" onClick=${add}>Afegeix intent</${Btn}></div>
     ${Object.keys(summary).length > 0 && html`<div class="jump-sum">${Object.entries(summary).map(([type, sm]) => html`<div class="jump-card">
@@ -15956,6 +16700,12 @@ function JumpsBlock({ a, p, upd }) {
       <div class="jump-best">${U.fmt(sm.best, 1)}<small> cm</small></div>
       <div class="jump-meta">Mitjana ${U.fmt(sm.mean, 1)} cm${sm.bestPower != null ? html` · ${U.fmt(sm.bestPower, 0)} W` : ''}${sm.relPower != null ? html` · <strong>${U.fmt(sm.relPower, 1)} W/kg</strong>` : ''}${sm.bestRsi != null ? html` · RSI-mod ${U.fmt(sm.bestRsi, 2)}` : ''}</div>
     </div>`)}</div>`}
+    ${Object.keys(analysis).length > 0 && html`<div class="jump-analysis">
+      <h4 class="h4">Anàlisi</h4>
+      ${Object.values(analysis).map((x) => html`<ul class="analysis-list">${x.lines.map((l) => html`<li>${l}</li>`)}</ul>`)}
+      ${warns.length > 0 && html`<ul class="analysis-warns">${warns.map((l) => html`<li><${Icon} name="alert" size=${14} /><span>${l}</span></li>`)}</ul>`}
+      <p class="muted small">Aquest anàlisi surt a l'informe del pacient (els avisos, no: són per a qui introdueix les dades).</p>
+    </div>`}
     ${list.length > 0 && !w && html`<p class="muted small">Afegeix el pes a les dades de la valoració per calcular la potència relativa (W/kg).</p>`}
   </div>`;
 }
@@ -15980,21 +16730,81 @@ function EncoderBlock({ a, upd }) {
   </div>`;
 }
 
-function BikeBlock({ a, upd }) {
+function BikeBlock({ a, p, upd }) {
   const b = a.bike || {};
   const r = Calc.bike(a);
+  const prev = previousAssessment(a);
+  const an = Calc.bikeAnalysis(a, prev);
+  const fileRef = useRef(null);
+  const [busy, setBusy] = useState(false);
   const set = (k) => (v) => upd((x) => { x.bike = { ...(x.bike || {}), [k]: v }; });
+  const unitName = r.unit === 'km' ? 'km' : 'milles', speedUnit = r.unit === 'km' ? 'km/h' : 'mi/h';
+  const canSave = canUploadFiles() && !!p && !!p.id;
+  // La foto de la pantalla (si es desa) queda com a prova a la carpeta del pacient, amb el seu identificador (a.media).
+  const setPhoto = (url, meta) => upd((x) => {
+    const old = (x.bike || {}).photo;
+    x.bike = { ...(x.bike || {}), photo: url };
+    x.media = { ...(x.media || {}) };
+    if (old && old !== url) delete x.media[old];
+    if (url && meta && meta.id) x.media[url] = { id: meta.id, name: meta.name || '' };
+  });
+  const open = (file) => {
+    if (fileRef.current) fileRef.current.value = '';
+    if (!file) return;
+    let close = null;
+    close = UI.open(() => html`<${BikePhotoDialog} file=${file} a=${a} unit=${r.unit} canSave=${canSave} onClose=${() => close()} onApply=${async (v) => {
+      const { file: toSave, ...vals } = v;
+      upd((x) => { x.bike = { ...(x.bike || {}), ...vals }; });
+      close();
+      UI.toast('Dades de la pantalla aplicades. Revisa els watts pic i mínim: no surten a la pantalla.');
+      if (toSave) {
+        setBusy(true);
+        try {
+          const photo = await preparePhoto(toSave);
+          const res = await uploadToClient(p, photo, { label: 'Assault bike', date: a.date, where: 'assess' });
+          if (!res.url) throw new Error('No s\'ha pogut desar la foto.');
+          PhotoSrc.set(res.url, URL.createObjectURL(photo), { id: res.id, name: res.name, url: res.url });
+          setPhoto(res.url, { id: res.id, name: res.name });
+        } catch (e) {
+          UI.toast(`Valors aplicats, però la foto no s'ha pogut desar: ${e.message}`, 'bad');
+        }
+        setBusy(false);
+      }
+    }} />`);
+  };
+  const found = (url, info) => MediaLinks.relink('assessments', a.id, url, info);
   return html`<div class="bike">
+    <div class="bike-top">
+      <input type="file" accept="image/*" hidden ref=${fileRef} data-kind="bike-photo" onChange=${(e) => open(e.currentTarget.files[0])} />
+      <${Btn} variant="primary" icon="camera" disabled=${busy} onClick=${() => fileRef.current && fileRef.current.click()}
+        title="Fes una foto a la pantalla de l'aparell o tria-la de la galeria: l'app llegeix els números i omple les caselles">Omple amb una foto de la pantalla</${Btn}>
+      <span class="muted small">L'app llegeix temps, distància, calories, watts mitjans, velocitat i RPM; tu ho comproves abans d'aplicar-ho.</span>
+    </div>
     <div class="form-grid form-grid-4">
       <${Field} label="Potència pic"><${NumInput} value=${b.peak} onValue=${set('peak')} unit="W" /></${Field}>
       <${Field} label="Potència mitjana"><${NumInput} value=${b.mean} onValue=${set('mean')} unit="W" /></${Field}>
       <${Field} label="Potència mínima"><${NumInput} value=${b.min} onValue=${set('min')} unit="W" /></${Field}>
+      <${Field} label="Temps"><${NumInput} value=${b.time} onValue=${set('time')} unit="s" /></${Field}>
+      <${Field} label=${`Distància (${unitName})`}><${NumInput} value=${b.dist} onValue=${set('dist')} /></${Field}>
+      <${Field} label="Calories"><${NumInput} value=${b.cal} onValue=${set('cal')} unit="kcal" /></${Field}>
+      <${Field} label=${`Velocitat mitjana (${speedUnit})`}><${NumInput} value=${b.speed} onValue=${set('speed')} /></${Field}>
+      <${Field} label="RPM mitjanes"><${NumInput} value=${b.rpm} onValue=${set('rpm')} unit="RPM" /></${Field}>
     </div>
+    <div class="inline"><span class="field-label">Unitats de la pantalla</span>
+      <${Seg} value=${r.unit} onValue=${set('unit')} allowEmpty=${false} size="sm" ariaLabel="Unitats de la pantalla" options=${[{ v: 'mi', label: 'Milles' }, { v: 'km', label: 'Km' }]} /></div>
+    <div class="tmedia"><${PhotoSlot} url=${b.photo} meta=${MediaLinks.meta(a, b.photo)} label="Foto de la pantalla" title="Assault bike" patient=${p} date=${a.date} onChange=${setPhoto} onFound=${found} /></div>
     <div class="kv-row">
       <div class="kv"><span>Pic relatiu</span><strong>${r.peakRel != null ? `${U.fmt(r.peakRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
+      <div class="kv"><span>Treball total</span><strong>${r.work != null ? `${U.fmt(r.work, 1)} kJ` : '—'}</strong><small>potència mitjana × temps</small></div>
     </div>
+    ${an && an.lines.length > 0 && html`<div class="jump-analysis">
+      <h4 class="h4">Anàlisi</h4>
+      <ul class="analysis-list">${an.lines.map((l) => html`<li>${l}</li>`)}</ul>
+      ${an.warns.length > 0 && html`<ul class="analysis-warns">${an.warns.map((l) => html`<li><${Icon} name="alert" size=${14} /><span>${l}</span></li>`)}</ul>`}
+      <p class="muted small">Aquest anàlisi surt a l'informe del pacient (els avisos, no: són per a qui introdueix les dades).</p>
+    </div>`}
     <p class="muted small">Els watts de la bicicleta d'aire no són comparables amb els del Wingate clàssic: serveixen per comparar el pacient amb ell mateix.</p>
   </div>`;
 }
@@ -16155,6 +16965,191 @@ function AttachButton({ a, p, upd, label, primary, compact }) {
     <${Btn} variant=${primary ? 'primary' : compact ? 'ghost' : 'secondary'} size=${compact ? 'sm' : undefined} icon="upload"
       onClick=${() => (upOk ? ref.current && ref.current.click() : addLink())}>${upOk ? text : compact ? 'Enllaç del PDF' : text.replace('Adjunta', 'Enllaça')}</${Btn}>
   </span>`;
+}
+
+
+/* ── 23-bikephoto.js ── */
+/* EON Life · Assault Bike: omplir les caselles amb una foto de la pantalla de l'aparell.
+   Es fa una foto a la pantalla (o es tria de la galeria), es marquen els quatre cantons del vidre i l'app llegeix els números
+   (LcdReader, 16-lcd.js). Res no surt de la tauleta per llegir-la. Els valors surten a unes caselles per comprovar-los i
+   corregir-los abans d'aplicar-los a la valoració: mai es desa res sense que la persona ho hagi vist. */
+
+// Foto → imatge en gris (Uint8Array) a una mida còmoda (costat llarg 2400 px com a màxim). L'<img> ja gira la foto segons l'EXIF.
+async function bikePhotoGray(file, max = 2400) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ko(new Error('img')); i.src = url; });
+    const w0 = img.naturalWidth, h0 = img.naturalHeight;
+    if (!w0 || !h0) throw new Error('img');
+    const k = Math.min(1, max / Math.max(w0, h0));
+    const w = Math.round(w0 * k), h = Math.round(h0 * k);
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(img, 0, 0, w, h);
+    const px = cx.getImageData(0, 0, w, h).data;
+    const gray = new Uint8Array(w * h);
+    for (let i = 0, j = 0; i < gray.length; i++, j += 4) gray[i] = (px[j] * 299 + px[j + 1] * 587 + px[j + 2] * 114) / 1000;
+    return { w, h, gray };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+// Cantons de partida: un rectangle vertical (la pantalla és alta i estreta) al mig de la foto. L'ordre és dalt-esq., dalt-dta.,
+// baix-dta., baix-esq.
+function bikeDefaultQuad(w, h) {
+  const ratio = LcdReader.W / LcdReader.H;
+  let qh = h * 0.6, qw = qh * ratio;
+  if (qw > w * 0.7) { qw = w * 0.7; qh = qw / ratio; }
+  const x0 = (w - qw) / 2, y0 = (h - qh) / 2;
+  return [[x0, y0], [x0 + qw, y0], [x0 + qw, y0 + qh], [x0, y0 + qh]];
+}
+
+// Caselles de la pantalla → camps de la valoració (a.bike).
+const BIKE_SCREEN = [
+  { k: 'time', field: 'time', label: 'Temps', unit: 's', dec: 0 },
+  { k: 'dist', field: 'dist', label: 'Distància', unit: '', dec: 2 },
+  { k: 'cal', field: 'cal', label: 'Calories', unit: 'kcal', dec: 1 },
+  { k: 'watts', field: 'mean', label: 'Watts mitjans', unit: 'W', dec: 0 },
+  { k: 'speed', field: 'speed', label: 'Velocitat mitjana', unit: '', dec: 1 },
+  { k: 'rpm', field: 'rpm', label: 'RPM mitjanes', unit: 'RPM', dec: 0 },
+];
+const bikeStr = (n) => (n == null ? '' : String(n).replace('.', ','));
+
+function BikePhotoDialog({ file, a, unit: unit0, canSave, onApply, onClose }) {
+  const [img, setImg] = useState(null);
+  const [url, setUrl] = useState('');
+  const [quad, setQuad] = useState(null);
+  const [step, setStep] = useState('quad'); // quad → reading → result
+  const [pct, setPct] = useState(0);
+  const [res, setRes] = useState(null);
+  const [vals, setVals] = useState({});
+  const [unit, setUnit] = useState(unit0 === 'km' ? 'km' : 'mi');
+  const [save, setSave] = useState(true);
+  const [err, setErr] = useState('');
+  const svgRef = useRef(null);
+  const prevRef = useRef(null);
+  const drag = useRef(null);
+
+  useEffect(() => {
+    let alive = true;
+    const u = URL.createObjectURL(file);
+    setUrl(u);
+    bikePhotoGray(file).then((g) => {
+      if (!alive) return;
+      setImg(g);
+      setQuad(bikeDefaultQuad(g.w, g.h));
+    }).catch(() => { if (alive) setErr('No s\'ha pogut obrir la foto. Prova amb una altra.'); });
+    return () => { alive = false; URL.revokeObjectURL(u); };
+  }, [file]);
+
+  // ── Arrossegar els cantons ──
+  // El cantó no salta al dit: es manté la distància que hi havia en tocar-lo, així el dit no tapa on s'està posant.
+  const pos = (e) => {
+    const r = svgRef.current.getBoundingClientRect();
+    return [((e.clientX - r.left) / r.width) * img.w, ((e.clientY - r.top) / r.height) * img.h];
+  };
+  const down = (i) => (e) => {
+    e.preventDefault();
+    const [x, y] = pos(e);
+    drag.current = { i, dx: quad[i][0] - x, dy: quad[i][1] - y };
+    try { svgRef.current.setPointerCapture(e.pointerId); } catch (x2) { /* res */ }
+  };
+  const move = (e) => {
+    const d = drag.current;
+    if (!d) return;
+    const [x, y] = pos(e);
+    const nx = Math.max(0, Math.min(img.w, x + d.dx)), ny = Math.max(0, Math.min(img.h, y + d.dy));
+    setQuad((q) => q.map((p, j) => (j === d.i ? [nx, ny] : p)));
+  };
+  const up = () => { drag.current = null; };
+
+  // ── Llegir ──
+  const read = async () => {
+    setStep('reading'); setPct(0); setErr('');
+    try {
+      const r = await LcdReader.readVoting(img.gray, img.w, img.h, quad, { onProgress: setPct });
+      if (!r.trials) throw new Error('Els cantons no formen una pantalla. Torna a marcar-los.');
+      setRes(r);
+      const v = {};
+      for (const s of BIKE_SCREEN) v[s.k] = r[s.k].value != null ? bikeStr(Number(r[s.k].value.toFixed(s.dec))) : '';
+      setVals(v);
+      setStep('result');
+    } catch (e) {
+      setErr(e.message || 'No s\'ha pogut llegir la pantalla.');
+      setStep('quad');
+    }
+  };
+
+  // La pantalla «dreçada» perquè es vegi què ha llegit l'app.
+  useEffect(() => {
+    if (step !== 'result' || !prevRef.current || !img) return;
+    const flat = LcdReader.warp(img.gray, img.w, img.h, quad);
+    if (!flat) return;
+    const cv = prevRef.current;
+    cv.width = LcdReader.W; cv.height = LcdReader.H;
+    const cx = cv.getContext('2d');
+    const data = cx.createImageData(LcdReader.W, LcdReader.H);
+    for (let i = 0, j = 0; i < flat.length; i++, j += 4) { data.data[j] = data.data[j + 1] = data.data[j + 2] = flat[i]; data.data[j + 3] = 255; }
+    cx.putImageData(data, 0, 0);
+  }, [step, res]);
+
+  const mapped = () => {
+    const out = { unit };
+    for (const s of BIKE_SCREEN) out[s.field] = vals[s.k] || '';
+    return out;
+  };
+  const check = step === 'result' ? Calc.bikeAnalysis({ ...a, bike: { ...(a.bike || {}), ...mapped() } }, null) : null;
+  const badge = (k) => {
+    const r = res && res[k];
+    if (!r || r.value == null) return html`<span class="lcd-badge lcd-bad">No s'ha llegit</span>`;
+    return r.conf >= 0.7 ? html`<span class="lcd-badge lcd-ok">Llegit</span>` : html`<span class="lcd-badge lcd-warn">Revisa-ho</span>`;
+  };
+  const unitName = unit === 'km' ? 'km' : 'milles', speedUnit = unit === 'km' ? 'km/h' : 'mi/h';
+  const corner = ['dalt a l\'esquerra', 'dalt a la dreta', 'baix a la dreta', 'baix a l\'esquerra'];
+  const r0 = img ? Math.max(img.w, img.h) * 0.012 : 10;
+
+  return html`<${Dialog} title="Llegeix la pantalla de l'Assault Bike" wide=${true} onClose=${onClose} footer=${html`
+    ${step === 'result' && canSave && html`<label class="check"><input type="checkbox" checked=${save} onChange=${(e) => setSave(e.currentTarget.checked)} /> Desa la foto a la carpeta del pacient</label>`}
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    ${step === 'quad' && html`<${Btn} variant="primary" icon="check" disabled=${!img} onClick=${read}>Llegeix la pantalla</${Btn}>`}
+    ${step === 'result' && html`<${Btn} variant="primary" icon="check" onClick=${() => onApply({ ...mapped(), file: save && canSave ? file : null })}>Aplica a la valoració</${Btn}>`}`}>
+    ${err && html`<p class="lcd-err" role="alert">${err}</p>`}
+    ${step === 'quad' && html`<div>
+      <p>Marca els <strong>quatre cantons de la pantalla</strong> de l'aparell (el vidre, no la caixa): ${corner.map((c, i) => html`<span class="lcd-n">${i + 1}</span> ${c}${i < 3 ? ', ' : '.'} `)}
+        Arrossega els punts; no cal que siguin exactes.</p>
+      ${!img && !err && html`<div class="kvi-busy" role="status"><span class="spinner"></span><span>Obrint la foto…</span></div>`}
+      ${img && html`<div class="lcd-stage">
+        <img src=${url} alt="Foto de la pantalla de l'Assault Bike" draggable="false" />
+        <svg ref=${svgRef} class="lcd-quad" viewBox=${`0 0 ${img.w} ${img.h}`} preserveAspectRatio="none" onPointerMove=${move} onPointerUp=${up} onPointerCancel=${up}>
+          <polygon points=${quad.map((p) => p.join(',')).join(' ')} class="lcd-poly" />
+          ${quad.map((p, i) => html`<g key=${i} class="lcd-handle" onPointerDown=${down(i)} data-corner=${i}>
+            <circle cx=${p[0]} cy=${p[1]} r=${r0 * 3} class="lcd-hit" />
+            <circle cx=${p[0]} cy=${p[1]} r=${r0} class="lcd-dot" />
+            <text x=${p[0]} y=${p[1] + r0 * 0.45} font-size=${r0 * 1.3} text-anchor="middle" class="lcd-num">${i + 1}</text>
+          </g>`)}
+        </svg>
+      </div>`}
+      <p class="muted small">Fes la foto de prop, amb la pantalla plena i el més de cara possible, quan l'aparell ensenya el resum de la prova (temps, distància, calories, watts, velocitat i RPM).</p>
+    </div>`}
+    ${step === 'reading' && html`<div class="kvi-busy" role="status"><span class="spinner"></span><span>Llegint la pantalla… ${Math.round(pct * 100)} %</span></div>`}
+    ${step === 'result' && html`<div class="lcd-result">
+      <div class="lcd-flat"><canvas ref=${prevRef} aria-label="Pantalla dreçada" /><span class="muted small">Pantalla dreçada</span></div>
+      <div class="lcd-fields">
+        <p class="muted small">Això és el que he llegit. <strong>Compara-ho amb la pantalla</strong> i corregeix el que calgui: no es desa res fins que premis «Aplica».</p>
+        <div class="form-grid form-grid-4">${BIKE_SCREEN.map((s) => html`<${Field} label=${html`${s.label}${s.k === 'dist' ? ` (${unitName})` : s.k === 'speed' ? ` (${speedUnit})` : ''} ${badge(s.k)}`}>
+          <${NumInput} value=${vals[s.k]} onValue=${(v) => setVals({ ...vals, [s.k]: v })} unit=${s.k === 'dist' || s.k === 'speed' ? '' : s.unit} ariaLabel=${s.label} />
+        </${Field}>`)}</div>
+        <div class="inline"><span class="field-label">Unitats de la pantalla</span>
+          <${Seg} value=${unit} onValue=${setUnit} allowEmpty=${false} size="sm" ariaLabel="Unitats de la pantalla" options=${[{ v: 'mi', label: 'Milles' }, { v: 'km', label: 'Km' }]} />
+          <span class="muted small">Si a sota de la distància hi diu MILES (i la velocitat M/HR), són milles.</span></div>
+        ${check && check.warns.length > 0 && html`<ul class="analysis-warns">${check.warns.map((l) => html`<li><${Icon} name="alert" size=${14} /><span>${l}</span></li>`)}</ul>`}
+        <p><button type="button" class="link" onClick=${() => { setStep('quad'); setErr(''); }}>Torna a marcar els cantons</button></p>
+      </div>
+    </div>`}
+  </${Dialog}>`;
 }
 
 
@@ -16687,9 +17682,11 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const alerts = Calc.alerts(a);
   const cmj = Calc.cmj(a);
   const jumps = Calc.jumps(a);
+  const jumpAn = Calc.jumpAnalysis(a, prev);
   const ybt = Calc.ybt(a);
   const pc = Calc.patterns(a);
   const bike = Calc.bike(a);
+  const bikeAn = Calc.bikeAnalysis(a, prev);
   const hq = Calc.hq(a);
   const typeLabel = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
   const service = OPT.services.find((o) => o.v === p.service);
@@ -16809,24 +17806,30 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           </tbody></table></div>`}
       </section>`}
 
-      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null) && html`<section class="rsec">
+      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null || bike.mean != null) && html`<section class="rsec">
         <h2 class="rsec-title">Rendiment</h2>
         ${Object.keys(jumps).length > 0 && html`<h3 class="h3">Salts <span class="muted">· My Jump Lab</span></h3>
           <div class="jump-sum">${Object.entries(jumps).map(([type, sm]) => html`<div class="jump-card">
             <div class="jump-type">${type}</div>
             <div class="jump-best">${U.fmt(sm.best, 1)}<small> cm</small></div>
             <div class="jump-meta">Mitjana ${U.fmt(sm.mean, 1)} cm${sm.bestPower != null ? ` · ${U.fmt(sm.bestPower, 0)} W` : ''}${sm.relPower != null ? ` · ${U.fmt(sm.relPower, 1)} W/kg` : ''}${sm.bestRsi != null ? ` · RSI-mod ${U.fmt(sm.bestRsi, 2)}` : ''}</div>
-          </div>`)}</div>`}
+          </div>`)}</div>
+          ${Object.values(jumpAn).some((x) => x.lines.length > 1) && html`<ul class="rjump-analysis">${Object.values(jumpAn).flatMap((x) => x.lines.slice(1)).map((l) => html`<li>${l}</li>`)}</ul>`}`}
         ${enc.length > 0 && html`<h3 class="h3">Encoder <span class="muted">· velocitat d'execució</span></h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Exercici</th><th class="num">Càrrega</th><th class="num">Velocitat mitjana</th><th class="num">Potència</th></tr></thead>
           <tbody>${enc.map((r) => html`<tr><td>${r.name}</td><td class="num">${U.num(r.load) != null ? `${U.fmt(U.num(r.load), 1)} kg` : '—'}</td>
             <td class="num">${U.num(r.vel) != null ? `${U.fmt(U.num(r.vel), 2)} m/s` : '—'}</td><td class="num">${U.num(r.power) != null ? `${U.fmt(U.num(r.power), 0)} W` : '—'}</td></tr>`)}</tbody></table></div>`}
-        ${bike.peak != null && html`<h3 class="h3">Assault bike · 30 s all-out</h3>
+        ${(bike.peak != null || bike.mean != null) && html`<h3 class="h3">Assault bike · 30 s all-out</h3>
           <div class="kv-row">
-            <div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>
-            <div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>
-            <div class="kv"><span>Índex de fatiga</span><strong>${bike.fatigue != null ? `${U.fmt(bike.fatigue, 1)} %` : '—'}</strong></div>
-          </div>`}
+            ${bike.peak != null && html`<div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>`}
+            ${bike.mean != null && html`<div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>`}
+            ${bike.fatigue != null && html`<div class="kv"><span>Índex de fatiga</span><strong>${U.fmt(bike.fatigue, 1)} %</strong></div>`}
+            ${bike.work != null && html`<div class="kv"><span>Treball total</span><strong>${U.fmt(bike.work, 1)} kJ</strong></div>`}
+            ${bike.distKm != null && html`<div class="kv"><span>Distància</span><strong>${U.fmt(bike.distKm * 1000, 0)} m</strong>${bike.speedKmh != null && html`<small>${U.fmt(bike.speedKmh, 1)} km/h de mitjana</small>`}</div>`}
+            ${bike.cal != null && html`<div class="kv"><span>Energia</span><strong>${U.fmt(bike.cal, 1)} kcal</strong>${bike.calMin != null && html`<small>${U.fmt(bike.calMin, 1)} kcal/min</small>`}</div>`}
+            ${bike.rpm != null && html`<div class="kv"><span>Cadència mitjana</span><strong>${U.fmt(bike.rpm, 0)} RPM</strong></div>`}
+          </div>
+          ${bikeAn && bikeAn.more.length > 0 && html`<ul class="rjump-analysis">${bikeAn.more.map((l) => html`<li>${l}</li>`)}</ul>`}`}
       </section>`}
 
       ${show('patrons') && hasPatterns && html`<section class="rsec">

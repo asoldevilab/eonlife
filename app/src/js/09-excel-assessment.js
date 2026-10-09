@@ -85,7 +85,7 @@ const ExcelAssessment = (() => {
   function detailSheet(doc, { p, a, previous = null, name, settings }) {
     const ws = doc.sheet(name, { grid: false, landscape: true, tab: XL_C.BRAND_L, zoom: 90 });
     ws.cols(WIDTHS);
-    const ref = { weight: null, files: media(a), name };
+    const ref = { weight: null, files: media(a), name, previous };
     let r = xlTitle(ws, `${typeLabel(a)} · ${U.fullName(p)}`, `${U.fmtDateLong(a.date)}${a.professional ? ` · ${a.professional}` : ''}`, NC);
     r = summary(ws, r, { p, a, previous, ref, settings });
     const skipped = [];
@@ -386,6 +386,26 @@ const ExcelAssessment = (() => {
         ws.merge(r, 10, r, 11, '', XS.text);
         r++;
       }
+      // Més dades de cada intent de My Jump (només si n'hi ha): data, pes, empenta, despegament, impuls, DRI, RSI i rigidesa.
+      const more = attempts.filter((x) => ['when', 'bodyweight', 'pushoff', 'takeoff', 'impulse', 'dri', 'rsi', 'stiffness'].some((k) => xlStr(x[k])));
+      if (more.length) {
+        r = xlHeader(ws, r, ['Intent', 'Data i hora', 'Pes (kg)', 'Empenta (m)', 'Despegament (ms)', 'Impuls', 'DRI', 'RSI', 'Rigidesa (kN/m)', ['', 2]]);
+        more.forEach((x) => {
+          ws.set(r, 1, `Intent ${attempts.indexOf(x) + 1}`, XS.text);
+          ws.set(r, 2, xlStr(x.when).replace('T', ' '), XS.text);
+          [['bodyweight', '0.0'], ['pushoff', '0.00'], ['takeoff', '0'], ['impulse', '0.0'], ['dri', '0.00'], ['rsi', '0.00'], ['stiffness', '0.0']].forEach(([k, fmt], j) => ws.set(r, 3 + j, xlNum(x[k]), [XS.cell, { fmt }]));
+          r++;
+        });
+        r++;
+      }
+      // Anàlisi: el mateix que surt a l'informe (resultats), més els avisos de dades dubtoses.
+      const an = Calc.jumpAnalysis(a, ref.previous);
+      const lines = [];
+      for (const x of Object.values(an)) {
+        lines.push([`Anàlisi · ${x.type}`, x.lines.join(' ')]);
+        if (x.warns.length) lines.push([`Avisos · ${x.type}`, x.warns.join(' ')]);
+      }
+      if (lines.length) r = xlKv(ws, r, lines, NC);
       const extra = [];
       if (xlStr((a.jumps || {}).readiness)) extra.push(['Estat de forma (My Jump)', (OPT.readiness.find((o) => o.v === a.jumps.readiness) || {}).label || a.jumps.readiness]);
       if (xlStr((a.jumps || {}).note)) extra.push(['Observacions dels salts', xlStr(a.jumps.note)]);
@@ -406,7 +426,7 @@ const ExcelAssessment = (() => {
       r++;
     }
     const b = Calc.bike(a);
-    if (b.peak != null) {
+    if (b.any) {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
       r = xlHeader(ws, r, ['Mesura', 'Valor', 'Unitat']);
       const w = ref.weight;
@@ -419,7 +439,23 @@ const ExcelAssessment = (() => {
       ws.set(r, 1, 'Índex de fatiga', XS.text);
       ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 2, 2)}),${xlRef(first, 2)}>0),(${xlRef(first, 2)}-${xlRef(first + 2, 2)})/${xlRef(first, 2)}*100,"")`, v: b.fatigue == null ? '' : b.fatigue }, [XS.cell, { fmt: '0.0' }]);
       ws.set(r, 3, '%', XS.cell); r++;
+      // Dades de la pantalla de l'aparell (en les unitats que té la pantalla: milles o km) i treball total.
+      const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
+      const screen = [['Temps', xlNum(a.bike.time), 's', '0'], ['Distància', xlNum(a.bike.dist), unitName, '0.00'], ['Calories', xlNum(a.bike.cal), 'kcal', '0.0'],
+        ['Velocitat mitjana', xlNum(a.bike.speed), speedUnit, '0.0'], ['RPM mitjanes', xlNum(a.bike.rpm), 'RPM', '0']];
+      const t0 = r;
+      for (const [l, val, u, fmt] of screen) { ws.set(r, 1, l, XS.text); ws.set(r, 2, val, [XS.cell, { fmt }]); ws.set(r, 3, u, XS.cell); r++; }
+      const mc = xlRef(first + 1, 2), tc = xlRef(t0, 2);
+      ws.set(r, 1, 'Treball total', XS.text);
+      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${mc}),ISNUMBER(${tc})),${mc}*${tc}/1000,"")`, v: b.work == null ? '' : b.work }, [XS.cell, { fmt: '0.0' }]);
+      ws.set(r, 3, 'kJ', XS.cell); r++;
       r++;
+      // Anàlisi: el mateix que surt a l'informe, més els avisos de dades dubtoses.
+      const an = Calc.bikeAnalysis(a, ref.previous);
+      const lines = [];
+      if (an && an.lines.length) lines.push(['Anàlisi · Assault bike', an.lines.join(' ')]);
+      if (an && an.warns.length) lines.push(['Avisos · Assault bike', an.warns.join(' ')]);
+      if (lines.length) r = xlKv(ws, r, lines, NC);
     }
     return r;
   }
@@ -515,6 +551,8 @@ const ExcelAssessment = (() => {
           rows.push({ label: 'Assault bike · potència pic', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).peak }) });
           rows.push({ label: 'Assault bike · potència mitjana', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).mean != null ? Calc.bike(a).mean : xlNum((a.bike || {}).mean) }) });
           rows.push({ label: 'Assault bike · índex de fatiga', unit: '%', fmt: '0.0', dir: -1, get: (a) => ({ v: Calc.bike(a).fatigue }) });
+          rows.push({ label: 'Assault bike · treball total', unit: 'kJ', fmt: '0.0', dir: 1, get: (a) => ({ v: Calc.bike(a).work }) });
+          rows.push({ label: 'Assault bike · distància', unit: 'm', fmt: '0', dir: 1, get: (a) => { const d = Calc.bike(a).distKm; return { v: d != null ? d * 1000 : null }; } });
           continue;
         }
         if (g.kind === 'patterns') {

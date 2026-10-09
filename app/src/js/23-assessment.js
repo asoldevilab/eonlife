@@ -122,7 +122,7 @@ function sectionProgress(a, sec, p) {
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
-    else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null) done++; }
+    else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null || U.num((a.bike || {}).mean) != null) done++; }
     else if (g.kind === 'free') { /* opcional */ }
     else for (const t of g.tests || []) { if (t.optional || t.retired) continue; total++; if (has((a.values || {})[t.id])) done++; }
   }
@@ -136,7 +136,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   else if (g.kind === 'ybt') body = html`<${YbtBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'jumps') body = html`<${JumpsBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
-  else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} upd=${upd} />`;
+  else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
   else body = html`<div class="trows">${(g.tests || []).filter((t0) => Calc.testOn(a, t0)).map((t0) => html`<${TestRow} key=${t0.id} t=${TEST_INDEX[t0.id]} a=${a} p=${p} setVal=${setVal} />`)}</div>`;
   const title = g.title || (g.kind === 'patterns' ? 'Movement Assessment' : g.kind === 'free' ? 'Mesures addicionals' : '');
@@ -278,12 +278,65 @@ function YbtBlock({ a, p, upd }) {
   </div>`;
 }
 
+// Valoració anterior del mateix pacient (per comparar-hi els salts i la bicicleta).
+function previousAssessment(a) {
+  const list = Store.assessmentsOf(a.patientId);
+  const i = list.findIndex((x) => x.id === a.id);
+  return i > 0 ? list[i - 1] : null;
+}
+
+// Més dades de cada intent de My Jump (a més de les de la taula): s'obren amb la fletxa de cada fila.
+const JUMP_EXTRA = [
+  ['bodyweight', 'Pes a My Jump', 'kg'], ['pushoff', 'Distància d\'empenta', 'm'], ['takeoff', 'Temps fins al despegament', 'ms'], ['contact', 'Temps de contacte', 'ms'],
+  ['load', 'Càrrega', 'kg'], ['impulse', 'Impuls', ''], ['dri', 'DRI', ''], ['rsi', 'RSI (força reactiva)', ''], ['stiffness', 'Rigidesa', 'kN/m'],
+];
+
+// Importar de My Jump: el fitxer porta tots els atletes; aquí només surten (i només es desen) les files del pacient.
+function ImportJumpsDialog({ res, a, p, onSave, onClose }) {
+  const known = new Set(((a.jumps && a.jumps.attempts) || []).map((x) => x.src).filter(Boolean));
+  const [names, setNames] = useState(res.match ? res.match.names : []);
+  const mine = res.attempts.filter((x) => !res.hasName || names.includes(x.athlete));
+  const sameDay = mine.filter((x) => x.when.slice(0, 10) === a.date);
+  const latest = mine.map((x) => x.when.slice(0, 10)).filter(Boolean).sort().pop();
+  const [picked, setPicked] = useState(() => new Set((sameDay.length ? sameDay : mine.filter((x) => x.when.slice(0, 10) === latest)).filter((x) => !known.has(x.src)).map((x) => x.id)));
+  const others = res.attempts.length - mine.length;
+  const toggle = (id) => setPicked((cur) => { const n = new Set(cur); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const pick = (name) => { setNames(name ? [name] : []); setPicked(new Set()); };
+  const fmtWhen = (w) => (w ? `${U.fmtDate(w.slice(0, 10))}${w.length > 10 ? ` · ${w.slice(11)}` : ''}` : '—');
+  const chosen = mine.filter((x) => picked.has(x.id));
+  const person = [p.firstName, p.lastName].filter(Boolean).join(' ');
+  return html`<${Dialog} title="Importa de My Jump" wide=${true} onClose=${onClose} footer=${html`
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" disabled=${!chosen.length} onClick=${() => onSave(chosen)}>${chosen.length ? `Importa ${U.plural(chosen.length, 'intent', 'intents')}` : 'Importa'}</${Btn}>`}>
+    ${res.hasName ? html`
+      ${names.length > 0
+        ? html`<p>He trobat <strong>${names.join(' · ')}</strong> al fitxer${others > 0 ? ` i no n'importo les altres ${U.plural(others, 'fila', 'files')} (altres persones)` : ''}.</p>`
+        : html`<p>No he trobat cap fila amb el nom de <strong>${person}</strong> al fitxer. Si s'ha escrit diferent a My Jump, tria'l aquí (només és el nom; no es llegeix res més fins que el triïs):</p>
+          <${Select} value="" onValue=${pick} placeholder="Tria el nom del fitxer…" options=${res.people.map((x) => x.name)} ariaLabel="Nom al fitxer de My Jump" />`}
+      ${names.length > 0 && res.people.length > names.length && html`<p class="muted small">No és ell? <button type="button" class="link" onClick=${() => pick('')}>Tria un altre nom del fitxer</button></p>`}`
+      : html`<p>Aquest fitxer no porta el nom de la persona: s'importen totes les files. Revisa que siguin de <strong>${person}</strong>.</p>`}
+    ${mine.length > 0 && html`<div class="table-wrap"><table class="table">
+      <thead><tr><th></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
+      <tbody>${mine.map((x) => html`<tr class=${known.has(x.src) ? 'muted' : ''}>
+        <td><input type="checkbox" checked=${picked.has(x.id)} disabled=${known.has(x.src)} onChange=${() => toggle(x.id)} aria-label=${`Importa l'intent del ${fmtWhen(x.when)}`} /></td>
+        <td>${fmtWhen(x.when)}${known.has(x.src) ? ' · ja importat' : ''}</td><td>${x.type}</td>
+        <td class="num">${x.height || '—'}</td><td class="num">${x.flight || '—'}</td><td class="num">${x.power || '—'}</td></tr>`)}</tbody>
+    </table></div>
+    ${sameDay.length === 0 && html`<p class="muted small">Cap d'aquests intents és del dia de la valoració (${U.fmtDate(a.date)}): marca els que vulguis.</p>`}`}
+    <p class="muted small">Del fitxer només es desen els intents que marquis. Les dades d'altres persones no es guarden enlloc.</p>
+  </${Dialog}>`;
+}
+
 function JumpsBlock({ a, p, upd }) {
   const j = a.jumps || { attempts: [] };
   const list = j.attempts || [];
+  const prev = previousAssessment(a);
+  const analysis = Calc.jumpAnalysis(a, prev);
   const summary = Calc.jumps(a);
   const w = Calc.weight(a);
   const [noteOpen, setNoteOpen] = useState(!!j.note);
+  const [open, setOpen] = useState({});
   const fileRef = useRef(null);
   const setJ = (k) => (v) => upd((x) => { x.jumps = { ...(x.jumps || { attempts: [] }), [k]: v }; });
   const setAt = (aid, k) => (v) => upd((x) => { const it = x.jumps.attempts.find((z) => z.id === aid); if (it) it[k] = v; });
@@ -296,14 +349,21 @@ function JumpsBlock({ a, p, upd }) {
   const importCsv = async (file) => {
     if (!file) return;
     try {
-      const text = await U.readFile(file);
-      const res = parseMyJumpCsv(text);
+      const res = parseMyJumpCsv(await U.readFile(file), p);
       if (res.error) { UI.toast(res.error, 'bad'); return; }
-      const ok = await UI.confirm({ title: `Importar ${U.plural(res.attempts.length, 'intent', 'intents')} de My Jump?`,
-        text: `Columnes detectades: ${Object.keys(res.map).map((k) => (MYJUMP_COLUMNS.find((c) => c.key === k) || {}).label).join(', ')}. Tipus: ${[...new Set(res.attempts.map((x) => x.type))].join(', ')}.`, ok: 'Importa' });
-      if (!ok) return;
-      upd((x) => { x.jumps = x.jumps || { attempts: [] }; x.jumps.attempts = [...x.jumps.attempts, ...res.attempts]; });
-      UI.toast('Intents importats.');
+      let close = null;
+      close = UI.open(() => html`<${ImportJumpsDialog} res=${res} a=${a} p=${p} onClose=${() => close()} onSave=${(rows) => {
+        // Només els intents triats, sense el nom de la persona (que no cal desar).
+        const clean = rows.map(({ athlete, ...x }) => x);
+        upd((x) => {
+          x.jumps = x.jumps || { attempts: [] };
+          x.jumps.attempts = [...x.jumps.attempts, ...clean];
+          const color = clean.map((r) => r.readiness).filter(Boolean).pop();
+          if (color && !x.jumps.readiness) x.jumps.readiness = color;
+        });
+        close();
+        UI.toast(`${U.plural(clean.length, 'intent importat', 'intents importats')}.`);
+      }} />`);
     } catch (e) {
       UI.toast(`No s'ha pogut llegir el fitxer: ${e.message}`, 'bad');
     } finally {
@@ -311,14 +371,15 @@ function JumpsBlock({ a, p, upd }) {
     }
   };
   const col = (k, label, unit) => ({ k, label, unit });
-  const cols = [col('height', 'Altura', 'cm'), col('power', 'Potència', 'W'), col('force', 'Força', 'N'), col('velocity', 'Velocitat', 'm/s'), col('rsimod', 'RSI-mod', '')];
+  const cols = [col('height', 'Altura', 'cm'), col('flight', 'Vol', 'ms'), col('velocity', 'Velocitat', 'm/s'), col('force', 'Força', 'N'), col('power', 'Potència', 'W'), col('rsimod', 'RSI-mod', '')];
+  const warns = Object.values(analysis).flatMap((x) => x.warns);
   return html`<div class="jumps">
     <div class="jumps-top">
       <div class="inline"><span class="field-label">Estat de forma</span>
         <${Seg} value=${j.readiness || ''} onValue=${setJ('readiness')} options=${OPT.readiness.map((o) => ({ v: o.v, label: o.label, tone: o.v === 'verd' ? 'ok' : o.v === 'groc' ? 'warn' : 'bad' }))} ariaLabel="Estat de forma" size="sm" /></div>
       <span class="grow"></span>
-      <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} onChange=${(e) => importCsv(e.currentTarget.files[0])} />
-      <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Importa CSV de My Jump</${Btn}>
+      <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} data-kind="myjump" onChange=${(e) => importCsv(e.currentTarget.files[0])} />
+      <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()} title="El fitxer de My Jump porta tots els atletes: només s'importen les files d'aquest pacient">Importa CSV de My Jump</${Btn}>
       <${Tools} x=${j} title="Salts" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
@@ -328,8 +389,12 @@ function JumpsBlock({ a, p, upd }) {
         <td class="muted">${i + 1}</td>
         <td><${Select} value=${at.type} onValue=${setAt(at.id, 'type')} options=${OPT.jumpTypes} ariaLabel="Tipus de salt" /></td>
         ${cols.map((c) => html`<td><${NumInput} value=${at[c.k]} onValue=${setAt(at.id, c.k)} ariaLabel=${`${c.label} intent ${i + 1}`} /></td>`)}
-        <td><${Btn} variant="ghost" icon="x" title="Treu l'intent" onClick=${() => del(at.id)} /></td>
-      </tr>`)}</tbody>
+        <td class="nowrap"><${Btn} variant=${open[at.id] ? 'secondary' : 'ghost'} icon="more" title="Més dades de l'intent" onClick=${() => setOpen({ ...open, [at.id]: !open[at.id] })} />
+          <${Btn} variant="ghost" icon="x" title="Treu l'intent" onClick=${() => del(at.id)} /></td>
+      </tr>${open[at.id] && html`<tr class="jumps-extra"><td></td><td colspan=${cols.length + 2}>
+        <div class="form-grid form-grid-4">${JUMP_EXTRA.map(([k, label, unit]) => html`<${Field} label=${label}><${NumInput} value=${at[k]} onValue=${setAt(at.id, k)} unit=${unit} /></${Field}>`)}</div>
+        ${at.when && html`<p class="muted small">Intent fet el ${U.fmtDate(at.when.slice(0, 10))}${at.when.length > 10 ? ` a les ${at.when.slice(11)}` : ''} (My Jump).</p>`}
+      </td></tr>`}`)}</tbody>
     </table></div>`}
     <div class="row-actions"><${Btn} size="sm" icon="plus" onClick=${add}>Afegeix intent</${Btn}></div>
     ${Object.keys(summary).length > 0 && html`<div class="jump-sum">${Object.entries(summary).map(([type, sm]) => html`<div class="jump-card">
@@ -337,6 +402,12 @@ function JumpsBlock({ a, p, upd }) {
       <div class="jump-best">${U.fmt(sm.best, 1)}<small> cm</small></div>
       <div class="jump-meta">Mitjana ${U.fmt(sm.mean, 1)} cm${sm.bestPower != null ? html` · ${U.fmt(sm.bestPower, 0)} W` : ''}${sm.relPower != null ? html` · <strong>${U.fmt(sm.relPower, 1)} W/kg</strong>` : ''}${sm.bestRsi != null ? html` · RSI-mod ${U.fmt(sm.bestRsi, 2)}` : ''}</div>
     </div>`)}</div>`}
+    ${Object.keys(analysis).length > 0 && html`<div class="jump-analysis">
+      <h4 class="h4">Anàlisi</h4>
+      ${Object.values(analysis).map((x) => html`<ul class="analysis-list">${x.lines.map((l) => html`<li>${l}</li>`)}</ul>`)}
+      ${warns.length > 0 && html`<ul class="analysis-warns">${warns.map((l) => html`<li><${Icon} name="alert" size=${14} /><span>${l}</span></li>`)}</ul>`}
+      <p class="muted small">Aquest anàlisi surt a l'informe del pacient (els avisos, no: són per a qui introdueix les dades).</p>
+    </div>`}
     ${list.length > 0 && !w && html`<p class="muted small">Afegeix el pes a les dades de la valoració per calcular la potència relativa (W/kg).</p>`}
   </div>`;
 }
@@ -361,21 +432,81 @@ function EncoderBlock({ a, upd }) {
   </div>`;
 }
 
-function BikeBlock({ a, upd }) {
+function BikeBlock({ a, p, upd }) {
   const b = a.bike || {};
   const r = Calc.bike(a);
+  const prev = previousAssessment(a);
+  const an = Calc.bikeAnalysis(a, prev);
+  const fileRef = useRef(null);
+  const [busy, setBusy] = useState(false);
   const set = (k) => (v) => upd((x) => { x.bike = { ...(x.bike || {}), [k]: v }; });
+  const unitName = r.unit === 'km' ? 'km' : 'milles', speedUnit = r.unit === 'km' ? 'km/h' : 'mi/h';
+  const canSave = canUploadFiles() && !!p && !!p.id;
+  // La foto de la pantalla (si es desa) queda com a prova a la carpeta del pacient, amb el seu identificador (a.media).
+  const setPhoto = (url, meta) => upd((x) => {
+    const old = (x.bike || {}).photo;
+    x.bike = { ...(x.bike || {}), photo: url };
+    x.media = { ...(x.media || {}) };
+    if (old && old !== url) delete x.media[old];
+    if (url && meta && meta.id) x.media[url] = { id: meta.id, name: meta.name || '' };
+  });
+  const open = (file) => {
+    if (fileRef.current) fileRef.current.value = '';
+    if (!file) return;
+    let close = null;
+    close = UI.open(() => html`<${BikePhotoDialog} file=${file} a=${a} unit=${r.unit} canSave=${canSave} onClose=${() => close()} onApply=${async (v) => {
+      const { file: toSave, ...vals } = v;
+      upd((x) => { x.bike = { ...(x.bike || {}), ...vals }; });
+      close();
+      UI.toast('Dades de la pantalla aplicades. Revisa els watts pic i mínim: no surten a la pantalla.');
+      if (toSave) {
+        setBusy(true);
+        try {
+          const photo = await preparePhoto(toSave);
+          const res = await uploadToClient(p, photo, { label: 'Assault bike', date: a.date, where: 'assess' });
+          if (!res.url) throw new Error('No s\'ha pogut desar la foto.');
+          PhotoSrc.set(res.url, URL.createObjectURL(photo), { id: res.id, name: res.name, url: res.url });
+          setPhoto(res.url, { id: res.id, name: res.name });
+        } catch (e) {
+          UI.toast(`Valors aplicats, però la foto no s'ha pogut desar: ${e.message}`, 'bad');
+        }
+        setBusy(false);
+      }
+    }} />`);
+  };
+  const found = (url, info) => MediaLinks.relink('assessments', a.id, url, info);
   return html`<div class="bike">
+    <div class="bike-top">
+      <input type="file" accept="image/*" hidden ref=${fileRef} data-kind="bike-photo" onChange=${(e) => open(e.currentTarget.files[0])} />
+      <${Btn} variant="primary" icon="camera" disabled=${busy} onClick=${() => fileRef.current && fileRef.current.click()}
+        title="Fes una foto a la pantalla de l'aparell o tria-la de la galeria: l'app llegeix els números i omple les caselles">Omple amb una foto de la pantalla</${Btn}>
+      <span class="muted small">L'app llegeix temps, distància, calories, watts mitjans, velocitat i RPM; tu ho comproves abans d'aplicar-ho.</span>
+    </div>
     <div class="form-grid form-grid-4">
       <${Field} label="Potència pic"><${NumInput} value=${b.peak} onValue=${set('peak')} unit="W" /></${Field}>
       <${Field} label="Potència mitjana"><${NumInput} value=${b.mean} onValue=${set('mean')} unit="W" /></${Field}>
       <${Field} label="Potència mínima"><${NumInput} value=${b.min} onValue=${set('min')} unit="W" /></${Field}>
+      <${Field} label="Temps"><${NumInput} value=${b.time} onValue=${set('time')} unit="s" /></${Field}>
+      <${Field} label=${`Distància (${unitName})`}><${NumInput} value=${b.dist} onValue=${set('dist')} /></${Field}>
+      <${Field} label="Calories"><${NumInput} value=${b.cal} onValue=${set('cal')} unit="kcal" /></${Field}>
+      <${Field} label=${`Velocitat mitjana (${speedUnit})`}><${NumInput} value=${b.speed} onValue=${set('speed')} /></${Field}>
+      <${Field} label="RPM mitjanes"><${NumInput} value=${b.rpm} onValue=${set('rpm')} unit="RPM" /></${Field}>
     </div>
+    <div class="inline"><span class="field-label">Unitats de la pantalla</span>
+      <${Seg} value=${r.unit} onValue=${set('unit')} allowEmpty=${false} size="sm" ariaLabel="Unitats de la pantalla" options=${[{ v: 'mi', label: 'Milles' }, { v: 'km', label: 'Km' }]} /></div>
+    <div class="tmedia"><${PhotoSlot} url=${b.photo} meta=${MediaLinks.meta(a, b.photo)} label="Foto de la pantalla" title="Assault bike" patient=${p} date=${a.date} onChange=${setPhoto} onFound=${found} /></div>
     <div class="kv-row">
       <div class="kv"><span>Pic relatiu</span><strong>${r.peakRel != null ? `${U.fmt(r.peakRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
+      <div class="kv"><span>Treball total</span><strong>${r.work != null ? `${U.fmt(r.work, 1)} kJ` : '—'}</strong><small>potència mitjana × temps</small></div>
     </div>
+    ${an && an.lines.length > 0 && html`<div class="jump-analysis">
+      <h4 class="h4">Anàlisi</h4>
+      <ul class="analysis-list">${an.lines.map((l) => html`<li>${l}</li>`)}</ul>
+      ${an.warns.length > 0 && html`<ul class="analysis-warns">${an.warns.map((l) => html`<li><${Icon} name="alert" size=${14} /><span>${l}</span></li>`)}</ul>`}
+      <p class="muted small">Aquest anàlisi surt a l'informe del pacient (els avisos, no: són per a qui introdueix les dades).</p>
+    </div>`}
     <p class="muted small">Els watts de la bicicleta d'aire no són comparables amb els del Wingate clàssic: serveixen per comparar el pacient amb ell mateix.</p>
   </div>`;
 }
