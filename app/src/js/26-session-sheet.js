@@ -46,7 +46,9 @@ function SessionSheet({ id }) {
   const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
   const theme = reportThemeClass(p);
   return html`<div class=${`present ${theme}`}>
-    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}>
+    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}
+      actions=${html`<${PdfSaveButton} p=${p} name=${PdfSet.sessionName(s, p)} where="reportSessions" title=${`Sessió ${s.number} · ${U.fullName(p)}`}
+        footer=${`${Store.settings.centerName || 'EON Life'} · Sessió ${s.number} · ${U.fullName(p)}`} />`}>
       <${ReportThemeSwitch} p=${p} />
       <${Btn} variant="ghost" icon="edit" onClick=${() => go('sessio', s.id)}>Edita</${Btn}>
     </${PresentBar}>

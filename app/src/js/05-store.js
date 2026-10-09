@@ -182,6 +182,7 @@ const Store = {
       this.replayOutbox();
       this.renameProfessionals();
       if (typeof Sync !== 'undefined') Sync.resume();
+      if (typeof PdfSync !== 'undefined') PdfSync.resume();
       if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els pacients de prova. Ja podeu afegir els vostres.'), 400);
     } catch (err) {
       this.error = err.message || String(err);
@@ -301,6 +302,8 @@ const Store = {
     this.queue(kind, rec.id, opts.immediate ? 0 : 900);
     // L'Excel del client (sessions i valoracions) es refà sol (09-sync.js).
     if (typeof Sync !== 'undefined') Sync.onChange(kind, rec);
+    // I els PDF dels informes (18-pdfsync.js).
+    if (typeof PdfSync !== 'undefined') PdfSync.onChange(kind, rec);
     return rec;
   },
   update(kind, id, fn) {

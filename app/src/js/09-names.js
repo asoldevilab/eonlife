@@ -5,6 +5,9 @@
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
+     Informes/                            els PDF que fa l'app sols (18-pdfsync.js)
+       Valoracions/ · Tests/ · Sessions/  un PDF per valoració, un PDF viu de tests i un PDF per sessió feta
+       Arxiu/                             els PDF d'una valoració o sessió que s'ha esborrat (mai s'esborra res)
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
      seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
      singlelegsquatdreta_lauravidalserra_20260702_01.mp4 · hipthrust_lauravidalserra_20261002_01.mp4 */
@@ -14,6 +17,12 @@ const EXPORT_FOLDERS = {
   assessVideos: ['Valoracions', 'Vídeos valoracions'],
   sessions: ['Sessions'],
   sessionVideos: ['Sessions', 'Vídeos sessions d\'entrenament'],
+  // PDF dels informes (els que fa l'app sola i els que es desen a mà amb «Desa el PDF a la carpeta»).
+  reports: ['Informes'],
+  reportAssess: ['Informes', 'Valoracions'],
+  reportTests: ['Informes', 'Tests'],
+  reportSessions: ['Informes', 'Sessions'],
+  reportArchive: ['Informes', 'Arxiu'],
 };
 
 const Names = (() => {

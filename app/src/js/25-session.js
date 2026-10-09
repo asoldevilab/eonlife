@@ -73,8 +73,9 @@ function SessionEditor({ id }) {
       for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
     });
     Sync.soon(s.patientId); // l'Excel de la sessió acabada es puja de seguida
+    PdfSync.soon(s.patientId); // i el seu PDF
   };
-  const leave = () => { Sync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
+  const leave = () => { Sync.flush(s.patientId); PdfSync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
 
   return html`<div class="page page-edit">
     <div class="editbar">

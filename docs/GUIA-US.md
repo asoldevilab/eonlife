@@ -209,7 +209,7 @@ Consells:
   informe ja surt comparat amb l'anterior. A la barra de l'informe es pot canviar entre *Informe complet* i cada apartat.
 - **PDF de l'informe a la carpeta del client**: a la barra de l'informe, **Desa el PDF a la carpeta** fa el PDF (A4,
   com quan s'imprimeix, sense vídeos i amb el número de pàgina) a la mateixa app, sense passar pel diàleg d'imprimir, i
-  el desa a *Valoracions* de la carpeta del client amb el nom `informevaloracioinicial_lauravidalserra_20260702_01.pdf`
+  el desa a *Informes › Valoracions* de la carpeta del client amb el nom `informevaloracioinicial_lauravidalserra_20260702_01.pdf`
   (`informeretest_…`, o `informeforca_…` si és l'informe d'un sol apartat). Si es torna a desar el de la mateixa
   valoració, substitueix l'anterior (no en fa còpies). Queda enllaçat a la valoració (*Informes i fitxers*) i a l'Excel
   del client, i el botó *Obre el PDF* l'obre a SharePoint. Triga uns segons (el botó diu el percentatge). A la versió
@@ -387,16 +387,46 @@ Es pot posar a pantalla completa o desar en PDF.
   primer al darrer valor (▲ verd si ha millorat, ▼ vermell si ha empitjorat; el pes no té direcció), una **gràfica
   d'evolució** (dreta i esquerra si és bilateral) i la taula amb cada valoració i l'asimetria. Les gràfiques es poden
   treure amb la casella *Gràfiques d'evolució de cada test*. El PDF es diu `informeevoluciotests_nomcognoms_aaaammdd_01.pdf`
-  i, amb Microsoft 365, es desa a *Valoracions* de la carpeta del pacient.
+  i, amb Microsoft 365, es desa a *Informes › Tests* de la carpeta del pacient (el PDF «viu» que fa l'app sola es diu
+  `informetests_nomcognoms_01.pdf`, sense data, i aquest té la data: no es trepitgen).
 - **Informe d'evolució de les sessions** (pestanya *Sessions › Informe d'evolució*): l'**RPE**, el **dolor en acabar
   (EVA)** i el **wellness** que el pacient omple a cada sessió, en un rang de dates (per defecte, els últims 3 mesos).
   Resum amb les mitjanes i si pugen o baixen, la taula de **xifres del període** (sessions, mitjana, mínim, màxim, primera,
   última i tendència), una gràfica de cada dada amb el **valor escrit a cada punt**, opcionalment el wellness pregunta per
-  pregunta i la càrrega (RPE × minuts), les mitjanes **per mesos i per setmanes** i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Sessions*.
+  pregunta i la càrrega (RPE × minuts), les mitjanes **per mesos i per setmanes** i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Informes › Sessions*.
 - **Clar o fosc**: a la barra de qualsevol informe (el de la valoració, aquests dos, la fitxa de la sessió i el progrés) hi ha **Clar | Fosc**. El fosc fa
   servir els colors d'EON Life al revés: **fons granat** i text crema (dreta en rosa i esquerra en daurat). Es recorda
   per a cada pacient, i el PDF i el paper surten igual que a la pantalla.
 - Els **comentaris del professional** no surten mai en cap d'aquests informes.
+
+### PDF automàtics dels informes
+
+Amb Microsoft 365, l'app fa **sola** els PDF dels informes de cada pacient i els deixa a la seva carpeta, dins **Informes**
+(no cal prémer res):
+
+| Carpeta | Què hi ha | Nom |
+|---|---|---|
+| *Informes › Valoracions* | un PDF per valoració amb dades (l'informe complet) | `informevaloracioinicial_lauravidalserra_20260702_01.pdf` |
+| *Informes › Tests* | **un sol PDF «viu»** amb l'evolució dels tests clau, de la primera valoració a avui | `informetests_lauravidalserra_01.pdf` |
+| *Informes › Sessions* | un PDF per **sessió feta** (la fitxa) i un PDF «viu» amb l'evolució de les sessions (RPE, dolor, wellness) | `sessio12_lauravidalserra_20261002_01.pdf` · `informeevoluciosessions_lauravidalserra_01.pdf` |
+| *Informes › Arxiu* | els PDF d'una valoració o d'una sessió que s'ha esborrat | (el mateix nom) |
+
+- **Es refan sols** quan algú canvia una valoració, una sessió o les dades del pacient i fa **un minut** que no hi toca (en
+  acabar una sessió o en sortir de l'editor, al cap d'uns segons). **Només es refan els PDF que han canviat**, i el fitxer
+  es **substitueix** (el nom és sempre el mateix: no se'n fan còpies), de manera que el que hi ha a SharePoint és sempre la
+  versió final.
+- Surten en el **disseny (clar o fosc) que té el pacient** a la barra de l'informe, igual que a la pantalla.
+- Una **sessió només té PDF quan és *feta***. Si una valoració o una sessió s'esborra (o una sessió deixa de ser feta), el seu PDF
+  **no s'esborra**: es mou a *Informes › Arxiu*. Mai es toca cap altre fitxer: els PDF que deseu a mà amb *Desa el PDF a la
+  carpeta* (informes d'un sol apartat, un informe de tests amb data…) es queden on són.
+- A la fitxa del pacient surt l'estat (*PDF dels informes al dia · fa 3 min*) amb **Fes-los ara**, i al menú **Excel** hi
+  ha *Fes ara els PDF dels informes*, *Refés tots els PDF d'aquest pacient* i *Obre la carpeta «Informes»*.
+- A **Configuració › PDF dels informes** hi ha l'**interruptor de pausa**, **Fes ara els PDF de tots els pacients** (només
+  refà el que ha canviat) i **Refés-los tots**. En activar l'app no es fan PDF de tot l'històric per si sola: per als pacients
+  que ja existeixen, premeu una vegada *Fes ara els PDF de tots els pacients*.
+- Només es fan amb l'**app oberta i a la pantalla** (fer un PDF és feina de la tauleta: uns segons per informe) i amb
+  connexió. Si no n'hi ha, queden pendents i es fan en tornar-hi.
+- Les fotos de l'informe han d'estar a la carpeta del pacient; si no es troben, surt el requadre d'avís, com a la pantalla.
 
 ## Seguiment mensual
 

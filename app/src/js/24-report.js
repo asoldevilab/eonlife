@@ -236,8 +236,9 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
 }
 
 // ── PDF de l'informe fet a l'app ──
-// Amb Microsoft 365, es desa sol a «Valoracions» de la carpeta del client (substituint el d'abans de la mateixa valoració) i
-// queda enllaçat a la valoració i a l'Excel. Sense carpeta al núvol, es descarrega.
+// Amb Microsoft 365, es desa a «Informes › Valoracions» de la carpeta del client (substituint el d'abans de la mateixa
+// valoració; l'informe complet també el fa sol 18-pdfsync.js) i queda enllaçat a la valoració i a l'Excel. Sense carpeta al
+// núvol, es descarrega.
 //   informevaloracioinicial_lauravidalserra_20260702_01.pdf · informeforca_lauravidalserra_20261001_01.pdf (només d'un apartat)
 function reportPdfName(a, p, typeLabel, scopeSec) {
   return `${Names.stem(scopeSec ? `Informe ${scopeSec.short}` : `Informe ${typeLabel}`, p, a.date)}_01.pdf`;
@@ -245,7 +246,7 @@ function reportPdfName(a, p, typeLabel, scopeSec) {
 
 function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
   const center = Store.settings.centerName || 'EON Life';
-  return html`<${PdfSaveButton} p=${p} name=${reportPdfName(a, p, typeLabel, scopeSec)} where="assess"
+  return html`<${PdfSaveButton} p=${p} name=${reportPdfName(a, p, typeLabel, scopeSec)} where="reportAssess"
     title=${`${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`}
     footer=${`${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)}`}
     onSaved=${(res) => Store.update('assessments', a.id, (x) => {
@@ -254,17 +255,17 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
 }
 
 // Botó del PDF d'un informe (el de la valoració, el de tests i el de sessions): fa el PDF de l'informe de la pantalla
-// (.present .report) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'assess' = Valoracions,
-// 'sessions' = Sessions), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
-function PdfSaveButton({ p, name, title, footer, where = 'assess', onSaved }) {
+// (.present .report o .sheet) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'reportAssess', 'reportTests'
+// o 'reportSessions' = «Informes › …»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
+function PdfSaveButton({ p, name, title, footer, where = 'reportAssess', onSaved }) {
   const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
   const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
   const cloud = Store.cloud() && !!(Store.backend && Store.backend.uploadFile);
   if (!cloud && !U.canDownload()) return null;
-  const folder = (EXPORT_FOLDERS[where] || ['Valoracions'])[0];
+  const folder = (EXPORT_FOLDERS[where] || EXPORT_FOLDERS.reportAssess).join(' › ');
   const run = async () => {
     if (busy != null) return;
-    const el = document.querySelector('.present .report');
+    const el = document.querySelector('#app .present .report, #app .present .sheet');
     if (!el) return;
     setBusy(0);
     setSaved(null);

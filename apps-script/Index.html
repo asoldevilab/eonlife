@@ -3924,7 +3924,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-09 16:24";
+<script>window.EON_BUILD = "2026-10-09 17:07";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6621,6 +6621,7 @@ const Store = {
       this.replayOutbox();
       this.renameProfessionals();
       if (typeof Sync !== 'undefined') Sync.resume();
+      if (typeof PdfSync !== 'undefined') PdfSync.resume();
       if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els pacients de prova. Ja podeu afegir els vostres.'), 400);
     } catch (err) {
       this.error = err.message || String(err);
@@ -6740,6 +6741,8 @@ const Store = {
     this.queue(kind, rec.id, opts.immediate ? 0 : 900);
     // L'Excel del client (sessions i valoracions) es refà sol (09-sync.js).
     if (typeof Sync !== 'undefined') Sync.onChange(kind, rec);
+    // I els PDF dels informes (18-pdfsync.js).
+    if (typeof PdfSync !== 'undefined') PdfSync.onChange(kind, rec);
     return rec;
   },
   update(kind, id, fn) {
@@ -11466,6 +11469,12 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || name, url: (item && item.webUrl) || '' };
   }
 
+  // Mou un fitxer a una altra carpeta (si ja hi ha un fitxer amb el mateix nom, el que arriba pren un nom nou: no se'n perd cap).
+  async moveItem(itemId, parentId) {
+    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body: { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' } });
+    return { id: item && item.id, name: (item && item.name) || '', url: (item && item.webUrl) || '' };
+  }
+
   // Esborra un fitxer (va a la paperera de reciclatge de OneDrive/SharePoint, es pot recuperar).
   async removeItem(itemId) {
     try {
@@ -11552,6 +11561,7 @@ const M365Backend = {
   children(folderId) { return this.api.children(folderId); },
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
+  moveItem(itemId, parentId) { return this.api.moveItem(itemId, parentId); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
   // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
   // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:
@@ -11610,6 +11620,9 @@ const M365Backend = {
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
+     Informes/                            els PDF que fa l'app sols (18-pdfsync.js)
+       Valoracions/ · Tests/ · Sessions/  un PDF per valoració, un PDF viu de tests i un PDF per sessió feta
+       Arxiu/                             els PDF d'una valoració o sessió que s'ha esborrat (mai s'esborra res)
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
      seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
      singlelegsquatdreta_lauravidalserra_20260702_01.mp4 · hipthrust_lauravidalserra_20261002_01.mp4 */
@@ -11619,6 +11632,12 @@ const EXPORT_FOLDERS = {
   assessVideos: ['Valoracions', 'Vídeos valoracions'],
   sessions: ['Sessions'],
   sessionVideos: ['Sessions', 'Vídeos sessions d\'entrenament'],
+  // PDF dels informes (els que fa l'app sola i els que es desen a mà amb «Desa el PDF a la carpeta»).
+  reports: ['Informes'],
+  reportAssess: ['Informes', 'Valoracions'],
+  reportTests: ['Informes', 'Tests'],
+  reportSessions: ['Informes', 'Sessions'],
+  reportArchive: ['Informes', 'Arxiu'],
 };
 
 const Names = (() => {
@@ -15074,6 +15093,7 @@ const PhotoCrop = (() => {
   const base = () => (typeof window !== 'undefined' && window.EON_AI) || '';
   const abs = (p) => new URL(p, document.baseURI).href;
   let loading = null;
+  let busy = 0;                                // retalls en curs (per saber quan un informe fet fora de pantalla ja és a punt)
 
   const available = () => !!base() && typeof WebAssembly !== 'undefined' && typeof createImageBitmap === 'function';
 
@@ -15127,6 +15147,7 @@ const PhotoCrop = (() => {
     const k = known(url);
     if (k !== undefined) return k;
     if (!available() || !src) return null;
+    busy++;
     try {
       const blob = await (await fetch(src)).blob();
       const bmp = await createImageBitmap(blob);
@@ -15140,10 +15161,12 @@ const PhotoCrop = (() => {
       return out;
     } catch (e) {
       return null; // sense IA (o sense connexió la primera vegada): foto sencera, i es tornarà a provar un altre dia
+    } finally {
+      busy--;
     }
   }
 
-  return { available, crop, frame, known, remember, RATIO };
+  return { available, crop, frame, known, remember, RATIO, busy: () => busy };
 })();
 
 
@@ -15619,6 +15642,17 @@ const ReportPdf = (() => {
     } catch (e) { return ''; }
   }
 
+  // Els dibuixos SVG (pictogrames, gràfiques) es pinten amb classes i variables de color (fill: var(--pic-body)…): en fer-ne la
+  // imatge de la pàgina el color es perdia i tot sortia negre. S'hi posa ja resolt, com a estil propi de cada element.
+  const SVG_PAINT = ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'opacity', 'fill-opacity', 'stroke-opacity', 'stop-color', 'font-size', 'font-weight', 'font-family', 'text-anchor'];
+  function paintSvg(root) {
+    for (const el of root.querySelectorAll('svg *')) {
+      if (!(el instanceof SVGElement) || /^(animate|animateTransform|set|style|title|desc|defs)$/i.test(el.tagName)) continue;
+      const cs = getComputedStyle(el);
+      for (const k of SVG_PAINT) { const v = cs.getPropertyValue(k); if (v) el.style.setProperty(k, v); }
+    }
+  }
+
   const toBytes = (canvas, quality) => new Promise((ok, ko) => canvas.toBlob((b) => (b ? b.arrayBuffer().then((x) => ok(new Uint8Array(x)), ko) : ko(new Error('No s\'ha pogut fer la imatge de la pàgina.'))), 'image/jpeg', quality));
 
   // source: l'element de l'informe a la pantalla. Retorna els bytes del PDF.
@@ -15663,6 +15697,7 @@ const ReportPdf = (() => {
       for (const el of [...doc.querySelectorAll('video, iframe, audio')]) el.remove();
       for (const el of [...doc.querySelectorAll('*')]) if (el.isConnected && getComputedStyle(el).display === 'none') el.remove();
       urls = await localImages(doc);
+      paintSvg(doc);
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       const cuts = breaks(doc);
       const n = cuts.length - 1;
@@ -15708,6 +15743,413 @@ const ReportPdf = (() => {
   }
 
   return { render, printCss, breaks, PAGE };
+})();
+
+
+/* ── 18-pdfjobs.js ── */
+/* EON Life · els informes en PDF d'un pacient: quins n'hi ha d'haver, amb quin nom, i com es fan sense cap pantalla.
+   (18-pdfsync.js els fa i els deixa a la carpeta del pacient.)
+   Dins la carpeta del pacient hi ha «Informes», amb tres subcarpetes:
+     Valoracions/  un PDF per valoració amb dades (l'informe complet, en el disseny que té el pacient: clar o fosc)
+                   informevaloracioinicial_lauravidalserra_20260702_01.pdf
+     Tests/        un sol PDF «viu» per pacient amb l'evolució dels tests, que es refà quan hi ha resultats nous
+                   informetests_lauravidalserra_01.pdf
+     Sessions/     un PDF per sessió feta (la fitxa) i un PDF «viu» amb l'evolució de les sessions
+                   sessio12_lauravidalserra_20261002_01.pdf · informeevoluciosessions_lauravidalserra_01.pdf
+   El nom és sempre el mateix per al mateix informe: en canviar-lo es substitueix el PDF, no se'n fan còpies. */
+
+const PDF_FORMAT = 1; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
+
+const PdfSet = (() => {
+  // Resum estable d'unes dades: el mateix contingut dona el mateix resum, sigui quin sigui l'ordre de les claus.
+  function stable(v) {
+    if (Array.isArray(v)) return `[${v.map(stable).join(',')}]`;
+    if (v && typeof v === 'object') return `{${Object.keys(v).sort().filter((k) => v[k] !== undefined).map((k) => `${JSON.stringify(k)}:${stable(v[k])}`).join(',')}}`;
+    return JSON.stringify(v === undefined ? null : v);
+  }
+  function digest(v) {
+    const s = stable(v);
+    let h1 = 0x811c9dc5, h2 = 0x9e3779b1 ^ s.length;
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      h1 = Math.imul(h1 ^ c, 16777619) >>> 0;
+      h2 = (Math.imul(h2 ^ c, 2246822519) + (h2 >>> 15)) >>> 0;
+    }
+    return `${h1.toString(36)}${h2.toString(36)}`;
+  }
+
+  // Els enllaços als fitxers (files) i els identificadors de les fotos (media) no surten a l'informe: no el fan canviar.
+  const clean = (r) => { if (!r) return null; const { files, media, ...rest } = r; return rest; };
+  const person = (p) => ({ firstName: p.firstName, lastName: p.lastName, birthDate: p.birthDate, sex: p.sex, service: p.service, goal: p.goal,
+    professional: p.professional, reportTheme: p.reportTheme === 'dark' ? 'dark' : 'light' });
+  const brand = () => ({ c: Store.settings.centerName || '', t: Store.settings.centerTagline || '' });
+
+  const typeLabelOf = (a) => (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
+  const assessName = (a, p) => reportPdfName(a, p, typeLabelOf(a), null);
+  const testsName = (p) => `informetests_${Names.client(p)}_01.pdf`;
+  const sessionName = (s, p) => `${Names.stem(`Sessió ${s.number}`, p, s.date)}_01.pdf`;
+  const evolName = (p) => `informeevoluciosessions_${Names.client(p)}_01.pdf`;
+
+  const hasData = (a) => PROTOCOL.some((s) => areaHasData(a, s.id));
+  const isDone = (s) => s.status === 'feta' && Calc.itemCount(s) > 0;
+
+  // Els PDF que ha de tenir un pacient ara: { patient, items: [{ key, kind, folder, name, hash, title, footer, view }], dropped }.
+  // dropped: noms dels PDF de valoracions i sessions que s'han esborrat (van a «Arxiu» si són a la carpeta).
+  function plan(pid) {
+    const p = Store.get('patients', pid);
+    if (!p) return null;
+    const center = Store.settings.centerName || 'EON Life';
+    const base = { p: person(p), b: brand(), f: PDF_FORMAT };
+    const items = [];
+    const dropped = [];
+    const assessments = Store.assessmentsOf(pid);
+    assessments.forEach((a, i) => {
+      if (!hasData(a)) return;
+      const label = typeLabelOf(a);
+      items.push({ key: `A:${a.id}`, kind: 'assessment', folder: 'reportAssess', name: assessName(a, p), what: `${label} del ${U.fmtDate(a.date)}`,
+        hash: digest({ ...base, a: clean(a), prev: clean(assessments[i - 1]) }),
+        title: `${label} · ${U.fullName(p)}`, footer: `${center} · ${label} · ${U.fullName(p)}`,
+        view: () => html`<${AssessmentReport} id=${a.id} />` });
+    });
+    for (const a of Object.values(Store.data.assessments)) if (a.deleted && a.patientId === pid) dropped.push({ folder: 'reportAssess', name: assessName(a, p) });
+    // Evolució dels tests: un sol PDF «viu» (tots els tests clau, de la primera valoració a avui).
+    if (assessments.length && Evol.tests(assessments, { from: assessments[0].date, to: U.today() }).length) {
+      items.push({ key: 'T', kind: 'tests', folder: 'reportTests', name: testsName(p), what: 'Evolució dels tests',
+        hash: digest({ ...base, all: assessments.map(clean) }),
+        title: `Informe de tests · ${U.fullName(p)}`, footer: `${center} · Informe de tests · ${U.fullName(p)}`,
+        view: () => html`<${TestsReport} pid=${pid} />` });
+    }
+    // Sessions fetes: la fitxa de cada una i, si tenen RPE, dolor o wellness, el PDF d'evolució.
+    const sessions = Store.sessionsOf(pid);
+    for (const s of sessions) {
+      if (!isDone(s)) continue;
+      items.push({ key: `S:${s.id}`, kind: 'session', folder: 'reportSessions', name: sessionName(s, p), what: `Sessió ${s.number} del ${U.fmtDate(s.date)}`,
+        hash: digest({ ...base, s: clean(s) }),
+        title: `Sessió ${s.number} · ${U.fullName(p)}`, footer: `${center} · Sessió ${s.number} · ${U.fullName(p)}`,
+        view: () => html`<${SessionSheet} id=${s.id} />` });
+    }
+    for (const s of Object.values(Store.data.sessions)) if (s.deleted && s.patientId === pid) dropped.push({ folder: 'reportSessions', name: sessionName(s, p) });
+    if (sessions.length) {
+      const today = U.today();
+      const first = sessions[0].date;
+      const ev = Evol.sessions(sessions, { from: U.addMonths(today, -3) > first ? U.addMonths(today, -3) : first, to: today });
+      if (ev.rows.length) {
+        items.push({ key: 'E', kind: 'evolution', folder: 'reportSessions', name: evolName(p), what: 'Evolució de les sessions',
+          hash: digest({ ...base, rows: ev.rows }),
+          title: `Evolució de les sessions · ${U.fullName(p)}`, footer: `${center} · Evolució de les sessions · ${U.fullName(p)}`,
+          view: () => html`<${SessionsReport} pid=${pid} />` });
+      }
+    }
+    return { patient: p, items, dropped };
+  }
+
+  // ── Fer un PDF sense pantalla ──
+  // L'informe es dibuixa dins d'un contenidor fora de la vista (amb els mateixos components que es veuen a l'app),
+  // s'espera que carreguin les fotos i es converteix en PDF (ReportPdf, 17-reportpdf.js).
+  const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
+  const READY_MAX = 40000;
+
+  async function settled(box) {
+    const t0 = Date.now();
+    let last = -1, still = 0;
+    while (Date.now() - t0 < READY_MAX) {
+      await sleep(250);
+      const busy = Object.keys(PhotoSrc.wait).length > 0 || PhotoCrop.busy() > 0 || [...box.querySelectorAll('img')].some((i) => !i.complete);
+      const size = box.innerHTML.length;
+      if (!busy && size === last) { if (++still >= 3) return; } else still = 0;
+      last = size;
+    }
+  }
+
+  const can = () => typeof htmlToImage !== 'undefined' && typeof ReportPdf !== 'undefined';
+
+  async function make(item) {
+    if (!can()) throw new Error('Aquesta versió no pot fer PDF.');
+    const box = document.createElement('div');
+    box.className = 'pdf-offscreen';
+    box.setAttribute('aria-hidden', 'true');
+    box.style.cssText = 'position:fixed;left:-30000px;top:0;width:1000px;pointer-events:none;';
+    document.body.appendChild(box);
+    try {
+      render(item.view(), box);
+      await settled(box);
+      const el = box.querySelector('article.report, article.sheet');
+      if (!el) throw new Error(`No s'ha pogut dibuixar «${item.what}».`);
+      return await ReportPdf.render(el, { title: item.title, author: Store.settings.centerName || 'EON Life', footer: item.footer });
+    } finally {
+      render(null, box);
+      box.remove();
+    }
+  }
+
+  return { plan, make, digest, can, assessName, testsName, sessionName, evolName };
+})();
+
+
+/* ── 18-pdfsync.js ── */
+/* EON Life · els PDF dels informes de cada pacient, a la seva carpeta (Microsoft 365).
+   Funciona com la sincronització de l'Excel (09-sync.js): cada canvi d'una valoració, d'una sessió o del pacient deixa un
+   avís a una cua que sobreviu al tancament de l'app. Quan fa un temps que no hi ha més canvis, l'app mira què han de
+   tenir a «Informes» (18-pdfjobs.js), refà només els PDF que han canviat i els desa amb el mateix nom, substituint
+   l'anterior: el fitxer sempre és la versió final. Si una valoració o una sessió s'ha esborrat (o una sessió ja no és
+   feta), el seu PDF no s'esborra: es mou a «Informes › Arxiu». Mai es toca cap altre fitxer de la carpeta.
+   L'interruptor de pausa és Configuració › «PDF dels informes» (settings.autoPdf). */
+
+const PDF_KEYS = { queue: 'eonlife:pdf:queue', hashes: 'eonlife:pdf:hashes', done: 'eonlife:pdf:done' };
+
+const PdfSync = (() => {
+  const DELAY = 60000;      // temps sense canvis abans de fer els PDF (fer-los costa uns segons de la tauleta)
+  const MAX_WAIT = 300000;  // com a molt, cada 5 minuts encara que s'estigui editant
+  const SOON = 8000;        // en acabar una sessió
+  const LEAVE = 15000;      // en sortir d'un editor
+  const BACKOFF = [30000, 90000, 180000, 600000];
+
+  const read = (key, fallback) => { try { const v = window.localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } };
+  const write = (key, v) => { try { window.localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge */ } };
+
+  let queue = read(PDF_KEYS.queue, {});     // { pid: { due, since, rev, tries, force? } }
+  let hashes = read(PDF_KEYS.hashes, {});   // { «carpeta/nom»: resum del que es va fer }
+  let done = read(PDF_KEYS.done, {});       // { pid: { at, made, kept, archived, failed, failedNames, files: [{ folder, name, url }], folderUrl } }
+  let timer = null;
+  let running = '';
+  let own = false;                          // canvi fet per la pròpia feina (no compta com a canvi de dades)
+  const live = { error: '', code: '', pid: '', step: '' };
+  const listeners = new Set();
+  const emit = () => { for (const fn of listeners) fn(); if (typeof Store !== 'undefined' && Store.emit) Store.emit(); };
+  const saveQueue = () => write(PDF_KEYS.queue, queue);
+  const save = () => { saveQueue(); write(PDF_KEYS.hashes, hashes); write(PDF_KEYS.done, done); };
+
+  // Només amb Microsoft 365 (el backend sap pujar, llistar i moure fitxers) i amb el generador de PDF a la pàgina.
+  const available = () => typeof Store !== 'undefined' && Store.cloud() && !!Store.backend && typeof Store.backend.putFile === 'function'
+    && typeof Store.backend.moveItem === 'function' && PdfSet.can();
+  const enabled = () => available() && Store.ready && !Store.error && Store.settings.autoPdf !== false;
+
+  function schedule() {
+    clearTimeout(timer);
+    timer = null;
+    const dues = Object.values(queue).map((q) => q.due);
+    if (!dues.length || typeof setTimeout !== 'function') return;
+    timer = setTimeout(tick, Math.max(400, Math.min(...dues) - Date.now()));
+  }
+
+  async function tick() {
+    timer = null;
+    if (running) return;
+    // En pausa, sense dades o amb l'app en segon pla: es torna a mirar d'aquí a un moment (fer PDF és feina de la pantalla).
+    if (!enabled() || (typeof document !== 'undefined' && document.visibilityState === 'hidden')) { timer = setTimeout(tick, 30000); return; }
+    const now = Date.now();
+    const next = Object.entries(queue).filter(([, q]) => q.due <= now).sort((a, b) => a[1].due - b[1].due)[0];
+    if (!next) { schedule(); return; }
+    const [pid, q] = next;
+    const rev = q.rev;
+    running = pid;
+    emit();
+    try {
+      const res = await syncPatient(pid, { force: !!q.force });
+      const cur = queue[pid];
+      if (cur && cur.rev !== rev) { cur.due = Date.now() + SOON; cur.tries = 0; delete cur.force; } else delete queue[pid]; // ha canviat alguna cosa mentre es feia
+      done[pid] = { at: Date.now(), ...res };
+      live.error = ''; live.code = ''; live.pid = '';
+    } catch (e) {
+      const cur = queue[pid] || q;
+      cur.tries = (cur.tries || 0) + 1;
+      cur.due = Date.now() + BACKOFF[Math.min(cur.tries, BACKOFF.length) - 1];
+      queue[pid] = cur;
+      live.error = friendly(e);
+      live.code = (e && e.code) || '';
+      live.pid = pid;
+      if (e && e.status === 404 && Store.backend.forgetPaths) Store.backend.forgetPaths();
+    }
+    running = '';
+    live.step = '';
+    save();
+    emit();
+    schedule();
+  }
+
+  function friendly(e) {
+    const code = (e && e.code) || '';
+    if (code === 'network') return 'Sense connexió: els PDF es faran en tornar-la.';
+    if (code === 'login') return 'La sessió de Microsoft ha caducat: torna a entrar perquè es puguin desar els PDF.';
+    return (e && e.message) || 'No s\'han pogut desar els PDF.';
+  }
+
+  // Fa (o refà) els PDF d'un pacient i els deixa a «Informes». Retorna { made, kept, archived, failed?, failedNames?, files, folderUrl }.
+  async function syncPatient(pid, { force = false } = {}) {
+    const b = Store.backend;
+    const plan = PdfSet.plan(pid);
+    if (!plan) return { made: 0, kept: 0, archived: 0, skipped: true, files: [] };
+    const folder = await b.ensureFolder(plan.patient);
+    const fid = folder && folder.folderId;
+    if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
+    if (fid !== plan.patient.folderId || folder.folderUrl !== plan.patient.folderUrl) {
+      own = true; // desar la carpeta a la fitxa no ha de tornar a posar el pacient a la cua
+      try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
+    }
+    const root = await b.ensurePath(fid, EXPORT_FOLDERS.reports);
+    const dirs = {}, existing = {};
+    for (const key of ['reportAssess', 'reportTests', 'reportSessions']) {
+      dirs[key] = await b.ensurePath(fid, EXPORT_FOLDERS[key]);
+      existing[key] = new Map((await b.children(dirs[key].id)).filter((x) => x.file).map((x) => [x.name.toLowerCase(), x]));
+    }
+    const out = { made: 0, kept: 0, archived: 0, files: [], madeNames: [], folderUrl: root.webUrl || '' };
+    const failed = [];
+    const wanted = { reportAssess: new Set(), reportTests: new Set(), reportSessions: new Set() };
+    for (const it of plan.items) wanted[it.folder].add(it.name.toLowerCase());
+    let n = 0;
+    for (const it of plan.items) {
+      n++;
+      const dir = dirs[it.folder];
+      const found = existing[it.folder].get(it.name.toLowerCase());
+      const hk = `${dir.id}/${it.name}`;
+      if (found && !force && hashes[hk] === it.hash) { out.kept++; out.files.push({ folder: it.folder, name: it.name, url: found.webUrl || '' }); continue; }
+      live.pid = pid; live.step = `Fent el PDF ${n} de ${plan.items.length}: ${it.what}…`;
+      emit();
+      let bytes;
+      try {
+        bytes = await PdfSet.make(it);
+      } catch (e) {
+        // Un informe que no es pot dibuixar (dades malmeses) no atura els altres: es deixa anotat i es continua.
+        failed.push(it.name);
+        continue;
+      }
+      const res = await b.putFile(dir.id, it.name, bytes, { mime: 'application/pdf' });
+      hashes[hk] = it.hash;
+      out.made++;
+      out.madeNames.push(it.name);
+      out.files.push({ folder: it.folder, name: it.name, url: res.url || (found && found.webUrl) || '' });
+    }
+    // PDF que ja no toquen: els d'una valoració o sessió esborrada, o amb un nom d'abans (la data de la sessió ha canviat…).
+    // Només es mouen els que van fer l'app (els recordats a «done» i els de registres esborrats); mai els que va desar algú a mà.
+    // Si algun PDF no s'ha pogut fer, no es mou res: millor un PDF antic que cap.
+    if (!failed.length) {
+      const mine = new Set();
+      for (const f of (done[pid] && done[pid].files) || []) mine.add(`${f.folder}/${f.name.toLowerCase()}`);
+      for (const d of plan.dropped) mine.add(`${d.folder}/${d.name.toLowerCase()}`);
+      let archive = null;
+      for (const key of Object.keys(dirs)) {
+        for (const [name, it] of existing[key]) {
+          if (wanted[key].has(name) || !mine.has(`${key}/${name}`)) continue;
+          if (!archive) archive = await b.ensurePath(fid, EXPORT_FOLDERS.reportArchive);
+          await b.moveItem(it.id, archive.id);
+          delete hashes[`${dirs[key].id}/${it.name}`];
+          out.archived++;
+        }
+      }
+    }
+    if (failed.length) { out.failed = failed.length; out.failedNames = failed.slice(0, 5); }
+    return out;
+  }
+
+  const api = {
+    available, enabled,
+    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+
+    // Un pacient té canvis que poden canviar els seus PDF. urgent: en acabar una sessió.
+    touch(pid, { urgent = false, delay = 0 } = {}) {
+      if (!pid || !enabled()) return;
+      const now = Date.now();
+      const q = queue[pid] || { since: now, rev: 0, tries: 0 };
+      q.rev++;
+      q.tries = 0;
+      q.due = urgent ? now + SOON : delay ? now + delay : Math.min(now + DELAY, q.since + MAX_WAIT);
+      queue[pid] = q;
+      saveQueue();
+      schedule();
+      emit();
+    },
+    soon(pid) { api.touch(pid, { urgent: true }); },
+    // En sortir d'un editor: si aquest pacient té canvis pendents, es fan aviat (sense esperar el minut sencer).
+    flush(pid) {
+      const q = queue[pid];
+      if (!q || !enabled()) return;
+      q.due = Math.min(q.due, Date.now() + LEAVE);
+      saveQueue();
+      schedule();
+    },
+
+    // Es crida des de Store.put en cada canvi.
+    onChange(kind, rec) {
+      if (own || !rec || !enabled()) return;
+      let pid = '';
+      if (kind === 'patients') pid = rec.deleted ? '' : rec.id;
+      else if (kind === 'sessions' || kind === 'assessments') pid = rec.patientId;
+      if (pid) api.touch(pid);
+    },
+
+    // Torna a mirar la cua en obrir l'app o en tornar la connexió. No fa res per als que ja hi eren (només s'actua amb canvis).
+    resume() { schedule(); },
+
+    // Tots els pacients (Configuració › «Fes ara els PDF de tots els pacients»): només es refà el que ha canviat,
+    // o tot si force.
+    all({ force = false } = {}) {
+      let n = 0;
+      for (const p of Store.all('patients')) {
+        const q = queue[p.id] || { since: Date.now(), rev: 0, tries: 0 };
+        q.rev++;
+        q.due = Date.now() + 500 + n * 400;
+        q.tries = 0;
+        if (force) q.force = true;
+        queue[p.id] = q;
+        n++;
+      }
+      save();
+      schedule();
+      emit();
+      return n;
+    },
+
+    // Fa ara mateix els PDF d'un pacient (botó «Fes els PDF ara»). Retorna el resum.
+    async now(pid, { force = false } = {}) {
+      if (!available()) throw new Error('Aquesta versió no té carpeta al núvol.');
+      if (running) throw new Error('Ja s\'estan fent els PDF d\'un altre pacient. Torna-ho a provar d\'aquí a un moment.');
+      running = pid;
+      emit();
+      try {
+        const res = await syncPatient(pid, { force });
+        delete queue[pid];
+        done[pid] = { at: Date.now(), ...res };
+        live.error = ''; live.code = ''; live.pid = '';
+        return res;
+      } catch (e) {
+        live.error = friendly(e); live.code = (e && e.code) || ''; live.pid = pid;
+        if (e && e.status === 404 && Store.backend.forgetPaths) Store.backend.forgetPaths();
+        throw new Error(live.error);
+      } finally {
+        running = '';
+        live.step = '';
+        save();
+        emit();
+        schedule();
+      }
+    },
+
+    // Estat visible d'un pacient: off · paused · running · error · pending · partial · ok · never
+    info(pid) {
+      if (!available()) return { state: 'off' };
+      if (Store.settings.autoPdf === false) return { state: 'paused', last: done[pid] };
+      if (running === pid) return { state: 'running', step: live.step };
+      const q = queue[pid];
+      const last = done[pid];
+      if (live.error && live.pid === pid) return { state: 'error', error: live.error, code: live.code, last };
+      if (q) return { state: 'pending', due: q.due, last };
+      if (last && last.failed) return { state: 'partial', last };
+      return last ? { state: 'ok', last } : { state: 'never' };
+    },
+    busy() { return running; },
+    queued() { return Object.keys(queue).length; },
+    // Fa ara mateix tot el que hi ha a la cua (una passada per pacient).
+    async drain() {
+      for (const pid of Object.keys(queue)) {
+        if (queue[pid]) queue[pid].due = 0;
+        await tick();
+      }
+    },
+    // Els tests comencen de zero.
+    reset() { queue = {}; hashes = {}; done = {}; live.error = ''; live.code = ''; live.pid = ''; live.step = ''; running = ''; clearTimeout(timer); save(); },
+    syncPatient,
+  };
+  return api;
 })();
 
 
@@ -15873,6 +16315,7 @@ function PatientView({ id, tab = 'resum' }) {
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
         <${KeyDates} p=${p} />
         <${SyncBadge} pid=${p.id} />
+        <${PdfBadge} pid=${p.id} />
       </div>
       <div class="phead-actions">
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
@@ -16343,7 +16786,7 @@ function AssessmentEditor({ id, focus }) {
 
   return html`<div class="page page-edit">
     <div class="editbar">
-      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
+      <${Btn} variant="ghost" icon="back" title="Torna a la fitxa del pacient" onClick=${() => { Sync.flush(a.patientId); PdfSync.flush(a.patientId); go('client', a.patientId, 'valoracions'); }} />
       <div class="editbar-title"><strong>${typeLabel}</strong><span>${U.fullName(p)} · ${U.fmtDate(a.date)}</span></div>
       <${SaveStatus} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('informe', a.id)}>Informe</${Btn}>
@@ -17508,7 +17951,7 @@ function TestsReport({ pid }) {
   const name = `${Names.stem('Informe evolució tests', p, to)}_01.pdf`;
   return html`<div class=${`present ${theme}`}>
     <${PresentBar} title=${`Informe de tests · ${U.fullName(p)}`} onClose=${() => go('client', pid, 'valoracions')} noTheme=${true}
-      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="assess" title=${`Informe de tests · ${U.fullName(p)}`} footer=${`${center} · Informe de tests · ${U.fullName(p)}`} />`}>
+      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="reportTests" title=${`Informe de tests · ${U.fullName(p)}`} footer=${`${center} · Informe de tests · ${U.fullName(p)}`} />`}>
       <${ReportThemeSwitch} p=${p} />
     </${PresentBar}>
     <section class="rpick no-print" aria-label="Tria del contingut de l'informe">
@@ -17583,7 +18026,7 @@ function SessionsReport({ pid }) {
   const tone = (v, hiBad) => (v == null ? '' : hiBad ? (v >= 6 ? 'bad' : v >= 3 ? 'warn' : 'ok') : '');
   return html`<div class=${`present ${theme}`}>
     <${PresentBar} title=${`Evolució de les sessions · ${U.fullName(p)}`} onClose=${() => go('client', pid, 'sessions')} noTheme=${true}
-      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="sessions" title=${`Evolució de les sessions · ${U.fullName(p)}`} footer=${`${center} · Evolució de les sessions · ${U.fullName(p)}`} />`}>
+      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="reportSessions" title=${`Evolució de les sessions · ${U.fullName(p)}`} footer=${`${center} · Evolució de les sessions · ${U.fullName(p)}`} />`}>
       <${ReportThemeSwitch} p=${p} />
     </${PresentBar}>
     <section class="rpick no-print" aria-label="Tria del contingut de l'informe">
@@ -17888,8 +18331,9 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
 }
 
 // ── PDF de l'informe fet a l'app ──
-// Amb Microsoft 365, es desa sol a «Valoracions» de la carpeta del client (substituint el d'abans de la mateixa valoració) i
-// queda enllaçat a la valoració i a l'Excel. Sense carpeta al núvol, es descarrega.
+// Amb Microsoft 365, es desa a «Informes › Valoracions» de la carpeta del client (substituint el d'abans de la mateixa
+// valoració; l'informe complet també el fa sol 18-pdfsync.js) i queda enllaçat a la valoració i a l'Excel. Sense carpeta al
+// núvol, es descarrega.
 //   informevaloracioinicial_lauravidalserra_20260702_01.pdf · informeforca_lauravidalserra_20261001_01.pdf (només d'un apartat)
 function reportPdfName(a, p, typeLabel, scopeSec) {
   return `${Names.stem(scopeSec ? `Informe ${scopeSec.short}` : `Informe ${typeLabel}`, p, a.date)}_01.pdf`;
@@ -17897,7 +18341,7 @@ function reportPdfName(a, p, typeLabel, scopeSec) {
 
 function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
   const center = Store.settings.centerName || 'EON Life';
-  return html`<${PdfSaveButton} p=${p} name=${reportPdfName(a, p, typeLabel, scopeSec)} where="assess"
+  return html`<${PdfSaveButton} p=${p} name=${reportPdfName(a, p, typeLabel, scopeSec)} where="reportAssess"
     title=${`${scopeSec ? `Informe · ${scopeSec.title}` : typeLabel} · ${U.fullName(p)}`}
     footer=${`${center} · ${scopeSec ? scopeSec.short : typeLabel} · ${U.fullName(p)}`}
     onSaved=${(res) => Store.update('assessments', a.id, (x) => {
@@ -17906,17 +18350,17 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
 }
 
 // Botó del PDF d'un informe (el de la valoració, el de tests i el de sessions): fa el PDF de l'informe de la pantalla
-// (.present .report) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'assess' = Valoracions,
-// 'sessions' = Sessions), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
-function PdfSaveButton({ p, name, title, footer, where = 'assess', onSaved }) {
+// (.present .report o .sheet) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'reportAssess', 'reportTests'
+// o 'reportSessions' = «Informes › …»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
+function PdfSaveButton({ p, name, title, footer, where = 'reportAssess', onSaved }) {
   const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
   const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
   const cloud = Store.cloud() && !!(Store.backend && Store.backend.uploadFile);
   if (!cloud && !U.canDownload()) return null;
-  const folder = (EXPORT_FOLDERS[where] || ['Valoracions'])[0];
+  const folder = (EXPORT_FOLDERS[where] || EXPORT_FOLDERS.reportAssess).join(' › ');
   const run = async () => {
     if (busy != null) return;
-    const el = document.querySelector('.present .report');
+    const el = document.querySelector('#app .present .report, #app .present .sheet');
     if (!el) return;
     setBusy(0);
     setSaved(null);
@@ -18106,8 +18550,9 @@ function SessionEditor({ id }) {
       for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
     });
     Sync.soon(s.patientId); // l'Excel de la sessió acabada es puja de seguida
+    PdfSync.soon(s.patientId); // i el seu PDF
   };
-  const leave = () => { Sync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
+  const leave = () => { Sync.flush(s.patientId); PdfSync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
 
   return html`<div class="page page-edit">
     <div class="editbar">
@@ -18603,7 +19048,9 @@ function SessionSheet({ id }) {
   const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
   const theme = reportThemeClass(p);
   return html`<div class=${`present ${theme}`}>
-    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}>
+    <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}
+      actions=${html`<${PdfSaveButton} p=${p} name=${PdfSet.sessionName(s, p)} where="reportSessions" title=${`Sessió ${s.number} · ${U.fullName(p)}`}
+        footer=${`${Store.settings.centerName || 'EON Life'} · Sessió ${s.number} · ${U.fullName(p)}`} />`}>
       <${ReportThemeSwitch} p=${p} />
       <${Btn} variant="ghost" icon="edit" onClick=${() => go('sessio', s.id)}>Edita</${Btn}>
     </${PresentBar}>
@@ -19439,6 +19886,8 @@ function SettingsView() {
     </section>
 
     <${ExcelSettingsCard} />
+
+    <${PdfSettingsCard} />
 
     <${PicMotionCard} />
 
@@ -20376,6 +20825,42 @@ function SyncBadge({ pid }) {
   </div>`;
 }
 
+// Estat dels PDF dels informes d'un pacient (només amb Microsoft 365).
+async function pdfNow(pid, force) {
+  try {
+    const r = await PdfSync.now(pid, { force });
+    const bits = [];
+    if (r.made) bits.push(`${U.plural(r.made, 'PDF fet', 'PDF fets')}`);
+    if (r.archived) bits.push(`${U.plural(r.archived, 'PDF mogut', 'PDF moguts')} a «Arxiu»`);
+    UI.toast(bits.length ? `${bits.join(' · ')} a la carpeta «Informes».` : 'Els PDF del pacient ja eren al dia.');
+    if (r.failed) UI.toast(`No s'${r.failed === 1 ? 'ha' : 'han'} pogut fer ${U.plural(r.failed, 'PDF', 'PDF')}${r.failedNames && r.failedNames.length ? ` (${r.failedNames.join(', ')})` : ''}: revisa les dades d'aquest pacient.`, 'bad');
+  } catch (e) {
+    UI.toast(e.message, 'bad');
+  }
+}
+
+function PdfBadge({ pid }) {
+  const [, force] = useState(0);
+  useEffect(() => PdfSync.subscribe(() => force((n) => n + 1)), []);
+  useEffect(() => { const t = setInterval(() => force((n) => n + 1), 30000); return () => clearInterval(t); }, []);
+  const st = PdfSync.info(pid);
+  if (st.state === 'off') return null;
+  const map = {
+    running: ['neutral', 'refresh', st.step || 'Fent els PDF dels informes…'],
+    pending: ['warn', 'clock', 'PDF dels informes pendents (es fan sols)'],
+    error: ['bad', 'alert', `PDF dels informes sense desar: ${st.error}`],
+    partial: ['warn', 'alert', 'No s\'ha pogut fer algun PDF: revisa les dades d\'aquest pacient'],
+    ok: ['ok', 'note', `PDF dels informes al dia · ${agoText(st.last && st.last.at)}`],
+    never: ['neutral', 'note', 'PDF dels informes encara no fets'],
+    paused: ['neutral', 'note', 'PDF dels informes en pausa'],
+  };
+  const [tone, icon, text] = map[st.state] || map.never;
+  return html`<div class="syncbadge" role="status">
+    <${Pill} tone=${tone} icon=${icon}>${text}</${Pill}>
+    ${st.state !== 'running' && html`<button type="button" class="link" onClick=${() => pdfNow(pid)}>Fes-los ara</button>`}
+  </div>`;
+}
+
 // Elements de menú per a un client: pujar ara, obrir a la carpeta i descarregar.
 function excelMenuItems(pid) {
   const items = [];
@@ -20387,6 +20872,13 @@ function excelMenuItems(pid) {
     if (last.fileUrl) items.push({ label: 'Obre l\'Excel del pacient', icon: 'table', onClick: open(last.fileUrl) });
     if (last.sessionsUrl) items.push({ label: 'Obre la carpeta «Sessions»', icon: 'folder', onClick: open(last.sessionsUrl) });
     if (last.assessUrl) items.push({ label: 'Obre la carpeta «Valoracions»', icon: 'folder', onClick: open(last.assessUrl) });
+  }
+  if (PdfSync.available()) {
+    items.push({ sep: true });
+    items.push({ label: 'Fes ara els PDF dels informes', icon: 'note', onClick: () => pdfNow(pid) });
+    items.push({ label: 'Refés tots els PDF d\'aquest pacient', icon: 'refresh', onClick: () => pdfNow(pid, true) });
+    const pl = (PdfSync.info(pid).last || {}).folderUrl;
+    if (pl) items.push({ label: 'Obre la carpeta «Informes»', icon: 'folder', onClick: open(pl) });
   }
   if (U.canDownload()) {
     if (items.length) items.push({ sep: true });
@@ -20528,6 +21020,29 @@ function ExcelSettingsCard() {
       ${Sync.queued() > 0 && html`<p class="muted">${U.plural(Sync.queued(), 'pacient té l\'Excel pendent', 'pacients tenen l\'Excel pendent')} de pujar.</p>`}
       <div class="row-actions"><${Btn} icon="refresh" disabled=${!on} onClick=${all}>Refés i puja l'Excel de tots els pacients</${Btn}></div>`
       : html`<p class="muted">En aquesta versió (sense carpeta al núvol) l'Excel del pacient es descarrega des de la seva fitxa (botó <em>Excel</em>) o des de cada sessió i cada valoració. Amb Microsoft 365 es puja sol a la carpeta del pacient.</p>`}
+  </section>`;
+}
+
+// ── Configuració: PDF dels informes ──
+function PdfSettingsCard() {
+  const [, force] = useState(0);
+  useEffect(() => PdfSync.subscribe(() => force((n) => n + 1)), []);
+  const cloud = PdfSync.available();
+  const on = Store.settings.autoPdf !== false;
+  const toggle = (v) => Store.saveSettings({ autoPdf: v });
+  const all = (f) => { const n = PdfSync.all({ force: f }); UI.toast(`Es miren els PDF de ${U.plural(n, 'pacient', 'pacients')}. Pot tardar uns minuts.`); };
+  return html`<section class="card">
+    <div class="card-head"><h2 class="h2">PDF dels informes</h2>
+      <${Pill} tone=${cloud ? (on ? 'ok' : 'warn') : 'neutral'} icon="note">${cloud ? (on ? 'Automàtic' : 'En pausa') : 'Només manual'}</${Pill}></div>
+    <p>L'app fa sola els <strong>PDF dels informes</strong> de cada pacient i els deixa a la seva carpeta, dins <em>Informes</em>: a <em>Valoracions</em>, un per valoració; a <em>Tests</em>, un sol PDF amb l'evolució dels tests; i a <em>Sessions</em>, un per sessió feta i un amb l'evolució de les sessions. Surten en el disseny (clar o fosc) que té el pacient.</p>
+    ${cloud ? html`<label class="check"><input type="checkbox" checked=${on} onChange=${(e) => toggle(e.currentTarget.checked)} /><span>Fes-los i desa'ls sols a la carpeta de cada pacient</span></label>
+      <p class="muted small">Quan algú canvia una valoració, una sessió o les dades del pacient, i fa un minut que no hi toca, l'app refà només els PDF que han canviat i substitueix el fitxer (el nom és sempre el mateix: no se'n fan còpies). Si s'esborra una valoració o una sessió, el seu PDF <strong>no s'esborra</strong>: es mou a <em>Informes › Arxiu</em>. Les sessions només tenen PDF quan són <em>fetes</em>. Només es fan amb l'app oberta i visible.</p>
+      ${PdfSync.queued() > 0 && html`<p class="muted">${U.plural(PdfSync.queued(), 'pacient té els PDF pendents', 'pacients tenen els PDF pendents')} de fer.</p>`}
+      <div class="row-actions">
+        <${Btn} icon="note" disabled=${!on} onClick=${() => all(false)}>Fes ara els PDF de tots els pacients</${Btn}>
+        <${Btn} variant="ghost" icon="refresh" disabled=${!on} onClick=${() => all(true)}>Refés-los tots (encara que no hagin canviat)</${Btn}>
+      </div>`
+      : html`<p class="muted">En aquesta versió (sense carpeta al núvol) el PDF d'un informe es descarrega des del botó <em>Descarrega el PDF</em> de cada informe. Amb Microsoft 365 es fan i es desen sols a la carpeta del pacient.</p>`}
   </section>`;
 }
 

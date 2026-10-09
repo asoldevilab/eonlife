@@ -9,10 +9,15 @@ L'app és la mateixa, però les dades es desen a la **carpeta compartida** de l'
 └── 📁 EON Life · Clients
     ├── 📁 Puig, Laura · P-…
     │   ├── 📊 seguiment_laurapuig_01.xlsx  ← l'Excel del client: un full per mes amb les sessions i les valoracions
-    │   ├── 📁 Valoracions                ← PDF de Kinvent, informe mèdic, fotos i el PDF de l'informe per al client
+    │   ├── 📁 Valoracions                ← PDF de Kinvent, informe mèdic i fotos
     │   │   └── 📁 Vídeos valoracions     ← els vídeos dels tests
-    │   └── 📁 Sessions
-    │       └── 📁 Vídeos sessions d'entrenament
+    │   ├── 📁 Sessions
+    │   │   └── 📁 Vídeos sessions d'entrenament
+    │   └── 📁 Informes                   ← els PDF dels informes, fets sols per l'app
+    │       ├── 📁 Valoracions            ← un PDF per valoració
+    │       ├── 📁 Tests                  ← un PDF «viu» amb l'evolució dels tests
+    │       ├── 📁 Sessions               ← un PDF per sessió feta i un d'evolució
+    │       └── 📁 Arxiu                  ← els PDF d'allò que s'ha esborrat (mai s'esborren)
     └── 📁 …
 ```
 

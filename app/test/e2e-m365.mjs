@@ -5,7 +5,7 @@
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
-import { readFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createGraphMock } from './graph-mock.mjs';
@@ -260,7 +260,7 @@ let pid = null;
     if (await page.locator('.rvideos').isVisible()) throw new Error('els vídeos surten al PDF');
     await page.emulateMedia({ media: 'screen' });
     if (!(await page.locator('.rvideos').isVisible())) throw new Error('els vídeos no surten a la pantalla');
-    // «Desa el PDF a la carpeta»: el fa l'app i el desa a «Valoracions» del client; un segon cop el substitueix.
+    // «Desa el PDF a la carpeta»: el fa l'app i el desa a «Informes › Valoracions» del client; un segon cop el substitueix.
     const aid = await page.evaluate(() => location.hash.split('/')[2]);
     for (let k = 0; k < 2; k++) {
       await page.click('.presentbar >> text=Desa el PDF a la carpeta');
@@ -270,9 +270,10 @@ let pid = null;
       if (bad) throw new Error(bad);
       await page.waitForSelector('.toast >> text=PDF desat a la carpeta del pacient');
     }
-    const pdfs = files('Valoracions').filter((n) => /\.pdf$/.test(n) && /^informe(?!kinvent)/.test(n));
-    if (pdfs.length !== 1 || !/^informevaloracioinicial_montseriera_\d{8}_01\.pdf$/.test(pdfs[0])) throw new Error(`PDF a la carpeta: ${files('Valoracions')}`);
-    const pdf = mock.child(sub('Valoracions').id, pdfs[0]).content;
+    const pdfs = files('Informes', 'Valoracions').filter((n) => /\.pdf$/.test(n));
+    if (pdfs.length !== 1 || !/^informevaloracioinicial_montseriera_\d{8}_01\.pdf$/.test(pdfs[0])) throw new Error(`PDF a la carpeta: ${files('Informes', 'Valoracions')}`);
+    if (files('Valoracions').some((n) => /^informevaloracio/.test(n))) throw new Error('el PDF de l\'informe no ha d\'anar a «Valoracions»');
+    const pdf = mock.child(sub('Informes', 'Valoracions').id, pdfs[0]).content;
     if (!pdf.toString('latin1', 0, 5).startsWith('%PDF') || (pdf.toString('latin1').match(/\/Type \/Page\b/g) || []).length < 2) throw new Error('no és un PDF de l\'informe');
     const linked = await page.evaluate((id) => (Store.get('assessments', id).files || []).filter((f) => f.label === 'Informe per al pacient').map((f) => f.name), aid);
     if (JSON.stringify(linked) !== JSON.stringify([pdfs[0]])) throw new Error(`enllaç a la valoració: ${linked}`);
@@ -286,13 +287,13 @@ let pid = null;
     if (await page.locator('.rvideos').count()) throw new Error('a mobilitat no hi ha vídeos');
     await page.click('.presentbar >> text=Torna');
     await page.waitForSelector('#sec-forca >> text=Informe de força');
-    // L'informe d'evolució de les sessions va a «Sessions» de la carpeta, en mode fosc si així està triat
+    // L'informe d'evolució de les sessions va a «Informes › Sessions» de la carpeta, en mode fosc si així està triat
     const pid = await page.evaluate((id) => Store.get('assessments', id).patientId, aid);
     await page.evaluate((x) => { Store.update('patients', x, (p) => { p.reportTheme = 'dark'; }); go('informesessions', x); }, pid);
     await page.waitForSelector('.present.report-dark .report');
     await page.click('.presentbar >> text=Desa el PDF a la carpeta');
     await page.waitForSelector('.toast >> text=PDF desat a la carpeta del pacient: informeevoluciosessions_', { timeout: 120000 });
-    if (!files('Sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Sessions: ${files('Sessions')}`);
+    if (!files('Informes', 'Sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Sessions: ${files('Informes', 'Sessions')}`);
     await page.evaluate((x) => { go('valoracio', x); }, aid);
     await page.waitForSelector('#sec-forca >> text=Informe de força');
   });
@@ -467,6 +468,76 @@ let pid = null;
     if (st !== 'paused') throw new Error(`estat: ${st}`);
     await page.locator('label.check', { hasText: 'Puja\'l sol a la carpeta' }).locator('input').check();
     await waitSaved(page);
+  });
+  await step('PDF automàtics: «Informes» amb Valoracions, Tests i Sessions; es refan al lloc quan hi ha canvis', async () => {
+    const pdfs = (...path) => files('Informes', ...path).filter((n) => /\.pdf$/.test(n));
+    const bytesOf = (name, ...path) => mock.child(sub('Informes', ...path).id, name).content;
+    const sid = await page.evaluate((id) => Store.sessionsOf(id).find((x) => (x.feedback || {}).rpe).id, pid);
+    // La sessió només té PDF quan és feta.
+    await page.evaluate((id) => Store.update('sessions', id, (x) => { x.status = 'feta'; }), sid);
+    await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);
+    await page.waitForSelector('.syncbadge');
+    // Sense prémer res: l'app espera i fa els PDF (aquí s'ensenyen d'hora perquè la prova no esperi un minut).
+    await page.evaluate((id) => PdfSync.touch(id, { delay: 300 }), pid);
+    await page.waitForFunction((id) => PdfSync.info(id).state === 'ok' && PdfSync.queued() === 0, pid, { timeout: 120000 });
+    await page.waitForSelector('.syncbadge >> text=PDF dels informes al dia');
+    const top = mock.childrenOf(sub().id).map((x) => x.name).sort();
+    if (!top.includes('Informes')) throw new Error(`carpetes: ${top}`);
+    const inf = mock.childrenOf(sub('Informes').id).map((x) => x.name).sort();
+    if (inf.join('|') !== 'Sessions|Tests|Valoracions') throw new Error(`subcarpetes d'Informes: ${inf}`);
+    const val = pdfs('Valoracions'), tests = pdfs('Tests'), ses = pdfs('Sessions').filter((n) => /^sessio\d/.test(n));
+    if (val.length !== 1 || !/^informevaloracioinicial_montseriera_\d{8}_01\.pdf$/.test(val[0])) throw new Error(`valoracions: ${val}`);
+    if (tests.join() !== 'informetests_montseriera_01.pdf') throw new Error(`tests: ${tests}`);
+    if (!ses.some((n) => /^sessio1_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`sessions: ${ses}`);
+    for (const [n, ...path] of [[val[0], 'Valoracions'], [tests[0], 'Tests'], [ses[0], 'Sessions']]) {
+      const b = Buffer.from(bytesOf(n, ...path));
+      if (b.subarray(0, 5).toString() !== '%PDF-' || b.length < 2000) throw new Error(`${n}: no és un PDF (${b.length} bytes)`);
+    }
+    if (shots) for (const [n, ...path] of [[val[0], 'Valoracions'], [tests[0], 'Tests'], [ses[0], 'Sessions']]) writeFileSync(join(shots, `auto-${n}`), bytesOf(n, ...path));
+    // El PDF de la valoració té pàgines i el nom de la pacient.
+    const first = Buffer.from(bytesOf(val[0], 'Valoracions'));
+    if (!/Montse Riera/.test(first.toString('latin1')) && !first.toString('latin1').includes('/Type /Page')) throw new Error('el PDF de la valoració no té pàgines');
+    // Res més a la carpeta del pacient que no fos seu: els Excel i els vídeos segueixen on eren.
+    if (files().filter((n) => /\.xlsx$/.test(n)).length !== 1) throw new Error(`Excel: ${files()}`);
+    await shot(page, 'm365-07e-pdf-al-dia');
+
+    // Un canvi a la valoració: el PDF es refà amb el mateix nom (no en fa de nous) i el contingut canvia.
+    const before = Buffer.from(first).toString('base64');
+    await page.evaluate((id) => Store.update('assessments', Store.assessmentsOf(id)[0].id, (a) => { a.general = { ...(a.general || {}), goal: 'Objectiu canviat per la prova' }; }), pid);
+    await page.evaluate((id) => PdfSync.touch(id, { delay: 300 }), pid);
+    await page.waitForFunction((id) => PdfSync.info(id).state === 'ok' && PdfSync.queued() === 0, pid, { timeout: 120000 });
+    if (pdfs('Valoracions').join() !== val.join()) throw new Error(`noms de valoracions: ${pdfs('Valoracions')}`);
+    if (Buffer.from(bytesOf(val[0], 'Valoracions')).toString('base64') === before) throw new Error('el PDF no s\'ha refet');
+    // Sense canvis, no es torna a fer res (el mateix resum del contingut).
+    // (En dibuixar l'informe, les fotos d'abans es retroben i es corregeixen els enllaços: un cop més i ja és estable.)
+    await page.evaluate((id) => PdfSync.now(id), pid);
+    const again = await page.evaluate((id) => PdfSync.now(id), pid);
+    if (again.made !== 0) throw new Error(`sense canvis s'han refet ${again.made} PDF: ${again.madeNames}`);
+
+    // Una sessió esborrada: el seu PDF no s'esborra, va a «Informes › Arxiu».
+    await page.evaluate((id) => Store.remove('sessions', id), sid);
+    await page.evaluate((id) => PdfSync.touch(id, { delay: 300 }), pid);
+    await page.waitForFunction((id) => PdfSync.info(id).state === 'ok' && PdfSync.queued() === 0, pid, { timeout: 120000 });
+    if (pdfs('Sessions').some((n) => /^sessio\d/.test(n))) throw new Error(`a Sessions encara hi ha: ${pdfs('Sessions')}`);
+    // El PDF fet a mà (amb data al nom) no és de l'app: no es toca mai.
+    if (!pdfs('Sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error('s\'ha mogut un PDF fet a mà');
+    const arx = pdfs('Arxiu');
+    if (!arx.some((n) => /^sessio1_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Arxiu: ${arx}`);
+
+    // Pausa a Configuració: els canvis ja no fan PDF.
+    await page.evaluate(() => { location.hash = '#/configuracio'; });
+    await page.waitForSelector('text=PDF dels informes');
+    await page.locator('label.check', { hasText: 'Fes-los i desa\'ls sols' }).locator('input').uncheck();
+    await waitSaved(page);
+    const st = await page.evaluate((id) => PdfSync.info(id).state, pid);
+    if (st !== 'paused') throw new Error(`estat: ${st}`);
+    await page.locator('label.check', { hasText: 'Fes-los i desa\'ls sols' }).locator('input').check();
+    await waitSaved(page);
+    // Fes ara els PDF de tots els pacients (no refà el que ja és al dia).
+    await page.click('text=Fes ara els PDF de tots els pacients');
+    await page.waitForSelector('.toast >> text=Es miren els PDF de 1 pacient');
+    await page.waitForFunction((id) => PdfSync.info(id).state === 'ok' && PdfSync.queued() === 0, pid, { timeout: 120000 });
+    await shot(page, 'm365-07f-pdf-configuracio');
   });
   await step('configuració: on són les dades', async () => {
     await page.evaluate(() => { location.hash = '#/configuracio'; });

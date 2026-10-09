@@ -725,6 +725,52 @@ const step = async (label, fn) => {
     await page.waitForSelector('.rsec .kv >> text=Distància');
     await shot(page, '06g-bike-informe', false);
   });
+  await step('PDF dels informes: quins n\'hi ha per pacient, com es diuen i quan es refan', async () => {
+    const r = await page.evaluate(() => {
+      const pid = 'P-DEMO-JORDI';
+      const names = () => PdfSet.plan(pid).items.map((i) => `${i.folder}/${i.name}`).sort();
+      const hash = (key) => PdfSet.plan(pid).items.find((i) => i.key === key).hash;
+      const out = { names: names() };
+      const a = Store.assessmentsOf(pid)[0];
+      const s = Store.sessionsOf(pid).find((x) => x.status === 'feta');
+      const h0 = hash(`A:${a.id}`), t0 = hash('T'), s0 = hash(`S:${s.id}`);
+      // Els enllaços a fitxers i les fotos desades no canvien l'informe; el contingut, sí.
+      Store.update('assessments', a.id, (x) => { x.files = [...(x.files || []), { id: 'F1', name: 'x.pdf', url: 'https://x/y', label: 'Informe' }]; x.media = { ...(x.media || {}), 'https://x/y': { id: '1', name: 'y' } }; });
+      out.sameAfterFiles = hash(`A:${a.id}`) === h0;
+      Store.update('assessments', a.id, (x) => { x.general = { ...(x.general || {}), goal: 'Un altre objectiu' }; });
+      out.assessChanged = hash(`A:${a.id}`) !== h0;
+      out.testsChanged = hash('T') !== t0;
+      out.sessionSame = hash(`S:${s.id}`) === s0;
+      // El disseny del pacient (clar o fosc) també fa canviar el PDF.
+      const before = hash(`S:${s.id}`);
+      Store.update('patients', pid, (p) => { p.reportTheme = p.reportTheme === 'dark' ? 'light' : 'dark'; });
+      out.themeChanged = hash(`S:${s.id}`) !== before;
+      // Una sessió no feta no té PDF; una valoració esborrada deixa el seu nom per moure'l a «Arxiu».
+      const planned = Store.sessionsOf(pid).filter((x) => x.status !== 'feta').length;
+      out.sessionsInPlan = PdfSet.plan(pid).items.filter((i) => i.kind === 'session').length;
+      out.doneSessions = Store.sessionsOf(pid).filter((x) => x.status === 'feta' && Calc.itemCount(x) > 0).length;
+      out.planned = planned;
+      const del = PdfSet.assessName(a, Store.get('patients', pid));
+      Store.remove('assessments', a.id);
+      const plan = PdfSet.plan(pid);
+      out.droppedHas = plan.dropped.some((d) => d.folder === 'reportAssess' && d.name === del);
+      out.stillThere = plan.items.some((i) => i.name === del);
+      out.nameOk = /^informe[a-z]+_jordipuigferrer_\d{8}_01\.pdf$/.test(del);
+      out.folders = Object.entries(EXPORT_FOLDERS).filter(([k]) => /^report/.test(k)).map(([k, v]) => `${k}=${v.join('/')}`).join(' ');
+      return out;
+    });
+    if (!r.names.some((n) => /^reportAssess\/informe/.test(n)) || !r.names.includes('reportTests/informetests_jordipuigferrer_01.pdf')) throw new Error(`noms: ${r.names}`);
+    if (r.sessionsInPlan !== r.doneSessions) throw new Error(`sessions amb PDF: ${r.sessionsInPlan} de ${r.doneSessions} fetes`);
+    if (!r.sameAfterFiles) throw new Error('els enllaços als fitxers no han de refer l\'informe');
+    if (!r.assessChanged || !r.testsChanged) throw new Error('un canvi a la valoració ha de refer l\'informe i els tests');
+    if (!r.sessionSame) throw new Error('un canvi a la valoració no ha de refer el PDF d\'una sessió');
+    if (!r.themeChanged) throw new Error('el disseny del pacient ha de refer el PDF');
+    if (!r.droppedHas || r.stillThere || !r.nameOk) throw new Error(`valoració esborrada: ${JSON.stringify(r)}`);
+    if (r.folders !== 'reports=Informes reportAssess=Informes/Valoracions reportTests=Informes/Tests reportSessions=Informes/Sessions reportArchive=Informes/Arxiu') throw new Error(r.folders);
+    // Versió de prova (sense núvol): no hi ha cua automàtica ni badge, només el botó de descàrrega.
+    const off = await page.evaluate(() => PdfSync.info('P-DEMO-JORDI').state);
+    if (off !== 'off') throw new Error(`sense núvol l'estat és ${off}`);
+  });
   await step('wellness a l\'inici de la sessió i de la valoració (1-5 i observacions)', async () => {
     const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
     await goHash(page, `#/sessio/${sid}`);

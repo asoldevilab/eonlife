@@ -8,6 +8,7 @@ const PhotoCrop = (() => {
   const base = () => (typeof window !== 'undefined' && window.EON_AI) || '';
   const abs = (p) => new URL(p, document.baseURI).href;
   let loading = null;
+  let busy = 0;                                // retalls en curs (per saber quan un informe fet fora de pantalla ja és a punt)
 
   const available = () => !!base() && typeof WebAssembly !== 'undefined' && typeof createImageBitmap === 'function';
 
@@ -61,6 +62,7 @@ const PhotoCrop = (() => {
     const k = known(url);
     if (k !== undefined) return k;
     if (!available() || !src) return null;
+    busy++;
     try {
       const blob = await (await fetch(src)).blob();
       const bmp = await createImageBitmap(blob);
@@ -74,8 +76,10 @@ const PhotoCrop = (() => {
       return out;
     } catch (e) {
       return null; // sense IA (o sense connexió la primera vegada): foto sencera, i es tornarà a provar un altre dia
+    } finally {
+      busy--;
     }
   }
 
-  return { available, crop, frame, known, remember, RATIO };
+  return { available, crop, frame, known, remember, RATIO, busy: () => busy };
 })();

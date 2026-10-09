@@ -98,7 +98,7 @@ function TestsReport({ pid }) {
   const name = `${Names.stem('Informe evolució tests', p, to)}_01.pdf`;
   return html`<div class=${`present ${theme}`}>
     <${PresentBar} title=${`Informe de tests · ${U.fullName(p)}`} onClose=${() => go('client', pid, 'valoracions')} noTheme=${true}
-      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="assess" title=${`Informe de tests · ${U.fullName(p)}`} footer=${`${center} · Informe de tests · ${U.fullName(p)}`} />`}>
+      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="reportTests" title=${`Informe de tests · ${U.fullName(p)}`} footer=${`${center} · Informe de tests · ${U.fullName(p)}`} />`}>
       <${ReportThemeSwitch} p=${p} />
     </${PresentBar}>
     <section class="rpick no-print" aria-label="Tria del contingut de l'informe">
@@ -173,7 +173,7 @@ function SessionsReport({ pid }) {
   const tone = (v, hiBad) => (v == null ? '' : hiBad ? (v >= 6 ? 'bad' : v >= 3 ? 'warn' : 'ok') : '');
   return html`<div class=${`present ${theme}`}>
     <${PresentBar} title=${`Evolució de les sessions · ${U.fullName(p)}`} onClose=${() => go('client', pid, 'sessions')} noTheme=${true}
-      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="sessions" title=${`Evolució de les sessions · ${U.fullName(p)}`} footer=${`${center} · Evolució de les sessions · ${U.fullName(p)}`} />`}>
+      actions=${html`<${PdfSaveButton} p=${p} name=${name} where="reportSessions" title=${`Evolució de les sessions · ${U.fullName(p)}`} footer=${`${center} · Evolució de les sessions · ${U.fullName(p)}`} />`}>
       <${ReportThemeSwitch} p=${p} />
     </${PresentBar}>
     <section class="rpick no-print" aria-label="Tria del contingut de l'informe">

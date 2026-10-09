@@ -33,6 +33,7 @@ function PatientView({ id, tab = 'resum' }) {
         ${p.goal && html`<p class="phead-goal"><${Icon} name="target" size=${16} />${p.goal}</p>`}
         <${KeyDates} p=${p} />
         <${SyncBadge} pid=${p.id} />
+        <${PdfBadge} pid=${p.id} />
       </div>
       <div class="phead-actions">
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
