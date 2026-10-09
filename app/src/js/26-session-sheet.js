@@ -138,10 +138,10 @@ function BlockVideos({ block, start, onClose }) {
     const key = (e) => {
       if (e.key === 'ArrowRight') setK((x) => Math.min(list.length - 1, x + 1));
       else if (e.key === 'ArrowLeft') setK((x) => Math.max(0, x - 1));
-      else if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', key);
-    return () => document.removeEventListener('keydown', key);
+    const unEsc = EscStack.push(() => onClose());
+    return () => { document.removeEventListener('keydown', key); unEsc(); };
   }, []);
   const cur = list[k];
   if (!cur) return null;

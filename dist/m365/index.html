@@ -465,6 +465,7 @@ input[type="search"].input { -webkit-appearance: none; }
 
 .overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(24, 10, 12, 0.45); }
 .overlay-under { background: rgba(24, 10, 12, 0.2); }
+.dialog:focus, .dialog:focus-visible { outline: none; }
 .dialog { width: min(580px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-2); }
 .dialog-wide { width: min(840px, 100%); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 14px 6px 22px; }
@@ -3999,7 +4000,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-09 18:05";
+window.EON_BUILD = "2026-10-09 18:16";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4144,6 +4145,17 @@ const U = {
     const [y, m] = key.split('-').map(Number);
     const name = MONTHS[m - 1];
     return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${y}`;
+  },
+
+  // «de novembre de 2026», «d'octubre de 2026»: el mes dins d'una frase (en minúscula, amb la preposició)
+  ofMonth(key) {
+    const [y, m] = key.split('-').map(Number);
+    return `${U.deMonth(m - 1)} de ${y}`;
+  },
+  // «novembre de 2026»: el mes dins d'una frase, sense preposició (per a …)
+  monthLow(key) {
+    const [y, m] = key.split('-').map(Number);
+    return `${MONTHS[m - 1]} de ${y}`;
   },
 
   // "Gener de 2027", "Abril de 2027" (la propera valoració a l'informe: sense dia, per no lligar-nos a una data)
@@ -11798,6 +11810,7 @@ const Names = (() => {
 
 const NoeDemo = (() => {
   const MONTHS = ['gener', 'febrer', 'marc', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
+  const DAYS = [[1, 'dilluns'], [2, 'dimarts'], [3, 'dimecres'], [4, 'dijous'], [5, 'divendres'], [6, 'dissabte'], [0, 'diumenge']];
   const NOTE = '_Mode demostració: respostes preparades, no és la IA real._\n\n';
   const usage = { input_tokens: 0, output_tokens: 0 };
 
@@ -11839,8 +11852,10 @@ const NoeDemo = (() => {
     const cal = results.find((r) => r.name === 'calendari_pacient');
     const pacient = cal.input.pacient;
     const month = cal.input.mes;
+    // Si la demanda diu els dies («dimarts i divendres»), els fa servir; si no, els habituals del pacient.
+    const named = DAYS.filter((d) => new RegExp(`\\b${d[1]}`).test(U.norm(text))).map((d) => d[0]);
     const days = ((cal.data && cal.data.dies_habituals_d_entrenament) || []).map((d) => d.dia_setmana);
-    const use = days.length ? days : [1, 4];
+    const use = named.length ? named : days.length ? days : [1, 4];
     const taken = new Set((cal.data && cal.data.dies_ocupats) || []);
     const by = {};
     for (const r of results) if (r.name === 'buscar_exercicis' && r.data) by[r.input.bloc] = r.data.exercicis || [];
@@ -12773,7 +12788,7 @@ const NoeTools = (() => {
         if (s.busy.length) { s.skip = true; warns.push(`${s.date} ja té sessió: no es crearà.`); }
       }
       const n = sessions.filter((s) => !s.skip).length;
-      const prop = addProposal(ctx, { kind: 'mes', pid: r.pid, ref: ctx.ps.ref(r.pid), title: `${month ? `Planificació de ${U.fmtMonth(month)}` : 'Planificació'} · ${U.plural(n, 'sessió', 'sessions')}`, why: str(i.motiu), warnings: warns, data: { sessions, month } });
+      const prop = addProposal(ctx, { kind: 'mes', pid: r.pid, ref: ctx.ps.ref(r.pid), title: `${month ? `Planificació ${U.ofMonth(month)}` : 'Planificació'} · ${U.plural(n, 'sessió', 'sessions')}`, why: str(i.motiu), warnings: warns, data: { sessions, month } });
       return reply(prop, { sessions_a_crear: n });
     },
 
@@ -13473,16 +13488,36 @@ function BlockTag({ k, small }) {
 }
 
 // Menú desplegable simple.
+// Escape tanca només el que és a sobre de tot (menú, diàleg, galeria, NOE), no tot alhora.
+const EscStack = (() => {
+  const stack = [];
+  const onKey = (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented || !stack.length) return;
+    stack[stack.length - 1].fn(e);
+  };
+  return {
+    push(fn) {
+      const t = { fn };
+      if (!stack.length) document.addEventListener('keydown', onKey);
+      stack.push(t);
+      return () => {
+        const k = stack.indexOf(t);
+        if (k >= 0) stack.splice(k, 1);
+        if (!stack.length) document.removeEventListener('keydown', onKey);
+      };
+    },
+  };
+})();
+
 function Menu({ items, icon = 'more', label, title = 'Més opcions', align = 'right', variant = 'ghost' }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
     if (!open) return undefined;
     const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    const esc = (e) => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('pointerdown', close);
-    document.addEventListener('keydown', esc);
-    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', esc); };
+    const unEsc = EscStack.push(() => setOpen(false));
+    return () => { document.removeEventListener('pointerdown', close); unEsc(); };
   }, [open]);
   return html`<div class="menu" ref=${ref}>
     <${Btn} variant=${variant} icon=${icon} title=${title} onClick=${() => setOpen(!open)}>${label}</${Btn}>
@@ -13553,13 +13588,39 @@ function PromptInput({ value, onValue, placeholder }) {
   return html`<${TextInput} id="prompt-input" value=${v} placeholder=${placeholder} autoFocus=${true} onValue=${(x) => { setV(x); onValue(x); }} />`;
 }
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 function Dialog({ title, children, footer, onClose, wide }) {
+  const ref = useRef(null);
   useEffect(() => {
-    const esc = (e) => { if (e.key === 'Escape') onClose && onClose(); };
-    document.addEventListener('keydown', esc);
-    return () => document.removeEventListener('keydown', esc);
+    const el = ref.current;
+    const before = document.activeElement;
+    // El focus entra al diàleg (si un camp ja l'ha agafat, es respecta) i hi queda atrapat amb Tab.
+    if (el && !el.contains(document.activeElement)) el.focus();
+    const unEsc = EscStack.push(() => onClose && onClose());
+    const tab = (e) => {
+      if (e.key !== 'Tab' || !el || !document.contains(el)) return;
+      const top = Array.from(document.querySelectorAll('.overlay [role="dialog"]')).pop();
+      if (top !== el) return;
+      const list = Array.from(el.querySelectorAll(FOCUSABLE)).filter((x) => x.offsetParent !== null);
+      if (!list.length) { e.preventDefault(); el.focus(); return; }
+      const first = list[0], last = list[list.length - 1];
+      if (!el.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && (document.activeElement === first || document.activeElement === el)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', tab);
+    return () => {
+      document.removeEventListener('keydown', tab);
+      unEsc();
+      // En tancar, el focus torna on era (si encara hi és i no s'ha posat en un altre lloc).
+      setTimeout(() => {
+        const a = document.activeElement;
+        if (before && before !== document.body && document.contains(before) && (!a || a === document.body || !document.contains(a))) { try { before.focus(); } catch (e) { /* res */ } }
+      }, 0);
+    };
   }, []);
-  return html`<div class=${U.cls('dialog', wide && 'dialog-wide')} role="dialog" aria-modal="true" aria-label=${title}>
+  return html`<div class=${U.cls('dialog', wide && 'dialog-wide')} role="dialog" aria-modal="true" aria-label=${title} tabindex="-1" ref=${ref}>
     <div class="dialog-head">
       <h2 class="dialog-title">${title}</h2>
       ${onClose && html`<${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} />`}
@@ -13624,7 +13685,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
       e.preventDefault();
       if (open && choice) pick(choice);
       else { setOpen(false); setQ(null); }
-    } else if (e.key === 'Escape') { setOpen(false); setQ(null); }
+    } else if (e.key === 'Escape' && (open || q !== null)) { e.preventDefault(); e.stopPropagation(); setOpen(false); setQ(null); }
   };
 
   let lastBlock = null;
@@ -20400,10 +20461,10 @@ function BlockVideos({ block, start, onClose }) {
     const key = (e) => {
       if (e.key === 'ArrowRight') setK((x) => Math.min(list.length - 1, x + 1));
       else if (e.key === 'ArrowLeft') setK((x) => Math.max(0, x - 1));
-      else if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', key);
-    return () => document.removeEventListener('keydown', key);
+    const unEsc = EscStack.push(() => onClose());
+    return () => { document.removeEventListener('keydown', key); unEsc(); };
   }, []);
   const cur = list[k];
   if (!cur) return null;
@@ -20480,7 +20541,7 @@ function MonthView({ p, sessions }) {
         </div>
       </div>
       <div class="cal-wrap">
-        <div class="cal" role="group" aria-label=${`Calendari de ${U.fmtMonth(month)}`}>
+        <div class="cal" role="group" aria-label=${`Calendari ${U.ofMonth(month)}`}>
           ${['dl', 'dt', 'dc', 'dj', 'dv', 'ds', 'dg'].map((d) => html`<div class="cal-h">${d}</div>`)}
           <div class="cal-h cal-h-week">Setmana</div>
           ${weeks.map((w) => html`
@@ -22200,7 +22261,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
     const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip });
     onClose();
     MonthNav.show(p.id, month);
-    UI.toast(res.created.length ? `${U.plural(res.created.length, 'sessió planificada', 'sessions planificades')} per a ${U.fmtMonth(month)}.` : 'No hi havia cap dia lliure: no s\'ha creat cap sessió.', res.created.length ? 'ok' : 'bad');
+    UI.toast(res.created.length ? `${U.plural(res.created.length, 'sessió planificada', 'sessions planificades')} per a ${U.monthLow(month)}.` : 'No hi havia cap dia lliure: no s\'ha creat cap sessió.', res.created.length ? 'ok' : 'bad');
     go('client', p.id, 'mes');
     Sync.soon(p.id);
   };
@@ -22547,10 +22608,9 @@ function NoePanel() {
   }, [S.open, conv && conv.log.length, conv && conv.log[conv.log.length - 1] && conv.log[conv.log.length - 1].text, S.busy, S.error]);
   useEffect(() => {
     if (!S.open) return undefined;
-    const esc = (e) => { if (e.key === 'Escape') NoeUI.open(false); };
-    document.addEventListener('keydown', esc);
+    const unEsc = EscStack.push(() => NoeUI.open(false));
     if (taRef.current) taRef.current.focus();
-    return () => document.removeEventListener('keydown', esc);
+    return unEsc;
   }, [S.open]);
   // El missatge que no s'ha pogut enviar torna al quadre perquè es pugui reenviar.
   useEffect(() => {

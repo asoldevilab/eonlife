@@ -235,10 +235,9 @@ function NoePanel() {
   }, [S.open, conv && conv.log.length, conv && conv.log[conv.log.length - 1] && conv.log[conv.log.length - 1].text, S.busy, S.error]);
   useEffect(() => {
     if (!S.open) return undefined;
-    const esc = (e) => { if (e.key === 'Escape') NoeUI.open(false); };
-    document.addEventListener('keydown', esc);
+    const unEsc = EscStack.push(() => NoeUI.open(false));
     if (taRef.current) taRef.current.focus();
-    return () => document.removeEventListener('keydown', esc);
+    return unEsc;
   }, [S.open]);
   // El missatge que no s'ha pogut enviar torna al quadre perquè es pugui reenviar.
   useEffect(() => {

@@ -201,16 +201,36 @@ function BlockTag({ k, small }) {
 }
 
 // Menú desplegable simple.
+// Escape tanca només el que és a sobre de tot (menú, diàleg, galeria, NOE), no tot alhora.
+const EscStack = (() => {
+  const stack = [];
+  const onKey = (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented || !stack.length) return;
+    stack[stack.length - 1].fn(e);
+  };
+  return {
+    push(fn) {
+      const t = { fn };
+      if (!stack.length) document.addEventListener('keydown', onKey);
+      stack.push(t);
+      return () => {
+        const k = stack.indexOf(t);
+        if (k >= 0) stack.splice(k, 1);
+        if (!stack.length) document.removeEventListener('keydown', onKey);
+      };
+    },
+  };
+})();
+
 function Menu({ items, icon = 'more', label, title = 'Més opcions', align = 'right', variant = 'ghost' }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
     if (!open) return undefined;
     const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    const esc = (e) => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('pointerdown', close);
-    document.addEventListener('keydown', esc);
-    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', esc); };
+    const unEsc = EscStack.push(() => setOpen(false));
+    return () => { document.removeEventListener('pointerdown', close); unEsc(); };
   }, [open]);
   return html`<div class="menu" ref=${ref}>
     <${Btn} variant=${variant} icon=${icon} title=${title} onClick=${() => setOpen(!open)}>${label}</${Btn}>
@@ -281,13 +301,39 @@ function PromptInput({ value, onValue, placeholder }) {
   return html`<${TextInput} id="prompt-input" value=${v} placeholder=${placeholder} autoFocus=${true} onValue=${(x) => { setV(x); onValue(x); }} />`;
 }
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 function Dialog({ title, children, footer, onClose, wide }) {
+  const ref = useRef(null);
   useEffect(() => {
-    const esc = (e) => { if (e.key === 'Escape') onClose && onClose(); };
-    document.addEventListener('keydown', esc);
-    return () => document.removeEventListener('keydown', esc);
+    const el = ref.current;
+    const before = document.activeElement;
+    // El focus entra al diàleg (si un camp ja l'ha agafat, es respecta) i hi queda atrapat amb Tab.
+    if (el && !el.contains(document.activeElement)) el.focus();
+    const unEsc = EscStack.push(() => onClose && onClose());
+    const tab = (e) => {
+      if (e.key !== 'Tab' || !el || !document.contains(el)) return;
+      const top = Array.from(document.querySelectorAll('.overlay [role="dialog"]')).pop();
+      if (top !== el) return;
+      const list = Array.from(el.querySelectorAll(FOCUSABLE)).filter((x) => x.offsetParent !== null);
+      if (!list.length) { e.preventDefault(); el.focus(); return; }
+      const first = list[0], last = list[list.length - 1];
+      if (!el.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && (document.activeElement === first || document.activeElement === el)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', tab);
+    return () => {
+      document.removeEventListener('keydown', tab);
+      unEsc();
+      // En tancar, el focus torna on era (si encara hi és i no s'ha posat en un altre lloc).
+      setTimeout(() => {
+        const a = document.activeElement;
+        if (before && before !== document.body && document.contains(before) && (!a || a === document.body || !document.contains(a))) { try { before.focus(); } catch (e) { /* res */ } }
+      }, 0);
+    };
   }, []);
-  return html`<div class=${U.cls('dialog', wide && 'dialog-wide')} role="dialog" aria-modal="true" aria-label=${title}>
+  return html`<div class=${U.cls('dialog', wide && 'dialog-wide')} role="dialog" aria-modal="true" aria-label=${title} tabindex="-1" ref=${ref}>
     <div class="dialog-head">
       <h2 class="dialog-title">${title}</h2>
       ${onClose && html`<${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} />`}
@@ -352,7 +398,7 @@ function ExercisePicker({ value, block, onPick, onText, placeholder = 'Exercici�
       e.preventDefault();
       if (open && choice) pick(choice);
       else { setOpen(false); setQ(null); }
-    } else if (e.key === 'Escape') { setOpen(false); setQ(null); }
+    } else if (e.key === 'Escape' && (open || q !== null)) { e.preventDefault(); e.stopPropagation(); setOpen(false); setQ(null); }
   };
 
   let lastBlock = null;

@@ -448,6 +448,7 @@ input[type="search"].input { -webkit-appearance: none; }
 
 .overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(24, 10, 12, 0.45); }
 .overlay-under { background: rgba(24, 10, 12, 0.2); }
+.dialog:focus, .dialog:focus-visible { outline: none; }
 .dialog { width: min(580px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-2); }
 .dialog-wide { width: min(840px, 100%); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 14px 6px 22px; }

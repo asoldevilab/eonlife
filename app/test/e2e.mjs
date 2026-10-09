@@ -842,6 +842,33 @@ const step = async (label, fn) => {
     await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
     await page.waitForSelector('.noe-panel', { state: 'detached' });
   });
+  await step('Diàlegs: Escape tanca només el de dalt, el focus hi queda atrapat i torna on era', async () => {
+    await goHash(page, '#/inici');
+    await page.waitForSelector('.page');
+    await page.evaluate(() => { const b = document.querySelector('.page button, .page a'); if (b) b.focus(); window.__prev = document.activeElement; window.__r = []; UI.confirm({ title: 'Primer', text: 'a' }).then((v) => window.__r.push(['primer', v])); });
+    await page.waitForSelector('.dialog');
+    await page.evaluate(() => { UI.confirm({ title: 'Segon', text: 'b' }).then((v) => window.__r.push(['segon', v])); });
+    await page.waitForFunction(() => document.querySelectorAll('.dialog').length === 2);
+    // El focus és dins del diàleg de dalt i Tab no en surt
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press('Tab');
+      const inside = await page.evaluate(() => { const d = Array.from(document.querySelectorAll('.dialog')).pop(); return d.contains(document.activeElement); });
+      if (!inside) throw new Error(`Tab ha tret el focus del diàleg (pulsació ${i + 1})`);
+    }
+    await page.keyboard.press('Shift+Tab');
+    if (!(await page.evaluate(() => { const d = Array.from(document.querySelectorAll('.dialog')).pop(); return d.contains(document.activeElement); }))) throw new Error('Maj+Tab ha tret el focus del diàleg');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.querySelectorAll('.dialog').length === 1);
+    const t = await page.evaluate(() => document.querySelector('.dialog .dialog-title').textContent);
+    if (t !== 'Primer') throw new Error(`Escape ha tancat el diàleg equivocat (queda «${t}»)`);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.querySelectorAll('.dialog').length === 0);
+    const res = await page.evaluate(() => JSON.stringify(window.__r));
+    if (res !== '[["segon",false],["primer",false]]') throw new Error(`Resultats inesperats: ${res}`);
+    // El focus torna a l'element on era
+    await page.waitForTimeout(50);
+    if (!(await page.evaluate(() => document.activeElement === window.__prev))) throw new Error('En tancar, el focus no torna a l\'element d\'abans');
+  });
   await step('PDF dels informes: quins n\'hi ha per pacient, com es diuen i quan es refan', async () => {
     const r = await page.evaluate(() => {
       const pid = 'P-DEMO-JORDI';
