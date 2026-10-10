@@ -4003,7 +4003,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-09 19:14";
+window.EON_BUILD = "2026-10-10 02:01";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -13628,7 +13628,7 @@ function Dialog({ title, children, footer, onClose, wide }) {
     const el = ref.current;
     const before = document.activeElement;
     // El focus entra al diàleg (si un camp ja l'ha agafat, es respecta) i hi queda atrapat amb Tab.
-    if (el && !el.contains(document.activeElement)) el.focus();
+    if (el && !el.contains(document.activeElement)) el.focus({ preventScroll: true });
     const unEsc = EscStack.push(() => onClose && onClose());
     const tab = (e) => {
       if (e.key !== 'Tab' || !el || !document.contains(el)) return;
