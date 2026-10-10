@@ -586,6 +586,15 @@ han respost a les últimes sessions.
 - **Configuració › NOE**: clau de l'API (es queda en aquest aparell), model, privacitat, consentiment, **Mode demostració**
   (sense IA ni cost) i **Prova la connexió**. Més detalls (servidor intermediari, privacitat, cost) a `docs/NOE.md`.
 
+## Teclat i accessibilitat
+
+- **Esc** tanca només el que hi ha a sobre de tot (primer un diàleg o un menú, després el panell de NOE).
+- Als diàlegs, **Tab** i **Maj+Tab** donen la volta pels seus botons i camps sense sortir-ne; en tancar-los, el cursor
+  torna on era.
+- El primer **Tab** de qualsevol pantalla és *Salta al contingut*. Les taules que es desplacen de costat al mòbil es poden
+  moure amb les fletxes.
+- Colors amb contrast suficient en mode clar i fosc, i títols i regions pensats per a lectors de pantalla.
+
 ## Actualitzacions de l'app
 
 Cada cop que s'obre l'app (també des de la icona de la tauleta) i cada cop que torna a primer pla, mira si s'ha

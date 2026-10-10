@@ -310,7 +310,7 @@ function Dialog({ title, children, footer, onClose, wide }) {
     const el = ref.current;
     const before = document.activeElement;
     // El focus entra al diàleg (si un camp ja l'ha agafat, es respecta) i hi queda atrapat amb Tab.
-    if (el && !el.contains(document.activeElement)) el.focus();
+    if (el && !el.contains(document.activeElement)) el.focus({ preventScroll: true });
     const unEsc = EscStack.push(() => onClose && onClose());
     const tab = (e) => {
       if (e.key !== 'Tab' || !el || !document.contains(el)) return;
