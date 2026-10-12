@@ -23,6 +23,16 @@ const errors = [];
 const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 // Imatge de YouTube de prova: 320 × 180, com les de veritat (la grisa de «sense imatge» en fa 120).
 const YT_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAABkUlEQVR42u3TAQkAAAjAMDWmSYxoLHMIW4TDc6cD+KkkAAMDBgYMDAYGDAwYGDAwGBgwMGBgMDBgYMDAgIHBwICBAQMDBgYDAwYGDAwGBgwMGBgwMBgYMDBgYMDAYGDAwICBwcCAgQEDAwYGAwMGBgwMBgYMDBgYMDAYGDAwYGDAwGBgwMCAgcHAgIEBAwMGBgMDBgYMDBgYDAwYGDAwGBgwMGBgwMBgYMDAgIEBA4OBAQMDBgYDAwYGDAwYGAwMGBgwMBgYMDBgYMDAYGDAwICBAQODgQEDAwYGAwMGBgwMGBgMDBgYMDBgYDAwYGDAwGBgwMCAgQEDg4EBAwMGBgwMBgYMDBgYDAwYGDAwYGAwMGBgwMBgYMDAgIEBA4OBAQMDBgYMDAYGDAwYGAwMGBgwMGBgMDBgYMDAgIHBwICBAQODgQEDAwYGDAwGBgwMGBgMDBgYMDBgYDAwYGDAwICBwcCAgQEDg4EBAwMGBgwMBgYMDBgYMDAYGDAwYGAwMGBgwMCAgcHAgIEBAwMGht8ORS4DAmPlJXEAAAAASUVORK5CYII=', 'base64');
+// Exportació de l'ADR de prova (una fila per repetició). Les files són del nom que es passi i d'una altra persona.
+const adrCsv = (name) => [
+  'Atleta;Ejercicio;Fecha;Serie;Repetición;Carga (kg);Velocidad media (m/s);Velocidad máxima (m/s);Potencia (W)',
+  ...[[40, 1.04, 408], [40, 0.94, 369], [40, 0.86, 337], [50, 0.76, 372], [50, 0.75, 368], [50, 0.69, 338], [60, 0.59, 347], [60, 0.58, 341], [60, 0.56, 329], [70, 0.45, 309], [70, 0.39, 268], [70, 0.27, 185]]
+    .map(([kg, v, w], i) => `${name};Press banca;12/10/2026 11:0${Math.floor(i / 3)};${Math.floor(i / 3) + 1};${(i % 3) + 1};${kg};${String(v).replace('.', ',')};${String((v * 1.4).toFixed(2)).replace('.', ',')};${w}`),
+  'Pau Altre Atleta;Press banca;12/10/2026 12:00;1;1;80;0,50;0,70;392',
+].join('\n');
+const adrJumps = (name) => `Atleta;Salto;Fecha;Altura (cm);Tiempo de vuelo (ms);Tiempo de contacto (ms);RSI\n${name};CMJ;12/10/2026 10:10;31,2;505;;\n${name};DJ;12/10/2026 10:15;28,0;470;190;1,47`;
+const csvFile = (name, text) => ({ name, mimeType: 'text/csv', buffer: Buffer.from(text, 'utf8') });
+
 const browser = await chromium.launch();
 
 async function open(viewport, scheme = 'light') {
@@ -326,6 +336,23 @@ const step = async (label, fn) => {
     await item.locator('.vbt-table >> text=Altura millor').waitFor();
     await item.locator('.vbt-head >> text=Encoder ADR').click();
     await shot(page, '08b-encoder');
+  });
+  await step('encoder ADR a la sessió: importar les sèries del CSV de l\'ADR (només les del pacient)', async () => {
+    const who = await page.evaluate(() => { const s = Store.get('sessions', location.hash.split('/')[2]); const p = Store.get('patients', s.patientId); return `${p.firstName} ${p.lastName}`; });
+    const item = page.locator('section.block.blk-for .item').first();
+    await item.locator('input[data-kind="adr"]').setInputFiles(csvFile('adr-sessio.csv', adrCsv(who)));
+    await page.waitForSelector('.dialog >> text=Importa sèries de l\'ADR');
+    await page.waitForSelector(`.dialog >> text=${who}`);
+    // 4 sèries (una per càrrega), amb la pèrdua de velocitat calculada; l'altra persona no hi és
+    const rows = await page.locator('.dialog .adr-table tbody tr').allInnerTexts();
+    if (rows.length !== 4) throw new Error(`sèries: ${rows.length}`);
+    if (!/^1 40 3 1,04 0,86 17 % 408$/.test(rows[0].replace(/\s+/g, ' ').trim())) throw new Error(`sèrie 1: ${rows[0]}`);
+    await page.click('.dialog-foot >> text=Importa 4 sèries');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    // Les sèries ja escrites es respecten: les de l'ADR s'afegeixen a sota
+    const vals = await item.locator('.vbt-table tbody tr').nth(1).locator('input').evaluateAll((els) => els.map((e) => e.value));
+    if (vals.slice(0, 4).join('|') !== '40|3|1,04|0,86') throw new Error(`sèrie desada: ${vals}`);
+    await shot(page, '08c-encoder-adr-csv');
   });
   await step('força principal dividida en blocs (bloc 1 amb 3 exercicis, bloc 2 amb 2)', async () => {
     const blk = page.locator('section.block.blk-for');
@@ -768,6 +795,39 @@ const step = async (label, fn) => {
     await page.waitForSelector('.rsec .lvp-kv >> text=1RM estimada');
     await page.waitForSelector('.rsec .lvp-zones >> text=Càrrega estimada');
     await shot(page, '06h-carrega-velocitat-informe', false);
+  });
+  await step('valoració: «Importa de l\'ADR» (encoder → perfil càrrega-velocitat) i ADR Jumping (salts)', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').filter((x) => x.patientId === 'P-DEMO-LAURA').sort((a, b) => (a.date < b.date ? -1 : 1)).pop().id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.waitForSelector('#grp-lvp');
+    await page.locator('#grp-lvp input[data-kind="adr"]').setInputFiles(csvFile('adr-test.csv', adrCsv('Laura Vidal Serra')));
+    await page.waitForSelector('.dialog >> text=He trobat');
+    await page.waitForSelector('.dialog >> text=Laura Vidal Serra');
+    // Només el Press banca de la Laura (el d'una altra persona no hi surt); la més ràpida de cada càrrega = 4 punts
+    let pts = await page.locator('.dialog .adr-ex tbody tr').count();
+    if (pts !== 4) throw new Error(`punts amb «la més ràpida»: ${pts}`);
+    await page.click('.dialog .seg-btn >> text=Totes');
+    await page.waitForFunction(() => document.querySelectorAll('.dialog .adr-ex tbody tr').length === 12);
+    await page.click('.dialog-foot >> text=Importa 1 exercici');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    // El perfil surt calculat com a la pantalla de l'ADR: 1RM 79,1 kg, V0 1,77, R² 0,93
+    const ex = page.locator('#grp-lvp .lvp-ex').last();
+    await ex.waitFor();
+    const stats = await ex.locator('.lvp-stats').textContent();
+    if (!/79,1/.test(stats) || !/1,77/.test(stats) || !/0,93/.test(stats)) throw new Error(`perfil importat: ${stats}`);
+    if ((await ex.locator('.lvp-table tbody tr').count()) !== 12) throw new Error('càrregues importades');
+    await shot(page, '06i-adr-importat', false);
+    // ADR Jumping: dos salts als intents de la valoració
+    await page.locator('#grp-jumps input[data-kind="adr"]').setInputFiles(csvFile('adr-salts.csv', adrJumps('Laura Vidal Serra')));
+    await page.waitForSelector('.dialog >> text=Importa salts de l\'ADR Jumping');
+    await page.click('.dialog-foot >> text=Importa 2 intents');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    const types = await page.evaluate((id) => Store.get('assessments', id).jumps.attempts.filter((x) => x.note === 'Importat de l\'ADR Jumping').map((x) => `${x.type}:${x.height}`), aid);
+    if (types.join() !== 'CMJ:31,2,DJ:28') throw new Error(`salts: ${types}`);
+    // Tornar a importar el mateix fitxer: els salts surten com «ja importat» i no es marquen
+    await page.locator('#grp-jumps input[data-kind="adr"]').setInputFiles(csvFile('adr-salts.csv', adrJumps('Laura Vidal Serra')));
+    await page.waitForSelector('.dialog >> text=ja importat');
+    await page.click('.dialog-foot >> text=Cancel·la');
   });
   await step('NOE: mode demostració → planificar un mes amb una proposta que només s\'aplica en confirmar, i es pot desfer', async () => {
     await goHash(page, '#/inici');

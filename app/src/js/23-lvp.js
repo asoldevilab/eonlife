@@ -13,11 +13,17 @@ const LVP_GUIDE = [
     'Comprova que l\'encoder dona la velocitat mitjana de la fase concèntrica (no la de pic ni la propulsiva): és la que fan servir els valors de referència de la 1RM.',
   ] },
   { h: 'Les càrregues', items: [
-    'Fes 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
+    'L\'ADR recomana almenys 3 càrregues progressives (p. ex. 30, 50 i 80 % de la 1RM). Millor 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
     '2 repeticions a les càrregues lleugeres i 1–2 a les pesades. Descans de 2 min a les lleugeres i 3–4 min a les pesades.',
     'Cada repetició a màxima intenció a la fase concèntrica (puja tan ràpid com pugui), baixada controlada. Si una repetició surt malament (la barra s\'inclina, es perd la tècnica), no la comptis.',
-    'Apunta cada repetició com una fila (com fa l\'app de l\'ADR, que fa servir totes les repeticions, p. ex. 3 per càrrega) o una sola per càrrega, la velocitat mitjana de la més ràpida o la mitjana de les repeticions: tria un criteri i mantén-lo sempre. La recta es calcula amb totes les files.',
+    'De cada càrrega, l\'ADR recomana quedar-se amb la repetició més ràpida. L\'app també et deixa fer servir totes les repeticions (la recta es calcula amb totes les files); tria un criteri i mantén-lo sempre.',
     'Versió ràpida (2 punts): una càrrega lleugera (~1 m/s) i una de pesada (~0,5 m/s). És orientativa: millor 4 o més punts.',
+  ] },
+  { h: 'Passar les dades a l\'app', items: [
+    'No cal escriure res a mà: a l\'app de l\'ADR, en acabar l\'entrenament o el test, exporta el fitxer (botó per descarregar l\'entrenament, o Menú › Historial d\'entrenaments › exportar a CSV). Passa\'l a la tauleta (Fitxers o correu).',
+    'A EON, dins d\'aquest bloc, prem «Importa de l\'ADR» i tria el fitxer (CSV o Excel). L\'app troba la persona pel nom, les columnes i els exercicis; tria el dia, la velocitat (mitjana, propulsiva o de pic) i si vols la repetició més ràpida de cada càrrega o totes. Revisa la taula i prem «Importa».',
+    'Si les columnes no s\'han entès bé, a «Columnes del fitxer» tries quina columna és cada cosa (se\'n recorda per al pròxim fitxer). Al fitxer només es desa el que marquis: les dades d\'altres persones no es guarden enlloc.',
+    'A les sessions, el botó «Importa de l\'ADR» del registre de l\'encoder passa les sèries (càrrega, reps, velocitat de la 1a i l\'última, pèrdua i potència). Els salts de l\'ADR Jumping s\'importen a Salts (valoració) o a les sèries de salts (sessió).',
   ] },
   { h: 'Com s\'interpreta', items: [
     'La recta té una velocitat sense càrrega (V0) i un punt on la velocitat seria zero (L0). Com més a la dreta quedi la recta en un re-test, més fort és el pacient.',
@@ -61,9 +67,22 @@ function LvpBlock({ a, p, upd }) {
     e.mvt = m != null ? String(m).replace('.', ',') : '';
   });
   const guide = () => { let close = null; close = UI.open(() => html`<${LvpGuideDialog} onClose=${() => close()} />`); };
+  // Dades de l'encoder ADR: cada exercici importat substitueix les càrregues de l'exercici amb el mateix nom (o se n'afegeix un de nou).
+  const importAdr = (list) => {
+    upd((x) => {
+      x.lvp = x.lvp || { exercises: [] };
+      for (const it of list) {
+        let ex = x.lvp.exercises.find((e) => U.norm(e.name) === U.norm(it.name));
+        if (!ex) { ex = LVP.newExercise(it.preset, p && p.sex); ex.name = it.name || ex.name; x.lvp.exercises = [...x.lvp.exercises, ex]; }
+        ex.rows = it.rows.map((r) => ({ ...r, id: U.uid('R') }));
+      }
+    });
+    UI.toast(`${U.plural(list.length, 'exercici importat', 'exercicis importats')} de l'ADR. Revisa la velocitat mínima de cada exercici.`);
+  };
   return html`<div class="lvp">
     <div class="lvp-top">
-      <p class="muted small grow">Apunta, per a cada càrrega, la velocitat mitjana que dona l'encoder. Amb 4–6 càrregues l'app dibuixa la recta i estima la 1RM.</p>
+      <p class="muted small grow">Importa el fitxer de l'ADR o apunta, per a cada càrrega, la velocitat mitjana que dona l'encoder. Amb 4–6 càrregues l'app dibuixa la recta i estima la 1RM.</p>
+      <${AdrImportButton} mode="lvp" patient=${p} date=${a.date} existing=${exs.map((e) => e.name).filter(Boolean)} onApply=${importAdr} />
       <${Btn} size="sm" icon="info" onClick=${guide}>Com fer-lo servir</${Btn}>
     </div>
     ${exs.map((ex, i) => {

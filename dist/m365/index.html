@@ -1716,6 +1716,23 @@ tfoot .rpc { font-size: 14px; }
 .lvp-note { margin-top: 10px; }
 .lvp-eq { margin: 6px 0 0; font-variant-numeric: tabular-nums; }
 .lvp-table th.num, .lvp-table td.num { text-align: right; white-space: nowrap; padding-right: 10px; }
+
+/* Importació de l'ADR */
+.adr-import { display: inline-flex; }
+.adr-opts { display: flex; gap: 12px 18px; flex-wrap: wrap; align-items: flex-end; margin: 10px 0; }
+.adr-opt { display: grid; gap: 4px; }
+.adr-day { margin: 10px 0; max-width: 360px; }
+.adr-person { margin: 6px 0 8px; }
+.adr-ex { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.adr-ex.off { opacity: 0.6; }
+.adr-ex-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.adr-check { display: inline-flex; align-items: center; gap: 8px; }
+.adr-table td, .adr-table th { padding: 5px 8px; }
+.adr-error { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--warn-bg, var(--surface-3)); color: var(--warn-ink, var(--ink)); font-size: 14px; }
+.adr-map { margin-top: 14px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); }
+.adr-map summary { cursor: pointer; font-weight: 650; }
+.adr-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-top: 8px; }
+.adr-map-row { display: grid; gap: 3px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -4028,7 +4045,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-12 14:59";
+window.EON_BUILD = "2026-10-12 15:30";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4321,12 +4338,13 @@ const U = {
   },
 
   // Lector CSV tolerant (separador ; , o tabulador; cometes dobles).
-  parseCsv(text) {
+  // forced: el separador (si no, el de la primera línia).
+  parseCsv(text, forced) {
     const src = String(text || '').replace(/^﻿/, '');
     const firstLine = src.split(/\r?\n/)[0] || '';
     const counts = { ';': 0, ',': 0, '\t': 0 };
     for (const ch of firstLine) if (ch in counts) counts[ch]++;
-    const sep = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+    const sep = forced || Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
     const rows = [];
     let row = [], cell = '', q = false;
     for (let i = 0; i < src.length; i++) {
@@ -5405,6 +5423,302 @@ const SEED_TEMPLATES = (() => {
     session('T-SES-02', 'Sessió tipus · tren inferior (maluc)', 'Força de tren inferior · dominant de maluc', [mob, act, pot, forHip, acc, cal]),
   ];
 })();
+
+
+/* ── 04-adr.js ── */
+/* EON Life · lector de les dades de l'ADR (ADR Encoder i ADR Jumping).
+   L'app de l'ADR exporta els entrenaments a CSV (o a Excel). Aquí es llegeix el fitxer, es detecten les columnes pel nom
+   (català, castellà o anglès), es separen les files per persona, exercici i dia, i es converteixen en:
+     · punts càrrega-velocitat (perfil de la valoració),
+     · sèries (càrrega, repeticions, velocitat de la 1a i de l'última rep, pèrdua de velocitat, potència) per a les sessions,
+     · intents de salt (ADR Jumping).
+   Si les columnes no es reconeixen bé, la persona les assigna a mà (mapatge) i l'app se'n recorda. */
+
+// Camps que es busquen a la capçalera, per ordre (els més específics primer: «nom de l'exercici» és de l'exercici, no de la persona).
+// match: trossos del nom de la columna (sense accents ni majúscules); re: expressió sobre el nom net (sense unitats entre parèntesis).
+const ADR_COLUMNS = [
+  { key: 'exercise', label: 'Exercici', match: ['ejercicio', 'exercise', 'exercici', 'movimiento', 'movement'] },
+  { key: 'athlete', label: 'Persona', re: /^(nom|nombre|name|atleta|athlete|usuari|usuario|user|cliente|client|jugador|deportista|paciente|pacient)$/, match: ['atleta', 'athlete', 'nombre', 'name', 'usuario', 'user', 'cliente', 'jugador', 'deportista', 'paciente', 'pacient'],
+    exclude: /ejercicio|exercise|exercici|workout|entrenamiento|entrenament|test|prueba|serie|set\b/ },
+  { key: 'date', label: 'Data', re: /^(hora|dia|day)$/, match: ['fecha', 'date', 'data', 'timestamp'], exclude: /vuelo|flight/ },
+  { key: 'set', label: 'Sèrie', re: /^(n[º°o.]? ?)?(serie|set|series)( ?(n[º°o.]?|num|number|#))?$/ },
+  { key: 'rep', label: 'Repetició (número)', re: /^(n[º°o.]? ?)?(rep|repeticion|repeticio|repetition)( ?(n[º°o.]?|num|number|#))?$/ },
+  { key: 'reps', label: 'Repeticions (total)', re: /^(reps|repeticiones|repeticions|repetitions|total reps|n[º°o.]? ?reps)$/ },
+  { key: 'load', label: 'Càrrega (kg)', match: ['carga', 'peso', 'load', 'weight', 'masa', 'kg'], exclude: /corporal|body|bw|1rm|%|\/kg/ },
+  { key: 'mv', label: 'Velocitat mitjana (m/s)', match: ['velocidad media', 'vel media', 'vel. media', 'velocitat mitjana', 'mean velocity', 'average velocity', 'avg velocity', 'mean vel', 'velocity mean', 'media velocidad', 'velocidad promedio'], re: /^(mv|vm|mcv)$/, exclude: /propuls|peak|pico|pic|max/ },
+  { key: 'mpv', label: 'Velocitat mitjana propulsiva (m/s)', match: ['propuls', 'mpv'] },
+  { key: 'pv', label: 'Velocitat de pic (m/s)', match: ['peak vel', 'velocidad pico', 'velocidad maxima', 'velocidad max', 'vel max', 'vel pico', 'peak velocity', 'max velocity', 'maximum velocity', 'velocitat maxima', 'velocitat pic', 'velocitat de pic'], re: /^(pv|vmax|vpeak)$/ },
+  { key: 'velocity', label: 'Velocitat (m/s)', match: ['velocidad', 'velocity', 'velocitat', 'm/s'], exclude: /propuls|peak|pico|pic|max|loss|perdida|perdua|fatig/ },
+  { key: 'vl', label: 'Pèrdua de velocitat (%)', match: ['perdida de velocidad', 'perdida velocidad', 'velocity loss', 'velocity drop', 'perdua', 'vel loss', 'fatiga', 'fatigue'], re: /^vl$/ },
+  { key: 'ppeak', label: 'Potència màxima (W)', match: ['potencia pico', 'potencia max', 'peak power', 'max power', 'maximum power', 'pico de potencia', 'power peak', 'potencia de pico'] },
+  { key: 'power', label: 'Potència (W)', match: ['potencia', 'power', 'watt'] },
+  { key: 'rom', label: 'Recorregut (ROM)', re: /^rom$/, match: ['rango', 'recorrido', 'range of motion', 'recorregut'] },
+  { key: 'height', label: 'Altura del salt (cm)', match: ['altura', 'height'], exclude: /tipo|type|nombre/ },
+  { key: 'flight', label: 'Temps de vol (ms)', match: ['tiempo de vuelo', 'tiempo vuelo', 'flight time', 'flight', 'vuelo', 'temps de vol'] },
+  { key: 'contact', label: 'Temps de contacte (ms)', match: ['tiempo de contacto', 'tiempo contacto', 'contact time', 'contacto', 'contact', 'gct', 'temps de contacte'] },
+  { key: 'rsi', label: 'RSI', re: /^rsi([ -]?mod)?$/, match: ['indice de fuerza reactiva', 'reactive strength'] },
+  { key: 'jtype', label: 'Tipus de salt', match: ['tipo de salto', 'tipo', 'type', 'salto', 'jump type', 'prueba', 'test'] },
+];
+
+// Exercicis que l'app coneix per al perfil càrrega-velocitat (vegeu LVP_PRESETS).
+const ADR_PRESET_RE = [
+  ['squat', /squat|sentadilla|esquat|cuclill/],
+  ['bench', /bench|banca|press (de )?pecho|press pit|chest press/],
+  ['deadlift', /dead ?lift|peso muerto|pes mort|\brdl\b|rumano/],
+  ['hipthrust', /hip ?thrust|empuje de cadera|puente de gl|pont de gl/],
+];
+
+const ADR = {
+  // Número d'una cel·la: accepta coma o punt decimal, milers amb punt, «0,85 m/s» i buit («---»).
+  num(raw) {
+    let s = String(raw == null ? '' : raw).trim().replace(/−/g, '-');
+    if (!s || /^[-–—]+$/.test(s) || s.includes('∞')) return null;
+    s = s.replace(/\s*(m\/s|cm\/s|kg|w|cm|ms|%|n)$/i, '').trim();
+    if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '');
+    s = s.replace(',', '.');
+    if (!/^-?\d*\.?\d+$/.test(s)) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
+  },
+  round(n, d = 2) { return Math.round(n * 10 ** d) / 10 ** d; },
+  str(n, d = 2) { return n == null ? '' : String(ADR.round(n, d)).replace('.', ','); },
+
+  // Capçalera → { camp: índex de columna } (cada columna només serveix per a un camp).
+  mapHeader(headers) {
+    const norm = headers.map((x) => U.norm(x));
+    const clean = norm.map((x) => x.replace(/[([].*?[)\]]/g, ' ').replace(/\s+/g, ' ').trim());
+    const used = new Set();
+    const map = {};
+    for (const col of ADR_COLUMNS) {
+      let found = -1;
+      const ok = (i) => !used.has(i) && !(col.exclude && col.exclude.test(norm[i]));
+      if (col.re) found = clean.findIndex((hd, i) => ok(i) && col.re.test(hd));
+      if (found < 0 && col.match) for (const m of col.match) { found = norm.findIndex((hd, i) => ok(i) && hd.includes(m)); if (found >= 0) break; }
+      if (found >= 0) { map[col.key] = found; used.add(found); }
+    }
+    // «Velocitat» sense més detall = la mitjana.
+    if (map.mv == null && map.velocity != null) { map.mv = map.velocity; delete map.velocity; }
+    return map;
+  },
+  // Una fila és la capçalera si hi ha una columna de velocitat (o de salt) i almenys una altra de coneguda.
+  isHeader(map) {
+    const vel = ['mv', 'mpv', 'pv', 'height', 'flight'].some((k) => map[k] != null);
+    return vel && Object.keys(map).length >= 2;
+  },
+
+  // Fila → registre. kind: 'encoder' (hi ha velocitat) o 'jump' (hi ha altura o temps de vol).
+  record(r, map, scale) {
+    const cell = (k) => (map[k] != null ? r[map[k]] : '');
+    const n = (k) => (map[k] != null ? ADR.num(r[map[k]]) : null);
+    const f = (k) => (n(k) == null ? null : n(k) * (scale[k] || 1));
+    const rec = {
+      athlete: String(cell('athlete') || '').trim(), exercise: String(cell('exercise') || '').trim(), whenRaw: String(cell('date') || '').trim(),
+      set: String(cell('set') || '').trim(), rep: n('rep'), reps: n('reps'), load: n('load'), mv: f('mv'), mpv: f('mpv'), pv: f('pv'), vl: n('vl'),
+      power: n('power'), ppeak: n('ppeak'), rom: n('rom'), height: f('height'), flight: f('flight'), contact: f('contact'), rsi: n('rsi'),
+      jtype: String(cell('jtype') || '').trim(),
+    };
+    const w = ADR.when(rec.whenRaw);
+    rec.date = w.date; rec.time = w.time;
+    rec.kind = rec.mv != null || rec.mpv != null || rec.pv != null ? 'encoder' : rec.height != null || rec.flight != null ? 'jump' : '';
+    return rec;
+  },
+  // Data de la cel·la: text («6.10.2026 14:12») o número de sèrie d'Excel (46300,5).
+  when(raw) {
+    const s = String(raw || '').trim();
+    if (/^\d{5}(\.\d+|,\d+)?$/.test(s)) {
+      const serial = Number(s.replace(',', '.'));
+      const d = new Date(Date.UTC(1899, 11, 30) + Math.round(serial * 86400000));
+      const z = (x) => String(x).padStart(2, '0');
+      return { date: `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`, time: serial % 1 ? `${z(d.getUTCHours())}:${z(d.getUTCMinutes())}` : '' };
+    }
+    return myJumpWhen(s);
+  },
+  presetOf(name) {
+    const x = U.norm(name);
+    const hit = ADR_PRESET_RE.find(([, re]) => re.test(x));
+    return hit ? hit[0] : 'other';
+  },
+
+  // Files (llista de llistes de text) → persones, exercicis, dies i registres. override: { camp: índex } per corregir el mapatge.
+  parseRows(rows, patient, override) {
+    if (!rows || rows.length < 2) return { error: 'El fitxer no té files de dades.', records: [], map: {}, headers: [], people: [], exercises: [], dates: [], match: null };
+    let hi = -1, map = {};
+    for (let i = 0; i < Math.min(rows.length, 40); i++) { const m = ADR.mapHeader(rows[i]); if (ADR.isHeader(m)) { hi = i; map = m; break; } }
+    if (hi < 0) {
+      // Sense capçalera reconeguda: la primera fila amb text i, a sota, números. Es mostra per assignar les columnes a mà.
+      hi = Math.max(0, rows.findIndex((r, i) => i + 1 < rows.length && r.some((c) => c && ADR.num(c) == null) && rows[i + 1].some((c) => ADR.num(c) != null)));
+      map = ADR.mapHeader(rows[hi]);
+    }
+    const headers = rows[hi];
+    if (override) for (const [k, v] of Object.entries(override)) { if (v === '' || v == null || v < 0) delete map[k]; else map[k] = Number(v); }
+    // Unitats: velocitats en cm/s (o altures en m, temps en s) es converteixen.
+    const scale = {};
+    const hn = headers.map((x) => U.norm(x));
+    for (const k of ['mv', 'mpv', 'pv']) if (map[k] != null && /cm\/s|cm s/.test(hn[map[k]])) scale[k] = 0.01;
+    const body = rows.slice(hi + 1);
+    // Files de resum («Mitjana», «Total»…) a la primera columna o a la de sèrie o repetició: no són repeticions.
+    const summary = /^(media|mitjana|average|avg|mean|total|promedio|resumen|resum|summary|max|min|desv|sd)\b/;
+    const isSummary = (r) => [r[0], map.set != null ? r[map.set] : '', map.rep != null ? r[map.rep] : ''].some((c) => summary.test(U.norm(c)));
+    let recs = body.filter((r) => !isSummary(r)).map((r) => ADR.record(r, map, scale));
+    recs = recs.filter((x) => x.kind);
+    if (!recs.length) return { error: 'No trobo cap fila amb velocitat (o salt) al fitxer. Assigna les columnes a mà.', records: [], map, headers, hi, people: [], exercises: [], dates: [], match: null };
+    // Salts: l'altura en metres (0,35) → cm; el temps de vol en segons (0,52) → ms.
+    const jumps = recs.filter((x) => x.kind === 'jump');
+    if (jumps.length && Math.max(...jumps.map((x) => x.height || 0)) <= 1.5 && jumps.some((x) => x.height)) for (const x of jumps) if (x.height != null) x.height *= 100;
+    if (jumps.length && Math.max(...jumps.map((x) => x.flight || 0)) <= 3 && jumps.some((x) => x.flight)) for (const x of jumps) if (x.flight != null) x.flight *= 1000;
+    if (jumps.length && Math.max(...jumps.map((x) => x.contact || 0)) <= 3 && jumps.some((x) => x.contact)) for (const x of jumps) if (x.contact != null) x.contact *= 1000;
+    const hasName = map.athlete != null && recs.some((x) => x.athlete);
+    const count = (key) => { const m = new Map(); for (const x of recs) m.set(x[key], (m.get(x[key]) || 0) + 1); return m; };
+    const people = hasName ? [...count('athlete').entries()].filter(([n]) => n).map(([name, n]) => ({ name, n, score: patient ? matchPersonName(name, patient) : 0 })).sort((p, q) => q.score - p.score || q.n - p.n) : [];
+    const names = people.filter((p) => p.score >= 0.7).map((p) => p.name);
+    const exercises = [...count('exercise').entries()].map(([name, n]) => ({ name, n, preset: ADR.presetOf(name) }));
+    const dates = [...count('date').entries()].map(([date, n]) => ({ date, n })).sort((p, q) => (p.date < q.date ? 1 : -1));
+    const vars = ['mv', 'mpv', 'pv'].filter((k) => recs.some((x) => x[k] != null));
+    return { error: null, headers, hi, map, records: recs, hasName, people, match: patient && hasName ? { names } : null, exercises, dates, vars,
+      hasEncoder: recs.some((x) => x.kind === 'encoder'), hasJumps: jumps.length > 0 };
+  },
+  parseText(text, patient, override) { return ADR.parseRows(ADR.csvRows(text), patient, override); },
+
+  // ── Perfil càrrega-velocitat ──
+  // mode «fast»: la repetició més ràpida de cada càrrega (com recomana l'ADR); «all»: totes les repeticions.
+  points(recs, { variable = 'mv', mode = 'fast' } = {}) {
+    const ok = recs.filter((x) => x.kind === 'encoder' && x.load != null && x.load > 0 && x[variable] != null && x[variable] > 0);
+    let pts = ok;
+    if (mode === 'fast') {
+      const by = new Map();
+      for (const x of ok) { const b = by.get(x.load); if (!b || x[variable] > b[variable]) by.set(x.load, x); }
+      pts = [...by.values()];
+    }
+    return pts.sort((a, b) => a.load - b.load || b[variable] - a[variable])
+      .map((x) => ({ load: x.load, v: x[variable], pv: variable !== 'pv' && x.pv != null ? x.pv : null, power: x.power != null ? x.power : null, date: x.date, src: ['ADR', x.date, x.time, x.set, x.rep, x.load, x[variable]].join('|') }));
+  },
+
+  // ── Sessions: sèries d'un exercici ──
+  // Una sèrie nova quan canvia el número de sèrie, la càrrega, o torna a començar el número de repetició.
+  sets(recs, { variable = 'mv' } = {}) {
+    const enc = recs.filter((x) => x.kind === 'encoder' && x[variable] != null);
+    const out = [];
+    let cur = null, last = null;
+    for (const x of enc) {
+      const fresh = !cur || x.set !== last.set || x.load !== last.load || x.exercise !== last.exercise || x.date !== last.date || (x.rep != null && last.rep != null && x.rep <= last.rep);
+      if (fresh) { cur = { exercise: x.exercise, date: x.date, set: x.set, load: x.load, reps: [], power: [], vl: null }; out.push(cur); }
+      cur.reps.push(x[variable]);
+      if (x.power != null || x.ppeak != null) cur.power.push(x.ppeak != null ? x.ppeak : x.power);
+      if (x.vl != null) cur.vl = x.vl;
+      last = x;
+    }
+    return out.map((s) => {
+      const v1 = s.reps[0], vlast = s.reps[s.reps.length - 1];
+      const vl = s.vl != null ? s.vl : s.reps.length > 1 && v1 ? ((v1 - vlast) / v1) * 100 : null;
+      return { exercise: s.exercise, date: s.date, kg: s.load, reps: s.reps.length, v1, vlast: s.reps.length > 1 ? vlast : null, vl, pmax: s.power.length ? Math.max(...s.power) : null, best: Math.max(...s.reps) };
+    });
+  },
+  // Sèrie → la fila del registre per sèries de la sessió (text, amb coma decimal).
+  setRow(s) {
+    return { kg: s.kg != null ? ADR.str(s.kg, 1) : '', reps: String(s.reps), v1: ADR.str(s.v1, 2), vlast: ADR.str(s.vlast, 2), vl: s.vl != null && s.reps > 1 ? ADR.str(s.vl, 0) : '', pmax: s.pmax != null ? ADR.str(s.pmax, 0) : '' };
+  },
+
+  // ── Sessions: salts d'un exercici en sèries (ADR Jumping): repeticions, millor altura, mitjana, RSI i contacte ──
+  jumpSets(recs) {
+    const jr = recs.filter((x) => x.kind === 'jump' && x.height != null);
+    const groups = [];
+    for (const x of jr) {
+      let g = groups[groups.length - 1];
+      if (!g || g.set !== x.set || g.exercise !== x.exercise || g.date !== x.date) { g = { set: x.set, exercise: x.exercise, date: x.date, list: [] }; groups.push(g); }
+      g.list.push(x);
+    }
+    const mean = (a) => (a.length ? a.reduce((s, v) => s + v, 0) / a.length : null);
+    return groups.map((g) => {
+      const h = g.list.map((x) => x.height), tc = g.list.map((x) => x.contact).filter((v) => v != null), rsi = g.list.map((x) => x.rsi).filter((v) => v != null);
+      return { exercise: g.exercise, date: g.date, set: g.set, reps: g.list.length, h: Math.max(...h), hmean: mean(h), rsi: rsi.length ? Math.max(...rsi) : null, tc: tc.length ? mean(tc) : null };
+    });
+  },
+  jumpSetRow(s) { return { reps: String(s.reps), h: ADR.str(s.h, 1), hmean: s.reps > 1 ? ADR.str(s.hmean, 1) : '', rsi: ADR.str(s.rsi, 2), tc: s.tc != null ? ADR.str(s.tc, 0) : '' }; },
+
+  // ── Valoració: intents de salt (com els de My Jump) ──
+  jumps(recs) {
+    return recs.filter((x) => x.kind === 'jump' && x.height != null).map((x) => ({
+      id: U.uid('J'), type: normalizeJumpType(x.jtype || x.exercise), height: ADR.str(x.height, 1), flight: x.flight != null ? ADR.str(x.flight, 0) : '', contact: x.contact != null ? ADR.str(x.contact, 0) : '',
+      rsi: x.rsi != null ? ADR.str(x.rsi, 2) : '', power: x.power != null ? ADR.str(x.power, 0) : '', velocity: '', force: '', rsimod: '',
+      when: x.date ? `${x.date}${x.time ? `T${x.time}` : ''}` : '', note: 'Importat de l\'ADR Jumping',
+      src: ['ADR', x.date, x.time, x.height, x.flight].join('|'), athlete: x.athlete,
+    }));
+  },
+
+  // Mapatge corregit a mà: es recorda per a les pròximes importacions amb la mateixa capçalera.
+  sig(headers) { return `eon.adrmap.${(headers || []).map((h) => U.norm(h)).join('|').slice(0, 160)}`; },
+  remember(headers, override) { try { window.localStorage.setItem(ADR.sig(headers), JSON.stringify(override)); } catch (e) { /* sense desar */ } },
+  recall(headers) { try { return JSON.parse(window.localStorage.getItem(ADR.sig(headers)) || 'null'); } catch (e) { return null; } },
+
+  // Fitxer → files. CSV o text (separador i codificació automàtics) o Excel (.xlsx, primer full).
+  async rowsOf(file) {
+    const buf = new Uint8Array(await file.arrayBuffer());
+    if (buf[0] === 0x50 && buf[1] === 0x4b) return ADR.xlsxRows(buf);
+    let text = new TextDecoder('utf-8').decode(buf);
+    if (text.includes(String.fromCharCode(0xfffd))) text = new TextDecoder('windows-1252').decode(buf);
+    return ADR.csvRows(text);
+  },
+  // El separador que deixa les files amb el mateix nombre de columnes (una línia de títol amb comes no l'enganya).
+  csvRows(text) {
+    let best = null;
+    for (const sep of [';', '\t', ',']) {
+      const rows = U.parseCsv(text, sep);
+      const sizes = new Map();
+      for (const r of rows) sizes.set(r.length, (sizes.get(r.length) || 0) + 1);
+      const [size, n] = [...sizes.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0] || [0, 0];
+      const score = size >= 2 ? n * size : 0;
+      if (!best || score > best.score) best = { rows, score };
+    }
+    return best.rows;
+  },
+  // Lector mínim d'.xlsx: descomprimeix el ZIP i llegeix el primer full amb les cadenes compartides.
+  async xlsxRows(buf) {
+    const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+    let end = buf.length - 22;
+    while (end >= 0 && dv.getUint32(end, true) !== 0x06054b50) end--;
+    if (end < 0) throw new Error('Fitxer d\'Excel no vàlid.');
+    const count = dv.getUint16(end + 10, true);
+    let p = dv.getUint32(end + 16, true);
+    const files = {};
+    for (let i = 0; i < count; i++) {
+      const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+      const nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(buf.subarray(p + 46, p + 46 + nl));
+      const ln = dv.getUint16(off + 26, true), le = dv.getUint16(off + 28, true);
+      files[name] = { method, raw: buf.subarray(off + 30 + ln + le, off + 30 + ln + le + csize) };
+      p += 46 + nl + el + cl;
+    }
+    const read = async (name) => {
+      const f = files[name];
+      if (!f) return '';
+      if (f.method === 0) return new TextDecoder().decode(f.raw);
+      const stream = new Blob([f.raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new TextDecoder().decode(await new Response(stream).arrayBuffer());
+    };
+    const unesc = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, '\'').replace(/&amp;/g, '&');
+    const strings = [...(await read('xl/sharedStrings.xml')).matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => unesc([...m[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((t) => t[1]).join('')));
+    const sheetName = Object.keys(files).filter((n) => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort((a, b) => Number(a.match(/\d+/)) - Number(b.match(/\d+/)))[0];
+    if (!sheetName) throw new Error('L\'Excel no té cap full.');
+    const xml = await read(sheetName);
+    const col = (ref) => ref.replace(/\d+/g, '').split('').reduce((x, ch) => x * 26 + ch.charCodeAt(0) - 64, 0) - 1;
+    const rows = [];
+    for (const rm of xml.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
+      const row = [];
+      for (const c of rm[1].matchAll(/<c r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
+        const t = (c[2].match(/ t="([^"]+)"/) || [])[1], inner = c[3] || '';
+        const v = (inner.match(/<v>([\s\S]*?)<\/v>/) || [])[1];
+        let val = '';
+        if (t === 's' && v !== undefined) val = strings[Number(v)] || '';
+        else if (t === 'inlineStr') val = unesc((inner.match(/<t[^>]*>([\s\S]*?)<\/t>/) || ['', ''])[1]);
+        else if (v !== undefined) val = unesc(v);
+        row[col(c[1])] = val;
+      }
+      for (let i = 0; i < row.length; i++) if (row[i] === undefined) row[i] = '';
+      if (row.some((x) => String(x).trim() !== '')) rows.push(row);
+    }
+    return rows;
+  },
+};
 
 
 /* ── 04-calc.js ── */
@@ -12657,6 +12971,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
 **Velocitat (VBT)**: amb encoder, una pèrdua de velocitat del 10–20 % dins de la sèrie manté la qualitat de potència; 20–30 % ja és més estímul d'hipertròfia/fatiga. Velocitats de referència orientatives: ≥ 1,0 m/s potència; 0,75 m/s força-velocitat; 0,5 m/s força màxima.
 **Perfil càrrega-velocitat (ADR Encoder)**: 4–6 càrregues creixents (la primera ~1 m/s i l'última cap a 0,5–0,6 m/s, sense arribar a la fallada), 2 repeticions a les lleugeres i 1–2 a les pesades, descans de 2–4 min i màxima intenció a la fase concèntrica. Amb la velocitat mitjana de cada càrrega es dibuixa una recta (la velocitat baixa linealment amb la càrrega): la 1RM s'estima a la velocitat mínima de l'exercici (squat ~0,30 m/s en homes i ~0,25 en dones, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25; valors orientatius). R² ≥ 0,95 és un bon ajust; amb 2 punts és orientatiu i si totes les càrregues són lleugeres l'estimació extrapola molt. En un re-test, la recta que es desplaça cap a la dreta és millora de força. És una estimació: no substitueix una prova directa quan cal la 1RM exacta, i no es compara entre exercicis ni equips (Smith o barra lliure).
+**Dades de l'ADR a l'app**: l'app de l'ADR exporta els entrenaments a CSV (o Excel). A EON, el botó «Importa de l'ADR» llegeix el fitxer (persona pel nom, exercici, dia, velocitat mitjana/propulsiva/de pic) i el passa al perfil càrrega-velocitat de la valoració, a les sèries d'encoder d'una sessió o als salts de l'ADR Jumping; de cada càrrega es pot quedar la repetició més ràpida (recomanació de l'ADR) o totes. Si no reconeix columnes, es poden assignar a mà.
 **Càrrega, recuperació i descàrrega**: planificar 3–6 setmanes de progressió seguides d'una setmana de descàrrega (volum –30/–50 %, mantenint la intensitat) o abans si l'RPE/wellness empitjoren. El wellness (1–5) baix, l'RPE de sessió molt per sobre del previst o el dolor (EVA) creixent són senyals per rebaixar. Càrrega de sessió = RPE × minuts (UA). Evita pujar el volum setmanal més d'un ~10–20 % de cop.
 **Escalfament**: mobilitat específica (1) + activació (2) + potència o preparació del patró principal; les sèries d'aproximació pugen la càrrega gradualment.
 **Cardio**: base aeròbica 2–3 dies/setmana a intensitat moderada (conversa possible) i/o intervals d'alta intensitat 1–2 dies segons el nivell; en readaptació, bici o aqua-jogging com a alternativa de baix impacte.
@@ -18392,6 +18707,199 @@ function DoctorPreview({ p, text, found, onClose }) {
 }
 
 
+/* ── 23-adr.js ── */
+/* EON Life · «Importa de l'ADR»: el CSV (o l'Excel) que exporta l'app de l'ADR entra a la valoració (perfil càrrega-velocitat,
+   salts) o a la sessió (sèries d'un exercici). Es llegeix a la mateixa tauleta; només es desa el que es marca. */
+
+// Camps que es poden assignar a mà a una columna del fitxer.
+const ADR_MAP_FIELDS = {
+  enc: ['athlete', 'exercise', 'date', 'set', 'rep', 'load', 'mv', 'mpv', 'pv', 'vl', 'power'],
+  jump: ['athlete', 'jtype', 'date', 'set', 'height', 'flight', 'contact', 'rsi', 'power'],
+};
+const ADR_VAR_LABELS = { mv: 'Velocitat mitjana', mpv: 'Velocitat mitjana propulsiva', pv: 'Velocitat de pic' };
+
+// Botó que tria el fitxer de l'ADR (CSV o Excel), el llegeix i obre el diàleg. opts: { mode, patient, date, itemName, existing, onApply }
+function AdrImportButton({ mode, patient, date, itemName, existing, onApply, label = 'Importa de l\'ADR', size = 'sm', title }) {
+  const ref = useRef(null);
+  const open = async (file) => {
+    if (ref.current) ref.current.value = '';
+    if (!file) return;
+    try {
+      const rows = await ADR.rowsOf(file);
+      let close = null;
+      close = UI.open(() => html`<${AdrImportDialog} rows=${rows} fileName=${file.name} mode=${mode} patient=${patient} date=${date} itemName=${itemName} existing=${existing}
+        onClose=${() => close()} onApply=${(v) => { close(); onApply(v); }} />`);
+    } catch (e) {
+      UI.toast(`No s'ha pogut llegir el fitxer: ${e.message}`, 'bad');
+    }
+  };
+  return html`<span class="adr-import">
+    <input type="file" accept=".csv,.txt,.xlsx,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden ref=${ref} data-kind="adr" onChange=${(e) => open(e.currentTarget.files[0])} />
+    <${Btn} size=${size} icon="upload" onClick=${() => ref.current && ref.current.click()} title=${title || 'Llegeix el fitxer (CSV o Excel) que exporta l\'app de l\'ADR'}>${label}</${Btn}>
+  </span>`;
+}
+
+function AdrImportDialog({ rows, fileName, mode, patient, date, itemName, existing, onApply, onClose }) {
+  const first = ADR.parseRows(rows, patient);
+  const [override, setOverride] = useState(() => ADR.recall(first.headers));
+  const [person, setPerson] = useState(null);
+  const [day, setDay] = useState(null);
+  const [variable, setVariable] = useState(null);
+  const [ptsMode, setPtsMode] = useState('fast');
+  const [cfg, setCfg] = useState({});
+  const [exName, setExName] = useState(null);
+  const [off, setOff] = useState({});
+  const res = ADR.parseRows(rows, patient, override);
+  const need = mode === 'jumps' ? 'jump' : 'enc';
+  const person0 = person != null ? person : '';
+  const names = person0 ? [person0] : res.match ? res.match.names : [];
+  const hasName = !res.error && res.hasName;
+  const dayVal = day != null ? day : (res.dates || []).some((d) => d.date === date) ? date : '';
+  const recs = (res.records || []).filter((x) => (!hasName || names.includes(x.athlete)) && (!dayVal || x.date === dayVal));
+  const vars = res.vars || [];
+  const vr = variable || (vars.includes('mv') ? 'mv' : vars[0] || 'mv');
+  const fmtDay = (d) => (d ? U.fmtDate(d) : 'sense data');
+  const person_ = [patient && patient.firstName, patient && patient.lastName].filter(Boolean).join(' ');
+
+  const setMap = (k) => (v) => {
+    const next = { ...(override || {}), [k]: v === '' ? '' : Number(v) };
+    setOverride(next);
+    ADR.remember(res.headers, next);
+  };
+
+  // ── Què s'importarà, segons el mode ──
+  let items = [], body = null, canApply = false, applyLabel = 'Importa';
+  if (!res.error && mode === 'lvp') {
+    const exs = [...new Set(recs.filter((x) => x.kind === 'encoder').map((x) => x.exercise))];
+    const known = new Set((existing || []).map((n) => U.norm(n)));
+    const conf = (name) => cfg[name] || { on: undefined, preset: ADR.presetOf(name), name: '' };
+    const list = exs.map((name) => {
+      const c = conf(name);
+      const pts = ADR.points(recs.filter((x) => x.exercise === name), { variable: vr, mode: ptsMode });
+      const preset = c.preset;
+      const nm = preset === 'other' ? (c.name || name || 'Exercici') : LVP.preset(preset).name;
+      return { name, c, pts, preset, nm, on: c.on === undefined ? pts.length >= 2 : c.on };
+    });
+    const setC = (name, patch) => setCfg({ ...cfg, [name]: { ...conf(name), ...patch } });
+    items = list.filter((x) => x.on && x.pts.length).map((x) => ({ preset: x.preset, name: x.nm, rows: x.pts.map((q) => ({ id: U.uid('R'), load: ADR.str(q.load, 1), mv: ADR.str(q.v, 3), pv: q.pv != null ? ADR.str(q.pv, 2) : '', reps: '' })) }));
+    canApply = items.length > 0;
+    applyLabel = items.length ? `Importa ${U.plural(items.length, 'exercici', 'exercicis')}` : 'Importa';
+    body = html`<div>
+      <div class="adr-opts">
+        ${vars.length > 1 && html`<label class="adr-opt"><span class="field-label">Velocitat</span>
+          <${Select} value=${vr} onValue=${setVariable} options=${vars.map((k) => ({ v: k, label: ADR_VAR_LABELS[k] }))} ariaLabel="Velocitat a importar" /></label>`}
+        <div class="adr-opt"><span class="field-label">Repeticions</span>
+          <${Seg} value=${ptsMode} onValue=${setPtsMode} allowEmpty=${false} size="sm" ariaLabel="Repeticions a importar"
+            options=${[{ v: 'fast', label: 'La més ràpida de cada càrrega' }, { v: 'all', label: 'Totes' }]} /></div>
+      </div>
+      ${vr !== 'mv' && html`<p class="muted small">Les velocitats mínimes de la 1RM de l'app són de la velocitat mitjana: si tries ${ADR_VAR_LABELS[vr].toLowerCase()}, revisa la velocitat mínima de l'exercici.</p>`}
+      ${exs.length === 0 && html`<p class="muted">No hi ha cap repetició amb càrrega i velocitat per a aquesta persona i aquest dia.</p>`}
+      ${list.map((x) => html`<div class=${U.cls('adr-ex', !x.on && 'off')} key=${x.name}>
+        <div class="adr-ex-head">
+          <label class="adr-check"><input type="checkbox" checked=${x.on} onChange=${(e) => setC(x.name, { on: e.currentTarget.checked })} aria-label=${`Importa ${x.name || 'l\'exercici'}`} /><strong>${x.name || '(exercici sense nom)'}</strong></label>
+          <span class="muted small">${U.plural(x.pts.length, 'punt', 'punts')}</span>
+          <span class="grow"></span>
+          <${Select} value=${x.preset} onValue=${(v) => setC(x.name, { preset: v })} options=${LVP.presets.map((o) => ({ v: o.id, label: o.name }))} ariaLabel=${`Exercici de l'app per a ${x.name}`} />
+          ${x.preset === 'other' && html`<${TextInput} value=${x.c.name || x.name} onValue=${(v) => setC(x.name, { name: v })} placeholder="Nom de l'exercici" ariaLabel="Nom de l'exercici" />`}
+        </div>
+        ${x.on && known.has(U.norm(x.nm)) && html`<p class="muted small">Ja hi ha «${x.nm}» a la valoració: se substituiran les seves càrregues.</p>`}
+        ${x.on && x.pts.length < 3 && html`<p class="muted small">Amb menys de 3 càrregues la recta és orientativa.</p>`}
+        ${x.on && x.pts.length > 0 && html`<div class="table-wrap"><table class="table adr-table">
+          <thead><tr><th class="num">Càrrega <span class="muted">kg</span></th><th class="num">${ADR_VAR_LABELS[vr]} <span class="muted">m/s</span></th><th class="num">Potència <span class="muted">W</span></th></tr></thead>
+          <tbody>${x.pts.map((q) => html`<tr><td class="num">${U.fmt(q.load, 1)}</td><td class="num">${U.fmtFixed(q.v, 2)}</td><td class="num">${q.power != null ? U.fmt(q.power, 0) : '—'}</td></tr>`)}</tbody>
+        </table></div>`}
+      </div>`)}
+    </div>`;
+  } else if (!res.error && mode === 'sets') {
+    const encSets = res.hasEncoder;
+    const exs = [...new Set(recs.filter((x) => (encSets ? x.kind === 'encoder' : x.kind === 'jump')).map((x) => x.exercise))];
+    const want = U.norm(itemName || '');
+    const auto = exs.find((n) => want && (U.norm(n).includes(want) || want.includes(U.norm(n)))) || exs[0] || '';
+    const exVal = exName != null && exs.includes(exName) ? exName : auto;
+    const mine = recs.filter((x) => x.exercise === exVal);
+    const sets = encSets && mine.some((x) => x.kind === 'encoder') ? ADR.sets(mine, { variable: vr }) : ADR.jumpSets(mine);
+    const isJump = !(encSets && mine.some((x) => x.kind === 'encoder'));
+    const chosen = sets.filter((_, i) => !off[i]);
+    items = chosen.map((s) => (isJump ? ADR.jumpSetRow(s) : ADR.setRow(s)));
+    items.jump = isJump;
+    canApply = items.length > 0;
+    applyLabel = items.length ? `Importa ${U.plural(items.length, 'sèrie', 'sèries')}` : 'Importa';
+    body = html`<div>
+      <div class="adr-opts">
+        ${exs.length > 1 && html`<label class="adr-opt"><span class="field-label">Exercici del fitxer</span>
+          <${Select} value=${exVal} onValue=${(v) => { setExName(v); setOff({}); }} options=${exs.map((n) => ({ v: n, label: n || '(sense nom)' }))} ariaLabel="Exercici del fitxer" /></label>`}
+        ${!isJump && vars.length > 1 && html`<label class="adr-opt"><span class="field-label">Velocitat</span>
+          <${Select} value=${vr} onValue=${setVariable} options=${vars.map((k) => ({ v: k, label: ADR_VAR_LABELS[k] }))} ariaLabel="Velocitat a importar" /></label>`}
+      </div>
+      ${sets.length === 0 && html`<p class="muted">No hi ha sèries per a aquesta persona, aquest dia i aquest exercici.</p>`}
+      ${sets.length > 0 && html`<div class="table-wrap"><table class="table adr-table">
+        <thead><tr><th><span class="sr-only">Importa</span></th><th>Sèrie</th>${isJump
+          ? html`<th class="num">Salts</th><th class="num">Millor <span class="muted">cm</span></th><th class="num">Mitjana <span class="muted">cm</span></th><th class="num">RSI</th>`
+          : html`<th class="num">Càrrega <span class="muted">kg</span></th><th class="num">Reps</th><th class="num">V 1a <span class="muted">m/s</span></th><th class="num">V última <span class="muted">m/s</span></th><th class="num">Pèrdua</th><th class="num">Pot. màx. <span class="muted">W</span></th>`}</tr></thead>
+        <tbody>${sets.map((s, i) => html`<tr key=${i} class=${off[i] ? 'muted' : ''}>
+          <td><input type="checkbox" checked=${!off[i]} onChange=${(e) => setOff({ ...off, [i]: !e.currentTarget.checked })} aria-label=${`Importa la sèrie ${i + 1}`} /></td>
+          <td>${i + 1}</td>
+          ${isJump
+            ? html`<td class="num">${s.reps}</td><td class="num">${U.fmt(s.h, 1)}</td><td class="num">${s.reps > 1 ? U.fmt(s.hmean, 1) : '—'}</td><td class="num">${s.rsi != null ? U.fmtFixed(s.rsi, 2) : '—'}</td>`
+            : html`<td class="num">${s.kg != null ? U.fmt(s.kg, 1) : '—'}</td><td class="num">${s.reps}</td><td class="num">${U.fmtFixed(s.v1, 2)}</td><td class="num">${s.vlast != null ? U.fmtFixed(s.vlast, 2) : '—'}</td><td class="num">${s.vl != null && s.reps > 1 ? `${U.fmt(s.vl, 0)} %` : '—'}</td><td class="num">${s.pmax != null ? U.fmt(s.pmax, 0) : '—'}</td>`}
+        </tr>`)}</tbody>
+      </table></div>`}
+    </div>`;
+  } else if (!res.error && mode === 'jumps') {
+    const known = new Set((existing || []).filter(Boolean));
+    const all = ADR.jumps(recs);
+    const isOn = (x) => (off[x.id] === undefined ? !known.has(x.src) : !off[x.id]);
+    const chosen = all.filter(isOn);
+    items = chosen;
+    canApply = items.length > 0;
+    applyLabel = items.length ? `Importa ${U.plural(items.length, 'intent', 'intents')}` : 'Importa';
+    const fmtWhen = (w) => (w ? `${U.fmtDate(w.slice(0, 10))}${w.length > 10 ? ` · ${w.slice(11)}` : ''}` : '—');
+    body = html`<div>
+      ${all.length === 0 && html`<p class="muted">No hi ha salts per a aquesta persona i aquest dia.</p>`}
+      ${all.length > 0 && html`<div class="table-wrap"><table class="table adr-table">
+        <thead><tr><th><span class="sr-only">Importa</span></th><th>Data</th><th>Prova</th><th class="num">Altura <span class="muted">cm</span></th><th class="num">Vol <span class="muted">ms</span></th><th class="num">Contacte <span class="muted">ms</span></th><th class="num">RSI</th></tr></thead>
+        <tbody>${all.map((x) => html`<tr class=${known.has(x.src) ? 'muted' : ''}>
+          <td><input type="checkbox" checked=${isOn(x)} onChange=${(e) => setOff({ ...off, [x.id]: !e.currentTarget.checked })} aria-label=${`Importa el salt del ${fmtWhen(x.when)}`} /></td>
+          <td>${fmtWhen(x.when)}${known.has(x.src) ? ' · ja importat' : ''}</td><td>${x.type}</td><td class="num">${x.height}</td><td class="num">${x.flight || '—'}</td><td class="num">${x.contact || '—'}</td><td class="num">${x.rsi || '—'}</td></tr>`)}</tbody>
+      </table></div>`}
+    </div>`;
+  }
+
+  // Mapatge de columnes (sempre es pot revisar; s'obre sol si no s'ha entès el fitxer).
+  const cols = (res.headers || []).map((h, i) => ({ v: String(i), label: `${String.fromCharCode(65 + (i % 26))} · ${String(h).trim() || '(buida)'}` }));
+  const labelOf = (k) => (ADR_COLUMNS.find((c) => c.key === k) || {}).label || k;
+  const mapping = html`<details class="adr-map" open=${!!res.error || !(res.records || []).length}>
+    <summary>Columnes del fitxer</summary>
+    <p class="muted small">L'app reconeix les columnes pel nom. Si alguna no és bona, tria quina columna correspon a cada camp (se'n recordarà per al pròxim fitxer igual).</p>
+    <div class="adr-map-grid">${ADR_MAP_FIELDS[need].map((k) => html`<label class="adr-map-row"><span>${labelOf(k)}</span>
+      <${Select} value=${res.map && res.map[k] != null ? String(res.map[k]) : ''} onValue=${setMap(k)} placeholder="— cap —" options=${cols} ariaLabel=${labelOf(k)} /></label>`)}</div>
+  </details>`;
+
+  const wrongKind = !res.error && ((mode === 'jumps' && !res.hasJumps) || ((mode === 'lvp' || (mode === 'sets' && !res.hasJumps)) && !res.hasEncoder));
+  return html`<${Dialog} title=${mode === 'jumps' ? 'Importa salts de l\'ADR Jumping' : mode === 'sets' ? 'Importa sèries de l\'ADR' : 'Importa de l\'ADR Encoder'} wide=${true} onClose=${onClose} footer=${html`
+    <span class="grow"></span>
+    <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" disabled=${!canApply} onClick=${() => onApply(items)}>${applyLabel}</${Btn}>`}>
+    <p class="muted small">Fitxer: ${fileName}${!res.error ? ` · ${U.plural(res.records.length, 'fila', 'files')} amb dades` : ''}</p>
+    ${res.error && html`<p class="adr-error"><${Icon} name="alert" size=${15} /> ${res.error}</p>`}
+    ${wrongKind && html`<p class="adr-error"><${Icon} name="alert" size=${15} /> ${mode === 'jumps' ? 'Aquest fitxer no té salts (altura o temps de vol).' : 'Aquest fitxer no té velocitats de l\'encoder.'} Revisa les columnes de sota o tria un altre fitxer.</p>`}
+    ${hasName && html`<div class="adr-person">
+      ${names.length > 0
+        ? html`<p>He trobat <strong>${names.join(' · ')}</strong> al fitxer${res.people.length > names.length ? ` i no n'importo les altres ${U.plural(res.people.length - names.length, 'persona', 'persones')}` : ''}.
+          ${res.people.length > names.length && html` <button type="button" class="link" onClick=${() => setPerson('?')}>No és ell? Tria un altre nom</button>`}</p>`
+        : html`<p>No he trobat el nom de <strong>${person_}</strong> al fitxer. Tria quina persona és (les dades dels altres no es desen enlloc):</p>`}
+      ${(names.length === 0 || person === '?') && html`<${Select} value=${person && person !== '?' ? person : ''} onValue=${(v) => setPerson(v)} placeholder="Tria el nom del fitxer…" options=${res.people.map((x) => x.name)} ariaLabel="Nom al fitxer de l'ADR" />`}
+    </div>`}
+    ${hasName && names.length === 0 && person0 === '' ? null : html`
+      ${(res.dates || []).length > 1 || (res.dates || []).some((d) => !d.date) ? html`<label class="adr-opt adr-day"><span class="field-label">Dia</span>
+        <${Select} value=${dayVal} onValue=${(v) => { setDay(v); setOff({}); setCfg({}); }} options=${[{ v: '', label: 'Tots els dies' }, ...res.dates.filter((d) => d.date).map((d) => ({ v: d.date, label: `${fmtDay(d.date)} · ${U.plural(d.n, 'fila', 'files')}` }))]} ariaLabel="Dia" /></label>` : null}
+      ${body}`}
+    ${mapping}
+    <p class="muted small">Del fitxer només es desa el que marquis. Les dades d'altres persones no es guarden enlloc.</p>
+  </${Dialog}>`;
+}
+
+
 /* ── 23-assessment.js ── */
 /* EON Life · valoració funcional a la tauleta (Mobilitat · Força · Rendiment · Patrons · Perfil).
    Tot es calcula al moment: asimetries, N/kg, composite del Y-Balance, resum de salts i patrons. */
@@ -18777,6 +19285,8 @@ function JumpsBlock({ a, p, upd }) {
       <span class="grow"></span>
       <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} data-kind="myjump" onChange=${(e) => importCsv(e.currentTarget.files[0])} />
       <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()} title="El fitxer de My Jump porta tots els atletes: només s'importen les files d'aquest pacient">Importa CSV de My Jump</${Btn}>
+      <${AdrImportButton} mode="jumps" patient=${p} date=${a.date} existing=${list.map((x) => x.src).filter(Boolean)} label="Importa de l'ADR Jumping" title="Llegeix el fitxer (CSV o Excel) que exporta l'app de l'ADR Jumping"
+        onApply=${(rows) => { upd((x) => { x.jumps = x.jumps || { attempts: [] }; x.jumps.attempts = [...(x.jumps.attempts || []), ...rows.map(({ athlete, ...r }) => r)]; }); UI.toast(`${U.plural(rows.length, 'intent importat', 'intents importats')} de l'ADR Jumping.`); }} />
       <${Tools} x=${j} title="Salts" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
@@ -19522,11 +20032,17 @@ const LVP_GUIDE = [
     'Comprova que l\'encoder dona la velocitat mitjana de la fase concèntrica (no la de pic ni la propulsiva): és la que fan servir els valors de referència de la 1RM.',
   ] },
   { h: 'Les càrregues', items: [
-    'Fes 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
+    'L\'ADR recomana almenys 3 càrregues progressives (p. ex. 30, 50 i 80 % de la 1RM). Millor 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
     '2 repeticions a les càrregues lleugeres i 1–2 a les pesades. Descans de 2 min a les lleugeres i 3–4 min a les pesades.',
     'Cada repetició a màxima intenció a la fase concèntrica (puja tan ràpid com pugui), baixada controlada. Si una repetició surt malament (la barra s\'inclina, es perd la tècnica), no la comptis.',
-    'Apunta cada repetició com una fila (com fa l\'app de l\'ADR, que fa servir totes les repeticions, p. ex. 3 per càrrega) o una sola per càrrega, la velocitat mitjana de la més ràpida o la mitjana de les repeticions: tria un criteri i mantén-lo sempre. La recta es calcula amb totes les files.',
+    'De cada càrrega, l\'ADR recomana quedar-se amb la repetició més ràpida. L\'app també et deixa fer servir totes les repeticions (la recta es calcula amb totes les files); tria un criteri i mantén-lo sempre.',
     'Versió ràpida (2 punts): una càrrega lleugera (~1 m/s) i una de pesada (~0,5 m/s). És orientativa: millor 4 o més punts.',
+  ] },
+  { h: 'Passar les dades a l\'app', items: [
+    'No cal escriure res a mà: a l\'app de l\'ADR, en acabar l\'entrenament o el test, exporta el fitxer (botó per descarregar l\'entrenament, o Menú › Historial d\'entrenaments › exportar a CSV). Passa\'l a la tauleta (Fitxers o correu).',
+    'A EON, dins d\'aquest bloc, prem «Importa de l\'ADR» i tria el fitxer (CSV o Excel). L\'app troba la persona pel nom, les columnes i els exercicis; tria el dia, la velocitat (mitjana, propulsiva o de pic) i si vols la repetició més ràpida de cada càrrega o totes. Revisa la taula i prem «Importa».',
+    'Si les columnes no s\'han entès bé, a «Columnes del fitxer» tries quina columna és cada cosa (se\'n recorda per al pròxim fitxer). Al fitxer només es desa el que marquis: les dades d\'altres persones no es guarden enlloc.',
+    'A les sessions, el botó «Importa de l\'ADR» del registre de l\'encoder passa les sèries (càrrega, reps, velocitat de la 1a i l\'última, pèrdua i potència). Els salts de l\'ADR Jumping s\'importen a Salts (valoració) o a les sèries de salts (sessió).',
   ] },
   { h: 'Com s\'interpreta', items: [
     'La recta té una velocitat sense càrrega (V0) i un punt on la velocitat seria zero (L0). Com més a la dreta quedi la recta en un re-test, més fort és el pacient.',
@@ -19570,9 +20086,22 @@ function LvpBlock({ a, p, upd }) {
     e.mvt = m != null ? String(m).replace('.', ',') : '';
   });
   const guide = () => { let close = null; close = UI.open(() => html`<${LvpGuideDialog} onClose=${() => close()} />`); };
+  // Dades de l'encoder ADR: cada exercici importat substitueix les càrregues de l'exercici amb el mateix nom (o se n'afegeix un de nou).
+  const importAdr = (list) => {
+    upd((x) => {
+      x.lvp = x.lvp || { exercises: [] };
+      for (const it of list) {
+        let ex = x.lvp.exercises.find((e) => U.norm(e.name) === U.norm(it.name));
+        if (!ex) { ex = LVP.newExercise(it.preset, p && p.sex); ex.name = it.name || ex.name; x.lvp.exercises = [...x.lvp.exercises, ex]; }
+        ex.rows = it.rows.map((r) => ({ ...r, id: U.uid('R') }));
+      }
+    });
+    UI.toast(`${U.plural(list.length, 'exercici importat', 'exercicis importats')} de l'ADR. Revisa la velocitat mínima de cada exercici.`);
+  };
   return html`<div class="lvp">
     <div class="lvp-top">
-      <p class="muted small grow">Apunta, per a cada càrrega, la velocitat mitjana que dona l'encoder. Amb 4–6 càrregues l'app dibuixa la recta i estima la 1RM.</p>
+      <p class="muted small grow">Importa el fitxer de l'ADR o apunta, per a cada càrrega, la velocitat mitjana que dona l'encoder. Amb 4–6 càrregues l'app dibuixa la recta i estima la 1RM.</p>
+      <${AdrImportButton} mode="lvp" patient=${p} date=${a.date} existing=${exs.map((e) => e.name).filter(Boolean)} onApply=${importAdr} />
       <${Btn} size="sm" icon="info" onClick=${guide}>Com fer-lo servir</${Btn}>
     </div>
     ${exs.map((ex, i) => {
@@ -20681,7 +21210,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
       ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}</div>`}
-      ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} />`}
+      ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} patient=${patient} date=${date} />`}
       ${open && html`<div class="item-details">
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Posició</span><${Select} value=${it.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
@@ -20768,7 +21297,7 @@ const VBT_COLS = {
   ],
 };
 
-function VbtPanel({ it, onChange }) {
+function VbtPanel({ it, onChange, patient, date }) {
   const v = it.vbt || {};
   const mode = v.mode || (/salt|jump|cmj|drop|bot|pogo|hop/i.test(it.name || '') ? 'salts' : 'encoder');
   const n = Math.min(12, Math.max(1, U.num(it.sets) || 1));
@@ -20784,11 +21313,23 @@ function VbtPanel({ it, onChange }) {
   const addSet = () => save((t) => { const last = t.sets[t.sets.length - 1] || {}; t.sets.push(t.mode === 'salts' ? {} : { kg: last.kg || '' }); });
   const delSet = (i) => save((t) => { t.sets.splice(i, 1); });
   const sum = Calc.vbt(it);
+  // Sèries de l'ADR: les files noves substitueixen les sèries buides i, si ja n'hi ha, s'hi afegeixen a continuació.
+  const importAdr = (rows) => {
+    const salts = !!rows.jump;
+    save((t) => {
+      t.mode = salts ? 'salts' : 'encoder';
+      const filled = (t.sets || []).filter((st) => Object.values(st).some((v) => v !== '' && v != null));
+      t.sets = [...filled, ...rows];
+    });
+    UI.toast(`${U.plural(rows.length, 'sèrie importada', 'sèries importades')} de l'ADR.`);
+  };
   return html`<div class="vbt">
     <div class="vbt-head">
       <${Seg} value=${mode} onValue=${(m) => save((t) => { t.mode = m; })} allowEmpty=${false} size="sm" ariaLabel="Dispositiu"
         options=${[{ v: 'encoder', label: 'Encoder ADR' }, { v: 'salts', label: 'ADR Jumping' }]} />
       ${sum && sum.text && html`<span class="vbt-sum">${sum.text}</span>`}
+      <span class="grow"></span>
+      <${AdrImportButton} mode="sets" patient=${patient} date=${date} itemName=${it.name} onApply=${importAdr} />
     </div>
     <div class="table-wrap"><table class="table vbt-table">
       <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th><span class="sr-only">Accions</span></th></tr></thead>

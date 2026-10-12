@@ -208,6 +208,23 @@ Consells:
   - **Fiabilitat**: és una estimació; va bé per fer seguiment i per triar càrregues, però no substitueix un test directe si
     cal la 1RM exacta. Depèn de l'exercici, la tècnica i l'equip (Smith o barra lliure): no compareu entre exercicis ni equips.
     Referències: González-Badillo i Sánchez-Medina (2010), García-Ramos et al. (2018) i Ardigò et al. (2022).
+- **Dades de l'ADR directament a l'app** (encoder i ADR Jumping): l'app de l'ADR exporta els entrenaments a **CSV** (o Excel)
+  i l'app els llegeix, com amb el PDF de Kinvent. A l'app de l'ADR, en acabar l'entrenament o el test, exporteu el fitxer
+  (el botó per descarregar l'entrenament, o *Menú › Historial d'entrenaments › exportar a CSV*) i passeu-lo a la tauleta.
+  Després, a EON:
+  - **Valoració › Perfil càrrega-velocitat › Importa de l'ADR**: tria el fitxer. L'app **troba la persona pel nom** (si el
+    fitxer porta tothom, només s'agafa el pacient), els **exercicis** (squat, press banca, pes mort i hip thrust els
+    reconeix sols) i els dies; podeu triar el **dia**, la **velocitat** (mitjana, propulsiva o de pic) i si voleu **la
+    repetició més ràpida de cada càrrega** (la recomanació de l'ADR) o **totes les repeticions**. Es veu la taula abans
+    d'importar i, si l'exercici ja hi és, se substitueixen les seves càrregues.
+  - **Valoració › Salts › Importa de l'ADR Jumping**: salts amb altura, temps de vol, contacte i RSI (els intents ja
+    importats surten com *ja importat*).
+  - **Sessió › registre de l'encoder d'un exercici › Importa de l'ADR**: les repeticions es converteixen en **sèries**
+    (càrrega, reps, velocitat de la 1a i de l'última, **pèrdua de velocitat** i potència màxima). Si ja hi havia sèries
+    escrites, les de l'ADR s'afegeixen a continuació.
+  - **Columnes del fitxer**: l'app reconeix les columnes pel nom (català, castellà o anglès). Si alguna no és bona, trieu a
+    mà quina columna és cada cosa; **se'n recorda** per als fitxers amb les mateixes capçaleres.
+  - Només es desa el que marqueu: les dades d'altres persones del fitxer no es guarden enlloc.
 - **Assault bike 30 s all-out** (a *Rendiment*): caselles per als **watts pic, mitjans i mínims**, i per a les dades de
   la pantalla de l'aparell: **temps, distància, calories, velocitat mitjana i RPM mitjanes**. Hi ha un interruptor de
   **unitats** (milles / km): si a la pantalla sota la distància hi diu MILES (i la velocitat va en M/HR), són milles.

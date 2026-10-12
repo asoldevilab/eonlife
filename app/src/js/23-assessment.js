@@ -382,6 +382,8 @@ function JumpsBlock({ a, p, upd }) {
       <span class="grow"></span>
       <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} data-kind="myjump" onChange=${(e) => importCsv(e.currentTarget.files[0])} />
       <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()} title="El fitxer de My Jump porta tots els atletes: només s'importen les files d'aquest pacient">Importa CSV de My Jump</${Btn}>
+      <${AdrImportButton} mode="jumps" patient=${p} date=${a.date} existing=${list.map((x) => x.src).filter(Boolean)} label="Importa de l'ADR Jumping" title="Llegeix el fitxer (CSV o Excel) que exporta l'app de l'ADR Jumping"
+        onApply=${(rows) => { upd((x) => { x.jumps = x.jumps || { attempts: [] }; x.jumps.attempts = [...(x.jumps.attempts || []), ...rows.map(({ athlete, ...r }) => r)]; }); UI.toast(`${U.plural(rows.length, 'intent importat', 'intents importats')} de l'ADR Jumping.`); }} />
       <${Tools} x=${j} title="Salts" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}

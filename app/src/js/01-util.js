@@ -289,12 +289,13 @@ const U = {
   },
 
   // Lector CSV tolerant (separador ; , o tabulador; cometes dobles).
-  parseCsv(text) {
+  // forced: el separador (si no, el de la primera línia).
+  parseCsv(text, forced) {
     const src = String(text || '').replace(/^﻿/, '');
     const firstLine = src.split(/\r?\n/)[0] || '';
     const counts = { ';': 0, ',': 0, '\t': 0 };
     for (const ch of firstLine) if (ch in counts) counts[ch]++;
-    const sep = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+    const sep = forced || Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
     const rows = [];
     let row = [], cell = '', q = false;
     for (let i = 0; i < src.length; i++) {

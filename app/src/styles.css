@@ -1699,3 +1699,20 @@ tfoot .rpc { font-size: 14px; }
 .lvp-note { margin-top: 10px; }
 .lvp-eq { margin: 6px 0 0; font-variant-numeric: tabular-nums; }
 .lvp-table th.num, .lvp-table td.num { text-align: right; white-space: nowrap; padding-right: 10px; }
+
+/* Importació de l'ADR */
+.adr-import { display: inline-flex; }
+.adr-opts { display: flex; gap: 12px 18px; flex-wrap: wrap; align-items: flex-end; margin: 10px 0; }
+.adr-opt { display: grid; gap: 4px; }
+.adr-day { margin: 10px 0; max-width: 360px; }
+.adr-person { margin: 6px 0 8px; }
+.adr-ex { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.adr-ex.off { opacity: 0.6; }
+.adr-ex-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.adr-check { display: inline-flex; align-items: center; gap: 8px; }
+.adr-table td, .adr-table th { padding: 5px 8px; }
+.adr-error { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--warn-bg, var(--surface-3)); color: var(--warn-ink, var(--ink)); font-size: 14px; }
+.adr-map { margin-top: 14px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); }
+.adr-map summary { cursor: pointer; font-weight: 650; }
+.adr-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-top: 8px; }
+.adr-map-row { display: grid; gap: 3px; font-size: 13px; }

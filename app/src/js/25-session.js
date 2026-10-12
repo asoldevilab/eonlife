@@ -396,7 +396,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
       ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}</div>`}
-      ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} />`}
+      ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} patient=${patient} date=${date} />`}
       ${open && html`<div class="item-details">
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
         <label class="rx-f"><span>Posició</span><${Select} value=${it.pos} onValue=${set('pos')} options=${OPT.pos.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
@@ -483,7 +483,7 @@ const VBT_COLS = {
   ],
 };
 
-function VbtPanel({ it, onChange }) {
+function VbtPanel({ it, onChange, patient, date }) {
   const v = it.vbt || {};
   const mode = v.mode || (/salt|jump|cmj|drop|bot|pogo|hop/i.test(it.name || '') ? 'salts' : 'encoder');
   const n = Math.min(12, Math.max(1, U.num(it.sets) || 1));
@@ -499,11 +499,23 @@ function VbtPanel({ it, onChange }) {
   const addSet = () => save((t) => { const last = t.sets[t.sets.length - 1] || {}; t.sets.push(t.mode === 'salts' ? {} : { kg: last.kg || '' }); });
   const delSet = (i) => save((t) => { t.sets.splice(i, 1); });
   const sum = Calc.vbt(it);
+  // Sèries de l'ADR: les files noves substitueixen les sèries buides i, si ja n'hi ha, s'hi afegeixen a continuació.
+  const importAdr = (rows) => {
+    const salts = !!rows.jump;
+    save((t) => {
+      t.mode = salts ? 'salts' : 'encoder';
+      const filled = (t.sets || []).filter((st) => Object.values(st).some((v) => v !== '' && v != null));
+      t.sets = [...filled, ...rows];
+    });
+    UI.toast(`${U.plural(rows.length, 'sèrie importada', 'sèries importades')} de l'ADR.`);
+  };
   return html`<div class="vbt">
     <div class="vbt-head">
       <${Seg} value=${mode} onValue=${(m) => save((t) => { t.mode = m; })} allowEmpty=${false} size="sm" ariaLabel="Dispositiu"
         options=${[{ v: 'encoder', label: 'Encoder ADR' }, { v: 'salts', label: 'ADR Jumping' }]} />
       ${sum && sum.text && html`<span class="vbt-sum">${sum.text}</span>`}
+      <span class="grow"></span>
+      <${AdrImportButton} mode="sets" patient=${patient} date=${date} itemName=${it.name} onApply=${importAdr} />
     </div>
     <div class="table-wrap"><table class="table vbt-table">
       <thead><tr><th>Sèrie</th>${cols.map((c) => html`<th class="num">${c.label}${c.unit && html` <span class="muted">${c.unit}</span>`}</th>`)}<th><span class="sr-only">Accions</span></th></tr></thead>
