@@ -133,6 +133,9 @@ const MsAuth = {
       refresh: data.refresh_token || old.refresh || '',
       exp: Date.now() + (Number(data.expires_in) || 3600) * 1000,
       user: parseIdToken(data.id_token) || old.user || null,
+      // El token d'identitat (el signa Microsoft per a aquesta app): el servidor intermediari de NOE el comprova.
+      idToken: data.id_token || old.idToken || '',
+      idExp: idTokenExp(data.id_token) || old.idExp || 0,
     };
     M365Local.set(M365_KEYS.token, t);
     return t;
@@ -152,11 +155,28 @@ const MsAuth = {
     throw new M365Error('Cal iniciar la sessió amb el compte de Microsoft del centre.', 'login');
   },
 
+  // Token d'identitat vigent (se'n demana un de nou si ha caducat). Buit si no s'ha iniciat sessió.
+  async idToken(cfg) {
+    let t = this.tokens();
+    if (!t || !t.refresh) return '';
+    if (!(t.idToken && t.idExp - 60000 > Date.now())) t = await this.tokenRequest(cfg, { grant_type: 'refresh_token', refresh_token: t.refresh });
+    return t.idToken || '';
+  },
+
   logout(cfg) {
     this.clear();
     window.location.assign(`${this.authority(cfg)}/logout?post_logout_redirect_uri=${encodeURIComponent(this.redirectUri())}`);
   },
 };
+
+function idTokenExp(jwt) {
+  try {
+    const part = String(jwt).split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return (JSON.parse(atob(part + '='.repeat((4 - (part.length % 4)) % 4))).exp || 0) * 1000;
+  } catch (e) {
+    return 0;
+  }
+}
 
 function parseIdToken(jwt) {
   try {

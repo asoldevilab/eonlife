@@ -1,0 +1,14 @@
+# Desplegament amb la CLI de Cloudflare (alternativa a enganxar el codi al panell):
+#   npm i -g wrangler && wrangler login && wrangler deploy
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put ACCESS_CODES
+name = "eonlife-noe"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://asoldevilab.github.io"
+# ENTRA_TENANT_ID = "…"
+# ENTRA_CLIENT_ID = "…"
+# ALLOWED_EMAILS = "@eonlife.cat"
+# MAX_TOKENS_CAP = "64000"

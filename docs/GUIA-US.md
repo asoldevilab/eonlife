@@ -621,6 +621,11 @@ novembre per al Jordi»* o *«canvia el front squat d'aquesta sessió per una va
 dades de l'app, fa servir els exercicis i el material de la biblioteca i proposa tenint en compte lesions, valoracions i com
 han respost a les últimes sessions.
 
+- **Crea sessions dictant-les**: *«divendres tenim la Laura: volem sentadilla goblet, remo con goma, plancha, puente de glúteos,
+  dominadas i bici suave»*. NOE troba el pacient, posa la **data exacta** del divendres, **busca tots els exercicis a la
+  biblioteca d'un cop** (entén català, castellà i anglès: no cal que els busquis ni en sàpigues el nom exacte), els col·loca al seu
+  bloc i omple sèries, repeticions i intensitat. Et deixa la targeta; si ha triat entre variants («plancha → Planxa frontal») t'ho
+  diu. Només et pregunta si falta el pacient o el dia.
 - **Els canvis són propostes**: surt una **targeta** amb el detall (sessions, blocs, exercicis, avisos). **No es crea ni es
   canvia res fins que prems *Aplica***; després hi ha **Obre** i **Desfés**. Pots descartar-la amb *Descarta*.
 - Els pacients surten amb el seu nom a la pantalla, però **a la IA només arriben com a PAC-1, PAC-2… (sense nom, telèfon,
@@ -628,8 +633,10 @@ han respost a les últimes sessions.
 - NOE és una IA: **pot equivocar-se**. Revisa sempre el que proposa. No diagnostica ni substitueix el criteri del professional;
   davant de signes d'alarma recomana derivar.
 - Cada aparell té **converses pròpies** (la icona del rellotge mostra les anteriors i *+* en comença una de nova).
-- **Configuració › NOE**: clau de l'API (es queda en aquest aparell), model, privacitat, consentiment, **Mode demostració**
-  (sense IA ni cost) i **Prova la connexió**. Més detalls (servidor intermediari, privacitat, cost) a `docs/NOE.md`.
+- **Configuració › NOE**: clau de l'API (es queda en aquest aparell) **o** el **servidor del centre** (la clau no surt d'allà i
+  les tauletes porten un codi d'accés; guia a `docs/noe-proxy/`), model, raonament, privacitat, consentiment, **Mode demostració**
+  (sense IA ni cost) i **Prova la connexió**. NOE només funciona a la versió publicada de l'app, no a l'enllaç privat de prova.
+  Més detalls (privacitat, cost) a `docs/NOE.md`.
 
 ## Teclat i accessibilitat
 

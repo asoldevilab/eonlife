@@ -932,12 +932,68 @@ const step = async (label, fn) => {
     await page.fill('.noe-input', 'KABOOM prova');
     await page.click('.noe-foot >> button[title="Envia"]');
     await page.waitForSelector('.noe-error >> text=clau de l\'API no és vàlida');
-    if ((await page.inputValue('.noe-input')) !== 'KABOOM prova') throw new Error('el text no ha tornat al quadre');
+    await page.waitForFunction(() => document.querySelector('.noe-input').value === 'KABOOM prova', null, { timeout: 5000 }).catch(() => { throw new Error('el text no ha tornat al quadre'); });
     // Historial de converses
     await page.click('.noe-head >> button[title="Converses anteriors"]');
     await page.waitForSelector('.noe-hist-row');
     await page.click('.noe-head >> button[title="Converses anteriors"]');
     // Netejar la configuració perquè no afecti les altres proves
+    await page.unroute('https://api.anthropic.com/v1/messages');
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
+  });
+  await step('NOE: sessió dictada («divendres … sentadilla goblet, plancha…») → exercicis resolts a la biblioteca → targeta → Aplica crea la sessió', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA');
+    const reqs = [];
+    await page.route('https://api.anthropic.com/v1/messages', async (route) => {
+      const req = route.request();
+      const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS' };
+      if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+      const body = req.postDataJSON();
+      reqs.push(body);
+      const ev = (e) => `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`;
+      const tool = (id, name, input) => [{ type: 'message_start', message: { usage: { input_tokens: 5 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id, name, input: {} } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: JSON.stringify(input) } }, { type: 'content_block_stop', index: 0 }, { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { output_tokens: 9 } }, { type: 'message_stop' }];
+      const last = body.messages[body.messages.length - 1];
+      const results = Array.isArray(last.content) ? last.content.filter((c) => c.type === 'tool_result') : [];
+      let events;
+      if (!results.length) events = tool('r1', 'resoldre_exercicis', { exercicis: ['sentadilla goblet', 'plancha', 'puente de glúteos', 'dominadas', 'bici suave'].map((nom) => ({ nom })) });
+      else if (results[0].tool_use_id === 'r1') {
+        const friday = (body.system[0].text.match(/divendres \d\d\/\d\d = (\d{4}-\d{2}-\d{2})/) || [])[1];
+        const byBlock = {};
+        JSON.parse(results[0].content).exercicis.filter((x) => x.resultat).forEach((x) => { (byBlock[x.resultat.bloc] = byBlock[x.resultat.bloc] || []).push({ exercici_id: x.resultat.id, series: '3', repeticions: '8' }); });
+        events = tool('p1', 'proposar_sessio', { pacient: 'PAC-1', data: friday, objectiu: 'Sessió dictada', blocs: Object.entries(byBlock).map(([bloc, exercicis]) => ({ bloc, exercicis })), motiu: 'Els exercicis que heu demanat.' });
+      } else events = [{ type: 'message_start', message: { usage: { input_tokens: 5 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'T\'he deixat la proposta per a [[pacient:PAC-1]]: plancha → Planxa frontal.' } }, { type: 'content_block_stop', index: 0 },
+        { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 20 } }, { type: 'message_stop' }];
+      return route.fulfill({ status: 200, headers: cors, contentType: 'text/event-stream', body: events.map(ev).join('') });
+    });
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS, consent: true }); NoeConfig.setKey('sk-ant-prova-1234'); NoeUI.clearAll(); });
+    await page.click('.noe-fab');
+    await page.click('.noe-head >> button[title="Conversa nova"]');
+    const lauraBefore = await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').length);
+    await page.fill('.noe-input', 'Divendres tenim la Laura Vidal Serra: volem sentadilla goblet, plancha, puente de glúteos, dominadas i bici suave');
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('.noe-card[data-proposal="PR-1"]', { timeout: 20000 });
+    await page.waitForSelector('.noe-tool.done >> text=exercicis a la biblioteca');
+    // Tres voltes (resoldre → proposar → resum), la petició porta el calendari i cap nom; res canviat fins confirmar
+    await page.waitForFunction(() => document.querySelector('.noe-asst') && /Planxa frontal/.test(document.querySelector('.noe-body').textContent));
+    if (reqs.length !== 3) throw new Error(`peticions: ${reqs.length}`);
+    if (!/Propers dies/.test(reqs[0].system[0].text) || reqs[0].output_config.effort !== 'medium' || reqs[0].max_tokens < 16000) throw new Error('petició sense calendari, esforç o límit');
+    if (JSON.stringify(reqs).includes('Vidal')) throw new Error('el nom del pacient ha arribat a la IA');
+    if ((await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').length)) !== lauraBefore) throw new Error('la proposta ha canviat dades sense confirmar');
+    const card = page.locator('.noe-card[data-proposal="PR-1"]');
+    await card.locator('text=Mira-ho en detall').click();
+    await card.locator('.noe-sess').first().waitFor();
+    const text = await card.textContent();
+    for (const nm of ['Goblet squat', 'Dominades', 'Pont de glutis']) if (!text.includes(nm)) throw new Error(`falta ${nm} a la targeta: ${text.slice(0, 300)}`);
+    await shot(page, '10e-noe-sessio-dictada', false);
+    await card.locator('button:has-text("Aplica")').click();
+    await card.locator('.pill:has-text("Aplicada")').waitFor();
+    const made = await page.evaluate(() => { const s = Store.sessionsOf('P-DEMO-LAURA').find((x) => x.goal === 'Sessió dictada'); return s ? { date: s.date, dow: new Date(`${s.date}T12:00:00`).getDay(), names: s.blocks.flatMap((b) => b.items.map((i) => i.name)), status: s.status } : null; });
+    if (!made || made.dow !== 5 || made.status !== 'planificada') throw new Error(`sessió creada: ${JSON.stringify(made)}`);
+    if (!['Goblet squat', 'Dominades', 'Bike suau'].every((n) => made.names.includes(n))) throw new Error(`exercicis: ${made.names}`);
+    await card.locator('button:has-text("Desfés")').click();
+    await page.waitForFunction(() => !Store.sessionsOf('P-DEMO-LAURA').some((x) => x.goal === 'Sessió dictada'), null, { timeout: 8000 });
     await page.unroute('https://api.anthropic.com/v1/messages');
     await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
   });
