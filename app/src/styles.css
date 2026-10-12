@@ -1697,3 +1697,5 @@ tfoot .rpc { font-size: 14px; }
 .lvp-report .h4 { margin: 0; font-size: 15px; }
 .lvp-report .rjump-analysis { margin-top: 0; }
 .lvp-note { margin-top: 10px; }
+.lvp-eq { margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+.lvp-table th.num, .lvp-table td.num { text-align: right; white-space: nowrap; padding-right: 10px; }

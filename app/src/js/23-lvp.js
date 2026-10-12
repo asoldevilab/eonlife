@@ -16,11 +16,12 @@ const LVP_GUIDE = [
     'Fes 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
     '2 repeticions a les càrregues lleugeres i 1–2 a les pesades. Descans de 2 min a les lleugeres i 3–4 min a les pesades.',
     'Cada repetició a màxima intenció a la fase concèntrica (puja tan ràpid com pugui), baixada controlada. Si una repetició surt malament (la barra s\'inclina, es perd la tècnica), no la comptis.',
-    'Apunta, per a cada càrrega, la velocitat mitjana de la repetició més ràpida (o de la mitjana de les dues). Tria un criteri i mantén-lo sempre.',
+    'Apunta cada repetició com una fila (com fa l\'app de l\'ADR, que fa servir totes les repeticions, p. ex. 3 per càrrega) o una sola per càrrega, la velocitat mitjana de la més ràpida o la mitjana de les repeticions: tria un criteri i mantén-lo sempre. La recta es calcula amb totes les files.',
     'Versió ràpida (2 punts): una càrrega lleugera (~1 m/s) i una de pesada (~0,5 m/s). És orientativa: millor 4 o més punts.',
   ] },
   { h: 'Com s\'interpreta', items: [
     'La recta té una velocitat sense càrrega (V0) i un punt on la velocitat seria zero (L0). Com més a la dreta quedi la recta en un re-test, més fort és el pacient.',
+    'L\'app calcula la recta igual que l\'app de l\'ADR (càrrega en funció de la velocitat): la pendent, V0, L0, R² i la 1RM han de quadrar amb els de la pantalla de l\'encoder, sempre que hi posis la mateixa velocitat mínima (a la prova d\'exemple, 0,17 m/s al press banca).',
     'La 1RM estimada és la càrrega on la recta arriba a la velocitat mínima de l\'exercici (squat 0,30 m/s, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25). Són valors de la literatura: es poden canviar a cada exercici.',
     'R² de 0,95 o més, bon ajust. Per sota de 0,90, repeteix alguna càrrega i revisa la tècnica i l\'encoder.',
     'A cada re-test, mira la 1RM estimada i la càrrega a 0,50 m/s: surten comparades amb la valoració anterior.',
@@ -76,13 +77,15 @@ function LvpBlock({ a, p, upd }) {
           <${Btn} variant="ghost" icon="x" title="Treu l'exercici" onClick=${() => del(ex.id)} />
         </div>
         <div class="table-wrap"><table class="table lvp-table">
-          <thead><tr><th>#</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Velocitat pic <span class="muted">m/s</span></th><th>Reps</th><th><span class="sr-only">Accions</span></th></tr></thead>
+          <thead><tr><th>#</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Velocitat pic <span class="muted">m/s</span></th><th>Reps</th><th class="num">% 1RM</th><th class="num">Potència <span class="muted">W</span></th><th><span class="sr-only">Accions</span></th></tr></thead>
           <tbody>${ex.rows.map((row, k) => html`<tr key=${row.id}>
             <td class="muted">${k + 1}</td>
             <td><${NumInput} value=${row.load} onValue=${setRow(ex.id, row.id, 'load')} ariaLabel=${`${ex.name || pr.name} càrrega ${k + 1}`} /></td>
             <td><${NumInput} value=${row.mv} onValue=${setRow(ex.id, row.id, 'mv')} ariaLabel=${`${ex.name || pr.name} velocitat mitjana ${k + 1}`} /></td>
             <td><${NumInput} value=${row.pv} onValue=${setRow(ex.id, row.id, 'pv')} ariaLabel=${`${ex.name || pr.name} velocitat pic ${k + 1}`} /></td>
             <td><${NumInput} value=${row.reps} onValue=${setRow(ex.id, row.id, 'reps')} ariaLabel=${`${ex.name || pr.name} repeticions ${k + 1}`} /></td>
+            <td class="num muted">${LvpRowPct(row, r)}</td>
+            <td class="num muted">${LvpRowPower(row)}</td>
             <td><${Btn} variant="ghost" icon="x" title="Treu la càrrega" onClick=${() => delRow(ex.id, row.id)} /></td>
           </tr>`)}</tbody>
         </table></div>
@@ -102,14 +105,27 @@ function LvpBlock({ a, p, upd }) {
   </div>`;
 }
 
-// Resum de la recta: 1RM estimada, V0, L0 i R².
-function LvpStats({ r }) {
+// % de la 1RM i potència (kg × 9,8 × velocitat) d'una fila, com a l'app de l'ADR.
+function LvpRowPct(row, r) {
+  const l = U.num(row.load);
+  return r && r.rm && l != null ? `${U.fmt((l / r.rm) * 100, 1)} %` : '';
+}
+function LvpRowPower(row) {
+  const l = U.num(row.load), v = U.num(row.mv);
+  return l != null && v != null ? U.fmt(l * 9.8 * v, 0) : '';
+}
+
+// Resum de la recta: 1RM estimada, V0, L0 i R², i les equacions (escrites com a l'app de l'ADR, per comparar-les).
+function LvpStats({ r, eq }) {
   const f = r.fit;
-  return html`<div class="kv-row lvp-kv">
-    <div class="kv"><span>1RM estimada</span><strong>${r.rm != null ? html`${U.fmt(r.rm, 0)}<small> kg</small>` : '—'}</strong>${r.rmRel != null && html`<small>${U.fmtFixed(r.rmRel, 2)} × pes corporal</small>`}</div>
-    <div class="kv"><span>Velocitat sense càrrega (V0)</span><strong>${U.fmtFixed(f.v0, 2)}<small> m/s</small></strong></div>
-    <div class="kv"><span>Càrrega a velocitat zero (L0)</span><strong>${f.l0 != null ? html`${U.fmt(f.l0, 0)}<small> kg</small>` : '—'}</strong></div>
-    <div class="kv"><span>Ajust (R²)</span><strong>${f.r2 != null ? U.fmtFixed(f.r2, 2) : '—'}</strong><small>${U.plural(f.n, 'càrrega', 'càrregues')}</small></div>
+  return html`<div class="lvp-stats">
+    <div class="kv-row lvp-kv">
+      <div class="kv"><span>1RM estimada</span><strong>${r.rm != null ? html`${U.fmt(r.rm, 1)}<small> kg</small>` : '—'}</strong>${r.rmRel != null && html`<small>${U.fmtFixed(r.rmRel, 2)} × pes corporal</small>`}</div>
+      <div class="kv"><span>Velocitat sense càrrega (V0)</span><strong>${f.v0 != null ? U.fmtFixed(f.v0, 2) : '—'}<small> m/s</small></strong></div>
+      <div class="kv"><span>Càrrega a velocitat zero (L0)</span><strong>${U.fmt(f.l0, 1)}<small> kg</small></strong></div>
+      <div class="kv"><span>Ajust (R²)</span><strong>${f.r2 != null ? U.fmtFixed(f.r2, 2) : '—'}</strong><small>${U.plural(f.n, 'punt', 'punts')}</small></div>
+    </div>
+    ${eq !== false && html`<p class="muted small lvp-eq">${r.eq}${f.r2 != null ? ` · R² ${U.fmtFixed(f.r2, 2)}` : ''}${r.eqPct ? html`<br />${r.eqPct}` : ''}</p>`}
   </div>`;
 }
 

@@ -1714,6 +1714,8 @@ tfoot .rpc { font-size: 14px; }
 .lvp-report .h4 { margin: 0; font-size: 15px; }
 .lvp-report .rjump-analysis { margin-top: 0; }
 .lvp-note { margin-top: 10px; }
+.lvp-eq { margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+.lvp-table th.num, .lvp-table td.num { text-align: right; white-space: nowrap; padding-right: 10px; }
 </style>
 </head>
 <body>
@@ -4026,7 +4028,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-12 13:26";
+window.EON_BUILD = "2026-10-12 14:59";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6609,25 +6611,28 @@ Object.assign(Calc, {
       .filter((r) => r.load != null && r.load > 0 && r.mv != null && r.mv > 0)
       .sort((x, y) => x.load - y.load);
   },
-  // Regressió lineal v = v0 + pendent × càrrega.
+  // Regressió lineal de la càrrega sobre la velocitat, com fa l'app de l'ADR: càrrega = L0 + pendent × velocitat
+  // (pendent negatiu, en kg per m/s). L0 és la càrrega a velocitat zero i V0 = −L0 / pendent, la velocitat sense càrrega.
   lvpFit(rows) {
     const n = rows.length;
     if (n < 2) return null;
-    const mx = rows.reduce((s, r) => s + r.load, 0) / n, my = rows.reduce((s, r) => s + r.mv, 0) / n;
-    const sxx = rows.reduce((s, r) => s + (r.load - mx) ** 2, 0), sxy = rows.reduce((s, r) => s + (r.load - mx) * (r.mv - my), 0);
+    const mx = rows.reduce((s, r) => s + r.mv, 0) / n, my = rows.reduce((s, r) => s + r.load, 0) / n;
+    const sxx = rows.reduce((s, r) => s + (r.mv - mx) ** 2, 0), sxy = rows.reduce((s, r) => s + (r.mv - mx) * (r.load - my), 0);
     if (!sxx) return null;
-    const slope = sxy / sxx, v0 = my - slope * mx;
-    const syy = rows.reduce((s, r) => s + (r.mv - my) ** 2, 0);
-    const sse = rows.reduce((s, r) => s + (r.mv - (v0 + slope * r.load)) ** 2, 0);
+    const slope = sxy / sxx, l0 = my - slope * mx;
+    const syy = rows.reduce((s, r) => s + (r.load - my) ** 2, 0);
+    const sse = rows.reduce((s, r) => s + (r.load - (l0 + slope * r.mv)) ** 2, 0);
     const r2 = syy ? Math.max(0, 1 - sse / syy) : null;
-    return { n, slope, v0, r2, see: n > 2 ? Math.sqrt(sse / (n - 2)) : null, l0: slope < 0 ? -v0 / slope : null };
+    return { n, slope, l0, v0: slope < 0 ? -l0 / slope : null, r2, see: n > 2 ? Math.sqrt(sse / (n - 2)) : null };
   },
   // Càrrega que correspon a una velocitat segons la recta (null si no surt una càrrega positiva).
   lvpLoadAt(fit, v) {
     if (!fit || !(fit.slope < 0)) return null;
-    const l = (v - fit.v0) / fit.slope;
+    const l = fit.l0 + fit.slope * v;
     return l > 0 ? l : null;
   },
+  // Velocitat que correspon a una càrrega segons la recta (per dibuixar-la al gràfic).
+  lvpVelAt(fit, load) { return fit && fit.slope < 0 ? (load - fit.l0) / fit.slope : null; },
   // Un exercici: recta, 1RM estimada, càrregues per velocitat i avisos.
   lvpExercise(ex, weight) {
     const rows = Calc.lvpRows(ex);
@@ -6636,12 +6641,20 @@ Object.assign(Calc, {
     const out = { id: ex && ex.id, name: String((ex && ex.name) || '').trim(), preset: (ex && ex.preset) || 'other', rows, fit, mvt, n: rows.length, rm: null, rmRel: null, table: [], maxLoad: rows.length ? rows[rows.length - 1].load : null, warns: [], lines: [] };
     const f2 = (n) => U.fmtFixed(n, 2), f0 = (n) => U.fmt(n, 0);
     if (!fit) { if (out.n === 1) out.warns.push('Cal almenys dues càrregues per dibuixar la recta (millor 4 o més).'); return out; }
-    if (!(fit.slope < 0)) { out.warns.push('La velocitat no baixa quan puja la càrrega: revisa les dades abans de fer servir la recta.'); return out; }
+    if (!(fit.slope < 0)) { out.fit = null; out.warns.push('La velocitat no baixa quan puja la càrrega: revisa les dades abans de fer servir la recta.'); return out; }
     if (mvt != null && mvt > 0) {
-      const rm = (mvt - fit.v0) / fit.slope;
+      const rm = fit.l0 + fit.slope * mvt;
       if (rm > 0) out.rm = rm;
       if (out.rm && weight) out.rmRel = out.rm / weight;
     }
+    // Per a cada càrrega: % de la 1RM i potència (kg × 9,8 × velocitat mitjana, només amb la càrrega externa, com l'ADR).
+    out.rows = rows.map((r) => ({ ...r, pct: out.rm ? (r.load / out.rm) * 100 : null, power: r.load * 9.8 * r.mv }));
+    out.rmPower = out.rm != null ? out.rm * 9.8 * mvt : null;
+    // Equacions, escrites com a l'app de l'ADR (per comparar-les): KG = a·v + b i %1RM = a·v + b.
+    const sg = (n) => (n < 0 ? '−' : '+');
+    const eq = (slope, l0) => `${sg(slope) === '−' ? '−' : ''}${U.fmtFixed(Math.abs(slope), 2)} × velocitat ${sg(l0)} ${U.fmtFixed(Math.abs(l0), 2)}`;
+    out.eq = `Càrrega (kg) = ${eq(fit.slope, fit.l0)}`;
+    out.eqPct = out.rm ? `%1RM = ${eq((100 * fit.slope) / out.rm, (100 * fit.l0) / out.rm)}` : '';
     const lo = mvt != null ? mvt : 0;
     for (const v of LVP_SPEEDS) {
       if (v < lo - 1e-9) continue;
@@ -6649,14 +6662,14 @@ Object.assign(Calc, {
       if (l != null) out.table.push({ v, load: l, pct: out.rm ? (l / out.rm) * 100 : null });
     }
     // Línies per a l'informe (resultats) i avisos per a qui introdueix les dades.
-    out.lines.push(`Recta: velocitat = ${f2(fit.v0)} m/s ${fit.slope < 0 ? '−' : '+'} ${U.fmt(Math.abs(fit.slope) * 10, 3)} m/s per cada 10 kg${fit.r2 != null ? ` (R² ${f2(fit.r2)})` : ''}.`);
+    out.lines.push(`Recta: ${out.eq.replace('Càrrega', 'càrrega')}${fit.r2 != null ? ` (R² ${f2(fit.r2)})` : ''}.`);
     if (out.rm != null) out.lines.push(`1RM estimada: ${f0(out.rm)} kg${out.rmRel != null ? ` (${f2(out.rmRel)} vegades el pes corporal)` : ''}, amb una velocitat mínima de ${f2(mvt)} m/s.`);
     else if (mvt == null) out.warns.push('Sense velocitat mínima de referència no es pot estimar la 1RM. Posa-la a l\'exercici si en coneixes una.');
-    if (fit.l0 != null) out.lines.push(`Càrrega a velocitat zero (L0): ${f0(fit.l0)} kg · velocitat sense càrrega (V0): ${f2(fit.v0)} m/s.`);
+    out.lines.push(`Càrrega a velocitat zero (L0): ${f0(fit.l0)} kg · velocitat sense càrrega (V0): ${f2(fit.v0)} m/s.`);
     if (out.n === 2) out.warns.push('Només hi ha dues càrregues: la recta és orientativa. Amb 4 o més és molt més fiable.');
     if (fit.r2 != null && out.n >= 3 && fit.r2 < 0.9) out.warns.push(`L'ajust és baix (R² ${f2(fit.r2)}): repeteix alguna càrrega o revisa la tècnica i la col·locació de l'encoder.`);
     const vmax = Math.max(...rows.map((r) => r.mv)), vmin = Math.min(...rows.map((r) => r.mv));
-    if (vmax > 1.0) out.warns.push(`Hi ha càrregues amb velocitat de més d'1 m/s (${f2(vmax)}): són massa lleugeres i poden torcer la recta.`);
+    if (vmax > 1.1) out.warns.push(`Hi ha càrregues amb velocitat de més d'1,1 m/s (${f2(vmax)}): són massa lleugeres i poden torcer la recta.`);
     if (out.rm != null && vmin > mvt + 0.35) out.warns.push(`La càrrega més pesada va a ${f2(vmin)} m/s: encara és lluny de la 1RM i l'estimació extrapola molt. Afegeix una càrrega més pesada, sense arribar al límit.`);
     if (out.rm != null && out.maxLoad > out.rm * 1.02) out.warns.push(`La càrrega més alta (${f0(out.maxLoad)} kg) supera la 1RM estimada: revisa la velocitat mínima o les dades.`);
     return out;
@@ -10025,36 +10038,40 @@ const ExcelAssessment = (() => {
       }
       r++;
     }
-    // Perfil càrrega-velocitat: les dades, la recta (amb fórmules d'Excel: SLOPE, INTERCEPT i RSQ) i la 1RM estimada.
+    // Perfil càrrega-velocitat: les dades, la recta (amb fórmules d'Excel: SLOPE, INTERCEPT i RSQ, de la càrrega sobre la
+    // velocitat, com l'app de l'ADR) i la 1RM estimada.
     const lv = Calc.lvpAnalysis(a, ref.previous).filter((x) => x.fit);
     if (lv.length) {
       r = xlSection(ws, r, 'Perfil càrrega-velocitat  ·  ADR Encoder', NC);
       for (const x of lv) {
         r = xlKv(ws, r, [['Exercici', x.name || LVP.preset(x.preset).name]], NC);
-        r = xlHeader(ws, r, ['Càrrega (kg)', 'Velocitat mitjana (m/s)', 'Velocitat pic (m/s)', 'Repeticions']);
-        const first = r;
+        r = xlHeader(ws, r, ['Càrrega (kg)', 'Velocitat mitjana (m/s)', 'Velocitat pic (m/s)', 'Repeticions', '% de la 1RM', 'Potència (W)']);
+        const first = r, last = first + x.rows.length - 1;
+        const rmRef = xlRef(last + 6, 2); // la 1RM estimada és a sota de la taula (6 files més avall)
         for (const row of x.rows) {
           ws.set(r, 1, row.load, [XS.cell, { fmt: '0.0' }]); ws.set(r, 2, row.mv, [XS.cell, { fmt: '0.00' }]);
           ws.set(r, 3, row.pv, [XS.cell, { fmt: '0.00' }]); ws.set(r, 4, row.reps, [XS.cell, { fmt: '0' }]);
+          ws.set(r, 5, { f: `IF(AND(ISNUMBER(${rmRef}),${rmRef}>0),${xlRef(r, 1)}/${rmRef}*100,"")`, v: row.pct == null ? '' : row.pct }, [XS.cell, { fmt: '0.0' }]);
+          ws.set(r, 6, { f: `${xlRef(r, 1)}*9.8*${xlRef(r, 2)}`, v: row.power }, [XS.cell, { fmt: '0' }]);
           r++;
         }
-        const L = `${xlRef(first, 1)}:${xlRef(r - 1, 1)}`, V = `${xlRef(first, 2)}:${xlRef(r - 1, 2)}`;
+        const L = `${xlRef(first, 1)}:${xlRef(last, 1)}`, V = `${xlRef(first, 2)}:${xlRef(last, 2)}`;
         const put = (label, f, v, fmt, unit) => { ws.set(r, 1, label, XS.text); ws.set(r, 2, { f, v: v == null ? '' : v }, [XS.cell, { fmt }]); ws.set(r, 3, unit, XS.cell); r++; return xlRef(r - 1, 2); };
-        const sl = put('Pendent de la recta', `IF(COUNT(${V})>=2,SLOPE(${V},${L}),"")`, x.fit.slope, '0.0000', 'm/s per kg');
-        const ic = put('Velocitat sense càrrega (V0)', `IF(COUNT(${V})>=2,INTERCEPT(${V},${L}),"")`, x.fit.v0, '0.00', 'm/s');
-        put('Ajust (R²)', `IF(COUNT(${V})>=2,RSQ(${V},${L}),"")`, x.fit.r2, '0.000', '');
-        put('Càrrega a velocitat zero (L0)', `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0),-${ic}/${sl},"")`, x.fit.l0, '0.0', 'kg');
+        const sl = put('Pendent de la recta', `IF(COUNT(${V})>=2,SLOPE(${L},${V}),"")`, x.fit.slope, '0.00', 'kg per m/s');
+        const ic = put('Càrrega a velocitat zero (L0)', `IF(COUNT(${V})>=2,INTERCEPT(${L},${V}),"")`, x.fit.l0, '0.00', 'kg');
+        put('Velocitat sense càrrega (V0)', `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0),-${ic}/${sl},"")`, x.fit.v0, '0.00', 'm/s');
+        put('Ajust (R²)', `IF(COUNT(${V})>=2,RSQ(${L},${V}),"")`, x.fit.r2, '0.000', '');
         ws.set(r, 1, 'Velocitat mínima de la 1RM', XS.text); ws.set(r, 2, x.mvt, [XS.cell, { fmt: '0.00' }]); ws.set(r, 3, 'm/s', XS.cell);
         const mv = xlRef(r, 2); r++;
-        const at = (v, nv) => ({ f: `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0,(${v}-${ic})/${sl}>0),(${v}-${ic})/${sl},"")`, v: nv == null ? '' : nv });
+        const at = (v, nv) => ({ f: `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0,${ic}+${sl}*${v}>0),${ic}+${sl}*${v},"")`, v: nv == null ? '' : nv });
         ws.set(r, 1, '1RM estimada', [XS.label]); ws.set(r, 2, at(mv, x.rm), [XS.cell, { fmt: '0.0', b: true }]); ws.set(r, 3, 'kg', XS.cell); r++;
         for (const z of x.table) {
           ws.set(r, 1, `Càrrega estimada a ${U.fmtFixed(z.v, 2)} m/s`, XS.text); ws.set(r, 2, at(String(z.v), z.load), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'kg', XS.cell); r++;
         }
-        const notes = [];
+        const notes = [['Equació de la recta', `${x.eq}${x.eqPct ? ` · ${x.eqPct}` : ''}`]];
         if (x.lines.some((l) => /^Respecte|^Càrrega a 0,50/.test(l))) notes.push([`Evolució · ${x.name}`, x.lines.filter((l) => /^Respecte|^Càrrega a 0,50/.test(l)).join(' ')]);
         if (x.warns.length) notes.push([`Avisos · ${x.name}`, x.warns.join(' ')]);
-        if (notes.length) r = xlKv(ws, r, notes, NC);
+        r = xlKv(ws, r, notes, NC);
         r++;
       }
     }
@@ -14270,7 +14287,7 @@ function LoadVelocityChart({ cur, prev, prevLabel = 'Anterior', height = 260, ar
   const H = height, padL = 46, padR = 18, padT = 26, padB = 40;
   const loads = profiles.flatMap((x) => x.rows.map((r) => r.load));
   const xTop = Math.max(...profiles.map((x) => Math.max(x.rm ? x.rm * 1.06 : 0, x.maxLoad * 1.25)), ...loads);
-  const yTop = Math.max(...profiles.flatMap((x) => [...x.rows.map((r) => r.mv), x.fit ? Math.min(x.fit.v0, 1.6) : 0])) * 1.08;
+  const yTop = Math.max(...profiles.flatMap((x) => [...x.rows.map((r) => r.mv), x.fit && x.fit.v0 != null ? Math.min(x.fit.v0, 1.8) : 0])) * 1.08;
   const xt = niceTicks(0, xTop, 5), yt = niceTicks(0, yTop, 4);
   const iw = Math.max(60, W - padL - padR), ih = H - padT - padB;
   const sx = (x) => padL + ((x - xt.lo) / (xt.hi - xt.lo || 1)) * iw;
@@ -14278,7 +14295,7 @@ function LoadVelocityChart({ cur, prev, prevLabel = 'Anterior', height = 260, ar
   const line = (x, from, to) => {
     const a = Math.max(from, xt.lo), b = Math.min(to, xt.hi);
     if (!(b > a) || !x.fit) return null;
-    return `M${sx(a).toFixed(1)},${sy(x.fit.v0 + x.fit.slope * a).toFixed(1)}L${sx(b).toFixed(1)},${sy(x.fit.v0 + x.fit.slope * b).toFixed(1)}`;
+    return `M${sx(a).toFixed(1)},${sy(Calc.lvpVelAt(x.fit, a)).toFixed(1)}L${sx(b).toFixed(1)},${sy(Calc.lvpVelAt(x.fit, b)).toFixed(1)}`;
   };
   const f2 = (v) => U.fmtFixed(v, 2);
   const mvt = cur.mvt != null && cur.mvt > 0 && cur.mvt <= yt.hi ? cur.mvt : null;
@@ -19508,11 +19525,12 @@ const LVP_GUIDE = [
     'Fes 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
     '2 repeticions a les càrregues lleugeres i 1–2 a les pesades. Descans de 2 min a les lleugeres i 3–4 min a les pesades.',
     'Cada repetició a màxima intenció a la fase concèntrica (puja tan ràpid com pugui), baixada controlada. Si una repetició surt malament (la barra s\'inclina, es perd la tècnica), no la comptis.',
-    'Apunta, per a cada càrrega, la velocitat mitjana de la repetició més ràpida (o de la mitjana de les dues). Tria un criteri i mantén-lo sempre.',
+    'Apunta cada repetició com una fila (com fa l\'app de l\'ADR, que fa servir totes les repeticions, p. ex. 3 per càrrega) o una sola per càrrega, la velocitat mitjana de la més ràpida o la mitjana de les repeticions: tria un criteri i mantén-lo sempre. La recta es calcula amb totes les files.',
     'Versió ràpida (2 punts): una càrrega lleugera (~1 m/s) i una de pesada (~0,5 m/s). És orientativa: millor 4 o més punts.',
   ] },
   { h: 'Com s\'interpreta', items: [
     'La recta té una velocitat sense càrrega (V0) i un punt on la velocitat seria zero (L0). Com més a la dreta quedi la recta en un re-test, més fort és el pacient.',
+    'L\'app calcula la recta igual que l\'app de l\'ADR (càrrega en funció de la velocitat): la pendent, V0, L0, R² i la 1RM han de quadrar amb els de la pantalla de l\'encoder, sempre que hi posis la mateixa velocitat mínima (a la prova d\'exemple, 0,17 m/s al press banca).',
     'La 1RM estimada és la càrrega on la recta arriba a la velocitat mínima de l\'exercici (squat 0,30 m/s, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25). Són valors de la literatura: es poden canviar a cada exercici.',
     'R² de 0,95 o més, bon ajust. Per sota de 0,90, repeteix alguna càrrega i revisa la tècnica i l\'encoder.',
     'A cada re-test, mira la 1RM estimada i la càrrega a 0,50 m/s: surten comparades amb la valoració anterior.',
@@ -19568,13 +19586,15 @@ function LvpBlock({ a, p, upd }) {
           <${Btn} variant="ghost" icon="x" title="Treu l'exercici" onClick=${() => del(ex.id)} />
         </div>
         <div class="table-wrap"><table class="table lvp-table">
-          <thead><tr><th>#</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Velocitat pic <span class="muted">m/s</span></th><th>Reps</th><th><span class="sr-only">Accions</span></th></tr></thead>
+          <thead><tr><th>#</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Velocitat pic <span class="muted">m/s</span></th><th>Reps</th><th class="num">% 1RM</th><th class="num">Potència <span class="muted">W</span></th><th><span class="sr-only">Accions</span></th></tr></thead>
           <tbody>${ex.rows.map((row, k) => html`<tr key=${row.id}>
             <td class="muted">${k + 1}</td>
             <td><${NumInput} value=${row.load} onValue=${setRow(ex.id, row.id, 'load')} ariaLabel=${`${ex.name || pr.name} càrrega ${k + 1}`} /></td>
             <td><${NumInput} value=${row.mv} onValue=${setRow(ex.id, row.id, 'mv')} ariaLabel=${`${ex.name || pr.name} velocitat mitjana ${k + 1}`} /></td>
             <td><${NumInput} value=${row.pv} onValue=${setRow(ex.id, row.id, 'pv')} ariaLabel=${`${ex.name || pr.name} velocitat pic ${k + 1}`} /></td>
             <td><${NumInput} value=${row.reps} onValue=${setRow(ex.id, row.id, 'reps')} ariaLabel=${`${ex.name || pr.name} repeticions ${k + 1}`} /></td>
+            <td class="num muted">${LvpRowPct(row, r)}</td>
+            <td class="num muted">${LvpRowPower(row)}</td>
             <td><${Btn} variant="ghost" icon="x" title="Treu la càrrega" onClick=${() => delRow(ex.id, row.id)} /></td>
           </tr>`)}</tbody>
         </table></div>
@@ -19594,14 +19614,27 @@ function LvpBlock({ a, p, upd }) {
   </div>`;
 }
 
-// Resum de la recta: 1RM estimada, V0, L0 i R².
-function LvpStats({ r }) {
+// % de la 1RM i potència (kg × 9,8 × velocitat) d'una fila, com a l'app de l'ADR.
+function LvpRowPct(row, r) {
+  const l = U.num(row.load);
+  return r && r.rm && l != null ? `${U.fmt((l / r.rm) * 100, 1)} %` : '';
+}
+function LvpRowPower(row) {
+  const l = U.num(row.load), v = U.num(row.mv);
+  return l != null && v != null ? U.fmt(l * 9.8 * v, 0) : '';
+}
+
+// Resum de la recta: 1RM estimada, V0, L0 i R², i les equacions (escrites com a l'app de l'ADR, per comparar-les).
+function LvpStats({ r, eq }) {
   const f = r.fit;
-  return html`<div class="kv-row lvp-kv">
-    <div class="kv"><span>1RM estimada</span><strong>${r.rm != null ? html`${U.fmt(r.rm, 0)}<small> kg</small>` : '—'}</strong>${r.rmRel != null && html`<small>${U.fmtFixed(r.rmRel, 2)} × pes corporal</small>`}</div>
-    <div class="kv"><span>Velocitat sense càrrega (V0)</span><strong>${U.fmtFixed(f.v0, 2)}<small> m/s</small></strong></div>
-    <div class="kv"><span>Càrrega a velocitat zero (L0)</span><strong>${f.l0 != null ? html`${U.fmt(f.l0, 0)}<small> kg</small>` : '—'}</strong></div>
-    <div class="kv"><span>Ajust (R²)</span><strong>${f.r2 != null ? U.fmtFixed(f.r2, 2) : '—'}</strong><small>${U.plural(f.n, 'càrrega', 'càrregues')}</small></div>
+  return html`<div class="lvp-stats">
+    <div class="kv-row lvp-kv">
+      <div class="kv"><span>1RM estimada</span><strong>${r.rm != null ? html`${U.fmt(r.rm, 1)}<small> kg</small>` : '—'}</strong>${r.rmRel != null && html`<small>${U.fmtFixed(r.rmRel, 2)} × pes corporal</small>`}</div>
+      <div class="kv"><span>Velocitat sense càrrega (V0)</span><strong>${f.v0 != null ? U.fmtFixed(f.v0, 2) : '—'}<small> m/s</small></strong></div>
+      <div class="kv"><span>Càrrega a velocitat zero (L0)</span><strong>${U.fmt(f.l0, 1)}<small> kg</small></strong></div>
+      <div class="kv"><span>Ajust (R²)</span><strong>${f.r2 != null ? U.fmtFixed(f.r2, 2) : '—'}</strong><small>${U.plural(f.n, 'punt', 'punts')}</small></div>
+    </div>
+    ${eq !== false && html`<p class="muted small lvp-eq">${r.eq}${f.r2 != null ? ` · R² ${U.fmtFixed(f.r2, 2)}` : ''}${r.eqPct ? html`<br />${r.eqPct}` : ''}</p>`}
   </div>`;
 }
 
@@ -20028,7 +20061,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           ${lvp.map((x) => html`<div class="lvp-report">
             <h4 class="h4">${x.name || LVP.preset(x.preset).name}</h4>
             <${LoadVelocityChart} cur=${x} prev=${x.prevEx} prevLabel=${x.cmp && x.cmp.date ? U.fmtDateShort(x.cmp.date) : 'Anterior'} height=${230} ariaLabel=${`Perfil càrrega-velocitat de ${x.name || LVP.preset(x.preset).name}`} />
-            <${LvpStats} r=${x} />
+            <${LvpStats} r=${x} eq=${false} />
             <${LvpZones} r=${x} report=${true} />
             <ul class="rjump-analysis">${x.lines.filter((l) => !/^Recta:|^Càrrega a velocitat zero|^1RM estimada:/.test(l)).map((l) => html`<li>${l}</li>`)}</ul>
           </div>`)}

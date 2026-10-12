@@ -125,7 +125,7 @@ function LoadVelocityChart({ cur, prev, prevLabel = 'Anterior', height = 260, ar
   const H = height, padL = 46, padR = 18, padT = 26, padB = 40;
   const loads = profiles.flatMap((x) => x.rows.map((r) => r.load));
   const xTop = Math.max(...profiles.map((x) => Math.max(x.rm ? x.rm * 1.06 : 0, x.maxLoad * 1.25)), ...loads);
-  const yTop = Math.max(...profiles.flatMap((x) => [...x.rows.map((r) => r.mv), x.fit ? Math.min(x.fit.v0, 1.6) : 0])) * 1.08;
+  const yTop = Math.max(...profiles.flatMap((x) => [...x.rows.map((r) => r.mv), x.fit && x.fit.v0 != null ? Math.min(x.fit.v0, 1.8) : 0])) * 1.08;
   const xt = niceTicks(0, xTop, 5), yt = niceTicks(0, yTop, 4);
   const iw = Math.max(60, W - padL - padR), ih = H - padT - padB;
   const sx = (x) => padL + ((x - xt.lo) / (xt.hi - xt.lo || 1)) * iw;
@@ -133,7 +133,7 @@ function LoadVelocityChart({ cur, prev, prevLabel = 'Anterior', height = 260, ar
   const line = (x, from, to) => {
     const a = Math.max(from, xt.lo), b = Math.min(to, xt.hi);
     if (!(b > a) || !x.fit) return null;
-    return `M${sx(a).toFixed(1)},${sy(x.fit.v0 + x.fit.slope * a).toFixed(1)}L${sx(b).toFixed(1)},${sy(x.fit.v0 + x.fit.slope * b).toFixed(1)}`;
+    return `M${sx(a).toFixed(1)},${sy(Calc.lvpVelAt(x.fit, a)).toFixed(1)}L${sx(b).toFixed(1)},${sy(Calc.lvpVelAt(x.fit, b)).toFixed(1)}`;
   };
   const f2 = (v) => U.fmtFixed(v, 2);
   const mvt = cur.mvt != null && cur.mvt > 0 && cur.mvt <= yt.hi ? cur.mvt : null;

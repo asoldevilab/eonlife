@@ -191,12 +191,18 @@ Consells:
   - **Apunteu, per a cada càrrega**, els kg i la **velocitat mitjana** (de la fase concèntrica) que dona l'encoder; la
     velocitat de pic i les repeticions són opcionals. Amb **4–6 càrregues** (de ~1 m/s fins a ~0,5 m/s, sense arribar a la
     fallada) l'app dibuixa el gràfic amb la recta.
-  - **Càlculs**: recta per regressió (velocitat = V0 − pendent × càrrega), **V0** (velocitat sense càrrega), **L0** (càrrega
+  - **Cada repetició és un punt**: com fa l'app de l'ADR, es poden apuntar totes les repeticions (p. ex. 3 per càrrega)
+    com a files separades, o una sola per càrrega. A cada fila surten el **% de la 1RM** i la **potència** (kg × 9,8 ×
+    velocitat), com a la pantalla de l'ADR.
+  - **Els números quadren amb l'ADR**: la recta es calcula igual que l'app de l'encoder (càrrega en funció de la velocitat,
+    p. ex. *càrrega = −49,47 × velocitat + 87,49*, R² 0,93), i es veu l'equació per comparar-la. Per tenir la mateixa 1RM,
+    poseu la mateixa velocitat mínima que fa servir l'ADR (al press banca, 0,17 m/s).
+  - **Càlculs**: recta per regressió de la càrrega sobre la velocitat, **V0** (velocitat sense càrrega), **L0** (càrrega
     a velocitat zero), **R²**, **1RM estimada** (càrrega a la velocitat mínima; també en vegades el pes corporal) i la
     **càrrega estimada per a cada velocitat** (1,00 · 0,80 · 0,60 · 0,50 · 0,40 · 0,30 m/s) amb el % de la 1RM. Al re-test
     surt la comparació amb la valoració anterior (1RM estimada i càrrega a 0,50 m/s) i la recta d'abans en gris.
   - **Avisos** (només per a qui introdueix les dades): una sola càrrega o només dues (orientatiu), ajust baix (R² < 0,90),
-    velocitats de més d'1 m/s, cap càrrega pesada (l'estimació extrapola molt), càrrega per sobre de la 1RM estimada, o
+    velocitats de més d'1,1 m/s, cap càrrega pesada (l'estimació extrapola molt), càrrega per sobre de la 1RM estimada, o
     velocitat que no baixa quan puja la càrrega. No hi ha res de personal a l'informe del pacient: surten el gràfic, el
     resum i la taula.
   - **Fiabilitat**: és una estimació; va bé per fer seguiment i per triar càrregues, però no substitueix un test directe si

@@ -39,7 +39,7 @@ Tot el protocol és a [`app/src/js/02-catalog.js`](../app/src/js/02-catalog.js):
 - Perfil càrrega-velocitat (`lvp`): a cada valoració, `lvp.exercises[]` amb `{ id, preset, name, mvt, rows: [{ load, mv, pv, reps }] }`
   (`mvt` = velocitat mínima de la 1RM en m/s; `mv` = velocitat mitjana, `pv` = de pic). Els valors de referència i els
   càlculs són a [`app/src/js/04-lvp.js`](../app/src/js/04-lvp.js) (`LVP_PRESETS`, `Calc.lvpExercise`, `Calc.lvpAnalysis`). A
-  l'Excel de la valoració, la recta es calcula amb fórmules (`SLOPE`, `INTERCEPT`, `RSQ`) i a la fila de la base de dades hi
+  l'Excel de la valoració, la recta (càrrega sobre velocitat, com l'ADR) es calcula amb fórmules (`SLOPE`, `INTERCEPT`, `RSQ`) i cada fila porta el % de la 1RM i la potència i a la fila de la base de dades hi
   ha una columna per resultat i exercici (`Càrrega-velocitat <exercici> · 1RM estimada (kg)`, `V0`, `L0`, `R²`, `punts`).
 - `RPE_SCALE` — escala de l'RPE (1–10) del final de cada valoració (`rpe`) i del tancament de cada sessió.
 - `PATTERNS` — els 7 patrons de la Sessió 1 amb «Què observem», criteris de − i −−, execució i adaptació.

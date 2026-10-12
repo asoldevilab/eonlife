@@ -168,7 +168,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           ${lvp.map((x) => html`<div class="lvp-report">
             <h4 class="h4">${x.name || LVP.preset(x.preset).name}</h4>
             <${LoadVelocityChart} cur=${x} prev=${x.prevEx} prevLabel=${x.cmp && x.cmp.date ? U.fmtDateShort(x.cmp.date) : 'Anterior'} height=${230} ariaLabel=${`Perfil càrrega-velocitat de ${x.name || LVP.preset(x.preset).name}`} />
-            <${LvpStats} r=${x} />
+            <${LvpStats} r=${x} eq=${false} />
             <${LvpZones} r=${x} report=${true} />
             <ul class="rjump-analysis">${x.lines.filter((l) => !/^Recta:|^Càrrega a velocitat zero|^1RM estimada:/.test(l)).map((l) => html`<li>${l}</li>`)}</ul>
           </div>`)}

@@ -40,25 +40,28 @@ Object.assign(Calc, {
       .filter((r) => r.load != null && r.load > 0 && r.mv != null && r.mv > 0)
       .sort((x, y) => x.load - y.load);
   },
-  // Regressió lineal v = v0 + pendent × càrrega.
+  // Regressió lineal de la càrrega sobre la velocitat, com fa l'app de l'ADR: càrrega = L0 + pendent × velocitat
+  // (pendent negatiu, en kg per m/s). L0 és la càrrega a velocitat zero i V0 = −L0 / pendent, la velocitat sense càrrega.
   lvpFit(rows) {
     const n = rows.length;
     if (n < 2) return null;
-    const mx = rows.reduce((s, r) => s + r.load, 0) / n, my = rows.reduce((s, r) => s + r.mv, 0) / n;
-    const sxx = rows.reduce((s, r) => s + (r.load - mx) ** 2, 0), sxy = rows.reduce((s, r) => s + (r.load - mx) * (r.mv - my), 0);
+    const mx = rows.reduce((s, r) => s + r.mv, 0) / n, my = rows.reduce((s, r) => s + r.load, 0) / n;
+    const sxx = rows.reduce((s, r) => s + (r.mv - mx) ** 2, 0), sxy = rows.reduce((s, r) => s + (r.mv - mx) * (r.load - my), 0);
     if (!sxx) return null;
-    const slope = sxy / sxx, v0 = my - slope * mx;
-    const syy = rows.reduce((s, r) => s + (r.mv - my) ** 2, 0);
-    const sse = rows.reduce((s, r) => s + (r.mv - (v0 + slope * r.load)) ** 2, 0);
+    const slope = sxy / sxx, l0 = my - slope * mx;
+    const syy = rows.reduce((s, r) => s + (r.load - my) ** 2, 0);
+    const sse = rows.reduce((s, r) => s + (r.load - (l0 + slope * r.mv)) ** 2, 0);
     const r2 = syy ? Math.max(0, 1 - sse / syy) : null;
-    return { n, slope, v0, r2, see: n > 2 ? Math.sqrt(sse / (n - 2)) : null, l0: slope < 0 ? -v0 / slope : null };
+    return { n, slope, l0, v0: slope < 0 ? -l0 / slope : null, r2, see: n > 2 ? Math.sqrt(sse / (n - 2)) : null };
   },
   // Càrrega que correspon a una velocitat segons la recta (null si no surt una càrrega positiva).
   lvpLoadAt(fit, v) {
     if (!fit || !(fit.slope < 0)) return null;
-    const l = (v - fit.v0) / fit.slope;
+    const l = fit.l0 + fit.slope * v;
     return l > 0 ? l : null;
   },
+  // Velocitat que correspon a una càrrega segons la recta (per dibuixar-la al gràfic).
+  lvpVelAt(fit, load) { return fit && fit.slope < 0 ? (load - fit.l0) / fit.slope : null; },
   // Un exercici: recta, 1RM estimada, càrregues per velocitat i avisos.
   lvpExercise(ex, weight) {
     const rows = Calc.lvpRows(ex);
@@ -67,12 +70,20 @@ Object.assign(Calc, {
     const out = { id: ex && ex.id, name: String((ex && ex.name) || '').trim(), preset: (ex && ex.preset) || 'other', rows, fit, mvt, n: rows.length, rm: null, rmRel: null, table: [], maxLoad: rows.length ? rows[rows.length - 1].load : null, warns: [], lines: [] };
     const f2 = (n) => U.fmtFixed(n, 2), f0 = (n) => U.fmt(n, 0);
     if (!fit) { if (out.n === 1) out.warns.push('Cal almenys dues càrregues per dibuixar la recta (millor 4 o més).'); return out; }
-    if (!(fit.slope < 0)) { out.warns.push('La velocitat no baixa quan puja la càrrega: revisa les dades abans de fer servir la recta.'); return out; }
+    if (!(fit.slope < 0)) { out.fit = null; out.warns.push('La velocitat no baixa quan puja la càrrega: revisa les dades abans de fer servir la recta.'); return out; }
     if (mvt != null && mvt > 0) {
-      const rm = (mvt - fit.v0) / fit.slope;
+      const rm = fit.l0 + fit.slope * mvt;
       if (rm > 0) out.rm = rm;
       if (out.rm && weight) out.rmRel = out.rm / weight;
     }
+    // Per a cada càrrega: % de la 1RM i potència (kg × 9,8 × velocitat mitjana, només amb la càrrega externa, com l'ADR).
+    out.rows = rows.map((r) => ({ ...r, pct: out.rm ? (r.load / out.rm) * 100 : null, power: r.load * 9.8 * r.mv }));
+    out.rmPower = out.rm != null ? out.rm * 9.8 * mvt : null;
+    // Equacions, escrites com a l'app de l'ADR (per comparar-les): KG = a·v + b i %1RM = a·v + b.
+    const sg = (n) => (n < 0 ? '−' : '+');
+    const eq = (slope, l0) => `${sg(slope) === '−' ? '−' : ''}${U.fmtFixed(Math.abs(slope), 2)} × velocitat ${sg(l0)} ${U.fmtFixed(Math.abs(l0), 2)}`;
+    out.eq = `Càrrega (kg) = ${eq(fit.slope, fit.l0)}`;
+    out.eqPct = out.rm ? `%1RM = ${eq((100 * fit.slope) / out.rm, (100 * fit.l0) / out.rm)}` : '';
     const lo = mvt != null ? mvt : 0;
     for (const v of LVP_SPEEDS) {
       if (v < lo - 1e-9) continue;
@@ -80,14 +91,14 @@ Object.assign(Calc, {
       if (l != null) out.table.push({ v, load: l, pct: out.rm ? (l / out.rm) * 100 : null });
     }
     // Línies per a l'informe (resultats) i avisos per a qui introdueix les dades.
-    out.lines.push(`Recta: velocitat = ${f2(fit.v0)} m/s ${fit.slope < 0 ? '−' : '+'} ${U.fmt(Math.abs(fit.slope) * 10, 3)} m/s per cada 10 kg${fit.r2 != null ? ` (R² ${f2(fit.r2)})` : ''}.`);
+    out.lines.push(`Recta: ${out.eq.replace('Càrrega', 'càrrega')}${fit.r2 != null ? ` (R² ${f2(fit.r2)})` : ''}.`);
     if (out.rm != null) out.lines.push(`1RM estimada: ${f0(out.rm)} kg${out.rmRel != null ? ` (${f2(out.rmRel)} vegades el pes corporal)` : ''}, amb una velocitat mínima de ${f2(mvt)} m/s.`);
     else if (mvt == null) out.warns.push('Sense velocitat mínima de referència no es pot estimar la 1RM. Posa-la a l\'exercici si en coneixes una.');
-    if (fit.l0 != null) out.lines.push(`Càrrega a velocitat zero (L0): ${f0(fit.l0)} kg · velocitat sense càrrega (V0): ${f2(fit.v0)} m/s.`);
+    out.lines.push(`Càrrega a velocitat zero (L0): ${f0(fit.l0)} kg · velocitat sense càrrega (V0): ${f2(fit.v0)} m/s.`);
     if (out.n === 2) out.warns.push('Només hi ha dues càrregues: la recta és orientativa. Amb 4 o més és molt més fiable.');
     if (fit.r2 != null && out.n >= 3 && fit.r2 < 0.9) out.warns.push(`L'ajust és baix (R² ${f2(fit.r2)}): repeteix alguna càrrega o revisa la tècnica i la col·locació de l'encoder.`);
     const vmax = Math.max(...rows.map((r) => r.mv)), vmin = Math.min(...rows.map((r) => r.mv));
-    if (vmax > 1.0) out.warns.push(`Hi ha càrregues amb velocitat de més d'1 m/s (${f2(vmax)}): són massa lleugeres i poden torcer la recta.`);
+    if (vmax > 1.1) out.warns.push(`Hi ha càrregues amb velocitat de més d'1,1 m/s (${f2(vmax)}): són massa lleugeres i poden torcer la recta.`);
     if (out.rm != null && vmin > mvt + 0.35) out.warns.push(`La càrrega més pesada va a ${f2(vmin)} m/s: encara és lluny de la 1RM i l'estimació extrapola molt. Afegeix una càrrega més pesada, sense arribar al límit.`);
     if (out.rm != null && out.maxLoad > out.rm * 1.02) out.warns.push(`La càrrega més alta (${f0(out.maxLoad)} kg) supera la 1RM estimada: revisa la velocitat mínima o les dades.`);
     return out;

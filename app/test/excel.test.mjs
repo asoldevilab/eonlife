@@ -760,12 +760,12 @@ test('Excel de la valoració: el perfil càrrega-velocitat porta les dades, la r
   const s = x.sheet('Re-test 01-10-26');
   assert.ok(s.find(/Perfil càrrega-velocitat/), 'secció del perfil');
   const rowOf = (re) => s.rowOf(s.find(re));
-  const slope = `B${rowOf(/^Pendent de la recta$/)}`, v0 = `B${rowOf(/^Velocitat sense càrrega \(V0\)$/)}`;
-  assert.match(s.formula(slope), /^IF\(COUNT\(B\d+:B\d+\)>=2,SLOPE\(B\d+:B\d+,A\d+:A\d+\),""\)$/);
-  assert.match(s.formula(v0), /INTERCEPT\(/);
+  const slope = `B${rowOf(/^Pendent de la recta$/)}`, l0 = `B${rowOf(/^Càrrega a velocitat zero \(L0\)$/)}`;
+  assert.match(s.formula(slope), /^IF\(COUNT\(B\d+:B\d+\)>=2,SLOPE\(A\d+:A\d+,B\d+:B\d+\),""\)$/);
+  assert.match(s.formula(l0), /INTERCEPT\(A\d+:A\d+,B\d+:B\d+\)/);
   assert.match(s.formula(`B${rowOf(/^Ajust \(R²\)$/)}`), /RSQ\(/);
   const rm = `B${rowOf(/^1RM estimada$/)}`;
-  assert.match(s.formula(rm), /\(B\d+-B\d+\)\/B\d+/);
+  assert.match(s.formula(rm), /B\d+\+B\d+\*B\d+/);
   // El valor desat és el que calcula l'app (LibreOffice el recalcula igual: vegeu la prova de recàlcul)
   const laura = Object.values(Store.data.assessments).filter((a) => a.patientId === 'P-DEMO-LAURA').sort((a, b) => (a.date < b.date ? -1 : 1));
   const an = core.Calc.lvpAnalysis(laura[laura.length - 1], laura[laura.length - 2])[0];
