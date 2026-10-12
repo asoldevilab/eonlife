@@ -741,6 +741,20 @@ const Flat = {
             o[`Encoder ${r.name} potència (W)`] = n(U.num(r.power));
           }
         }
+        if (g.kind === 'lvp') {
+          const seen = {};
+          for (const x of Calc.lvpAnalysis(a, null)) {
+            const base = x.name || LVP.preset(x.preset).name;
+            seen[base] = (seen[base] || 0) + 1;
+            const nm = `Càrrega-velocitat ${base}${seen[base] > 1 ? ` (${seen[base]})` : ''}`, f = x.fit || {};
+            o[`${nm} · 1RM estimada (kg)`] = n(x.rm);
+            o[`${nm} · velocitat mínima (m/s)`] = n(x.mvt);
+            o[`${nm} · V0 (m/s)`] = n(f.v0);
+            o[`${nm} · L0 (kg)`] = n(f.l0);
+            o[`${nm} · R²`] = n(f.r2);
+            o[`${nm} · punts`] = x.rows.map((r) => `${U.fmt(r.load, 1)} kg → ${U.fmtFixed(r.mv, 2)} m/s`).join(' · ');
+          }
+        }
         if (g.kind === 'bike') {
           const b = Calc.bike(a);
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);

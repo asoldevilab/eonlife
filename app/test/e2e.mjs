@@ -725,6 +725,50 @@ const step = async (label, fn) => {
     await page.waitForSelector('.rsec .kv >> text=Distància');
     await shot(page, '06g-bike-informe', false);
   });
+  await step('valoració: perfil càrrega-velocitat (ADR Encoder): guia, exercici, càrregues, recta, 1RM i informe', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-JORDI').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.waitForSelector('#grp-lvp');
+    // La guia pas a pas s'obre i es tanca amb Escape.
+    await page.click('#grp-lvp >> text=Com fer-lo servir');
+    await page.waitForSelector('.lvp-guide >> text=Les càrregues');
+    await page.waitForSelector('.lvp-guide >> text=spotter');
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.lvp-guide', { state: 'detached' });
+    // Press banca amb velocitat mínima de referència (0,17 m/s) i 4 càrregues buides
+    await page.click('#grp-lvp .lvp-add >> text=Press banca');
+    await page.waitForSelector('#grp-lvp .lvp-table tbody tr:nth-child(4)');
+    const mvt = await page.locator('#grp-lvp .lvp-mvt input').inputValue();
+    if (mvt !== '0,17') throw new Error(`velocitat mínima per defecte: ${mvt}`);
+    const fill = async (k, load, mv) => {
+      await page.fill(`#grp-lvp input[aria-label="Press banca càrrega ${k}"]`, load);
+      await page.fill(`#grp-lvp input[aria-label="Press banca velocitat mitjana ${k}"]`, mv);
+    };
+    await fill(1, '30', '0,926'); await fill(2, '40', '0,818'); await fill(3, '50', '0,71'); await fill(4, '60', '0,602');
+    await page.waitForSelector('#grp-lvp svg.chart-svg');
+    // Cap càrrega pesada: s'avisa que l'estimació extrapola molt
+    await page.waitForSelector('#grp-lvp .analysis-warns >> text=extrapola');
+    await page.click('#grp-lvp >> text=Afegeix càrrega');
+    await fill(5, '85', '0,332');
+    await page.waitForFunction(() => !document.querySelector('#grp-lvp .analysis-warns'));
+    // La 1RM del resum és la del càlcul i surt dins del gràfic; hi ha la taula de càrregues per velocitat
+    const want = await page.evaluate((id) => Math.round(Calc.lvpAnalysis(Store.get('assessments', id), null)[0].rm), aid);
+    const kv = await page.locator('#grp-lvp .lvp-kv').textContent();
+    if (!kv.includes('1RM estimada') || !kv.includes(String(want))) throw new Error(`resum: ${kv} (esperat ${want} kg)`);
+    await page.waitForSelector('#grp-lvp svg.chart-svg >> text=1RM ≈');
+    await page.waitForSelector('#grp-lvp .lvp-zones >> text=0,50 m/s');
+    await shot(page, '06h-carrega-velocitat', false);
+    // Un exercici «Altre» no porta velocitat mínima: recta sí, 1RM no (i s'avisa)
+    await page.click('#grp-lvp .lvp-add >> text=Altre exercici');
+    await page.waitForFunction(() => document.querySelectorAll('#grp-lvp .lvp-ex').length === 2);
+    // Informe: gràfica, resum i taula (i es comptabilitza dins de la valoració)
+    await page.click('.editbar >> text=Informe');
+    await page.waitForSelector('.rsec >> text=Perfil càrrega-velocitat');
+    await page.waitForSelector('.rsec svg[aria-label="Perfil càrrega-velocitat de Press banca"]');
+    await page.waitForSelector('.rsec .lvp-kv >> text=1RM estimada');
+    await page.waitForSelector('.rsec .lvp-zones >> text=Càrrega estimada');
+    await shot(page, '06h-carrega-velocitat-informe', false);
+  });
   await step('NOE: mode demostració → planificar un mes amb una proposta que només s\'aplica en confirmar, i es pot desfer', async () => {
     await goHash(page, '#/inici');
     await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); });

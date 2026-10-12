@@ -753,3 +753,28 @@ print(json.dumps(res))
   assert.equal(run.status, 0, run.stdout + run.stderr);
   assert.match(run.stdout, /0 diferències/);
 });
+
+test('Excel de la valoració: el perfil càrrega-velocitat porta les dades, la recta amb fórmules i la comparació', async () => {
+  const { core, Store } = setup();
+  const { x } = await clientBook(core, Store, 'P-DEMO-LAURA');
+  const s = x.sheet('Re-test 01-10-26');
+  assert.ok(s.find(/Perfil càrrega-velocitat/), 'secció del perfil');
+  const rowOf = (re) => s.rowOf(s.find(re));
+  const slope = `B${rowOf(/^Pendent de la recta$/)}`, v0 = `B${rowOf(/^Velocitat sense càrrega \(V0\)$/)}`;
+  assert.match(s.formula(slope), /^IF\(COUNT\(B\d+:B\d+\)>=2,SLOPE\(B\d+:B\d+,A\d+:A\d+\),""\)$/);
+  assert.match(s.formula(v0), /INTERCEPT\(/);
+  assert.match(s.formula(`B${rowOf(/^Ajust \(R²\)$/)}`), /RSQ\(/);
+  const rm = `B${rowOf(/^1RM estimada$/)}`;
+  assert.match(s.formula(rm), /\(B\d+-B\d+\)\/B\d+/);
+  // El valor desat és el que calcula l'app (LibreOffice el recalcula igual: vegeu la prova de recàlcul)
+  const laura = Object.values(Store.data.assessments).filter((a) => a.patientId === 'P-DEMO-LAURA').sort((a, b) => (a.date < b.date ? -1 : 1));
+  const an = core.Calc.lvpAnalysis(laura[laura.length - 1], laura[laura.length - 2])[0];
+  assert.ok(Math.abs(s.get(rm) - an.rm) < 1e-9);
+  assert.ok(s.find(/^Càrrega estimada a 0,50 m\/s$/));
+  assert.ok(s.find(/^Evolució · Squat$/), 'comparació amb la valoració anterior');
+  // Les dades de cada càrrega surten a la taula
+  assert.ok(hasNum(s, 30) && hasNum(s, 0.92));
+  // El full d'evolució de valoracions porta la 1RM estimada de cada valoració
+  const v = x.sheet('Valoracions');
+  assert.ok(v.find(/^Squat · 1RM estimada$/) && v.find(/^Squat · càrrega a 0,50 m\/s$/));
+});

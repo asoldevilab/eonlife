@@ -992,3 +992,75 @@ test('informe de sessions: RPE, dolor en acabar i wellness de cada sessió, mitj
   assert.equal(ev.rows[3].items.mood, 5);
   assert.equal(Evol.sessions([], {}).rpe, null);
 });
+
+test('perfil càrrega-velocitat: recta, 1RM estimada, càrregues per velocitat i avisos', () => {
+  const ex = (rows, extra = {}) => ({ id: 'L1', preset: 'squat', name: 'Squat', mvt: '0,30', rows: rows.map(([load, mv]) => ({ id: `R${load}`, load: String(load), mv: String(mv).replace('.', ',') })), ...extra });
+  // Recta exacta: v = 1,2 − 0,01 × càrrega → 1RM (v = 0,30) = 90 kg, L0 = 120 kg
+  const r = Calc.lvpExercise(ex([[20, 1.0], [40, 0.8], [60, 0.6], [80, 0.4]]), 75);
+  assert.equal(r.n, 4);
+  assert.ok(Math.abs(r.fit.slope + 0.01) < 1e-9 && Math.abs(r.fit.v0 - 1.2) < 1e-9);
+  assert.ok(Math.abs(r.fit.r2 - 1) < 1e-9);
+  assert.ok(Math.abs(r.rm - 90) < 1e-6);
+  assert.ok(Math.abs(r.fit.l0 - 120) < 1e-6);
+  assert.ok(Math.abs(r.rmRel - 1.2) < 1e-6, '1RM entre el pes corporal');
+  // La taula només arriba fins a la velocitat mínima i dona %1RM
+  assert.deepEqual([...r.table.map((z) => z.v)], [1, 0.8, 0.6, 0.5, 0.4, 0.3]);
+  assert.ok(Math.abs(r.table.find((z) => z.v === 0.5).load - 70) < 1e-6);
+  assert.ok(Math.abs(r.table.find((z) => z.v === 0.5).pct - (70 / 90) * 100) < 1e-6);
+  assert.equal(r.warns.length, 0);
+  // Sense velocitat mínima: recta, però sense 1RM (i s'avisa)
+  const sense = Calc.lvpExercise(ex([[20, 1.0], [40, 0.8], [60, 0.6]], { mvt: '' }), null);
+  assert.equal(sense.rm, null);
+  assert.ok(sense.fit && sense.warns.some((w) => /velocitat mínima/.test(w)));
+  // Files incompletes o buides no compten; una sola càrrega no fa recta
+  assert.equal(Calc.lvpRows(ex([[20, 1.0], [0, 0.5], [40, 'x']])).length, 1);
+  const una = Calc.lvpExercise(ex([[20, 1.0]]), null);
+  assert.equal(una.fit, null);
+  assert.ok(una.warns.some((w) => /almenys dues/.test(w)));
+  // Dos punts: orientatiu. Ajust baix i velocitats massa altes: avisos
+  assert.ok(Calc.lvpExercise(ex([[20, 1.0], [60, 0.6]]), null).warns.some((w) => /dues càrregues/.test(w)));
+  const dolent = Calc.lvpExercise(ex([[20, 0.9], [40, 1.1], [60, 0.5], [80, 0.8], [100, 0.4]]), null);
+  assert.ok(dolent.fit.r2 < 0.9 && dolent.warns.some((w) => /ajust és baix/i.test(w)));
+  assert.ok(Calc.lvpExercise(ex([[10, 1.3], [40, 0.9], [70, 0.5]]), null).warns.some((w) => /més d'1 m\/s/.test(w)));
+  // Càrregues lluny de la 1RM: l'estimació extrapola molt
+  assert.ok(Calc.lvpExercise(ex([[20, 1.0], [30, 0.9], [40, 0.8]]), null).warns.some((w) => /extrapola/.test(w)));
+  // La velocitat no baixa amb la càrrega: no es fa servir la recta
+  const pla = Calc.lvpExercise(ex([[20, 0.5], [40, 0.6], [60, 0.7]]), null);
+  assert.equal(pla.rm, null);
+  assert.ok(pla.warns.some((w) => /no baixa/.test(w)));
+});
+
+test('perfil càrrega-velocitat: valors de referència per exercici i sexe, i comparació amb la valoració anterior', () => {
+  const { LVP } = C;
+  assert.equal(LVP.defaultMvt('squat', 'H'), 0.30);
+  assert.equal(LVP.defaultMvt('squat', 'D'), 0.25, 'dones: velocitat mínima més baixa a l\'squat');
+  assert.equal(LVP.defaultMvt('bench', 'D'), 0.17);
+  assert.equal(LVP.defaultMvt('other', 'H'), null);
+  const nou = LVP.newExercise('deadlift', 'H');
+  assert.equal(nou.name, 'Pes mort');
+  assert.equal(nou.mvt, '0,15');
+  assert.equal(nou.rows.length, 4);
+  assert.equal(LVP.newExercise('other', 'H').name, '');
+  // Demostració: la Laura millora la 1RM estimada entre la valoració inicial i el re-test
+  const db = C.makeDemoData();
+  const ls = Object.values(db.assessments).filter((a) => a.patientId === 'P-DEMO-LAURA').sort((a, b) => (a.date < b.date ? -1 : 1));
+  const [a0, a1] = [ls[0], ls[ls.length - 1]];
+  const an0 = Calc.lvpAnalysis(a0, null)[0], an1 = Calc.lvpAnalysis(a1, a0)[0];
+  assert.equal(an0.name, 'Squat');
+  assert.ok(an0.cmp == null && an1.cmp && an1.cmp.rmDiff > 0, 'surt la millora respecte de l\'anterior');
+  assert.ok(an1.lines.some((l) => /Respecte de la valoració anterior/.test(l)));
+  assert.ok(an1.prevEx && an1.prevEx.fit, 'la recta anterior per dibuixar-la al gràfic');
+  assert.equal(Calc.lvpAny(a1), true);
+  assert.equal(Calc.lvpAny({}), false);
+  // Un exercici amb el mateix nom que l'anterior però un altre (Press banca) no es compara
+  const alex = Object.values(db.assessments).find((a) => a.patientId === 'P-DEMO-ALEX');
+  assert.equal(Calc.lvpAnalysis(alex, a0)[0].cmp, undefined);
+  // Columnes planes (Excel gegant): una per resultat, sense duplicats encara que hi hagi dos exercicis iguals
+  Flat.strict = true;
+  const dup = { ...a1, lvp: { exercises: [a1.lvp.exercises[0], { ...a1.lvp.exercises[0], id: 'L2' }] } };
+  const row = Flat.assessment(dup, db.patients['P-DEMO-LAURA']);
+  Flat.strict = false;
+  assert.ok(row['Càrrega-velocitat Squat · 1RM estimada (kg)'] > 0);
+  assert.ok(row['Càrrega-velocitat Squat (2) · 1RM estimada (kg)'] > 0);
+  assert.match(row['Càrrega-velocitat Squat · punts'], /kg → .* m\/s/);
+});

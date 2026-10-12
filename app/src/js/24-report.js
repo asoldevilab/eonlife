@@ -59,6 +59,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const sls = v.sls || {};
   const wl = Calc.wellness(a.wellness);
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
+  const lvp = Calc.lvpAnalysis(a, prev).filter((x) => x.fit);
   const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
   const hasPatterns = pc.scored > 0 || pc.counts.P > 0;
   const videos = Calc.videos(a).filter((x) => scope === 'tot' || x.area === scope);
@@ -154,7 +155,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           </tbody></table></div>`}
       </section>`}
 
-      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null || bike.mean != null) && html`<section class="rsec">
+      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || lvp.length > 0 || bike.peak != null || bike.mean != null) && html`<section class="rsec">
         <h2 class="rsec-title">Rendiment</h2>
         ${Object.keys(jumps).length > 0 && html`<h3 class="h3">Salts <span class="muted">· My Jump Lab</span></h3>
           <div class="jump-sum">${Object.entries(jumps).map(([type, sm]) => html`<div class="jump-card">
@@ -163,6 +164,15 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
             <div class="jump-meta">Mitjana ${U.fmt(sm.mean, 1)} cm${sm.bestPower != null ? ` · ${U.fmt(sm.bestPower, 0)} W` : ''}${sm.relPower != null ? ` · ${U.fmt(sm.relPower, 1)} W/kg` : ''}${sm.bestRsi != null ? ` · RSI-mod ${U.fmt(sm.bestRsi, 2)}` : ''}</div>
           </div>`)}</div>
           ${Object.values(jumpAn).some((x) => x.lines.length > 1) && html`<ul class="rjump-analysis">${Object.values(jumpAn).flatMap((x) => x.lines.slice(1)).map((l) => html`<li>${l}</li>`)}</ul>`}`}
+        ${lvp.length > 0 && html`<h3 class="h3">Perfil càrrega-velocitat <span class="muted">· ADR Encoder</span></h3>
+          ${lvp.map((x) => html`<div class="lvp-report">
+            <h4 class="h4">${x.name || LVP.preset(x.preset).name}</h4>
+            <${LoadVelocityChart} cur=${x} prev=${x.prevEx} prevLabel=${x.cmp && x.cmp.date ? U.fmtDateShort(x.cmp.date) : 'Anterior'} height=${230} ariaLabel=${`Perfil càrrega-velocitat de ${x.name || LVP.preset(x.preset).name}`} />
+            <${LvpStats} r=${x} />
+            <${LvpZones} r=${x} report=${true} />
+            <ul class="rjump-analysis">${x.lines.filter((l) => !/^Recta:|^Càrrega a velocitat zero|^1RM estimada:/.test(l)).map((l) => html`<li>${l}</li>`)}</ul>
+          </div>`)}
+          <p class="muted small lvp-note">Cada punt és una càrrega i la velocitat de la barra. Com més a la dreta quedi la recta d'una valoració a la següent, més força. La 1RM és una estimació, no una prova directa.</p>`}
         ${enc.length > 0 && html`<h3 class="h3">Encoder <span class="muted">· velocitat d'execució</span></h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Exercici</th><th class="num">Càrrega</th><th class="num">Velocitat mitjana</th><th class="num">Potència</th></tr></thead>
           <tbody>${enc.map((r) => html`<tr><td>${r.name}</td><td class="num">${U.num(r.load) != null ? `${U.fmt(U.num(r.load), 1)} kg` : '—'}</td>

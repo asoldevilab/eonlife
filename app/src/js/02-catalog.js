@@ -222,7 +222,7 @@ const RECORDING_RULES = [
 
 // Protocol de valoració funcional. Tipus de test:
 //   bi (dreta/esquerra numèric) · single (un valor) · biSelect · select · scoreBi (0/−/−− per costat)
-//   grups especials: ybt · jumps · encoder · bike · patterns · free
+//   grups especials: ybt · jumps · lvp · encoder · bike · patterns · free
 //   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol;
 //   també als patrons, PATTERNS)
 //   retired: el centre ja no el fa (octubre 2026). No surt a les valoracions noves ni als informes; si una valoració
@@ -296,6 +296,9 @@ const PROTOCOL = [
       { id: 'jumps', title: 'CMJ', device: 'My Jump Lab', kind: 'jumps',
         info: 'Salt amb contramoviment: potència mecànica, força explosiva i capacitat del cicle d\'estirament-escurçament de l\'extremitat inferior.',
         ref: 'Pérez-Castiglioni C, Buscà B, Aguilera-Castells J. J Strength Cond Res. 2022;36(12):3530-3542.' },
+      { id: 'lvp', title: 'Perfil càrrega-velocitat', device: 'ADR Encoder · lineal', kind: 'lvp',
+        info: 'Velocitat mitjana de la barra a diferents càrregues. Amb la recta que en surt estimem la 1RM sense haver d\'arribar-hi, la càrrega per a cada velocitat i com canvia el perfil entre valoracions. Fes servir 4–6 càrregues creixents, 2 repeticions a les lleugeres i 1–2 a les pesades, sempre a màxima intenció a la fase concèntrica. Els valors de velocitat mínima (1RM) són de referència: depenen de l\'exercici, la tècnica i l\'equip.',
+        ref: 'González-Badillo JJ, Sánchez-Medina L. Movement velocity as a measure of loading intensity in resistance training. Int J Sports Med. 2010;31(5):347-352. · García-Ramos A, et al. Feasibility of the 2-point method for determining the 1-repetition maximum in the bench press exercise. Int J Sports Physiol Perform. 2018;13(4):474-481. · Ardigò LP, et al. Reliability and validity of the multi-point and 2-point methods for estimating 1RM in deadlift and back squat. PeerJ. 2022;10:e13013.' },
       { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder', retired: true },
       { id: 'bike', title: 'Assault bike · 30 s all-out', device: 'Fase 2', kind: 'bike',
         info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en pacients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',

@@ -425,6 +425,39 @@ const ExcelAssessment = (() => {
       }
       r++;
     }
+    // Perfil càrrega-velocitat: les dades, la recta (amb fórmules d'Excel: SLOPE, INTERCEPT i RSQ) i la 1RM estimada.
+    const lv = Calc.lvpAnalysis(a, ref.previous).filter((x) => x.fit);
+    if (lv.length) {
+      r = xlSection(ws, r, 'Perfil càrrega-velocitat  ·  ADR Encoder', NC);
+      for (const x of lv) {
+        r = xlKv(ws, r, [['Exercici', x.name || LVP.preset(x.preset).name]], NC);
+        r = xlHeader(ws, r, ['Càrrega (kg)', 'Velocitat mitjana (m/s)', 'Velocitat pic (m/s)', 'Repeticions']);
+        const first = r;
+        for (const row of x.rows) {
+          ws.set(r, 1, row.load, [XS.cell, { fmt: '0.0' }]); ws.set(r, 2, row.mv, [XS.cell, { fmt: '0.00' }]);
+          ws.set(r, 3, row.pv, [XS.cell, { fmt: '0.00' }]); ws.set(r, 4, row.reps, [XS.cell, { fmt: '0' }]);
+          r++;
+        }
+        const L = `${xlRef(first, 1)}:${xlRef(r - 1, 1)}`, V = `${xlRef(first, 2)}:${xlRef(r - 1, 2)}`;
+        const put = (label, f, v, fmt, unit) => { ws.set(r, 1, label, XS.text); ws.set(r, 2, { f, v: v == null ? '' : v }, [XS.cell, { fmt }]); ws.set(r, 3, unit, XS.cell); r++; return xlRef(r - 1, 2); };
+        const sl = put('Pendent de la recta', `IF(COUNT(${V})>=2,SLOPE(${V},${L}),"")`, x.fit.slope, '0.0000', 'm/s per kg');
+        const ic = put('Velocitat sense càrrega (V0)', `IF(COUNT(${V})>=2,INTERCEPT(${V},${L}),"")`, x.fit.v0, '0.00', 'm/s');
+        put('Ajust (R²)', `IF(COUNT(${V})>=2,RSQ(${V},${L}),"")`, x.fit.r2, '0.000', '');
+        put('Càrrega a velocitat zero (L0)', `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0),-${ic}/${sl},"")`, x.fit.l0, '0.0', 'kg');
+        ws.set(r, 1, 'Velocitat mínima de la 1RM', XS.text); ws.set(r, 2, x.mvt, [XS.cell, { fmt: '0.00' }]); ws.set(r, 3, 'm/s', XS.cell);
+        const mv = xlRef(r, 2); r++;
+        const at = (v, nv) => ({ f: `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0,(${v}-${ic})/${sl}>0),(${v}-${ic})/${sl},"")`, v: nv == null ? '' : nv });
+        ws.set(r, 1, '1RM estimada', [XS.label]); ws.set(r, 2, at(mv, x.rm), [XS.cell, { fmt: '0.0', b: true }]); ws.set(r, 3, 'kg', XS.cell); r++;
+        for (const z of x.table) {
+          ws.set(r, 1, `Càrrega estimada a ${U.fmtFixed(z.v, 2)} m/s`, XS.text); ws.set(r, 2, at(String(z.v), z.load), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'kg', XS.cell); r++;
+        }
+        const notes = [];
+        if (x.lines.some((l) => /^Respecte|^Càrrega a 0,50/.test(l))) notes.push([`Evolució · ${x.name}`, x.lines.filter((l) => /^Respecte|^Càrrega a 0,50/.test(l)).join(' ')]);
+        if (x.warns.length) notes.push([`Avisos · ${x.name}`, x.warns.join(' ')]);
+        if (notes.length) r = xlKv(ws, r, notes, NC);
+        r++;
+      }
+    }
     const b = Calc.bike(a);
     if (b.any) {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
@@ -544,6 +577,16 @@ const ExcelAssessment = (() => {
             // La velocitat només es pot comparar a la mateixa càrrega: es mostra el canvi, però sense color.
             rows.push({ label: `Encoder · ${name} · velocitat`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: xlNum(pick(a).vel) }) });
             rows.push({ label: `Encoder · ${name} · càrrega`, unit: 'kg', fmt: '0.0', dir: 0, get: (a) => ({ v: xlNum(pick(a).load) }) });
+          }
+          continue;
+        }
+        if (g.kind === 'lvp') {
+          const names = [...new Set(list.flatMap((a) => Calc.lvpAnalysis(a, null).map((x) => x.name || LVP.preset(x.preset).name)))];
+          for (const name of names) {
+            const pick = (a) => Calc.lvpAnalysis(a, null).find((x) => U.norm(x.name || LVP.preset(x.preset).name) === U.norm(name)) || {};
+            rows.push({ label: `${name} · 1RM estimada`, unit: 'kg', fmt: '0', dir: 1, bold: true, get: (a) => ({ v: pick(a).rm != null ? pick(a).rm : null }) });
+            rows.push({ label: `${name} · càrrega a 0,50 m/s`, unit: 'kg', fmt: '0', dir: 1, get: (a) => { const x = pick(a); return { v: x.fit ? Calc.lvpLoadAt(x.fit, 0.5) : null }; } });
+            rows.push({ label: `${name} · velocitat sense càrrega (V0)`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: pick(a).fit ? pick(a).fit.v0 : null }) });
           }
           continue;
         }

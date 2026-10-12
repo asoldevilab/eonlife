@@ -92,7 +92,7 @@ Les seccions segueixen el document *Valoració funcional · Human Performance*:
 |---|---|---|
 | Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
 | Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i squeeze), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
-| Rendiment | CMJ (My Jump, amb importació del CSV), Assault bike 30 s (amb la foto de la pantalla) | Millor salt, mitjana, potència (My Jump o Sayers), W/kg, RSI-mod, variabilitat; watts, treball, distància, energia, índex de fatiga i comparació amb l'anterior |
+| Rendiment | CMJ (My Jump, amb importació del CSV), perfil càrrega-velocitat (ADR Encoder), Assault bike 30 s (amb la foto de la pantalla) | Millor salt, mitjana, potència (My Jump o Sayers), W/kg, RSI-mod, variabilitat; recta càrrega-velocitat, 1RM estimada i càrrega per velocitat; watts, treball, distància, energia, índex de fatiga i comparació amb l'anterior |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
 | Altres mesures | Qualsevol mesura nova | Es desa també al full |
 
@@ -180,6 +180,28 @@ Consells:
     intents (CV %) i la comparació amb la valoració anterior.
   - **Avisos** (només per a qui introdueix les dades, no surten a l'informe): distància d'empenta fora de 0,10–0,60 m,
     pes que My Jump no té, altura que no quadra amb el temps de vol i variabilitat alta entre intents.
+- **Perfil càrrega-velocitat** (a *Rendiment*, amb l'**ADR Encoder** lineal): serveix per **estimar la 1RM sense arribar-hi**
+  (més segur en readaptació, gent gran o poc entrenada) i per veure, a cada re-test, si el perfil s'ha desplaçat cap a
+  càrregues més altes. El botó **Com fer-lo servir** obre la guia pas a pas (material, col·locació de l'encoder, càrregues,
+  descansos, interpretació i limitacions).
+  - **Afegiu l'exercici** amb els botons de sota (*Squat, Press banca, Pes mort, Hip thrust, Altre exercici*). Cada exercici
+    porta la **velocitat mínima de la 1RM** de referència (squat 0,30 m/s en homes i 0,25 en dones, press banca 0,17,
+    pes mort 0,15, hip thrust 0,25): són valors de la literatura, orientatius, i es poden canviar. «Altre exercici» no en
+    porta: fa la recta però no estima la 1RM fins que en poseu una.
+  - **Apunteu, per a cada càrrega**, els kg i la **velocitat mitjana** (de la fase concèntrica) que dona l'encoder; la
+    velocitat de pic i les repeticions són opcionals. Amb **4–6 càrregues** (de ~1 m/s fins a ~0,5 m/s, sense arribar a la
+    fallada) l'app dibuixa el gràfic amb la recta.
+  - **Càlculs**: recta per regressió (velocitat = V0 − pendent × càrrega), **V0** (velocitat sense càrrega), **L0** (càrrega
+    a velocitat zero), **R²**, **1RM estimada** (càrrega a la velocitat mínima; també en vegades el pes corporal) i la
+    **càrrega estimada per a cada velocitat** (1,00 · 0,80 · 0,60 · 0,50 · 0,40 · 0,30 m/s) amb el % de la 1RM. Al re-test
+    surt la comparació amb la valoració anterior (1RM estimada i càrrega a 0,50 m/s) i la recta d'abans en gris.
+  - **Avisos** (només per a qui introdueix les dades): una sola càrrega o només dues (orientatiu), ajust baix (R² < 0,90),
+    velocitats de més d'1 m/s, cap càrrega pesada (l'estimació extrapola molt), càrrega per sobre de la 1RM estimada, o
+    velocitat que no baixa quan puja la càrrega. No hi ha res de personal a l'informe del pacient: surten el gràfic, el
+    resum i la taula.
+  - **Fiabilitat**: és una estimació; va bé per fer seguiment i per triar càrregues, però no substitueix un test directe si
+    cal la 1RM exacta. Depèn de l'exercici, la tècnica i l'equip (Smith o barra lliure): no compareu entre exercicis ni equips.
+    Referències: González-Badillo i Sánchez-Medina (2010), García-Ramos et al. (2018) i Ardigò et al. (2022).
 - **Assault bike 30 s all-out** (a *Rendiment*): caselles per als **watts pic, mitjans i mínims**, i per a les dades de
   la pantalla de l'aparell: **temps, distància, calories, velocitat mitjana i RPM mitjanes**. Hi ha un interruptor de
   **unitats** (milles / km): si a la pantalla sota la distància hi diu MILES (i la velocitat va en M/HR), són milles.

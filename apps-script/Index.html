@@ -838,6 +838,25 @@ input[type="search"].input { -webkit-appearance: none; }
 .analysis-warns svg { flex: none; margin-top: 2px; }
 .rjump-analysis { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 2px; font-size: 13.5px; color: var(--ink-2); }
 
+/* Perfil càrrega-velocitat */
+.lvp { display: grid; gap: 14px; }
+.lvp-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lvp-top p { margin: 0; }
+.lvp-ex { padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); display: grid; gap: 10px; }
+.lvp-ex-head { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.lvp-ex-head .select { min-width: 160px; }
+.lvp-mvt { flex: 1 1 220px; max-width: 360px; }
+.lvp-ex-head > .btn:last-child { margin-left: auto; align-self: flex-start; }
+.lvp-table td { padding: 5px 6px; }
+.lvp-table .numin { width: 104px; }
+.lvp-result { display: grid; gap: 12px; padding-top: 4px; }
+.lvp-kv { gap: 10px 32px; }
+.lvp-zones { max-width: 460px; }
+.lvp-add { align-items: center; flex-wrap: wrap; }
+.lvp-guide section { margin-top: 14px; }
+.lvp-guide h3 { margin: 0 0 6px; }
+.lvp-guide ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; }
+
 .scale { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .scale-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; }
 .scale-item > div > strong { display: block; font-size: 14px; }
@@ -1684,6 +1703,10 @@ tfoot .rpc { font-size: 14px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 720px) { .noe-panel { width: 100vw; border-left: 0; } .noe-fab { bottom: 14px; right: 14px; } }
 @media print { .noe-fab, .noe-panel { display: none !important; } }
+.lvp-report { margin-top: 16px; display: grid; gap: 12px; }
+.lvp-report .h4 { margin: 0; font-size: 15px; }
+.lvp-report .rjump-analysis { margin-top: 0; }
+.lvp-note { margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -3993,7 +4016,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-10 02:01";
+<script>window.EON_BUILD = "2026-10-12 13:26";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4556,7 +4579,7 @@ const RECORDING_RULES = [
 
 // Protocol de valoració funcional. Tipus de test:
 //   bi (dreta/esquerra numèric) · single (un valor) · biSelect · select · scoreBi (0/−/−− per costat)
-//   grups especials: ybt · jumps · encoder · bike · patterns · free
+//   grups especials: ybt · jumps · lvp · encoder · bike · patterns · free
 //   photos: el test es documenta amb fotos i no amb vídeo · videos: un vídeo per costat (en lloc d'un de sol;
 //   també als patrons, PATTERNS)
 //   retired: el centre ja no el fa (octubre 2026). No surt a les valoracions noves ni als informes; si una valoració
@@ -4630,6 +4653,9 @@ const PROTOCOL = [
       { id: 'jumps', title: 'CMJ', device: 'My Jump Lab', kind: 'jumps',
         info: 'Salt amb contramoviment: potència mecànica, força explosiva i capacitat del cicle d\'estirament-escurçament de l\'extremitat inferior.',
         ref: 'Pérez-Castiglioni C, Buscà B, Aguilera-Castells J. J Strength Cond Res. 2022;36(12):3530-3542.' },
+      { id: 'lvp', title: 'Perfil càrrega-velocitat', device: 'ADR Encoder · lineal', kind: 'lvp',
+        info: 'Velocitat mitjana de la barra a diferents càrregues. Amb la recta que en surt estimem la 1RM sense haver d\'arribar-hi, la càrrega per a cada velocitat i com canvia el perfil entre valoracions. Fes servir 4–6 càrregues creixents, 2 repeticions a les lleugeres i 1–2 a les pesades, sempre a màxima intenció a la fase concèntrica. Els valors de velocitat mínima (1RM) són de referència: depenen de l\'exercici, la tècnica i l\'equip.',
+        ref: 'González-Badillo JJ, Sánchez-Medina L. Movement velocity as a measure of loading intensity in resistance training. Int J Sports Med. 2010;31(5):347-352. · García-Ramos A, et al. Feasibility of the 2-point method for determining the 1-repetition maximum in the bench press exercise. Int J Sports Physiol Perform. 2018;13(4):474-481. · Ardigò LP, et al. Reliability and validity of the multi-point and 2-point methods for estimating 1RM in deadlift and back squat. PeerJ. 2022;10:e13013.' },
       { id: 'encoder', title: 'Encoder', device: 'Velocitat d\'execució', kind: 'encoder', retired: true },
       { id: 'bike', title: 'Assault bike · 30 s all-out', device: 'Fase 2', kind: 'bike',
         info: 'Adaptació del Wingate a bicicleta d\'aire: 30 s al màxim esforç. No el fem el primer dia. Només en pacients entrenats, amb el cribratge de salut superat i sense contraindicacions. En adults grans o amb patologia, no el fem.',
@@ -6113,6 +6139,20 @@ const Flat = {
             o[`Encoder ${r.name} potència (W)`] = n(U.num(r.power));
           }
         }
+        if (g.kind === 'lvp') {
+          const seen = {};
+          for (const x of Calc.lvpAnalysis(a, null)) {
+            const base = x.name || LVP.preset(x.preset).name;
+            seen[base] = (seen[base] || 0) + 1;
+            const nm = `Càrrega-velocitat ${base}${seen[base] > 1 ? ` (${seen[base]})` : ''}`, f = x.fit || {};
+            o[`${nm} · 1RM estimada (kg)`] = n(x.rm);
+            o[`${nm} · velocitat mínima (m/s)`] = n(x.mvt);
+            o[`${nm} · V0 (m/s)`] = n(f.v0);
+            o[`${nm} · L0 (kg)`] = n(f.l0);
+            o[`${nm} · R²`] = n(f.r2);
+            o[`${nm} · punts`] = x.rows.map((r) => `${U.fmt(r.load, 1)} kg → ${U.fmtFixed(r.mv, 2)} m/s`).join(' · ');
+          }
+        }
         if (g.kind === 'bike') {
           const b = Calc.bike(a);
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);
@@ -6516,6 +6556,126 @@ const Evol = {
 };
 
 
+/* ── 04-lvp.js ── */
+/* EON Life · perfil càrrega-velocitat (ADR Encoder lineal).
+   Cada exercici té unes quantes càrregues amb la velocitat mitjana de la fase concèntrica. La velocitat baixa de manera
+   gairebé lineal quan puja la càrrega: amb una recta (regressió) estimem la 1RM sense haver d'arribar-hi, la càrrega
+   per a cada velocitat i com es desplaça el perfil entre valoracions. */
+
+// Exercicis de referència. mvt = velocitat mitjana amb què es fa l'1RM (velocitat mínima de referència), en m/s.
+// Són valors de la literatura (orientatius): s'editen a cada exercici. «Altre» no en porta: sense MVT no hi ha 1RM.
+const LVP_PRESETS = [
+  { id: 'squat', name: 'Squat', mvt: 0.30, mvtF: 0.25, ref: 'Esquena, flexió completa. 0,30 m/s en homes i 0,25 m/s en dones.' },
+  { id: 'bench', name: 'Press banca', mvt: 0.17, ref: 'Barra o Smith: la 1RM surt cap a 0,16–0,17 m/s.' },
+  { id: 'deadlift', name: 'Pes mort', mvt: 0.15, ref: 'Convencional: la 1RM surt cap a 0,14–0,15 m/s.' },
+  { id: 'hipthrust', name: 'Hip thrust', mvt: 0.25, ref: 'Amb barra: la 1RM surt cap a 0,25 m/s (un estudi).' },
+  { id: 'other', name: 'Altre exercici', mvt: null, ref: 'Sense valor de referència: posa\'n un si el coneixes; si no, només es calcula la recta.' },
+];
+
+// Velocitats per a les quals donem la càrrega estimada (només les que queden entre la 1RM i la velocitat sense càrrega).
+const LVP_SPEEDS = [1.0, 0.8, 0.6, 0.5, 0.4, 0.3];
+
+const LVP = {
+  presets: LVP_PRESETS,
+  preset(id) { return LVP_PRESETS.find((p) => p.id === id) || LVP_PRESETS[LVP_PRESETS.length - 1]; },
+  // MVT per defecte d'un preset (les dones, al squat, tenen una velocitat més baixa).
+  defaultMvt(id, sex) {
+    const p = LVP.preset(id);
+    return p.mvtF != null && /^(d|f|dona|femeni|female)/i.test(String(sex || '')) ? p.mvtF : p.mvt;
+  },
+  newExercise(id, sex) {
+    const p = LVP.preset(id);
+    const mvt = LVP.defaultMvt(id, sex);
+    return { id: U.uid('L'), preset: p.id, name: p.id === 'other' ? '' : p.name, mvt: mvt != null ? String(mvt).replace('.', ',') : '', rows: [LVP.newRow(), LVP.newRow(), LVP.newRow(), LVP.newRow()] };
+  },
+  newRow() { return { id: U.uid('R'), load: '', mv: '', pv: '', reps: '' }; },
+};
+
+Object.assign(Calc, {
+  // Una fila compta si té càrrega i velocitat mitjana vàlides.
+  lvpRows(ex) {
+    return ((ex && ex.rows) || [])
+      .map((r) => ({ load: U.num(r.load), mv: U.num(r.mv), pv: U.num(r.pv), reps: U.num(r.reps) }))
+      .filter((r) => r.load != null && r.load > 0 && r.mv != null && r.mv > 0)
+      .sort((x, y) => x.load - y.load);
+  },
+  // Regressió lineal v = v0 + pendent × càrrega.
+  lvpFit(rows) {
+    const n = rows.length;
+    if (n < 2) return null;
+    const mx = rows.reduce((s, r) => s + r.load, 0) / n, my = rows.reduce((s, r) => s + r.mv, 0) / n;
+    const sxx = rows.reduce((s, r) => s + (r.load - mx) ** 2, 0), sxy = rows.reduce((s, r) => s + (r.load - mx) * (r.mv - my), 0);
+    if (!sxx) return null;
+    const slope = sxy / sxx, v0 = my - slope * mx;
+    const syy = rows.reduce((s, r) => s + (r.mv - my) ** 2, 0);
+    const sse = rows.reduce((s, r) => s + (r.mv - (v0 + slope * r.load)) ** 2, 0);
+    const r2 = syy ? Math.max(0, 1 - sse / syy) : null;
+    return { n, slope, v0, r2, see: n > 2 ? Math.sqrt(sse / (n - 2)) : null, l0: slope < 0 ? -v0 / slope : null };
+  },
+  // Càrrega que correspon a una velocitat segons la recta (null si no surt una càrrega positiva).
+  lvpLoadAt(fit, v) {
+    if (!fit || !(fit.slope < 0)) return null;
+    const l = (v - fit.v0) / fit.slope;
+    return l > 0 ? l : null;
+  },
+  // Un exercici: recta, 1RM estimada, càrregues per velocitat i avisos.
+  lvpExercise(ex, weight) {
+    const rows = Calc.lvpRows(ex);
+    const fit = Calc.lvpFit(rows);
+    const mvt = U.num(ex && ex.mvt);
+    const out = { id: ex && ex.id, name: String((ex && ex.name) || '').trim(), preset: (ex && ex.preset) || 'other', rows, fit, mvt, n: rows.length, rm: null, rmRel: null, table: [], maxLoad: rows.length ? rows[rows.length - 1].load : null, warns: [], lines: [] };
+    const f2 = (n) => U.fmtFixed(n, 2), f0 = (n) => U.fmt(n, 0);
+    if (!fit) { if (out.n === 1) out.warns.push('Cal almenys dues càrregues per dibuixar la recta (millor 4 o més).'); return out; }
+    if (!(fit.slope < 0)) { out.warns.push('La velocitat no baixa quan puja la càrrega: revisa les dades abans de fer servir la recta.'); return out; }
+    if (mvt != null && mvt > 0) {
+      const rm = (mvt - fit.v0) / fit.slope;
+      if (rm > 0) out.rm = rm;
+      if (out.rm && weight) out.rmRel = out.rm / weight;
+    }
+    const lo = mvt != null ? mvt : 0;
+    for (const v of LVP_SPEEDS) {
+      if (v < lo - 1e-9) continue;
+      const l = Calc.lvpLoadAt(fit, v);
+      if (l != null) out.table.push({ v, load: l, pct: out.rm ? (l / out.rm) * 100 : null });
+    }
+    // Línies per a l'informe (resultats) i avisos per a qui introdueix les dades.
+    out.lines.push(`Recta: velocitat = ${f2(fit.v0)} m/s ${fit.slope < 0 ? '−' : '+'} ${U.fmt(Math.abs(fit.slope) * 10, 3)} m/s per cada 10 kg${fit.r2 != null ? ` (R² ${f2(fit.r2)})` : ''}.`);
+    if (out.rm != null) out.lines.push(`1RM estimada: ${f0(out.rm)} kg${out.rmRel != null ? ` (${f2(out.rmRel)} vegades el pes corporal)` : ''}, amb una velocitat mínima de ${f2(mvt)} m/s.`);
+    else if (mvt == null) out.warns.push('Sense velocitat mínima de referència no es pot estimar la 1RM. Posa-la a l\'exercici si en coneixes una.');
+    if (fit.l0 != null) out.lines.push(`Càrrega a velocitat zero (L0): ${f0(fit.l0)} kg · velocitat sense càrrega (V0): ${f2(fit.v0)} m/s.`);
+    if (out.n === 2) out.warns.push('Només hi ha dues càrregues: la recta és orientativa. Amb 4 o més és molt més fiable.');
+    if (fit.r2 != null && out.n >= 3 && fit.r2 < 0.9) out.warns.push(`L'ajust és baix (R² ${f2(fit.r2)}): repeteix alguna càrrega o revisa la tècnica i la col·locació de l'encoder.`);
+    const vmax = Math.max(...rows.map((r) => r.mv)), vmin = Math.min(...rows.map((r) => r.mv));
+    if (vmax > 1.0) out.warns.push(`Hi ha càrregues amb velocitat de més d'1 m/s (${f2(vmax)}): són massa lleugeres i poden torcer la recta.`);
+    if (out.rm != null && vmin > mvt + 0.35) out.warns.push(`La càrrega més pesada va a ${f2(vmin)} m/s: encara és lluny de la 1RM i l'estimació extrapola molt. Afegeix una càrrega més pesada, sense arribar al límit.`);
+    if (out.rm != null && out.maxLoad > out.rm * 1.02) out.warns.push(`La càrrega més alta (${f0(out.maxLoad)} kg) supera la 1RM estimada: revisa la velocitat mínima o les dades.`);
+    return out;
+  },
+  // Tots els exercicis d'una valoració, amb la comparació amb la valoració anterior (mateix exercici pel nom).
+  // keepEmpty: també els exercicis encara sense dades (per al formulari, en el mateix ordre).
+  lvpAnalysis(a, prev, keepEmpty = false) {
+    const w = Calc.weight(a);
+    const list = ((a && a.lvp && a.lvp.exercises) || []).map((ex) => Calc.lvpExercise(ex, w)).filter((x) => keepEmpty || x.n > 0);
+    const prevList = prev ? ((prev.lvp && prev.lvp.exercises) || []).map((ex) => Calc.lvpExercise(ex, Calc.weight(prev))).filter((x) => x.fit) : [];
+    for (const x of list) {
+      const key = U.norm(x.name || x.preset);
+      const p = prevList.find((q) => U.norm(q.name || q.preset) === key);
+      if (!p || !x.fit) continue;
+      const at = (e, v) => Calc.lvpLoadAt(e.fit, v);
+      const c = { date: prev.date || '', rm: p.rm, rmDiff: x.rm != null && p.rm != null ? x.rm - p.rm : null, rmPct: x.rm != null && p.rm ? ((x.rm - p.rm) / p.rm) * 100 : null,
+        l05: at(p, 0.5), l05Diff: at(x, 0.5) != null && at(p, 0.5) != null ? at(x, 0.5) - at(p, 0.5) : null };
+      x.cmp = c; x.prevEx = p;
+      const when = c.date ? ` (${U.fmtDate(c.date)})` : '';
+      if (c.rmDiff != null) x.lines.push(`Respecte de la valoració anterior${when}: 1RM estimada ${U.fmtSigned(c.rmDiff, 0)} kg${c.rmPct != null ? ` (${U.fmtSigned(c.rmPct, 1)} %)` : ''}.`);
+      if (c.l05Diff != null) x.lines.push(`Càrrega a 0,50 m/s: ${U.fmtSigned(c.l05Diff, 0)} kg (${U.fmt(c.l05, 0)} → ${U.fmt(at(x, 0.5), 0)} kg).`);
+    }
+    return list;
+  },
+  // Valoració sense res al perfil (per saber si el grup està fet).
+  lvpAny(a) { return ((a && a.lvp && a.lvp.exercises) || []).some((ex) => Calc.lvpRows(ex).length > 0); },
+});
+
+
 /* ── 05-store.js ── */
 /* EON Life · dades: magatzem en memòria + desament automàtic.
    Tres modes:
@@ -6677,6 +6837,14 @@ function migrateDemo(db) {
     for (const id of retired) if (a.values) delete a.values[id];
     if (a.encoder) a.encoder.rows = [];
   }
+  // Perfil càrrega-velocitat d'abans de tenir-lo: el squat de la Laura (abans i després) i el press banca de l'Àlex.
+  const mine = (pid) => Object.values(db.assessments || {}).filter((a) => a.patientId === pid).sort((x, y) => String(x.date).localeCompare(String(y.date)));
+  const L = mine('P-DEMO-LAURA'), A = mine('P-DEMO-ALEX');
+  if (L.length >= 2 && !L[0].lvp && !L[L.length - 1].lvp) {
+    L[0].lvp = demoLvp('squat', 0.25, [[20, 0.97], [30, 0.81], [40, 0.69], [50, 0.53], [60, 0.40]]);
+    L[L.length - 1].lvp = demoLvp('squat', 0.25, [[30, 0.92], [40, 0.81], [50, 0.69], [60, 0.55], [70, 0.44]]);
+  }
+  if (A.length && !A[0].lvp) A[0].lvp = demoLvp('bench', 0.17, [[40, 0.88], [50, 0.75], [60, 0.59], [70, 0.46], [80, 0.32]]);
 }
 
 const Store = {
@@ -6962,6 +7130,7 @@ const Store = {
       // Pes i alçada: els de la fitxa del client (o, si no n'hi ha, els de l'última valoració).
       general: { weight: (p && p.weight) || (last && last.general ? last.general.weight : '') || '', height: (p && p.height) || (last && last.general ? last.general.height : '') || '', goal: (p && p.goal) || '' },
       values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
+      lvp: { exercises: [] },
       encoder: { rows: [{ id: U.uid('R'), name: 'Squat' }, { id: U.uid('R'), name: 'RDL' }, { id: U.uid('R'), name: 'Hip Thrust' }] },
       bike: {}, patterns: {}, free: [], conclusions: {},
       // Un control de mesures no mou la data del proper re-test.
@@ -7253,6 +7422,12 @@ function cloneBlocks(blocks, resetDone) {
 /* EON Life · dades de demostració (clients ficticis) per provar l'app en mode local.
    Les dates es calculen a partir d'avui perquè la demo sempre sembli actual. */
 
+// Perfil càrrega-velocitat de prova: [[càrrega kg, velocitat mitjana m/s], …] d'un exercici.
+function demoLvp(preset, mvt, rows) {
+  return { exercises: [{ id: U.uid('L'), preset, name: LVP.preset(preset).name, mvt: String(mvt).replace('.', ','),
+    rows: rows.map(([load, mv]) => ({ id: U.uid('R'), load: String(load), mv: String(mv).replace('.', ','), reps: '2' })) }] };
+}
+
 function makeDemoData() {
   const today = U.today();
   const D = (n) => U.addDays(today, n);
@@ -7264,11 +7439,12 @@ function makeDemoData() {
 
   const bi = (d, e) => ({ d: d == null ? '' : String(d), e: e == null ? '' : String(e) });
   const one = (v) => ({ v: String(v) });
+  const lvp = demoLvp;
 
   const assessment = (a) => {
     const rec = {
       id: U.uid('V'), type: 'inicial', values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
-      encoder: { rows: [] }, bike: {}, patterns: {}, free: [], conclusions: {}, createdAt: `${a.date}T10:00:00.000Z`, ...a,
+      encoder: { rows: [] }, lvp: { exercises: [] }, bike: {}, patterns: {}, free: [], conclusions: {}, createdAt: `${a.date}T10:00:00.000Z`, ...a,
     };
     rec.nextRetest = rec.nextRetest || U.addMonths(rec.date, THRESHOLDS.retestMonths);
     db.assessments[rec.id] = rec;
@@ -7305,6 +7481,7 @@ function makeDemoData() {
 
   // ── Valoracions ──
   assessment({ patientId: laura, date: D(-95), type: 'inicial', professional: 'Arnau',
+    lvp: lvp('squat', 0.25, [[20, 0.97], [30, 0.81], [40, 0.69], [50, 0.53], [60, 0.40]]),
     general: { weight: '58', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
@@ -7328,6 +7505,7 @@ function makeDemoData() {
     } });
 
   assessment({ patientId: laura, date: D(-4), type: 'retest', professional: 'Arnau',
+    lvp: lvp('squat', 0.25, [[30, 0.92], [40, 0.81], [50, 0.69], [60, 0.55], [70, 0.44]]),
     general: { weight: '57.5', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
@@ -7387,6 +7565,7 @@ function makeDemoData() {
     } });
 
   assessment({ patientId: alex, date: D(-2), type: 'inicial', professional: 'Arnau',
+    lvp: lvp('bench', 0.17, [[40, 0.88], [50, 0.75], [60, 0.59], [70, 0.46], [80, 0.32]]),
     general: { weight: '76', height: '179', goal: 'Rendiment i prevenció de recaigudes.' },
     values: {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),
@@ -7614,6 +7793,7 @@ const DB_TABLES = [
   { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
   { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
+  { id: 'carregavelocitat', label: 'Càrrega-velocitat', kind: 'assessments', focus: 'lvp', add: 'Afegeix càrrega-velocitat', hint: 'Perfil càrrega-velocitat (ADR Encoder): 1RM estimada, velocitat sense càrrega i càrrega a 0,50 m/s.' },
   { id: 'rendiment', label: 'Assault bike', kind: 'assessments', focus: 'bike', add: 'Afegeix bike', hint: 'Assault bike 30 s all-out.' },
   { id: 'patrons', label: 'Patrons', kind: 'assessments', focus: 'patterns', add: 'Afegeix patrons', hint: 'Sessió 1 · puntuació 0 / − / −− i P (dolor).' },
   { id: 'sessions', label: 'Sessions', kind: 'sessions', hint: 'Una fila per sessió: RPE, minuts i càrrega.' },
@@ -7784,6 +7964,19 @@ const DB = (() => {
       { id: 'dj', label: 'DJ RSI-mod', kind: 'num', dec: 2, get: jump('DJ', 'bestRsi') },
       { id: 'ready', label: 'Estat de forma', kind: 'text', get: (r) => (r.a.jumps && r.a.jumps.readiness) || '',
         tone: (r, v) => (v === 'vermell' ? 'bad' : v === 'groc' ? 'warn' : v === 'verd' ? 'ok' : '') },
+    ],
+
+    carregavelocitat: () => [
+      ...lead(),
+      ...LVP.presets.filter((x) => x.id !== 'other').flatMap((x) => {
+        const get = (k) => (r) => { const e = Calc.lvpAnalysis(r.a, null).find((y) => y.preset === x.id); return e && e.fit ? (k === 'rm' ? e.rm : k === 'v0' ? e.fit.v0 : k === 'l05' ? Calc.lvpLoadAt(e.fit, 0.5) : e.fit.r2) : null; };
+        return [
+          { id: `lvp-${x.id}-rm`, group: x.name, label: '1RM estimada', unit: 'kg', kind: 'num', dec: 0, get: get('rm') },
+          { id: `lvp-${x.id}-l05`, group: x.name, label: 'Càrrega a 0,50 m/s', unit: 'kg', kind: 'num', dec: 0, get: get('l05') },
+          { id: `lvp-${x.id}-v0`, group: x.name, label: 'V0', unit: 'm/s', kind: 'num', dec: 2, get: get('v0') },
+          { id: `lvp-${x.id}-r2`, group: x.name, label: 'R²', kind: 'num', dec: 2, get: get('r2') },
+        ];
+      }),
     ],
 
     rendiment: () => [
@@ -9822,6 +10015,39 @@ const ExcelAssessment = (() => {
       }
       r++;
     }
+    // Perfil càrrega-velocitat: les dades, la recta (amb fórmules d'Excel: SLOPE, INTERCEPT i RSQ) i la 1RM estimada.
+    const lv = Calc.lvpAnalysis(a, ref.previous).filter((x) => x.fit);
+    if (lv.length) {
+      r = xlSection(ws, r, 'Perfil càrrega-velocitat  ·  ADR Encoder', NC);
+      for (const x of lv) {
+        r = xlKv(ws, r, [['Exercici', x.name || LVP.preset(x.preset).name]], NC);
+        r = xlHeader(ws, r, ['Càrrega (kg)', 'Velocitat mitjana (m/s)', 'Velocitat pic (m/s)', 'Repeticions']);
+        const first = r;
+        for (const row of x.rows) {
+          ws.set(r, 1, row.load, [XS.cell, { fmt: '0.0' }]); ws.set(r, 2, row.mv, [XS.cell, { fmt: '0.00' }]);
+          ws.set(r, 3, row.pv, [XS.cell, { fmt: '0.00' }]); ws.set(r, 4, row.reps, [XS.cell, { fmt: '0' }]);
+          r++;
+        }
+        const L = `${xlRef(first, 1)}:${xlRef(r - 1, 1)}`, V = `${xlRef(first, 2)}:${xlRef(r - 1, 2)}`;
+        const put = (label, f, v, fmt, unit) => { ws.set(r, 1, label, XS.text); ws.set(r, 2, { f, v: v == null ? '' : v }, [XS.cell, { fmt }]); ws.set(r, 3, unit, XS.cell); r++; return xlRef(r - 1, 2); };
+        const sl = put('Pendent de la recta', `IF(COUNT(${V})>=2,SLOPE(${V},${L}),"")`, x.fit.slope, '0.0000', 'm/s per kg');
+        const ic = put('Velocitat sense càrrega (V0)', `IF(COUNT(${V})>=2,INTERCEPT(${V},${L}),"")`, x.fit.v0, '0.00', 'm/s');
+        put('Ajust (R²)', `IF(COUNT(${V})>=2,RSQ(${V},${L}),"")`, x.fit.r2, '0.000', '');
+        put('Càrrega a velocitat zero (L0)', `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0),-${ic}/${sl},"")`, x.fit.l0, '0.0', 'kg');
+        ws.set(r, 1, 'Velocitat mínima de la 1RM', XS.text); ws.set(r, 2, x.mvt, [XS.cell, { fmt: '0.00' }]); ws.set(r, 3, 'm/s', XS.cell);
+        const mv = xlRef(r, 2); r++;
+        const at = (v, nv) => ({ f: `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0,(${v}-${ic})/${sl}>0),(${v}-${ic})/${sl},"")`, v: nv == null ? '' : nv });
+        ws.set(r, 1, '1RM estimada', [XS.label]); ws.set(r, 2, at(mv, x.rm), [XS.cell, { fmt: '0.0', b: true }]); ws.set(r, 3, 'kg', XS.cell); r++;
+        for (const z of x.table) {
+          ws.set(r, 1, `Càrrega estimada a ${U.fmtFixed(z.v, 2)} m/s`, XS.text); ws.set(r, 2, at(String(z.v), z.load), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'kg', XS.cell); r++;
+        }
+        const notes = [];
+        if (x.lines.some((l) => /^Respecte|^Càrrega a 0,50/.test(l))) notes.push([`Evolució · ${x.name}`, x.lines.filter((l) => /^Respecte|^Càrrega a 0,50/.test(l)).join(' ')]);
+        if (x.warns.length) notes.push([`Avisos · ${x.name}`, x.warns.join(' ')]);
+        if (notes.length) r = xlKv(ws, r, notes, NC);
+        r++;
+      }
+    }
     const b = Calc.bike(a);
     if (b.any) {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
@@ -9941,6 +10167,16 @@ const ExcelAssessment = (() => {
             // La velocitat només es pot comparar a la mateixa càrrega: es mostra el canvi, però sense color.
             rows.push({ label: `Encoder · ${name} · velocitat`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: xlNum(pick(a).vel) }) });
             rows.push({ label: `Encoder · ${name} · càrrega`, unit: 'kg', fmt: '0.0', dir: 0, get: (a) => ({ v: xlNum(pick(a).load) }) });
+          }
+          continue;
+        }
+        if (g.kind === 'lvp') {
+          const names = [...new Set(list.flatMap((a) => Calc.lvpAnalysis(a, null).map((x) => x.name || LVP.preset(x.preset).name)))];
+          for (const name of names) {
+            const pick = (a) => Calc.lvpAnalysis(a, null).find((x) => U.norm(x.name || LVP.preset(x.preset).name) === U.norm(name)) || {};
+            rows.push({ label: `${name} · 1RM estimada`, unit: 'kg', fmt: '0', dir: 1, bold: true, get: (a) => ({ v: pick(a).rm != null ? pick(a).rm : null }) });
+            rows.push({ label: `${name} · càrrega a 0,50 m/s`, unit: 'kg', fmt: '0', dir: 1, get: (a) => { const x = pick(a); return { v: x.fit ? Calc.lvpLoadAt(x.fit, 0.5) : null }; } });
+            rows.push({ label: `${name} · velocitat sense càrrega (V0)`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: pick(a).fit ? pick(a).fit.v0 : null }) });
           }
           continue;
         }
@@ -12393,6 +12629,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Progressió simple**: si es completen totes les sèries al màxim del rang de repeticions amb RIR ≥ 2, pujar la càrrega un 2–10 % (regla del «2 per 2» en tècnica estable). Quan una variant fàcil ja és massa fàcil, passar al següent nivell de la família de progressió de la biblioteca.
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
 **Velocitat (VBT)**: amb encoder, una pèrdua de velocitat del 10–20 % dins de la sèrie manté la qualitat de potència; 20–30 % ja és més estímul d'hipertròfia/fatiga. Velocitats de referència orientatives: ≥ 1,0 m/s potència; 0,75 m/s força-velocitat; 0,5 m/s força màxima.
+**Perfil càrrega-velocitat (ADR Encoder)**: 4–6 càrregues creixents (la primera ~1 m/s i l'última cap a 0,5–0,6 m/s, sense arribar a la fallada), 2 repeticions a les lleugeres i 1–2 a les pesades, descans de 2–4 min i màxima intenció a la fase concèntrica. Amb la velocitat mitjana de cada càrrega es dibuixa una recta (la velocitat baixa linealment amb la càrrega): la 1RM s'estima a la velocitat mínima de l'exercici (squat ~0,30 m/s en homes i ~0,25 en dones, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25; valors orientatius). R² ≥ 0,95 és un bon ajust; amb 2 punts és orientatiu i si totes les càrregues són lleugeres l'estimació extrapola molt. En un re-test, la recta que es desplaça cap a la dreta és millora de força. És una estimació: no substitueix una prova directa quan cal la 1RM exacta, i no es compara entre exercicis ni equips (Smith o barra lliure).
 **Càrrega, recuperació i descàrrega**: planificar 3–6 setmanes de progressió seguides d'una setmana de descàrrega (volum –30/–50 %, mantenint la intensitat) o abans si l'RPE/wellness empitjoren. El wellness (1–5) baix, l'RPE de sessió molt per sobre del previst o el dolor (EVA) creixent són senyals per rebaixar. Càrrega de sessió = RPE × minuts (UA). Evita pujar el volum setmanal més d'un ~10–20 % de cop.
 **Escalfament**: mobilitat específica (1) + activació (2) + potència o preparació del patró principal; les sèries d'aproximació pugen la càrrega gradualment.
 **Cardio**: base aeròbica 2–3 dies/setmana a intensitat moderada (conversa possible) i/o intervals d'alta intensitat 1–2 dies segons el nivell; en readaptació, bici o aqua-jogging com a alternativa de baix impacte.
@@ -12656,6 +12893,7 @@ const NoeTools = (() => {
           salts: Object.fromEntries(Object.entries(jumps).map(([t, s]) => [t, compact({ millor_cm: s.best, mitjana_cm: s.mean, potencia_w: s.bestPower, w_kg: s.relPower })])),
           y_balance: ybt.d.comp != null || ybt.e.comp != null ? compact({ composite_d: ybt.d.comp, composite_e: ybt.e.comp, dif_anterior_cm: ybt.antDiff }) : '',
           patrons: patterns,
+          carrega_velocitat: Calc.lvpAnalysis(a, prev).filter((x) => x.fit).map((x) => compact({ exercici: x.name || LVP.preset(x.preset).name, punts: x.rows.map((r) => ({ kg: r.load, m_s: r.mv })), v0_m_s: U.round(x.fit.v0, 2), l0_kg: x.fit.l0 != null ? U.round(x.fit.l0, 0) : '', r2: x.fit.r2 != null ? U.round(x.fit.r2, 3) : '', velocitat_minima_m_s: x.mvt, rm_estimada_kg: x.rm != null ? U.round(x.rm, 0) : '', canvi_rm_kg: x.cmp && x.cmp.rmDiff != null ? U.round(x.cmp.rmDiff, 0) : '', avisos: x.warns })),
           assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, fatiga_pct: bike.fatigue }) : '',
           conclusions: compact({ forts: enc(ctx, short((a.conclusions || {}).strengths, 300)), prioritats: enc(ctx, short((a.conclusions || {}).priorities, 300)), pla: enc(ctx, short((a.conclusions || {}).plan, 300)) }),
           canvis_respecte_anterior: prev ? Calc.compare(a, prev, true).slice(0, 14).map((c) => compact({ nom: c.label, anterior: c.prev, actual: c.cur, canvi: c.delta, millora: c.better === true ? true : c.better === false ? false : '' })) : '',
@@ -13611,7 +13849,8 @@ function PromptInput({ value, onValue, placeholder }) {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-function Dialog({ title, children, footer, onClose, wide }) {
+// text: el diàleg només té text (res per al focus): el cos que fa scroll es pot recórrer amb el teclat.
+function Dialog({ title, children, footer, onClose, wide, text }) {
   const ref = useRef(null);
   // useLayoutEffect: el focus entra al diàleg i les dreceres hi són des del primer instant (no després de pintar).
   useLayoutEffect(() => {
@@ -13647,7 +13886,7 @@ function Dialog({ title, children, footer, onClose, wide }) {
       <h2 class="dialog-title">${title}</h2>
       ${onClose && html`<${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} />`}
     </div>
-    <div class="dialog-body">${children}</div>
+    <div class="dialog-body" tabindex=${text ? 0 : undefined} role=${text ? 'region' : undefined} aria-label=${text ? title : undefined}>${children}</div>
     ${footer && html`<div class="dialog-foot">${footer}</div>`}
   </div>`;
 }
@@ -14008,6 +14247,51 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, y
       <div class="tip-title">${U.fmtDate(hover)}</div>
       ${clean.map((s) => { const p = s.points.find((q) => q.x === hover); return p ? html`<div class="tip-row"><span class="legend-swatch legend-line" style=${`background:${s.color}`}></span>${s.name}<strong>${fmtY(p.y)} ${unit}</strong></div>` : null; })}
     </div>`}
+  </div>`;
+}
+
+// Perfil càrrega-velocitat: punts (càrrega, velocitat mitjana), recta de regressió, velocitat mínima i 1RM estimada.
+// cur / prev: resultat de Calc.lvpExercise (prev és opcional: la valoració anterior, en gris).
+function LoadVelocityChart({ cur, prev, prevLabel = 'Anterior', height = 260, ariaLabel }) {
+  const [ref, W] = useWidth();
+  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--ink-2', '--surface', '--series-1']);
+  if (!cur || !cur.rows || !cur.rows.length) return html`<div class="chart" ref=${ref}><div class="chart-empty">Encara no hi ha càrregues amb velocitat per dibuixar el perfil.</div></div>`;
+  const profiles = [prev && prev.fit ? { ...prev, color: 'var(--axis)', label: prevLabel, dash: true } : null, { ...cur, color: 'var(--series-1)', label: 'Actual' }].filter(Boolean);
+  const H = height, padL = 46, padR = 18, padT = 26, padB = 40;
+  const loads = profiles.flatMap((x) => x.rows.map((r) => r.load));
+  const xTop = Math.max(...profiles.map((x) => Math.max(x.rm ? x.rm * 1.06 : 0, x.maxLoad * 1.25)), ...loads);
+  const yTop = Math.max(...profiles.flatMap((x) => [...x.rows.map((r) => r.mv), x.fit ? Math.min(x.fit.v0, 1.6) : 0])) * 1.08;
+  const xt = niceTicks(0, xTop, 5), yt = niceTicks(0, yTop, 4);
+  const iw = Math.max(60, W - padL - padR), ih = H - padT - padB;
+  const sx = (x) => padL + ((x - xt.lo) / (xt.hi - xt.lo || 1)) * iw;
+  const sy = (y) => padT + ih - ((y - yt.lo) / (yt.hi - yt.lo || 1)) * ih;
+  const line = (x, from, to) => {
+    const a = Math.max(from, xt.lo), b = Math.min(to, xt.hi);
+    if (!(b > a) || !x.fit) return null;
+    return `M${sx(a).toFixed(1)},${sy(x.fit.v0 + x.fit.slope * a).toFixed(1)}L${sx(b).toFixed(1)},${sy(x.fit.v0 + x.fit.slope * b).toFixed(1)}`;
+  };
+  const f2 = (v) => U.fmtFixed(v, 2);
+  const mvt = cur.mvt != null && cur.mvt > 0 && cur.mvt <= yt.hi ? cur.mvt : null;
+  const rmX = cur.rm != null && cur.rm <= xt.hi ? cur.rm : null;
+  return html`<div class="chart" ref=${ref}>
+    ${profiles.length > 1 && html`<${Legend} items=${profiles.map((x) => ({ label: x.label, color: col(x.color), line: true }))} />`}
+    <svg width=${W} height=${H} viewBox=${`0 0 ${W} ${H}`} preserveAspectRatio="xMinYMin meet" role="img" aria-label=${ariaLabel || 'Perfil càrrega-velocitat'} class="chart-svg">
+      ${yt.ticks.map((v) => html`<g><line x1=${padL} x2=${padL + iw} y1=${sy(v)} y2=${sy(v)} stroke=${col('var(--grid)')} stroke-width="1" />
+        <text x=${padL - 8} y=${sy(v) + 4} text-anchor="end" fill=${col('var(--axis)')} font-size="11.5">${U.fmt(v, 1)}</text></g>`)}
+      ${xt.ticks.map((v) => html`<text x=${sx(v)} y=${padT + ih + 18} text-anchor="middle" fill=${col('var(--axis)')} font-size="11.5">${U.fmt(v, 0)}</text>`)}
+      <text x=${padL} y=${12} fill=${col('var(--axis)')} font-size="11.5">Velocitat mitjana (m/s)</text>
+      <text x=${padL + iw / 2} y=${H - 6} text-anchor="middle" fill=${col('var(--axis)')} font-size="11.5">Càrrega (kg)</text>
+      ${mvt != null && html`<g><line x1=${padL} x2=${padL + iw} y1=${sy(mvt)} y2=${sy(mvt)} stroke=${col('var(--axis)')} stroke-width="1" stroke-dasharray="3 4" />
+        <text x=${padL + iw} y=${sy(mvt) - 5} text-anchor="end" fill=${col('var(--ink-2)')} font-size="11">Velocitat mínima ${f2(mvt)} m/s</text></g>`}
+      ${profiles.map((x) => html`<g>
+        ${x.fit && html`<path d=${line(x, 0, x.rm != null ? x.rm : xt.hi)} fill="none" stroke=${col(x.color)} stroke-width="1.5" stroke-dasharray="5 4" opacity="0.55" />`}
+        ${x.fit && html`<path d=${line(x, x.rows[0].load, x.rows[x.rows.length - 1].load)} fill="none" stroke=${col(x.color)} stroke-width="2.5" stroke-linecap="round" />`}
+        ${x.rows.map((r) => html`<circle cx=${sx(r.load)} cy=${sy(r.mv)} r="4.5" fill=${col(x.color)} stroke=${col('var(--surface)')} stroke-width="2"><title>${`${U.fmt(r.load, 1)} kg · ${f2(r.mv)} m/s`}</title></circle>`)}
+      </g>`)}
+      ${rmX != null && mvt != null && html`<g>
+        <rect x=${sx(rmX) - 6} y=${sy(mvt) - 6} width="12" height="12" transform=${`rotate(45 ${sx(rmX)} ${sy(mvt)})`} fill=${col('var(--surface)')} stroke=${col('var(--series-1)')} stroke-width="2.5" />
+        <text x=${Math.min(sx(rmX), padL + iw - 30)} y=${sy(mvt) + 24} text-anchor="middle" fill=${col('var(--ink)')} font-size="12.5" font-weight="650">1RM ≈ ${U.fmt(cur.rm, 0)} kg</text></g>`}
+    </svg>
   </div>`;
 }
 
@@ -17712,7 +17996,7 @@ function PatientSummary({ p, sessions, assessments }) {
   const last = assessments[assessments.length - 1];
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
-  const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
+  const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['lvp', 'Càrrega-velocitat'], ['patterns', 'Patrons']];
   return html`<${GoalCard} p=${p} compact=${true} />
   <${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">
@@ -18205,6 +18489,7 @@ function sectionProgress(a, sec, p) {
     if (g.kind === 'patterns') { total += PATTERNS.length; done += PATTERNS.filter((pt) => Calc.patternScore((a.patterns || {})[pt.id], pt.uni)).length; }
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
+    else if (g.kind === 'lvp') { total++; if (Calc.lvpAny(a)) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
     else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null || U.num((a.bike || {}).mean) != null) done++; }
     else if (g.kind === 'free') { /* opcional */ }
@@ -18219,6 +18504,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   if (g.kind === 'patterns') body = html`<${PatternsBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'ybt') body = html`<${YbtBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'jumps') body = html`<${JumpsBlock} a=${a} p=${p} upd=${upd} />`;
+  else if (g.kind === 'lvp') body = html`<${LvpBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
@@ -19193,6 +19479,132 @@ function KinventImport({ file, a, p, upd, onClose }) {
 }
 
 
+/* ── 23-lvp.js ── */
+/* EON Life · valoració: perfil càrrega-velocitat (ADR Encoder lineal) i guia d'ús. */
+
+// Guia pas a pas per fer el test amb l'encoder (surt amb el botó «Com fer-lo servir»).
+const LVP_GUIDE = [
+  { h: 'Per a què serveix', items: [
+    'Mesurem la velocitat mitjana de la barra amb diverses càrregues. Com més pes, més lenta: la relació és una recta.',
+    'Amb aquesta recta estimem la 1RM sense haver d\'arribar-hi (més segur, sobretot en readaptació, gent gran o poc entrenada), la càrrega que toca per a cada velocitat i, a cada re-test, si el perfil s\'ha desplaçat cap a càrregues més altes.',
+  ] },
+  { h: 'Abans de començar', items: [
+    'Només amb el cribratge de salut superat i sense dolor. Un company al costat (spotter) a les càrregues pesades i a l\'squat i la banca.',
+    'Escalfa: general i 2 sèries progressives de l\'exercici. Decideix la tècnica i mantén-la igual sempre (fondària, posició dels peus, agafada, pausa al pit a la banca…): el perfil és propi de cada exercici i equip (una Smith no és una barra lliure).',
+    'Col·loca l\'encoder segons les instruccions del fabricant: el cable ha de quedar vertical, tens i sense tocar la barra ni els discs, sempre al mateix punt de la barra.',
+    'Comprova que l\'encoder dona la velocitat mitjana de la fase concèntrica (no la de pic ni la propulsiva): és la que fan servir els valors de referència de la 1RM.',
+  ] },
+  { h: 'Les càrregues', items: [
+    'Fes 4–6 càrregues creixents. La primera, lleugera (uns 1 m/s); després puja\'n 10–20 kg (o un 10 %) cada cop fins que la barra vagi cap a 0,5–0,6 m/s. No cal arribar a la fallada ni a l\'1RM.',
+    '2 repeticions a les càrregues lleugeres i 1–2 a les pesades. Descans de 2 min a les lleugeres i 3–4 min a les pesades.',
+    'Cada repetició a màxima intenció a la fase concèntrica (puja tan ràpid com pugui), baixada controlada. Si una repetició surt malament (la barra s\'inclina, es perd la tècnica), no la comptis.',
+    'Apunta, per a cada càrrega, la velocitat mitjana de la repetició més ràpida (o de la mitjana de les dues). Tria un criteri i mantén-lo sempre.',
+    'Versió ràpida (2 punts): una càrrega lleugera (~1 m/s) i una de pesada (~0,5 m/s). És orientativa: millor 4 o més punts.',
+  ] },
+  { h: 'Com s\'interpreta', items: [
+    'La recta té una velocitat sense càrrega (V0) i un punt on la velocitat seria zero (L0). Com més a la dreta quedi la recta en un re-test, més fort és el pacient.',
+    'La 1RM estimada és la càrrega on la recta arriba a la velocitat mínima de l\'exercici (squat 0,30 m/s, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25). Són valors de la literatura: es poden canviar a cada exercici.',
+    'R² de 0,95 o més, bon ajust. Per sota de 0,90, repeteix alguna càrrega i revisa la tècnica i l\'encoder.',
+    'A cada re-test, mira la 1RM estimada i la càrrega a 0,50 m/s: surten comparades amb la valoració anterior.',
+  ] },
+  { h: 'Limitacions', items: [
+    'És una estimació: va bé per fer seguiment i per triar càrregues, però no substitueix un test directe quan fa falta saber la 1RM exacta.',
+    'Depèn de l\'exercici, de la tècnica, de l\'equip i del sexe (a l\'squat, les dones tenen una velocitat mínima més baixa). No comparis perfils entre exercicis ni entre equips diferents.',
+    'Amb poc recorregut de càrregues o amb una càrrega pesada molt lluny de la 1RM, l\'estimació extrapola molt: l\'app t\'ho avisa.',
+  ] },
+];
+
+function LvpGuideDialog({ onClose }) {
+  return html`<${Dialog} title="Test càrrega-velocitat: com fer-lo servir" wide=${true} text=${true} onClose=${onClose} footer=${html`<${Btn} variant="primary" onClick=${onClose}>Entesos</${Btn}>`}>
+    <div class="lvp-guide">
+      <p class="muted">Pas a pas amb l'ADR Encoder lineal. Dura uns 15 minuts per exercici.</p>
+      ${LVP_GUIDE.map((s) => html`<section><h3 class="h3">${s.h}</h3><ul>${s.items.map((i) => html`<li>${i}</li>`)}</ul></section>`)}
+      <p class="muted small">Referències: González-Badillo i Sánchez-Medina (2010) · García-Ramos et al. (2018) · Ardigò et al. (2022). L'ADR Encoder s'ha validat com a transductor lineal de baix cost contra T-Force en press de banca.</p>
+    </div>
+  </${Dialog}>`;
+}
+
+function LvpBlock({ a, p, upd }) {
+  const exs = (a.lvp && a.lvp.exercises) || [];
+  const prev = previousAssessment(a);
+  const res = Calc.lvpAnalysis(a, prev, true);
+  const setEx = (id, fn) => upd((x) => { const e = ((x.lvp || {}).exercises || []).find((z) => z.id === id); if (e) fn(e); });
+  const set = (id, k) => (v) => setEx(id, (e) => { e[k] = v; });
+  const setRow = (id, rid, k) => (v) => setEx(id, (e) => { const r = e.rows.find((z) => z.id === rid); if (r) r[k] = v; });
+  const add = (preset) => upd((x) => { x.lvp = x.lvp || { exercises: [] }; x.lvp.exercises = [...(x.lvp.exercises || []), LVP.newExercise(preset, p && p.sex)]; });
+  const del = (id) => upd((x) => { x.lvp.exercises = x.lvp.exercises.filter((z) => z.id !== id); });
+  const addRow = (id) => setEx(id, (e) => { e.rows = [...e.rows, LVP.newRow()]; });
+  const delRow = (id, rid) => setEx(id, (e) => { e.rows = e.rows.filter((z) => z.id !== rid); });
+  const setPreset = (id) => (v) => setEx(id, (e) => {
+    e.preset = v;
+    e.name = v === 'other' ? '' : LVP.preset(v).name;
+    const m = LVP.defaultMvt(v, p && p.sex);
+    e.mvt = m != null ? String(m).replace('.', ',') : '';
+  });
+  const guide = () => { let close = null; close = UI.open(() => html`<${LvpGuideDialog} onClose=${() => close()} />`); };
+  return html`<div class="lvp">
+    <div class="lvp-top">
+      <p class="muted small grow">Apunta, per a cada càrrega, la velocitat mitjana que dona l'encoder. Amb 4–6 càrregues l'app dibuixa la recta i estima la 1RM.</p>
+      <${Btn} size="sm" icon="info" onClick=${guide}>Com fer-lo servir</${Btn}>
+    </div>
+    ${exs.map((ex, i) => {
+      const r = res[i] || {};
+      const pr = LVP.preset(ex.preset);
+      return html`<div class="lvp-ex" key=${ex.id}>
+        <div class="lvp-ex-head">
+          <${Select} value=${ex.preset || 'other'} onValue=${setPreset(ex.id)} options=${LVP.presets.map((o) => ({ v: o.id, label: o.name }))} ariaLabel="Exercici" />
+          ${(ex.preset || 'other') === 'other' && html`<${TextInput} value=${ex.name} onValue=${set(ex.id, 'name')} placeholder="Nom de l'exercici" ariaLabel="Nom de l'exercici" />`}
+          <${Field} label="Velocitat mínima (1RM)" class="lvp-mvt" hint=${pr.ref}><${NumInput} value=${ex.mvt} onValue=${set(ex.id, 'mvt')} unit="m/s" ariaLabel=${`${ex.name || pr.name} velocitat mínima`} /></${Field}>
+          <${Btn} variant="ghost" icon="x" title="Treu l'exercici" onClick=${() => del(ex.id)} />
+        </div>
+        <div class="table-wrap"><table class="table lvp-table">
+          <thead><tr><th>#</th><th>Càrrega <span class="muted">kg</span></th><th>Velocitat mitjana <span class="muted">m/s</span></th><th>Velocitat pic <span class="muted">m/s</span></th><th>Reps</th><th><span class="sr-only">Accions</span></th></tr></thead>
+          <tbody>${ex.rows.map((row, k) => html`<tr key=${row.id}>
+            <td class="muted">${k + 1}</td>
+            <td><${NumInput} value=${row.load} onValue=${setRow(ex.id, row.id, 'load')} ariaLabel=${`${ex.name || pr.name} càrrega ${k + 1}`} /></td>
+            <td><${NumInput} value=${row.mv} onValue=${setRow(ex.id, row.id, 'mv')} ariaLabel=${`${ex.name || pr.name} velocitat mitjana ${k + 1}`} /></td>
+            <td><${NumInput} value=${row.pv} onValue=${setRow(ex.id, row.id, 'pv')} ariaLabel=${`${ex.name || pr.name} velocitat pic ${k + 1}`} /></td>
+            <td><${NumInput} value=${row.reps} onValue=${setRow(ex.id, row.id, 'reps')} ariaLabel=${`${ex.name || pr.name} repeticions ${k + 1}`} /></td>
+            <td><${Btn} variant="ghost" icon="x" title="Treu la càrrega" onClick=${() => delRow(ex.id, row.id)} /></td>
+          </tr>`)}</tbody>
+        </table></div>
+        <div class="row-actions"><${Btn} size="sm" icon="plus" onClick=${() => addRow(ex.id)}>Afegeix càrrega</${Btn}></div>
+        ${r.fit && html`<div class="lvp-result">
+          <${LoadVelocityChart} cur=${r} prev=${r.prevEx} prevLabel=${r.cmp && r.cmp.date ? U.fmtDateShort(r.cmp.date) : 'Anterior'} ariaLabel=${`Perfil càrrega-velocitat de ${r.name || pr.name}`} />
+          <${LvpStats} r=${r} />
+          <${LvpZones} r=${r} />
+          ${r.lines.filter((l) => /^Respecte/.test(l) || /^Càrrega a 0,50/.test(l)).length > 0 && html`<ul class="analysis-list">${r.lines.filter((l) => /^Respecte/.test(l) || /^Càrrega a 0,50/.test(l)).map((l) => html`<li>${l}</li>`)}</ul>`}
+        </div>`}
+        ${r.warns && r.warns.length > 0 && html`<ul class="analysis-warns">${r.warns.map((l) => html`<li><${Icon} name="alert" size=${14} /><span>${l}</span></li>`)}</ul>`}
+      </div>`;
+    })}
+    <div class="row-actions lvp-add"><span class="muted small">Afegeix exercici:</span>
+      ${LVP.presets.map((o) => html`<${Btn} size="sm" icon="plus" onClick=${() => add(o.id)}>${o.name}</${Btn}>`)}</div>
+    ${Calc.lvpAnalysis(a, prev).length > 0 && !Calc.weight(a) && html`<p class="muted small">Afegeix el pes a les dades de la valoració per veure la 1RM en vegades el pes corporal.</p>`}
+  </div>`;
+}
+
+// Resum de la recta: 1RM estimada, V0, L0 i R².
+function LvpStats({ r }) {
+  const f = r.fit;
+  return html`<div class="kv-row lvp-kv">
+    <div class="kv"><span>1RM estimada</span><strong>${r.rm != null ? html`${U.fmt(r.rm, 0)}<small> kg</small>` : '—'}</strong>${r.rmRel != null && html`<small>${U.fmtFixed(r.rmRel, 2)} × pes corporal</small>`}</div>
+    <div class="kv"><span>Velocitat sense càrrega (V0)</span><strong>${U.fmtFixed(f.v0, 2)}<small> m/s</small></strong></div>
+    <div class="kv"><span>Càrrega a velocitat zero (L0)</span><strong>${f.l0 != null ? html`${U.fmt(f.l0, 0)}<small> kg</small>` : '—'}</strong></div>
+    <div class="kv"><span>Ajust (R²)</span><strong>${f.r2 != null ? U.fmtFixed(f.r2, 2) : '—'}</strong><small>${U.plural(f.n, 'càrrega', 'càrregues')}</small></div>
+  </div>`;
+}
+
+// Càrrega estimada per a cada velocitat (segons la recta de la persona).
+function LvpZones({ r, report }) {
+  if (!r.table.length) return null;
+  return html`<div class="table-wrap"><table class=${U.cls('table', report && 'rtable', 'lvp-zones')}>
+    <thead><tr><th>Velocitat mitjana</th><th class="num">Càrrega estimada</th>${r.rm != null && html`<th class="num">% de la 1RM</th>`}</tr></thead>
+    <tbody>${r.table.map((z) => html`<tr><td>${U.fmtFixed(z.v, 2)} m/s</td><td class="num">${U.fmt(z.load, 0)} kg</td>${r.rm != null && html`<td class="num">${z.pct != null ? `${U.fmt(z.pct, 0)} %` : '—'}</td>`}</tr>`)}</tbody>
+  </table></div>`;
+}
+
+
 /* ── 24-report-evol.js ── */
 /* EON Life · informes d'evolució per al pacient (pantalla, PDF i paper), en mode clar o fosc:
    · Informe de tests: els tests que es triïn, en un rang de dates, amb una taula i una gràfica d'evolució per test.
@@ -19497,6 +19909,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
   const sls = v.sls || {};
   const wl = Calc.wellness(a.wellness);
   const enc = ((a.encoder && a.encoder.rows) || []).filter((r) => r.name && (U.num(r.load) != null || U.num(r.vel) != null));
+  const lvp = Calc.lvpAnalysis(a, prev).filter((x) => x.fit);
   const cmp = !prev ? [] : scope === 'tot' ? Calc.compare(a, prev, true) : Calc.compare(a, prev).filter((r) => Calc.area(r.id) === scope);
   const hasPatterns = pc.scored > 0 || pc.counts.P > 0;
   const videos = Calc.videos(a).filter((x) => scope === 'tot' || x.area === scope);
@@ -19592,7 +20005,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           </tbody></table></div>`}
       </section>`}
 
-      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || bike.peak != null || bike.mean != null) && html`<section class="rsec">
+      ${show('rendiment') && (Object.keys(jumps).length > 0 || enc.length > 0 || lvp.length > 0 || bike.peak != null || bike.mean != null) && html`<section class="rsec">
         <h2 class="rsec-title">Rendiment</h2>
         ${Object.keys(jumps).length > 0 && html`<h3 class="h3">Salts <span class="muted">· My Jump Lab</span></h3>
           <div class="jump-sum">${Object.entries(jumps).map(([type, sm]) => html`<div class="jump-card">
@@ -19601,6 +20014,15 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
             <div class="jump-meta">Mitjana ${U.fmt(sm.mean, 1)} cm${sm.bestPower != null ? ` · ${U.fmt(sm.bestPower, 0)} W` : ''}${sm.relPower != null ? ` · ${U.fmt(sm.relPower, 1)} W/kg` : ''}${sm.bestRsi != null ? ` · RSI-mod ${U.fmt(sm.bestRsi, 2)}` : ''}</div>
           </div>`)}</div>
           ${Object.values(jumpAn).some((x) => x.lines.length > 1) && html`<ul class="rjump-analysis">${Object.values(jumpAn).flatMap((x) => x.lines.slice(1)).map((l) => html`<li>${l}</li>`)}</ul>`}`}
+        ${lvp.length > 0 && html`<h3 class="h3">Perfil càrrega-velocitat <span class="muted">· ADR Encoder</span></h3>
+          ${lvp.map((x) => html`<div class="lvp-report">
+            <h4 class="h4">${x.name || LVP.preset(x.preset).name}</h4>
+            <${LoadVelocityChart} cur=${x} prev=${x.prevEx} prevLabel=${x.cmp && x.cmp.date ? U.fmtDateShort(x.cmp.date) : 'Anterior'} height=${230} ariaLabel=${`Perfil càrrega-velocitat de ${x.name || LVP.preset(x.preset).name}`} />
+            <${LvpStats} r=${x} />
+            <${LvpZones} r=${x} report=${true} />
+            <ul class="rjump-analysis">${x.lines.filter((l) => !/^Recta:|^Càrrega a velocitat zero|^1RM estimada:/.test(l)).map((l) => html`<li>${l}</li>`)}</ul>
+          </div>`)}
+          <p class="muted small lvp-note">Cada punt és una càrrega i la velocitat de la barra. Com més a la dreta quedi la recta d'una valoració a la següent, més força. La 1RM és una estimació, no una prova directa.</p>`}
         ${enc.length > 0 && html`<h3 class="h3">Encoder <span class="muted">· velocitat d'execució</span></h3>
           <div class="table-wrap"><table class="table rtable"><thead><tr><th>Exercici</th><th class="num">Càrrega</th><th class="num">Velocitat mitjana</th><th class="num">Potència</th></tr></thead>
           <tbody>${enc.map((r) => html`<tr><td>${r.name}</td><td class="num">${U.num(r.load) != null ? `${U.fmt(U.num(r.load), 1)} kg` : '—'}</td>
@@ -21507,7 +21929,7 @@ function openAddMeasurement(focus, pid) {
 const FOCUS_LABELS = {
   dades: 'Valoració completa', rom: 'Mobilitat (K-Move)', wblt: 'Knee-to-wall', postural: 'Anàlisi postural',
   dyn: 'Dinamometria (K-Push)', sls: 'Single Leg Squat', ybt: 'Y-Balance', jumps: 'Salts (My Jump)',
-  bike: 'Assault bike', patterns: 'Patrons de moviment',
+  lvp: 'Càrrega-velocitat (ADR Encoder)', bike: 'Assault bike', patterns: 'Patrons de moviment',
 };
 
 function AddMeasurementDialog({ focus = 'dades', pid, onClose }) {

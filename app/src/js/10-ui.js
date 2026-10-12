@@ -303,7 +303,8 @@ function PromptInput({ value, onValue, placeholder }) {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-function Dialog({ title, children, footer, onClose, wide }) {
+// text: el diàleg només té text (res per al focus): el cos que fa scroll es pot recórrer amb el teclat.
+function Dialog({ title, children, footer, onClose, wide, text }) {
   const ref = useRef(null);
   // useLayoutEffect: el focus entra al diàleg i les dreceres hi són des del primer instant (no després de pintar).
   useLayoutEffect(() => {
@@ -339,7 +340,7 @@ function Dialog({ title, children, footer, onClose, wide }) {
       <h2 class="dialog-title">${title}</h2>
       ${onClose && html`<${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} />`}
     </div>
-    <div class="dialog-body">${children}</div>
+    <div class="dialog-body" tabindex=${text ? 0 : undefined} role=${text ? 'region' : undefined} aria-label=${text ? title : undefined}>${children}</div>
     ${footer && html`<div class="dialog-foot">${footer}</div>`}
   </div>`;
 }

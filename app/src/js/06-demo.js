@@ -1,6 +1,12 @@
 /* EON Life · dades de demostració (clients ficticis) per provar l'app en mode local.
    Les dates es calculen a partir d'avui perquè la demo sempre sembli actual. */
 
+// Perfil càrrega-velocitat de prova: [[càrrega kg, velocitat mitjana m/s], …] d'un exercici.
+function demoLvp(preset, mvt, rows) {
+  return { exercises: [{ id: U.uid('L'), preset, name: LVP.preset(preset).name, mvt: String(mvt).replace('.', ','),
+    rows: rows.map(([load, mv]) => ({ id: U.uid('R'), load: String(load), mv: String(mv).replace('.', ','), reps: '2' })) }] };
+}
+
 function makeDemoData() {
   const today = U.today();
   const D = (n) => U.addDays(today, n);
@@ -12,11 +18,12 @@ function makeDemoData() {
 
   const bi = (d, e) => ({ d: d == null ? '' : String(d), e: e == null ? '' : String(e) });
   const one = (v) => ({ v: String(v) });
+  const lvp = demoLvp;
 
   const assessment = (a) => {
     const rec = {
       id: U.uid('V'), type: 'inicial', values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
-      encoder: { rows: [] }, bike: {}, patterns: {}, free: [], conclusions: {}, createdAt: `${a.date}T10:00:00.000Z`, ...a,
+      encoder: { rows: [] }, lvp: { exercises: [] }, bike: {}, patterns: {}, free: [], conclusions: {}, createdAt: `${a.date}T10:00:00.000Z`, ...a,
     };
     rec.nextRetest = rec.nextRetest || U.addMonths(rec.date, THRESHOLDS.retestMonths);
     db.assessments[rec.id] = rec;
@@ -53,6 +60,7 @@ function makeDemoData() {
 
   // ── Valoracions ──
   assessment({ patientId: laura, date: D(-95), type: 'inicial', professional: 'Arnau',
+    lvp: lvp('squat', 0.25, [[20, 0.97], [30, 0.81], [40, 0.69], [50, 0.53], [60, 0.40]]),
     general: { weight: '58', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(32, 38), rom_hip_er: bi(41, 44), rom_sh_ir: bi(55, 58), rom_sh_er: bi(98, 101),
@@ -76,6 +84,7 @@ function makeDemoData() {
     } });
 
   assessment({ patientId: laura, date: D(-4), type: 'retest', professional: 'Arnau',
+    lvp: lvp('squat', 0.25, [[30, 0.92], [40, 0.81], [50, 0.69], [60, 0.55], [70, 0.44]]),
     general: { weight: '57.5', height: '167', goal: 'Trail de 42 km sense dolor.' },
     values: {
       rom_hip_ir: bi(35, 38), rom_hip_er: bi(43, 45), rom_sh_ir: bi(56, 58), rom_sh_er: bi(99, 101),
@@ -135,6 +144,7 @@ function makeDemoData() {
     } });
 
   assessment({ patientId: alex, date: D(-2), type: 'inicial', professional: 'Arnau',
+    lvp: lvp('bench', 0.17, [[40, 0.88], [50, 0.75], [60, 0.59], [70, 0.46], [80, 0.32]]),
     general: { weight: '76', height: '179', goal: 'Rendiment i prevenció de recaigudes.' },
     values: {
       rom_hip_ir: bi(38, 30), rom_hip_er: bi(45, 42), rom_sh_ir: bi(60, 62), rom_sh_er: bi(105, 104),

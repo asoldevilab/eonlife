@@ -30,12 +30,17 @@ recuperar.
 Tot el protocol és a [`app/src/js/02-catalog.js`](../app/src/js/02-catalog.js):
 
 - `PROTOCOL` — seccions, grups i tests (tipus: `bi` dreta/esquerra, `single`, `biSelect`,
-  `select`, `scoreBi`, i els grups especials `ybt`, `jumps`, `encoder`, `bike`, `patterns`). Un test o un grup que ja
+  `select`, `scoreBi`, i els grups especials `ybt`, `jumps`, `lvp`, `encoder`, `bike`, `patterns`). Un test o un grup que ja
   no es fa es marca amb `retired: true` (no s'esborra): deixa de sortir a les valoracions noves, als informes, a la base
   de dades de l'app i al lector del PDF de Kinvent, però les valoracions antigues que en tenen dades les conserven.
   Ara ho estan la flexió d'espatlla sobre el cap, l'extensió de genoll, el leg curl 30/30, els rotadors de maluc i
   d'espatlla, la neurodinàmia (Slump test i prone knee bending) i l'encoder de la valoració. Un grup amb tots els tests
   retirats (com la neurodinàmia) tampoc no surt.
+- Perfil càrrega-velocitat (`lvp`): a cada valoració, `lvp.exercises[]` amb `{ id, preset, name, mvt, rows: [{ load, mv, pv, reps }] }`
+  (`mvt` = velocitat mínima de la 1RM en m/s; `mv` = velocitat mitjana, `pv` = de pic). Els valors de referència i els
+  càlculs són a [`app/src/js/04-lvp.js`](../app/src/js/04-lvp.js) (`LVP_PRESETS`, `Calc.lvpExercise`, `Calc.lvpAnalysis`). A
+  l'Excel de la valoració, la recta es calcula amb fórmules (`SLOPE`, `INTERCEPT`, `RSQ`) i a la fila de la base de dades hi
+  ha una columna per resultat i exercici (`Càrrega-velocitat <exercici> · 1RM estimada (kg)`, `V0`, `L0`, `R²`, `punts`).
 - `RPE_SCALE` — escala de l'RPE (1–10) del final de cada valoració (`rpe`) i del tancament de cada sessió.
 - `PATTERNS` — els 7 patrons de la Sessió 1 amb «Què observem», criteris de − i −−, execució i adaptació.
 - `THRESHOLDS` — llindars (asimetria 10 % / 15 %, knee-to-wall 8 cm / 4 cm, Y-Balance 4 cm, re-test 3 mesos).

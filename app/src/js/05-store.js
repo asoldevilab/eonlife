@@ -158,6 +158,14 @@ function migrateDemo(db) {
     for (const id of retired) if (a.values) delete a.values[id];
     if (a.encoder) a.encoder.rows = [];
   }
+  // Perfil càrrega-velocitat d'abans de tenir-lo: el squat de la Laura (abans i després) i el press banca de l'Àlex.
+  const mine = (pid) => Object.values(db.assessments || {}).filter((a) => a.patientId === pid).sort((x, y) => String(x.date).localeCompare(String(y.date)));
+  const L = mine('P-DEMO-LAURA'), A = mine('P-DEMO-ALEX');
+  if (L.length >= 2 && !L[0].lvp && !L[L.length - 1].lvp) {
+    L[0].lvp = demoLvp('squat', 0.25, [[20, 0.97], [30, 0.81], [40, 0.69], [50, 0.53], [60, 0.40]]);
+    L[L.length - 1].lvp = demoLvp('squat', 0.25, [[30, 0.92], [40, 0.81], [50, 0.69], [60, 0.55], [70, 0.44]]);
+  }
+  if (A.length && !A[0].lvp) A[0].lvp = demoLvp('bench', 0.17, [[40, 0.88], [50, 0.75], [60, 0.59], [70, 0.46], [80, 0.32]]);
 }
 
 const Store = {
@@ -443,6 +451,7 @@ const Store = {
       // Pes i alçada: els de la fitxa del client (o, si no n'hi ha, els de l'última valoració).
       general: { weight: (p && p.weight) || (last && last.general ? last.general.weight : '') || '', height: (p && p.height) || (last && last.general ? last.general.height : '') || '', goal: (p && p.goal) || '' },
       values: {}, ybt: { d: {}, e: {} }, jumps: { attempts: [], readiness: '' },
+      lvp: { exercises: [] },
       encoder: { rows: [{ id: U.uid('R'), name: 'Squat' }, { id: U.uid('R'), name: 'RDL' }, { id: U.uid('R'), name: 'Hip Thrust' }] },
       bike: {}, patterns: {}, free: [], conclusions: {},
       // Un control de mesures no mou la data del proper re-test.
