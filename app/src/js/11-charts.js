@@ -115,6 +115,51 @@ function LineChart({ series, unit = '', height = 220, decimals = 1, ariaLabel, y
   </div>`;
 }
 
+// Perfil càrrega-velocitat: punts (càrrega, velocitat mitjana), recta de regressió, velocitat mínima i 1RM estimada.
+// cur / prev: resultat de Calc.lvpExercise (prev és opcional: la valoració anterior, en gris).
+function LoadVelocityChart({ cur, prev, prevLabel = 'Anterior', height = 260, ariaLabel }) {
+  const [ref, W] = useWidth();
+  const col = useCssColors(ref, ['--grid', '--axis', '--ink', '--ink-2', '--surface', '--series-1']);
+  if (!cur || !cur.rows || !cur.rows.length) return html`<div class="chart" ref=${ref}><div class="chart-empty">Encara no hi ha càrregues amb velocitat per dibuixar el perfil.</div></div>`;
+  const profiles = [prev && prev.fit ? { ...prev, color: 'var(--axis)', label: prevLabel, dash: true } : null, { ...cur, color: 'var(--series-1)', label: 'Actual' }].filter(Boolean);
+  const H = height, padL = 46, padR = 18, padT = 26, padB = 40;
+  const loads = profiles.flatMap((x) => x.rows.map((r) => r.load));
+  const xTop = Math.max(...profiles.map((x) => Math.max(x.rm ? x.rm * 1.06 : 0, x.maxLoad * 1.25)), ...loads);
+  const yTop = Math.max(...profiles.flatMap((x) => [...x.rows.map((r) => r.mv), x.fit && x.fit.v0 != null ? Math.min(x.fit.v0, 1.8) : 0])) * 1.08;
+  const xt = niceTicks(0, xTop, 5), yt = niceTicks(0, yTop, 4);
+  const iw = Math.max(60, W - padL - padR), ih = H - padT - padB;
+  const sx = (x) => padL + ((x - xt.lo) / (xt.hi - xt.lo || 1)) * iw;
+  const sy = (y) => padT + ih - ((y - yt.lo) / (yt.hi - yt.lo || 1)) * ih;
+  const line = (x, from, to) => {
+    const a = Math.max(from, xt.lo), b = Math.min(to, xt.hi);
+    if (!(b > a) || !x.fit) return null;
+    return `M${sx(a).toFixed(1)},${sy(Calc.lvpVelAt(x.fit, a)).toFixed(1)}L${sx(b).toFixed(1)},${sy(Calc.lvpVelAt(x.fit, b)).toFixed(1)}`;
+  };
+  const f2 = (v) => U.fmtFixed(v, 2);
+  const mvt = cur.mvt != null && cur.mvt > 0 && cur.mvt <= yt.hi ? cur.mvt : null;
+  const rmX = cur.rm != null && cur.rm <= xt.hi ? cur.rm : null;
+  return html`<div class="chart" ref=${ref}>
+    ${profiles.length > 1 && html`<${Legend} items=${profiles.map((x) => ({ label: x.label, color: col(x.color), line: true }))} />`}
+    <svg width=${W} height=${H} viewBox=${`0 0 ${W} ${H}`} preserveAspectRatio="xMinYMin meet" role="img" aria-label=${ariaLabel || 'Perfil càrrega-velocitat'} class="chart-svg">
+      ${yt.ticks.map((v) => html`<g><line x1=${padL} x2=${padL + iw} y1=${sy(v)} y2=${sy(v)} stroke=${col('var(--grid)')} stroke-width="1" />
+        <text x=${padL - 8} y=${sy(v) + 4} text-anchor="end" fill=${col('var(--axis)')} font-size="11.5">${U.fmt(v, 1)}</text></g>`)}
+      ${xt.ticks.map((v) => html`<text x=${sx(v)} y=${padT + ih + 18} text-anchor="middle" fill=${col('var(--axis)')} font-size="11.5">${U.fmt(v, 0)}</text>`)}
+      <text x=${padL} y=${12} fill=${col('var(--axis)')} font-size="11.5">Velocitat mitjana (m/s)</text>
+      <text x=${padL + iw / 2} y=${H - 6} text-anchor="middle" fill=${col('var(--axis)')} font-size="11.5">Càrrega (kg)</text>
+      ${mvt != null && html`<g><line x1=${padL} x2=${padL + iw} y1=${sy(mvt)} y2=${sy(mvt)} stroke=${col('var(--axis)')} stroke-width="1" stroke-dasharray="3 4" />
+        <text x=${padL + iw} y=${sy(mvt) - 5} text-anchor="end" fill=${col('var(--ink-2)')} font-size="11">Velocitat mínima ${f2(mvt)} m/s</text></g>`}
+      ${profiles.map((x) => html`<g>
+        ${x.fit && html`<path d=${line(x, 0, x.rm != null ? x.rm : xt.hi)} fill="none" stroke=${col(x.color)} stroke-width="1.5" stroke-dasharray="5 4" opacity="0.55" />`}
+        ${x.fit && html`<path d=${line(x, x.rows[0].load, x.rows[x.rows.length - 1].load)} fill="none" stroke=${col(x.color)} stroke-width="2.5" stroke-linecap="round" />`}
+        ${x.rows.map((r) => html`<circle cx=${sx(r.load)} cy=${sy(r.mv)} r="4.5" fill=${col(x.color)} stroke=${col('var(--surface)')} stroke-width="2"><title>${`${U.fmt(r.load, 1)} kg · ${f2(r.mv)} m/s`}</title></circle>`)}
+      </g>`)}
+      ${rmX != null && mvt != null && html`<g>
+        <rect x=${sx(rmX) - 6} y=${sy(mvt) - 6} width="12" height="12" transform=${`rotate(45 ${sx(rmX)} ${sy(mvt)})`} fill=${col('var(--surface)')} stroke=${col('var(--series-1)')} stroke-width="2.5" />
+        <text x=${Math.min(sx(rmX), padL + iw - 30)} y=${sy(mvt) + 24} text-anchor="middle" fill=${col('var(--ink)')} font-size="12.5" font-weight="650">1RM ≈ ${U.fmt(cur.rm, 0)} kg</text></g>`}
+    </svg>
+  </div>`;
+}
+
 // Càrrega setmanal (RPE × minuts) en columnes.
 function WeekBars({ weeks, height = 190, currentWeek }) {
   const [ref, W] = useWidth();

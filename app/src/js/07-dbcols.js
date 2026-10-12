@@ -11,6 +11,7 @@ const DB_TABLES = [
   { id: 'dinamometria', label: 'Dinamometria · K-Push', kind: 'assessments', focus: 'dyn', add: 'Afegeix dinamometria', hint: 'Força isomètrica (Kinvent K-Push) en newtons, N/kg i asimetria.' },
   { id: 'ybalance', label: 'Y-Balance', kind: 'assessments', focus: 'ybt', add: 'Afegeix Y-Balance', hint: 'Distàncies en cm, longitud de cama i composite.' },
   { id: 'salts', label: 'Salts · My Jump', kind: 'assessments', focus: 'jumps', add: 'Afegeix salts', hint: 'Resum dels intents de CMJ i altres salts.' },
+  { id: 'carregavelocitat', label: 'Càrrega-velocitat', kind: 'assessments', focus: 'lvp', add: 'Afegeix càrrega-velocitat', hint: 'Perfil càrrega-velocitat (ADR Encoder): 1RM estimada, velocitat sense càrrega i càrrega a 0,50 m/s.' },
   { id: 'rendiment', label: 'Assault bike', kind: 'assessments', focus: 'bike', add: 'Afegeix bike', hint: 'Assault bike 30 s all-out.' },
   { id: 'patrons', label: 'Patrons', kind: 'assessments', focus: 'patterns', add: 'Afegeix patrons', hint: 'Sessió 1 · puntuació 0 / − / −− i P (dolor).' },
   { id: 'sessions', label: 'Sessions', kind: 'sessions', hint: 'Una fila per sessió: RPE, minuts i càrrega.' },
@@ -181,6 +182,19 @@ const DB = (() => {
       { id: 'dj', label: 'DJ RSI-mod', kind: 'num', dec: 2, get: jump('DJ', 'bestRsi') },
       { id: 'ready', label: 'Estat de forma', kind: 'text', get: (r) => (r.a.jumps && r.a.jumps.readiness) || '',
         tone: (r, v) => (v === 'vermell' ? 'bad' : v === 'groc' ? 'warn' : v === 'verd' ? 'ok' : '') },
+    ],
+
+    carregavelocitat: () => [
+      ...lead(),
+      ...LVP.presets.filter((x) => x.id !== 'other').flatMap((x) => {
+        const get = (k) => (r) => { const e = Calc.lvpAnalysis(r.a, null).find((y) => y.preset === x.id); return e && e.fit ? (k === 'rm' ? e.rm : k === 'v0' ? e.fit.v0 : k === 'l05' ? Calc.lvpLoadAt(e.fit, 0.5) : e.fit.r2) : null; };
+        return [
+          { id: `lvp-${x.id}-rm`, group: x.name, label: '1RM estimada', unit: 'kg', kind: 'num', dec: 0, get: get('rm') },
+          { id: `lvp-${x.id}-l05`, group: x.name, label: 'Càrrega a 0,50 m/s', unit: 'kg', kind: 'num', dec: 0, get: get('l05') },
+          { id: `lvp-${x.id}-v0`, group: x.name, label: 'V0', unit: 'm/s', kind: 'num', dec: 2, get: get('v0') },
+          { id: `lvp-${x.id}-r2`, group: x.name, label: 'R²', kind: 'num', dec: 2, get: get('r2') },
+        ];
+      }),
     ],
 
     rendiment: () => [

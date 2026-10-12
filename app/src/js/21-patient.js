@@ -87,7 +87,7 @@ function PatientSummary({ p, sessions, assessments }) {
   const last = assessments[assessments.length - 1];
   const alerts = last ? Calc.alerts(last) : [];
   const weeks = Calc.weeks(sessions, U.addDays(U.weekStart(today), -7 * 9), 10);
-  const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['patterns', 'Patrons']];
+  const quick = [['dades', 'Valoració completa'], ['rom', 'Mobilitat'], ['dyn', 'Dinamometria'], ['ybt', 'Y-Balance'], ['jumps', 'Salts · CMJ'], ['lvp', 'Càrrega-velocitat'], ['patterns', 'Patrons']];
   return html`<${GoalCard} p=${p} compact=${true} />
   <${ClientProfileCard} p=${p} assessments=${assessments} />
   <section class="card quickadd">

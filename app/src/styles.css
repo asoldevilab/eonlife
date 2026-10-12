@@ -828,6 +828,25 @@ input[type="search"].input { -webkit-appearance: none; }
 .analysis-warns svg { flex: none; margin-top: 2px; }
 .rjump-analysis { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 2px; font-size: 13.5px; color: var(--ink-2); }
 
+/* Perfil càrrega-velocitat */
+.lvp { display: grid; gap: 14px; }
+.lvp-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lvp-top p { margin: 0; }
+.lvp-ex { padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); display: grid; gap: 10px; }
+.lvp-ex-head { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.lvp-ex-head .select { min-width: 160px; }
+.lvp-mvt { flex: 1 1 220px; max-width: 360px; }
+.lvp-ex-head > .btn:last-child { margin-left: auto; align-self: flex-start; }
+.lvp-table td { padding: 5px 6px; }
+.lvp-table .numin { width: 104px; }
+.lvp-result { display: grid; gap: 12px; padding-top: 4px; }
+.lvp-kv { gap: 10px 32px; }
+.lvp-zones { max-width: 460px; }
+.lvp-add { align-items: center; flex-wrap: wrap; }
+.lvp-guide section { margin-top: 14px; }
+.lvp-guide h3 { margin: 0 0 6px; }
+.lvp-guide ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; }
+
 .scale { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .scale-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; }
 .scale-item > div > strong { display: block; font-size: 14px; }
@@ -1674,3 +1693,26 @@ tfoot .rpc { font-size: 14px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 720px) { .noe-panel { width: 100vw; border-left: 0; } .noe-fab { bottom: 14px; right: 14px; } }
 @media print { .noe-fab, .noe-panel { display: none !important; } }
+.lvp-report { margin-top: 16px; display: grid; gap: 12px; }
+.lvp-report .h4 { margin: 0; font-size: 15px; }
+.lvp-report .rjump-analysis { margin-top: 0; }
+.lvp-note { margin-top: 10px; }
+.lvp-eq { margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+.lvp-table th.num, .lvp-table td.num { text-align: right; white-space: nowrap; padding-right: 10px; }
+
+/* Importació de l'ADR */
+.adr-import { display: inline-flex; }
+.adr-opts { display: flex; gap: 12px 18px; flex-wrap: wrap; align-items: flex-end; margin: 10px 0; }
+.adr-opt { display: grid; gap: 4px; }
+.adr-day { margin: 10px 0; max-width: 360px; }
+.adr-person { margin: 6px 0 8px; }
+.adr-ex { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.adr-ex.off { opacity: 0.6; }
+.adr-ex-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.adr-check { display: inline-flex; align-items: center; gap: 8px; }
+.adr-table td, .adr-table th { padding: 5px 8px; }
+.adr-error { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--warn-bg, var(--surface-3)); color: var(--warn-ink, var(--ink)); font-size: 14px; }
+.adr-map { margin-top: 14px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); }
+.adr-map summary { cursor: pointer; font-weight: 650; }
+.adr-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-top: 8px; }
+.adr-map-row { display: grid; gap: 3px; font-size: 13px; }

@@ -23,6 +23,16 @@ const errors = [];
 const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 // Imatge de YouTube de prova: 320 × 180, com les de veritat (la grisa de «sense imatge» en fa 120).
 const YT_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAABkUlEQVR42u3TAQkAAAjAMDWmSYxoLHMIW4TDc6cD+KkkAAMDBgYMDAYGDAwYGDAwGBgwMGBgMDBgYMDAgIHBwICBAQMDBgYDAwYGDAwGBgwMGBgwMBgYMDBgYMDAYGDAwICBwcCAgQEDAwYGAwMGBgwMBgYMDBgYMDAYGDAwYGDAwGBgwMCAgcHAgIEBAwMGBgMDBgYMDBgYDAwYGDAwGBgwMGBgwMBgYMDAgIEBA4OBAQMDBgYDAwYGDAwYGAwMGBgwMBgYMDBgYMDAYGDAwICBAQODgQEDAwYGAwMGBgwMGBgMDBgYMDBgYDAwYGDAwGBgwMCAgQEDg4EBAwMGBgwMBgYMDBgYDAwYGDAwYGAwMGBgwMBgYMDAgIEBA4OBAQMDBgYMDAYGDAwYGAwMGBgwMGBgMDBgYMDAgIHBwICBAQODgQEDAwYGDAwGBgwMGBgMDBgYMDBgYDAwYGDAwICBwcCAgQEDg4EBAwMGBgwMBgYMDBgYMDAYGDAwYGAwMGBgwMCAgcHAgIEBAwMGht8ORS4DAmPlJXEAAAAASUVORK5CYII=', 'base64');
+// Exportació de l'ADR de prova (una fila per repetició). Les files són del nom que es passi i d'una altra persona.
+const adrCsv = (name) => [
+  'Atleta;Ejercicio;Fecha;Serie;Repetición;Carga (kg);Velocidad media (m/s);Velocidad máxima (m/s);Potencia (W)',
+  ...[[40, 1.04, 408], [40, 0.94, 369], [40, 0.86, 337], [50, 0.76, 372], [50, 0.75, 368], [50, 0.69, 338], [60, 0.59, 347], [60, 0.58, 341], [60, 0.56, 329], [70, 0.45, 309], [70, 0.39, 268], [70, 0.27, 185]]
+    .map(([kg, v, w], i) => `${name};Press banca;12/10/2026 11:0${Math.floor(i / 3)};${Math.floor(i / 3) + 1};${(i % 3) + 1};${kg};${String(v).replace('.', ',')};${String((v * 1.4).toFixed(2)).replace('.', ',')};${w}`),
+  'Pau Altre Atleta;Press banca;12/10/2026 12:00;1;1;80;0,50;0,70;392',
+].join('\n');
+const adrJumps = (name) => `Atleta;Salto;Fecha;Altura (cm);Tiempo de vuelo (ms);Tiempo de contacto (ms);RSI\n${name};CMJ;12/10/2026 10:10;31,2;505;;\n${name};DJ;12/10/2026 10:15;28,0;470;190;1,47`;
+const csvFile = (name, text) => ({ name, mimeType: 'text/csv', buffer: Buffer.from(text, 'utf8') });
+
 const browser = await chromium.launch();
 
 async function open(viewport, scheme = 'light') {
@@ -326,6 +336,23 @@ const step = async (label, fn) => {
     await item.locator('.vbt-table >> text=Altura millor').waitFor();
     await item.locator('.vbt-head >> text=Encoder ADR').click();
     await shot(page, '08b-encoder');
+  });
+  await step('encoder ADR a la sessió: importar les sèries del CSV de l\'ADR (només les del pacient)', async () => {
+    const who = await page.evaluate(() => { const s = Store.get('sessions', location.hash.split('/')[2]); const p = Store.get('patients', s.patientId); return `${p.firstName} ${p.lastName}`; });
+    const item = page.locator('section.block.blk-for .item').first();
+    await item.locator('input[data-kind="adr"]').setInputFiles(csvFile('adr-sessio.csv', adrCsv(who)));
+    await page.waitForSelector('.dialog >> text=Importa sèries de l\'ADR');
+    await page.waitForSelector(`.dialog >> text=${who}`);
+    // 4 sèries (una per càrrega), amb la pèrdua de velocitat calculada; l'altra persona no hi és
+    const rows = await page.locator('.dialog .adr-table tbody tr').allInnerTexts();
+    if (rows.length !== 4) throw new Error(`sèries: ${rows.length}`);
+    if (!/^1 40 3 1,04 0,86 17 % 408$/.test(rows[0].replace(/\s+/g, ' ').trim())) throw new Error(`sèrie 1: ${rows[0]}`);
+    await page.click('.dialog-foot >> text=Importa 4 sèries');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    // Les sèries ja escrites es respecten: les de l'ADR s'afegeixen a sota
+    const vals = await item.locator('.vbt-table tbody tr').nth(1).locator('input').evaluateAll((els) => els.map((e) => e.value));
+    if (vals.slice(0, 4).join('|') !== '40|3|1,04|0,86') throw new Error(`sèrie desada: ${vals}`);
+    await shot(page, '08c-encoder-adr-csv');
   });
   await step('força principal dividida en blocs (bloc 1 amb 3 exercicis, bloc 2 amb 2)', async () => {
     const blk = page.locator('section.block.blk-for');
@@ -725,6 +752,83 @@ const step = async (label, fn) => {
     await page.waitForSelector('.rsec .kv >> text=Distància');
     await shot(page, '06g-bike-informe', false);
   });
+  await step('valoració: perfil càrrega-velocitat (ADR Encoder): guia, exercici, càrregues, recta, 1RM i informe', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').find((x) => x.patientId === 'P-DEMO-JORDI').id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.waitForSelector('#grp-lvp');
+    // La guia pas a pas s'obre i es tanca amb Escape.
+    await page.click('#grp-lvp >> text=Com fer-lo servir');
+    await page.waitForSelector('.lvp-guide >> text=Les càrregues');
+    await page.waitForSelector('.lvp-guide >> text=spotter');
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.lvp-guide', { state: 'detached' });
+    // Press banca amb velocitat mínima de referència (0,17 m/s) i 4 càrregues buides
+    await page.click('#grp-lvp .lvp-add >> text=Press banca');
+    await page.waitForSelector('#grp-lvp .lvp-table tbody tr:nth-child(4)');
+    const mvt = await page.locator('#grp-lvp .lvp-mvt input').inputValue();
+    if (mvt !== '0,17') throw new Error(`velocitat mínima per defecte: ${mvt}`);
+    const fill = async (k, load, mv) => {
+      await page.fill(`#grp-lvp input[aria-label="Press banca càrrega ${k}"]`, load);
+      await page.fill(`#grp-lvp input[aria-label="Press banca velocitat mitjana ${k}"]`, mv);
+    };
+    await fill(1, '30', '0,926'); await fill(2, '40', '0,818'); await fill(3, '50', '0,71'); await fill(4, '60', '0,602');
+    await page.waitForSelector('#grp-lvp svg.chart-svg');
+    // Cap càrrega pesada: s'avisa que l'estimació extrapola molt
+    await page.waitForSelector('#grp-lvp .analysis-warns >> text=extrapola');
+    await page.click('#grp-lvp >> text=Afegeix càrrega');
+    await fill(5, '85', '0,332');
+    await page.waitForFunction(() => !document.querySelector('#grp-lvp .analysis-warns'));
+    // La 1RM del resum és la del càlcul i surt dins del gràfic; hi ha la taula de càrregues per velocitat
+    const want = await page.evaluate((id) => Math.round(Calc.lvpAnalysis(Store.get('assessments', id), null)[0].rm), aid);
+    const kv = await page.locator('#grp-lvp .lvp-kv').textContent();
+    if (!kv.includes('1RM estimada') || !kv.includes(String(want))) throw new Error(`resum: ${kv} (esperat ${want} kg)`);
+    await page.waitForSelector('#grp-lvp svg.chart-svg >> text=1RM ≈');
+    await page.waitForSelector('#grp-lvp .lvp-zones >> text=0,50 m/s');
+    await shot(page, '06h-carrega-velocitat', false);
+    // Un exercici «Altre» no porta velocitat mínima: recta sí, 1RM no (i s'avisa)
+    await page.click('#grp-lvp .lvp-add >> text=Altre exercici');
+    await page.waitForFunction(() => document.querySelectorAll('#grp-lvp .lvp-ex').length === 2);
+    // Informe: gràfica, resum i taula (i es comptabilitza dins de la valoració)
+    await page.click('.editbar >> text=Informe');
+    await page.waitForSelector('.rsec >> text=Perfil càrrega-velocitat');
+    await page.waitForSelector('.rsec svg[aria-label="Perfil càrrega-velocitat de Press banca"]');
+    await page.waitForSelector('.rsec .lvp-kv >> text=1RM estimada');
+    await page.waitForSelector('.rsec .lvp-zones >> text=Càrrega estimada');
+    await shot(page, '06h-carrega-velocitat-informe', false);
+  });
+  await step('valoració: «Importa de l\'ADR» (encoder → perfil càrrega-velocitat) i ADR Jumping (salts)', async () => {
+    const aid = await page.evaluate(() => Store.all('assessments').filter((x) => x.patientId === 'P-DEMO-LAURA').sort((a, b) => (a.date < b.date ? -1 : 1)).pop().id);
+    await goHash(page, `#/valoracio/${aid}`);
+    await page.waitForSelector('#grp-lvp');
+    await page.locator('#grp-lvp input[data-kind="adr"]').setInputFiles(csvFile('adr-test.csv', adrCsv('Laura Vidal Serra')));
+    await page.waitForSelector('.dialog >> text=He trobat');
+    await page.waitForSelector('.dialog >> text=Laura Vidal Serra');
+    // Només el Press banca de la Laura (el d'una altra persona no hi surt); la més ràpida de cada càrrega = 4 punts
+    let pts = await page.locator('.dialog .adr-ex tbody tr').count();
+    if (pts !== 4) throw new Error(`punts amb «la més ràpida»: ${pts}`);
+    await page.click('.dialog .seg-btn >> text=Totes');
+    await page.waitForFunction(() => document.querySelectorAll('.dialog .adr-ex tbody tr').length === 12);
+    await page.click('.dialog-foot >> text=Importa 1 exercici');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    // El perfil surt calculat com a la pantalla de l'ADR: 1RM 79,1 kg, V0 1,77, R² 0,93
+    const ex = page.locator('#grp-lvp .lvp-ex').last();
+    await ex.waitFor();
+    const stats = await ex.locator('.lvp-stats').textContent();
+    if (!/79,1/.test(stats) || !/1,77/.test(stats) || !/0,93/.test(stats)) throw new Error(`perfil importat: ${stats}`);
+    if ((await ex.locator('.lvp-table tbody tr').count()) !== 12) throw new Error('càrregues importades');
+    await shot(page, '06i-adr-importat', false);
+    // ADR Jumping: dos salts als intents de la valoració
+    await page.locator('#grp-jumps input[data-kind="adr"]').setInputFiles(csvFile('adr-salts.csv', adrJumps('Laura Vidal Serra')));
+    await page.waitForSelector('.dialog >> text=Importa salts de l\'ADR Jumping');
+    await page.click('.dialog-foot >> text=Importa 2 intents');
+    await page.waitForSelector('.dialog', { state: 'detached' });
+    const types = await page.evaluate((id) => Store.get('assessments', id).jumps.attempts.filter((x) => x.note === 'Importat de l\'ADR Jumping').map((x) => `${x.type}:${x.height}`), aid);
+    if (types.join() !== 'CMJ:31,2,DJ:28') throw new Error(`salts: ${types}`);
+    // Tornar a importar el mateix fitxer: els salts surten com «ja importat» i no es marquen
+    await page.locator('#grp-jumps input[data-kind="adr"]').setInputFiles(csvFile('adr-salts.csv', adrJumps('Laura Vidal Serra')));
+    await page.waitForSelector('.dialog >> text=ja importat');
+    await page.click('.dialog-foot >> text=Cancel·la');
+  });
   await step('NOE: mode demostració → planificar un mes amb una proposta que només s\'aplica en confirmar, i es pot desfer', async () => {
     await goHash(page, '#/inici');
     await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); });
@@ -828,12 +932,68 @@ const step = async (label, fn) => {
     await page.fill('.noe-input', 'KABOOM prova');
     await page.click('.noe-foot >> button[title="Envia"]');
     await page.waitForSelector('.noe-error >> text=clau de l\'API no és vàlida');
-    if ((await page.inputValue('.noe-input')) !== 'KABOOM prova') throw new Error('el text no ha tornat al quadre');
+    await page.waitForFunction(() => document.querySelector('.noe-input').value === 'KABOOM prova', null, { timeout: 5000 }).catch(() => { throw new Error('el text no ha tornat al quadre'); });
     // Historial de converses
     await page.click('.noe-head >> button[title="Converses anteriors"]');
     await page.waitForSelector('.noe-hist-row');
     await page.click('.noe-head >> button[title="Converses anteriors"]');
     // Netejar la configuració perquè no afecti les altres proves
+    await page.unroute('https://api.anthropic.com/v1/messages');
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
+  });
+  await step('NOE: sessió dictada («divendres … sentadilla goblet, plancha…») → exercicis resolts a la biblioteca → targeta → Aplica crea la sessió', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA');
+    const reqs = [];
+    await page.route('https://api.anthropic.com/v1/messages', async (route) => {
+      const req = route.request();
+      const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS' };
+      if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+      const body = req.postDataJSON();
+      reqs.push(body);
+      const ev = (e) => `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`;
+      const tool = (id, name, input) => [{ type: 'message_start', message: { usage: { input_tokens: 5 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id, name, input: {} } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: JSON.stringify(input) } }, { type: 'content_block_stop', index: 0 }, { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { output_tokens: 9 } }, { type: 'message_stop' }];
+      const last = body.messages[body.messages.length - 1];
+      const results = Array.isArray(last.content) ? last.content.filter((c) => c.type === 'tool_result') : [];
+      let events;
+      if (!results.length) events = tool('r1', 'resoldre_exercicis', { exercicis: ['sentadilla goblet', 'plancha', 'puente de glúteos', 'dominadas', 'bici suave'].map((nom) => ({ nom })) });
+      else if (results[0].tool_use_id === 'r1') {
+        const friday = (body.system[0].text.match(/divendres \d\d\/\d\d = (\d{4}-\d{2}-\d{2})/) || [])[1];
+        const byBlock = {};
+        JSON.parse(results[0].content).exercicis.filter((x) => x.resultat).forEach((x) => { (byBlock[x.resultat.bloc] = byBlock[x.resultat.bloc] || []).push({ exercici_id: x.resultat.id, series: '3', repeticions: '8' }); });
+        events = tool('p1', 'proposar_sessio', { pacient: 'PAC-1', data: friday, objectiu: 'Sessió dictada', blocs: Object.entries(byBlock).map(([bloc, exercicis]) => ({ bloc, exercicis })), motiu: 'Els exercicis que heu demanat.' });
+      } else events = [{ type: 'message_start', message: { usage: { input_tokens: 5 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'T\'he deixat la proposta per a [[pacient:PAC-1]]: plancha → Planxa frontal.' } }, { type: 'content_block_stop', index: 0 },
+        { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 20 } }, { type: 'message_stop' }];
+      return route.fulfill({ status: 200, headers: cors, contentType: 'text/event-stream', body: events.map(ev).join('') });
+    });
+    await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS, consent: true }); NoeConfig.setKey('sk-ant-prova-1234'); NoeUI.clearAll(); });
+    await page.click('.noe-fab');
+    await page.click('.noe-head >> button[title="Conversa nova"]');
+    const lauraBefore = await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').length);
+    await page.fill('.noe-input', 'Divendres tenim la Laura Vidal Serra: volem sentadilla goblet, plancha, puente de glúteos, dominadas i bici suave');
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('.noe-card[data-proposal="PR-1"]', { timeout: 20000 });
+    await page.waitForSelector('.noe-tool.done >> text=exercicis a la biblioteca');
+    // Tres voltes (resoldre → proposar → resum), la petició porta el calendari i cap nom; res canviat fins confirmar
+    await page.waitForFunction(() => document.querySelector('.noe-asst') && /Planxa frontal/.test(document.querySelector('.noe-body').textContent));
+    if (reqs.length !== 3) throw new Error(`peticions: ${reqs.length}`);
+    if (!/Propers dies/.test(reqs[0].system[0].text) || reqs[0].output_config.effort !== 'medium' || reqs[0].max_tokens < 16000) throw new Error('petició sense calendari, esforç o límit');
+    if (JSON.stringify(reqs).includes('Vidal')) throw new Error('el nom del pacient ha arribat a la IA');
+    if ((await page.evaluate(() => Store.sessionsOf('P-DEMO-LAURA').length)) !== lauraBefore) throw new Error('la proposta ha canviat dades sense confirmar');
+    const card = page.locator('.noe-card[data-proposal="PR-1"]');
+    await card.locator('text=Mira-ho en detall').click();
+    await card.locator('.noe-sess').first().waitFor();
+    const text = await card.textContent();
+    for (const nm of ['Goblet squat', 'Dominades', 'Pont de glutis']) if (!text.includes(nm)) throw new Error(`falta ${nm} a la targeta: ${text.slice(0, 300)}`);
+    await shot(page, '10e-noe-sessio-dictada', false);
+    await card.locator('button:has-text("Aplica")').click();
+    await card.locator('.pill:has-text("Aplicada")').waitFor();
+    const made = await page.evaluate(() => { const s = Store.sessionsOf('P-DEMO-LAURA').find((x) => x.goal === 'Sessió dictada'); return s ? { date: s.date, dow: new Date(`${s.date}T12:00:00`).getDay(), names: s.blocks.flatMap((b) => b.items.map((i) => i.name)), status: s.status } : null; });
+    if (!made || made.dow !== 5 || made.status !== 'planificada') throw new Error(`sessió creada: ${JSON.stringify(made)}`);
+    if (!['Goblet squat', 'Dominades', 'Bike suau'].every((n) => made.names.includes(n))) throw new Error(`exercicis: ${made.names}`);
+    await card.locator('button:has-text("Desfés")').click();
+    await page.waitForFunction(() => !Store.sessionsOf('P-DEMO-LAURA').some((x) => x.goal === 'Sessió dictada'), null, { timeout: 8000 });
     await page.unroute('https://api.anthropic.com/v1/messages');
     await page.evaluate(() => { NoeConfig.set({ ...NoeConfig.DEFAULTS }); NoeConfig.setKey(''); NoeUI.clearAll(); NoeUI.open(false); });
   });

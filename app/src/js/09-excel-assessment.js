@@ -425,6 +425,43 @@ const ExcelAssessment = (() => {
       }
       r++;
     }
+    // Perfil càrrega-velocitat: les dades, la recta (amb fórmules d'Excel: SLOPE, INTERCEPT i RSQ, de la càrrega sobre la
+    // velocitat, com l'app de l'ADR) i la 1RM estimada.
+    const lv = Calc.lvpAnalysis(a, ref.previous).filter((x) => x.fit);
+    if (lv.length) {
+      r = xlSection(ws, r, 'Perfil càrrega-velocitat  ·  ADR Encoder', NC);
+      for (const x of lv) {
+        r = xlKv(ws, r, [['Exercici', x.name || LVP.preset(x.preset).name]], NC);
+        r = xlHeader(ws, r, ['Càrrega (kg)', 'Velocitat mitjana (m/s)', 'Velocitat pic (m/s)', 'Repeticions', '% de la 1RM', 'Potència (W)']);
+        const first = r, last = first + x.rows.length - 1;
+        const rmRef = xlRef(last + 6, 2); // la 1RM estimada és a sota de la taula (6 files més avall)
+        for (const row of x.rows) {
+          ws.set(r, 1, row.load, [XS.cell, { fmt: '0.0' }]); ws.set(r, 2, row.mv, [XS.cell, { fmt: '0.00' }]);
+          ws.set(r, 3, row.pv, [XS.cell, { fmt: '0.00' }]); ws.set(r, 4, row.reps, [XS.cell, { fmt: '0' }]);
+          ws.set(r, 5, { f: `IF(AND(ISNUMBER(${rmRef}),${rmRef}>0),${xlRef(r, 1)}/${rmRef}*100,"")`, v: row.pct == null ? '' : row.pct }, [XS.cell, { fmt: '0.0' }]);
+          ws.set(r, 6, { f: `${xlRef(r, 1)}*9.8*${xlRef(r, 2)}`, v: row.power }, [XS.cell, { fmt: '0' }]);
+          r++;
+        }
+        const L = `${xlRef(first, 1)}:${xlRef(last, 1)}`, V = `${xlRef(first, 2)}:${xlRef(last, 2)}`;
+        const put = (label, f, v, fmt, unit) => { ws.set(r, 1, label, XS.text); ws.set(r, 2, { f, v: v == null ? '' : v }, [XS.cell, { fmt }]); ws.set(r, 3, unit, XS.cell); r++; return xlRef(r - 1, 2); };
+        const sl = put('Pendent de la recta', `IF(COUNT(${V})>=2,SLOPE(${L},${V}),"")`, x.fit.slope, '0.00', 'kg per m/s');
+        const ic = put('Càrrega a velocitat zero (L0)', `IF(COUNT(${V})>=2,INTERCEPT(${L},${V}),"")`, x.fit.l0, '0.00', 'kg');
+        put('Velocitat sense càrrega (V0)', `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0),-${ic}/${sl},"")`, x.fit.v0, '0.00', 'm/s');
+        put('Ajust (R²)', `IF(COUNT(${V})>=2,RSQ(${L},${V}),"")`, x.fit.r2, '0.000', '');
+        ws.set(r, 1, 'Velocitat mínima de la 1RM', XS.text); ws.set(r, 2, x.mvt, [XS.cell, { fmt: '0.00' }]); ws.set(r, 3, 'm/s', XS.cell);
+        const mv = xlRef(r, 2); r++;
+        const at = (v, nv) => ({ f: `IF(AND(ISNUMBER(${sl}),ISNUMBER(${ic}),${sl}<0,${ic}+${sl}*${v}>0),${ic}+${sl}*${v},"")`, v: nv == null ? '' : nv });
+        ws.set(r, 1, '1RM estimada', [XS.label]); ws.set(r, 2, at(mv, x.rm), [XS.cell, { fmt: '0.0', b: true }]); ws.set(r, 3, 'kg', XS.cell); r++;
+        for (const z of x.table) {
+          ws.set(r, 1, `Càrrega estimada a ${U.fmtFixed(z.v, 2)} m/s`, XS.text); ws.set(r, 2, at(String(z.v), z.load), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'kg', XS.cell); r++;
+        }
+        const notes = [['Equació de la recta', `${x.eq}${x.eqPct ? ` · ${x.eqPct}` : ''}`]];
+        if (x.lines.some((l) => /^Respecte|^Càrrega a 0,50/.test(l))) notes.push([`Evolució · ${x.name}`, x.lines.filter((l) => /^Respecte|^Càrrega a 0,50/.test(l)).join(' ')]);
+        if (x.warns.length) notes.push([`Avisos · ${x.name}`, x.warns.join(' ')]);
+        r = xlKv(ws, r, notes, NC);
+        r++;
+      }
+    }
     const b = Calc.bike(a);
     if (b.any) {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
@@ -544,6 +581,16 @@ const ExcelAssessment = (() => {
             // La velocitat només es pot comparar a la mateixa càrrega: es mostra el canvi, però sense color.
             rows.push({ label: `Encoder · ${name} · velocitat`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: xlNum(pick(a).vel) }) });
             rows.push({ label: `Encoder · ${name} · càrrega`, unit: 'kg', fmt: '0.0', dir: 0, get: (a) => ({ v: xlNum(pick(a).load) }) });
+          }
+          continue;
+        }
+        if (g.kind === 'lvp') {
+          const names = [...new Set(list.flatMap((a) => Calc.lvpAnalysis(a, null).map((x) => x.name || LVP.preset(x.preset).name)))];
+          for (const name of names) {
+            const pick = (a) => Calc.lvpAnalysis(a, null).find((x) => U.norm(x.name || LVP.preset(x.preset).name) === U.norm(name)) || {};
+            rows.push({ label: `${name} · 1RM estimada`, unit: 'kg', fmt: '0', dir: 1, bold: true, get: (a) => ({ v: pick(a).rm != null ? pick(a).rm : null }) });
+            rows.push({ label: `${name} · càrrega a 0,50 m/s`, unit: 'kg', fmt: '0', dir: 1, get: (a) => { const x = pick(a); return { v: x.fit ? Calc.lvpLoadAt(x.fit, 0.5) : null }; } });
+            rows.push({ label: `${name} · velocitat sense càrrega (V0)`, unit: 'm/s', fmt: '0.00', dir: 0, get: (a) => ({ v: pick(a).fit ? pick(a).fit.v0 : null }) });
           }
           continue;
         }

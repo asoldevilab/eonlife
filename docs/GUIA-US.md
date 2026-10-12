@@ -92,7 +92,7 @@ Les seccions segueixen el document *Valoració funcional · Human Performance*:
 |---|---|---|
 | Mobilitat | Goniometria Kinvent K-Move (rotacions de maluc i d'espatlla, flexió de genoll), knee-to-wall, anàlisi postural (Adams, Thomas, Windlass) | Asimetria D/E en %, alerta si knee-to-wall < 8 cm o diferència ≥ 4 cm |
 | Força | Dinamometria Kinvent K-Push (leg extension, leg curl 90/90 i squeeze), Single Leg Squat, Y-Balance | Asimetria, N/kg, ràtio isquios/quàdriceps, composite del Y-Balance i diferència anterior ≥ 4 cm |
-| Rendiment | CMJ (My Jump, amb importació del CSV), Assault bike 30 s (amb la foto de la pantalla) | Millor salt, mitjana, potència (My Jump o Sayers), W/kg, RSI-mod, variabilitat; watts, treball, distància, energia, índex de fatiga i comparació amb l'anterior |
+| Rendiment | CMJ (My Jump, amb importació del CSV), perfil càrrega-velocitat (ADR Encoder), Assault bike 30 s (amb la foto de la pantalla) | Millor salt, mitjana, potència (My Jump o Sayers), W/kg, RSI-mod, variabilitat; recta càrrega-velocitat, 1RM estimada i càrrega per velocitat; watts, treball, distància, energia, índex de fatiga i comparació amb l'anterior |
 | Patrons (Sessió 1) | Squat, Lunge, Pes mort, RDL, Hip Thrust, Lateral Lunge, Copenhagen | Escala 0 / − / −− i P (dolor → fisio). Als unilaterals compta el pitjor costat. Decisió proposada segons la puntuació |
 | Altres mesures | Qualsevol mesura nova | Es desa també al full |
 
@@ -180,6 +180,51 @@ Consells:
     intents (CV %) i la comparació amb la valoració anterior.
   - **Avisos** (només per a qui introdueix les dades, no surten a l'informe): distància d'empenta fora de 0,10–0,60 m,
     pes que My Jump no té, altura que no quadra amb el temps de vol i variabilitat alta entre intents.
+- **Perfil càrrega-velocitat** (a *Rendiment*, amb l'**ADR Encoder** lineal): serveix per **estimar la 1RM sense arribar-hi**
+  (més segur en readaptació, gent gran o poc entrenada) i per veure, a cada re-test, si el perfil s'ha desplaçat cap a
+  càrregues més altes. El botó **Com fer-lo servir** obre la guia pas a pas (material, col·locació de l'encoder, càrregues,
+  descansos, interpretació i limitacions).
+  - **Afegiu l'exercici** amb els botons de sota (*Squat, Press banca, Pes mort, Hip thrust, Altre exercici*). Cada exercici
+    porta la **velocitat mínima de la 1RM** de referència (squat 0,30 m/s en homes i 0,25 en dones, press banca 0,17,
+    pes mort 0,15, hip thrust 0,25): són valors de la literatura, orientatius, i es poden canviar. «Altre exercici» no en
+    porta: fa la recta però no estima la 1RM fins que en poseu una.
+  - **Apunteu, per a cada càrrega**, els kg i la **velocitat mitjana** (de la fase concèntrica) que dona l'encoder; la
+    velocitat de pic i les repeticions són opcionals. Amb **4–6 càrregues** (de ~1 m/s fins a ~0,5 m/s, sense arribar a la
+    fallada) l'app dibuixa el gràfic amb la recta.
+  - **Cada repetició és un punt**: com fa l'app de l'ADR, es poden apuntar totes les repeticions (p. ex. 3 per càrrega)
+    com a files separades, o una sola per càrrega. A cada fila surten el **% de la 1RM** i la **potència** (kg × 9,8 ×
+    velocitat), com a la pantalla de l'ADR.
+  - **Els números quadren amb l'ADR**: la recta es calcula igual que l'app de l'encoder (càrrega en funció de la velocitat,
+    p. ex. *càrrega = −49,47 × velocitat + 87,49*, R² 0,93), i es veu l'equació per comparar-la. Per tenir la mateixa 1RM,
+    poseu la mateixa velocitat mínima que fa servir l'ADR (al press banca, 0,17 m/s).
+  - **Càlculs**: recta per regressió de la càrrega sobre la velocitat, **V0** (velocitat sense càrrega), **L0** (càrrega
+    a velocitat zero), **R²**, **1RM estimada** (càrrega a la velocitat mínima; també en vegades el pes corporal) i la
+    **càrrega estimada per a cada velocitat** (1,00 · 0,80 · 0,60 · 0,50 · 0,40 · 0,30 m/s) amb el % de la 1RM. Al re-test
+    surt la comparació amb la valoració anterior (1RM estimada i càrrega a 0,50 m/s) i la recta d'abans en gris.
+  - **Avisos** (només per a qui introdueix les dades): una sola càrrega o només dues (orientatiu), ajust baix (R² < 0,90),
+    velocitats de més d'1,1 m/s, cap càrrega pesada (l'estimació extrapola molt), càrrega per sobre de la 1RM estimada, o
+    velocitat que no baixa quan puja la càrrega. No hi ha res de personal a l'informe del pacient: surten el gràfic, el
+    resum i la taula.
+  - **Fiabilitat**: és una estimació; va bé per fer seguiment i per triar càrregues, però no substitueix un test directe si
+    cal la 1RM exacta. Depèn de l'exercici, la tècnica i l'equip (Smith o barra lliure): no compareu entre exercicis ni equips.
+    Referències: González-Badillo i Sánchez-Medina (2010), García-Ramos et al. (2018) i Ardigò et al. (2022).
+- **Dades de l'ADR directament a l'app** (encoder i ADR Jumping): l'app de l'ADR exporta els entrenaments a **CSV** (o Excel)
+  i l'app els llegeix, com amb el PDF de Kinvent. A l'app de l'ADR, en acabar l'entrenament o el test, exporteu el fitxer
+  (el botó per descarregar l'entrenament, o *Menú › Historial d'entrenaments › exportar a CSV*) i passeu-lo a la tauleta.
+  Després, a EON:
+  - **Valoració › Perfil càrrega-velocitat › Importa de l'ADR**: tria el fitxer. L'app **troba la persona pel nom** (si el
+    fitxer porta tothom, només s'agafa el pacient), els **exercicis** (squat, press banca, pes mort i hip thrust els
+    reconeix sols) i els dies; podeu triar el **dia**, la **velocitat** (mitjana, propulsiva o de pic) i si voleu **la
+    repetició més ràpida de cada càrrega** (la recomanació de l'ADR) o **totes les repeticions**. Es veu la taula abans
+    d'importar i, si l'exercici ja hi és, se substitueixen les seves càrregues.
+  - **Valoració › Salts › Importa de l'ADR Jumping**: salts amb altura, temps de vol, contacte i RSI (els intents ja
+    importats surten com *ja importat*).
+  - **Sessió › registre de l'encoder d'un exercici › Importa de l'ADR**: les repeticions es converteixen en **sèries**
+    (càrrega, reps, velocitat de la 1a i de l'última, **pèrdua de velocitat** i potència màxima). Si ja hi havia sèries
+    escrites, les de l'ADR s'afegeixen a continuació.
+  - **Columnes del fitxer**: l'app reconeix les columnes pel nom (català, castellà o anglès). Si alguna no és bona, trieu a
+    mà quina columna és cada cosa; **se'n recorda** per als fitxers amb les mateixes capçaleres.
+  - Només es desa el que marqueu: les dades d'altres persones del fitxer no es guarden enlloc.
 - **Assault bike 30 s all-out** (a *Rendiment*): caselles per als **watts pic, mitjans i mínims**, i per a les dades de
   la pantalla de l'aparell: **temps, distància, calories, velocitat mitjana i RPM mitjanes**. Hi ha un interruptor de
   **unitats** (milles / km): si a la pantalla sota la distància hi diu MILES (i la velocitat va en M/HR), són milles.
@@ -576,6 +621,11 @@ novembre per al Jordi»* o *«canvia el front squat d'aquesta sessió per una va
 dades de l'app, fa servir els exercicis i el material de la biblioteca i proposa tenint en compte lesions, valoracions i com
 han respost a les últimes sessions.
 
+- **Crea sessions dictant-les**: *«divendres tenim la Laura: volem sentadilla goblet, remo con goma, plancha, puente de glúteos,
+  dominadas i bici suave»*. NOE troba el pacient, posa la **data exacta** del divendres, **busca tots els exercicis a la
+  biblioteca d'un cop** (entén català, castellà i anglès: no cal que els busquis ni en sàpigues el nom exacte), els col·loca al seu
+  bloc i omple sèries, repeticions i intensitat. Et deixa la targeta; si ha triat entre variants («plancha → Planxa frontal») t'ho
+  diu. Només et pregunta si falta el pacient o el dia.
 - **Els canvis són propostes**: surt una **targeta** amb el detall (sessions, blocs, exercicis, avisos). **No es crea ni es
   canvia res fins que prems *Aplica***; després hi ha **Obre** i **Desfés**. Pots descartar-la amb *Descarta*.
 - Els pacients surten amb el seu nom a la pantalla, però **a la IA només arriben com a PAC-1, PAC-2… (sense nom, telèfon,
@@ -583,8 +633,10 @@ han respost a les últimes sessions.
 - NOE és una IA: **pot equivocar-se**. Revisa sempre el que proposa. No diagnostica ni substitueix el criteri del professional;
   davant de signes d'alarma recomana derivar.
 - Cada aparell té **converses pròpies** (la icona del rellotge mostra les anteriors i *+* en comença una de nova).
-- **Configuració › NOE**: clau de l'API (es queda en aquest aparell), model, privacitat, consentiment, **Mode demostració**
-  (sense IA ni cost) i **Prova la connexió**. Més detalls (servidor intermediari, privacitat, cost) a `docs/NOE.md`.
+- **Configuració › NOE**: clau de l'API (es queda en aquest aparell) **o** el **servidor del centre** (la clau no surt d'allà i
+  les tauletes porten un codi d'accés; guia a `docs/noe-proxy/`), model, raonament, privacitat, consentiment, **Mode demostració**
+  (sense IA ni cost) i **Prova la connexió**. NOE només funciona a la versió publicada de l'app, no a l'enllaç privat de prova.
+  Més detalls (privacitat, cost) a `docs/NOE.md`.
 
 ## Teclat i accessibilitat
 

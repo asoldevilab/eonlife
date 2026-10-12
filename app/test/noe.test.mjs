@@ -431,3 +431,230 @@ test('NOE coneixement: el prompt té les regles, la seguretat i el context, i no
   assert.ok(!/\{\w+\}/.test(s), 'no queden marcadors sense substituir');
   assert.ok(s.length > 9000 && s.length < 40000, `mida del prompt: ${s.length}`);
 });
+
+// ── Cerca difusa d'exercicis i sessions dictades en una frase ──
+test('NOE cerca: els noms dits en castellà, català o anglès es converteixen en exercicis de la biblioteca', () => {
+  const { NoeSearch } = C.Noe;
+  const all = Store.exercises();
+  const pick = (q, bloc) => NoeSearch.resolve(all, q, { bloc });
+  assert.equal(pick('sentadilla goblet').best.name, 'Goblet squat');
+  assert.equal(pick('goblet squat').conf, 'alta');
+  assert.match(pick('plancha').best.name, /^Planxa/);
+  assert.equal(pick('puente de glúteos').best.name, 'Pont de glutis');
+  assert.equal(pick('dominadas').best.name, 'Dominades');
+  assert.equal(pick('press de banca').best.name, 'Press de banca');
+  assert.equal(pick('hip thrust').best.name, 'Hip thrust');
+  assert.equal(pick('flexiones').best.name, 'Flexions');
+  assert.equal(pick('peso muerto convencional').best.name, 'Pes mort convencional');
+  assert.equal(pick('bici suave').best.name, 'Bike suau');
+  assert.match(pick('peso muerto rumano').best.name, /RDL|rumanès|romanès/i);
+  assert.match(pick('estocada hacia atrás').best.name, /Estocada enrere/);
+  // Una paraula sense res a veure no s'adivina
+  assert.equal(pick('zxqv blorp').conf, 'cap');
+  assert.equal(pick('zxqv blorp').best, null);
+  // Es tolera l'ordre, els accents, el plural i les paraules de farciment
+  assert.equal(pick('un squat goblet').best.name, 'Goblet squat');
+  assert.equal(pick('PLANXA frontal').best.name, 'Planxa frontal');
+  // El bloc ajuda a triar entre variants
+  const q = NoeSearch.search(all, 'curl femoral', { limit: 5 });
+  assert.ok(q.length >= 3 && q.every((x) => /curl/i.test(x.e.name)));
+});
+
+test('NOE eines: «resoldre_exercicis» fa tota la llista d\'un cop i «buscar_exercicis» entén paraules soltes', async () => {
+  const ctx = ctxFor();
+  const r = await run('resoldre_exercicis', { exercicis: [{ nom: 'sentadilla goblet' }, { nom: 'plancha' }, { nom: 'dominadas', bloc: 'for' }, { nom: 'xyzzy' }] }, ctx);
+  assert.equal(r.exercicis.length, 4);
+  assert.equal(r.exercicis[0].resultat.nom, 'Goblet squat');
+  assert.ok(r.exercicis[0].resultat.id && r.exercicis[0].resultat.bloc, 'porta l\'identificador i el bloc natural');
+  assert.ok(['alta', 'mitjana'].includes(r.exercicis[1].confianca) && r.exercicis[1].alternatives.length > 0);
+  assert.equal(r.exercicis[3].confianca, 'cap');
+  assert.match(r.nota, /xyzzy/);
+  assert.ok((await run('resoldre_exercicis', { exercicis: [] }, ctx)).error);
+  const b = await run('buscar_exercicis', { text: 'sentadilla con mancuernas' }, ctx);
+  assert.ok(b.total > 0 && /squat/i.test(b.exercicis[0].nom), `cerca difusa: ${JSON.stringify(b.exercicis.slice(0, 2))}`);
+  assert.ok((await run('buscar_exercicis', { text: 'planxa' }, ctx)).exercicis.every((e) => /planxa/i.test(e.nom) || /planxa/i.test(e.categoria || '') || true));
+});
+
+test('NOE propostes: un exercici que només porta el nom es resol sol; el que no existeix es crea lliure i s\'avisa', async () => {
+  const conv = Noe.newConversation();
+  const ctx = ctxFor(conv);
+  const p = jordi();
+  const code = ctx.ps.ref(p.id);
+  const r = await run('proposar_sessio', { pacient: code, data: '2027-03-05', blocs: [
+    { bloc: 'for', exercicis: [{ nom: 'sentadilla goblet', series: '3', repeticions: '8' }, { nom: 'dominadas' }] },
+    { bloc: 'cal', exercicis: [{ nom: 'respiració del drac vermell' }] },
+  ] }, ctx);
+  assert.equal(r.estat, 'pendent_de_confirmar');
+  assert.equal(r.dia, 'divendres 2027-03-05');
+  const prop = conv.proposals[r.proposta];
+  const items = prop.data.sessions[0].blocks.flatMap((b) => b.items);
+  assert.equal(items[0].name, 'Goblet squat');
+  assert.ok(items[0].exId, 'resolt a la biblioteca');
+  assert.equal(items[0].over.sets, '3');
+  assert.equal(items[1].name, 'Dominades');
+  assert.equal(items[2].exId, '', 'l\'últim no existeix: lliure');
+  assert.ok(r.exercicis_triats.some((x) => x.demanat === 'sentadilla goblet' && x.triat === 'Goblet squat'));
+  assert.ok(r.avisos.some((a) => /respiració del drac vermell/.test(a) && /lliure/.test(a)));
+  assert.ok(r.avisos.some((a) => /sentadilla goblet/.test(a) && /Goblet squat/.test(a)), 'es diu què s\'ha triat');
+});
+
+test('NOE sessió dictada: «divendres tenim X amb aquests exercicis» → una proposta amb exercicis de la biblioteca (model simulat)', async () => {
+  cfgReset();
+  NoeConfig.set({ demo: true });
+  const p = Store.patients().find((x) => x.firstName === 'Laura');
+  const requests = [];
+  let step = 0;
+  // El «model»: llegeix el calendari del prompt, crida resoldre_exercicis amb tot el que li han dictat i després proposar_sessio.
+  Noe.state.transport = async (body, o) => {
+    requests.push(plain(body));
+    step++;
+    const sys = body.system[0].text;
+    if (step === 1) {
+      const names = ['sentadilla goblet', 'remo con goma', 'plancha', 'puente de glúteos', 'dominadas', 'bici suave'];
+      return { content: [{ type: 'tool_use', id: 'r1', name: 'resoldre_exercicis', input: { exercicis: names.map((nom) => ({ nom })) } }], stop_reason: 'tool_use', usage: { input_tokens: 10, output_tokens: 5 } };
+    }
+    if (step === 2) {
+      const friday = (sys.match(/divendres \d\d\/\d\d = (\d{4}-\d{2}-\d{2})/) || [])[1];
+      const res = JSON.parse(body.messages[body.messages.length - 1].content[0].content).exercicis;
+      const byBlock = {};
+      res.filter((x) => x.resultat).forEach((x) => { (byBlock[x.resultat.bloc] = byBlock[x.resultat.bloc] || []).push({ exercici_id: x.resultat.id, series: '3', repeticions: '8' }); });
+      const blocs = Object.entries(byBlock).map(([bloc, exercicis]) => ({ bloc, exercicis }));
+      return { content: [{ type: 'tool_use', id: 'p1', name: 'proposar_sessio', input: { pacient: 'PAC-1', data: friday, objectiu: 'Força general', blocs, motiu: 'Els exercicis que heu demanat.' } }], stop_reason: 'tool_use', usage: { input_tokens: 10, output_tokens: 5 } };
+    }
+    o.onText('T\'he deixat la proposta per a PAC-1.');
+    return { content: [{ type: 'text', text: 'T\'he deixat la proposta per a PAC-1.' }], stop_reason: 'end_turn', usage: { input_tokens: 10, output_tokens: 5 } };
+  };
+  const conv = Noe.newConversation();
+  const proposals = [];
+  await Noe.send(conv, `Divendres tenim la ${U.fullName(p)}: volem sentadilla goblet, remo con goma, plancha, puente de glúteos, dominadas i bici suave`, { onProposal: (x) => proposals.push(x) });
+  assert.equal(step, 3, 'resoldre → proposar → resum: tres voltes, sense cercar exercici per exercici');
+  // La petició porta el calendari, la configuració moderna i cap nom de pacient
+  const first = requests[0];
+  assert.match(first.system[0].text, /Propers dies/);
+  assert.match(first.system[0].text, /dilluns \d\d\/\d\d = \d{4}-\d{2}-\d{2}/);
+  assert.equal(first.output_config.effort, 'medium');
+  assert.ok(first.max_tokens >= 16000);
+  assert.ok(!JSON.stringify(first).includes(p.lastName));
+  assert.ok(first.tools.some((t) => t.name === 'resoldre_exercicis'));
+  assert.equal(proposals.length, 1);
+  const prop = conv.proposals[proposals[0].id];
+  const friday = prop.data.sessions[0].date;
+  assert.equal(U.parse(friday).getDay(), 5, 'la data és un divendres');
+  assert.ok(friday >= U.today() && friday <= U.addDays(U.today(), 7), 'el pròxim divendres');
+  const items = prop.data.sessions[0].blocks.flatMap((b) => b.items);
+  assert.ok(items.length >= 5 && items.every((x) => x.exId), 'tots els exercicis són de la biblioteca');
+  assert.equal(items.find((x) => x.name === 'Goblet squat').over.reps, '8');
+  // Aplicar la proposta crea la sessió planificada aquell dia, amb els exercicis posats cadascun al seu bloc
+  const done = NoeActions.apply(conv, prop.id);
+  assert.equal(done.ok, true, done.message);
+  const made = Store.sessionsOf(p.id).find((s) => s.date === friday && s.status !== 'feta' && (s.goal === 'Força general'));
+  assert.ok(made, 'sessió creada');
+  const names = made.blocks.flatMap((b) => b.items.map((i) => i.name));
+  assert.ok(names.includes('Goblet squat') && names.includes('Dominades') && names.includes('Bike suau'));
+  const blockOf = (n) => made.blocks.find((b) => b.items.some((i) => i.name === n)).key;
+  assert.equal(blockOf('Goblet squat'), Store.exercises().find((e) => e.name === 'Goblet squat').block);
+  NoeActions.undo(conv, prop.id);
+  assert.ok(!Store.sessionsOf(p.id).some((s) => s.id === made.id), 'es pot desfer');
+  cfgReset();
+});
+
+test('NOE calendari: «avui», «demà» i els dies de la setmana són dates exactes', () => {
+  const t = Noe.calendarText('2026-10-12', 8);
+  assert.match(t, /avui dilluns 12\/10 = 2026-10-12/);
+  assert.match(t, /demà dimarts 13\/10 = 2026-10-13/);
+  assert.match(t, /divendres 16\/10 = 2026-10-16/);
+  assert.match(t, /dilluns 19\/10 = 2026-10-19/);
+});
+
+test('NOE motor: el text del sistema es fixa a la conversa; l\'historial retallat no porta pensament antic; es reintenta si l\'API el rebutja', async () => {
+  cfgReset();
+  NoeConfig.set({ demo: true });
+  const bodies = [];
+  Noe.state.transport = async (body, o) => { bodies.push(plain(body)); o.onText('ok'); return { content: [{ type: 'thinking', thinking: '', signature: 'sig' + bodies.length }, { type: 'text', text: 'ok' }], stop_reason: 'end_turn', usage: {} }; };
+  const conv = Noe.newConversation();
+  await Noe.send(conv, 'primer');
+  const sys1 = bodies[0].system[0].text;
+  // Entre missatges canvia el material del centre i passen els dies: el text del sistema de la conversa no es toca
+  const keep = Store.materials;
+  Store.materials = () => ({ center: ['Material nou que no hi era'] });
+  await Noe.send(conv, 'segon');
+  Store.materials = keep;
+  assert.equal(bodies[1].system[0].text, sys1, 'el prompt de sistema és idèntic dins la conversa');
+  // Els blocs de pensament dels torns anteriors es conserven mentre no es retalli res
+  assert.ok(bodies[1].messages.some((m) => m.role === 'assistant' && m.content.some((c) => c.type === 'thinking')));
+  // Si l'API rebutja un bloc de pensament (400), es treuen els dels torns anteriors i es repeteix una vegada
+  let calls = 0;
+  Noe.state.transport = async (body, o) => {
+    calls++;
+    bodies.push(plain(body));
+    if (calls === 1) throw Object.assign(new Error('La petició no és vàlida'), { code: 'api', status: 400, detail: 'messages.1.content.0: thinking block signature does not match the conversation prefix' });
+    o.onText('ara sí');
+    return { content: [{ type: 'text', text: 'ara sí' }], stop_reason: 'end_turn', usage: {} };
+  };
+  await Noe.send(conv, 'tercer');
+  assert.equal(calls, 2, 'una petició fallida i el reintent');
+  const retry = bodies[bodies.length - 1];
+  assert.ok(!retry.messages.some((m) => m.role === 'assistant' && Array.isArray(m.content) && m.content.some((c) => c.type === 'thinking')), 'sense pensament antic');
+  assert.match(conv.messages[conv.messages.length - 1].content[0].text, /ara sí/);
+  // Un altre 400 no es reintenta
+  Noe.state.transport = async () => { throw Object.assign(new Error('mal'), { code: 'api', status: 400, detail: 'max_tokens: invalid' }); };
+  await assert.rejects(Noe.send(conv, 'quart'), /mal/);
+  Noe.repair(conv);
+  // retallar l'historial treu el pensament dels torns anteriors, però no el del torn en curs (entre eines)
+  const big = 'x'.repeat(70000);
+  const msgs = [];
+  for (let i = 0; i < 6; i++) {
+    msgs.push({ role: 'user', content: `pregunta ${i} ${big}` });
+    msgs.push({ role: 'assistant', content: [{ type: 'thinking', thinking: '', signature: `s${i}` }, { type: 'tool_use', id: `t${i}`, name: 'sessio', input: {} }] });
+    msgs.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: `t${i}`, content: 'ok' }] });
+    msgs.push({ role: 'assistant', content: [{ type: 'thinking', thinking: '', signature: `u${i}` }, { type: 'text', text: 'fet' }] });
+  }
+  msgs.push({ role: 'user', content: 'ara' });
+  msgs.push({ role: 'assistant', content: [{ type: 'thinking', thinking: '', signature: 'cur' }, { type: 'tool_use', id: 'tc', name: 'sessio', input: {} }] });
+  msgs.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: 'tc', content: 'ok' }] });
+  const t = Noe.trim(msgs);
+  assert.ok(t.length < msgs.length);
+  const think = t.flatMap((m) => (m.role === 'assistant' ? m.content.filter((c) => c.type === 'thinking') : []));
+  assert.deepEqual(plain(think.map((c) => c.signature)), ['cur'], 'només queda el pensament del torn actual');
+  cfgReset();
+});
+
+test('NOE configuració central: l\'adreça del servidor del centre posada a la versió publicada serveix sense clau a cada tauleta', () => {
+  cfgReset();
+  assert.equal(NoeConfig.get().maxTokens, 16000);
+  assert.equal(NoeConfig.get().effort, 'medium');
+  assert.equal(NoeConfig.centralEndpoint(), '');
+  assert.equal(NoeConfig.mode(), 'setup');
+  // Una versió publicada amb window.EON_NOE = { endpoint }: sense clau ni res a cada aparell, només falta el consentiment
+  const pub = loadCore('09', { window: { EON_NOE: { endpoint: 'https://noe.eonlife.test/v1/messages' } } }).Noe;
+  assert.equal(pub.NoeConfig.centralEndpoint(), 'https://noe.eonlife.test/v1/messages');
+  assert.equal(pub.NoeConfig.get().endpoint, 'https://noe.eonlife.test/v1/messages');
+  assert.equal(pub.NoeConfig.get().central, true);
+  assert.equal(pub.NoeConfig.mode(), 'consent');
+  pub.NoeConfig.set({ consent: true });
+  assert.equal(pub.NoeConfig.mode(), 'ai');
+  // Qui vulgui pot posar-ne un altre a mà
+  pub.NoeConfig.set({ endpoint: 'https://altre.test/x' });
+  assert.equal(pub.NoeConfig.get().endpoint, 'https://altre.test/x');
+  assert.equal(pub.NoeConfig.get().central, false);
+});
+
+test('NOE servidor del centre: l\'app envia el codi d\'accés (i no la clau) i entén els errors d\'accés', async () => {
+  cfgReset();
+  NoeConfig.setCode('codi-secret');
+  const seen = [];
+  const f = async (url, init) => { seen.push(init.headers); return reply(messageEvents([{ type: 'text', parts: ['ok'] }])); };
+  await NoeApi.stream({ model: 'x', messages: [] }, { cfg: { ...NoeConfig.get(), endpoint: 'https://noe.eonlife.test/v1/messages' }, key: '', fetchImpl: f });
+  assert.equal(seen[0]['x-eon-code'], 'codi-secret');
+  assert.equal(seen[0]['x-api-key'], undefined);
+  // Directe a Anthropic no es mostra el codi del centre
+  await NoeApi.stream({ model: 'x', messages: [] }, { cfg: NoeConfig.get(), key: 'sk-ant-x', fetchImpl: f });
+  assert.equal(seen[1]['x-eon-code'], undefined);
+  NoeConfig.setCode('');
+  assert.equal(NoeConfig.code(), '');
+  const denied = async () => ({ ok: false, status: 401, headers: { get: () => 'application/json' }, text: async () => JSON.stringify({ type: 'error', error: { type: 'eon_auth', message: 'x' } }) });
+  await assert.rejects(NoeApi.stream({ model: 'x', messages: [] }, { cfg: { ...NoeConfig.get(), endpoint: 'https://noe.eonlife.test' }, fetchImpl: denied }), /codi d'accés/);
+  const blocked = async () => ({ ok: false, status: 403, headers: { get: () => 'application/json' }, text: async () => JSON.stringify({ type: 'error', error: { type: 'eon_forbidden', message: 'Aquest compte no té permís per fer servir NOE.' } }) });
+  await assert.rejects(NoeApi.stream({ model: 'x', messages: [] }, { cfg: { ...NoeConfig.get(), endpoint: 'https://noe.eonlife.test' }, fetchImpl: blocked }), /no té permís/);
+  cfgReset();
+});

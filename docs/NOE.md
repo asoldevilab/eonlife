@@ -13,6 +13,26 @@ català, com amb un company, i NOE:
 - **recorda tenir en compte** lesions, limitacions, nivell, material, últimes valoracions i recuperació, i explica *per què*
   proposa el que proposa.
 
+## Crear una sessió dictant-la («divendres tenim la Laura amb aquests exercicis»)
+
+Pots escriure a NOE com ho diries a un company, **amb els exercicis tal com els dius** (en català, castellà o anglès):
+
+> *Divendres tenim la Laura. Volem fer-li sentadilla goblet, remo con goma, plancha, puente de glúteos, dominadas i bici suave.*
+
+NOE busca el pacient, converteix «divendres» en la **data exacta** (té el calendari dels propers 21 dies), **troba tots els
+exercicis de la biblioteca d'un cop** (no els has de buscar ni dir-ne els identificadors: entén «sentadilla» = *squat*,
+«plancha» = *planxa*, «puente de glúteos» = *pont de glutis*, «remo» = *rem*…), els **col·loca al seu bloc** (mobilitat, activació,
+potència, força, accessoris, calma), **omple el que falti** (sèries, repeticions, intensitat, descans) segons l'objectiu i el nivell,
+i et deixa una **targeta de proposta**. Tu la revises, i amb **Aplica** es crea la sessió planificada aquell dia (i amb **Desfés**
+es treu).
+
+- Si un nom és ambigu («plancha» pot ser frontal o lateral), NOE tria el més probable i **t'ho diu** («plancha → Planxa
+  frontal»); a la targeta surt també com a avís, i li pots demanar que el canviï.
+- Si un exercici **no existeix** a la biblioteca, es crea com a **exercici lliure** amb aquest nom i s'avisa.
+- Només et pregunta si falta el pacient o el dia, o si un exercici important no s'assembla a res de la biblioteca.
+- També val per canviar una sessió que ja hi és («a la sessió de divendres de PAC-1 canvia el goblet per un front squat») i per
+  planificar un mes o un pla.
+
 ## Els canvis els fa la persona, no la IA
 
 NOE **no pot desar res per si sola**. Quan proposa una cosa (una sessió, un mes, un pla, un canvi, una nota) surt una
@@ -25,54 +45,50 @@ mirant («la fitxa de PAC-2»), de manera que pots dir «proposa-li una sessió 
 
 ## Posar-lo en marxa
 
+Hi ha **dues maneres**. La B és la recomanada per al dia a dia del centre.
+
+**A · Una clau a cada tauleta (el més ràpid per començar)**
+
 1. **Configuració › NOE · assistent d'IA**.
 2. Crea una clau de l'API a [console.anthropic.com](https://console.anthropic.com) (cal tenir saldo a l'API; és un pagament
    per ús, independent de la subscripció a Claude). Enganxa-la a *Clau de l'API* i prem **Desa**. **La clau es queda
    només en aquest aparell** (a l'emmagatzematge del navegador): no es desa al full de càlcul compartit, ni als
    informes, ni al repositori. A cada tauleta s'ha de posar una vegada.
 3. Tria el **model** (per defecte *Claude Sonnet 5.5*, equilibrat; *Opus 5.5* és el més capaç i més car; *Haiku 5.5* és
-   el més ràpid i econòmic).
+   el més ràpid i econòmic) i el **raonament** (*Equilibrat* per defecte).
 4. Marca la casella del **consentiment** (vegeu «Privacitat»).
 5. **Prova la connexió**.
 
-Mentre no hi hagi clau, hi ha el **Mode demostració**: respostes preparades, **sense IA ni cost**, que fan servir les
+**B · Servidor del centre (la clau no surt mai d'allà)**
+
+Un petit servidor propi (Cloudflare Worker, gratuït) guarda la clau; les tauletes només porten un **codi d'accés** que es pot
+canviar o anul·lar, o s'identifiquen amb el **compte de Microsoft** del centre. Tens el codi i una guia pas a pas a
+[`docs/noe-proxy/`](noe-proxy/README.md) (uns 15 minuts, sense instal·lar res). Quan el tens, poses l'adreça a
+`app/m365.config.json` (`"noe": { "endpoint": "…" }`) i **totes les tauletes** ja la fan servir: només hi cal el codi i el
+consentiment.
+
+**Important**: NOE només funciona a la **versió publicada** de l'app (GitHub Pages / Microsoft 365), no a l'enllaç privat de
+prova de Claude, que només té el mode demostració (aquell entorn no deixa parlar amb l'API).
+
+Mentre no hi hagi clau ni servidor, hi ha el **Mode demostració**: respostes preparades, **sense IA ni cost**, que fan servir les
 mateixes eines i targetes (entén «qui no ha entrenat…», «cerca…» i «planifica el mes de … per a …»). Serveix per veure com
-funciona i per ensenyar-ho a l'equip; a l'enllaç privat de prova només hi ha aquest mode.
+funciona i per ensenyar-ho a l'equip.
 
-### Servidor intermediari (recomanat per a producció)
+### Com està fet (per a qui desenvolupa)
 
-Posar la clau a cada tauleta és còmode però no és ideal: qui tingui accés al navegador d'aquella tauleta podria llegir-la. Per
-a una instal·lació definitiva, el centre pot tenir **un petit servidor propi que guarda la clau** i que l'app crida en lloc
-d'Anthropic: a *Opcions avançades › Servidor intermediari* s'escriu l'adreça i l'app deixa d'enviar-hi la clau. Exemple per a
-un *Cloudflare Worker* (la clau va com a secret `ANTHROPIC_API_KEY`, i `ALLOWED_ORIGINS` és l'adreça de l'app, p. ex.
-`https://asoldevilab.github.io`):
-
-```js
-export default {
-  async fetch(request, env) {
-    const origin = request.headers.get('Origin') || '';
-    const allowed = (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim());
-    const cors = {
-      'Access-Control-Allow-Origin': allowed.includes(origin) ? origin : allowed[0],
-      'Access-Control-Allow-Headers': 'content-type, anthropic-version, x-api-key',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS', Vary: 'Origin',
-    };
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    if (request.method !== 'POST' || !allowed.includes(origin)) return new Response('Forbidden', { status: 403, headers: cors });
-    const up = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'anthropic-version': '2023-06-01', 'x-api-key': env.ANTHROPIC_API_KEY },
-      body: request.body,
-    });
-    return new Response(up.body, { status: up.status, headers: { ...cors, 'content-type': up.headers.get('content-type') || 'application/json' } });
-  },
-};
-```
-
-Aquest exemple comprova l'`Origin`, que **no és una autenticació forta** (només la fan servir els navegadors); per protegir-lo de
-debò cal afegir-hi, per exemple, *Cloudflare Access* o la validació d'un token de Microsoft Entra, i posar-hi un límit de
-peticions. El mateix es pot fer amb una *Azure Function*. L'app envia la petició tal com l'accepta l'API de Missatges
-(`/v1/messages`, amb *streaming*).
+- El motor parla amb l'API de Missatges amb *streaming*, eines i memòria cau del prompt. Fa servir el **raonament adaptatiu** del
+  model amb l'**esforç** triat (`output_config.effort`, *medium* per defecte) i un límit de resposta generós (16.000 tokens com a
+  mínim, perquè el raonament compta dins el límit i una sessió o un mes llargs no es tallin).
+- **El text del sistema es fixa a cada conversa** (inclòs el calendari dels propers dies): no canvia entre missatges, així la
+  memòria cau del prompt funciona i els blocs de pensament dels torns anteriors continuen sent vàlids. En retallar una conversa
+  molt llarga es treuen els blocs de pensament dels torns antics; i si l'API rebutgés un d'aquests blocs (un 400 que en parli),
+  es treuen i es repeteix la petició una vegada.
+- Les eines clau per crear sessions són `resoldre_exercicis` (llista de noms → exercicis de la biblioteca, amb confiança i
+  alternatives; cerca difusa a `09-noe-search.js`) i `proposar_sessio`, que a més resol per nom els exercicis que no portin
+  identificador.
+- **Prova**: les proves fan servir un model simulat que llegeix el calendari i crida les eines com ho faria el real
+  (`app/test/noe.test.mjs`). **La connexió amb l'API real només es pot comprovar amb una clau**: feu-ho amb *Prova la connexió*
+  abans de fer-lo servir.
 
 ## Privacitat (dades de salut)
 

@@ -72,9 +72,12 @@ const NoeTools = (() => {
       input_schema: { type: 'object', properties: { sessio: { type: 'string', description: 'Identificador de la sessió (S-…).' } }, required: ['sessio'] } },
     { name: 'calendari_pacient', description: 'Calendari d\'un mes d\'un pacient: les sessions que ja hi ha, els dies d\'entrenament habituals i els dies lliures. Mira-ho abans de planificar.',
       input_schema: { type: 'object', properties: { pacient: P, mes: { type: 'string', description: 'AAAA-MM' } }, required: ['pacient', 'mes'] } },
-    { name: 'buscar_exercicis', description: 'Cerca exercicis de la biblioteca del centre per text, bloc, grup muscular, material o nivell. Fes-la servir SEMPRE abans de proposar una sessió: els exercicis han de ser d\'aquí.',
+    { name: 'buscar_exercicis', description: 'Cerca exercicis de la biblioteca del centre per text (entén català, castellà i anglès i paraules soltes), bloc, grup muscular, material o nivell; torna els més ben puntuats primer. Fes-la servir quan hagis d\'escollir exercicis tu (la persona no n\'ha dictat): han de ser d\'aquí. Si la persona ja t\'ha dit els exercicis, fes servir «resoldre_exercicis».',
       input_schema: { type: 'object', properties: { text: { type: 'string' }, bloc: { type: 'string', enum: BLOCKS.map((b) => b.key) }, grup_muscular: { type: 'string' },
         material: { type: 'string' }, nivell: { type: 'string', enum: OPT.levels.map((l) => l.v) }, familia: { type: 'string' }, limit: { type: 'integer', description: 'Màxim (per defecte 25).' } } } },
+    { name: 'resoldre_exercicis', description: 'Converteix els noms d\'exercicis que t\'ha dictat la persona (en català, castellà o anglès, tal com els diu: «sentadilla goblet», «plancha», «remo con goma») en exercicis de la biblioteca del centre, TOTS d\'un cop. Per a cada nom torna el millor exercici (amb el seu identificador), la confiança (alta, mitjana, baixa o cap) i alternatives. Fes-la servir quan et donin una llista d\'exercicis per a una sessió, abans de «proposar_sessio».',
+      input_schema: { type: 'object', properties: { exercicis: { type: 'array', description: 'Els exercicis tal com els ha dit la persona (màxim 25).', items: { type: 'object', properties: {
+        nom: { type: 'string', description: 'El nom tal com l\'ha dit la persona.' }, bloc: { type: 'string', enum: BLOCKS.map((b) => b.key), description: 'Bloc on el vol, si ho ha dit (ajuda a triar entre variants).' } }, required: ['nom'] } } }, required: ['exercicis'] } },
     { name: 'familia_exercici', description: 'La progressió d\'un exercici: la seva família ordenada del nivell més fàcil al més difícil (per pujar o baixar de nivell).',
       input_schema: { type: 'object', properties: { exercici_id: { type: 'string' }, familia: { type: 'string' } } } },
     { name: 'proposar_sessio', description: 'PROPOSA una sessió nova (planificada) per a un pacient. No es crea fins que la persona la confirma a la targeta.',
@@ -202,6 +205,7 @@ const NoeTools = (() => {
           salts: Object.fromEntries(Object.entries(jumps).map(([t, s]) => [t, compact({ millor_cm: s.best, mitjana_cm: s.mean, potencia_w: s.bestPower, w_kg: s.relPower })])),
           y_balance: ybt.d.comp != null || ybt.e.comp != null ? compact({ composite_d: ybt.d.comp, composite_e: ybt.e.comp, dif_anterior_cm: ybt.antDiff }) : '',
           patrons: patterns,
+          carrega_velocitat: Calc.lvpAnalysis(a, prev).filter((x) => x.fit).map((x) => compact({ exercici: x.name || LVP.preset(x.preset).name, punts: x.rows.map((r) => ({ kg: r.load, m_s: r.mv })), v0_m_s: U.round(x.fit.v0, 2), l0_kg: x.fit.l0 != null ? U.round(x.fit.l0, 0) : '', r2: x.fit.r2 != null ? U.round(x.fit.r2, 3) : '', velocitat_minima_m_s: x.mvt, rm_estimada_kg: x.rm != null ? U.round(x.rm, 0) : '', canvi_rm_kg: x.cmp && x.cmp.rmDiff != null ? U.round(x.cmp.rmDiff, 0) : '', avisos: x.warns })),
           assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, fatiga_pct: bike.fatigue }) : '',
           conclusions: compact({ forts: enc(ctx, short((a.conclusions || {}).strengths, 300)), prioritats: enc(ctx, short((a.conclusions || {}).priorities, 300)), pla: enc(ctx, short((a.conclusions || {}).plan, 300)) }),
           canvis_respecte_anterior: prev ? Calc.compare(a, prev, true).slice(0, 14).map((c) => compact({ nom: c.label, anterior: c.prev, actual: c.cur, canvi: c.delta, millora: c.better === true ? true : c.better === false ? false : '' })) : '',
@@ -251,13 +255,31 @@ const NoeTools = (() => {
       const bk = i.bloc ? blockKey(i.bloc) : null;
       let list = Store.exercises();
       if (bk) list = list.filter((e) => e.block === bk);
-      if (q) list = list.filter((e) => [e.name, e.cat, e.gm, e.family, ...(e.muscles || [])].some((x) => U.norm(x).includes(q)));
+      // Text: cerca difusa (paraules soltes, sinònims, castellà i anglès); si no troba res així, el text literal.
+      if (q) {
+        const fuzzy = NoeSearch.search(list, i.text, { limit: 60 }).map((x) => x.e);
+        list = fuzzy.length ? fuzzy : list.filter((e) => [e.name, e.cat, e.gm, e.family, ...(e.muscles || [])].some((x) => U.norm(x).includes(q)));
+      }
       if (g) list = list.filter((e) => [e.gm, e.cat, ...(e.muscles || [])].some((x) => U.norm(x).includes(g)));
       if (m) list = list.filter((e) => [e.material, ...(e.materials || [])].some((x) => U.norm(x).includes(m)));
       if (f) list = list.filter((e) => U.norm(e.family).includes(f));
       if (i.nivell) list = list.filter((e) => String(e.level) === String(i.nivell));
       const limit = Math.max(1, Math.min(40, i.limit || 25));
       return { total: list.length, exercicis: list.slice(0, limit).map(exOut), ...(list.length > limit ? { nota: 'Hi ha més resultats: afegeix filtres (bloc, material, nivell).' } : {}) };
+    },
+
+    resoldre_exercicis(i) {
+      const all = Store.exercises();
+      const list = (Array.isArray(i.exercicis) ? i.exercicis : []).slice(0, 25);
+      if (!list.length) return { error: 'Falten els noms dels exercicis.' };
+      const out = list.map((x) => {
+        const nom = str(x && x.nom);
+        const bk = x && x.bloc ? blockKey(x.bloc) : null;
+        const r = NoeSearch.resolve(all, nom, { bloc: bk });
+        return compact({ demanat: nom, confianca: r.conf, resultat: r.best ? exOut(r.best) : '', alternatives: r.alts.map((e) => compact({ id: e.id, nom: e.name, bloc: e.block, material: e.material })) });
+      });
+      const dubtosos = out.filter((x) => x.confianca === 'baixa' || x.confianca === 'cap').map((x) => x.demanat);
+      return { exercicis: out, ...(dubtosos.length ? { nota: `Dubtosos o sense coincidència: ${dubtosos.join(', ')}. Tria l'alternativa més raonable i avisa-ho a la persona, o proposa'ls pel nom (es crearan com a exercici lliure).` } : {}) };
     },
 
     familia_exercici(i) {
@@ -271,29 +293,45 @@ const NoeTools = (() => {
 
   // ── Propostes ──
   // Un exercici de la proposta → { exId, name, over } (la línia de sessió es fa en aplicar-la, amb identificadors nous).
-  function resolveEx(e, warns) {
+  // Si no porta un identificador vàlid, es busca pel nom a la biblioteca (cerca difusa); si no s'hi troba amb prou seguretat,
+  // es crea com a exercici lliure i s'avisa. log: què s'ha triat per a cada nom (per dir-ho a la persona).
+  function resolveEx(e, warns, log, bloc) {
     if (!e || typeof e !== 'object') return null;
     let ex = e.exercici_id ? Store.exercise(str(e.exercici_id)) : null;
     const name = str(e.nom);
-    if (!ex && name) {
-      const n = U.norm(name);
+    let how = ex ? 'id' : '';
+    let alts = [];
+    if (!ex && (name || e.exercici_id)) {
+      const wanted = name || str(e.exercici_id);
       const all = Store.exercises();
-      ex = all.find((x) => U.norm(x.name) === n) || (all.filter((x) => U.norm(x.name).includes(n) || n.includes(U.norm(x.name))).length === 1 ? all.find((x) => U.norm(x.name).includes(n) || n.includes(U.norm(x.name))) : null) || null;
+      const n = U.norm(wanted);
+      ex = all.find((x) => U.norm(x.name) === n) || null;
+      if (ex) how = 'nom';
+      else {
+        const r = NoeSearch.resolve(all, wanted, { bloc });
+        alts = r.alts;
+        if (r.best && (r.conf === 'alta' || r.conf === 'mitjana')) {
+          ex = r.best; how = r.conf;
+          warns.push(`«${wanted}» → he triat «${ex.name}»${alts.length ? ` (també hi ha: ${alts.slice(0, 2).map((x) => x.name).join(', ')})` : ''}.`);
+        }
+      }
     }
     const over = {};
     for (const [k, v] of [['sets', e.series], ['reps', e.repeticions], ['load', e.carrega], ['intensity', e.intensitat], ['rest', e.descans], ['tempo', e.tempo], ['note', e.nota]]) if (str(v)) over[k] = str(v);
-    if (ex) return { exId: ex.id, name: ex.name, over };
-    if (!name) { warns.push('Un exercici no tenia ni identificador ni nom: s\'ha ignorat.'); return null; }
-    warns.push(`«${name}» no és a la biblioteca: es crearà com a exercici lliure.`);
-    return { exId: '', name, over };
+    if (ex) { if (log) log.push({ demanat: name || str(e.exercici_id), triat: ex.name, com: how }); return { exId: ex.id, name: ex.name, over }; }
+    const free = name || '';
+    if (!free) { warns.push('Un exercici no tenia ni identificador ni nom: s\'ha ignorat.'); return null; }
+    warns.push(`«${free}» no és a la biblioteca${alts.length ? ` (s'hi assembla: ${alts.slice(0, 3).map((x) => x.name).join(', ')})` : ''}: es crearà com a exercici lliure.`);
+    if (log) log.push({ demanat: free, triat: '', com: 'lliure' });
+    return { exId: '', name: free, over };
   }
 
-  function normBlocks(blocs, warns) {
+  function normBlocks(blocs, warns, log) {
     const out = [];
     for (const b of Array.isArray(blocs) ? blocs : []) {
       const key = blockKey(b && b.bloc);
       if (!key) { warns.push(`Bloc desconegut «${b && b.bloc}»: s'ha ignorat.`); continue; }
-      const items = (b.exercicis || []).map((e) => resolveEx(e, warns)).filter(Boolean);
+      const items = (b.exercicis || []).map((e) => resolveEx(e, warns, log, key)).filter(Boolean);
       if (!items.length) continue;
       out.push({ key, focus: str(b.focus), note: str(b.nota), items });
     }
@@ -304,13 +342,13 @@ const NoeTools = (() => {
   const buildItem = (spec) => itemFromExercise(spec.exId ? Store.exercise(spec.exId) : null, { ...(spec.exId ? {} : { name: spec.name }), ...spec.over });
   const buildBlocks = (blocks) => blocks.map((b) => ({ key: b.key, focus: b.focus || '', note: b.note || '', items: b.items.map(buildItem) }));
 
-  function normSession(s, warns, pid, { month } = {}) {
+  function normSession(s, warns, pid, { month, log } = {}) {
     const date = str(s && s.data);
     if (!isDate(date)) { warns.push(`Data no vàlida «${date}»: s'ha ignorat aquesta sessió.`); return null; }
     if (month && !date.startsWith(month)) warns.push(`${date} no és del mes ${month}.`);
     if (date < U.addDays(U.today(), -14)) warns.push(`${date} és una data passada.`);
     if (date > U.addDays(U.today(), 400)) warns.push(`${date} és molt lluny.`);
-    const blocks = normBlocks(s.blocs, warns);
+    const blocks = normBlocks(s.blocs, warns, log);
     if (!blocks.length) { warns.push(`La sessió del ${date} no té cap exercici vàlid: s'ha ignorada.`); return null; }
     const pillar = OPT.pillars.includes(s.pilar) ? s.pilar : '';
     const busy = Store.sessionsOf(pid).filter((x) => x.date === date);
@@ -334,11 +372,13 @@ const NoeTools = (() => {
       const r = pat(ctx, i.pacient);
       if (r.err) return r.err;
       const warns = [];
-      const s = normSession(i, warns, r.pid);
+      const log = [];
+      const s = normSession(i, warns, r.pid, { log });
       if (!s) return { error: warns.join(' ') || 'La sessió no és vàlida.' };
       if (s.busy.length) warns.push(`Ja hi ha una sessió aquell dia (${s.date}); es crearà una altra.`);
       const prop = addProposal(ctx, { kind: 'sessio', pid: r.pid, ref: ctx.ps.ref(r.pid), title: `Sessió del ${U.fmtDate(s.date)}`, why: str(i.motiu), warnings: warns, data: { sessions: [s] } });
-      return reply(prop);
+      const changed = log.filter((x) => x.com !== 'id' && x.com !== 'nom');
+      return reply(prop, { dia: `${WEEKDAYS[U.parse(s.date).getDay()]} ${s.date}`, ...(changed.length ? { exercicis_triats: changed } : {}) });
     },
 
     proposar_planificacio_mes(i, ctx) {
@@ -379,7 +419,7 @@ const NoeTools = (() => {
             op.itemId = found.it.id; op.key = found.b.key; op.label = found.it.name;
           }
           if (a === 'afegir' || a === 'substituir') {
-            const spec = resolveEx(c.nou, warns);
+            const spec = resolveEx(c.nou, warns, null, key);
             if (!spec) continue;
             if (a === 'afegir' && !key) { warns.push('Falta el bloc on afegir l\'exercici.'); continue; }
             op.spec = spec;
@@ -404,7 +444,7 @@ const NoeTools = (() => {
       if (r.err) return r.err;
       const warns = [];
       const sessions = (Array.isArray(i.sessions) ? i.sessions : []).slice(0, 40).map((s, k) => {
-        const blocks = normBlocks(s.blocs, warns);
+        const blocks = normBlocks(s.blocs, warns, null);
         return blocks.length ? { n: U.num(s.n) || k + 1, phase: str(s.fase), goal: str(s.objectiu), blocks } : null;
       }).filter(Boolean);
       if (!sessions.length) return { error: warns.join(' ') || 'El pla no té cap sessió vàlida.' };

@@ -169,6 +169,7 @@ function noeToolLabel(t, conv) {
     case 'sessio': return 'Mirant una sessió';
     case 'calendari_pacient': return `Mirant el calendari de ${who(i.pacient)}${i.mes ? ` (${i.mes})` : ''}`;
     case 'buscar_exercicis': return `Cercant exercicis a la biblioteca${i.bloc ? ` (${blockName(i.bloc)})` : ''}`;
+    case 'resoldre_exercicis': return `Buscant ${U.plural((i.exercicis || []).length || 1, 'exercici', 'exercicis')} a la biblioteca`;
     case 'familia_exercici': return 'Mirant la progressió d\'un exercici';
     default: return /^proposar_/.test(t.name) ? 'Preparant una proposta' : t.name;
   }
@@ -312,10 +313,12 @@ function NoeLauncher() {
 function NoeSettingsCard() {
   const [, force] = useState(0);
   const [key, setKey] = useState('');
+  const [code, setCode] = useState('');
   const [test, setTest] = useState(null);
   useEffect(() => NoeUI.subscribe(() => force((n) => n + 1)), []);
   const cfg = NoeConfig.get();
   const hasKey = !!NoeConfig.key();
+  const hasCode = !!NoeConfig.code();
   const mode = NoeConfig.mode();
   const set = (patch) => { NoeConfig.set(patch); NoeUI.emit(); force((n) => n + 1); };
   const pill = { ai: ['ok', 'IA connectada'], demo: ['warn', 'Mode demostració'], consent: ['warn', 'Falta acceptar'], setup: ['neutral', 'Sense connectar'] }[mode];
@@ -323,13 +326,14 @@ function NoeSettingsCard() {
   const probe = async () => {
     setTest({ busy: true });
     try {
-      const msg = await NoeApi.stream({ model: cfg.model, max_tokens: 20, messages: [{ role: 'user', content: 'Respon només amb la paraula: d\'acord' }] }, { cfg, key: NoeConfig.key() });
+      const msg = await NoeApi.stream({ model: cfg.model, max_tokens: 400, output_config: { effort: 'low' }, messages: [{ role: 'user', content: 'Respon només amb la paraula: d\'acord' }] }, { cfg, key: NoeConfig.key() });
       setTest({ ok: true, text: (msg.content.find((c) => c.type === 'text') || {}).text || '' });
     } catch (e) { setTest({ error: (e && e.message) || 'Error' }); }
   };
   return html`<section class="card" id="noe-settings">
     <div class="card-head"><h2 class="h2">NOE · assistent d'IA</h2><${Pill} tone=${pill[0]} icon="sparkles">${pill[1]}</${Pill}></div>
     <p>NOE és un assistent d'intel·ligència artificial dins l'app (botó <strong>NOE</strong> a baix a la dreta). Ajuda a <strong>trobar</strong> pacients, sessions i exercicis, a entendre l'estat d'un pacient i a <strong>proposar sessions</strong> amb criteri científic (planificar un mes, canviar una sessió, crear un pla). Els canvis te'ls deixa com a proposta i <strong>només s'apliquen quan tu ho confirmes</strong> (i es poden desfer).</p>
+    ${cfg.central && html`<p class="ok-text"><${Icon} name="check" size=${15} /> Aquest centre té NOE configurat en un servidor propi: <strong>no cal cap clau</strong> en aquesta tauleta (s'identifica amb el compte de Microsoft). Només cal acceptar el consentiment de sota.</p>`}
     <label class="check"><input type="checkbox" checked=${cfg.demo} onChange=${(e) => set({ demo: e.currentTarget.checked })} /><span>Mode demostració (respostes preparades, sense IA ni clau)</span></label>
     <div class="form-grid mt">
       <${Field} label="Clau de l'API d'Anthropic" id="noe-key" hint=${hasKey ? 'Hi ha una clau desada en aquest aparell.' : 'Es crea a console.anthropic.com. Es queda només en aquest aparell (no es comparteix amb ningú ni es desa a les dades).'}>
@@ -339,9 +343,14 @@ function NoeSettingsCard() {
       <${Field} label="Model" id="noe-model"><${Select} id="noe-model" value=${cfg.model} onValue=${(v) => set({ model: v })} options=${NOE_MODELS.map((m) => ({ v: m.v, label: m.label }))} /></${Field}>
     </div>
     <details class="noe-adv"><summary>Opcions avançades</summary>
-      <${Field} label="Servidor intermediari (opcional)" id="noe-endpoint" hint="Si el centre té un servidor propi que guarda la clau (recomanat per a producció), escriu-hi l'adreça (https://…). Vegeu docs/NOE.md.">
+      ${cfg.endpoint && html`<${Field} label="Codi d'accés del centre" id="noe-code" hint=${hasCode ? 'Hi ha un codi desat en aquest aparell.' : 'Te\'l dona qui ha posat el servidor de NOE (vegeu docs/noe-proxy/README.md). Es queda només en aquest aparell.'}>
+        <div class="inline"><input id="noe-code" class="input" type="password" autocomplete="off" placeholder=${hasCode ? '••••••••' : 'codi'} value=${code} onInput=${(e) => setCode(e.currentTarget.value)} />
+          <${Btn} variant="secondary" disabled=${!code.trim()} onClick=${() => { NoeConfig.setCode(code); setCode(''); force((n) => n + 1); UI.toast('Codi desat en aquest aparell.'); }}>Desa</${Btn}>
+          ${hasCode && html`<${Btn} variant="ghost" icon="trash" title="Esborra el codi d'aquest aparell" onClick=${() => { NoeConfig.setCode(''); force((n) => n + 1); }} />`}</div></${Field}>`}
+      <${Field} label="Servidor intermediari (opcional)" id="noe-endpoint" hint=${cfg.central ? 'Posada per a tot el centre a la versió publicada de l\'app.' : 'Si el centre té un servidor propi que guarda la clau (recomanat per a producció), escriu-hi l\'adreça (https://…). Vegeu docs/noe-proxy/README.md.'}>
         <${TextInput} id="noe-endpoint" value=${cfg.endpoint} placeholder="https://…" onValue=${(v) => set({ endpoint: v.trim() })} /></${Field}>
-      <${Field} label="Longitud màxima de la resposta" id="noe-max"><${Select} id="noe-max" value=${String(cfg.maxTokens)} onValue=${(v) => set({ maxTokens: Number(v) })} options=${[{ v: '2048', label: 'Curta (2.000)' }, { v: '4096', label: 'Normal (4.000)' }, { v: '8192', label: 'Llarga (8.000)' }]} /></${Field}>
+      <${Field} label="Raonament" id="noe-effort" hint="Quant pensa NOE abans de respondre. «Equilibrat» va bé per a quasi tot; «A fons» és més lent i car (útil en plans de diverses setmanes)."><${Select} id="noe-effort" value=${cfg.effort} onValue=${(v) => set({ effort: v })} options=${[{ v: 'low', label: 'Ràpid' }, { v: 'medium', label: 'Equilibrat (recomanat)' }, { v: 'high', label: 'A fons' }]} /></${Field}>
+      <${Field} label="Longitud màxima de la resposta" id="noe-max" hint="Inclou el raonament. Una sessió llarga o un mes sencer necessiten espai."><${Select} id="noe-max" value=${String(Math.max(Number(cfg.maxTokens) || 0, 16000))} onValue=${(v) => set({ maxTokens: Number(v) })} options=${[{ v: '16000', label: 'Normal (16.000)' }, { v: '32000', label: 'Llarga (32.000)' }, { v: '64000', label: 'Molt llarga (64.000)' }]} /></${Field}>
     </details>
     <label class="check mt"><input type="checkbox" checked=${cfg.privacy} onChange=${(e) => set({ privacy: e.currentTarget.checked })} /><span><strong>Privacitat:</strong> l'IA veu els pacients com a PAC-1, PAC-2… (sense nom, telèfon, correu ni data de naixement; només l'edat). Recomanat.</span></label>
     <label class="check mt"><input type="checkbox" checked=${cfg.consent} onChange=${(e) => set({ consent: e.currentTarget.checked })} /><span>Entenc que NOE envia a Anthropic (l'empresa de la IA Claude) el que li pregunto i les dades dels pacients que calguin per respondre (edat, objectiu, lesions, valoracions i sessions), i que el centre ha de tenir-ho cobert (contracte de tractament de dades i informació als pacients).</span></label>

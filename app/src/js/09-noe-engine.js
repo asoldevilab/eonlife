@@ -5,7 +5,7 @@
    · El bucle: la persona escriu → NOE respon i/o demana eines (llegir dades, proposar canvis) → es repeteix fins que acaba.
    Els canvis a l'app mai els fa la IA directament: vegeu 09-noe-tools.js (propostes que la persona confirma). */
 
-const NOE_KEYS = { key: 'eonlife:noe:key', cfg: 'eonlife:noe:cfg' };
+const NOE_KEYS = { key: 'eonlife:noe:key', cfg: 'eonlife:noe:cfg', code: 'eonlife:noe:code' };
 const NOE_ENDPOINT = 'https://api.anthropic.com/v1/messages';
 const NOE_VERSION = '2023-06-01';
 const NOE_MODELS = [
@@ -16,16 +16,29 @@ const NOE_MODELS = [
 ];
 
 const NoeConfig = (() => {
-  const DEFAULTS = { model: 'claude-sonnet-5-5', endpoint: '', maxTokens: 4096, privacy: true, consent: false, demo: false };
+  // effort: quant raona el model abans de respondre (low = ràpid, medium = equilibrat, high = a fons). maxTokens inclou el raonament.
+  const DEFAULTS = { model: 'claude-sonnet-5-5', endpoint: '', maxTokens: 16000, effort: 'medium', privacy: true, consent: false, demo: false };
+  // Servidor intermediari del centre, posat a la versió publicada (app/m365.config.json › noe): les tauletes no necessiten clau.
+  const central = () => (typeof window !== 'undefined' && window.EON_NOE) || {};
   const store = () => { try { return window.localStorage; } catch (e) { return null; } };
   const read = (k, fb) => { try { const v = store() && store().getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } };
   const write = (k, v) => { try { if (store()) store().setItem(k, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge */ } };
   return {
-    get() { return { ...DEFAULTS, ...read(NOE_KEYS.cfg, {}) }; },
+    get() {
+      const c = { ...DEFAULTS, ...read(NOE_KEYS.cfg, {}) };
+      const ce = String(central().endpoint || '').trim();
+      c.central = !!ce && !c.endpoint;
+      if (c.central) c.endpoint = ce;
+      return c;
+    },
+    centralEndpoint() { return String(central().endpoint || '').trim(); },
     set(patch) { write(NOE_KEYS.cfg, { ...this.get(), ...patch }); },
     // La clau es desa a part (només en aquest aparell).
     key() { try { return (store() && store().getItem(NOE_KEYS.key)) || ''; } catch (e) { return ''; } },
     setKey(k) { try { if (!store()) return; if (k) store().setItem(NOE_KEYS.key, String(k).trim()); else store().removeItem(NOE_KEYS.key); } catch (e) { /* res */ } },
+    // Codi d'accés al servidor intermediari del centre (només en aquest aparell; es pot canviar des del servidor).
+    code() { try { return (store() && store().getItem(NOE_KEYS.code)) || ''; } catch (e) { return ''; } },
+    setCode(c) { try { if (!store()) return; if (c) store().setItem(NOE_KEYS.code, String(c).trim()); else store().removeItem(NOE_KEYS.code); } catch (e) { /* res */ } },
     // Es pot parlar amb NOE? Amb IA (clau o servidor intermediari) o en mode demostració.
     mode() {
       const c = this.get();
@@ -130,7 +143,8 @@ const NoeApi = (() => {
   // Errors de l'API → missatge clar en català.
   function friendly(status, payload, raw) {
     const msg = (payload && payload.error && payload.error.message) || '';
-    if (status === 401) return 'La clau de l\'API no és vàlida o ha caducat. Revisa-la a Configuració › NOE.';
+    if (status === 401) return payload && payload.error && payload.error.type === 'eon_auth' ? 'Aquesta tauleta no té accés al servidor de NOE del centre: revisa el codi d\'accés a Configuració › NOE o inicia la sessió amb el compte de Microsoft.' : 'La clau de l\'API no és vàlida o ha caducat. Revisa-la a Configuració › NOE.';
+    if (status === 403 && payload && payload.error && /^eon_/.test(payload.error.type || '')) return payload.error.message || 'El servidor de NOE del centre no et deixa passar.';
     if (status === 403) return `No es permet aquesta petició (${msg || 'permisos'}). Revisa la clau i el pla de l'API.`;
     if (status === 404) return `No trobo el model «${(payload && payload.error && payload.error.message || '').replace(/^model:\s*/i, '')}». Tria'n un altre a Configuració › NOE.`;
     if (status === 413) return 'La conversa s\'ha fet massa llarga. Comença una conversa nova.';
@@ -221,6 +235,14 @@ const NoeApi = (() => {
     const headers = { 'content-type': 'application/json', 'anthropic-version': NOE_VERSION };
     if (key) headers['x-api-key'] = key;
     if (direct) headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    // Servidor intermediari del centre: s'identifica amb el codi d'accés i/o amb el compte de Microsoft (el servidor ho comprova).
+    else {
+      const code = typeof NoeConfig !== 'undefined' ? NoeConfig.code() : '';
+      if (code) headers['x-eon-code'] = code;
+    }
+    if (!direct && typeof M365 !== 'undefined' && M365.available() && typeof MsAuth !== 'undefined' && MsAuth.tokens()) {
+      try { const idt = await MsAuth.idToken(M365.config()); if (idt) headers.authorization = `Bearer ${idt}`; } catch (e) { /* sense sessió: el servidor ho dirà */ }
+    }
     let res;
     try {
       res = await f(cfg.endpoint || NOE_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ ...body, stream: true }), signal });
@@ -231,7 +253,7 @@ const NoeApi = (() => {
     if (!res.ok) {
       let payload = null, raw = '';
       try { raw = await res.text(); payload = JSON.parse(raw); } catch (e) { /* sense cos JSON */ }
-      throw Object.assign(new Error(friendly(res.status, payload, raw && raw.slice(0, 200))), { code: 'api', status: res.status });
+      throw Object.assign(new Error(friendly(res.status, payload, raw && raw.slice(0, 200))), { code: 'api', status: res.status, detail: (payload && payload.error && payload.error.message) || raw || '' });
     }
     const b = builder();
     const handle = (ev) => {
@@ -274,6 +296,7 @@ const NoeApi = (() => {
 
 // ── El bucle de NOE ──
 const Noe = (() => {
+  const MIN_TOKENS = 16000;       // el raonament compta dins max_tokens: amb menys, una sessió llarga es tallaria a mitges
   const MAX_ROUNDS = 10;          // com a molt, tantes voltes de «demana eines → rep resultats» per missatge
   const MAX_TOOL_CHARS = 14000;   // el resultat d'una eina que es passa a l'IA
   const BUDGET_CHARS = 220000;    // mida màxima de la conversa que s'envia (es treuen els torns més antics)
@@ -281,19 +304,47 @@ const Noe = (() => {
 
   const state = { abort: null, transport: null }; // transport: per als tests i la demostració (substitueix la xarxa)
 
+  // Els propers dies, perquè «divendres» o «demà» siguin una data exacta i no un càlcul de la IA.
+  function calendarText(today, days = 21) {
+    const out = [];
+    for (let k = 0; k < days; k++) {
+      const d = U.addDays(today, k), w = U.parse(d).getDay();
+      out.push(`${k === 0 ? 'avui ' : k === 1 ? 'demà ' : ''}${WEEKDAYS[w]} ${d.slice(8)}/${d.slice(5, 7)} = ${d}`);
+    }
+    return out.join(' · ');
+  }
+  // El context de la conversa es fixa al primer missatge i es reutilitza: si el text del sistema canviés entre missatges, la
+  // memòria cau del prompt i els blocs de pensament dels torns anteriors deixarien de valer.
+  function context(conv, cfg) {
+    if (!conv.ctx) {
+      conv.ctx = { now: `${U.fmtDateLong(U.today())} (${U.today()})`, calendar: calendarText(U.today()), user: typeof deviceProfessional === 'function' ? deviceProfessional() : '',
+        materials: Store.materials().center, professionals: Store.professionals(), privacy: cfg.privacy !== false };
+    }
+    return conv.ctx;
+  }
+
   const newConversation = () => ({ id: U.uid('N'), title: '', createdAt: Date.now(), messages: [], ps: { map: {}, rev: {}, n: 0 }, notes: [], usage: { input: 0, output: 0 } });
 
   // Torns: cada missatge de la persona (que no sigui un resultat d'eina) obre un torn.
   const isTurnStart = (m) => m.role === 'user' && (typeof m.content === 'string' || !(m.content || []).some((c) => c.type === 'tool_result'));
   const size = (msgs) => JSON.stringify(msgs).length;
+  // Els blocs de pensament d'un torn només valen mentre tot el que hi ha abans és igual: si s'ha retallat l'historial, es treuen
+  // dels torns anteriors a l'actual (els del torn en curs, entre eines, s'han de conservar).
+  function stripOldThinking(msgs) {
+    const starts = msgs.map((m, i) => (isTurnStart(m) ? i : -1)).filter((i) => i >= 0);
+    const cur = starts.length ? starts[starts.length - 1] : 0;
+    return msgs.map((m, i) => (i < cur && m.role === 'assistant' && Array.isArray(m.content) && m.content.some((c) => c.type === 'thinking' || c.type === 'redacted_thinking')
+      ? { ...m, content: m.content.filter((c) => c.type !== 'thinking' && c.type !== 'redacted_thinking') } : m));
+  }
   function trim(messages) {
-    let msgs = messages;
+    let msgs = messages, cut = false;
     while (size(msgs) > BUDGET_CHARS) {
       const starts = msgs.map((m, i) => (isTurnStart(m) ? i : -1)).filter((i) => i >= 0);
       if (starts.length <= 1) break;                 // no es pot treure res més sense perdre el torn actual
       msgs = msgs.slice(starts[1]);
+      cut = true;
     }
-    return msgs;
+    return cut ? stripOldThinking(msgs) : msgs;
   }
 
   const cap = (text) => (text.length > MAX_TOOL_CHARS ? `${text.slice(0, MAX_TOOL_CHARS)}\n… (resultat tallat: demana'n menys o filtra més)` : text);
@@ -302,7 +353,8 @@ const Noe = (() => {
     const tools = NoeTools.definitions();
     if (tools.length) tools[tools.length - 1] = { ...tools[tools.length - 1], cache_control: { type: 'ephemeral' } };
     return {
-      model: cfg.model, max_tokens: Number(cfg.maxTokens) || 4096,
+      model: cfg.model, max_tokens: Math.max(Number(cfg.maxTokens) || 0, MIN_TOKENS),
+      output_config: { effort: ['low', 'medium', 'high'].includes(cfg.effort) ? cfg.effort : 'medium' },
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       tools, messages: trim(conv.messages),
     };
@@ -322,10 +374,10 @@ const Noe = (() => {
     const prefix = [...(conv.notes || []).splice(0), hooks.context ? hooks.context(ps) : ''].filter(Boolean).map((n) => `[Nota de l'app: ${n}]`).join('\n');
     conv.messages.push({ role: 'user', content: `${prefix ? `${prefix}\n` : ''}${encode(text)}` });
     if (!conv.title) conv.title = String(text).slice(0, 60);
+    const cx = context(conv, cfg);
     const system = NoeKnowledge.system({
-      now: `${U.fmtDateLong(U.today())} (${U.today()})`, user: typeof deviceProfessional === 'function' ? deviceProfessional() : '',
-      materials: Store.materials().center, professionals: Store.professionals(), thresholds: THRESHOLDS,
-      extra: cfg.privacy !== false ? '' : 'Nota: la privacitat està desactivada; les dades poden incloure noms.',
+      now: cx.now, calendar: cx.calendar, user: cx.user, materials: cx.materials, professionals: cx.professionals, thresholds: THRESHOLDS,
+      extra: cx.privacy ? '' : 'Nota: la privacitat està desactivada; les dades poden incloure noms.',
     });
     const abort = new AbortController();
     state.abort = abort;
@@ -336,8 +388,20 @@ const Noe = (() => {
         const run = state.transport || (mode === 'demo' ? NoeDemo.transport : (b, o) => NoeApi.stream(b, { cfg, key: NoeConfig.key(), ...o }));
         let streamed = '';
         const seen = new Set();
-        const msg = await run(body, { signal: abort.signal, onText: (d) => { streamed += d; if (hooks.onText) hooks.onText(d); },
+        const go = (b) => run(b, { signal: abort.signal, onText: (d) => { streamed += d; if (hooks.onText) hooks.onText(d); },
           onTool: (t) => { seen.add(t.id || t.name); if (hooks.onTool) hooks.onTool(t.name, t.input); } });
+        let msg;
+        try {
+          msg = await go(body);
+        } catch (e) {
+          // Si l'API diu que un bloc de pensament d'un torn anterior ja no val (s'ha canviat el model, el text del sistema o l'historial),
+          // es treuen els blocs dels torns anteriors i es repeteix la petició una vegada.
+          if (e && e.status === 400 && /thinking|signature|prefix|block_binding|binding/i.test(String(e.detail || e.message))) {
+            conv.messages = stripOldThinking(conv.messages);
+            streamed = ''; seen.clear();
+            msg = await go(request(conv, cfg, system));
+          } else throw e;
+        }
         // Un transport que no fa streaming (la demostració, els tests) torna el missatge sencer: es reparteix igualment als ganxos.
         for (const c of msg.content) {
           if (c.type === 'text' && c.text && !streamed && hooks.onText) hooks.onText(c.text);
@@ -389,5 +453,5 @@ const Noe = (() => {
     if (m.length && m[m.length - 1].role === 'user') m.pop();
   }
 
-  return { send, repair, newConversation, cancel() { if (state.abort) state.abort.abort(); }, state, TOTAL, trim, MAX_ROUNDS };
+  return { send, repair, newConversation, calendarText, stripOldThinking, cancel() { if (state.abort) state.abort.abort(); }, state, TOTAL, trim, MAX_ROUNDS };
 })();

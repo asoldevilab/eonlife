@@ -44,6 +44,9 @@ const m365 = {
   tenantId: String(cfg.tenantId || '').trim(),
   folderUrl: String(cfg.folderUrl || '').trim(),
 };
+// NOE amb servidor intermediari del centre (docs/noe-proxy): l'adreça va a la versió publicada i les tauletes no necessiten clau.
+const noe = { endpoint: String((cfg.noe && cfg.noe.endpoint) || '').trim() };
+const noeTag = noe.endpoint ? `window.EON_NOE = ${JSON.stringify(noe)};\n` : '';
 // Instal·lable a la tauleta («Afegeix a la pantalla d'inici»): manifest i icones al costat de l'app.
 const installable = [
   '<meta name="robots" content="noindex">',
@@ -59,7 +62,7 @@ const updatable = (h) => h.replace('window.EON_BUILD =', () => 'window.EON_UPDAT
 const version = JSON.stringify({ build: stamp });
 const m365Html = updatable(html
   .replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${installable}`)
-  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\nwindow.EON_AI = 'ai/';\nwindow.EON_BUILD =`));
+  .replace('window.EON_BUILD =', () => `window.EON_M365 = ${JSON.stringify(m365)};\n${noeTag}window.EON_AI = 'ai/';\nwindow.EON_BUILD =`));
 const m365Dir = join(repo, 'dist', 'm365');
 mkdirSync(m365Dir, { recursive: true });
 writeFileSync(join(m365Dir, 'index.html'), m365Html);
@@ -97,7 +100,7 @@ const demoHead = installable
   .replace('href="icon-192.png"', 'href="../icon-192.png"').replace('href="apple-touch-icon.png"', 'href="../apple-touch-icon.png"')
   .replace('content="EON Life">', 'content="EON Life demo">');
 writeFileSync(join(demoDir, 'index.html'), updatable(html.replace('<meta charset="utf-8">', () => `<meta charset="utf-8">\n${demoHead}`))
-  .replace('window.EON_BUILD =', () => 'window.EON_NO_DEMO = true;\nwindow.EON_AI = \'../ai/\';\nwindow.EON_BUILD ='));
+  .replace('window.EON_BUILD =', () => `window.EON_NO_DEMO = true;\n${noeTag}window.EON_AI = '../ai/';\nwindow.EON_BUILD =`));
 writeFileSync(join(demoDir, 'version.json'), version);
 writeFileSync(join(demoDir, 'manifest.webmanifest'), JSON.stringify({
   name: 'EON Life · demostració',

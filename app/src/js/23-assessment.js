@@ -121,6 +121,7 @@ function sectionProgress(a, sec, p) {
     if (g.kind === 'patterns') { total += PATTERNS.length; done += PATTERNS.filter((pt) => Calc.patternScore((a.patterns || {})[pt.id], pt.uni)).length; }
     else if (g.kind === 'ybt') { total++; if (Calc.ybt(a).d.comp != null || Calc.ybt(a).e.comp != null) done++; }
     else if (g.kind === 'jumps') { total++; if (((a.jumps && a.jumps.attempts) || []).length) done++; }
+    else if (g.kind === 'lvp') { total++; if (Calc.lvpAny(a)) done++; }
     else if (g.kind === 'encoder') { total++; if (((a.encoder && a.encoder.rows) || []).some((r) => U.num(r.vel) != null || U.num(r.load) != null)) done++; }
     else if (g.kind === 'bike') { total++; if (U.num((a.bike || {}).peak) != null || U.num((a.bike || {}).mean) != null) done++; }
     else if (g.kind === 'free') { /* opcional */ }
@@ -135,6 +136,7 @@ function GroupCard({ g, a, p, upd, setVal }) {
   if (g.kind === 'patterns') body = html`<${PatternsBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'ybt') body = html`<${YbtBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'jumps') body = html`<${JumpsBlock} a=${a} p=${p} upd=${upd} />`;
+  else if (g.kind === 'lvp') body = html`<${LvpBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'encoder') body = html`<${EncoderBlock} a=${a} upd=${upd} />`;
   else if (g.kind === 'bike') body = html`<${BikeBlock} a=${a} p=${p} upd=${upd} />`;
   else if (g.kind === 'free') body = html`<${FreeBlock} a=${a} upd=${upd} />`;
@@ -380,6 +382,8 @@ function JumpsBlock({ a, p, upd }) {
       <span class="grow"></span>
       <input type="file" accept=".csv,text/csv,text/plain" hidden ref=${fileRef} data-kind="myjump" onChange=${(e) => importCsv(e.currentTarget.files[0])} />
       <${Btn} size="sm" icon="upload" onClick=${() => fileRef.current && fileRef.current.click()} title="El fitxer de My Jump porta tots els atletes: només s'importen les files d'aquest pacient">Importa CSV de My Jump</${Btn}>
+      <${AdrImportButton} mode="jumps" patient=${p} date=${a.date} existing=${list.map((x) => x.src).filter(Boolean)} label="Importa de l'ADR Jumping" title="Llegeix el fitxer (CSV o Excel) que exporta l'app de l'ADR Jumping"
+        onApply=${(rows) => { upd((x) => { x.jumps = x.jumps || { attempts: [] }; x.jumps.attempts = [...(x.jumps.attempts || []), ...rows.map(({ athlete, ...r }) => r)]; }); UI.toast(`${U.plural(rows.length, 'intent importat', 'intents importats')} de l'ADR Jumping.`); }} />
       <${Tools} x=${j} title="Salts" patient=${p} date=${a.date} noteOpen=${noteOpen} onNote=${() => setNoteOpen(!noteOpen)} onVideo=${setJ('video')} />
     </div>
     ${noteOpen && html`<${Area} value=${j.note} onValue=${setJ('note')} placeholder="Observacions dels salts" rows=${1} />`}
