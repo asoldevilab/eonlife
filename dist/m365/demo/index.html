@@ -1469,6 +1469,8 @@ tfoot .rpc { font-size: 14px; }
 .pic path { stroke-linejoin: round; stroke-linecap: round; }
 .pic .pk { fill: var(--pic-body); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
 .pic .pkf { fill: var(--pic-far); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
+.pic .pko { fill: var(--pic-bg, var(--surface)); stroke: var(--pic-bg, var(--surface)); stroke-width: 1.1; }
+.pic .ns { stroke: none; }
 .pic .pk-skin { fill: var(--pic-skin); } .pic .pkf.pk-skin { fill: var(--pic-skin-far); }
 .pic .pk-top { fill: var(--pic-top); } .pic .pkf.pk-top { fill: var(--pic-top-far); }
 .pic .pk-short { fill: var(--pic-short); } .pic .pkf.pk-short { fill: var(--pic-short-far); }
@@ -4082,7 +4084,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-13 16:59";
+window.EON_BUILD = "2026-10-13 17:13";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -15899,7 +15901,7 @@ const PICS = {
     props: (J) => PROP3.box(J.pel[0] - 9, J.pel[0] + 7, J.pel[1] - 4.8, J, -8, 8).concat([pk.box(J.leg[0].toe[0], J.leg[0].toe[0] + 1.6, J.groundY, J.leg[0].toe[1] + 3, -6, 6, 'pp')]) },
   row_standing: { from: { a: [4, 2] }, label: 'Rem dempeus', t: -84, l: [80, 98], m: [104, 84], a: [176, -6], grip: 'hands', pull: 'front', fix: 'fR' },
   face_pull: { from: { a: [-12, -8] }, label: 'Face pull', t: -88, l: [82, 96], m: [100, 86], a: [[-178, 34], [-84, 30]], grip: 'chest', pull: 'face', fix: 'fR' },
-  upright_row: { from: { a: [74, 88] }, front: true, label: 'Rem vertical', t: -90, a: [[-158, 30], [34, 30]], grip: 'center' },
+  upright_row: { from: { a: [74, 88] }, front: true, label: 'Rem vertical', t: -90, a: [[-158, 30], [58, 30]], grip: 'center' },
   inverted_row: { from: { a: [-44, -44] }, label: 'Rem invertit', t: -136, hd: 6, l: [44, 44], a: [150, -64], grip: 'hands', fix: 'hR' },
   pulldown: { propsMove: true, from: { a: [-114, -104] }, front: true, label: 'Jaló al pit', t: -92, hd: -6, l: [[90, 84], [90, 0]], a: [150, -88], grip: 'none', fix: 'pel',
     props: (J) => { const hR = J.arm[0].h, hL = J.arm[1].h, c = v3.lerp(hR, hL, 0.5), ax = v3.norm(v3.sub(hR, hL));
@@ -15937,12 +15939,14 @@ const PICS = {
     props: (J) => { const x = J.leg[0].toe[0] - 20; return PROP3.box(x - 13, x + 4, J.groundY + 22, J, -11, 11); } },
   land: { from: { t: -90, hd: 0, l: [92, 90, 40], m: [92, 90, 40], a: [-90, -92], lift: 3 }, view: [24, 6], label: 'Snap down', t: -54, hd: -14, l: [16, 110], m: [16, 110], a: [150, 152], lift: 0, fix: 'free' },
   land_sl: { from: { t: -76, l: [80, 96], m: [40, 120], a: [-30, -60], lift: 10, dx: -12 }, label: 'Aterratge a una cama', t: -62, hd: -12, l: [24, 112], m: [30, 130], a: [40, 20], b: [120, 80], lift: 0, fix: 'free' },
-  skater: { from: { dx: -22, l: [[94, 40], [90, -40]], m: [[118, -30], [108, -52]], a: [[60, 30], 40], b: [[140, -10], 150] }, front: true, label: 'Skater', t: -86, hd: 6,
-    m: [[86, 40], [90, -40]], l: [[62, -30], [72, -52]], a: [[40, -10], 30], b: [[120, 30], 140], fix: 'free' },
+  skater: { front: true, view: [72, 8], label: 'Skater jump', fix: 'free',
+    from: { dx: -30, t: -76, hd: 4, l: [[94, 8], [86, -6]], m: [[84, -56], [56, -84]], a: [[30, 0], [20, 0]], b: [[150, 0], [168, 0]], lift: 0 },
+    mid: { dx: -15, t: -90, l: [[100, 18], [70, -30]], m: [[80, 18], [70, -30]], a: [[70, 0], [60, 0]], b: [[110, 0], [120, 0]], lift: 15 },
+    t: -104, hd: 4, l: [[84, -56], [56, -84]], m: [[86, 8], [94, -6]], a: [[30, 0], [20, 0]], b: [[160, 0], [170, 0]], lift: 0, dx: 0 },
   shuffle: { from: { dx: -10, l: [[112, 32], [96, -22]], m: [[84, 32], [88, -22]] }, front: true, label: 'Desplaçament lateral', t: -90, l: [[98, 32], [90, -22]], m: [[62, 32], [80, -22]],
     a: [[110, 40], [70, 30]], fix: 'free' },
   cut: { from: { t: -70, hd: 6, l: [-6, 96, 20], m: [130, 150, 60], a: [140, 60], b: [30, -60], dx: -14 }, label: 'Canvi de direcció', t: -100, hd: -6, l: [40, 50], m: [100, 118], a: [60, -20], b: [150, 100], fix: 'free' },
-  chest_pass: { from: { a: [[150, 34], [-56, -12]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
+  chest_pass: { from: { a: [[172, 36], [-40, -14]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
   // slam: la pilota surt de les mans, bota a terra i es torna a agafar (bl: 0 a les mans, 1 a terra)
   slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2, bl: 0 }, mid: { t: -66, hd: 18, a: [20, -10], bl: 0, lift: 0, l: [70, 100, 40] }, view: [24, 6], label: 'Slam', t: -40, hd: 10, l: [46, 112], m: [46, 112], a: [60, 74], grip: 'chest', bl: 1 },
   rot_throw: { from: { tr: 46, t: -74, l: [72, 104], m: [102, 86], a: [[100, -40], [96, -30]], b: [[110, 30], [100, 20]] }, view: 'q', label: 'Llançament rotacional', t: -84, tr: -40,
@@ -15951,9 +15955,18 @@ const PICS = {
     l: [92, 90, 40], m: [92, 90, 40], a: [[-50, -20], [-56, -14]], b: [[-50, 20], [-56, 14]], lift: 4, grip: 'chest', fix: 'fL' },
   clean: { from: { t: -32, hd: -14, l: [64, 108], a: [90, 90] }, label: 'Cargolada', t: -84, l: [40, 116], a: [-6, -164], grip: 'hands', fix: 'fR' },
   kb_clean: { from: { t: -32, hd: -14, l: [70, 106], a: [100, 104] }, label: 'Cargolada amb kettlebell', t: -88, l: [86, 96], a: [64, -112], b: [96, 86], grip: 'near', fix: 'fR' },
-  high_pull: { from: { t: -36, l: [72, 104], a: [90, 90], lift: 0 }, label: 'High pull', t: -90, hd: -4, l: [92, 90, 50], a: [[-150, 40], [62, -24]], grip: 'hands', lift: 3, fix: 'free' },
-  snatch: { from: { t: -36, hd: -14, l: [64, 108], a: [[90, 28], [90, 28]] }, label: 'Arrencada', t: -76, hd: -10, l: [14, 106], a: [[-98, 26], [-100, 26]], grip: 'hands', fix: 'fR' },
-  kb_snatch: { from: { t: -32, hd: -18, l: [76, 102], a: [100, 104] }, label: 'Arrencada amb kettlebell', t: -90, l: [90, 90], a: [-90, -90], b: [96, 84], grip: 'near', fix: 'fR' },
+  high_pull: { front: true, view: [90, 4], label: 'High pull', fix: 'free', grip: 'hands',
+    from: { t: [-90, 42], hd: 6, l: [[104, 26], [88, -10]], a: [[116, 0], [114, 0]], lift: 0 },
+    t: -90, hd: -4, l: [[92, 6], [90, 0]], a: [[170, 0], [-90, 0]], lift: 3 },
+  // snatch, snatch high pull i arrencada amb kettlebell: de cara (agafada ampla), de penjat a sobre del cap
+  snatch: { front: true, view: [90, 4], label: 'Arrencada', fix: 'free', grip: 'hands',
+    from: { t: [-90, 42], hd: 6, l: [[104, 26], [88, -10]], a: [[116, 0], [114, 0]], lift: 0 },
+    mid: { t: [-90, 14], l: [[98, 10], [90, 0]], a: [[168, 0], [-96, 0]], lift: 5 },
+    t: -90, hd: -4, l: [[106, 26], [88, -8]], a: [[-124, 0], [-122, 0]], lift: 0 },
+  kb_snatch: { front: true, view: [90, 4], label: 'Arrencada amb kettlebell', fix: 'free', grip: 'near',
+    from: { t: [-90, 42], hd: 6, l: [[108, 26], [88, -10]], m: [[72, 26], [92, -10]], a: [[96, 0], [96, 0]], b: [[84, 0], [84, 0]], lift: 0 },
+    mid: { t: [-90, 14], l: [[98, 10], [90, 0]], m: [[82, 10], [90, 0]], a: [[150, 0], [-70, 0]], b: [[96, 0], [92, 0]], lift: 4 },
+    t: -90, hd: -4, l: [[96, 8], [90, 0]], m: [[84, 8], [90, 0]], a: [[-100, 0], [-98, 0]], b: [[104, 0], [100, 0]], lift: 0 },
   split_jerk: { pin: [{ leg: 1, ref: 0 }], from: { l: [78, 102], m: [100, 80], a: [64, -114] }, label: 'Split jerk', t: -88, hd: -4, l: [36, 104], m: [124, 152], a: [-88, -92], grip: 'hands', fix: 'fR' },
   sprint: { from: { l: [124, 142, 60], m: [-18, 82, -10], a: [32, -70], b: [134, 54] }, label: 'Sprint', t: -68, hd: 10, l: [-18, 82, -10], m: [124, 142, 60], a: [134, 54], b: [32, -70], lift: 4 },
   skipping: { from: { l: [92, 92, 30], m: [-8, 90], a: [40, -60], b: [130, 50] }, label: 'Skipping', t: -88, l: [-8, 90], m: [92, 92, 30], a: [130, 50], b: [40, -60], lift: 2 },
@@ -16246,8 +16259,6 @@ function picBodyPrims(J) {
   out.push(pk.cap(J.neck, J.neckTop, R.neck[0], R.neck[1], 'pk', { body: 'neck', z: -0.02 }));
   out.push(pk.ball(J.head, L.headR, 'pk', { body: 'head', z: 0.01 }));
   out.push(pk.ball(v3.add(v3.along(J.head, J.face, L.headR * 0.86), v3.mul(J.hdir, -L.headR * 0.18)), L.headR * 0.24, 'pk', { body: 'nose', z: 0.012 }));
-  // cabell: una massa al darrere i a dalt del cap (la cara, la barbeta i la nuca queden a la vista)
-  out.push(pk.ball(v3.add(v3.along(J.head, J.face, -L.headR * 0.36), v3.mul(J.hdir, L.headR * 0.2)), L.headR * 0.93, 'pk', { body: 'hair', z: 0.011 }));
   J.arm.forEach((A, i) => {
     const side = i ? 'L' : 'R';
     out.push(pk.cap(A.s, A.e, R.upper[0], R.upper[1], 'pk', { body: `upper${side}`, limb: i ? 'b' : 'a' }));
@@ -16717,6 +16728,31 @@ function picLerpSpec(x, y, k) {
   const a = Array.isArray(x) ? x : [x, 0], b = Array.isArray(y) ? y : [y, 0];
   return [picLerpA(a[0], b[0], k), picLerpA(a[1], b[1], k)];
 }
+// Braços: el moviment es fa en coordenades de l'articulació (no angle a angle del món): l'húmer (braç) va d'una direcció
+// a l'altra pel camí més curt (slerp), el colze es doblega o s'estira i el seu eix de bisagra es manté lligat a l'húmer, de
+// manera que el colze sempre es doblega pel seu costat i l'avantbraç mai es retorça ni travessa el cos.
+function picArmLerp(sa, sb, k, side, front) {
+  const D = (s) => v3.norm(picDir(s, side, front));
+  const deg = (r) => (r * 180) / Math.PI, ang = (a, b) => Math.acos(Math.max(-1, Math.min(1, v3.dot(a, b))));
+  const slerp = (a, b, q) => {
+    const c = v3.cross(a, b); let ax = v3.len(c) > 1e-6 ? v3.norm(c) : v3.norm(v3.cross(a, Math.abs(a[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0]));
+    return v3.rot(a, ax, deg(ang(a, b)) * q);
+  };
+  const u0 = D(sa[0]), w0 = D(sa[1]), u1 = D(sb[0]), w1 = D(sb[1]);
+  const b0 = ang(u0, w0), b1 = ang(u1, w1);
+  const hinge = (u, w, beta) => (beta > 0.1 ? v3.norm(v3.cross(u, w)) : null);
+  let h0 = hinge(u0, w0, b0), h1 = hinge(u1, w1, b1);
+  if (!h0 && !h1) { h0 = h1 = v3.norm(v3.cross(u0, Math.abs(u0[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0])); }
+  if (!h0) h0 = h1; if (!h1) h1 = h0;
+  const u = v3.norm(slerp(u0, u1, k));
+  const move = (h, uFrom) => { const c = v3.cross(uFrom, u); return v3.len(c) < 1e-6 ? h : v3.rot(h, v3.norm(c), deg(ang(uFrom, u))); };
+  const ha = move(h0, u0), hb = move(h1, u1);
+  const twist = deg(Math.atan2(v3.dot(v3.cross(ha, hb), u), v3.dot(ha, hb)));
+  const h = v3.norm(v3.rot(ha, u, twist * k));
+  const beta = b0 + (b1 - b0) * k;
+  const w = v3.add(v3.mul(u, Math.cos(beta)), v3.mul(v3.cross(h, u), Math.sin(beta)));
+  return [picDirSpec(u, side, front), picDirSpec(v3.norm(w), side, front)];
+}
 function picLerp(A, B, k) {
   const out = { ...B, k };
   for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl']) {
@@ -16729,6 +16765,7 @@ function picLerp(A, B, k) {
   }
   for (const f of ['a', 'b', 'l', 'm']) {
     const x = picSide(A, f), y = picSide(B, f);
+    if ((f === 'a' || f === 'b') && !A.rel && !B.rel && x.length >= 2 && y.length >= 2) { out[f] = picArmLerp(x, y, k, f === 'a' ? 1 : -1, !!B.front); continue; }
     out[f] = y.map((v, i) => (v == null ? v : picLerpSpec(x[i] ?? v, v, k)));
   }
   return out;
@@ -16813,12 +16850,27 @@ function picOrder(S) {
   const list = S.body.concat(S.items);
   const torso = (S.body.find((o) => o.body === 'chest') || {}).depth || 0;
   const key = (o) => o.depth + (o.z || 0) + (o.zb || 0);
-  const order = list.map((o, i) => i).sort((i, j) => key(list[i]) - key(list[j]) || i - j);
-  const far = list.map((o) => o.cls === 'pk' && !/^(pelvis|chest|neck|head|nose|hair)$/.test(o.body) && o.depth < torso - 2.2);
-  return { order, far };
+  const far = list.map((o) => o.cls === 'pk' && !/^(pelvis|chest|neck|head|nose)$/.test(o.body) && o.depth < torso - 2.2);
+  // Cada braç (braç, avantbraç i mà) i cada cama (cuixa, pantaló, cama i peu) es dibuixa d'una tirada: primer la vora de
+  // tota la cadena i després el farciment, i així les articulacions (colze, genoll) no porten cap ratlla al mig.
+  const chainOf = (o) => {
+    const b = o.body || '';
+    const m = /^(upper|fore|hand)(R|L)$/.exec(b), n = /^(thigh|shorts|shin|foot)(R|L)$/.exec(b);
+    return m ? `arm${m[2]}` : n ? `leg${n[2]}` : null;
+  };
+  const units = [], chains = new Map();
+  list.forEach((o, i) => {
+    const c = chainOf(o);
+    if (!c) { units.push({ idx: [i], k: key(o) }); return; }
+    if (!chains.has(c)) chains.set(c, []);
+    chains.get(c).push(i);
+  });
+  for (const idx of chains.values()) units.push({ idx, chain: true, k: idx.reduce((sum, i) => sum + key(list[i]), 0) / idx.length });
+  units.sort((a, b) => a.k - b.k || a.idx[0] - b.idx[0]);
+  return { order: units.flatMap((u) => u.idx), units, far };
 }
-// Peça del cos → peça de roba (el color és de la paleta d'EON, a CSS): pell, samarreta, pantaló, sabatilles i cabell.
-const picPartOf = (b) => (b === 'pelvis' || /^shorts/.test(b) ? 'short' : b === 'chest' ? 'top' : /^foot/.test(b) ? 'shoe' : b === 'hair' ? 'hair' : 'skin');
+// Peça del cos → peça de roba (el color és de la paleta d'EON, a CSS): pell, samarreta, pantaló i sabatilles.
+const picPartOf = (b) => (b === 'pelvis' || /^shorts/.test(b) ? 'short' : b === 'chest' ? 'top' : /^foot/.test(b) ? 'shoe' : 'skin');
 function picSvgOf(P, S, ord, gear) {
   const parts = [`<path class="pfl" d="M4 ${PIC_FLOOR + 1.6}H96" stroke-width="1.6"/>`];
   const view = picViewOf(P);
@@ -16828,9 +16880,12 @@ function picSvgOf(P, S, ord, gear) {
   }
   for (const o of S.env) parts.push(picPrimSvg(o));
   const list = S.body.concat(S.items);
-  for (const i of ord.order) {
-    const o = list[i];
-    if (o) parts.push(picPrimSvg(o.cls === 'pk' && o.body ? { ...o, cls: `${ord.far[i] ? 'pkf' : 'pk'} pk-${picPartOf(o.body)}` } : ord.far[i] ? { ...o, cls: 'pkf' } : o));
+  const skin = (o, i) => (o.cls === 'pk' && o.body ? { ...o, cls: `${ord.far[i] ? 'pkf' : 'pk'} pk-${picPartOf(o.body)}` } : ord.far[i] ? { ...o, cls: 'pkf' } : o);
+  for (const u of ord.units) {
+    if (u.chain) {
+      for (const i of u.idx) if (list[i]) parts.push(picPrimSvg({ ...list[i], cls: 'pko' }));
+      for (const i of u.idx) if (list[i]) { const o = skin(list[i], i); parts.push(picPrimSvg({ ...o, cls: `${o.cls} ns` })); }
+    } else if (list[u.idx[0]]) parts.push(picPrimSvg(skin(list[u.idx[0]], u.idx[0])));
   }
   for (const o of picGear2(S.key, P, gear)) parts.push(picPrimSvg(o));
   return `<svg class="pic" viewBox="0 0 100 100" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round">${parts.join('')}</svg>`;

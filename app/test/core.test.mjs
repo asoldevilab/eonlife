@@ -1160,7 +1160,7 @@ test('dibuixos: animacions contínues (sense girs de disc ni salts), peus fixos,
   const ex = (name) => SEED_EXERCISES.find((e) => e.name === name);
   // Roba i cabell: cada part del cos té la seva classe (pell, samarreta, pantaló, sabatilles, cabell)
   const s = P.exercisePicSvg(ex('Back squat'), null, 'still');
-  for (const c of ['pk-skin', 'pk-top', 'pk-short', 'pk-shoe', 'pk-hair']) assert.ok(s.includes(c), `falta ${c}`);
+  for (const c of ['pk-skin', 'pk-top', 'pk-short', 'pk-shoe']) assert.ok(s.includes(c), `falta ${c}`);
   // Continuïtat: cap tros dels dibuixos fa un salt gran entre dos fotogrames consecutius (un disc que gira 180°, una
   // anella de goma que «brilla», una barra que gira 360°…). Només passen algunes extremitats en moviments molt ràpids.
   const nums = (d) => (d.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);

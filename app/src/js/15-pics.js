@@ -171,8 +171,6 @@ function picBodyPrims(J) {
   out.push(pk.cap(J.neck, J.neckTop, R.neck[0], R.neck[1], 'pk', { body: 'neck', z: -0.02 }));
   out.push(pk.ball(J.head, L.headR, 'pk', { body: 'head', z: 0.01 }));
   out.push(pk.ball(v3.add(v3.along(J.head, J.face, L.headR * 0.86), v3.mul(J.hdir, -L.headR * 0.18)), L.headR * 0.24, 'pk', { body: 'nose', z: 0.012 }));
-  // cabell: una massa al darrere i a dalt del cap (la cara, la barbeta i la nuca queden a la vista)
-  out.push(pk.ball(v3.add(v3.along(J.head, J.face, -L.headR * 0.36), v3.mul(J.hdir, L.headR * 0.2)), L.headR * 0.93, 'pk', { body: 'hair', z: 0.011 }));
   J.arm.forEach((A, i) => {
     const side = i ? 'L' : 'R';
     out.push(pk.cap(A.s, A.e, R.upper[0], R.upper[1], 'pk', { body: `upper${side}`, limb: i ? 'b' : 'a' }));
@@ -642,6 +640,31 @@ function picLerpSpec(x, y, k) {
   const a = Array.isArray(x) ? x : [x, 0], b = Array.isArray(y) ? y : [y, 0];
   return [picLerpA(a[0], b[0], k), picLerpA(a[1], b[1], k)];
 }
+// Braços: el moviment es fa en coordenades de l'articulació (no angle a angle del món): l'húmer (braç) va d'una direcció
+// a l'altra pel camí més curt (slerp), el colze es doblega o s'estira i el seu eix de bisagra es manté lligat a l'húmer, de
+// manera que el colze sempre es doblega pel seu costat i l'avantbraç mai es retorça ni travessa el cos.
+function picArmLerp(sa, sb, k, side, front) {
+  const D = (s) => v3.norm(picDir(s, side, front));
+  const deg = (r) => (r * 180) / Math.PI, ang = (a, b) => Math.acos(Math.max(-1, Math.min(1, v3.dot(a, b))));
+  const slerp = (a, b, q) => {
+    const c = v3.cross(a, b); let ax = v3.len(c) > 1e-6 ? v3.norm(c) : v3.norm(v3.cross(a, Math.abs(a[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0]));
+    return v3.rot(a, ax, deg(ang(a, b)) * q);
+  };
+  const u0 = D(sa[0]), w0 = D(sa[1]), u1 = D(sb[0]), w1 = D(sb[1]);
+  const b0 = ang(u0, w0), b1 = ang(u1, w1);
+  const hinge = (u, w, beta) => (beta > 0.1 ? v3.norm(v3.cross(u, w)) : null);
+  let h0 = hinge(u0, w0, b0), h1 = hinge(u1, w1, b1);
+  if (!h0 && !h1) { h0 = h1 = v3.norm(v3.cross(u0, Math.abs(u0[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0])); }
+  if (!h0) h0 = h1; if (!h1) h1 = h0;
+  const u = v3.norm(slerp(u0, u1, k));
+  const move = (h, uFrom) => { const c = v3.cross(uFrom, u); return v3.len(c) < 1e-6 ? h : v3.rot(h, v3.norm(c), deg(ang(uFrom, u))); };
+  const ha = move(h0, u0), hb = move(h1, u1);
+  const twist = deg(Math.atan2(v3.dot(v3.cross(ha, hb), u), v3.dot(ha, hb)));
+  const h = v3.norm(v3.rot(ha, u, twist * k));
+  const beta = b0 + (b1 - b0) * k;
+  const w = v3.add(v3.mul(u, Math.cos(beta)), v3.mul(v3.cross(h, u), Math.sin(beta)));
+  return [picDirSpec(u, side, front), picDirSpec(v3.norm(w), side, front)];
+}
 function picLerp(A, B, k) {
   const out = { ...B, k };
   for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl']) {
@@ -654,6 +677,7 @@ function picLerp(A, B, k) {
   }
   for (const f of ['a', 'b', 'l', 'm']) {
     const x = picSide(A, f), y = picSide(B, f);
+    if ((f === 'a' || f === 'b') && !A.rel && !B.rel && x.length >= 2 && y.length >= 2) { out[f] = picArmLerp(x, y, k, f === 'a' ? 1 : -1, !!B.front); continue; }
     out[f] = y.map((v, i) => (v == null ? v : picLerpSpec(x[i] ?? v, v, k)));
   }
   return out;
@@ -738,12 +762,27 @@ function picOrder(S) {
   const list = S.body.concat(S.items);
   const torso = (S.body.find((o) => o.body === 'chest') || {}).depth || 0;
   const key = (o) => o.depth + (o.z || 0) + (o.zb || 0);
-  const order = list.map((o, i) => i).sort((i, j) => key(list[i]) - key(list[j]) || i - j);
-  const far = list.map((o) => o.cls === 'pk' && !/^(pelvis|chest|neck|head|nose|hair)$/.test(o.body) && o.depth < torso - 2.2);
-  return { order, far };
+  const far = list.map((o) => o.cls === 'pk' && !/^(pelvis|chest|neck|head|nose)$/.test(o.body) && o.depth < torso - 2.2);
+  // Cada braç (braç, avantbraç i mà) i cada cama (cuixa, pantaló, cama i peu) es dibuixa d'una tirada: primer la vora de
+  // tota la cadena i després el farciment, i així les articulacions (colze, genoll) no porten cap ratlla al mig.
+  const chainOf = (o) => {
+    const b = o.body || '';
+    const m = /^(upper|fore|hand)(R|L)$/.exec(b), n = /^(thigh|shorts|shin|foot)(R|L)$/.exec(b);
+    return m ? `arm${m[2]}` : n ? `leg${n[2]}` : null;
+  };
+  const units = [], chains = new Map();
+  list.forEach((o, i) => {
+    const c = chainOf(o);
+    if (!c) { units.push({ idx: [i], k: key(o) }); return; }
+    if (!chains.has(c)) chains.set(c, []);
+    chains.get(c).push(i);
+  });
+  for (const idx of chains.values()) units.push({ idx, chain: true, k: idx.reduce((sum, i) => sum + key(list[i]), 0) / idx.length });
+  units.sort((a, b) => a.k - b.k || a.idx[0] - b.idx[0]);
+  return { order: units.flatMap((u) => u.idx), units, far };
 }
-// Peça del cos → peça de roba (el color és de la paleta d'EON, a CSS): pell, samarreta, pantaló, sabatilles i cabell.
-const picPartOf = (b) => (b === 'pelvis' || /^shorts/.test(b) ? 'short' : b === 'chest' ? 'top' : /^foot/.test(b) ? 'shoe' : b === 'hair' ? 'hair' : 'skin');
+// Peça del cos → peça de roba (el color és de la paleta d'EON, a CSS): pell, samarreta, pantaló i sabatilles.
+const picPartOf = (b) => (b === 'pelvis' || /^shorts/.test(b) ? 'short' : b === 'chest' ? 'top' : /^foot/.test(b) ? 'shoe' : 'skin');
 function picSvgOf(P, S, ord, gear) {
   const parts = [`<path class="pfl" d="M4 ${PIC_FLOOR + 1.6}H96" stroke-width="1.6"/>`];
   const view = picViewOf(P);
@@ -753,9 +792,12 @@ function picSvgOf(P, S, ord, gear) {
   }
   for (const o of S.env) parts.push(picPrimSvg(o));
   const list = S.body.concat(S.items);
-  for (const i of ord.order) {
-    const o = list[i];
-    if (o) parts.push(picPrimSvg(o.cls === 'pk' && o.body ? { ...o, cls: `${ord.far[i] ? 'pkf' : 'pk'} pk-${picPartOf(o.body)}` } : ord.far[i] ? { ...o, cls: 'pkf' } : o));
+  const skin = (o, i) => (o.cls === 'pk' && o.body ? { ...o, cls: `${ord.far[i] ? 'pkf' : 'pk'} pk-${picPartOf(o.body)}` } : ord.far[i] ? { ...o, cls: 'pkf' } : o);
+  for (const u of ord.units) {
+    if (u.chain) {
+      for (const i of u.idx) if (list[i]) parts.push(picPrimSvg({ ...list[i], cls: 'pko' }));
+      for (const i of u.idx) if (list[i]) { const o = skin(list[i], i); parts.push(picPrimSvg({ ...o, cls: `${o.cls} ns` })); }
+    } else if (list[u.idx[0]]) parts.push(picPrimSvg(skin(list[u.idx[0]], u.idx[0])));
   }
   for (const o of picGear2(S.key, P, gear)) parts.push(picPrimSvg(o));
   return `<svg class="pic" viewBox="0 0 100 100" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round">${parts.join('')}</svg>`;

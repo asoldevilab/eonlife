@@ -1452,6 +1452,8 @@ tfoot .rpc { font-size: 14px; }
 .pic path { stroke-linejoin: round; stroke-linecap: round; }
 .pic .pk { fill: var(--pic-body); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
 .pic .pkf { fill: var(--pic-far); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
+.pic .pko { fill: var(--pic-bg, var(--surface)); stroke: var(--pic-bg, var(--surface)); stroke-width: 1.1; }
+.pic .ns { stroke: none; }
 .pic .pk-skin { fill: var(--pic-skin); } .pic .pkf.pk-skin { fill: var(--pic-skin-far); }
 .pic .pk-top { fill: var(--pic-top); } .pic .pkf.pk-top { fill: var(--pic-top-far); }
 .pic .pk-short { fill: var(--pic-short); } .pic .pkf.pk-short { fill: var(--pic-short-far); }
