@@ -223,9 +223,10 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id }) {
+function WellnessCard({ value, onSet, id, hrvBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
+  const hs = HR.status(w.hrv, hrvBase);
   return html`<section class="card wellness" id=${id}>
     <div class="card-head"><h2 class="h2">Wellness · com arriba avui?</h2>
       ${c && html`<${Pill} tone=${c.tone} title="Suma de les 5 respostes (5 = el millor estat)">${c.total != null ? `${c.total}/25` : `${c.n} de 5`}</${Pill}>`}</div>
@@ -236,6 +237,16 @@ function WellnessCard({ value, onSet, id }) {
         options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
       <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
     </div>`)}</div>
+    <div class="hrv-row">
+      <${Field} label="HRV de la nit prèvia (RMSSD)" id=${`${id || 'wl'}-hrv`} hint="El valor de la nit anterior, de l'anell o rellotge del pacient.">
+        <${NumInput} id=${`${id || 'wl'}-hrv`} value=${w.hrv} onValue=${(v) => onSet('hrv', v)} unit="ms" /></${Field}>
+      <${Field} label="FC de repòs de la nit" id=${`${id || 'wl'}-rhr`}>
+        <${NumInput} id=${`${id || 'wl'}-rhr`} value=${w.rhr} onValue=${(v) => onSet('rhr', v)} unit="bpm" /></${Field}>
+      <${Field} label="Font" id=${`${id || 'wl'}-hrvsrc`}>
+        <${Select} id=${`${id || 'wl'}-hrvsrc`} value=${w.hrvSource} onValue=${(v) => onSet('hrvSource', v)} options=${HR.sources} placeholder="—" /></${Field}>
+      ${hs && html`<div class="hrv-status"><${Pill} tone=${hs === 'ok' ? 'ok' : hs === 'low' ? 'bad' : 'neutral'}>${hs === 'low' ? 'HRV baixa' : hs === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
+        <span class="muted small">Normal d'aquest pacient: ${U.fmt(hrvBase.low, 0)}–${U.fmt(hrvBase.high, 0)} ms (${hrvBase.n} mesures)</span></div>`}
+    </div>
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />

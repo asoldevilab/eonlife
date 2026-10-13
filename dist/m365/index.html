@@ -1733,6 +1733,18 @@ tfoot .rpc { font-size: 14px; }
 .adr-map summary { cursor: pointer; font-weight: 650; }
 .adr-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-top: 8px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
+
+/* FC i HRV */
+.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
+.hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
+.hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
+.hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }
+.hr-bpm { display: flex; align-items: baseline; gap: 8px; min-width: 150px; }
+.hr-num { font-size: 44px; font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
+.hr-num.off { color: var(--muted); }
+.hr-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
+.hr-card .hint.warn { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }
 </style>
 </head>
 <body>
@@ -4045,7 +4057,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-12 16:08";
+window.EON_BUILD = "2026-10-13 11:20";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6532,6 +6544,9 @@ const Flat = {
     for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
     o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
     o['Wellness observacions'] = x.notes || '';
+    o['HRV nit prèvia (RMSSD, ms)'] = U.num(x.hrv) ?? '';
+    o['FC repòs nit (bpm)'] = U.num(x.rhr) ?? '';
+    o['Font HRV'] = HR.sourceLabel(x.hrvSource);
     return o;
   },
 
@@ -6545,6 +6560,7 @@ const Flat = {
       'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
       'Sessió del pla': U.num(s.planN) ?? '',
       ...Flat.wellness(s.wellness),
+      'FC mitjana (bpm)': U.num(f.hrAvg) ?? '', 'FC màxima (bpm)': U.num(f.hrMax) ?? '', 'FC mínima (bpm)': U.num(f.hrMin) ?? '',
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
     };
@@ -6879,6 +6895,99 @@ const Evol = {
       load: vals(list, 'load').length ? vals(list, 'load').reduce((a, b) => a + b, 0) : null,
     }));
   },
+};
+
+
+/* ── 04-hr.js ── */
+/* EON Life · freqüència cardíaca (FC) i variabilitat (HRV).
+   · FC mitjana de la sessió, mesurada amb un strap Bluetooth (Polar H10…) o escrita a mà.
+   · HRV de la nit prèvia (RMSSD en ms) i FC de repòs, del rellotge o anell del pacient (Oura, Whoop, HRV4Training…).
+   Només càlculs, sense pantalla. */
+
+const HRV_SOURCES = [
+  { v: 'oura', label: 'Oura' },
+  { v: 'whoop', label: 'Whoop' },
+  { v: 'hrv4t', label: 'HRV4Training' },
+  { v: 'polar', label: 'Polar' },
+  { v: 'garmin', label: 'Garmin' },
+  { v: 'apple', label: 'Apple Watch' },
+  { v: 'altre', label: 'Altre' },
+];
+
+const HR = {
+  sources: HRV_SOURCES,
+
+  // Característica «Heart Rate Measurement» del Bluetooth (0x2A37): FC i, si n'hi ha, els intervals entre batecs (RR).
+  // Bit 0 dels flags: la FC va en 16 bits; bit 3: hi ha energia gastada; bit 4: hi ha intervals RR (en 1/1024 s).
+  parse(dv) {
+    if (!dv || dv.byteLength < 2) return null;
+    const flags = dv.getUint8(0);
+    let i = 1, bpm;
+    if (flags & 0x01) { bpm = dv.getUint16(i, true); i += 2; } else { bpm = dv.getUint8(i); i += 1; }
+    if (flags & 0x08) i += 2;
+    const rr = [];
+    if (flags & 0x10) for (; i + 1 < dv.byteLength; i += 2) rr.push(Math.round((dv.getUint16(i, true) / 1024) * 1000));
+    return { bpm, rr, contact: (flags & 0x04) ? !!(flags & 0x02) : null };
+  },
+
+  // Resum d'una sèrie de mostres [{t (ms), bpm}]: mitjana ponderada pel temps, màxim, mínim i durada.
+  // Les lectures de 0 o fora de rang (el strap sense contacte) no compten; els salts de més de 5 s no s'allarguen.
+  summarize(samples) {
+    const ok = (samples || []).filter((x) => x && x.bpm >= 30 && x.bpm <= 230 && Number.isFinite(x.t)).sort((a, b) => a.t - b.t);
+    if (!ok.length) return null;
+    let sum = 0, span = 0;
+    for (let i = 0; i < ok.length; i++) {
+      const next = ok[i + 1];
+      const dt = next ? Math.min(next.t - ok[i].t, 5000) : 1000;
+      sum += ok[i].bpm * dt; span += dt;
+    }
+    const bpms = ok.map((x) => x.bpm);
+    return {
+      avg: Math.round(sum / span), max: Math.max(...bpms), min: Math.min(...bpms),
+      minutes: Math.round(((ok[ok.length - 1].t - ok[0].t) / 60000) * 10) / 10, n: ok.length,
+    };
+  },
+
+  // RMSSD (ms) d'una llista d'intervals RR (ms). Descarta els batecs erronis (fora de 300–2000 ms o que s'allunyen
+  // més d'un 20 % de l'anterior) abans de calcular-lo.
+  rmssd(rr) {
+    const clean = [];
+    for (const v of rr || []) {
+      if (!(v >= 300 && v <= 2000)) continue;
+      if (clean.length && Math.abs(v - clean[clean.length - 1]) > 0.2 * clean[clean.length - 1]) continue;
+      clean.push(v);
+    }
+    if (clean.length < 10) return null;
+    let s = 0;
+    for (let i = 1; i < clean.length; i++) s += (clean[i] - clean[i - 1]) ** 2;
+    return Math.round(Math.sqrt(s / (clean.length - 1)) * 10) / 10;
+  },
+
+  // Línia de base d'HRV d'un pacient: logaritme natural de l'RMSSD dels darrers 60 dies abans de la data, amb el rang
+  // normal = mitjana ± 0,75 desviacions (com fa HRV4Training). Cal un mínim de 7 mesures.
+  baseline(points, date) {
+    const end = date || U.today();
+    const from = U.addDays(end, -60);
+    const ln = (points || []).filter((p) => p.date && p.date >= from && p.date < end && p.rmssd > 0).map((p) => Math.log(p.rmssd));
+    if (ln.length < 7) return null;
+    const mean = ln.reduce((a, b) => a + b, 0) / ln.length;
+    const sd = Math.sqrt(ln.reduce((a, b) => a + (b - mean) ** 2, 0) / (ln.length - 1));
+    return { n: ln.length, mean: Math.exp(mean), low: Math.exp(mean - 0.75 * sd), high: Math.exp(mean + 0.75 * sd) };
+  },
+
+  // Estat d'un valor respecte de la línia de base: 'low', 'high' o 'ok' (null si no hi ha base o valor).
+  status(rmssd, base) {
+    const v = U.num(rmssd);
+    if (v == null || !base) return null;
+    return v < base.low ? 'low' : v > base.high ? 'high' : 'ok';
+  },
+
+  // RMSSD de les sessions d'un pacient: [{date, rmssd}].
+  points(sessions) {
+    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {}).hrv) })).filter((p) => p.rmssd != null);
+  },
+
+  sourceLabel(v) { return (HRV_SOURCES.find((x) => x.v === v) || {}).label || ''; },
 };
 
 
@@ -8345,6 +8454,10 @@ const DB = (() => {
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
       ...wellnessCols((r) => r.s.wellness),
+      { id: 'hrv', group: 'Wellness', label: 'HRV nit', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrv) },
+      { id: 'rhr', group: 'Wellness', label: 'FC repòs', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).rhr) },
+      { id: 'hravg', group: 'Tancament', label: 'FC mitjana', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrAvg) },
+      { id: 'hrmax', group: 'Tancament', label: 'FC màx.', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrMax) },
       { id: 'rpe', group: 'Tancament', label: 'RPE', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).rpe) },
       { id: 'min', group: 'Tancament', label: 'Minuts', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).duration) },
       { id: 'load', group: 'Tancament', label: 'Càrrega', unit: 'UA', kind: 'num', dec: 0, get: (r) => Calc.sessionLoad(r.s) },
@@ -10710,7 +10823,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -10740,6 +10853,8 @@ const ExcelClient = (() => {
       ws.set(r, 16, x.n ? x.done : null, [XS.cell, { fmt: '0' }]);
       const at = where[s.id];
       if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
+      ws.set(r, 18, U.num((s.wellness || {}).hrv) ?? '', [XS.cell, { fmt: '0.0' }]);
+      ws.set(r, 19, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
@@ -13054,6 +13169,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Força**: en general 2–3 dies/setmana per grup muscular. Força màxima: 1–6 repeticions a ~80–95 % 1RM (RIR 1–3), descans de 2–5 min. Hipertròfia: 6–12 repeticions (també 12–30 si s'acosta a la fallada) a ~60–80 % 1RM, descans d'1–3 min; volum habitual 10–20 sèries efectives per grup muscular i setmana (menys en principiants o amb poc temps). Principiants: 1–3 sèries de 8–12 repeticions, 2 dies/setmana d'exercicis multiarticulars ja aporten molt. RIR (repeticions en reserva) 0–4 ≈ RPE 10–6.
 **Progressió simple**: si es completen totes les sèries al màxim del rang de repeticions amb RIR ≥ 2, pujar la càrrega un 2–10 % (regla del «2 per 2» en tècnica estable). Quan una variant fàcil ja és massa fàcil, passar al següent nivell de la família de progressió de la biblioteca.
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
+**FC i HRV**: a cada sessió l'app pot tenir la FC mitjana/màxima (strap) i l'HRV (RMSSD en ms) i la FC de repòs de la NIT PRÈVIA (anell o rellotge del pacient). L'HRV només es compara amb el mateix pacient i la mateixa font; una HRV clarament per sota del seu normal (uns 7+ dies de base) o una FC de repòs més alta de l'habitual, juntes amb un wellness baix, suggereixen reduir volum o intensitat aquell dia — és un senyal, no un diagnòstic. Una sola nit mai decideix res.
 **Velocitat (VBT)**: amb encoder, una pèrdua de velocitat del 10–20 % dins de la sèrie manté la qualitat de potència; 20–30 % ja és més estímul d'hipertròfia/fatiga. Velocitats de referència orientatives: ≥ 1,0 m/s potència; 0,75 m/s força-velocitat; 0,5 m/s força màxima.
 **Perfil càrrega-velocitat (ADR Encoder)**: 4–6 càrregues creixents (la primera ~1 m/s i l'última cap a 0,5–0,6 m/s, sense arribar a la fallada), 2 repeticions a les lleugeres i 1–2 a les pesades, descans de 2–4 min i màxima intenció a la fase concèntrica. Amb la velocitat mitjana de cada càrrega es dibuixa una recta (la velocitat baixa linealment amb la càrrega): la 1RM s'estima a la velocitat mínima de l'exercici (squat ~0,30 m/s en homes i ~0,25 en dones, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25; valors orientatius). R² ≥ 0,95 és un bon ajust; amb 2 punts és orientatiu i si totes les càrregues són lleugeres l'estimació extrapola molt. En un re-test, la recta que es desplaça cap a la dreta és millora de força. És una estimació: no substitueix una prova directa quan cal la 1RM exacta, i no es compara entre exercicis ni equips (Smith o barra lliure).
 **Dades de l'ADR a l'app**: l'app de l'ADR exporta els entrenaments a CSV (o Excel). A EON, el botó «Importa de l'ADR» llegeix el fitxer (persona pel nom, exercici, dia, velocitat mitjana/propulsiva/de pic) i el passa al perfil càrrega-velocitat de la valoració, a les sèries d'encoder d'una sessió o als salts de l'ADR Jumping; de cada càrrega es pot quedar la repetició més ràpida (recomanació de l'ADR) o totes. Si no reconeix columnes, es poden assignar a mà.
@@ -13397,7 +13513,7 @@ const NoeTools = (() => {
   // ── Ajudes de lectura ──
   const enc = (ctx, t) => (ctx.privacy ? ctx.ps.encode(str(t)) : str(t));
   const pat = (ctx, arg) => { const r = ctx.ps.resolve(arg); return r.error ? { err: r } : { pid: r.pid, p: Store.get('patients', r.pid) }; };
-  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total }); };
+  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total, hrv_nit_ms: U.num((s.wellness || {}).hrv), fc_repos_nit: U.num((s.wellness || {}).rhr), fc_mitjana_bpm: U.num(f.hrAvg), fc_max_bpm: U.num(f.hrMax) }); };
 
   function itemOut(it) {
     return compact({ id: it.id, exercici_id: it.exId, nom: it.name, series: it.sets, repeticions: it.reps, carrega: Calc.load(it.load), intensitat: it.intensity, descans: it.rest, tempo: it.tempo, material: it.material, nota: short(it.note, 120), fet: it.done ? true : '' });
@@ -14192,6 +14308,7 @@ const ICONS = {
   users: html`<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.3 3.3 0 0 1 0 6.4"/><path d="M18 14.6c1.8.7 3 2.5 3.5 5.4"/>`,
   book: html`<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H20v15H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20"/><path d="M8 7h8M8 10.5h6"/>`,
   settings: html`<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>`,
+  heart: html`<path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>`,
   plus: html`<path d="M12 5v14M5 12h14"/>`,
   minus: html`<path d="M5 12h14"/>`,
   search: html`<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>`,
@@ -15296,9 +15413,10 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id }) {
+function WellnessCard({ value, onSet, id, hrvBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
+  const hs = HR.status(w.hrv, hrvBase);
   return html`<section class="card wellness" id=${id}>
     <div class="card-head"><h2 class="h2">Wellness · com arriba avui?</h2>
       ${c && html`<${Pill} tone=${c.tone} title="Suma de les 5 respostes (5 = el millor estat)">${c.total != null ? `${c.total}/25` : `${c.n} de 5`}</${Pill}>`}</div>
@@ -15309,6 +15427,16 @@ function WellnessCard({ value, onSet, id }) {
         options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
       <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
     </div>`)}</div>
+    <div class="hrv-row">
+      <${Field} label="HRV de la nit prèvia (RMSSD)" id=${`${id || 'wl'}-hrv`} hint="El valor de la nit anterior, de l'anell o rellotge del pacient.">
+        <${NumInput} id=${`${id || 'wl'}-hrv`} value=${w.hrv} onValue=${(v) => onSet('hrv', v)} unit="ms" /></${Field}>
+      <${Field} label="FC de repòs de la nit" id=${`${id || 'wl'}-rhr`}>
+        <${NumInput} id=${`${id || 'wl'}-rhr`} value=${w.rhr} onValue=${(v) => onSet('rhr', v)} unit="bpm" /></${Field}>
+      <${Field} label="Font" id=${`${id || 'wl'}-hrvsrc`}>
+        <${Select} id=${`${id || 'wl'}-hrvsrc`} value=${w.hrvSource} onValue=${(v) => onSet('hrvSource', v)} options=${HR.sources} placeholder="—" /></${Field}>
+      ${hs && html`<div class="hrv-status"><${Pill} tone=${hs === 'ok' ? 'ok' : hs === 'low' ? 'bad' : 'neutral'}>${hs === 'low' ? 'HRV baixa' : hs === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
+        <span class="muted small">Normal d'aquest pacient: ${U.fmt(hrvBase.low, 0)}–${U.fmt(hrvBase.high, 0)} ms (${hrvBase.n} mesures)</span></div>`}
+    </div>
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />
@@ -20060,6 +20188,142 @@ function BikePhotoDialog({ file, a, unit: unit0, canSave, onApply, onClose }) {
 }
 
 
+/* ── 23-hr.js ── */
+/* EON Life · enregistrador de FC amb un strap Bluetooth (Polar H10 i qualsevol de pit que parli «Heart Rate»).
+   Funciona amb Chrome o Edge (Android, ordinador). Safari de l'iPad no deixa connectar Bluetooth des d'una pàgina web.
+   L'enregistrament és únic per a la tauleta i continua encara que canviïs de pantalla; es desa a la sessió en aturar-lo. */
+
+const HrLive = (() => {
+  const st = { device: null, server: null, char: null, running: false, connected: false, bpm: null, contact: null,
+    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false };
+  const subs = new Set();
+  const emit = () => subs.forEach((f) => f({ ...st, samples: st.samples.length }));
+
+  const supported = () => typeof navigator !== 'undefined' && !!navigator.bluetooth && (typeof window === 'undefined' || window.isSecureContext !== false);
+
+  const onValue = (ev) => {
+    const m = HR.parse(ev.target.value);
+    if (!m) return;
+    st.bpm = m.bpm; st.contact = m.contact;
+    if (st.running && m.bpm > 0) st.samples.push({ t: Date.now(), bpm: m.bpm });
+    emit();
+  };
+  const onDrop = () => { st.connected = false; st.bpm = null; emit(); if (st.running) reconnect(); };
+
+  async function attach() {
+    st.server = await st.device.gatt.connect();
+    const svc = await st.server.getPrimaryService('heart_rate');
+    st.char = await svc.getCharacteristic('heart_rate_measurement');
+    st.char.addEventListener('characteristicvaluechanged', onValue);
+    await st.char.startNotifications();
+    st.connected = true; st.error = '';
+  }
+  async function reconnect() {
+    for (let i = 0; i < 5 && st.running && !st.connected && st.device; i++) {
+      try { await attach(); emit(); return; } catch { await new Promise((r) => setTimeout(r, 2000 * (i + 1))); }
+    }
+    if (!st.connected) { st.error = 'S\'ha perdut la connexió amb el strap. Torna a connectar-lo: el que s\'ha enregistrat fins ara es conserva.'; emit(); }
+  }
+
+  const friendly = (e) => {
+    const n = e && e.name, m = String((e && e.message) || e);
+    if (n === 'NotFoundError' || /cancel/i.test(m)) return 'No s\'ha triat cap strap. Mulla els elèctrodes del strap, posa\'l-te al pit i torna-ho a provar.';
+    if (n === 'SecurityError') return 'El navegador no deixa fer servir el Bluetooth des d\'aquesta pàgina.';
+    if (/GATT|disconnected|Unsupported device/i.test(m)) return 'No s\'ha pogut connectar. Comprova que el strap no està connectat a una altra app (Polar Beat, el rellotge…) i que té bateria.';
+    return `No s'ha pogut connectar el strap: ${m}`;
+  };
+
+  return {
+    supported,
+    subscribe(f) { subs.add(f); f({ ...st, samples: st.samples.length }); return () => subs.delete(f); },
+    get state() { return { ...st, samples: st.samples.length }; },
+    async connect() {
+      if (!supported()) { st.error = 'Aquest navegador no té Bluetooth web. Fes servir Chrome a la tauleta Android.'; emit(); return false; }
+      st.busy = true; st.error = ''; emit();
+      try {
+        if (!st.device) {
+          st.device = await navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] });
+          st.name = st.device.name || 'Strap';
+          st.device.addEventListener('gattserverdisconnected', onDrop);
+        }
+        await attach();
+        return true;
+      } catch (e) { st.error = friendly(e); return false; } finally { st.busy = false; emit(); }
+    },
+    start(sessionId) {
+      st.samples = []; st.sessionId = sessionId; st.startedAt = Date.now(); st.running = true; st.error = ''; emit();
+    },
+    // Atura l'enregistrament i torna el resum (o null si no hi ha lectures vàlides). El strap es manté connectat.
+    stop() {
+      st.running = false;
+      const sum = HR.summarize(st.samples);
+      const id = st.sessionId;
+      st.samples = []; emit();
+      return sum ? { ...sum, sessionId: id } : null;
+    },
+    disconnect() {
+      st.running = false;
+      try { if (st.char) st.char.removeEventListener('characteristicvaluechanged', onValue); } catch {}
+      try { if (st.device && st.device.gatt && st.device.gatt.connected) st.device.gatt.disconnect(); } catch {}
+      st.device = st.server = st.char = null; st.connected = false; st.bpm = null; st.name = ''; emit();
+    },
+    // Per als tests: simula lectures sense Bluetooth.
+    _push(bpm, t) { st.bpm = bpm; if (st.running) st.samples.push({ t: t ?? Date.now(), bpm }); emit(); },
+  };
+})();
+
+// Targeta «Freqüència cardíaca» de la sessió: strap en directe + FC mitjana, màxima i mínima a mà.
+function HeartRateCard({ session, onSet }) {
+  const [live, setLive] = useState(HrLive.state);
+  const [tick, setTick] = useState(0);
+  useEffect(() => HrLive.subscribe(setLive), []);
+  useEffect(() => {
+    if (!live.running) return undefined;
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [live.running]);
+  const f = session.feedback || {};
+  const mine = live.running && live.sessionId === session.id;
+  const elsewhere = live.running && live.sessionId !== session.id;
+  const secs = live.startedAt && live.running ? Math.floor((Date.now() - live.startedAt) / 1000) : 0;
+  void tick;
+  const stop = () => {
+    const r = HrLive.stop();
+    if (!r) { UI.toast('No hi ha hagut lectures vàlides del strap.'); return; }
+    Store.update('sessions', r.sessionId, (x) => {
+      x.feedback = { ...(x.feedback || {}), hrAvg: String(r.avg), hrMax: String(r.max), hrMin: String(r.min), hrMinutes: String(r.minutes), hrSource: 'strap' };
+    });
+    UI.toast(`FC mitjana desada: ${r.avg} bpm (màx. ${r.max}).`);
+  };
+  const clear = () => { for (const k of ['hrAvg', 'hrMax', 'hrMin', 'hrMinutes', 'hrSource']) onSet(k, ''); };
+
+  return html`<section class="card hr-card" id="se-hr">
+    <div class="card-head"><h2 class="h2"><${Icon} name="heart" size=${18} /> Freqüència cardíaca</h2>
+      ${f.hrAvg && html`<${Pill} tone="neutral">${f.hrAvg} bpm de mitjana</${Pill}>`}</div>
+    ${HrLive.supported()
+      ? html`<div class="hr-live">
+          <div class="hr-bpm" aria-live="off"><span class=${U.cls('hr-num', !live.connected && 'off')}>${live.connected && live.bpm ? live.bpm : '—'}</span><span class="muted small">bpm${live.name ? ` · ${live.name}` : ''}</span></div>
+          <div class="hr-actions">
+            ${!live.connected && html`<${Btn} icon="plus" onClick=${() => HrLive.connect()} disabled=${live.busy}>${live.busy ? 'Connectant…' : 'Connecta el strap'}</${Btn}>`}
+            ${live.connected && !live.running && html`<${Btn} variant="primary" icon="play" onClick=${() => HrLive.start(session.id)}>Comença a enregistrar</${Btn}>`}
+            ${mine && html`<${Btn} variant="primary" icon="check" onClick=${stop}>Atura i desa (${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')})</${Btn}>`}
+            ${live.connected && !live.running && html`<${Btn} variant="ghost" onClick=${() => HrLive.disconnect()}>Desconnecta</${Btn}>`}
+          </div>
+        </div>
+        ${elsewhere && html`<p class="hint warn">Hi ha un enregistrament en marxa d'una altra sessió. Atura'l des d'allà abans de començar-ne un de nou.</p>`}
+        ${live.error && html`<p class="hint warn" role="alert">${live.error}</p>`}`
+      : html`<p class="muted small">Aquest navegador no pot connectar-se al strap. A la tauleta Android fes servir Chrome; mentrestant pots escriure la FC a mà.</p>`}
+    <div class="hr-fields">
+      <${Field} label="FC mitjana" id="hr-avg"><${NumInput} id="hr-avg" value=${f.hrAvg} onValue=${(v) => { onSet('hrAvg', v); onSet('hrSource', v ? (f.hrSource === 'strap' ? 'strap' : 'manual') : ''); }} unit="bpm" /></${Field}>
+      <${Field} label="FC màxima" id="hr-max"><${NumInput} id="hr-max" value=${f.hrMax} onValue=${(v) => onSet('hrMax', v)} unit="bpm" /></${Field}>
+      <${Field} label="FC mínima" id="hr-min"><${NumInput} id="hr-min" value=${f.hrMin} onValue=${(v) => onSet('hrMin', v)} unit="bpm" /></${Field}>
+      ${f.hrAvg && html`<div class="hr-clear"><${Btn} variant="ghost" onClick=${clear}>Esborra la FC</${Btn}></div>`}
+    </div>
+    <p class="muted small">Posa el strap al pit amb els elèctrodes mullats. Prem «Atura i desa» en acabar: la mitjana es calcula amb tota la sessió.${f.hrSource === 'strap' && f.hrMinutes ? ` Enregistrat amb el strap (${U.num(f.hrMinutes) < 1 ? 'menys d\'1 min' : `${f.hrMinutes} min`}).` : ''}</p>
+  </section>`;
+}
+
+
 /* ── 23-kinvent.js ── */
 /* EON Life · «Llegeix el PDF» de Kinvent a la valoració.
    L'informe de Kinvent Physio són imatges: es llegeixen amb Tesseract (OCR) a la mateixa tauleta, sense enviar-les
@@ -21135,6 +21399,7 @@ function SessionEditor({ id }) {
 
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
+  const hrvBase = HR.baseline(HR.points(Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id)), s.date);
 
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
@@ -21226,12 +21491,14 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
     ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+
+    <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
 
     <section class="card feedback">
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>

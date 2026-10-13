@@ -386,6 +386,22 @@ Les sessions noves es fan a nom del professional que va triar l'última vegada *
 professional de referència del client). Si avui el client el porta un altre company, el canvia a dalt de la
 sessió i la tauleta ho recorda per a la propera.
 
+## FC i HRV a cada sessió
+
+Dues dades noves a la fitxa de cada sessió:
+
+- **HRV de la nit prèvia** (al costat del wellness): l'RMSSD en ms, la FC de repòs de la nit i la font (Oura, Whoop, HRV4Training, Polar, Garmin, Apple Watch…). L'escriu l'entrenador mirant l'app del pacient. Quan el pacient ja té 7 o més mesures, l'app mostra si l'HRV d'avui és **baixa**, **normal** o **alta** respecte del seu rang habitual (mitjana ± 0,75 desviacions dels darrers 60 dies, com fa HRV4Training). Només es compara amb el mateix pacient: l'HRV de la nit de l'Oura o el Whoop no és la d'una mesura curta amb strap.
+- **Freqüència cardíaca de la sessió** (targeta «Freqüència cardíaca», abans del tancament): FC mitjana, màxima i mínima.
+  1. A la tauleta Android obre l'app amb **Chrome**.
+  2. Mulla els elèctrodes del strap (Polar H10) i posa'l al pit del pacient. Perquè la tauleta el trobi, no pot estar connectat a l'app Polar Beat ni al rellotge.
+  3. **Connecta el strap** → tria'l a la llista → **Comença a enregistrar**.
+  4. En acabar, **Atura i desa**: la mitjana es calcula amb tota la sessió i es desa a la sessió.
+  5. L'enregistrament continua encara que canviïs de pantalla. Una tauleta només enregistra un strap alhora.
+
+  Si el navegador no té Bluetooth (Safari a l'iPad), la FC es pot escriure a mà.
+
+Tot surt a l'Excel del client (registre de sessions), a la taula de **Sessions** de la Base de dades i a NOE, que ho té en compte com un senyal més, mai com un diagnòstic.
+
 ## Pla d'entrenament i progrés
 
 Pestanya **Pla i progrés** de la fitxa del client.

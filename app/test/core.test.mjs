@@ -1087,3 +1087,49 @@ test('perfil càrrega-velocitat: dona els mateixos números que l\'app de l\'ADR
   assert.equal(r.eq, 'Càrrega (kg) = −49,47 × velocitat + 87,49');
   assert.match(r.eqPct, /^%1RM = −62,\d\d × velocitat \+ 110,6\d$/);
 });
+
+// ── FC i HRV ──
+test('HR: lectura Bluetooth, resum de FC i RMSSD', () => {
+  const { HR } = loadCore();
+  const mk = (bytes) => { const b = new Uint8Array(bytes).buffer; return new DataView(b); };
+  // flags 0x10: FC en 8 bits + dos RR (1024 = 1000 ms, 512 = 500 ms)
+  const m = HR.parse(mk([0x10, 72, 0x00, 0x04, 0x00, 0x02]));
+  assert.equal(m.bpm, 72);
+  assert.deepEqual([...m.rr], [1000, 500]);
+  const w = HR.parse(mk([0x01, 0x2c, 0x01])); // 16 bits: 300 → 0x012c
+  assert.equal(w.bpm, 300);
+  assert.equal(HR.parse(mk([0x00])), null);
+  const s = HR.summarize([{ t: 0, bpm: 100 }, { t: 1000, bpm: 120 }, { t: 2000, bpm: 0 }, { t: 3000, bpm: 140 }]);
+  assert.equal(s.max, 140); assert.equal(s.min, 100); assert.ok(s.avg >= 115 && s.avg <= 125);
+  assert.equal(HR.summarize([{ t: 0, bpm: 0 }]), null);
+  // RMSSD: sèrie alterna 800/820 → diferències de 20 ms
+  const rr = Array.from({ length: 30 }, (_, i) => (i % 2 ? 820 : 800));
+  assert.equal(HR.rmssd(rr), 20);
+  assert.equal(HR.rmssd([800, 810]), null, 'massa pocs batecs');
+  assert.equal(HR.rmssd([...rr.slice(0, 15), 200, ...rr.slice(15)]), 20, 'un batec erroni no compta');
+});
+
+test('HR: línia de base d\'HRV del pacient i estat', () => {
+  const { HR, U } = loadCore();
+  const today = '2026-10-13';
+  const pts = Array.from({ length: 10 }, (_, i) => ({ date: U.addDays(today, -(i + 1) * 3), rmssd: 60 + (i % 3) * 4 }));
+  assert.equal(HR.baseline(pts.slice(0, 5), today), null, 'menys de 7 mesures: no hi ha base');
+  const b = HR.baseline(pts, today);
+  assert.ok(b && b.n === 10 && b.low < b.mean && b.high > b.mean);
+  assert.equal(HR.status(30, b), 'low');
+  assert.equal(HR.status(62, b), 'ok');
+  assert.equal(HR.status(120, b), 'high');
+  assert.equal(HR.status('', b), null);
+  assert.equal(HR.sourceLabel('hrv4t'), 'HRV4Training');
+});
+
+test('HR: les dades surten a les columnes d\'Excel i a la taula', () => {
+  const { Flat, DB } = loadCore();
+  const s = { id: 's1', date: '2026-10-13', status: 'feta', wellness: { hrv: '65,5'.replace(',', '.'), rhr: '52', hrvSource: 'oura' }, feedback: { rpe: '7', duration: '50', hrAvg: '131', hrMax: '168' }, blocks: [] };
+  const o = Flat.session(s, { name: 'Anna', surname: 'X' }, {});
+  assert.equal(o['HRV nit prèvia (RMSSD, ms)'], 65.5);
+  assert.equal(o['FC repòs nit (bpm)'], 52);
+  assert.equal(o['Font HRV'], 'Oura');
+  assert.equal(o['FC mitjana (bpm)'], 131);
+  assert.equal(o['FC màxima (bpm)'], 168);
+});

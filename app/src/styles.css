@@ -1716,3 +1716,15 @@ tfoot .rpc { font-size: 14px; }
 .adr-map summary { cursor: pointer; font-weight: 650; }
 .adr-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-top: 8px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
+
+/* FC i HRV */
+.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
+.hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
+.hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
+.hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }
+.hr-bpm { display: flex; align-items: baseline; gap: 8px; min-width: 150px; }
+.hr-num { font-size: 44px; font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
+.hr-num.off { color: var(--muted); }
+.hr-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
+.hr-card .hint.warn { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }

@@ -1101,6 +1101,34 @@ const step = async (label, fn) => {
     const off = await page.evaluate(() => PdfSync.info('P-DEMO-JORDI').state);
     if (off !== 'off') throw new Error(`sense núvol l'estat és ${off}`);
   });
+  await step('FC i HRV: HRV de la nit prèvia al wellness i FC mitjana de la sessió (strap simulat)', async () => {
+    const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
+    await goHash(page, `#/sessio/${sid}`);
+    const card = page.locator('#se-wellness');
+    await card.waitFor();
+    await card.locator('#se-wellness-hrv').fill('64,5');
+    await card.locator('#se-wellness-rhr').fill('51');
+    await card.locator('#se-wellness-hrvsrc').selectOption('oura');
+    await page.waitForTimeout(300);
+    // Sense Bluetooth (Chromium sense maniquí), la targeta ho diu i deixa escriure la FC a mà.
+    const hr = page.locator('#se-hr');
+    await hr.waitFor();
+    await hr.locator('#hr-avg').fill('128');
+    await hr.locator('#hr-max').fill('171');
+    await page.waitForTimeout(300);
+    let x = await page.evaluate((id) => { const s = Store.get('sessions', id); return { w: s.wellness, f: s.feedback }; }, sid);
+    if (x.w.hrv !== '64,5' || x.w.rhr !== '51' || x.w.hrvSource !== 'oura' || x.f.hrAvg !== '128' || x.f.hrSource !== 'manual') throw new Error(JSON.stringify(x));
+    // Enregistrament amb el strap simulat: mostres reals a HrLive i «Atura i desa» escriu a la sessió.
+    await page.evaluate((id) => { HrLive.start(id); const t0 = Date.now() - 60000; for (let i = 0; i < 60; i++) HrLive._push(100 + (i % 3) * 10, t0 + i * 1000); }, sid);
+    await page.evaluate(() => { const s = HrLive.state; return s; });
+    const r = await page.evaluate(() => HrLive.stop());
+    if (!r || r.avg < 100 || r.avg > 120 || r.max !== 120) throw new Error(`resum del strap: ${JSON.stringify(r)}`);
+    await page.evaluate(({ id, r }) => Store.update('sessions', id, (x) => { x.feedback = { ...x.feedback, hrAvg: String(r.avg), hrSource: 'strap' }; }), { id: sid, r });
+    const flat = await page.evaluate((id) => { const s = Store.get('sessions', id); return Flat.session(s, Store.get('patients', s.patientId), Store.settings); }, sid);
+    if (flat['HRV nit prèvia (RMSSD, ms)'] !== 64.5 || flat['Font HRV'] !== 'Oura' || flat['FC mitjana (bpm)'] !== r.avg) throw new Error(JSON.stringify(flat));
+    await hr.scrollIntoViewIfNeeded();
+    await shot(page, '08a-fc-hrv', false);
+  });
   await step('wellness a l\'inici de la sessió i de la valoració (1-5 i observacions)', async () => {
     const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
     await goHash(page, `#/sessio/${sid}`);

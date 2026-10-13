@@ -23,6 +23,7 @@ function SessionEditor({ id }) {
 
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
+  const hrvBase = HR.baseline(HR.points(Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id)), s.date);
 
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
@@ -114,12 +115,14 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
     ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+
+    <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
 
     <section class="card feedback">
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>
