@@ -688,7 +688,7 @@ test('dibuixos en 3D: cada moviment en la seva vista, el material de colors prop
   assert.equal(P.picViewOf(P.PICS[P.picKeyOf(ex('Back squat'))]), 'side');
   // El material, amb colors diferents del cos: pesos d'acer (pm), gomes i cables (pe), material tou (ps)
   const svg = (name) => P.exercisePicSvg(ex(name), null, 'still');
-  assert.ok(/class="pm"/.test(svg('Back squat')) && /class="pk"/.test(svg('Back squat')));
+  assert.ok(/class="pm"/.test(svg('Back squat')) && /class="pk pk-skin"/.test(svg('Back squat')));
   assert.ok(/class="pm"/.test(svg('Goblet squat')));
   assert.ok(/class="pe"/.test(svg('Monster walk · banda als genolls')));
   assert.ok(/class="pe"/.test(svg('Pallof press dinàmic')));
@@ -1148,4 +1148,53 @@ test('HR: mesura en repòs (descarta l\'estabilització, qualitat i FC)', () => 
   const U = loadCore().U;
   const pts = HR.points([{ date: '2026-10-01', wellness: { hrvA: '70' } }, { date: '2026-10-02', wellness: { hrvA: '' } }]);
   assert.deepEqual(pts.map((p) => p.rmssd), [70]);
+});
+
+// ── Dibuixos: continuïtat, contactes fixos i roba ──
+test('dibuixos: animacions contínues (sense girs de disc ni salts), peus fixos, i roba/cabell/sabatilles amb els colors del centre', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES } = loadCore();
+  const win = { matchMedia: () => ({ matches: false }) };
+  const P = new Function('U', 'window', 'localStorage', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg, picFrames, picSvgOf, picMoves };`)(U, win, { getItem: () => null, setItem() {} });
+  const ex = (name) => SEED_EXERCISES.find((e) => e.name === name);
+  // Roba i cabell: cada part del cos té la seva classe (pell, samarreta, pantaló, sabatilles, cabell)
+  const s = P.exercisePicSvg(ex('Back squat'), null, 'still');
+  for (const c of ['pk-skin', 'pk-top', 'pk-short', 'pk-shoe', 'pk-hair']) assert.ok(s.includes(c), `falta ${c}`);
+  // Continuïtat: cap tros dels dibuixos fa un salt gran entre dos fotogrames consecutius (un disc que gira 180°, una
+  // anella de goma que «brilla», una barra que gira 360°…). Només passen algunes extremitats en moviments molt ràpids.
+  const nums = (d) => (d.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+  const paths = (svg) => [...svg.matchAll(/<path class="([^"]*)" d="([^"]*)"/g)].map((m) => ({ c: m[1], d: m[2] }));
+  const seen = new Set(), bad = [];
+  for (const e of SEED_EXERCISES) {
+    const key = P.picKeyOf(e), g = P.picGearOf(e, key), id = `${key}|${g.kind}|${g.at || ''}`;
+    if (seen.has(id) || !P.picMoves(key, e)) continue;
+    seen.add(id);
+    const F = P.picFrames(P.PICS[key] || P.PICS.stand, g);
+    const fr = F.scenes.map((_, i) => paths(P.picSvgOf(F.poses[i], F.scenes[i], F.order, g)));
+    for (let i = 0; i < fr[0].length; i++) {
+      for (let f = 1; f < fr.length; f++) {
+        const a = nums(fr[f - 1][i].d), b = nums(fr[f][i].d);
+        const worst = a.length === b.length ? Math.max(...a.map((v, k) => Math.abs(v - b[k]))) : 999;
+        // Es deixen passar només les extremitats de la pell (moviments rapidíssims de braços i cames) i el material petit que es mou amb elles
+        if (worst > 45 && !/pk-skin/.test(fr[0][i].c) && !/^(pm|pmh|pml)$/.test(fr[0][i].c)) bad.push(`${e.name} (${fr[0][i].c} ${Math.round(worst)})`);
+        if (worst > 45 && /^pe-ring$|^pe$/.test(fr[0][i].c)) bad.push(`${e.name} gomes`);
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `salts bruscs: ${bad.slice(0, 6).join(' · ')}`);
+  // Contactes fixos: al squat búlgar el peu de darrere es queda al banc i, al sumo i a l'estocada lateral, els peus no es mouen
+  const still = (name, k) => { const key = P.picKeyOf(ex(name)); const F = P.picFrames(P.PICS[key], P.picGearOf(ex(name), key)); return F.scenes.map((S) => S.key[k]); };
+  const drift = (pts) => Math.max(...pts.map((p) => p[0])) - Math.min(...pts.map((p) => p[0]));
+  assert.ok(drift(still('Split squat búlgar', 'fL')) < 1.2, 'el peu de darrere del búlgar es queda al banc');
+  assert.ok(drift(still('Sumo squat', 'fL')) < 1.2 && drift(still('Sumo squat', 'fR')) < 1.2, 'peus fixos al sumo');
+  assert.ok(drift(still('Cossack squat', 'fR')) < 1.2, 'peu fix a l\'estocada lateral');
+  // Les rotacions de discos i anelles no fan salts de 180° (el destello taronja del skipping amb banda)
+  const sk = ex('Skipping · banda als genolls');
+  const key = P.picKeyOf(sk), g = P.picGearOf(sk, key), F = P.picFrames(P.PICS[key], g);
+  const rings = F.scenes.map((_, i) => paths(P.picSvgOf(F.poses[i], F.scenes[i], F.order, g)).filter((x) => x.c === 'pe-ring'));
+  for (let f = 1; f < rings.length; f++) rings[f].forEach((r, i) => assert.ok(Math.max(...nums(r.d).map((v, k) => Math.abs(v - nums(rings[f - 1][i].d)[k]))) < 25, 'anella contínua'));
+  // Els alliberaments (corró, pilota) es mouen, i la pilota del slam surt de les mans
+  for (const name of ['Foam roller', 'Alliberament miofascial del dorsal · rodar', 'Alliberament miofascial dels bessons · cercles']) assert.ok(P.picMoves(P.picKeyOf(ex(name)), ex(name)), `${name} s'ha de moure`);
+  assert.ok(P.PICS.slam.bl === 1 && P.PICS.slam.from.bl === 0);
 });

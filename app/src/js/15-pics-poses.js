@@ -45,6 +45,12 @@ const picBackPad = (J, k0 = -0.2, k1 = 1.05) => {
   return [pk.cap(v3.add(v3.mul(J.u, k0 * PIC_L.trunk), back), v3.add(v3.mul(J.u, k1 * PIC_L.trunk), back), 2.4, 2.4, 'pp')];
 };
 
+// Copenhagen: el banc (de costat) amb el coixí i dues potes; el genoll (curt) o el turmell (llarg) de dalt reposa al coixí
+const picCopBench = (J, p) => { const top = p[1] - 3; return [
+  pk.box(p[0] - 7, p[0] + 7, top - 3.2, top, -18, 18, 'pp'),
+  pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, 13, 17, 'pp'), pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, -17, -13, 'pp')]; };
+const picCopBase = { front: true, t: 176, hd: -6, a: [90, [180, 64]], b: [100, 40] };
+
 const PICS = {
   // ── Dempeus, squats, estocades, pujades ──
   stand: { label: 'Dempeus', a: [95, 82], b: [85, 95], m: [92, 88] },
@@ -54,18 +60,18 @@ const PICS = {
   squat_back: { from: { t: -89, hd: 0, l: [91, 89] }, label: 'Squat amb barra', t: -60, hd: -12, l: [12, 108], a: [120, -78], grip: 'back' },
   squat_box: { from: { t: -88, hd: 0, l: [92, 88] }, label: 'Squat a caixa', t: -62, hd: -10, l: [8, 104], a: [6, 0],
     props: (J) => PROP3.box(J.pel[0] - 13, J.pel[0] + 1, J.pel[1] - 4.8, J, -8, 8) },
-  squat_sumo: { from: { l: [100, 92] }, band: 'knees', label: 'Squat sumo', front: true, t: -90, l: [[148, 40], 93], a: [68, 84], grip: 'center' },
+  squat_sumo: { plant: [{ leg: 0, y0: -32 }], pin: [{ leg: 1, ref: 0 }], fix: 'fR', from: { l: [100, 92] }, band: 'knees', label: 'Squat sumo', front: true, t: -90, l: [[148, 40], 93], a: [68, 84], grip: 'center' },
   squat_oh: { from: { t: -90, hd: 0, l: [92, 88] }, label: 'Squat amb braços amunt', t: -74, hd: -10, l: [12, 106], a: [-98, -100], grip: 'hands' },
   thruster: { from: { t: -64, hd: -8, l: [12, 108], a: [56, -104] }, label: 'Thruster', t: -90, l: [90, 90], a: [-92, -94], grip: 'hands' },
   sots: { from: { a: [56, -104] }, label: 'Sots press', t: -72, hd: -8, l: [12, 110], a: [-96, -98], grip: 'hands' },
   pistol: { from: { t: -86, hd: 0, l: [90, 90], m: [40, 40] }, label: 'Squat a una cama', t: -50, hd: -12, l: [10, 114], m: [-4, -4], a: [-2, -2], grip: 'chest', fix: 'fR' },
   pistol_box: { from: { t: -86, hd: 0, l: [90, 90], m: [40, 40] }, label: 'Squat a una cama a caixa', t: -56, hd: -10, l: [6, 106], m: [-6, -6], a: [-2, -2], grip: 'chest', fix: 'fR',
     props: (J) => PROP3.box(J.pel[0] - 13, J.pel[0] + 1, J.pel[1] - 4.8, J, -8, 8) },
-  split: { from: { t: -90, l: [68, 100], m: [114, 112] }, band: 'knees', label: 'Estocada', t: -88, l: [6, 92], m: [100, 172], a: [92, 90], grip: 'hands', fix: 'fR' },
-  split_bench: { from: { t: -88, l: [64, 102], m: [100, -164, 180] }, label: 'Squat búlgar', t: -84, l: [6, 94], m: [114, -148, 180], a: [92, 90], grip: 'hands', fix: 'fR',
+  split: { pin: [{ leg: 1, ref: 0 }], from: { t: -90, l: [68, 100], m: [114, 112] }, band: 'knees', label: 'Estocada', t: -88, l: [6, 92], m: [100, 172], a: [92, 90], grip: 'hands', fix: 'fR' },
+  split_bench: { pin: [{ leg: 1, ref: 0 }], from: { t: -88, l: [46, 102], m: [100, -164, 180] }, label: 'Squat búlgar', t: -84, l: [6, 94], m: [114, -148, 180], a: [92, 90], grip: 'hands', fix: 'fR',
     props: (J) => { const G = J.leg[1], x = Math.min(G.heel[0], G.toe[0]); return PROP3.bench(x - 7, x + 13, picSole(J, 1) + 0.3, J); } },
-  split_oh: { from: { t: -90, l: [68, 100], m: [114, 112] }, label: 'Estocada amb braços amunt', t: -88, hd: -6, l: [6, 92], m: [100, 172], a: [-92, -94], grip: 'hands', fix: 'fR' },
-  lateral_lunge: { from: { t: -90, l: [92, 90], m: [88, 90] }, label: 'Estocada lateral', front: true, t: -99, l: [[150, 34], 95], m: [57, 57], a: [[80, 20], [-58, 40]], grip: 'chest', fix: 'fL' },
+  split_oh: { pin: [{ leg: 1, ref: 0 }], from: { t: -90, l: [68, 100], m: [114, 112] }, label: 'Estocada amb braços amunt', t: -88, hd: -6, l: [6, 92], m: [100, 172], a: [-92, -94], grip: 'hands', fix: 'fR' },
+  lateral_lunge: { from: { t: -90, l: [[134, 14], 100], m: [66, 66] }, label: 'Estocada lateral', front: true, t: -99, l: [[150, 34], 95], m: [57, 57], a: [[80, 20], [-58, 40]], grip: 'chest', fix: 'fR', pin: [{ leg: 1, ref: 0 }] },
   side_step: { from: { l: [[98, 30], [91, -20]], m: [[82, 30], [89, -20]] }, band: 'knees', label: 'Passes laterals', front: true, t: -90, l: [[114, 30], [96, -20]], m: [[80, 30], [88, -20]], a: [106, 48], fix: 'fL' },
   stand_abd: { from: { l: [92, 90] }, band: 'knees', label: 'Abducció de maluc dempeus', front: true, t: -93, l: [124, 124], m: [88, 90], a: [106, 48], fix: 'fL' },
   stand_kick: { from: { l: [96, 92] }, label: 'Extensió de maluc dempeus', t: -76, l: [142, 150], m: [92, 90], a: [6, 0], fix: 'fL',
@@ -109,11 +115,15 @@ const PICS = {
       return [pk.cap(v3.add(pad, [0, -2, 0]), [foot[0] - 2, J.groundY, 0], 1.4, 1.4, 'pp'), pk.box(foot[0] - 9, foot[0] + 5, J.groundY, J.floorY, -7, 7, 'pp')]
         .concat(PROP3.pad(pad, 3.8, 7), PROP3.pad([foot[0] + 1, foot[1] + 4.2, 0], 2.2, 6)); } },
   // GHD: assegut al coixí, els turmells subjectes; el tronc baixa enrere i torna a pujar
-  ghd_situp: { from: { t: 176, tf: -6, a: [-176, -176] }, label: 'GHD sit-up', t: -96, hd: 8, l: [6, 30, -60], a: [-70, -60], lift: 22, fix: 'pel',
-    props: (J) => { const foot = J.leg[0].a;
-      return PROP3.pad([J.pel[0] + 1, J.pel[1] - 5.6, 0], 4, 7).concat(PROP3.pad([foot[0] + 1, foot[1] + 4.2, 0], 2.2, 6),
-        [pk.cap([J.pel[0] + 1, J.pel[1] - 8, 0], [J.pel[0] + 3, J.groundY, 0], 1.5, 1.5, 'pp'), pk.cap([foot[0] + 1, foot[1] + 1, 0], [foot[0] - 2, J.groundY, 0], 1.3, 1.3, 'pp')]); } },
-
+  // GHD: assegut al coixí, els turmells sota els corrons; el tronc baixa enrere i torna a pujar
+  ghd_situp: { from: { t: 178, tf: -8, a: [-176, -176], hd: 14 }, label: 'GHD sit-up', t: -92, hd: 6, l: [10, 16, -66], a: [-70, -60], lift: 22, fix: 'pel',
+    props: (J) => { const P = J.pel, f = J.leg[0].a;
+      return [pk.box(P[0] - 16, P[0] + 22, J.groundY, J.groundY + 2, -10, 10, 'pp'),
+        pk.box(P[0] + 4, P[0] + 9, J.groundY + 2, P[1] - 8, -3, 3, 'pp'),
+        pk.box(P[0] - 3, P[0] + 17, P[1] - 8.4, P[1] - 4.6, -8, 8, 'pp'),
+        pk.cap([P[0] + 7, J.groundY + 6, 0], [f[0] + 4, f[1] - 8, 0], 1.7, 1.7, 'pp'),
+        pk.box(f[0] - 5, f[0] + 9, f[1] - 9.4, f[1] - 7.4, -8, 8, 'pp'),
+        ...PROP3.pad([f[0] + 1, f[1] + 4.6, 0], 2.4, 8).map((o) => ({ ...o, cls: 'pm' }))]; } },
   // ── Core i terra ──
   plank: { label: 'Planxa', t: -10, hd: 4, l: [170, 170], a: [90, 0] },
   plank_high: { label: 'Planxa de braços estirats', t: -26, hd: 6, l: [154, 154], a: [90, 90] },
@@ -122,6 +132,8 @@ const PICS = {
   plank_tuck: { from: { l: [154, 154] }, label: 'Crunch invers en planxa', t: -30, hd: 8, l: [32, 150], a: [90, 90], fix: 'hR' },
   pushup: { from: { t: -26, l: [154, 154], a: [90, 90] }, label: 'Flexions', t: -8, hd: 4, l: [172, 172], a: [-158, 78], fix: 'hR' },
   pushup_scap: { from: { shp: -2.4, tf: -4 }, label: 'Push-up escapular', t: -26, hd: 6, tf: 6, shp: 2.4, l: [154, 154], a: [90, 90], fix: 'hR' },
+  // flexió amb passes laterals de mans (banda als canells): vista des de dalt i de davant, la mà s'obre i la banda s'estira
+  pushup_step: { from: { a: [[90, 0], [90, 0]], b: [[90, 0], [90, 0]] }, view: [-35, 45], label: 'Flexió amb passes laterals', t: -26, hd: 6, l: [154, 154], a: [[90, 34], [90, 34]], b: [[90, 0], [90, 0]], band: 'wrists', fix: 'tR' },
   pushup_incline: { from: { t: -40, l: [140, 140], a: [90, 90] }, label: 'Flexions inclinades', t: -26, hd: 4, l: [154, 154], a: [-156, 74], fix: 'hR',
     props: (J) => PROP3.bench(J.arm[0].h[0] - 9, J.arm[0].h[0] + 9, J.arm[0].h[1] - 1.8, J, 9) },
   renegade: { from: { a: [90, 90] }, label: 'Renegade row', t: -26, hd: 6, l: [[154, 6], 154], a: [-160, 94], b: [90, 90], grip: 'near', fix: 'tR' },
@@ -150,7 +162,7 @@ const PICS = {
   birddog: { from: { a: [90, 90], m: [90, 180, 180] }, label: 'Bird dog', t: -17, hd: 10, l: [90, 180, 180], m: [178, 176], a: [-4, -4], b: [90, 90], fix: 'kR' },
   quadruped: { label: 'Quadrupèdia', t: -17, hd: 10, l: [90, 180, 180], a: [90, 90] },
   cat_camel: { from: { t: -34, tf: 32, hd: 34 }, label: 'Cat-camel', t: -6, tf: -24, hd: -16, l: [90, 180, 180], a: [90, 90], fix: 'kR' },
-  rockback: { from: { t: -17, l: [90, 180, 180], a: [90, 90] }, label: 'Rock back', t: 8, hd: 16, l: [148, 180, 180], a: [24, 22], fix: 'kR' },
+  rockback: { pinArm: [{ leg: 0, ref: { limb: 'leg', idx: 0 } }, { leg: 1, ref: { limb: 'leg', idx: 1 } }], from: { t: -17, l: [90, 180, 180], a: [90, 90] }, label: 'Rock back', t: 8, hd: 16, l: [148, 180, 180], a: [24, 22], fix: 'kR' },
   quad_kick: { from: { l: [90, 180, 180] }, label: 'Kickback en quadrupèdia', t: -17, hd: 10, l: [194, 194], m: [90, 180, 180], a: [90, 90], fix: 'kL' },
   fire_hydrant: { from: { l: [90, 180, 180] }, view: 'back', label: 'Abducció de maluc en quadrupèdia', t: -17, hd: 10, l: [[90, 70], 180, 180], m: [90, 180, 180], a: [90, 90], fix: 'kL' },
   quad_walk: { from: { a: [[90, -8], 90], l: [[90, -6], 180, 180] }, view: 'q', label: 'Passes laterals en quadrupèdia', t: -17, hd: 10, l: [[90, 14], 180, 180], m: [[90, -6], 180, 180], a: [[90, 14], 90], b: [[90, -8], 90], fix: 'kL' },
@@ -161,12 +173,9 @@ const PICS = {
   side_plank_kb: { from: { b: [70, 60] }, label: 'Planxa lateral amb arrencada', front: true, t: 193, hd: -6, a: [90, [180, 64]], b: [-90, -90], l: [13, 13], m: [13, 13], grip: 'hands' },
   side_plank_arm: { label: 'Planxa lateral de braç estirat', front: true, t: 206, hd: -6, a: [90, 90], b: [-90, -90], l: [26, 26], m: [26, 26] },
   // Copenhagen: el genoll (curt) o el turmell (llarg) de dalt sobre el banc; la cama de sota, sota el banc
-  copenhagen: { label: 'Copenhagen curt', front: true, t: 186, hd: -6, a: [90, [180, 64]], b: [70, 30], m: [-6, -6], l: [30, [100, -30]],
-    props: (J) => { const k = J.leg[1].k; return [pk.box(-9, 9, J.groundY, k[1] - 3.2, k[2] - 6, k[2] + 15, 'pp')]; } },
-  copenhagen_long: { label: 'Copenhagen llarg', front: true, t: 188, hd: -6, a: [90, [180, 64]], b: [70, 30], m: [-8, -8], l: [40, 40],
-    props: (J) => { const k = J.leg[1].a; return [pk.box(-9, 9, J.groundY, k[1] - 2.6, k[2] - 6, k[2] + 15, 'pp')]; } },
-  copenhagen_dyn: { from: { l: [44, 44] }, label: 'Copenhagen llarg dinàmic', front: true, t: 188, hd: -6, a: [90, [180, 64]], b: [70, 30], m: [-8, -8], l: [-4, -4], fix: 'sh',
-    props: (J) => { const k = J.leg[1].a; return [pk.box(-9, 9, J.groundY, k[1] - 2.6, k[2] - 6, k[2] + 15, 'pp')]; } },
+  copenhagen: { ...picCopBase, label: 'Copenhagen curt', l: [[-6, 0], [-6, 80]], m: [-1, -1], props: (J) => picCopBench(J, J.leg[0].k) },
+  copenhagen_long: { ...picCopBase, label: 'Copenhagen llarg', t: 174, l: [-6, -6], m: [-1, -1], props: (J) => picCopBench(J, J.leg[0].a) },
+  copenhagen_dyn: { ...picCopBase, from: { m: [36, 36] }, label: 'Copenhagen llarg dinàmic', t: 174, l: [-6, -6], m: [-1, -1], props: (J) => picCopBench(J, J.leg[0].a) },
   side_abd: { from: { m: [6, 6] }, label: 'Abducció de maluc estirat de costat', front: true, t: 180, hd: -14, a: [180, -60], b: [40, 60], l: [6, 6], m: [-22, -22] },
   side_abd_elbow: { from: { m: [10, 10] }, label: 'Abducció de maluc recolzat al colze', front: true, t: 198, hd: -6, a: [90, [180, 64]], b: [60, 40], l: [12, 12], m: [-16, -16] },
   clamshell: { from: { m: [[18, 48], [8, -48]] }, band: 'knees', label: 'Clamshell', front: true, t: 180, hd: -14, a: [180, -60], b: [60, 70], l: [[18, 48], [8, -48]], m: [[-22, 44], [34, -50]] },
@@ -228,7 +237,7 @@ const PICS = {
     props: (J) => { const hR = J.arm[0].h, hL = J.arm[1].h, c = v3.lerp(hR, hL, 0.5), ax = v3.norm(v3.sub(hR, hL));
       return [pk.box(J.pel[0] - 7, J.pel[0] + 7, J.pel[1] - 8.2, J.pel[1] - 4.8, -9, 9, 'pp'), pk.box(J.pel[0] - 1.5, J.pel[0] + 1.5, J.groundY, J.pel[1] - 8.2, -1.5, 1.5, 'pp'),
         pk.line([c, [c[0], c[1] + 60, c[2]]], 1.1, 'pe'), pk.cap(v3.along(c, ax, -20), v3.along(c, ax, 20), 1.0, 1.0, 'pmh')]; } },
-  pullup: { from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
+  pullup: { hang: true, from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
     props: (J) => { const c = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5); return [pk.cap([c[0], c[1] + 1.2, c[2] - 26], [c[0], c[1] + 1.2, c[2] + 26], 1.1, 1.1, 'pmh')]; } },
   pullover: { from: { a: [-56, -60] }, label: 'Pullover a la politja', t: -64, hd: -4, l: [80, 98], a: [68, 72], grip: 'chest', pull: 'fronthigh', fix: 'fR' },
   pullover_supine: { from: { a: [-152, -166] }, anchor: 'hip', label: 'Pullover estirat', t: 180, hd: -4, l: [26, 92], a: [-92, -94], grip: 'chest',
@@ -239,24 +248,26 @@ const PICS = {
     props: (J) => PROP3.box(J.pel[0] - 7, J.pel[0] + 7, J.pel[1] - 4.8, J, -9, 9) },
   arnold: { from: { a: [[90, 72], [-90, 12]] }, front: true, label: 'Press Arnold', t: -90, a: [-84, -88], grip: 'hands' },
   push_press: { from: { l: [78, 102], a: [64, -114] }, label: 'Push press', t: -90, hd: -4, l: [90, 90], a: [-90, -92], grip: 'hands', fix: 'fR' },
-  landmine_press: { from: { a: [70, -110] }, label: 'Landmine press', t: -80, l: [76, 100], m: [108, 86], a: [-36, -34], grip: 'near', fix: 'fR' },
+  landmine_press: { from: { a: [70, -110] }, label: 'Landmine press de genolls', t: -86, l: [90, 180, 180], m: [90, 180, 180], a: [-36, -34], grip: 'near', fix: 'kR' },
   ytw: { from: { a: [[90, 2], [90, 2]] }, view: 'q', label: 'Y-T-W en banc inclinat', t: -38, hd: -8, l: [122, 100], a: [[90, 86], [90, 88]], grip: 'hands',
     props: (J) => [pk.cap(v3.add(v3.mul(J.u, -0.1 * PIC_L.trunk), v3.mul(J.f, 5.8)), v3.add(v3.mul(J.u, 0.95 * PIC_L.trunk), v3.mul(J.f, 5.8)), 2.4, 2.4, 'pp')] },
 
   // ── Potència: salts, llançaments, halterofília, carrera ──
-  jump: { from: { t: -58, hd: -10, l: [20, 108], a: [150, 152], lift: 0 }, label: 'Salt vertical', t: -90, hd: -6, l: [94, 84, 60], m: [90, 92, 60], a: [-88, -92], lift: 12, fix: 'free' },
+  jump: { from: { t: -58, hd: -10, l: [20, 108], m: [20, 108], a: [150, 152], lift: 0 }, view: [24, 6], label: 'Salt vertical', t: -90, hd: -6, l: [94, 84, 60], m: [90, 92, 60], a: [-88, -92], lift: 12, fix: 'free' },
   jump_sl: { from: { t: -60, hd: -10, l: [18, 110], m: [20, 120], a: [150, 152], lift: 0 }, label: 'Salt a una cama', t: -90, hd: -6, l: [94, 84, 60], m: [16, 104], a: [-88, -92], lift: 12, fix: 'free' },
-  hop: { from: { t: -88, l: [84, 98, 20], lift: 0 }, label: 'Pogo', t: -90, l: [92, 90, 60], a: [96, 84], b: [86, 96], lift: 6, fix: 'free' },
-  jump_load: { from: { t: -62, hd: -10, l: [18, 108], lift: 0 }, label: 'Salt amb càrrega', t: -88, l: [92, 88, 50], a: [93, 90], lift: 9, grip: 'hands', fix: 'free' },
+  hop: { from: { t: -88, l: [84, 98, 20], m: [84, 98, 20], lift: 0 }, view: [24, 6], label: 'Pogo', t: -90, l: [92, 90, 60], m: [92, 90, 60], a: [96, 84], b: [86, 96], lift: 6, fix: 'free' },
+  jump_load: { from: { t: -62, hd: -10, l: [18, 108], m: [18, 108], lift: 0 }, view: [24, 6], label: 'Salt amb càrrega', t: -88, l: [92, 88, 50], m: [92, 88, 50], a: [93, 90], lift: 9, grip: 'hands', fix: 'free' },
   jump_fwd: { from: { t: -50, hd: -14, l: [18, 110], a: [150, 154], lift: 0, dx: -18 }, label: 'Salt horitzontal', t: -58, hd: -4, l: [12, 96, 30], m: [46, 130, 40], a: [-30, -24], lift: 16, fix: 'free' },
   bounds: { from: { t: -72, l: [96, 100], m: [40, 116], a: [130, 100], b: [-20, -50], lift: 0, dx: -12 }, label: 'Bounds', t: -74, l: [146, 160], m: [-4, 100], a: [-26, -50], b: [140, 100], lift: 12, fix: 'free' },
   hurdles: { from: { t: -54, hd: -12, l: [18, 110], a: [150, 154], lift: 0, dx: -20 }, label: 'Salts sobre tanques', t: -70, l: [-20, 100, 40], a: [-30, -24], lift: 18, fix: 'free',
     props: (J) => { const x = J.pel[0] - 4; return [pk.cap([x, J.groundY, -9], [x, J.groundY + 13, -9], 0.8, 0.8, 'pp'), pk.cap([x, J.groundY, 9], [x, J.groundY + 13, 9], 0.8, 0.8, 'pp'), pk.cap([x, J.groundY + 13, -10], [x, J.groundY + 13, 10], 1.2, 1.2, 'pp')]; } },
-  box_jump: { from: { t: -50, hd: -12, l: [20, 110], a: [150, 154], lift: 0, dx: -24 }, label: 'Box jump', t: -64, l: [14, 104], a: [-10, -6], lift: 18, fix: 'free',
+  // box jump: de terra a dalt del cofre (una postura a l'aire a mig camí)
+  box_jump: { from: { t: -52, hd: -10, l: [24, 108], m: [24, 108], a: [140, 150], lift: 0, dx: -34 }, mid: { t: -80, hd: -8, l: [60, 120], m: [60, 120], a: [-20, -30], lift: 30, dx: -16 }, view: [24, 6], label: 'Box jump',
+    t: -64, hd: -8, l: [14, 104], m: [14, 104], a: [-6, -6], lift: 18, fix: 'free',
     props: (J) => PROP3.box(J.leg[0].toe[0] - 16, J.leg[0].toe[0] + 3, J.floorY, J, -11, 11) },
   drop_jump: { from: { t: -86, l: [92, 90], a: [100, 96], lift: 22, dx: -20 }, label: 'Drop jump', t: -56, hd: -10, l: [18, 110], a: [150, 152], lift: 0, fix: 'free',
     props: (J) => { const x = J.leg[0].toe[0] - 20; return PROP3.box(x - 13, x + 4, J.groundY + 22, J, -11, 11); } },
-  land: { from: { t: -90, hd: 0, l: [92, 90, 40], a: [-90, -92], lift: 3 }, label: 'Snap down', t: -54, hd: -14, l: [16, 110], a: [150, 152], lift: 0, fix: 'free' },
+  land: { from: { t: -90, hd: 0, l: [92, 90, 40], m: [92, 90, 40], a: [-90, -92], lift: 3 }, view: [24, 6], label: 'Snap down', t: -54, hd: -14, l: [16, 110], m: [16, 110], a: [150, 152], lift: 0, fix: 'free' },
   land_sl: { from: { t: -76, l: [80, 96], m: [40, 120], a: [-30, -60], lift: 10, dx: -12 }, label: 'Aterratge a una cama', t: -62, hd: -12, l: [24, 112], m: [30, 130], a: [40, 20], b: [120, 80], lift: 0, fix: 'free' },
   skater: { from: { dx: -22, l: [[94, 40], [90, -40]], m: [[118, -30], [108, -52]], a: [[60, 30], 40], b: [[140, -10], 150] }, front: true, label: 'Skater', t: -86, hd: 6,
     m: [[86, 40], [90, -40]], l: [[62, -30], [72, -52]], a: [[40, -10], 30], b: [[120, 30], 140], fix: 'free' },
@@ -264,7 +275,8 @@ const PICS = {
     a: [[110, 40], [70, 30]], fix: 'free' },
   cut: { from: { t: -70, hd: 6, l: [-6, 96, 20], m: [130, 150, 60], a: [140, 60], b: [30, -60], dx: -14 }, label: 'Canvi de direcció', t: -100, hd: -6, l: [40, 50], m: [100, 118], a: [60, -20], b: [150, 100], fix: 'free' },
   chest_pass: { from: { a: [[150, 34], [-56, -12]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
-  slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2 }, label: 'Slam', t: -40, hd: 10, l: [46, 112], a: [70, 90], grip: 'chest' },
+  // slam: la pilota surt de les mans, bota a terra i es torna a agafar (bl: 0 a les mans, 1 a terra)
+  slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2, bl: 0 }, mid: { t: -66, hd: 18, a: [20, -10], bl: 0, lift: 0, l: [70, 100, 40] }, view: [24, 6], label: 'Slam', t: -40, hd: 10, l: [46, 112], m: [46, 112], a: [60, 74], grip: 'chest', bl: 1 },
   rot_throw: { from: { tr: 46, t: -74, l: [72, 104], m: [102, 86], a: [[100, -40], [96, -30]], b: [[110, 30], [100, 20]] }, view: 'q', label: 'Llançament rotacional', t: -84, tr: -40,
     l: [92, 90], m: [[84, -10], 104, 40], a: [[-36, -30], [-38, -20]], b: [[-30, 30], [-34, 20]], grip: 'chest', fix: 'fL' },
   scoop: { from: { tr: 50, t: -60, l: [64, 108], m: [100, 90], a: [[100, -40], [100, -30]], b: [[110, 36], [100, 24]] }, view: 'q', label: 'Scoop throw', t: -96, tr: -30,
@@ -274,7 +286,7 @@ const PICS = {
   high_pull: { from: { t: -36, l: [72, 104], a: [90, 90], lift: 0 }, label: 'High pull', t: -90, hd: -4, l: [92, 90, 50], a: [[-150, 40], [62, -24]], grip: 'hands', lift: 3, fix: 'free' },
   snatch: { from: { t: -36, hd: -14, l: [64, 108], a: [[90, 28], [90, 28]] }, label: 'Arrencada', t: -76, hd: -10, l: [14, 106], a: [[-98, 26], [-100, 26]], grip: 'hands', fix: 'fR' },
   kb_snatch: { from: { t: -32, hd: -18, l: [76, 102], a: [100, 104] }, label: 'Arrencada amb kettlebell', t: -90, l: [90, 90], a: [-90, -90], b: [96, 84], grip: 'near', fix: 'fR' },
-  split_jerk: { from: { l: [78, 102], m: [100, 80], a: [64, -114] }, label: 'Split jerk', t: -88, hd: -4, l: [36, 104], m: [124, 152], a: [-88, -92], grip: 'hands', fix: 'fR' },
+  split_jerk: { pin: [{ leg: 1, ref: 0 }], from: { l: [78, 102], m: [100, 80], a: [64, -114] }, label: 'Split jerk', t: -88, hd: -4, l: [36, 104], m: [124, 152], a: [-88, -92], grip: 'hands', fix: 'fR' },
   sprint: { from: { l: [124, 142, 60], m: [-18, 82, -10], a: [32, -70], b: [134, 54] }, label: 'Sprint', t: -68, hd: 10, l: [-18, 82, -10], m: [124, 142, 60], a: [134, 54], b: [32, -70], lift: 4 },
   skipping: { from: { l: [92, 92, 30], m: [-8, 90], a: [40, -60], b: [130, 50] }, label: 'Skipping', t: -88, l: [-8, 90], m: [92, 92, 30], a: [130, 50], b: [40, -60], lift: 2 },
   sled: { from: { l: [124, 150, 70], m: [30, 116] }, label: 'Empenta de trineu', t: -42, hd: -14, l: [30, 116], m: [124, 150, 70], a: [-12, -6], fix: 'hR',
@@ -304,8 +316,9 @@ const PICS = {
     props: (J) => PROP3.wall(J.leg[1].k[0] - 6.4, J) },
   wgs: { from: { tr: -8, a: [[0, -12], [0, -12]] }, view: 'q', rel: 'a', label: 'World\'s greatest stretch', t: -34, hd: 6, tr: 70, l: [22, 104], m: [150, 154], a: [[0, 92], [0, 92]], b: [92, 90], fix: 'fR' },
   kneel_rot: { from: { tr: 40 }, view: 'q', rel: 'arms', label: 'Rotació toràcica en mig genoll', t: -90, tr: -40, l: [6, 92], m: [110, 180, 180], a: [[176, 70], [-80, 0]], grip: 'back' },
-  sit_9090: { from: { l: [[2, 46], [0, -46]], m: [[90, 90], [180, 0]], tr: 0 }, view: [80, 26], label: '90/90', t: -90, l: [[2, 46], [0, -46]], m: [[90, 90], [180, 0]], tr: 30, a: [100, 92], b: [100, 92] },
-  sit_9090_lift: { from: { m: [[90, 90], [180, 0]] }, view: [80, 26], label: '90/90 amb lift-off', t: -90, l: [[2, 46], [0, -46]], m: [[90, 90], [-166, 0]], a: [100, 92], b: [100, 92] },
+  // 90/90: les dues cames giren sobre el terra com un eixugaparabrises (davant ↔ darrere), vistes de davant i una mica de dalt
+  sit_9090: { from: { l: [[0, 90], [0, 180]], m: [[0, 46], [0, -46]], tr: 22 }, view: [90, 62], label: '90/90 · rotació de maluc', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [0, 180]], tr: -22, a: [100, 92], b: [100, 92] },
+  sit_9090_lift: { from: { m: [[0, 90], [0, 180]] }, view: [90, 62], label: '90/90 amb lift-off', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [-65, 180]], a: [100, 92], b: [100, 92] },
   openbook: { from: { tr: 0, b: [[0, 0], [0, 0]] }, view: [20, 70], rel: 'all', roll: -90, label: 'Open book', t: 180, hd: -6, tr: 120, l: [[0, 0], [90, 0]], a: [[0, 0], [0, 0]], b: [[0, 90], [0, 90]],
     props: (J) => PROP3.mat(J) },
   pass_through: { from: { a: [60, 60] }, view: 'q', label: 'Pas d\'espatlles amb pica', t: -90, a: [[-160, 30], [-160, 30]], grip: 'hands' },
@@ -319,17 +332,17 @@ const PICS = {
     props: (J) => PROP3.box(J.leg[0].k[0] - 4, J.leg[0].a[0] + 8, J.leg[0].a[1] - 2.6, J, -10, 10) },
   prone: { label: 'Estirat panxa avall', t: 0, hd: -4, l: [180, 180], a: [[-30, 66], [180, -78]] },
   seated_breath: { label: 'Respiració asseguda', front: true, t: -90, l: [[150, 70], [20, -40]], m: [[30, 70], [160, -40]], a: [110, 40] },
-  roll_back: { label: 'Foam roller a l\'esquena', t: 196, tf: -10, hd: -10, l: [-36, 68], a: [[-140, 40], [10, -60]],
+  roll_back: { from: { dx: -9 }, fix: 'free', label: 'Foam roller a l\'esquena', t: 196, tf: -10, hd: -10, l: [-36, 68], a: [[-140, 40], [10, -60]],
     props: (J) => PROP3.roller(v3.add(v3.along(J.waist, J.uc, 0.32 * PIC_L.trunk), v3.mul(J.f, -9.4)), 3.8, 10) },
-  roll_side: { label: 'Alliberament de costat', front: true, t: 196, hd: -6, a: [180, [180, 60]], b: [70, 40], l: [13, 13], m: [13, 13],
+  roll_side: { from: { dx: -9 }, fix: 'free', label: 'Alliberament de costat', front: true, t: 196, hd: -6, a: [180, [180, 60]], b: [70, 40], l: [13, 13], m: [13, 13],
     props: (J) => [pk.ball(v3.add(J.sh[0], [0, -5.2, 0]), 3.4, 'ps')] },
-  roll_seated: { label: 'Alliberament assegut', t: -124, hd: 10, l: [-4, 2, -80], m: [-30, 60], a: [150, 102], lift: 9,
+  roll_seated: { from: { dx: -8 }, fix: 'free', label: 'Alliberament assegut', t: -124, hd: 10, l: [-4, 2, -80], m: [-30, 60], a: [150, 102], lift: 9,
     props: (J) => PROP3.ball(v3.add(v3.lerp(J.leg[0].k, J.leg[0].a, 0.5), [0, -6, 0]), 3.4) },
-  roll_prone: { label: 'Alliberament panxa avall', t: -12, hd: 6, l: [172, 170], a: [90, 0],
+  roll_prone: { from: { dx: -8 }, fix: 'free', label: 'Alliberament panxa avall', t: -12, hd: 6, l: [172, 170], a: [90, 0],
     props: (J) => PROP3.ball(v3.add(v3.lerp(J.leg[0].h, J.leg[0].k, 0.6), [0, -7.6, 0]), 3.6) },
-  roll_foot: { label: 'Pilota sota el peu', t: -90, l: [86, 96, 0], m: [92, 88], a: [94, 86], b: [86, 94],
-    props: (J) => PROP3.ball(v3.add(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.45), [0, -4.2, 0]), 3.2) },
-
+  // peu sobre la pilota: la pilota roda del taló a la punta del peu (el peu de la pilota, una mica avançat i aixecat)
+  roll_foot: { from: { bl: 0 }, bl: 1, propsMove: true, pin: [{ leg: 0, ref: 1, off: [14, 6.4, 7] }], label: 'Pilota sota el peu', t: -90, l: [90, 90, 0], m: [90, 90], a: [94, 86], b: [86, 94], view: [30, 10],
+    props: (J) => { const G = J.leg[0], k = J.P.bl == null ? 1 : J.P.bl; const c = v3.lerp(G.heel, G.toe, 0.1 + 0.8 * k); return PROP3.ball([c[0], J.groundY + 3.4, c[2]], 3.4); } },
   // ── Equilibri i vestibular ──
   balance: { from: { m: [92, 88] }, view: 'q', label: 'Equilibri a una cama', t: -90, l: [92, 90], m: [10, 100], a: [[90, 60], [90, 60]] },
   balance_dome: { from: { m: [92, 88] }, view: 'q', label: 'Equilibri inestable', t: -90, l: [92, 90], m: [10, 100], a: [[90, 60], [90, 60]], lift: 4.4,
