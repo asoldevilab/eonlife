@@ -197,7 +197,7 @@ const PICS = {
   bench_incline: { from: { a: [[34, 58], [-74, 0]] }, anchor: 'hip', label: 'Press inclinat', t: -150, l: [8, 96], a: [[-90, 18], [-90, 18]], grip: 'hands',
     props: (J) => picBackPad(J).concat(PROP3.box(J.pel[0] - 9, J.pel[0] + 7, J.pel[1] - 4.8, J, -7, 7)) },
   floor_press: { from: { a: [[8, 55], [-90, 0]] }, anchor: 'hip', label: 'Press estirat a terra', t: 180, hd: -6, l: [-48, 58], a: [[-90, 16], [-90, 16]], grip: 'hands' },
-  fly: { from: { a: [[-90, 76], [-90, 84]] }, anchor: 'hip', view: [0, 62], label: 'Obertures', t: 180, hd: -4, l: [26, 92], a: [[-90, 8], [-90, 4]], grip: 'hands',
+  fly: { from: { a: [[-90, 76], [-90, 84]] }, anchor: 'hip', view: [-80, 32], label: 'Obertures', t: 180, hd: -4, l: [26, 92], a: [[-90, 8], [-90, 4]], grip: 'hands',
     props: (J) => PROP3.bench(J.neck[0] - 8, J.pel[0] + 6, J.pel[1] - 4.8, J) },
   seated_press: { from: { a: [[160, 46], [0, 6]] }, label: 'Press de pit assegut', t: -94, l: [0, 90], a: [[2, 12], [0, 12]], grip: 'hands', pull: 'back', fix: 'pel',
     props: (J) => PROP3.seat(J) },
