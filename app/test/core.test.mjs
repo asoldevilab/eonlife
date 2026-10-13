@@ -1120,18 +1120,18 @@ test('HR: línia de base d\'HRV del pacient i estat', () => {
   assert.equal(HR.status(62, b), 'ok');
   assert.equal(HR.status(120, b), 'high');
   assert.equal(HR.status('', b), null);
-  assert.equal(HR.sourceLabel('hrv4t'), 'HRV4Training');
 });
 
 test('HR: les dades surten a les columnes d\'Excel i a la taula', () => {
-  const { Flat, DB } = loadCore();
-  const s = { id: 's1', date: '2026-10-13', status: 'feta', wellness: { hrv: '65,5'.replace(',', '.'), rhr: '52', hrvSource: 'oura' }, feedback: { rpe: '7', duration: '50', hrAvg: '131', hrMax: '168' }, blocks: [] };
+  const { Flat } = loadCore();
+  const s = { id: 's1', date: '2026-10-13', status: 'feta', wellness: { hrvA: '58.5', hrvAhr: '63', hrvAsrc: 'strap' }, feedback: { rpe: '7', duration: '50', hrAvg: '131', hrMax: '168' }, blocks: [] };
   const o = Flat.session(s, { name: 'Anna', surname: 'X' }, {});
-  assert.equal(o['HRV nit prèvia (RMSSD, ms)'], 65.5);
-  assert.equal(o['FC repòs nit (bpm)'], 52);
-  assert.equal(o['Font HRV'], 'Oura');
+  assert.equal(o['HRV en repòs en arribar (RMSSD, ms)'], 58.5);
+  assert.equal(o['FC en repòs en arribar (bpm)'], 63);
+  assert.equal(o['HRV en arribar · mesura'], 'Strap');
   assert.equal(o['FC mitjana (bpm)'], 131);
   assert.equal(o['FC màxima (bpm)'], 168);
+  assert.ok(!Object.keys(o).some((k) => /nit/i.test(k)), 'no hi ha mètriques de la nit anterior');
 });
 
 test('HR: mesura en repòs (descarta l\'estabilització, qualitat i FC)', () => {
@@ -1146,6 +1146,6 @@ test('HR: mesura en repòs (descarta l\'estabilització, qualitat i FC)', () => 
   assert.equal(HR.analyze([800, 810, 800], 0), null, 'massa pocs batecs');
   // les mesures d'arribada tenen la seva pròpia línia de base
   const U = loadCore().U;
-  const pts = HR.points([{ date: '2026-10-01', wellness: { hrv: '50', hrvA: '70' } }, { date: '2026-10-02', wellness: { hrvA: '' } }], 'hrvA');
+  const pts = HR.points([{ date: '2026-10-01', wellness: { hrvA: '70' } }, { date: '2026-10-02', wellness: { hrvA: '' } }]);
   assert.deepEqual(pts.map((p) => p.rmssd), [70]);
 });

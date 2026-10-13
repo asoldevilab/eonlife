@@ -1,21 +1,9 @@
 /* EON Life · freqüència cardíaca (FC) i variabilitat (HRV).
    · FC mitjana de la sessió, mesurada amb un strap Bluetooth (Polar H10…) o escrita a mà.
-   · HRV de la nit prèvia (RMSSD en ms) i FC de repòs, del rellotge o anell del pacient (Oura, Whoop, HRV4Training…).
+   · HRV en repòs en arribar (RMSSD en ms), opcional, mesurada amb el strap o escrita a mà.
    Només càlculs, sense pantalla. */
 
-const HRV_SOURCES = [
-  { v: 'oura', label: 'Oura' },
-  { v: 'whoop', label: 'Whoop' },
-  { v: 'hrv4t', label: 'HRV4Training' },
-  { v: 'polar', label: 'Polar' },
-  { v: 'garmin', label: 'Garmin' },
-  { v: 'apple', label: 'Apple Watch' },
-  { v: 'altre', label: 'Altre' },
-];
-
 const HR = {
-  sources: HRV_SOURCES,
-
   // Característica «Heart Rate Measurement» del Bluetooth (0x2A37): FC i, si n'hi ha, els intervals entre batecs (RR).
   // Bit 0 dels flags: la FC va en 16 bits; bit 3: hi ha energia gastada; bit 4: hi ha intervals RR (en 1/1024 s).
   parse(dv) {
@@ -99,10 +87,9 @@ const HR = {
     return v < base.low ? 'low' : v > base.high ? 'high' : 'ok';
   },
 
-  // RMSSD de les sessions d'un pacient: [{date, rmssd}].
-  points(sessions, key = 'hrv') {
+  // RMSSD de les sessions d'un pacient: [{date, rmssd}]. key: el camp del wellness (per defecte hrvA, l'HRV en repòs).
+  points(sessions, key = 'hrvA') {
     return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {})[key]) })).filter((p) => p.rmssd != null);
   },
 
-  sourceLabel(v) { return (HRV_SOURCES.find((x) => x.v === v) || {}).label || ''; },
 };

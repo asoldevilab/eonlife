@@ -808,11 +808,8 @@ const Flat = {
     for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
     o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
     o['Wellness observacions'] = x.notes || '';
-    o['HRV nit prèvia (RMSSD, ms)'] = U.num(x.hrv) ?? '';
-    o['FC repòs nit (bpm)'] = U.num(x.rhr) ?? '';
-    o['Font HRV'] = HR.sourceLabel(x.hrvSource);
-    o['HRV repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
-    o['FC repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC en repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
     o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },

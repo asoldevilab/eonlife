@@ -105,7 +105,7 @@ const NoeTools = (() => {
   // ── Ajudes de lectura ──
   const enc = (ctx, t) => (ctx.privacy ? ctx.ps.encode(str(t)) : str(t));
   const pat = (ctx, arg) => { const r = ctx.ps.resolve(arg); return r.error ? { err: r } : { pid: r.pid, p: Store.get('patients', r.pid) }; };
-  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total, hrv_nit_ms: U.num((s.wellness || {}).hrv), fc_repos_nit: U.num((s.wellness || {}).rhr), fc_mitjana_bpm: U.num(f.hrAvg), fc_max_bpm: U.num(f.hrMax) }); };
+  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total, hrv_repos_ms: U.num((s.wellness || {}).hrvA), fc_mitjana_bpm: U.num(f.hrAvg), fc_max_bpm: U.num(f.hrMax) }); };
 
   function itemOut(it) {
     return compact({ id: it.id, exercici_id: it.exId, nom: it.name, series: it.sets, repeticions: it.reps, carrega: Calc.load(it.load), intensitat: it.intensity, descans: it.rest, tempo: it.tempo, material: it.material, nota: short(it.note, 120), fet: it.done ? true : '' });

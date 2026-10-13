@@ -1725,7 +1725,6 @@ tfoot .rpc { font-size: 14px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
 
 /* FC i HRV */
-.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
 .hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
 .hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
 .hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }

@@ -1120,15 +1120,12 @@ const step = async (label, fn) => {
     if (/class="pc"|class="pka"/.test(r.plain)) throw new Error('la politja Technogym no ha de portar con ni cilindre');
     if (r.keys.join() !== 'row_standing_cone,split_cone,lateral_lunge_cone') throw new Error(r.keys.join());
   });
-  await step('FC i HRV: HRV de la nit prèvia al wellness i FC mitjana de la sessió (strap simulat)', async () => {
+  await step('FC i HRV: HRV en repòs opcional al wellness i FC mitjana de la sessió (strap simulat)', async () => {
     const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
     await goHash(page, `#/sessio/${sid}`);
     const card = page.locator('#se-wellness');
     await card.waitFor();
-    await card.locator('#se-wellness-hrv').fill('64,5');
-    await card.locator('#se-wellness-rhr').fill('51');
-    await card.locator('#se-wellness-hrvsrc').selectOption('oura');
-    await page.waitForTimeout(300);
+    if (await card.locator('#se-wellness-hrv, #se-wellness-rhr, #se-wellness-hrvsrc').count()) throw new Error('no hi ha d\'haver-hi camps de la nit anterior');
     // Sense Bluetooth (Chromium sense maniquí), la targeta ho diu i deixa escriure la FC a mà.
     const hr = page.locator('#se-hr');
     await hr.waitFor();
@@ -1136,7 +1133,7 @@ const step = async (label, fn) => {
     await hr.locator('#hr-max').fill('171');
     await page.waitForTimeout(300);
     let x = await page.evaluate((id) => { const s = Store.get('sessions', id); return { w: s.wellness, f: s.feedback }; }, sid);
-    if (x.w.hrv !== '64,5' || x.w.rhr !== '51' || x.w.hrvSource !== 'oura' || x.f.hrAvg !== '128' || x.f.hrSource !== 'manual') throw new Error(JSON.stringify(x));
+    if (x.f.hrAvg !== '128' || x.f.hrSource !== 'manual') throw new Error(JSON.stringify(x));
     // HRV en repòs en arribar: opcional; es desplega, es pot escriure a mà i es guarda amb la font «a mà».
     await card.locator('text=Afegeix l\'HRV en repòs en arribar').click();
     await card.locator('#se-wellness-hrva-v').fill('58');
@@ -1158,7 +1155,7 @@ const step = async (label, fn) => {
     if (!r || r.avg < 100 || r.avg > 120 || r.max !== 120) throw new Error(`resum del strap: ${JSON.stringify(r)}`);
     await page.evaluate(({ id, r }) => Store.update('sessions', id, (x) => { x.feedback = { ...x.feedback, hrAvg: String(r.avg), hrSource: 'strap' }; }), { id: sid, r });
     const flat = await page.evaluate((id) => { const s = Store.get('sessions', id); return Flat.session(s, Store.get('patients', s.patientId), Store.settings); }, sid);
-    if (flat['HRV nit prèvia (RMSSD, ms)'] !== 64.5 || flat['Font HRV'] !== 'Oura' || flat['FC mitjana (bpm)'] !== r.avg) throw new Error(JSON.stringify(flat));
+    if (flat['HRV en repòs en arribar (RMSSD, ms)'] !== 58 || flat['FC mitjana (bpm)'] !== r.avg) throw new Error(JSON.stringify(flat));
     await hr.scrollIntoViewIfNeeded();
     await shot(page, '08a-fc-hrv', false);
   });

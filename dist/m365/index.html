@@ -1742,7 +1742,6 @@ tfoot .rpc { font-size: 14px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
 
 /* FC i HRV */
-.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
 .hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
 .hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
 .hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }
@@ -4073,7 +4072,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-13 14:18";
+window.EON_BUILD = "2026-10-13 16:04";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6560,11 +6559,8 @@ const Flat = {
     for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
     o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
     o['Wellness observacions'] = x.notes || '';
-    o['HRV nit prèvia (RMSSD, ms)'] = U.num(x.hrv) ?? '';
-    o['FC repòs nit (bpm)'] = U.num(x.rhr) ?? '';
-    o['Font HRV'] = HR.sourceLabel(x.hrvSource);
-    o['HRV repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
-    o['FC repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC en repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
     o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },
@@ -6920,22 +6916,10 @@ const Evol = {
 /* ── 04-hr.js ── */
 /* EON Life · freqüència cardíaca (FC) i variabilitat (HRV).
    · FC mitjana de la sessió, mesurada amb un strap Bluetooth (Polar H10…) o escrita a mà.
-   · HRV de la nit prèvia (RMSSD en ms) i FC de repòs, del rellotge o anell del pacient (Oura, Whoop, HRV4Training…).
+   · HRV en repòs en arribar (RMSSD en ms), opcional, mesurada amb el strap o escrita a mà.
    Només càlculs, sense pantalla. */
 
-const HRV_SOURCES = [
-  { v: 'oura', label: 'Oura' },
-  { v: 'whoop', label: 'Whoop' },
-  { v: 'hrv4t', label: 'HRV4Training' },
-  { v: 'polar', label: 'Polar' },
-  { v: 'garmin', label: 'Garmin' },
-  { v: 'apple', label: 'Apple Watch' },
-  { v: 'altre', label: 'Altre' },
-];
-
 const HR = {
-  sources: HRV_SOURCES,
-
   // Característica «Heart Rate Measurement» del Bluetooth (0x2A37): FC i, si n'hi ha, els intervals entre batecs (RR).
   // Bit 0 dels flags: la FC va en 16 bits; bit 3: hi ha energia gastada; bit 4: hi ha intervals RR (en 1/1024 s).
   parse(dv) {
@@ -7019,12 +7003,11 @@ const HR = {
     return v < base.low ? 'low' : v > base.high ? 'high' : 'ok';
   },
 
-  // RMSSD de les sessions d'un pacient: [{date, rmssd}].
-  points(sessions, key = 'hrv') {
+  // RMSSD de les sessions d'un pacient: [{date, rmssd}]. key: el camp del wellness (per defecte hrvA, l'HRV en repòs).
+  points(sessions, key = 'hrvA') {
     return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {})[key]) })).filter((p) => p.rmssd != null);
   },
 
-  sourceLabel(v) { return (HRV_SOURCES.find((x) => x.v === v) || {}).label || ''; },
 };
 
 
@@ -8491,9 +8474,7 @@ const DB = (() => {
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
       ...wellnessCols((r) => r.s.wellness),
-      { id: 'hrv', group: 'Wellness', label: 'HRV nit', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrv) },
-      { id: 'hrva', group: 'Wellness', label: 'HRV en arribar', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrvA) },
-      { id: 'rhr', group: 'Wellness', label: 'FC repòs', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).rhr) },
+      { id: 'hrva', group: 'Wellness', label: 'HRV en repòs', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrvA) },
       { id: 'hravg', group: 'Tancament', label: 'FC mitjana', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrAvg) },
       { id: 'hrmax', group: 'Tancament', label: 'FC màx.', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrMax) },
       { id: 'rpe', group: 'Tancament', label: 'RPE', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).rpe) },
@@ -10861,7 +10842,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12], ['HRV en arribar (ms)', 12]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['FC mitjana (bpm)', 12], ['HRV en repòs (ms)', 12]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -10891,9 +10872,8 @@ const ExcelClient = (() => {
       ws.set(r, 16, x.n ? x.done : null, [XS.cell, { fmt: '0' }]);
       const at = where[s.id];
       if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
-      ws.set(r, 18, U.num((s.wellness || {}).hrv) ?? '', [XS.cell, { fmt: '0.0' }]);
-      ws.set(r, 19, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
-      ws.set(r, 20, U.num((s.wellness || {}).hrvA) ?? '', [XS.cell, { fmt: '0.0' }]);
+      ws.set(r, 18, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
+      ws.set(r, 19, U.num((s.wellness || {}).hrvA) ?? '', [XS.cell, { fmt: '0.0' }]);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
@@ -13208,7 +13188,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Força**: en general 2–3 dies/setmana per grup muscular. Força màxima: 1–6 repeticions a ~80–95 % 1RM (RIR 1–3), descans de 2–5 min. Hipertròfia: 6–12 repeticions (també 12–30 si s'acosta a la fallada) a ~60–80 % 1RM, descans d'1–3 min; volum habitual 10–20 sèries efectives per grup muscular i setmana (menys en principiants o amb poc temps). Principiants: 1–3 sèries de 8–12 repeticions, 2 dies/setmana d'exercicis multiarticulars ja aporten molt. RIR (repeticions en reserva) 0–4 ≈ RPE 10–6.
 **Progressió simple**: si es completen totes les sèries al màxim del rang de repeticions amb RIR ≥ 2, pujar la càrrega un 2–10 % (regla del «2 per 2» en tècnica estable). Quan una variant fàcil ja és massa fàcil, passar al següent nivell de la família de progressió de la biblioteca.
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
-**FC i HRV**: a cada sessió l'app pot tenir la FC mitjana/màxima (strap) i l'HRV (RMSSD en ms) i la FC de repòs de la NIT PRÈVIA (anell o rellotge del pacient). L'HRV només es compara amb el mateix pacient i la mateixa font; una HRV clarament per sota del seu normal (uns 7+ dies de base) o una FC de repòs més alta de l'habitual, juntes amb un wellness baix, suggereixen reduir volum o intensitat aquell dia — és un senyal, no un diagnòstic. Una sola nit mai decideix res.
+**FC i HRV**: a cada sessió l'app pot tenir la FC mitjana/màxima (strap) i, opcionalment, l'HRV en repòs en arribar (RMSSD en ms, mesura curta amb strap). L'HRV només es compara amb el mateix pacient i el mateix mètode; una HRV clarament per sota del seu normal (cal una base d'unes 7 mesures), juntament amb un wellness baix, suggereix reduir volum o intensitat aquell dia — és un senyal, no un diagnòstic. Una sola mesura mai decideix res.
 **Velocitat (VBT)**: amb encoder, una pèrdua de velocitat del 10–20 % dins de la sèrie manté la qualitat de potència; 20–30 % ja és més estímul d'hipertròfia/fatiga. Velocitats de referència orientatives: ≥ 1,0 m/s potència; 0,75 m/s força-velocitat; 0,5 m/s força màxima.
 **Perfil càrrega-velocitat (ADR Encoder)**: 4–6 càrregues creixents (la primera ~1 m/s i l'última cap a 0,5–0,6 m/s, sense arribar a la fallada), 2 repeticions a les lleugeres i 1–2 a les pesades, descans de 2–4 min i màxima intenció a la fase concèntrica. Amb la velocitat mitjana de cada càrrega es dibuixa una recta (la velocitat baixa linealment amb la càrrega): la 1RM s'estima a la velocitat mínima de l'exercici (squat ~0,30 m/s en homes i ~0,25 en dones, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25; valors orientatius). R² ≥ 0,95 és un bon ajust; amb 2 punts és orientatiu i si totes les càrregues són lleugeres l'estimació extrapola molt. En un re-test, la recta que es desplaça cap a la dreta és millora de força. És una estimació: no substitueix una prova directa quan cal la 1RM exacta, i no es compara entre exercicis ni equips (Smith o barra lliure).
 **Dades de l'ADR a l'app**: l'app de l'ADR exporta els entrenaments a CSV (o Excel). A EON, el botó «Importa de l'ADR» llegeix el fitxer (persona pel nom, exercici, dia, velocitat mitjana/propulsiva/de pic) i el passa al perfil càrrega-velocitat de la valoració, a les sèries d'encoder d'una sessió o als salts de l'ADR Jumping; de cada càrrega es pot quedar la repetició més ràpida (recomanació de l'ADR) o totes. Si no reconeix columnes, es poden assignar a mà.
@@ -13552,7 +13532,7 @@ const NoeTools = (() => {
   // ── Ajudes de lectura ──
   const enc = (ctx, t) => (ctx.privacy ? ctx.ps.encode(str(t)) : str(t));
   const pat = (ctx, arg) => { const r = ctx.ps.resolve(arg); return r.error ? { err: r } : { pid: r.pid, p: Store.get('patients', r.pid) }; };
-  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total, hrv_nit_ms: U.num((s.wellness || {}).hrv), fc_repos_nit: U.num((s.wellness || {}).rhr), fc_mitjana_bpm: U.num(f.hrAvg), fc_max_bpm: U.num(f.hrMax) }); };
+  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total, hrv_repos_ms: U.num((s.wellness || {}).hrvA), fc_mitjana_bpm: U.num(f.hrAvg), fc_max_bpm: U.num(f.hrMax) }); };
 
   function itemOut(it) {
     return compact({ id: it.id, exercici_id: it.exId, nom: it.name, series: it.sets, repeticions: it.reps, carrega: Calc.load(it.load), intensitat: it.intensity, descans: it.rest, tempo: it.tempo, material: it.material, nota: short(it.note, 120), fet: it.done ? true : '' });
@@ -15452,10 +15432,9 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id, hrvBase, hrvArrivalBase }) {
+function WellnessCard({ value, onSet, id, hrvArrivalBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
-  const hs = HR.status(w.hrv, hrvBase);
   return html`<section class="card wellness" id=${id}>
     <div class="card-head"><h2 class="h2">Wellness · com arriba avui?</h2>
       ${c && html`<${Pill} tone=${c.tone} title="Suma de les 5 respostes (5 = el millor estat)">${c.total != null ? `${c.total}/25` : `${c.n} de 5`}</${Pill}>`}</div>
@@ -15466,16 +15445,6 @@ function WellnessCard({ value, onSet, id, hrvBase, hrvArrivalBase }) {
         options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
       <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
     </div>`)}</div>
-    <div class="hrv-row">
-      <${Field} label="HRV de la nit prèvia (RMSSD)" id=${`${id || 'wl'}-hrv`} hint="El valor de la nit anterior, de l'anell o rellotge del pacient.">
-        <${NumInput} id=${`${id || 'wl'}-hrv`} value=${w.hrv} onValue=${(v) => onSet('hrv', v)} unit="ms" /></${Field}>
-      <${Field} label="FC de repòs de la nit" id=${`${id || 'wl'}-rhr`}>
-        <${NumInput} id=${`${id || 'wl'}-rhr`} value=${w.rhr} onValue=${(v) => onSet('rhr', v)} unit="bpm" /></${Field}>
-      <${Field} label="Font" id=${`${id || 'wl'}-hrvsrc`}>
-        <${Select} id=${`${id || 'wl'}-hrvsrc`} value=${w.hrvSource} onValue=${(v) => onSet('hrvSource', v)} options=${HR.sources} placeholder="—" /></${Field}>
-      ${hs && html`<div class="hrv-status"><${Pill} tone=${hs === 'ok' ? 'ok' : hs === 'low' ? 'bad' : 'neutral'}>${hs === 'low' ? 'HRV baixa' : hs === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
-        <span class="muted small">Normal d'aquest pacient: ${U.fmt(hrvBase.low, 0)}–${U.fmt(hrvBase.high, 0)} ms (${hrvBase.n} mesures)</span></div>`}
-    </div>
     <${HrvArrival} w=${w} onSet=${onSet} id=${id} base=${hrvArrivalBase} />
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
@@ -21623,7 +21592,6 @@ function SessionEditor({ id }) {
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
   const others = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id);
-  const hrvBase = HR.baseline(HR.points(others), s.date);
   const hrvArrivalBase = HR.baseline(HR.points(others, 'hrvA'), s.date);
 
   const duplicate = async () => {
@@ -21716,7 +21684,7 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
