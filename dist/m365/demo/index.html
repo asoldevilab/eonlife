@@ -67,6 +67,7 @@
   --pic-prop: #CEC5BB;
   --pic-prop-top: #DDD6CE; --pic-prop-side: #BCB1A5;
   --pic-metal: #3F5F7F; --pic-metal-2: #8DA2B6; --pic-elastic: #E5592C; --pic-soft: #1F9A8B;
+  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-air: #4C9AD6;
   --grid: #ECE6E0;
   --axis: #978985;
   --baseline: #CFC7BF;
@@ -123,6 +124,7 @@
     --pic-prop: #5E5250;
     --pic-prop-top: #6E6260; --pic-prop-side: #514644;
     --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
     --grid: #33242A;
     --axis: #9B8C88;
     --baseline: #56423F;
@@ -172,6 +174,7 @@
   --pic-prop: #5E5250;
   --pic-prop-top: #6E6260; --pic-prop-side: #514644;
   --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
   --grid: #33242A;
   --axis: #9B8C88;
   --baseline: #56423F;
@@ -1473,6 +1476,10 @@ tfoot .rpc { font-size: 14px; }
 .pic .pp.pp-top { fill: var(--pic-prop-top); }
 .pic .pp.pp-side { fill: var(--pic-prop-side); }
 .pic .pl { fill: none; stroke: var(--pic-prop); }
+.pic .pc { fill: var(--pic-cone); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pc2 { fill: var(--pic-cone-2); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pkz { fill: var(--pic-keiser); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pka { fill: var(--pic-air); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pfl { fill: none; stroke: var(--line-2); }
 .pic .psh { fill: var(--ink); opacity: 0.08; }
 .ladder-step .exthumb { border-radius: 8px; }
@@ -1735,7 +1742,7 @@ tfoot .rpc { font-size: 14px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
 
 /* FC i HRV */
-.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
+.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
 .hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
 .hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
 .hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }
@@ -1743,8 +1750,17 @@ tfoot .rpc { font-size: 14px; }
 .hr-num { font-size: 44px; font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
 .hr-num.off { color: var(--muted); }
 .hr-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
+.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
 .hr-card .hint.warn { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }
+
+.hrva, .hrva-add { margin: 0 0 14px; }
+.hrva { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.hrva-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 4px; }
+.hrva-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px 18px; align-items: start; margin: 10px 0; }
+.hrva-measure { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.hrva-run { display: inline-flex; align-items: baseline; gap: 6px; }
+.hrva .hr-num { font-size: 34px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.hrva-add .btn, .hrva-head .btn { white-space: normal; height: auto; min-height: 44px; text-align: left; max-width: 100%; }
 </style>
 </head>
 <body>
@@ -4057,7 +4073,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-13 11:20";
+window.EON_BUILD = "2026-10-13 14:18";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6547,6 +6563,9 @@ const Flat = {
     o['HRV nit prèvia (RMSSD, ms)'] = U.num(x.hrv) ?? '';
     o['FC repòs nit (bpm)'] = U.num(x.rhr) ?? '';
     o['Font HRV'] = HR.sourceLabel(x.hrvSource);
+    o['HRV repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },
 
@@ -6963,6 +6982,24 @@ const HR = {
     return Math.round(Math.sqrt(s / (clean.length - 1)) * 10) / 10;
   },
 
+  // Anàlisi d'una mesura en repòs: RMSSD, FC mitjana i qualitat (percentatge de batecs vàlids). Es descarta el primer
+  // tram (l'estabilització): skipMs de batecs al principi.
+  analyze(rr, skipMs = 15000) {
+    let acc = 0;
+    const body = [];
+    for (const v of rr || []) { if (acc >= skipMs) body.push(v); acc += v; }
+    const clean = [];
+    for (const v of body) {
+      if (!(v >= 300 && v <= 2000)) continue;
+      if (clean.length && Math.abs(v - clean[clean.length - 1]) > 0.2 * clean[clean.length - 1]) continue;
+      clean.push(v);
+    }
+    const r = HR.rmssd(body);
+    if (r == null) return null;
+    const mean = clean.reduce((a, b) => a + b, 0) / clean.length;
+    return { rmssd: r, hr: Math.round(60000 / mean), n: body.length, clean: clean.length, quality: Math.round((clean.length / body.length) * 100) };
+  },
+
   // Línia de base d'HRV d'un pacient: logaritme natural de l'RMSSD dels darrers 60 dies abans de la data, amb el rang
   // normal = mitjana ± 0,75 desviacions (com fa HRV4Training). Cal un mínim de 7 mesures.
   baseline(points, date) {
@@ -6983,8 +7020,8 @@ const HR = {
   },
 
   // RMSSD de les sessions d'un pacient: [{date, rmssd}].
-  points(sessions) {
-    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {}).hrv) })).filter((p) => p.rmssd != null);
+  points(sessions, key = 'hrv') {
+    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {})[key]) })).filter((p) => p.rmssd != null);
   },
 
   sourceLabel(v) { return (HRV_SOURCES.find((x) => x.v === v) || {}).label || ''; },
@@ -8455,6 +8492,7 @@ const DB = (() => {
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
       ...wellnessCols((r) => r.s.wellness),
       { id: 'hrv', group: 'Wellness', label: 'HRV nit', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrv) },
+      { id: 'hrva', group: 'Wellness', label: 'HRV en arribar', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrvA) },
       { id: 'rhr', group: 'Wellness', label: 'FC repòs', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).rhr) },
       { id: 'hravg', group: 'Tancament', label: 'FC mitjana', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrAvg) },
       { id: 'hrmax', group: 'Tancament', label: 'FC màx.', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrMax) },
@@ -10823,7 +10861,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12], ['HRV en arribar (ms)', 12]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -10855,6 +10893,7 @@ const ExcelClient = (() => {
       if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
       ws.set(r, 18, U.num((s.wellness || {}).hrv) ?? '', [XS.cell, { fmt: '0.0' }]);
       ws.set(r, 19, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
+      ws.set(r, 20, U.num((s.wellness || {}).hrvA) ?? '', [XS.cell, { fmt: '0.0' }]);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
@@ -15413,7 +15452,7 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id, hrvBase }) {
+function WellnessCard({ value, onSet, id, hrvBase, hrvArrivalBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
   const hs = HR.status(w.hrv, hrvBase);
@@ -15437,6 +15476,7 @@ function WellnessCard({ value, onSet, id, hrvBase }) {
       ${hs && html`<div class="hrv-status"><${Pill} tone=${hs === 'ok' ? 'ok' : hs === 'low' ? 'bad' : 'neutral'}>${hs === 'low' ? 'HRV baixa' : hs === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
         <span class="muted small">Normal d'aquest pacient: ${U.fmt(hrvBase.low, 0)}–${U.fmt(hrvBase.high, 0)} ms (${hrvBase.n} mesures)</span></div>`}
     </div>
+    <${HrvArrival} w=${w} onSet=${onSet} id=${id} base=${hrvArrivalBase} />
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />
@@ -16011,6 +16051,34 @@ const PICS = {
       .concat([0, 1].map((i) => pk.ball(v3.add(J.leg[i].k, [0, 0, (i ? -1 : 1) * 3.6]), 2.6, 'pm'))) },
 };
 
+// ── Pro Inertial C2 (politja cònica isoinercial) ──
+// El con i la corda es dibuixen a 15-pics.js (gear «cone»). Estocada: cinturó al maluc i la corda recta cap avall, al con
+// del terra; rem a una mà: el con a l'alçada del pit, davant; estocada lateral: cinturó i el con al costat, a l'alçada del maluc.
+PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
+PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
+PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+
+// ── Keiser (resistència pneumàtica) ──
+// Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
+const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));
+const picAirCyl = (a, b) => {
+  const d = v3.norm(v3.sub(b, a));
+  return [pk.cap(a, b, 2.1, 2.1, 'pka'), pk.cap(b, v3.along(b, d, 7), 0.8, 0.8, 'pmh'), pk.ball(a, 2.2, 'pm')];
+};
+PICS.keiser_legpress = { ...PICS.legpress, label: 'Leg press Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legpress.props(J, k, C)).concat(picAirCyl(v3.add(J.pel, [-3, -9.6, 0]), v3.add(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.5), [2, -9, 0]))) };
+PICS.keiser_legext = { ...PICS.legext, label: 'Extensió de genoll Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legext.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_curl = { ...PICS.seated_curl, label: 'Curl femoral Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.seated_curl.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_press = { propsMove: true, from: { a: [[160, 46], [0, 6]] }, label: 'Press de pit Keiser', t: -94, l: [0, 90], a: [[2, 12], [0, 12]], grip: 'hands', fix: 'pel',
+  props: (J) => {
+    const h = J.arm[0].h, px = J.pel[0] - 15;
+    return picKeiserFrame(PROP3.seat(J)).concat([
+      pk.cap([px, h[1], 0], h, 1.5, 1.5, 'pkz'), pk.cap(v3.add(h, [0, 0, -3.4]), v3.add(h, [0, 0, 3.4]), 0.9, 0.9, 'pmh'),
+    ], picAirCyl([px - 1, J.groundY + 6, 0], [px - 1, h[1] - 1, 0]));
+  } };
+
 
 /* ── 15-pics.js ── */
 /* EON Life · miniatures dels exercicis.
@@ -16376,6 +16444,37 @@ function picKettlebell(hand, up, C) {
   return [pk.line(handle, 1.5, 'pml', { gear: 1 }), pk.ball(c, 4.1, 'pm', { gear: 1 })];
 }
 
+// ── Màquines de politja ──
+// Pro Inertial C2: un con (tambor cònic amb la corda enrotllada) amb un volant, fixat a la paret o al terra. La corda surt
+// de l'extrem petit; en estirar-la el con s'accelera i en tornar l'has de frenar. A: on surt la corda; d: cap on queda
+// el con (unitari, cap a l'altra banda de la persona).
+function picConeUnit(A, d, J) {
+  if (v3.len(d) < 0.01) d = [1, 0, 0];
+  const e1b = Math.abs(d[2]) > 0.9 ? [1, 0, 0] : [0, 1, 0], e2b = v3.cross(d, e1b);
+  const ring = (k, r) => ({ c: v3.along(A, d, k), a: v3.mul(e1b, r), b: v3.mul(e2b, r) });
+  const out = [];
+  const L = 11, r0 = 2.2, r1 = 6.4, n = 4;
+  for (let i = 0; i < n; i++) {
+    const k0 = (i / n) * L, k1 = ((i + 1) / n) * L, ra = r0 + (r1 - r0) * (i / n), rb = r0 + (r1 - r0) * ((i + 1) / n);
+    out.push({ t: 'hull', rings: [ring(k0, ra), ring(k1, rb), ring(k0, ra)], cls: i % 2 ? 'pc2' : 'pc', gear: 1, nofit: 1 });
+  }
+  out.push(picCyl(v3.along(A, d, L + 1.4), d, 1.1, 8.2, 'pm', { gear: 1, nofit: 1 }));
+  out.push(pk.disc(v3.along(A, d, L + 2.6), d, 2.4, 'pmh', { gear: 1, nofit: 1 }));
+  // suport: placa a la paret (o peu al terra si és a ran de terra)
+  const w = v3.along(A, d, L + 4.2);
+  out.push(pk.box(Math.min(w[0], w[0] + d[0] * 2.4), Math.max(w[0], w[0] + d[0] * 2.4) + 0.4, Math.max(J.groundY, w[1] - 12), w[1] + 12, w[2] - 8, w[2] + 8, 'pp', { gear: 1, nofit: 1, z: -40 }));
+  return out;
+}
+// Keiser (Infinity): columna alta, braç amb la politja a l'alçada triada i el cilindre d'aire a la base.
+function picKeiserColumn(A, J) {
+  const top = Math.max(A[1] + 7, J.floorY + 62);
+  return [
+    pk.box(A[0] - 2.4, A[0] + 2.4, J.floorY, top, A[2] - 2.4, A[2] + 2.4, 'pkz', { gear: 1, nofit: 1, z: -40 }),
+    pk.box(A[0] - 3.4, A[0] + 3.4, J.floorY, J.floorY + 22, A[2] - 3.4, A[2] + 3.4, 'pka', { gear: 1, nofit: 1, z: -39 }),
+    pk.ball(A, 3.1, 'pm', { gear: 1, nofit: 1 }), pk.ball(A, 1.3, 'pmh', { gear: 1, nofit: 1 }),
+  ];
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -16410,6 +16509,14 @@ function picGear3(J, P, g, C) {
     }
     return out;
   }
+  if (g.kind === 'cone' && Array.isArray(P.pull)) {
+    // corda del con a la mà o al cinturó (al maluc, amb una anella)
+    const A = P.pull, h = P.belt ? v3.add(J.pel, v3.mul(J.f, -4.2)) : grip === 'chest' ? mid : hR;
+    if (P.belt) out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+    else out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+    out.push(pk.line([h, A], 1.2, 'pe', { gear: 1 }));
+    return out.concat(picConeUnit(A, v3.norm([A[0] - h[0], 0, A[2] - h[2]]), J));
+  }
   if (grip === 'none') return out;
   if (g.kind === 'cable' || (g.kind === 'band' && P.pull)) {
     const h = grip === 'chest' ? mid : hR;
@@ -16419,7 +16526,8 @@ function picGear3(J, P, g, C) {
       const A = P.pull;
       out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
       out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -16502,7 +16610,32 @@ function picGear3(J, P, g, C) {
 }
 
 // Cables i gomes ancorades (en 2D, cap a la politja o l'ancoratge del costat del dibuix) i la torre de la politja.
+// Con del Pro Inertial C2 en 2D: el tambor cònic (a ratlles), el volant i la placa de paret; la corda va a la mà o a un
+// cinturó al maluc. Si l'exercici té «belt», la corda surt del maluc.
+function picCone2(Q, P) {
+  const grip = P.grip || 'hands';
+  const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
+  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
+  const s = back ? -1 : 1, a = [back ? 20 : 80, y];
+  const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
+  for (let i = 0; i < n; i++) {
+    const k0 = (L * i) / n, k1 = (L * (i + 1)) / n, ra = r0 + ((r1 - r0) * i) / n, rb = r0 + ((r1 - r0) * (i + 1)) / n;
+    out.push({ t: 'poly', pts2: [[X(k0), y - ra], [X(k1), y - rb], [X(k1), y + rb], [X(k0), y + ra]], cls: i % 2 ? 'pc2' : 'pc' });
+  }
+  // volant (disc) i placa de fixació: a la paret, o al terra si el con va baix
+  out.push({ t: 'poly', pts2: [[X(L), y - 9.4], [X(L + 2.2), y - 9.4], [X(L + 2.2), y + 9.4], [X(L), y + 9.4]], cls: 'pm' });
+  out.push({ t: 'poly', pts2: [[X(L + 2.2), y - 2], [X(L + 3.2), y - 2], [X(L + 3.2), y + 2], [X(L + 2.2), y + 2]], cls: 'pmh' });
+  out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
+  if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
+  if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
+  out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
+  return out;
+}
+
 function picGear2(Q, P, g) {
+  if (g && g.kind === 'cone' && typeof P.pull === 'string') return picCone2(Q, P);
   if (g && g.kind === 'trx') return [Q.hR, Q.hL].map((h) => ({ t: 'line', pts2: [h, [Math.min(96, h[0] + 26), 3]], w: 1.3, cls: 'pml' }));
   if (!g || typeof P.pull !== 'string' || !(g.kind === 'cable' || g.kind === 'band') || (P.grip || 'hands') === 'none') return [];
   const grip = P.grip || 'hands';
@@ -16510,7 +16643,16 @@ function picGear2(Q, P, g) {
   const a = P.pull === 'back' ? [5, h[1]] : P.pull === 'high' ? [6, 8] : P.pull === 'over' ? [h[0] + 4, 4] : P.pull === 'face' ? [95, Q.head[1]]
     : P.pull === 'low' ? [95, 84] : P.pull === 'fronthigh' ? [94, 7] : P.pull === 'backlow' ? [5, 84] : [95, h[1]];
   const out = [];
-  if (g.kind === 'cable') {
+  if (g.kind === 'cable' && g.brand === 'keiser') {
+    // columna Keiser: pilar fosc, cilindre d'aire (blau) a la base i la politja a l'alçada triada
+    const x = a[0] < 50 ? 4 : 96, ya = Math.min(a[1], 80);
+    if (P.pull !== 'over') {
+      out.push({ t: 'poly', pts2: [[x - 2.4, 4], [x + 2.4, 4], [x + 2.4, 90], [x - 2.4, 90]], cls: 'pkz' });
+      out.push({ t: 'poly', pts2: [[x - 3.6, 64], [x + 3.6, 64], [x + 3.6, 90], [x - 3.6, 90]], cls: 'pka' });
+    }
+    out.push({ t: 'ball', c2: [x, ya], r: 3.1, cls: 'pm' }, { t: 'ball', c2: [x, ya], r: 1.2, cls: 'pmh' });
+    a[0] = x; a[1] = ya;
+  } else if (g.kind === 'cable') {
     const x = a[0] < 50 ? 3 : 97;
     if (P.pull !== 'over') out.push({ t: 'line', pts2: [[x, 4], [x, 90]], w: 3.2, cls: 'pl' });
     out.push({ t: 'ball', c2: a, r: 1.9, cls: 'pmh' });
@@ -16699,6 +16841,10 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
+  // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
+  if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
   if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
@@ -16707,6 +16853,10 @@ function picGearOf(e, key) {
 // ── Quina postura té cada exercici ──
 // Per ordre: la primera regla que coincideix amb el nom (o el nom de Technogym) mana.
 const PIC_RULES = [
+  [/leg press.*keiser|keiser.*leg press/, 'keiser_legpress'],
+  [/extensio de genoll keiser|leg extension keiser/, 'keiser_legext'],
+  [/curl femoral keiser/, 'keiser_curl'],
+  [/press de pit keiser/, 'keiser_press'],
   [/\bbike\b|bicicleta estatica/, 'bike'],
   [/alliberament|miofascial|foam roller|mobility ball/, (t) => (/planta del peu|plantar/.test(t) ? 'roll_foot' : /bessons|calf|glut/.test(t) ? 'roll_seated'
     : /quadriceps/.test(t) ? 'roll_prone' : /dorsal|lats|iliotibial|ilio-tibial|espatlla|shoulder|mobility ball/.test(t) ? 'roll_side' : 'roll_back')],
@@ -16899,8 +17049,12 @@ function picKeyOf(e) {
   const pic = e.pic && (PICS[e.pic] ? e.pic : PIC_ALIAS[e.pic]);
   if (pic) return pic;
   const t = U.norm(`${e.name || ''} ${e.tg || ''}`);
-  for (const [re, key] of PIC_RULES) if (re.test(t)) return typeof key === 'function' ? key(t) : key;
-  return PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  let key = null;
+  for (const [re, k] of PIC_RULES) if (re.test(t)) { key = typeof k === 'function' ? k(t) : k; break; }
+  key = key || PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  // amb la politja cònica (Pro Inertial C2) la postura porta el con, la corda i, si cal, el cinturó
+  if (/conica|isoinercial|pro c2/.test(U.norm(`${e.material || ''} ${t}`)) && PICS[`${key}_cone`]) return `${key}_cone`;
+  return key;
 }
 
 // Dibuixos en moviment: es poden aturar a Configuració (en aquest aparell) i s'aturen sols si el sistema demana menys
@@ -16925,7 +17079,7 @@ function exercisePicSvg(e, keyOverride, mode = 'auto') {
   const g = picGearOf(e || {}, key);
   const P = PICS[key] || PICS.stand;
   const m = !picMoves(key, e) ? 'still' : mode === 'auto' ? (PicMotion.on() ? 'anim' : 'still') : mode;
-  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
+  const id = `${key}|${g.kind}|${g.brand || ''}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
   if (!PIC_CACHE.has(id)) {
     let svg;
     try {
@@ -20195,7 +20349,7 @@ function BikePhotoDialog({ file, a, unit: unit0, canSave, onApply, onClose }) {
 
 const HrLive = (() => {
   const st = { device: null, server: null, char: null, running: false, connected: false, bpm: null, contact: null,
-    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false };
+    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false, measuring: null, rr: [] };
   const subs = new Set();
   const emit = () => subs.forEach((f) => f({ ...st, samples: st.samples.length }));
 
@@ -20206,6 +20360,7 @@ const HrLive = (() => {
     if (!m) return;
     st.bpm = m.bpm; st.contact = m.contact;
     if (st.running && m.bpm > 0) st.samples.push({ t: Date.now(), bpm: m.bpm });
+    if (st.measuring) { for (const v of m.rr) st.rr.push(v); st.measuring.beats = st.rr.length; }
     emit();
   };
   const onDrop = () => { st.connected = false; st.bpm = null; emit(); if (st.running) reconnect(); };
@@ -20261,13 +20416,32 @@ const HrLive = (() => {
       st.samples = []; emit();
       return sum ? { ...sum, sessionId: id } : null;
     },
+    // Mesura d'HRV en repòs: guarda els intervals RR durant `sec` segons i en torna l'anàlisi a onDone(res | null).
+    measure(sec, onDone) {
+      if (!st.connected || st.measuring) return false;
+      st.rr = []; st.measuring = { t0: Date.now(), sec, beats: 0 }; st.error = ''; emit();
+      const tick = setInterval(() => {
+        if (!st.measuring) { clearInterval(tick); return; }
+        if (!st.connected || Date.now() - st.measuring.t0 >= sec * 1000) {
+          clearInterval(tick);
+          const res = st.connected || st.rr.length ? HR.analyze(st.rr) : null;
+          st.measuring = null; st.rr = [];
+          if (!res) st.error = 'No hi ha prou batecs vàlids. Comprova que el strap fa bon contacte (elèctrodes mullats) i repeteix la mesura.';
+          emit();
+          if (onDone) onDone(res ? { ...res, sec } : null);
+        }
+      }, 500);
+      return true;
+    },
+    cancelMeasure() { st.measuring = null; st.rr = []; emit(); },
     disconnect() {
-      st.running = false;
+      st.running = false; st.measuring = null;
       try { if (st.char) st.char.removeEventListener('characteristicvaluechanged', onValue); } catch {}
       try { if (st.device && st.device.gatt && st.device.gatt.connected) st.device.gatt.disconnect(); } catch {}
       st.device = st.server = st.char = null; st.connected = false; st.bpm = null; st.name = ''; emit();
     },
     // Per als tests: simula lectures sense Bluetooth.
+    _rr(list) { for (const v of list) st.rr.push(v); if (st.measuring) st.measuring.beats = st.rr.length; emit(); },
     _push(bpm, t) { st.bpm = bpm; if (st.running) st.samples.push({ t: t ?? Date.now(), bpm }); emit(); },
   };
 })();
@@ -20321,6 +20495,55 @@ function HeartRateCard({ session, onSet }) {
     </div>
     <p class="muted small">Posa el strap al pit amb els elèctrodes mullats. Prem «Atura i desa» en acabar: la mitjana es calcula amb tota la sessió.${f.hrSource === 'strap' && f.hrMinutes ? ` Enregistrat amb el strap (${U.num(f.hrMinutes) < 1 ? 'menys d\'1 min' : `${f.hrMinutes} min`}).` : ''}</p>
   </section>`;
+}
+
+// HRV en repòs en arribar a l'entrenament (opcional, dins del wellness): amb el strap (1–5 min, quiet i respirant normal)
+// o escrit a mà. Es guarda l'RMSSD (ms), la FC de repòs i com s'ha mesurat.
+function HrvArrival({ w, onSet, id, base }) {
+  const has = U.num(w.hrvA) != null;
+  const [open, setOpen] = useState(has);
+  const [dur, setDur] = useState(120);
+  const [live, setLive] = useState(HrLive.state);
+  const [, setTick] = useState(0);
+  useEffect(() => HrLive.subscribe(setLive), []);
+  useEffect(() => {
+    if (!live.measuring) return undefined;
+    const t = setInterval(() => setTick((n) => n + 1), 500);
+    return () => clearInterval(t);
+  }, [!!live.measuring]);
+  const status = HR.status(w.hrvA, base);
+  const left = live.measuring ? Math.max(0, Math.ceil((live.measuring.sec * 1000 - (Date.now() - live.measuring.t0)) / 1000)) : 0;
+  const run = () => HrLive.measure(dur, (res) => {
+    if (!res) return;
+    onSet('hrvA', String(res.rmssd)); onSet('hrvAhr', String(res.hr)); onSet('hrvAsrc', 'strap');
+    onSet('hrvAdur', String(res.sec)); onSet('hrvAq', String(res.quality));
+    UI.toast(`HRV en repòs: ${res.rmssd} ms (FC ${res.hr} bpm).`);
+  });
+  const clear = () => { for (const k of ['hrvA', 'hrvAhr', 'hrvAsrc', 'hrvAdur', 'hrvAq']) onSet(k, ''); };
+  const p = id || 'wl';
+  if (!open) return html`<div class="hrva-add"><${Btn} variant="ghost" icon="heart" onClick=${() => setOpen(true)}>Afegeix l'HRV en repòs en arribar (opcional)</${Btn}></div>`;
+  return html`<div class="hrva" id=${`${p}-hrva`}>
+    <div class="hrva-head"><strong>HRV en repòs en arribar</strong> <span class="muted small">opcional · segons el cas</span>
+      ${!has && !live.measuring && html`<${Btn} variant="ghost" size="sm" onClick=${() => setOpen(false)}>Amaga</${Btn}>`}</div>
+    <p class="muted small">El pacient assegut o estirat, quiet, sense parlar i respirant amb normalitat. Es descarten els primers 15 s mentre s'estabilitza.</p>
+    <div class="hrva-grid">
+      <${Field} label="HRV (RMSSD)" id=${`${p}-hrva-v`}><${NumInput} id=${`${p}-hrva-v`} value=${w.hrvA} onValue=${(v) => { onSet('hrvA', v); if (w.hrvAsrc !== 'strap') onSet('hrvAsrc', v ? 'manual' : ''); }} unit="ms" /></${Field}>
+      <${Field} label="FC en repòs" id=${`${p}-hrva-h`}><${NumInput} id=${`${p}-hrva-h`} value=${w.hrvAhr} onValue=${(v) => onSet('hrvAhr', v)} unit="bpm" /></${Field}>
+      ${status && html`<div class="hrv-status"><${Pill} tone=${status === 'ok' ? 'ok' : status === 'low' ? 'bad' : 'neutral'}>${status === 'low' ? 'HRV baixa' : status === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
+        <span class="muted small">Normal en arribar: ${U.fmt(base.low, 0)}–${U.fmt(base.high, 0)} ms (${base.n} mesures)</span></div>`}
+    </div>
+    ${HrLive.supported() && html`<div class="hrva-measure">
+      ${!live.connected && html`<${Btn} icon="plus" onClick=${() => HrLive.connect()} disabled=${live.busy}>${live.busy ? 'Connectant…' : 'Connecta el strap'}</${Btn}>`}
+      ${live.connected && !live.measuring && html`<${Select} id=${`${p}-hrva-d`} value=${String(dur)} onValue=${(v) => setDur(Number(v))} ariaLabel="Durada de la mesura"
+        options=${[{ v: '60', label: '1 minut' }, { v: '120', label: '2 minuts' }, { v: '180', label: '3 minuts' }, { v: '300', label: '5 minuts' }]} />
+        <${Btn} variant="primary" icon="heart" onClick=${run}>Mesura l'HRV</${Btn}>`}
+      ${live.measuring && html`<span class="hrva-run"><span class="hr-num">${left}</span><span class="muted small"> s · ${live.bpm || '—'} bpm · ${live.measuring.beats} batecs</span></span>
+        <${Btn} variant="ghost" onClick=${() => HrLive.cancelMeasure()}>Cancel·la</${Btn}>`}
+    </div>`}
+    ${live.error && !live.measuring && html`<p class="hint warn" role="alert">${live.error}</p>`}
+    ${w.hrvAsrc === 'strap' && html`<p class="muted small">Mesurat amb el strap durant ${Math.round((U.num(w.hrvAdur) || 0) / 60 * 10) / 10} min · ${w.hrvAq || '—'} % de batecs vàlids${U.num(w.hrvAq) != null && U.num(w.hrvAq) < 85 ? ' (qualitat baixa: repeteix-la si pots)' : ''}.</p>`}
+    ${has && html`<div class="hr-clear"><${Btn} variant="ghost" onClick=${clear}>Esborra l'HRV en repòs</${Btn}></div>`}
+  </div>`;
 }
 
 
@@ -21399,7 +21622,9 @@ function SessionEditor({ id }) {
 
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
-  const hrvBase = HR.baseline(HR.points(Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id)), s.date);
+  const others = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id);
+  const hrvBase = HR.baseline(HR.points(others), s.date);
+  const hrvArrivalBase = HR.baseline(HR.points(others, 'hrvA'), s.date);
 
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
@@ -21491,7 +21716,7 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}

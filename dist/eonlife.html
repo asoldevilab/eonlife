@@ -60,6 +60,7 @@
   --pic-prop: #CEC5BB;
   --pic-prop-top: #DDD6CE; --pic-prop-side: #BCB1A5;
   --pic-metal: #3F5F7F; --pic-metal-2: #8DA2B6; --pic-elastic: #E5592C; --pic-soft: #1F9A8B;
+  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-air: #4C9AD6;
   --grid: #ECE6E0;
   --axis: #978985;
   --baseline: #CFC7BF;
@@ -116,6 +117,7 @@
     --pic-prop: #5E5250;
     --pic-prop-top: #6E6260; --pic-prop-side: #514644;
     --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
     --grid: #33242A;
     --axis: #9B8C88;
     --baseline: #56423F;
@@ -165,6 +167,7 @@
   --pic-prop: #5E5250;
   --pic-prop-top: #6E6260; --pic-prop-side: #514644;
   --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
   --grid: #33242A;
   --axis: #9B8C88;
   --baseline: #56423F;
@@ -1466,6 +1469,10 @@ tfoot .rpc { font-size: 14px; }
 .pic .pp.pp-top { fill: var(--pic-prop-top); }
 .pic .pp.pp-side { fill: var(--pic-prop-side); }
 .pic .pl { fill: none; stroke: var(--pic-prop); }
+.pic .pc { fill: var(--pic-cone); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pc2 { fill: var(--pic-cone-2); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pkz { fill: var(--pic-keiser); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pka { fill: var(--pic-air); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pfl { fill: none; stroke: var(--line-2); }
 .pic .psh { fill: var(--ink); opacity: 0.08; }
 .ladder-step .exthumb { border-radius: 8px; }
@@ -1728,7 +1735,7 @@ tfoot .rpc { font-size: 14px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
 
 /* FC i HRV */
-.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
+.hrv-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px 18px; align-items: start; margin-bottom: 14px; }
 .hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
 .hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
 .hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }
@@ -1736,8 +1743,17 @@ tfoot .rpc { font-size: 14px; }
 .hr-num { font-size: 44px; font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
 .hr-num.off { color: var(--muted); }
 .hr-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
+.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
 .hr-card .hint.warn { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }
+
+.hrva, .hrva-add { margin: 0 0 14px; }
+.hrva { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.hrva-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 4px; }
+.hrva-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px 18px; align-items: start; margin: 10px 0; }
+.hrva-measure { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.hrva-run { display: inline-flex; align-items: baseline; gap: 6px; }
+.hrva .hr-num { font-size: 34px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.hrva-add .btn, .hrva-head .btn { white-space: normal; height: auto; min-height: 44px; text-align: left; max-width: 100%; }
 </style>
 </head>
 <body>
@@ -4047,7 +4063,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-13 11:20";
+<script>window.EON_BUILD = "2026-10-13 14:18";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6537,6 +6553,9 @@ const Flat = {
     o['HRV nit prèvia (RMSSD, ms)'] = U.num(x.hrv) ?? '';
     o['FC repòs nit (bpm)'] = U.num(x.rhr) ?? '';
     o['Font HRV'] = HR.sourceLabel(x.hrvSource);
+    o['HRV repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },
 
@@ -6953,6 +6972,24 @@ const HR = {
     return Math.round(Math.sqrt(s / (clean.length - 1)) * 10) / 10;
   },
 
+  // Anàlisi d'una mesura en repòs: RMSSD, FC mitjana i qualitat (percentatge de batecs vàlids). Es descarta el primer
+  // tram (l'estabilització): skipMs de batecs al principi.
+  analyze(rr, skipMs = 15000) {
+    let acc = 0;
+    const body = [];
+    for (const v of rr || []) { if (acc >= skipMs) body.push(v); acc += v; }
+    const clean = [];
+    for (const v of body) {
+      if (!(v >= 300 && v <= 2000)) continue;
+      if (clean.length && Math.abs(v - clean[clean.length - 1]) > 0.2 * clean[clean.length - 1]) continue;
+      clean.push(v);
+    }
+    const r = HR.rmssd(body);
+    if (r == null) return null;
+    const mean = clean.reduce((a, b) => a + b, 0) / clean.length;
+    return { rmssd: r, hr: Math.round(60000 / mean), n: body.length, clean: clean.length, quality: Math.round((clean.length / body.length) * 100) };
+  },
+
   // Línia de base d'HRV d'un pacient: logaritme natural de l'RMSSD dels darrers 60 dies abans de la data, amb el rang
   // normal = mitjana ± 0,75 desviacions (com fa HRV4Training). Cal un mínim de 7 mesures.
   baseline(points, date) {
@@ -6973,8 +7010,8 @@ const HR = {
   },
 
   // RMSSD de les sessions d'un pacient: [{date, rmssd}].
-  points(sessions) {
-    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {}).hrv) })).filter((p) => p.rmssd != null);
+  points(sessions, key = 'hrv') {
+    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {})[key]) })).filter((p) => p.rmssd != null);
   },
 
   sourceLabel(v) { return (HRV_SOURCES.find((x) => x.v === v) || {}).label || ''; },
@@ -8445,6 +8482,7 @@ const DB = (() => {
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
       ...wellnessCols((r) => r.s.wellness),
       { id: 'hrv', group: 'Wellness', label: 'HRV nit', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrv) },
+      { id: 'hrva', group: 'Wellness', label: 'HRV en arribar', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrvA) },
       { id: 'rhr', group: 'Wellness', label: 'FC repòs', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).rhr) },
       { id: 'hravg', group: 'Tancament', label: 'FC mitjana', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrAvg) },
       { id: 'hrmax', group: 'Tancament', label: 'FC màx.', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrMax) },
@@ -10813,7 +10851,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12], ['HRV en arribar (ms)', 12]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -10845,6 +10883,7 @@ const ExcelClient = (() => {
       if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
       ws.set(r, 18, U.num((s.wellness || {}).hrv) ?? '', [XS.cell, { fmt: '0.0' }]);
       ws.set(r, 19, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
+      ws.set(r, 20, U.num((s.wellness || {}).hrvA) ?? '', [XS.cell, { fmt: '0.0' }]);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
@@ -15403,7 +15442,7 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id, hrvBase }) {
+function WellnessCard({ value, onSet, id, hrvBase, hrvArrivalBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
   const hs = HR.status(w.hrv, hrvBase);
@@ -15427,6 +15466,7 @@ function WellnessCard({ value, onSet, id, hrvBase }) {
       ${hs && html`<div class="hrv-status"><${Pill} tone=${hs === 'ok' ? 'ok' : hs === 'low' ? 'bad' : 'neutral'}>${hs === 'low' ? 'HRV baixa' : hs === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
         <span class="muted small">Normal d'aquest pacient: ${U.fmt(hrvBase.low, 0)}–${U.fmt(hrvBase.high, 0)} ms (${hrvBase.n} mesures)</span></div>`}
     </div>
+    <${HrvArrival} w=${w} onSet=${onSet} id=${id} base=${hrvArrivalBase} />
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />
@@ -16001,6 +16041,34 @@ const PICS = {
       .concat([0, 1].map((i) => pk.ball(v3.add(J.leg[i].k, [0, 0, (i ? -1 : 1) * 3.6]), 2.6, 'pm'))) },
 };
 
+// ── Pro Inertial C2 (politja cònica isoinercial) ──
+// El con i la corda es dibuixen a 15-pics.js (gear «cone»). Estocada: cinturó al maluc i la corda recta cap avall, al con
+// del terra; rem a una mà: el con a l'alçada del pit, davant; estocada lateral: cinturó i el con al costat, a l'alçada del maluc.
+PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
+PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
+PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+
+// ── Keiser (resistència pneumàtica) ──
+// Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
+const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));
+const picAirCyl = (a, b) => {
+  const d = v3.norm(v3.sub(b, a));
+  return [pk.cap(a, b, 2.1, 2.1, 'pka'), pk.cap(b, v3.along(b, d, 7), 0.8, 0.8, 'pmh'), pk.ball(a, 2.2, 'pm')];
+};
+PICS.keiser_legpress = { ...PICS.legpress, label: 'Leg press Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legpress.props(J, k, C)).concat(picAirCyl(v3.add(J.pel, [-3, -9.6, 0]), v3.add(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.5), [2, -9, 0]))) };
+PICS.keiser_legext = { ...PICS.legext, label: 'Extensió de genoll Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legext.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_curl = { ...PICS.seated_curl, label: 'Curl femoral Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.seated_curl.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_press = { propsMove: true, from: { a: [[160, 46], [0, 6]] }, label: 'Press de pit Keiser', t: -94, l: [0, 90], a: [[2, 12], [0, 12]], grip: 'hands', fix: 'pel',
+  props: (J) => {
+    const h = J.arm[0].h, px = J.pel[0] - 15;
+    return picKeiserFrame(PROP3.seat(J)).concat([
+      pk.cap([px, h[1], 0], h, 1.5, 1.5, 'pkz'), pk.cap(v3.add(h, [0, 0, -3.4]), v3.add(h, [0, 0, 3.4]), 0.9, 0.9, 'pmh'),
+    ], picAirCyl([px - 1, J.groundY + 6, 0], [px - 1, h[1] - 1, 0]));
+  } };
+
 
 /* ── 15-pics.js ── */
 /* EON Life · miniatures dels exercicis.
@@ -16366,6 +16434,37 @@ function picKettlebell(hand, up, C) {
   return [pk.line(handle, 1.5, 'pml', { gear: 1 }), pk.ball(c, 4.1, 'pm', { gear: 1 })];
 }
 
+// ── Màquines de politja ──
+// Pro Inertial C2: un con (tambor cònic amb la corda enrotllada) amb un volant, fixat a la paret o al terra. La corda surt
+// de l'extrem petit; en estirar-la el con s'accelera i en tornar l'has de frenar. A: on surt la corda; d: cap on queda
+// el con (unitari, cap a l'altra banda de la persona).
+function picConeUnit(A, d, J) {
+  if (v3.len(d) < 0.01) d = [1, 0, 0];
+  const e1b = Math.abs(d[2]) > 0.9 ? [1, 0, 0] : [0, 1, 0], e2b = v3.cross(d, e1b);
+  const ring = (k, r) => ({ c: v3.along(A, d, k), a: v3.mul(e1b, r), b: v3.mul(e2b, r) });
+  const out = [];
+  const L = 11, r0 = 2.2, r1 = 6.4, n = 4;
+  for (let i = 0; i < n; i++) {
+    const k0 = (i / n) * L, k1 = ((i + 1) / n) * L, ra = r0 + (r1 - r0) * (i / n), rb = r0 + (r1 - r0) * ((i + 1) / n);
+    out.push({ t: 'hull', rings: [ring(k0, ra), ring(k1, rb), ring(k0, ra)], cls: i % 2 ? 'pc2' : 'pc', gear: 1, nofit: 1 });
+  }
+  out.push(picCyl(v3.along(A, d, L + 1.4), d, 1.1, 8.2, 'pm', { gear: 1, nofit: 1 }));
+  out.push(pk.disc(v3.along(A, d, L + 2.6), d, 2.4, 'pmh', { gear: 1, nofit: 1 }));
+  // suport: placa a la paret (o peu al terra si és a ran de terra)
+  const w = v3.along(A, d, L + 4.2);
+  out.push(pk.box(Math.min(w[0], w[0] + d[0] * 2.4), Math.max(w[0], w[0] + d[0] * 2.4) + 0.4, Math.max(J.groundY, w[1] - 12), w[1] + 12, w[2] - 8, w[2] + 8, 'pp', { gear: 1, nofit: 1, z: -40 }));
+  return out;
+}
+// Keiser (Infinity): columna alta, braç amb la politja a l'alçada triada i el cilindre d'aire a la base.
+function picKeiserColumn(A, J) {
+  const top = Math.max(A[1] + 7, J.floorY + 62);
+  return [
+    pk.box(A[0] - 2.4, A[0] + 2.4, J.floorY, top, A[2] - 2.4, A[2] + 2.4, 'pkz', { gear: 1, nofit: 1, z: -40 }),
+    pk.box(A[0] - 3.4, A[0] + 3.4, J.floorY, J.floorY + 22, A[2] - 3.4, A[2] + 3.4, 'pka', { gear: 1, nofit: 1, z: -39 }),
+    pk.ball(A, 3.1, 'pm', { gear: 1, nofit: 1 }), pk.ball(A, 1.3, 'pmh', { gear: 1, nofit: 1 }),
+  ];
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -16400,6 +16499,14 @@ function picGear3(J, P, g, C) {
     }
     return out;
   }
+  if (g.kind === 'cone' && Array.isArray(P.pull)) {
+    // corda del con a la mà o al cinturó (al maluc, amb una anella)
+    const A = P.pull, h = P.belt ? v3.add(J.pel, v3.mul(J.f, -4.2)) : grip === 'chest' ? mid : hR;
+    if (P.belt) out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+    else out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+    out.push(pk.line([h, A], 1.2, 'pe', { gear: 1 }));
+    return out.concat(picConeUnit(A, v3.norm([A[0] - h[0], 0, A[2] - h[2]]), J));
+  }
   if (grip === 'none') return out;
   if (g.kind === 'cable' || (g.kind === 'band' && P.pull)) {
     const h = grip === 'chest' ? mid : hR;
@@ -16409,7 +16516,8 @@ function picGear3(J, P, g, C) {
       const A = P.pull;
       out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
       out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -16492,7 +16600,32 @@ function picGear3(J, P, g, C) {
 }
 
 // Cables i gomes ancorades (en 2D, cap a la politja o l'ancoratge del costat del dibuix) i la torre de la politja.
+// Con del Pro Inertial C2 en 2D: el tambor cònic (a ratlles), el volant i la placa de paret; la corda va a la mà o a un
+// cinturó al maluc. Si l'exercici té «belt», la corda surt del maluc.
+function picCone2(Q, P) {
+  const grip = P.grip || 'hands';
+  const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
+  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
+  const s = back ? -1 : 1, a = [back ? 20 : 80, y];
+  const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
+  for (let i = 0; i < n; i++) {
+    const k0 = (L * i) / n, k1 = (L * (i + 1)) / n, ra = r0 + ((r1 - r0) * i) / n, rb = r0 + ((r1 - r0) * (i + 1)) / n;
+    out.push({ t: 'poly', pts2: [[X(k0), y - ra], [X(k1), y - rb], [X(k1), y + rb], [X(k0), y + ra]], cls: i % 2 ? 'pc2' : 'pc' });
+  }
+  // volant (disc) i placa de fixació: a la paret, o al terra si el con va baix
+  out.push({ t: 'poly', pts2: [[X(L), y - 9.4], [X(L + 2.2), y - 9.4], [X(L + 2.2), y + 9.4], [X(L), y + 9.4]], cls: 'pm' });
+  out.push({ t: 'poly', pts2: [[X(L + 2.2), y - 2], [X(L + 3.2), y - 2], [X(L + 3.2), y + 2], [X(L + 2.2), y + 2]], cls: 'pmh' });
+  out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
+  if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
+  if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
+  out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
+  return out;
+}
+
 function picGear2(Q, P, g) {
+  if (g && g.kind === 'cone' && typeof P.pull === 'string') return picCone2(Q, P);
   if (g && g.kind === 'trx') return [Q.hR, Q.hL].map((h) => ({ t: 'line', pts2: [h, [Math.min(96, h[0] + 26), 3]], w: 1.3, cls: 'pml' }));
   if (!g || typeof P.pull !== 'string' || !(g.kind === 'cable' || g.kind === 'band') || (P.grip || 'hands') === 'none') return [];
   const grip = P.grip || 'hands';
@@ -16500,7 +16633,16 @@ function picGear2(Q, P, g) {
   const a = P.pull === 'back' ? [5, h[1]] : P.pull === 'high' ? [6, 8] : P.pull === 'over' ? [h[0] + 4, 4] : P.pull === 'face' ? [95, Q.head[1]]
     : P.pull === 'low' ? [95, 84] : P.pull === 'fronthigh' ? [94, 7] : P.pull === 'backlow' ? [5, 84] : [95, h[1]];
   const out = [];
-  if (g.kind === 'cable') {
+  if (g.kind === 'cable' && g.brand === 'keiser') {
+    // columna Keiser: pilar fosc, cilindre d'aire (blau) a la base i la politja a l'alçada triada
+    const x = a[0] < 50 ? 4 : 96, ya = Math.min(a[1], 80);
+    if (P.pull !== 'over') {
+      out.push({ t: 'poly', pts2: [[x - 2.4, 4], [x + 2.4, 4], [x + 2.4, 90], [x - 2.4, 90]], cls: 'pkz' });
+      out.push({ t: 'poly', pts2: [[x - 3.6, 64], [x + 3.6, 64], [x + 3.6, 90], [x - 3.6, 90]], cls: 'pka' });
+    }
+    out.push({ t: 'ball', c2: [x, ya], r: 3.1, cls: 'pm' }, { t: 'ball', c2: [x, ya], r: 1.2, cls: 'pmh' });
+    a[0] = x; a[1] = ya;
+  } else if (g.kind === 'cable') {
     const x = a[0] < 50 ? 3 : 97;
     if (P.pull !== 'over') out.push({ t: 'line', pts2: [[x, 4], [x, 90]], w: 3.2, cls: 'pl' });
     out.push({ t: 'ball', c2: a, r: 1.9, cls: 'pmh' });
@@ -16689,6 +16831,10 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
+  // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
+  if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
   if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
@@ -16697,6 +16843,10 @@ function picGearOf(e, key) {
 // ── Quina postura té cada exercici ──
 // Per ordre: la primera regla que coincideix amb el nom (o el nom de Technogym) mana.
 const PIC_RULES = [
+  [/leg press.*keiser|keiser.*leg press/, 'keiser_legpress'],
+  [/extensio de genoll keiser|leg extension keiser/, 'keiser_legext'],
+  [/curl femoral keiser/, 'keiser_curl'],
+  [/press de pit keiser/, 'keiser_press'],
   [/\bbike\b|bicicleta estatica/, 'bike'],
   [/alliberament|miofascial|foam roller|mobility ball/, (t) => (/planta del peu|plantar/.test(t) ? 'roll_foot' : /bessons|calf|glut/.test(t) ? 'roll_seated'
     : /quadriceps/.test(t) ? 'roll_prone' : /dorsal|lats|iliotibial|ilio-tibial|espatlla|shoulder|mobility ball/.test(t) ? 'roll_side' : 'roll_back')],
@@ -16889,8 +17039,12 @@ function picKeyOf(e) {
   const pic = e.pic && (PICS[e.pic] ? e.pic : PIC_ALIAS[e.pic]);
   if (pic) return pic;
   const t = U.norm(`${e.name || ''} ${e.tg || ''}`);
-  for (const [re, key] of PIC_RULES) if (re.test(t)) return typeof key === 'function' ? key(t) : key;
-  return PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  let key = null;
+  for (const [re, k] of PIC_RULES) if (re.test(t)) { key = typeof k === 'function' ? k(t) : k; break; }
+  key = key || PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  // amb la politja cònica (Pro Inertial C2) la postura porta el con, la corda i, si cal, el cinturó
+  if (/conica|isoinercial|pro c2/.test(U.norm(`${e.material || ''} ${t}`)) && PICS[`${key}_cone`]) return `${key}_cone`;
+  return key;
 }
 
 // Dibuixos en moviment: es poden aturar a Configuració (en aquest aparell) i s'aturen sols si el sistema demana menys
@@ -16915,7 +17069,7 @@ function exercisePicSvg(e, keyOverride, mode = 'auto') {
   const g = picGearOf(e || {}, key);
   const P = PICS[key] || PICS.stand;
   const m = !picMoves(key, e) ? 'still' : mode === 'auto' ? (PicMotion.on() ? 'anim' : 'still') : mode;
-  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
+  const id = `${key}|${g.kind}|${g.brand || ''}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
   if (!PIC_CACHE.has(id)) {
     let svg;
     try {
@@ -20185,7 +20339,7 @@ function BikePhotoDialog({ file, a, unit: unit0, canSave, onApply, onClose }) {
 
 const HrLive = (() => {
   const st = { device: null, server: null, char: null, running: false, connected: false, bpm: null, contact: null,
-    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false };
+    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false, measuring: null, rr: [] };
   const subs = new Set();
   const emit = () => subs.forEach((f) => f({ ...st, samples: st.samples.length }));
 
@@ -20196,6 +20350,7 @@ const HrLive = (() => {
     if (!m) return;
     st.bpm = m.bpm; st.contact = m.contact;
     if (st.running && m.bpm > 0) st.samples.push({ t: Date.now(), bpm: m.bpm });
+    if (st.measuring) { for (const v of m.rr) st.rr.push(v); st.measuring.beats = st.rr.length; }
     emit();
   };
   const onDrop = () => { st.connected = false; st.bpm = null; emit(); if (st.running) reconnect(); };
@@ -20251,13 +20406,32 @@ const HrLive = (() => {
       st.samples = []; emit();
       return sum ? { ...sum, sessionId: id } : null;
     },
+    // Mesura d'HRV en repòs: guarda els intervals RR durant `sec` segons i en torna l'anàlisi a onDone(res | null).
+    measure(sec, onDone) {
+      if (!st.connected || st.measuring) return false;
+      st.rr = []; st.measuring = { t0: Date.now(), sec, beats: 0 }; st.error = ''; emit();
+      const tick = setInterval(() => {
+        if (!st.measuring) { clearInterval(tick); return; }
+        if (!st.connected || Date.now() - st.measuring.t0 >= sec * 1000) {
+          clearInterval(tick);
+          const res = st.connected || st.rr.length ? HR.analyze(st.rr) : null;
+          st.measuring = null; st.rr = [];
+          if (!res) st.error = 'No hi ha prou batecs vàlids. Comprova que el strap fa bon contacte (elèctrodes mullats) i repeteix la mesura.';
+          emit();
+          if (onDone) onDone(res ? { ...res, sec } : null);
+        }
+      }, 500);
+      return true;
+    },
+    cancelMeasure() { st.measuring = null; st.rr = []; emit(); },
     disconnect() {
-      st.running = false;
+      st.running = false; st.measuring = null;
       try { if (st.char) st.char.removeEventListener('characteristicvaluechanged', onValue); } catch {}
       try { if (st.device && st.device.gatt && st.device.gatt.connected) st.device.gatt.disconnect(); } catch {}
       st.device = st.server = st.char = null; st.connected = false; st.bpm = null; st.name = ''; emit();
     },
     // Per als tests: simula lectures sense Bluetooth.
+    _rr(list) { for (const v of list) st.rr.push(v); if (st.measuring) st.measuring.beats = st.rr.length; emit(); },
     _push(bpm, t) { st.bpm = bpm; if (st.running) st.samples.push({ t: t ?? Date.now(), bpm }); emit(); },
   };
 })();
@@ -20311,6 +20485,55 @@ function HeartRateCard({ session, onSet }) {
     </div>
     <p class="muted small">Posa el strap al pit amb els elèctrodes mullats. Prem «Atura i desa» en acabar: la mitjana es calcula amb tota la sessió.${f.hrSource === 'strap' && f.hrMinutes ? ` Enregistrat amb el strap (${U.num(f.hrMinutes) < 1 ? 'menys d\'1 min' : `${f.hrMinutes} min`}).` : ''}</p>
   </section>`;
+}
+
+// HRV en repòs en arribar a l'entrenament (opcional, dins del wellness): amb el strap (1–5 min, quiet i respirant normal)
+// o escrit a mà. Es guarda l'RMSSD (ms), la FC de repòs i com s'ha mesurat.
+function HrvArrival({ w, onSet, id, base }) {
+  const has = U.num(w.hrvA) != null;
+  const [open, setOpen] = useState(has);
+  const [dur, setDur] = useState(120);
+  const [live, setLive] = useState(HrLive.state);
+  const [, setTick] = useState(0);
+  useEffect(() => HrLive.subscribe(setLive), []);
+  useEffect(() => {
+    if (!live.measuring) return undefined;
+    const t = setInterval(() => setTick((n) => n + 1), 500);
+    return () => clearInterval(t);
+  }, [!!live.measuring]);
+  const status = HR.status(w.hrvA, base);
+  const left = live.measuring ? Math.max(0, Math.ceil((live.measuring.sec * 1000 - (Date.now() - live.measuring.t0)) / 1000)) : 0;
+  const run = () => HrLive.measure(dur, (res) => {
+    if (!res) return;
+    onSet('hrvA', String(res.rmssd)); onSet('hrvAhr', String(res.hr)); onSet('hrvAsrc', 'strap');
+    onSet('hrvAdur', String(res.sec)); onSet('hrvAq', String(res.quality));
+    UI.toast(`HRV en repòs: ${res.rmssd} ms (FC ${res.hr} bpm).`);
+  });
+  const clear = () => { for (const k of ['hrvA', 'hrvAhr', 'hrvAsrc', 'hrvAdur', 'hrvAq']) onSet(k, ''); };
+  const p = id || 'wl';
+  if (!open) return html`<div class="hrva-add"><${Btn} variant="ghost" icon="heart" onClick=${() => setOpen(true)}>Afegeix l'HRV en repòs en arribar (opcional)</${Btn}></div>`;
+  return html`<div class="hrva" id=${`${p}-hrva`}>
+    <div class="hrva-head"><strong>HRV en repòs en arribar</strong> <span class="muted small">opcional · segons el cas</span>
+      ${!has && !live.measuring && html`<${Btn} variant="ghost" size="sm" onClick=${() => setOpen(false)}>Amaga</${Btn}>`}</div>
+    <p class="muted small">El pacient assegut o estirat, quiet, sense parlar i respirant amb normalitat. Es descarten els primers 15 s mentre s'estabilitza.</p>
+    <div class="hrva-grid">
+      <${Field} label="HRV (RMSSD)" id=${`${p}-hrva-v`}><${NumInput} id=${`${p}-hrva-v`} value=${w.hrvA} onValue=${(v) => { onSet('hrvA', v); if (w.hrvAsrc !== 'strap') onSet('hrvAsrc', v ? 'manual' : ''); }} unit="ms" /></${Field}>
+      <${Field} label="FC en repòs" id=${`${p}-hrva-h`}><${NumInput} id=${`${p}-hrva-h`} value=${w.hrvAhr} onValue=${(v) => onSet('hrvAhr', v)} unit="bpm" /></${Field}>
+      ${status && html`<div class="hrv-status"><${Pill} tone=${status === 'ok' ? 'ok' : status === 'low' ? 'bad' : 'neutral'}>${status === 'low' ? 'HRV baixa' : status === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
+        <span class="muted small">Normal en arribar: ${U.fmt(base.low, 0)}–${U.fmt(base.high, 0)} ms (${base.n} mesures)</span></div>`}
+    </div>
+    ${HrLive.supported() && html`<div class="hrva-measure">
+      ${!live.connected && html`<${Btn} icon="plus" onClick=${() => HrLive.connect()} disabled=${live.busy}>${live.busy ? 'Connectant…' : 'Connecta el strap'}</${Btn}>`}
+      ${live.connected && !live.measuring && html`<${Select} id=${`${p}-hrva-d`} value=${String(dur)} onValue=${(v) => setDur(Number(v))} ariaLabel="Durada de la mesura"
+        options=${[{ v: '60', label: '1 minut' }, { v: '120', label: '2 minuts' }, { v: '180', label: '3 minuts' }, { v: '300', label: '5 minuts' }]} />
+        <${Btn} variant="primary" icon="heart" onClick=${run}>Mesura l'HRV</${Btn}>`}
+      ${live.measuring && html`<span class="hrva-run"><span class="hr-num">${left}</span><span class="muted small"> s · ${live.bpm || '—'} bpm · ${live.measuring.beats} batecs</span></span>
+        <${Btn} variant="ghost" onClick=${() => HrLive.cancelMeasure()}>Cancel·la</${Btn}>`}
+    </div>`}
+    ${live.error && !live.measuring && html`<p class="hint warn" role="alert">${live.error}</p>`}
+    ${w.hrvAsrc === 'strap' && html`<p class="muted small">Mesurat amb el strap durant ${Math.round((U.num(w.hrvAdur) || 0) / 60 * 10) / 10} min · ${w.hrvAq || '—'} % de batecs vàlids${U.num(w.hrvAq) != null && U.num(w.hrvAq) < 85 ? ' (qualitat baixa: repeteix-la si pots)' : ''}.</p>`}
+    ${has && html`<div class="hr-clear"><${Btn} variant="ghost" onClick=${clear}>Esborra l'HRV en repòs</${Btn}></div>`}
+  </div>`;
 }
 
 
@@ -21389,7 +21612,9 @@ function SessionEditor({ id }) {
 
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
-  const hrvBase = HR.baseline(HR.points(Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id)), s.date);
+  const others = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id);
+  const hrvBase = HR.baseline(HR.points(others), s.date);
+  const hrvArrivalBase = HR.baseline(HR.points(others, 'hrvA'), s.date);
 
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
@@ -21481,7 +21706,7 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}

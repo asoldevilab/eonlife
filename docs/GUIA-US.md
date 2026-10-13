@@ -400,6 +400,8 @@ Dues dades noves a la fitxa de cada sessió:
 
   Si el navegador no té Bluetooth (Safari a l'iPad), la FC es pot escriure a mà.
 
+- **HRV en repòs en arribar** (opcional, dins del wellness, botó «Afegeix l'HRV en repòs en arribar»): per als casos en què interessa mesurar-la en el moment. El pacient, assegut o estirat, quiet i sense parlar; connecta el strap, tria 1, 2, 3 o 5 minuts i prem **Mesura l'HRV**. L'app descarta els primers 15 s, filtra els batecs erronis i desa l'RMSSD, la FC de repòs i el percentatge de batecs vàlids (si és baix, repeteix-la). També es pot escriure a mà. Es compara amb les mesures d'arribada anteriors del mateix pacient, no amb l'HRV de la nit.
+
 Tot surt a l'Excel del client (registre de sessions), a la taula de **Sessions** de la Base de dades i a NOE, que ho té en compte com un senyal més, mai com un diagnòstic.
 
 ## Pla d'entrenament i progrés

@@ -361,6 +361,37 @@ function picKettlebell(hand, up, C) {
   return [pk.line(handle, 1.5, 'pml', { gear: 1 }), pk.ball(c, 4.1, 'pm', { gear: 1 })];
 }
 
+// ── Màquines de politja ──
+// Pro Inertial C2: un con (tambor cònic amb la corda enrotllada) amb un volant, fixat a la paret o al terra. La corda surt
+// de l'extrem petit; en estirar-la el con s'accelera i en tornar l'has de frenar. A: on surt la corda; d: cap on queda
+// el con (unitari, cap a l'altra banda de la persona).
+function picConeUnit(A, d, J) {
+  if (v3.len(d) < 0.01) d = [1, 0, 0];
+  const e1b = Math.abs(d[2]) > 0.9 ? [1, 0, 0] : [0, 1, 0], e2b = v3.cross(d, e1b);
+  const ring = (k, r) => ({ c: v3.along(A, d, k), a: v3.mul(e1b, r), b: v3.mul(e2b, r) });
+  const out = [];
+  const L = 11, r0 = 2.2, r1 = 6.4, n = 4;
+  for (let i = 0; i < n; i++) {
+    const k0 = (i / n) * L, k1 = ((i + 1) / n) * L, ra = r0 + (r1 - r0) * (i / n), rb = r0 + (r1 - r0) * ((i + 1) / n);
+    out.push({ t: 'hull', rings: [ring(k0, ra), ring(k1, rb), ring(k0, ra)], cls: i % 2 ? 'pc2' : 'pc', gear: 1, nofit: 1 });
+  }
+  out.push(picCyl(v3.along(A, d, L + 1.4), d, 1.1, 8.2, 'pm', { gear: 1, nofit: 1 }));
+  out.push(pk.disc(v3.along(A, d, L + 2.6), d, 2.4, 'pmh', { gear: 1, nofit: 1 }));
+  // suport: placa a la paret (o peu al terra si és a ran de terra)
+  const w = v3.along(A, d, L + 4.2);
+  out.push(pk.box(Math.min(w[0], w[0] + d[0] * 2.4), Math.max(w[0], w[0] + d[0] * 2.4) + 0.4, Math.max(J.groundY, w[1] - 12), w[1] + 12, w[2] - 8, w[2] + 8, 'pp', { gear: 1, nofit: 1, z: -40 }));
+  return out;
+}
+// Keiser (Infinity): columna alta, braç amb la politja a l'alçada triada i el cilindre d'aire a la base.
+function picKeiserColumn(A, J) {
+  const top = Math.max(A[1] + 7, J.floorY + 62);
+  return [
+    pk.box(A[0] - 2.4, A[0] + 2.4, J.floorY, top, A[2] - 2.4, A[2] + 2.4, 'pkz', { gear: 1, nofit: 1, z: -40 }),
+    pk.box(A[0] - 3.4, A[0] + 3.4, J.floorY, J.floorY + 22, A[2] - 3.4, A[2] + 3.4, 'pka', { gear: 1, nofit: 1, z: -39 }),
+    pk.ball(A, 3.1, 'pm', { gear: 1, nofit: 1 }), pk.ball(A, 1.3, 'pmh', { gear: 1, nofit: 1 }),
+  ];
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -395,6 +426,14 @@ function picGear3(J, P, g, C) {
     }
     return out;
   }
+  if (g.kind === 'cone' && Array.isArray(P.pull)) {
+    // corda del con a la mà o al cinturó (al maluc, amb una anella)
+    const A = P.pull, h = P.belt ? v3.add(J.pel, v3.mul(J.f, -4.2)) : grip === 'chest' ? mid : hR;
+    if (P.belt) out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+    else out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+    out.push(pk.line([h, A], 1.2, 'pe', { gear: 1 }));
+    return out.concat(picConeUnit(A, v3.norm([A[0] - h[0], 0, A[2] - h[2]]), J));
+  }
   if (grip === 'none') return out;
   if (g.kind === 'cable' || (g.kind === 'band' && P.pull)) {
     const h = grip === 'chest' ? mid : hR;
@@ -404,7 +443,8 @@ function picGear3(J, P, g, C) {
       const A = P.pull;
       out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
       out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -487,7 +527,32 @@ function picGear3(J, P, g, C) {
 }
 
 // Cables i gomes ancorades (en 2D, cap a la politja o l'ancoratge del costat del dibuix) i la torre de la politja.
+// Con del Pro Inertial C2 en 2D: el tambor cònic (a ratlles), el volant i la placa de paret; la corda va a la mà o a un
+// cinturó al maluc. Si l'exercici té «belt», la corda surt del maluc.
+function picCone2(Q, P) {
+  const grip = P.grip || 'hands';
+  const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
+  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
+  const s = back ? -1 : 1, a = [back ? 20 : 80, y];
+  const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
+  for (let i = 0; i < n; i++) {
+    const k0 = (L * i) / n, k1 = (L * (i + 1)) / n, ra = r0 + ((r1 - r0) * i) / n, rb = r0 + ((r1 - r0) * (i + 1)) / n;
+    out.push({ t: 'poly', pts2: [[X(k0), y - ra], [X(k1), y - rb], [X(k1), y + rb], [X(k0), y + ra]], cls: i % 2 ? 'pc2' : 'pc' });
+  }
+  // volant (disc) i placa de fixació: a la paret, o al terra si el con va baix
+  out.push({ t: 'poly', pts2: [[X(L), y - 9.4], [X(L + 2.2), y - 9.4], [X(L + 2.2), y + 9.4], [X(L), y + 9.4]], cls: 'pm' });
+  out.push({ t: 'poly', pts2: [[X(L + 2.2), y - 2], [X(L + 3.2), y - 2], [X(L + 3.2), y + 2], [X(L + 2.2), y + 2]], cls: 'pmh' });
+  out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
+  if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
+  if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
+  out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
+  return out;
+}
+
 function picGear2(Q, P, g) {
+  if (g && g.kind === 'cone' && typeof P.pull === 'string') return picCone2(Q, P);
   if (g && g.kind === 'trx') return [Q.hR, Q.hL].map((h) => ({ t: 'line', pts2: [h, [Math.min(96, h[0] + 26), 3]], w: 1.3, cls: 'pml' }));
   if (!g || typeof P.pull !== 'string' || !(g.kind === 'cable' || g.kind === 'band') || (P.grip || 'hands') === 'none') return [];
   const grip = P.grip || 'hands';
@@ -495,7 +560,16 @@ function picGear2(Q, P, g) {
   const a = P.pull === 'back' ? [5, h[1]] : P.pull === 'high' ? [6, 8] : P.pull === 'over' ? [h[0] + 4, 4] : P.pull === 'face' ? [95, Q.head[1]]
     : P.pull === 'low' ? [95, 84] : P.pull === 'fronthigh' ? [94, 7] : P.pull === 'backlow' ? [5, 84] : [95, h[1]];
   const out = [];
-  if (g.kind === 'cable') {
+  if (g.kind === 'cable' && g.brand === 'keiser') {
+    // columna Keiser: pilar fosc, cilindre d'aire (blau) a la base i la politja a l'alçada triada
+    const x = a[0] < 50 ? 4 : 96, ya = Math.min(a[1], 80);
+    if (P.pull !== 'over') {
+      out.push({ t: 'poly', pts2: [[x - 2.4, 4], [x + 2.4, 4], [x + 2.4, 90], [x - 2.4, 90]], cls: 'pkz' });
+      out.push({ t: 'poly', pts2: [[x - 3.6, 64], [x + 3.6, 64], [x + 3.6, 90], [x - 3.6, 90]], cls: 'pka' });
+    }
+    out.push({ t: 'ball', c2: [x, ya], r: 3.1, cls: 'pm' }, { t: 'ball', c2: [x, ya], r: 1.2, cls: 'pmh' });
+    a[0] = x; a[1] = ya;
+  } else if (g.kind === 'cable') {
     const x = a[0] < 50 ? 3 : 97;
     if (P.pull !== 'over') out.push({ t: 'line', pts2: [[x, 4], [x, 90]], w: 3.2, cls: 'pl' });
     out.push({ t: 'ball', c2: a, r: 1.9, cls: 'pmh' });
@@ -684,6 +758,10 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
+  // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
+  if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
   if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
@@ -692,6 +770,10 @@ function picGearOf(e, key) {
 // ── Quina postura té cada exercici ──
 // Per ordre: la primera regla que coincideix amb el nom (o el nom de Technogym) mana.
 const PIC_RULES = [
+  [/leg press.*keiser|keiser.*leg press/, 'keiser_legpress'],
+  [/extensio de genoll keiser|leg extension keiser/, 'keiser_legext'],
+  [/curl femoral keiser/, 'keiser_curl'],
+  [/press de pit keiser/, 'keiser_press'],
   [/\bbike\b|bicicleta estatica/, 'bike'],
   [/alliberament|miofascial|foam roller|mobility ball/, (t) => (/planta del peu|plantar/.test(t) ? 'roll_foot' : /bessons|calf|glut/.test(t) ? 'roll_seated'
     : /quadriceps/.test(t) ? 'roll_prone' : /dorsal|lats|iliotibial|ilio-tibial|espatlla|shoulder|mobility ball/.test(t) ? 'roll_side' : 'roll_back')],
@@ -884,8 +966,12 @@ function picKeyOf(e) {
   const pic = e.pic && (PICS[e.pic] ? e.pic : PIC_ALIAS[e.pic]);
   if (pic) return pic;
   const t = U.norm(`${e.name || ''} ${e.tg || ''}`);
-  for (const [re, key] of PIC_RULES) if (re.test(t)) return typeof key === 'function' ? key(t) : key;
-  return PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  let key = null;
+  for (const [re, k] of PIC_RULES) if (re.test(t)) { key = typeof k === 'function' ? k(t) : k; break; }
+  key = key || PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  // amb la politja cònica (Pro Inertial C2) la postura porta el con, la corda i, si cal, el cinturó
+  if (/conica|isoinercial|pro c2/.test(U.norm(`${e.material || ''} ${t}`)) && PICS[`${key}_cone`]) return `${key}_cone`;
+  return key;
 }
 
 // Dibuixos en moviment: es poden aturar a Configuració (en aquest aparell) i s'aturen sols si el sistema demana menys
@@ -910,7 +996,7 @@ function exercisePicSvg(e, keyOverride, mode = 'auto') {
   const g = picGearOf(e || {}, key);
   const P = PICS[key] || PICS.stand;
   const m = !picMoves(key, e) ? 'still' : mode === 'auto' ? (PicMotion.on() ? 'anim' : 'still') : mode;
-  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
+  const id = `${key}|${g.kind}|${g.brand || ''}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
   if (!PIC_CACHE.has(id)) {
     let svg;
     try {

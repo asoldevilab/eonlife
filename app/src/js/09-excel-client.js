@@ -60,7 +60,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['HRV nit prèvia (ms)', 12], ['FC mitjana (bpm)', 12], ['HRV en arribar (ms)', 12]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -92,6 +92,7 @@ const ExcelClient = (() => {
       if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
       ws.set(r, 18, U.num((s.wellness || {}).hrv) ?? '', [XS.cell, { fmt: '0.0' }]);
       ws.set(r, 19, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
+      ws.set(r, 20, U.num((s.wellness || {}).hrvA) ?? '', [XS.cell, { fmt: '0.0' }]);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.

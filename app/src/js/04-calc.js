@@ -811,6 +811,9 @@ const Flat = {
     o['HRV nit prèvia (RMSSD, ms)'] = U.num(x.hrv) ?? '';
     o['FC repòs nit (bpm)'] = U.num(x.rhr) ?? '';
     o['Font HRV'] = HR.sourceLabel(x.hrvSource);
+    o['HRV repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },
 

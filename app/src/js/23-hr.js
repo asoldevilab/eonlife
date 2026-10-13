@@ -4,7 +4,7 @@
 
 const HrLive = (() => {
   const st = { device: null, server: null, char: null, running: false, connected: false, bpm: null, contact: null,
-    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false };
+    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false, measuring: null, rr: [] };
   const subs = new Set();
   const emit = () => subs.forEach((f) => f({ ...st, samples: st.samples.length }));
 
@@ -15,6 +15,7 @@ const HrLive = (() => {
     if (!m) return;
     st.bpm = m.bpm; st.contact = m.contact;
     if (st.running && m.bpm > 0) st.samples.push({ t: Date.now(), bpm: m.bpm });
+    if (st.measuring) { for (const v of m.rr) st.rr.push(v); st.measuring.beats = st.rr.length; }
     emit();
   };
   const onDrop = () => { st.connected = false; st.bpm = null; emit(); if (st.running) reconnect(); };
@@ -70,13 +71,32 @@ const HrLive = (() => {
       st.samples = []; emit();
       return sum ? { ...sum, sessionId: id } : null;
     },
+    // Mesura d'HRV en repòs: guarda els intervals RR durant `sec` segons i en torna l'anàlisi a onDone(res | null).
+    measure(sec, onDone) {
+      if (!st.connected || st.measuring) return false;
+      st.rr = []; st.measuring = { t0: Date.now(), sec, beats: 0 }; st.error = ''; emit();
+      const tick = setInterval(() => {
+        if (!st.measuring) { clearInterval(tick); return; }
+        if (!st.connected || Date.now() - st.measuring.t0 >= sec * 1000) {
+          clearInterval(tick);
+          const res = st.connected || st.rr.length ? HR.analyze(st.rr) : null;
+          st.measuring = null; st.rr = [];
+          if (!res) st.error = 'No hi ha prou batecs vàlids. Comprova que el strap fa bon contacte (elèctrodes mullats) i repeteix la mesura.';
+          emit();
+          if (onDone) onDone(res ? { ...res, sec } : null);
+        }
+      }, 500);
+      return true;
+    },
+    cancelMeasure() { st.measuring = null; st.rr = []; emit(); },
     disconnect() {
-      st.running = false;
+      st.running = false; st.measuring = null;
       try { if (st.char) st.char.removeEventListener('characteristicvaluechanged', onValue); } catch {}
       try { if (st.device && st.device.gatt && st.device.gatt.connected) st.device.gatt.disconnect(); } catch {}
       st.device = st.server = st.char = null; st.connected = false; st.bpm = null; st.name = ''; emit();
     },
     // Per als tests: simula lectures sense Bluetooth.
+    _rr(list) { for (const v of list) st.rr.push(v); if (st.measuring) st.measuring.beats = st.rr.length; emit(); },
     _push(bpm, t) { st.bpm = bpm; if (st.running) st.samples.push({ t: t ?? Date.now(), bpm }); emit(); },
   };
 })();
@@ -130,4 +150,53 @@ function HeartRateCard({ session, onSet }) {
     </div>
     <p class="muted small">Posa el strap al pit amb els elèctrodes mullats. Prem «Atura i desa» en acabar: la mitjana es calcula amb tota la sessió.${f.hrSource === 'strap' && f.hrMinutes ? ` Enregistrat amb el strap (${U.num(f.hrMinutes) < 1 ? 'menys d\'1 min' : `${f.hrMinutes} min`}).` : ''}</p>
   </section>`;
+}
+
+// HRV en repòs en arribar a l'entrenament (opcional, dins del wellness): amb el strap (1–5 min, quiet i respirant normal)
+// o escrit a mà. Es guarda l'RMSSD (ms), la FC de repòs i com s'ha mesurat.
+function HrvArrival({ w, onSet, id, base }) {
+  const has = U.num(w.hrvA) != null;
+  const [open, setOpen] = useState(has);
+  const [dur, setDur] = useState(120);
+  const [live, setLive] = useState(HrLive.state);
+  const [, setTick] = useState(0);
+  useEffect(() => HrLive.subscribe(setLive), []);
+  useEffect(() => {
+    if (!live.measuring) return undefined;
+    const t = setInterval(() => setTick((n) => n + 1), 500);
+    return () => clearInterval(t);
+  }, [!!live.measuring]);
+  const status = HR.status(w.hrvA, base);
+  const left = live.measuring ? Math.max(0, Math.ceil((live.measuring.sec * 1000 - (Date.now() - live.measuring.t0)) / 1000)) : 0;
+  const run = () => HrLive.measure(dur, (res) => {
+    if (!res) return;
+    onSet('hrvA', String(res.rmssd)); onSet('hrvAhr', String(res.hr)); onSet('hrvAsrc', 'strap');
+    onSet('hrvAdur', String(res.sec)); onSet('hrvAq', String(res.quality));
+    UI.toast(`HRV en repòs: ${res.rmssd} ms (FC ${res.hr} bpm).`);
+  });
+  const clear = () => { for (const k of ['hrvA', 'hrvAhr', 'hrvAsrc', 'hrvAdur', 'hrvAq']) onSet(k, ''); };
+  const p = id || 'wl';
+  if (!open) return html`<div class="hrva-add"><${Btn} variant="ghost" icon="heart" onClick=${() => setOpen(true)}>Afegeix l'HRV en repòs en arribar (opcional)</${Btn}></div>`;
+  return html`<div class="hrva" id=${`${p}-hrva`}>
+    <div class="hrva-head"><strong>HRV en repòs en arribar</strong> <span class="muted small">opcional · segons el cas</span>
+      ${!has && !live.measuring && html`<${Btn} variant="ghost" size="sm" onClick=${() => setOpen(false)}>Amaga</${Btn}>`}</div>
+    <p class="muted small">El pacient assegut o estirat, quiet, sense parlar i respirant amb normalitat. Es descarten els primers 15 s mentre s'estabilitza.</p>
+    <div class="hrva-grid">
+      <${Field} label="HRV (RMSSD)" id=${`${p}-hrva-v`}><${NumInput} id=${`${p}-hrva-v`} value=${w.hrvA} onValue=${(v) => { onSet('hrvA', v); if (w.hrvAsrc !== 'strap') onSet('hrvAsrc', v ? 'manual' : ''); }} unit="ms" /></${Field}>
+      <${Field} label="FC en repòs" id=${`${p}-hrva-h`}><${NumInput} id=${`${p}-hrva-h`} value=${w.hrvAhr} onValue=${(v) => onSet('hrvAhr', v)} unit="bpm" /></${Field}>
+      ${status && html`<div class="hrv-status"><${Pill} tone=${status === 'ok' ? 'ok' : status === 'low' ? 'bad' : 'neutral'}>${status === 'low' ? 'HRV baixa' : status === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
+        <span class="muted small">Normal en arribar: ${U.fmt(base.low, 0)}–${U.fmt(base.high, 0)} ms (${base.n} mesures)</span></div>`}
+    </div>
+    ${HrLive.supported() && html`<div class="hrva-measure">
+      ${!live.connected && html`<${Btn} icon="plus" onClick=${() => HrLive.connect()} disabled=${live.busy}>${live.busy ? 'Connectant…' : 'Connecta el strap'}</${Btn}>`}
+      ${live.connected && !live.measuring && html`<${Select} id=${`${p}-hrva-d`} value=${String(dur)} onValue=${(v) => setDur(Number(v))} ariaLabel="Durada de la mesura"
+        options=${[{ v: '60', label: '1 minut' }, { v: '120', label: '2 minuts' }, { v: '180', label: '3 minuts' }, { v: '300', label: '5 minuts' }]} />
+        <${Btn} variant="primary" icon="heart" onClick=${run}>Mesura l'HRV</${Btn}>`}
+      ${live.measuring && html`<span class="hrva-run"><span class="hr-num">${left}</span><span class="muted small"> s · ${live.bpm || '—'} bpm · ${live.measuring.beats} batecs</span></span>
+        <${Btn} variant="ghost" onClick=${() => HrLive.cancelMeasure()}>Cancel·la</${Btn}>`}
+    </div>`}
+    ${live.error && !live.measuring && html`<p class="hint warn" role="alert">${live.error}</p>`}
+    ${w.hrvAsrc === 'strap' && html`<p class="muted small">Mesurat amb el strap durant ${Math.round((U.num(w.hrvAdur) || 0) / 60 * 10) / 10} min · ${w.hrvAq || '—'} % de batecs vàlids${U.num(w.hrvAq) != null && U.num(w.hrvAq) < 85 ? ' (qualitat baixa: repeteix-la si pots)' : ''}.</p>`}
+    ${has && html`<div class="hr-clear"><${Btn} variant="ghost" onClick=${clear}>Esborra l'HRV en repòs</${Btn}></div>`}
+  </div>`;
 }

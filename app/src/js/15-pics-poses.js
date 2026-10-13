@@ -361,3 +361,31 @@ const PICS = {
     props: (J) => [pk.box(-7, 7, J.pel[1] - 8.2, J.pel[1] - 4.8, -9, 9, 'pp'), pk.box(-1.5, 1.5, J.groundY, J.pel[1] - 8.2, -1.5, 1.5, 'pp'), pk.box(-14, -8, J.pel[1] - 5, J.pel[1] + 22, -7, 7, 'pp')]
       .concat([0, 1].map((i) => pk.ball(v3.add(J.leg[i].k, [0, 0, (i ? -1 : 1) * 3.6]), 2.6, 'pm'))) },
 };
+
+// ── Pro Inertial C2 (politja cònica isoinercial) ──
+// El con i la corda es dibuixen a 15-pics.js (gear «cone»). Estocada: cinturó al maluc i la corda recta cap avall, al con
+// del terra; rem a una mà: el con a l'alçada del pit, davant; estocada lateral: cinturó i el con al costat, a l'alçada del maluc.
+PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
+PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
+PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+
+// ── Keiser (resistència pneumàtica) ──
+// Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
+const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));
+const picAirCyl = (a, b) => {
+  const d = v3.norm(v3.sub(b, a));
+  return [pk.cap(a, b, 2.1, 2.1, 'pka'), pk.cap(b, v3.along(b, d, 7), 0.8, 0.8, 'pmh'), pk.ball(a, 2.2, 'pm')];
+};
+PICS.keiser_legpress = { ...PICS.legpress, label: 'Leg press Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legpress.props(J, k, C)).concat(picAirCyl(v3.add(J.pel, [-3, -9.6, 0]), v3.add(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.5), [2, -9, 0]))) };
+PICS.keiser_legext = { ...PICS.legext, label: 'Extensió de genoll Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legext.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_curl = { ...PICS.seated_curl, label: 'Curl femoral Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.seated_curl.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_press = { propsMove: true, from: { a: [[160, 46], [0, 6]] }, label: 'Press de pit Keiser', t: -94, l: [0, 90], a: [[2, 12], [0, 12]], grip: 'hands', fix: 'pel',
+  props: (J) => {
+    const h = J.arm[0].h, px = J.pel[0] - 15;
+    return picKeiserFrame(PROP3.seat(J)).concat([
+      pk.cap([px, h[1], 0], h, 1.5, 1.5, 'pkz'), pk.cap(v3.add(h, [0, 0, -3.4]), v3.add(h, [0, 0, 3.4]), 0.9, 0.9, 'pmh'),
+    ], picAirCyl([px - 1, J.groundY + 6, 0], [px - 1, h[1] - 1, 0]));
+  } };

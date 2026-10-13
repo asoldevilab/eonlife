@@ -62,6 +62,24 @@ const HR = {
     return Math.round(Math.sqrt(s / (clean.length - 1)) * 10) / 10;
   },
 
+  // Anàlisi d'una mesura en repòs: RMSSD, FC mitjana i qualitat (percentatge de batecs vàlids). Es descarta el primer
+  // tram (l'estabilització): skipMs de batecs al principi.
+  analyze(rr, skipMs = 15000) {
+    let acc = 0;
+    const body = [];
+    for (const v of rr || []) { if (acc >= skipMs) body.push(v); acc += v; }
+    const clean = [];
+    for (const v of body) {
+      if (!(v >= 300 && v <= 2000)) continue;
+      if (clean.length && Math.abs(v - clean[clean.length - 1]) > 0.2 * clean[clean.length - 1]) continue;
+      clean.push(v);
+    }
+    const r = HR.rmssd(body);
+    if (r == null) return null;
+    const mean = clean.reduce((a, b) => a + b, 0) / clean.length;
+    return { rmssd: r, hr: Math.round(60000 / mean), n: body.length, clean: clean.length, quality: Math.round((clean.length / body.length) * 100) };
+  },
+
   // Línia de base d'HRV d'un pacient: logaritme natural de l'RMSSD dels darrers 60 dies abans de la data, amb el rang
   // normal = mitjana ± 0,75 desviacions (com fa HRV4Training). Cal un mínim de 7 mesures.
   baseline(points, date) {
@@ -82,8 +100,8 @@ const HR = {
   },
 
   // RMSSD de les sessions d'un pacient: [{date, rmssd}].
-  points(sessions) {
-    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {}).hrv) })).filter((p) => p.rmssd != null);
+  points(sessions, key = 'hrv') {
+    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {})[key]) })).filter((p) => p.rmssd != null);
   },
 
   sourceLabel(v) { return (HRV_SOURCES.find((x) => x.v === v) || {}).label || ''; },

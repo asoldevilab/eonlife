@@ -23,7 +23,9 @@ function SessionEditor({ id }) {
 
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
-  const hrvBase = HR.baseline(HR.points(Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id)), s.date);
+  const others = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id);
+  const hrvBase = HR.baseline(HR.points(others), s.date);
+  const hrvArrivalBase = HR.baseline(HR.points(others, 'hrvA'), s.date);
 
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
@@ -115,7 +117,7 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvBase=${hrvBase} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}

@@ -1133,3 +1133,19 @@ test('HR: les dades surten a les columnes d\'Excel i a la taula', () => {
   assert.equal(o['FC mitjana (bpm)'], 131);
   assert.equal(o['FC màxima (bpm)'], 168);
 });
+
+test('HR: mesura en repòs (descarta l\'estabilització, qualitat i FC)', () => {
+  const { HR } = loadCore();
+  // 90 batecs alternant 800/820 ms (≈74 bpm, RMSSD 20) + un batec erroni
+  const rr = Array.from({ length: 90 }, (_, i) => (i % 2 ? 820 : 800));
+  rr.splice(40, 0, 150);
+  const a = HR.analyze(rr, 15000);
+  assert.equal(a.rmssd, 20);
+  assert.equal(a.hr, 74);
+  assert.ok(a.quality >= 98 && a.quality < 100, `qualitat ${a.quality}`);
+  assert.equal(HR.analyze([800, 810, 800], 0), null, 'massa pocs batecs');
+  // les mesures d'arribada tenen la seva pròpia línia de base
+  const U = loadCore().U;
+  const pts = HR.points([{ date: '2026-10-01', wellness: { hrv: '50', hrvA: '70' } }, { date: '2026-10-02', wellness: { hrvA: '' } }], 'hrvA');
+  assert.deepEqual(pts.map((p) => p.rmssd), [70]);
+});

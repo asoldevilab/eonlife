@@ -223,7 +223,7 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id, hrvBase }) {
+function WellnessCard({ value, onSet, id, hrvBase, hrvArrivalBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
   const hs = HR.status(w.hrv, hrvBase);
@@ -247,6 +247,7 @@ function WellnessCard({ value, onSet, id, hrvBase }) {
       ${hs && html`<div class="hrv-status"><${Pill} tone=${hs === 'ok' ? 'ok' : hs === 'low' ? 'bad' : 'neutral'}>${hs === 'low' ? 'HRV baixa' : hs === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
         <span class="muted small">Normal d'aquest pacient: ${U.fmt(hrvBase.low, 0)}–${U.fmt(hrvBase.high, 0)} ms (${hrvBase.n} mesures)</span></div>`}
     </div>
+    <${HrvArrival} w=${w} onSet=${onSet} id=${id} base=${hrvArrivalBase} />
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />

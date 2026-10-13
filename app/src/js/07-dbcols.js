@@ -227,6 +227,7 @@ const DB = (() => {
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
       ...wellnessCols((r) => r.s.wellness),
       { id: 'hrv', group: 'Wellness', label: 'HRV nit', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrv) },
+      { id: 'hrva', group: 'Wellness', label: 'HRV en arribar', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrvA) },
       { id: 'rhr', group: 'Wellness', label: 'FC repòs', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).rhr) },
       { id: 'hravg', group: 'Tancament', label: 'FC mitjana', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrAvg) },
       { id: 'hrmax', group: 'Tancament', label: 'FC màx.', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrMax) },
