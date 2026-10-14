@@ -164,4 +164,31 @@ Object.assign(Calc, {
     const main = ['Quàdriceps', 'Isquiotibials', 'GMax', 'Pectoral', 'Dorsal', 'Deltoides', 'Core'];
     return { rows, missing: main.filter((m) => !by[m]) };
   },
+
+  // ── Material de la sala ──
+  // Material que cal tenir a punt per a una o diverses sessions (sense «Terra», «Pes corporal» ni «Paret»), amb els
+  // exercicis que el fan servir. Cada element: { name, exercises: [noms], sessions: [ids], n, checked } on checked vol dir
+  // que totes les sessions que el fan servir el tenen marcat com a preparat (session.prep).
+  sessionMaterial(sessions) {
+    const trivial = /^(terra|pes corporal|paret|cap|-|—)$/;
+    const order = (() => { try { return Store.materials().center; } catch (e) { return []; } })();
+    const by = new Map();
+    for (const s of [].concat(sessions || [])) {
+      for (const b of s.blocks || []) for (const it of b.items || []) {
+        if (!it.name) continue;
+        const ex = it.exId ? Store.exercise(it.exId) : null;
+        const m = String(it.material || (ex && ex.material) || '').trim();
+        if (!m || trivial.test(U.norm(m))) continue;
+        const x = by.get(m) || { name: m, exercises: [], sessions: new Set(), n: 0 };
+        if (!x.exercises.includes(it.name)) x.exercises.push(it.name);
+        x.sessions.add(s.id); x.n += 1;
+        by.set(m, x);
+      }
+    }
+    const pos = (m) => { const i = order.indexOf(m); return i < 0 ? 999 : i; };
+    return [...by.values()].sort((a, b) => pos(a.name) - pos(b.name) || a.name.localeCompare(b.name, 'ca')).map((x) => ({
+      name: x.name, exercises: x.exercises, sessions: [...x.sessions], n: x.n,
+      checked: [...x.sessions].every((id) => { const s = [].concat(sessions).find((y) => y.id === id); return !!(s && s.prep && s.prep[x.name]); }),
+    }));
+  },
 });

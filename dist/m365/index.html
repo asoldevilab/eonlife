@@ -1827,6 +1827,28 @@ tfoot .rpc { font-size: 14px; }
 .wkvol-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .wkvol-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; background: var(--surface-3); color: var(--ink-2); font-size: 13px; }
 .wkvol-chip strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Material de la sala */
+.matprep { padding: 12px 16px 14px; border-left: 5px solid var(--stone, #C4BFB6); }
+.matprep-today { border-left-color: #B5471E; background: linear-gradient(0deg, var(--surface), var(--surface)), var(--surface); box-shadow: 0 0 0 1.5px #B5471E33; }
+.matprep-ok { border-left-color: var(--ok, #4F8A71); }
+.matprep-head { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; min-height: 40px; }
+.matprep-head::-webkit-details-marker { display: none; }
+.matprep-ic { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--brand-soft); color: var(--ink); }
+.matprep-today .matprep-ic { background: #B5471E; color: #fff; }
+.matprep-ok .matprep-ic { background: var(--ok, #4F8A71); color: #fff; }
+.matprep-title { font-weight: 750; font-size: 16px; flex: 1 1 auto; min-width: 0; }
+.matprep-count { font-size: 13.5px; font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.matprep-sum { margin: 8px 0 4px; font-size: 15px; font-weight: 650; color: var(--ink); }
+.matprep-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 6px 10px; }
+.matprep-row { display: grid; grid-template-columns: 24px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: start; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; min-height: 52px; }
+.matprep-row input { grid-row: 1 / span 2; width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--brand-2, #7A1E2A); }
+.matprep-row.on { background: var(--surface-2); }
+.matprep-row.on .matprep-name { text-decoration: line-through; color: var(--ink-3); }
+.matprep-name { font-weight: 700; font-size: 15px; }
+.matprep-ex { font-size: 12.8px; color: var(--ink-3); line-height: 1.3; }
+.matprep-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+@media print { .matprep { display: none !important; } }
 </style>
 </head>
 <body>
@@ -4139,7 +4161,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-14 14:37";
+window.EON_BUILD = "2026-10-14 15:19";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7512,6 +7534,33 @@ Object.assign(Calc, {
     const rows = Object.keys(by).map((muscle) => ({ muscle, sets: by[muscle] })).sort((a, b) => b.sets - a.sets);
     const main = ['Quàdriceps', 'Isquiotibials', 'GMax', 'Pectoral', 'Dorsal', 'Deltoides', 'Core'];
     return { rows, missing: main.filter((m) => !by[m]) };
+  },
+
+  // ── Material de la sala ──
+  // Material que cal tenir a punt per a una o diverses sessions (sense «Terra», «Pes corporal» ni «Paret»), amb els
+  // exercicis que el fan servir. Cada element: { name, exercises: [noms], sessions: [ids], n, checked } on checked vol dir
+  // que totes les sessions que el fan servir el tenen marcat com a preparat (session.prep).
+  sessionMaterial(sessions) {
+    const trivial = /^(terra|pes corporal|paret|cap|-|—)$/;
+    const order = (() => { try { return Store.materials().center; } catch (e) { return []; } })();
+    const by = new Map();
+    for (const s of [].concat(sessions || [])) {
+      for (const b of s.blocks || []) for (const it of b.items || []) {
+        if (!it.name) continue;
+        const ex = it.exId ? Store.exercise(it.exId) : null;
+        const m = String(it.material || (ex && ex.material) || '').trim();
+        if (!m || trivial.test(U.norm(m))) continue;
+        const x = by.get(m) || { name: m, exercises: [], sessions: new Set(), n: 0 };
+        if (!x.exercises.includes(it.name)) x.exercises.push(it.name);
+        x.sessions.add(s.id); x.n += 1;
+        by.set(m, x);
+      }
+    }
+    const pos = (m) => { const i = order.indexOf(m); return i < 0 ? 999 : i; };
+    return [...by.values()].sort((a, b) => pos(a.name) - pos(b.name) || a.name.localeCompare(b.name, 'ca')).map((x) => ({
+      name: x.name, exercises: x.exercises, sessions: [...x.sessions], n: x.n,
+      checked: [...x.sessions].every((id) => { const s = [].concat(sessions).find((y) => y.id === id); return !!(s && s.prep && s.prep[x.name]); }),
+    }));
   },
 });
 
@@ -19586,6 +19635,8 @@ function HomeView() {
       <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && x.r.days <= 0) ? 'warn' : ''} />
     </section>
 
+    <${MaterialToday} sessions=${todays} />
+
     <div class="home-grid">
       <section class="card">
         <div class="card-head"><h2 class="h2">Sessions d'avui</h2></div>
@@ -22546,6 +22597,9 @@ function SessionEditor({ id }) {
         { label: 'Elimina la sessió', icon: 'trash', danger: true, onClick: remove },
       ]} />
     </div>
+
+    ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
+      title=${s.date === U.today() ? 'Material per a avui' : s.date === U.addDays(U.today(), 1) ? 'Material per a demà' : 'Material de la sessió'} />`}
 
     <section class="card">
       <div class="form-grid form-grid-4">
@@ -25550,6 +25604,58 @@ function NoeSettingsCard() {
     ${test && test.error && html`<p class="warn-text"><${Icon} name="alert" size=${15} /> ${test.error}</p>`}
     <p class="muted small">Ús d'aquesta sessió: ${U.fmt(Noe.TOTAL.input + Noe.TOTAL.cache_read + Noe.TOTAL.cache_write, 0)} tokens d'entrada · ${U.fmt(Noe.TOTAL.output, 0)} de sortida.</p>
   </section>`;
+}
+
+
+/* ── 36-material.js ── */
+/* EON Life · material de la sala: avís al capdamunt de la sessió (i a l'inici) amb tot el material que cal tenir a punt,
+   per comprovar-ho d'un cop d'ull i col·locar-lo per la sala abans de començar. */
+
+// Marca o desmarca un material com a preparat a totes les sessions donades que el fan servir.
+function setMaterialReady(sessions, name, on) {
+  for (const s of sessions) {
+    Store.update('sessions', s.id, (x) => {
+      const prep = { ...(x.prep || {}) };
+      if (on) prep[name] = true; else delete prep[name];
+      x.prep = prep;
+    });
+  }
+}
+
+// sessions: una o diverses; title: encapçalament; tone: 'today' ressalta l'avís (el dia de la sessió).
+function MaterialPrep({ sessions, title = 'Material per a la sessió', tone, open: openProp, showWho }) {
+  const list = [].concat(sessions || []);
+  const items = Calc.sessionMaterial(list);
+  if (!items.length) return null;
+  const done = items.filter((m) => m.checked).length;
+  const all = done === items.length;
+  const byId = (m) => list.filter((s) => m.sessions.includes(s.id));
+  const who = (s) => { const p = Store.get('patients', s.patientId); return p ? (p.firstName || U.fullName(p)) : ''; };
+  const toggle = (m) => setMaterialReady(byId(m), m.name, !m.checked);
+  const all2 = () => { for (const m of items) setMaterialReady(byId(m), m.name, !all); };
+  return html`<details class=${U.cls('card matprep no-print', tone === 'today' && 'matprep-today', all && 'matprep-ok')} open=${openProp !== false}>
+    <summary class="matprep-head">
+      <span class="matprep-ic" aria-hidden="true"><${Icon} name=${all ? 'check' : 'dumbbell'} size=${18} /></span>
+      <span class="matprep-title">${title}</span>
+      <span class="matprep-count" aria-live="polite">${all ? 'Tot a punt' : `${done} / ${items.length} preparat`}</span>
+    </summary>
+    <p class="matprep-sum">${items.map((m) => m.name.replace(/ \(.*\)$/, '')).join(' · ')}</p>
+    <ul class="matprep-list">${items.map((m) => html`<li>
+      <label class=${U.cls('matprep-row', m.checked && 'on')}>
+        <input type="checkbox" checked=${m.checked} onChange=${() => toggle(m)} aria-label=${`${m.name}: preparat`} />
+        <span class="matprep-name">${m.name}</span>
+        <span class="matprep-ex">${m.exercises.slice(0, 4).join(' · ')}${m.exercises.length > 4 ? ` · +${m.exercises.length - 4}` : ''}${showWho && m.sessions.length > 1 ? ` · ${m.sessions.length} sessions` : ''}</span>
+      </label>
+    </li>`)}</ul>
+    <div class="matprep-foot"><${Btn} size="sm" variant=${all ? 'ghost' : 'primary'} icon=${all ? 'refresh' : 'check'} onClick=${all2}>${all ? 'Desmarca-ho tot' : 'Tot a punt'}</${Btn}></div>
+  </details>`;
+}
+
+// Avís de l'inici amb el material de les sessions d'avui que encara no s'han fet.
+function MaterialToday({ sessions }) {
+  const pend = sessions.filter((s) => s.status !== 'feta');
+  if (!pend.length || !Calc.sessionMaterial(pend).length) return null;
+  return html`<${MaterialPrep} sessions=${pend} tone="today" title=${`Material d'avui · ${U.plural(pend.length, 'sessió', 'sessions')}`} showWho=${true} />`;
 }
 
 
