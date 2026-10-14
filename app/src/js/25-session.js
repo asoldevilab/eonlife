@@ -120,6 +120,9 @@ function SessionEditor({ id }) {
       ]} />
     </div>
 
+    ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
+      title=${s.date === U.today() ? 'Material per a avui' : s.date === U.addDays(U.today(), 1) ? 'Material per a demà' : 'Material de la sessió'} />`}
+
     <section class="card">
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>

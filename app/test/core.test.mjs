@@ -1256,3 +1256,18 @@ test('biblioteca: tots els exercicis amb nom tenen indicacions', () => {
   assert.equal(sense.length, 0, `sense indicació: ${sense.map((e) => e.id).join(', ')}`);
   assert.ok(C.SEED_EXERCISES.every((e) => !e.cues || e.cues.length <= 200), 'indicació massa llarga');
 });
+
+test('material de la sala: agrupat, sense terra ni pes corporal i amb la marca de preparat', () => {
+  const it = (name, material) => ({ id: name, name, material });
+  const s1 = { id: 'S1', prep: { 'Fitball': true }, blocks: [{ key: 'for', items: [it('Hip thrust', 'Barra olímpica (20-25 kg)'), it('Dead bug', 'Terra'), it('Curl femoral', 'Fitball'), it('Flexions', 'Pes corporal')] }] };
+  const s2 = { id: 'S2', blocks: [{ key: 'for', items: [it('Back squat', 'Barra olímpica (20-25 kg)'), it('Pallof', 'Politja cònica isoinercial')] }] };
+  const m = Calc.sessionMaterial([s1, s2]);
+  assert.equal(m.map((x) => x.name).join('|'), 'Barra olímpica (20-25 kg)|Politja cònica isoinercial|Fitball');
+  const barra = m[0];
+  assert.equal(barra.exercises.join(','), 'Hip thrust,Back squat');
+  assert.equal(barra.sessions.length, 2);
+  assert.equal(barra.checked, false);
+  assert.equal(m[2].checked, true);
+  assert.equal(Calc.sessionMaterial(s1).length, 2);
+  assert.equal(Calc.sessionMaterial({ id: 'X', blocks: [] }).length, 0);
+});

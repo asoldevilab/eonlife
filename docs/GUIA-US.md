@@ -392,6 +392,15 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
   no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
   **Superserie**. Es veu al full de la sessió i als Excel com *Bloc 2 · Superserie · 3 voltes · descans 90 s entre voltes*.
 
+### Material de la sala
+
+A dalt de tot de cada sessió planificada (i a l'**Inici**, per a totes les sessions d'avui) hi ha l'avís **Material per a avui**
+(o *per a demà*, o *de la sessió* si és més lluny): la llista de tot el material que cal per a la sessió —barra, mancuernes,
+fitball, politja cònica…— amb els exercicis que el fan servir. Es deixen fora *Terra*, *Pes corporal* i *Paret*. Toca cada
+casella quan el material és a punt i el botó **Tot a punt** ho marca tot; el comptador (p. ex. *3 / 5 preparat*) avisa si falta
+alguna cosa. Les marques es desen amb la sessió i, a l'Inici, valen per a totes les sessions que fan servir aquell material.
+El material surt de la fitxa de cada exercici de la sessió, així que si en canvies el material, l'avís s'actualitza sol.
+
 ### Indicacions dels exercicis
 
 Tots els exercicis de la biblioteca porten una **indicació d'execució** curta (camp *Consignes* de la fitxa de l'exercici): és

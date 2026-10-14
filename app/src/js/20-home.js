@@ -53,6 +53,8 @@ function HomeView() {
       <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && x.r.days <= 0) ? 'warn' : ''} />
     </section>
 
+    <${MaterialToday} sessions=${todays} />
+
     <div class="home-grid">
       <section class="card">
         <div class="card-head"><h2 class="h2">Sessions d'avui</h2></div>
