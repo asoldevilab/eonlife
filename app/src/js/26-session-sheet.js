@@ -95,7 +95,7 @@ function SessionSheet({ id }) {
                 const head = g && (i === 0 || gOf(named[i - 1]) !== g);
                 const tags = [it.lat === 'UL' ? 'Unilateral' : '', it.cont ? (OPT.cont.find((o) => o.v === it.cont) || {}).label : '', it.material && !/^(Terra|Pes corporal)$/.test(it.material) ? it.material : ''].filter(Boolean);
                 const withVideo = b.items.filter((x) => x.name && demoOf(x));
-                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
+                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${Calc.isSuper(g.g) && html`<span class="sx-super">${Calc.superInfo(g.g)}</span>`}${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
                   <${ExThumb} it=${it} block=${b.key} size=${52} class="sx-thumb" seq=${true} />
                   <div class="sx-body">

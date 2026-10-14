@@ -380,6 +380,15 @@ articles). Se'n poden crear de nous.
 A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en triar-lo surt com es fa i l'exemple, i al
 **Presenta** el client veu el nom del mètode (p. ex. *Bloc 2 · Clúster*). Així no es fa sempre el mateix 3 × 10.
 
+### Plantilles en blanc i superseries
+
+- **Biblioteca › Plantilles › Nova plantilla › Plantilla de sessió en blanc**: comença sense cap bloc i hi afegeixes només
+  els que vols (Mobilitat, Força principal…) amb els botons «Afegeix un bloc». Es poden treure amb el menú del bloc.
+- Dins de qualsevol bloc, **Afegeix superserie** crea un subbloc de superserie: hi poses 2 o 3 exercicis que es fan
+  seguits, una volta rere l'altra. A la capçalera hi tries les **voltes** i el **descans entre voltes**; els exercicis
+  no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
+  **Superserie**. Es veu al full de la sessió i als Excel com *Bloc 2 · Superserie · 3 voltes · descans 90 s entre voltes*.
+
 ### Professional de la sessió
 
 Les sessions noves es fan a nom del professional que va triar l'última vegada **aquella tauleta** (no del

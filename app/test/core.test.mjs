@@ -1198,3 +1198,14 @@ test('dibuixos: animacions contínues (sense girs de disc ni salts), peus fixos,
   for (const name of ['Foam roller', 'Alliberament miofascial del dorsal · rodar', 'Alliberament miofascial dels bessons · cercles']) assert.ok(P.picMoves(P.picKeyOf(ex(name)), ex(name)), `${name} s'ha de moure`);
   assert.ok(P.PICS.slam.bl === 1 && P.PICS.slam.from.bl === 0);
 });
+
+test('superseries: voltes com a sèries, sense descans propi i etiqueta', () => {
+  const b = { key: 'for', items: [{ id: 'a', name: 'A', g: 'g1', sets: '3', rest: '2\'' }, { id: 'b', name: 'B', g: 'g1', sets: '', rest: '' }, { id: 'c', name: 'C', g: 'g2', sets: '3', rest: '2\'' }],
+    groups: [{ id: 'g1', name: '', kind: 'super', rounds: '4', rest: '90 s' }, { id: 'g2', name: '' }] };
+  Calc.sortByGroups(b);
+  assert.deepEqual(b.items.map((i) => [i.sets, i.rest]), [['4', ''], ['4', ''], ['3', '2\'']]);
+  const gs = Calc.groups(b);
+  assert.equal(gs[0].label, 'Bloc 1 · Superserie · 4 voltes · descans 90 s entre voltes');
+  assert.equal(gs[1].label, 'Bloc 2');
+  assert.equal(Calc.isSuper(gs[1].g), false);
+});

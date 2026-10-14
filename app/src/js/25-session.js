@@ -151,13 +151,13 @@ function SessionEditor({ id }) {
 // Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 // Botons per afegir a la sessió els blocs que encara no hi són.
-function AddBlocks({ blocks, onAdd }) {
+function AddBlocks({ blocks, onAdd, what = 'la sessió', who = 'aquest pacient' }) {
   const missing = BLOCKS.filter((b) => !(blocks || []).some((x) => x.key === b.key));
   if (!missing.length) return null;
   const empty = !(blocks || []).length;
-  return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label="Afegeix blocs a la sessió">
-    ${empty ? html`<div><h2 class="h2">Blocs de la sessió</h2>
-        <p class="muted">Afegeix només els blocs que necessiti aquest pacient. Es posen sols en l'ordre de la metodologia.</p></div>`
+  return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label=${`Afegeix blocs a ${what}`}>
+    ${empty ? html`<div><h2 class="h2">${`Blocs de ${what}`}</h2>
+        <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen sols en l'ordre de la metodologia.`}</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
     <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
       <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
@@ -219,14 +219,24 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
   const removeItem = (iid) => onChange((b) => { b.items = b.items.filter((x) => x.id !== iid); });
   const dupItem = (i) => onChange((b) => { const arr = [...b.items]; arr.splice(i + 1, 0, { ...U.clone(arr[i]), id: U.uid('I'), done: false }); b.items = arr; });
   // Divideix el bloc: els exercicis que hi ha queden al Bloc 1 i s'afegeix un Bloc 2 buit.
-  const addGroup = () => onChange((b) => {
-    if (!(b.groups && b.groups.length)) {
+  // kind 'super': subbloc de superserie (3 exercicis seguits, una volta, i després el descans).
+  const addGroup = (kind) => onChange((b) => {
+    const ng = kind === 'super' ? { id: U.uid('G'), name: '', kind: 'super', rounds: '3', rest: '' } : { id: U.uid('G'), name: '' };
+    if (!(b.groups && b.groups.length) && (b.items || []).some((it) => it.name)) {
       const g1 = { id: U.uid('G'), name: '' };
       b.groups = [g1];
       for (const it of b.items || []) it.g = g1.id;
     }
-    b.groups = [...b.groups, { id: U.uid('G'), name: '' }];
+    b.groups = [...(b.groups || []), ng];
   });
+  const setSuper = (gid, on) => onChange((b) => {
+    const g = (b.groups || []).find((x) => x.id === gid);
+    if (!g) return;
+    if (on) { g.kind = 'super'; g.rounds = g.rounds || String(((b.items || []).find((it) => it.g === gid && it.sets) || {}).sets || '3'); g.rest = g.rest || ''; }
+    else { delete g.kind; delete g.rounds; delete g.rest; }
+    Calc.sortByGroups(b);
+  });
+  const setRounds = (gid) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) { g.rounds = v; Calc.syncSuper(b); } });
   const setGroup = (gid, k) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) g[k] = v; });
   // Mètode (clúster, excèntric, contrast…) del bloc o d'un subbloc.
   const putMethod = (obj, t) => { if (t) { obj.method = t.id; obj.methodName = t.name; } else { delete obj.method; delete obj.methodName; } };
@@ -239,7 +249,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     onChange((b) => {
       b.items = (b.items || []).filter((it) => !ids.has(it.id));
       b.groups = (b.groups || []).filter((g) => g.id !== x.g.id);
-      if (b.groups.length < 2) ungroup(b);
+      if (b.groups.length < 2 && !b.groups.some(Calc.isSuper)) ungroup(b);
     });
   };
   const insertTemplate = (t) => onChange((b) => {
@@ -259,7 +269,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       for (const it of add) it.g = b.groups[b.groups.length - 1].id;
     }
     b.items = [...b.items, ...add];
-    if (b.groups && b.groups.length < 2) ungroup(b);
+    if (b.groups && b.groups.length < 2 && !b.groups.some(Calc.isSuper)) ungroup(b);
     Calc.sortByGroups(b);
     if (!b.focus) b.focus = t.focus || '';
   });
@@ -272,7 +282,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     if (await UI.confirm({ title: `Buidar el bloc ${blockName(block.key)}?`, text: 'Es trauran tots els exercicis del bloc.', ok: 'Buida', danger: true })) onChange((b) => { b.items = []; delete b.groups; });
   };
 
-  const row = (it, i, gi) => html`<${ItemRow} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`}
+  const row = (it, i, gi) => html`<${ItemRow} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
     groups=${groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))}
     onGroup=${(gid) => toGroup(it.id, gid)}
@@ -298,7 +308,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
         { label: 'Desa el bloc com a plantilla', icon: 'download', onClick: saveTemplate },
         groups ? { label: 'Uneix els blocs en un de sol', icon: 'layers', onClick: () => onChange(ungroup) } : null,
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
-        onRemove ? { label: 'Treu el bloc de la sessió', icon: 'x', danger: true, onClick: onRemove } : null,
+        onRemove ? { label: templateMode ? 'Treu el bloc de la plantilla' : 'Treu el bloc de la sessió', icon: 'x', danger: true, onClick: onRemove } : null,
       ]} />
     </header>
     ${block.method && html`<p class="method-hint"><strong>${block.methodName}</strong> · ${methodHint(block.method)}</p>`}
@@ -312,6 +322,10 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       ? groups.map((x, gi) => html`<div class="sgroup" key=${x.g.id} aria-label=${`Bloc ${x.n}`}>
           <div class="sgroup-head">
             <span class="sgroup-tag">Bloc ${x.n}</span>
+            <button type="button" class=${U.cls('chip sgroup-super', Calc.isSuper(x.g) && 'on')} aria-pressed=${Calc.isSuper(x.g)} onClick=${() => setSuper(x.g.id, !Calc.isSuper(x.g))}
+              title="Superserie: els exercicis es fan seguits, una volta, i el descans és al final de la volta"><${Icon} name="layers" size=${13} />Superserie</button>
+            ${Calc.isSuper(x.g) && html`<label class="sgroup-f"><span>Voltes</span><input class="input" inputmode="numeric" value=${x.g.rounds || ''} aria-label=${`Voltes del bloc ${x.n}`} onInput=${(e) => setRounds(x.g.id)(e.currentTarget.value)} /></label>
+              <label class="sgroup-f sgroup-f-rest"><span>Descans entre voltes</span><input class="input" value=${x.g.rest || ''} placeholder="p. ex. 90 s" aria-label=${`Descans entre voltes del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'rest')(e.currentTarget.value)} /></label>`}
             <input class="input sgroup-name" value=${x.g.name || ''} placeholder="Indicacions: p. ex. Superset · 3 voltes · 2' entre voltes"
               aria-label=${`Indicacions del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'name')(e.currentTarget.value)} />
             <${MethodSelect} block=${block.key} value=${x.g.method} onPick=${(t) => setGroupMethod(x.g.id, t)} ariaLabel=${`Mètode del bloc ${x.n}`} />
@@ -328,15 +342,17 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       : items.length > 0 && html`<div class="items">${items.map((it, i) => row(it, i, 0))}</div>`}
     <div class="block-foot">
       ${!groups && html`<button type="button" class="add-item" onClick=${() => add()}><${Icon} name="plus" size=${16} />Afegeix exercici</button>`}
-      <button type="button" class="add-item add-group" onClick=${addGroup} title="Divideix aquest bloc en blocs més petits (Bloc 1, Bloc 2…), cadascun amb els seus exercicis">
+      <button type="button" class="add-item add-group" onClick=${() => addGroup()} title="Divideix aquest bloc en blocs més petits (Bloc 1, Bloc 2…), cadascun amb els seus exercicis">
         <${Icon} name="layers" size=${16} />${groups ? `Afegeix el bloc ${groups.length + 1}` : 'Divideix en blocs'}</button>
+      <button type="button" class="add-item add-group" onClick=${() => addGroup('super')} title="Afegeix una superserie: 2 o 3 exercicis seguits, una volta, i després el descans">
+        <${Icon} name="plus" size=${16} />Afegeix superserie</button>
       ${!items.length && tpls.length > 0 && html`<span class="muted small">o insereix una plantilla:</span>
         ${tpls.slice(0, 3).map((t) => html`<button type="button" class="chip" onClick=${() => insertTemplate(t)}><${Icon} name="layers" size=${13} />${t.name.replace(`${blockName(block.key)} · `, '')}</button>`)}`}
     </div>
   </section>`;
 }
 
-function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
+function ItemRow({ it, inSuper, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
   const [open, setOpen] = useState(false);
   const [vbtOpen, setVbtOpen] = useState(false);
   const vbtSum = Calc.vbt(it);
@@ -375,11 +391,11 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
           <${ExercisePicker} value=${it.name} block=${block} onPick=${pick} onText=${set('name')} autoFocus=${autoFocus} />
         </div>
         <div class="rx">
-          <label class="rx-f rx-s"><span class="rxl">Sèries</span><input class="input" inputmode="numeric" value=${it.sets} aria-label="Sèries" onInput=${(e) => set('sets')(e.currentTarget.value)} /></label>
+          <label class="rx-f rx-s"><span class="rxl">${inSuper ? 'Voltes' : 'Sèries'}</span><input class="input" inputmode="numeric" value=${it.sets} aria-label=${inSuper ? 'Voltes de la superserie' : 'Sèries'} disabled=${inSuper} title=${inSuper ? 'Es canvia a la capçalera de la superserie' : ''} onInput=${(e) => set('sets')(e.currentTarget.value)} /></label>
           <label class="rx-f rx-r"><span class="rxl">Reps / temps</span><input class="input" value=${it.reps} aria-label="Repeticions o temps" onInput=${(e) => set('reps')(e.currentTarget.value)} /></label>
           <label class="rx-f rx-l"><span class="rxl">Càrrega</span><input class="input" value=${it.load} aria-label="Càrrega" placeholder=${prev && prev.load ? Calc.load(prev.load) : ''} onInput=${(e) => set('load')(e.currentTarget.value)} /></label>
           <label class="rx-f rx-i"><span class="rxl">Intensitat</span><input class="input" value=${it.intensity} aria-label="Intensitat" list="int-list" onInput=${(e) => set('intensity')(e.currentTarget.value)} /></label>
-          <label class="rx-f rx-d"><span class="rxl">Descans</span><input class="input" value=${it.rest} aria-label="Descans" onInput=${(e) => set('rest')(e.currentTarget.value)} /></label>
+          <label class="rx-f rx-d"><span class="rxl">Descans</span><input class="input" value=${inSuper ? '' : it.rest} aria-label="Descans" disabled=${inSuper} placeholder=${inSuper ? '—' : ''} title=${inSuper ? 'El descans és al final de la volta (capçalera de la superserie)' : ''} onInput=${(e) => set('rest')(e.currentTarget.value)} /></label>
         </div>
       </div>
       <div class="item-meta">
