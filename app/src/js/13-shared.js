@@ -33,6 +33,7 @@ function SessionRow({ s, showPatient, compact }) {
       <span class="srow-blocks" aria-label="Blocs amb exercicis">
         ${BLOCKS.map((b) => html`<span class=${U.cls('dot', `blk-${b.key}`, filled.some((x) => x.key === b.key) && 'on')} title=${blockName(b.key)}></span>`)}
         <span class="muted">${U.plural(Calc.itemCount(s), 'exercici', 'exercicis')}</span>
+        ${Calc.itemCount(s) > 0 && html`<${SessionTime} s=${s} compact=${true} />`}
         ${s.status === 'feta' && f.rpe && html`<span class="srow-fb">RPE ${f.rpe}${f.duration ? ` · ${f.duration} min` : ''}${load != null ? ` · ${U.fmt(load, 0)} UA` : ''}</span>`}
       </span>
     </button>

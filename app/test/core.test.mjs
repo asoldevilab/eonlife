@@ -1271,3 +1271,28 @@ test('material de la sala: agrupat, sense terra ni pes corporal i amb la marca d
   assert.equal(Calc.sessionMaterial(s1).length, 2);
   assert.equal(Calc.sessionMaterial({ id: 'X', blocks: [] }).length, 0);
 });
+
+test('durada estimada de la sessió i franja respecte de l\'hora', () => {
+  const it = (o) => ({ name: 'X', sets: '3', reps: '8', rest: "2'", tempo: '', ...o });
+  // 3 sèries de 8 reps a 4 s (+5 s de preparació) amb 2' de descans i 20 s de canvi de material; l'últim descans no compta
+  const s = { blocks: [{ key: 'for', items: [it({})] }] };
+  const d = Calc.sessionDuration(s);
+  assert.equal(d.total, 3 * (8 * 4 + 5) + 20 + 3 * 120 - 120);
+  // temps escrit i per costat
+  assert.equal(Calc.setWork({ reps: '30 s/costat' }, 'cal'), 30 * 2 + 5);
+  assert.equal(Calc.setWork({ reps: '6/cama' }, 'for'), 6 * 4 * 2 + 5);
+  assert.equal(Calc.setWork({ reps: '8', tempo: '3-1-1-0' }, 'for'), 8 * 5 + 5);
+  // descans per defecte si no n'hi ha
+  assert.equal(Calc.restSecs({ rest: '' }, 'for'), 120);
+  // superserie: voltes × (exercicis seguits) + descans entre voltes
+  const g = { id: 'g', name: '', kind: 'super', rounds: '3', rest: '60 s' };
+  const sup = { blocks: [{ key: 'acc', groups: [g], items: [{ name: 'A', g: 'g', reps: '10' }, { name: 'B', g: 'g', reps: '10' }] }] };
+  const ds = Calc.sessionDuration(sup);
+  assert.equal(ds.total, 3 * 2 * (10 * 3.5 + 5) + 40 + 3 * 60 - 60);
+  assert.equal(Calc.sessionDuration({ blocks: [] }).minutes, 0);
+  assert.equal(Calc.durationBand(45).key, 'short');
+  assert.equal(Calc.durationBand(60).key, 'ideal');
+  assert.equal(Calc.durationBand(70).key, 'long');
+  assert.equal(Calc.durationBand(80).key, 'over');
+  assert.equal(Calc.durationBand(0), null);
+});
