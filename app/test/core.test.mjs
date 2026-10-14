@@ -1250,3 +1250,9 @@ test('1RM estimada, percentatge i precaucions', () => {
   assert.equal(Calc.cautions(p, { name: 'Press militar', gm: 'Deltoides' }).length, 0);
   assert.equal(Calc.cautions({}, { name: 'Back squat' }).length, 0);
 });
+
+test('biblioteca: tots els exercicis amb nom tenen indicacions', () => {
+  const sense = C.SEED_EXERCISES.filter((e) => !e.cues && !/^[\d.]+$/.test(e.name));
+  assert.equal(sense.length, 0, `sense indicació: ${sense.map((e) => e.id).join(', ')}`);
+  assert.ok(C.SEED_EXERCISES.every((e) => !e.cues || e.cues.length <= 200), 'indicació massa llarga');
+});

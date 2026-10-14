@@ -392,6 +392,11 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
   no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
   **Superserie**. Es veu al full de la sessió i als Excel com *Bloc 2 · Superserie · 3 voltes · descans 90 s entre voltes*.
 
+### Indicacions dels exercicis
+
+Tots els exercicis de la biblioteca porten una **indicació d'execució** curta (camp *Consignes* de la fitxa de l'exercici): és
+orientativa i es pot canviar o ampliar des de la biblioteca. Surt al catàleg exportat i a l'Excel de la biblioteca.
+
 ### Ajudes per dissenyar la sessió
 
 - **Anterior i suggeriment.** Sota cada exercici surt què va fer el pacient l'última vegada (sèries, reps, càrrega). Si aquella
