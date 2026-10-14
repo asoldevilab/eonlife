@@ -1209,3 +1209,44 @@ test('superseries: voltes com a sèries, sense descans propi i etiqueta', () => 
   assert.equal(gs[1].label, 'Bloc 2');
   assert.equal(Calc.isSuper(gs[1].g), false);
 });
+
+test('durades: descans i temps en segons', () => {
+  assert.equal(Calc.secs("2'"), 120);
+  assert.equal(Calc.secs('90 s'), 90);
+  assert.equal(Calc.secs('90"'), 90);
+  assert.equal(Calc.secs('1:30'), 90);
+  assert.equal(Calc.secs("2'30"), 150);
+  assert.equal(Calc.secs("1-2'"), 60);
+  assert.equal(Calc.secs('2'), 120);
+  assert.equal(Calc.secs('45'), 45);
+  assert.equal(Calc.secs(''), null);
+  assert.equal(Calc.secs('RIR 2'), null);
+  assert.equal(Calc.isTime('30 s'), true);
+  assert.equal(Calc.isTime('6/cama'), false);
+  assert.equal(Calc.clock(125), '2:05');
+});
+
+test('progressió suggerida segons RPE i dolor', () => {
+  assert.equal(Calc.suggestLoad({ load: '80' }, { rpe: 6 }).load, 84);
+  assert.equal(Calc.suggestLoad({ load: '85 kg' }, { rpe: 7 }).load, 87);
+  assert.equal(Calc.suggestLoad({ load: '80' }, { rpe: 9 }).load, 80);
+  assert.equal(Calc.suggestLoad({ load: '80' }, { rpe: 10 }).load, 78);
+  assert.equal(Calc.suggestLoad({ load: '80' }, { rpe: 6, pain: 5 }).load, 76);
+  assert.equal(Calc.suggestLoad({ load: '80' }, {}), null);
+  assert.equal(Calc.suggestLoad({ load: 'goma verda' }, { rpe: 6 }), null);
+  assert.equal(Calc.suggestLoad({ load: '10' }, { rpe: 6 }).load, 10.5);
+});
+
+test('1RM estimada, percentatge i precaucions', () => {
+  assert.equal(Math.round(Calc.e1rm({ load: '80', reps: '5', intensity: 'RIR 2' })), 99);
+  assert.equal(Calc.e1rm({ load: '80', reps: '20' }), null);
+  assert.equal(Calc.pctOf('75 %'), 75);
+  assert.equal(Calc.pctOf('75'), null);
+  assert.equal(Calc.loadFromPct(75, 100), 75);
+  assert.equal(Calc.loadFromPct(80, 87), 69.5);
+  const p = { injuryNote: 'Distensió d\'adductor', history: 'Cirurgia de LCA el 2023' };
+  assert.equal(Calc.cautions(p, { name: 'Copenhagen curt', gm: 'Adductors' }).some((c) => c.zone === 'maluc'), true);
+  assert.equal(Calc.cautions(p, { name: 'Back squat', gm: 'Quàdriceps' }).some((c) => c.zone === 'genoll'), true);
+  assert.equal(Calc.cautions(p, { name: 'Press militar', gm: 'Deltoides' }).length, 0);
+  assert.equal(Calc.cautions({}, { name: 'Back squat' }).length, 0);
+});

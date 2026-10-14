@@ -119,6 +119,7 @@ function App() {
     <${SharedLists} />
     <${UpdateBanner} />
     ${!present && html`<${NoeLauncher} />`}
+    ${!present && html`<${TimerDock} route=${route} />`}
     <${ModalHost} />
   </div>`;
 }
