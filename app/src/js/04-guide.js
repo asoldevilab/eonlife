@@ -191,4 +191,68 @@ Object.assign(Calc, {
       checked: [...x.sessions].every((id) => { const s = [].concat(sessions).find((y) => y.id === id); return !!(s && s.prep && s.prep[x.name]); }),
     }));
   },
+
+  // ── Durada estimada d'una sessió ──
+  // Aproximació a partir dels exercicis: temps de treball de cada sèrie (repeticions × durada de la repetició, o el temps
+  // escrit), els descansos que hi ha anotats (o un de típic segons el bloc), el canvi de material i les superseries
+  // (les voltes × els exercicis seguits + el descans entre voltes). Només dóna un ordre de magnitud.
+  REP_SECS: { mob: 4, act: 4, pot: 2, for: 4, acc: 3.5, cal: 4 },
+  REST_DEFAULT: { mob: 15, act: 30, pot: 90, for: 120, acc: 60, cal: 0 },
+  // Segons de treball d'una sèrie d'un exercici (amb 5 s de preparació).
+  setWork(it, blockKey) {
+    const reps = String((it && it.reps) || '').trim();
+    const sides = /\/\s*(costat|cama|bra[cç]|m[aà])/i.test(reps) ? 2 : 1;
+    let w;
+    if (Calc.isTime(reps)) w = Calc.secs(reps) || 30;
+    else {
+      const m = reps.match(/(\d+)(?:\s*[-–]\s*(\d+))?/);
+      const n = m ? (m[2] ? (Number(m[1]) + Number(m[2])) / 2 : Number(m[1])) : null;
+      const tempo = String((it && it.tempo) || '').match(/[\dxX]/g);
+      const per = tempo && tempo.length >= 2 ? tempo.reduce((a, c) => a + (/[xX]/.test(c) ? 1 : Number(c)), 0) : (Calc.REP_SECS[blockKey] || 3.5);
+      w = n == null ? 30 : n * per;
+    }
+    return w * sides + 5;
+  },
+  restSecs(it, blockKey) {
+    const r = Calc.secs(it && it.rest);
+    return r != null ? r : (Calc.REST_DEFAULT[blockKey] != null ? Calc.REST_DEFAULT[blockKey] : 60);
+  },
+  // { total, work, rest (segons), minutes, blocks: [{ key, secs }] }. El darrer descans de la sessió no es compta.
+  sessionDuration(s) {
+    const blocks = [];
+    let work = 0, rest = 0, last = 0;
+    for (const b of (s && s.blocks) || []) {
+      const items = (b.items || []).filter((i) => i.name);
+      if (!items.length) continue;
+      let bw = 0, br = 0;
+      const plain = (list) => {
+        for (const it of list) {
+          const sets = Math.max(1, U.num(it.sets) || 1), r = Calc.restSecs(it, b.key);
+          bw += sets * Calc.setWork(it, b.key) + 20; br += sets * r; last = r;
+        }
+      };
+      const gs = Calc.groups(b);
+      if (!gs) plain(items);
+      else for (const x of gs) {
+        const list = x.items.map((y) => y.it).filter((i) => i.name);
+        if (!list.length) continue;
+        if (Calc.isSuper(x.g)) {
+          const rounds = Math.max(1, U.num(x.g.rounds) || 1), r = Calc.secs(x.g.rest) != null ? Calc.secs(x.g.rest) : (Calc.REST_DEFAULT[b.key] != null ? Calc.REST_DEFAULT[b.key] : 60);
+          bw += rounds * list.reduce((a, it) => a + Calc.setWork(it, b.key), 0) + 20 * list.length; br += rounds * r; last = r;
+        } else plain(list);
+      }
+      blocks.push({ key: b.key, secs: bw + br });
+      work += bw; rest += br;
+    }
+    const total = Math.max(0, work + rest - last);
+    return { total, work, rest: Math.max(0, rest - last), minutes: Math.round(total / 60), blocks };
+  },
+  // Franja respecte de l'hora ideal: 'short' (< 50 min), 'ideal' (50-65), 'long' (65-75) o 'over' (> 75).
+  durationBand(minutes) {
+    if (!(minutes > 0)) return null;
+    if (minutes < 50) return { key: 'short', label: 'Curta' };
+    if (minutes <= 65) return { key: 'ideal', label: 'Ideal' };
+    if (minutes <= 75) return { key: 'long', label: 'Una mica llarga' };
+    return { key: 'over', label: 'Massa llarga' };
+  },
 });

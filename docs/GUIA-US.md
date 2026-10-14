@@ -392,6 +392,15 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
   no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
   **Superserie**. Es veu al full de la sessió i als Excel com *Bloc 2 · Superserie · 3 voltes · descans 90 s entre voltes*.
 
+### Durada estimada de la sessió
+
+A dalt de cada sessió surt la **durada estimada** (p. ex. *≈ 58 min*) amb un color: **blau** si és curta (menys de 50 min),
+**verd** si és ideal (50-65 min, cap a 1 h), **groc** si és una mica llarga (65-75 min) i **vermell** si és massa llarga (més de
+75 min). Cada bloc també mostra el seu temps, i a les llistes de sessions hi ha una etiqueta petita amb el mateix color. Es
+calcula sola amb els exercicis: repeticions × durada de la repetició (o el temps escrit, p. ex. *30 s/costat*), els descansos
+de cada exercici (si no n'hi ha, un de típic segons el bloc), el canvi de material i les superseries (voltes × exercicis +
+descans entre voltes). És una aproximació per saber si cal retocar la sessió; el treball i els descansos reals poden variar.
+
 ### Material de la sala
 
 A dalt de tot de cada sessió planificada (i a l'**Inici**, per a totes les sessions d'avui) hi ha l'avís **Material per a avui**

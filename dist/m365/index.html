@@ -1849,6 +1849,25 @@ tfoot .rpc { font-size: 14px; }
 .matprep-ex { font-size: 12.8px; color: var(--ink-3); line-height: 1.3; }
 .matprep-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
 @media print { .matprep { display: none !important; } }
+
+/* Durada estimada */
+.stime { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); border-left-width: 5px; }
+.stime-empty { color: var(--ink-3); font-size: 13.5px; margin: 0; }
+.stime-text { font-size: 15px; }
+.stime-text strong { font-size: 17px; font-variant-numeric: tabular-nums; }
+.stime-band { font-size: 13.5px; font-weight: 700; }
+.stime-bar { position: relative; flex: 1 1 140px; min-width: 120px; max-width: 260px; height: 8px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+.stime-bar > span { display: block; height: 100%; border-radius: 99px; background: currentColor; }
+.stime-bar > i { position: absolute; left: 66.7%; top: 0; bottom: 0; width: 2px; background: var(--ink); opacity: 0.5; }
+.stime-short { color: #1F5F99; border-left-color: #2F6DB0; }
+.stime-ideal { color: #1D6B48; border-left-color: #1F8A5B; }
+.stime-long { color: #8A5A00; border-left-color: #D89A1B; }
+.stime-over { color: #A32A24; border-left-color: #C8382F; }
+.stime .stime-text { color: var(--ink); }
+.stime-chip { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 7px; font-size: 12.5px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.stime-chip { background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
+.block-time { display: inline-flex; align-items: center; margin-top: 4px; height: 22px; padding: 0 8px; border-radius: 7px; background: var(--surface-3); color: var(--ink-2); font-size: 12.5px; font-weight: 700; }
+@media print { .stime { display: none !important; } }
 </style>
 </head>
 <body>
@@ -4161,7 +4180,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-14 15:19";
+window.EON_BUILD = "2026-10-14 16:54";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7561,6 +7580,70 @@ Object.assign(Calc, {
       name: x.name, exercises: x.exercises, sessions: [...x.sessions], n: x.n,
       checked: [...x.sessions].every((id) => { const s = [].concat(sessions).find((y) => y.id === id); return !!(s && s.prep && s.prep[x.name]); }),
     }));
+  },
+
+  // ── Durada estimada d'una sessió ──
+  // Aproximació a partir dels exercicis: temps de treball de cada sèrie (repeticions × durada de la repetició, o el temps
+  // escrit), els descansos que hi ha anotats (o un de típic segons el bloc), el canvi de material i les superseries
+  // (les voltes × els exercicis seguits + el descans entre voltes). Només dóna un ordre de magnitud.
+  REP_SECS: { mob: 4, act: 4, pot: 2, for: 4, acc: 3.5, cal: 4 },
+  REST_DEFAULT: { mob: 15, act: 30, pot: 90, for: 120, acc: 60, cal: 0 },
+  // Segons de treball d'una sèrie d'un exercici (amb 5 s de preparació).
+  setWork(it, blockKey) {
+    const reps = String((it && it.reps) || '').trim();
+    const sides = /\/\s*(costat|cama|bra[cç]|m[aà])/i.test(reps) ? 2 : 1;
+    let w;
+    if (Calc.isTime(reps)) w = Calc.secs(reps) || 30;
+    else {
+      const m = reps.match(/(\d+)(?:\s*[-–]\s*(\d+))?/);
+      const n = m ? (m[2] ? (Number(m[1]) + Number(m[2])) / 2 : Number(m[1])) : null;
+      const tempo = String((it && it.tempo) || '').match(/[\dxX]/g);
+      const per = tempo && tempo.length >= 2 ? tempo.reduce((a, c) => a + (/[xX]/.test(c) ? 1 : Number(c)), 0) : (Calc.REP_SECS[blockKey] || 3.5);
+      w = n == null ? 30 : n * per;
+    }
+    return w * sides + 5;
+  },
+  restSecs(it, blockKey) {
+    const r = Calc.secs(it && it.rest);
+    return r != null ? r : (Calc.REST_DEFAULT[blockKey] != null ? Calc.REST_DEFAULT[blockKey] : 60);
+  },
+  // { total, work, rest (segons), minutes, blocks: [{ key, secs }] }. El darrer descans de la sessió no es compta.
+  sessionDuration(s) {
+    const blocks = [];
+    let work = 0, rest = 0, last = 0;
+    for (const b of (s && s.blocks) || []) {
+      const items = (b.items || []).filter((i) => i.name);
+      if (!items.length) continue;
+      let bw = 0, br = 0;
+      const plain = (list) => {
+        for (const it of list) {
+          const sets = Math.max(1, U.num(it.sets) || 1), r = Calc.restSecs(it, b.key);
+          bw += sets * Calc.setWork(it, b.key) + 20; br += sets * r; last = r;
+        }
+      };
+      const gs = Calc.groups(b);
+      if (!gs) plain(items);
+      else for (const x of gs) {
+        const list = x.items.map((y) => y.it).filter((i) => i.name);
+        if (!list.length) continue;
+        if (Calc.isSuper(x.g)) {
+          const rounds = Math.max(1, U.num(x.g.rounds) || 1), r = Calc.secs(x.g.rest) != null ? Calc.secs(x.g.rest) : (Calc.REST_DEFAULT[b.key] != null ? Calc.REST_DEFAULT[b.key] : 60);
+          bw += rounds * list.reduce((a, it) => a + Calc.setWork(it, b.key), 0) + 20 * list.length; br += rounds * r; last = r;
+        } else plain(list);
+      }
+      blocks.push({ key: b.key, secs: bw + br });
+      work += bw; rest += br;
+    }
+    const total = Math.max(0, work + rest - last);
+    return { total, work, rest: Math.max(0, rest - last), minutes: Math.round(total / 60), blocks };
+  },
+  // Franja respecte de l'hora ideal: 'short' (< 50 min), 'ideal' (50-65), 'long' (65-75) o 'over' (> 75).
+  durationBand(minutes) {
+    if (!(minutes > 0)) return null;
+    if (minutes < 50) return { key: 'short', label: 'Curta' };
+    if (minutes <= 65) return { key: 'ideal', label: 'Ideal' };
+    if (minutes <= 75) return { key: 'long', label: 'Una mica llarga' };
+    return { key: 'over', label: 'Massa llarga' };
   },
 });
 
@@ -15894,6 +15977,7 @@ function SessionRow({ s, showPatient, compact }) {
       <span class="srow-blocks" aria-label="Blocs amb exercicis">
         ${BLOCKS.map((b) => html`<span class=${U.cls('dot', `blk-${b.key}`, filled.some((x) => x.key === b.key) && 'on')} title=${blockName(b.key)}></span>`)}
         <span class="muted">${U.plural(Calc.itemCount(s), 'exercici', 'exercicis')}</span>
+        ${Calc.itemCount(s) > 0 && html`<${SessionTime} s=${s} compact=${true} />`}
         ${s.status === 'feta' && f.rpe && html`<span class="srow-fb">RPE ${f.rpe}${f.duration ? ` · ${f.duration} min` : ''}${load != null ? ` · ${U.fmt(load, 0)} UA` : ''}</span>`}
       </span>
     </button>
@@ -22598,6 +22682,8 @@ function SessionEditor({ id }) {
       ]} />
     </div>
 
+    <${SessionTime} s=${s} />
+
     ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
       title=${s.date === U.today() ? 'Material per a avui' : s.date === U.addDays(U.today(), 1) ? 'Material per a demà' : 'Material de la sessió'} />`}
 
@@ -22899,6 +22985,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       <div class="block-title">
         <h2 class="h2">${blockName(block.key)}</h2>
         <p class="block-desc">${blockDesc(block.key)}</p>
+        ${(() => { const bd = Calc.sessionDuration({ blocks: [block] }); return bd.blocks[0] ? html`<span class="block-time" title="Durada estimada d'aquest bloc (treball + descansos)">≈ ${fmtMinutes(Math.round(bd.blocks[0].secs / 60))}</span>` : null; })()}
       </div>
       <div class="block-focus">
         <${TextInput} value=${block.focus} onValue=${(v) => onChange((b) => { b.focus = v; })} placeholder="Focus del bloc" list=${`focus-${block.key}`} ariaLabel=${`Focus del bloc ${blockName(block.key)}`} />
@@ -25839,6 +25926,34 @@ function TimerButton({ secs, label, kind = 'rest', title }) {
   if (!(secs > 0)) return null;
   return html`<button type="button" class=${U.cls('tbtn', kind === 'work' && 'tbtn-work')} title=${title || `Inicia ${kind === 'work' ? 'el temps de treball' : 'el descans'}`}
     onClick=${() => Timer.start(secs, label, kind)}><${Icon} name="clock" size=${14} />${Calc.clock(secs)}</button>`;
+}
+
+
+/* ── 37-duration.js ── */
+/* EON Life · durada estimada de la sessió: un text amb el temps aproximat (treball + descansos) i un color segons si
+   s'allunya de l'hora ideal. */
+
+function fmtMinutes(m) {
+  if (!(m >= 0)) return '';
+  if (m < 90) return `${m} min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  return `${h} h${r ? ` ${r} min` : ''}`;
+}
+
+// Franja de durada d'una sessió: etiqueta, color i detall del càlcul.
+function SessionTime({ s, compact }) {
+  const d = Calc.sessionDuration(s);
+  const band = Calc.durationBand(d.minutes);
+  if (!band) return compact ? null : html`<p class="stime stime-empty no-print">Durada estimada: afegeix exercicis i la calcularé.</p>`;
+  const detail = `Treball ≈ ${Math.round(d.work / 60)} min · descansos ≈ ${Math.round(d.rest / 60)} min. Estimació a partir de les repeticions, els descansos i el canvi de material.`;
+  if (compact) return html`<span class=${`stime-chip stime-${band.key}`} title=${`${band.label}. ${detail}`}>≈ ${fmtMinutes(d.minutes)}</span>`;
+  const pct = Math.min(100, Math.round((d.minutes / 90) * 100));
+  return html`<div class=${`stime stime-${band.key} no-print`} role="status" title=${detail}>
+    <${Icon} name="clock" size=${17} />
+    <span class="stime-text">Durada estimada <strong>≈ ${fmtMinutes(d.minutes)}</strong></span>
+    <span class="stime-band">${band.label}${band.key === 'ideal' ? ' · cap a 1 h' : band.key === 'short' ? ` · falten ≈ ${60 - d.minutes} min per a 1 h` : ` · ≈ ${d.minutes - 60} min de més`}</span>
+    <span class="stime-bar" aria-hidden="true"><span style=${`width:${pct}%`}></span><i></i></span>
+  </div>`;
 }
 
 

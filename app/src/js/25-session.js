@@ -120,6 +120,8 @@ function SessionEditor({ id }) {
       ]} />
     </div>
 
+    <${SessionTime} s=${s} />
+
     ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
       title=${s.date === U.today() ? 'Material per a avui' : s.date === U.addDays(U.today(), 1) ? 'Material per a demà' : 'Material de la sessió'} />`}
 
@@ -421,6 +423,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       <div class="block-title">
         <h2 class="h2">${blockName(block.key)}</h2>
         <p class="block-desc">${blockDesc(block.key)}</p>
+        ${(() => { const bd = Calc.sessionDuration({ blocks: [block] }); return bd.blocks[0] ? html`<span class="block-time" title="Durada estimada d'aquest bloc (treball + descansos)">≈ ${fmtMinutes(Math.round(bd.blocks[0].secs / 60))}</span>` : null; })()}
       </div>
       <div class="block-focus">
         <${TextInput} value=${block.focus} onValue=${(v) => onChange((b) => { b.focus = v; })} placeholder="Focus del bloc" list=${`focus-${block.key}`} ariaLabel=${`Focus del bloc ${blockName(block.key)}`} />
