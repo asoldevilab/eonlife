@@ -263,6 +263,7 @@ function TemplateEditor({ id }) {
   const blocks = t.kind === 'session' ? sortBlocks(t.blocks) : null;
   // Els blocs de la plantilla de sessió s'afegeixen a mà (en blanc) i es col·loquen en l'ordre de la metodologia.
   const addBlock = (key) => upd((x) => { x.blocks = sortBlocks([...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)]); });
+  const addExercise = (key, it) => upd((x) => { x.blocks = sortBlocks(x.blocks); putExercise(x.blocks, key, it); });
   const removeBlock = async (key) => {
     const b = (t.blocks || []).find((x) => x.key === key);
     const n = b ? (b.items || []).filter((i) => i.name).length : 0;
@@ -285,10 +286,10 @@ function TemplateEditor({ id }) {
       </div>
     </section>
     ${t.kind === 'session'
-      ? html`${!blocks.length && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} what="la plantilla" who="aquesta plantilla" />`}
+      ? html`${!blocks.length && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}
         ${blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true} onRemove=${() => removeBlock(b.key)}
           onChange=${(fn) => upd((x) => { x.blocks = sortBlocks(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)}
-        ${blocks.length > 0 && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} what="la plantilla" who="aquesta plantilla" />`}`
+        ${blocks.length > 0 && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}`
       : html`<${BlockCard} block=${{ key: t.block, focus: t.focus, groups: t.groups, items: t.items || [] }} templateMode=${true}
           onChange=${(fn) => upd((x) => {
             const bb = { key: x.block, focus: x.focus, groups: x.groups, items: x.items || [] };

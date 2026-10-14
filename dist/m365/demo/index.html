@@ -1523,6 +1523,7 @@ tfoot .rpc { font-size: 14px; }
 .addblock { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 14px 0 7px; border-radius: 12px; border: 1.5px dashed var(--line-2); background: var(--surface); color: var(--ink); font-weight: 650; cursor: pointer; }
 .addblock:hover { border-color: var(--blk); border-style: solid; }
 .addblock .ic { color: var(--ink-3); }
+.addblock-lib { padding-left: 14px; border-style: solid; border-color: var(--brand-2); }
 .addblock-num { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 18px; font-weight: 700; }
 
 /* Lectura de l'informe de Kinvent */
@@ -4092,7 +4093,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-14 13:47";
+window.EON_BUILD = "2026-10-14 13:57";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -15588,7 +15589,7 @@ function eonFolders(list) {
 function openExerciseBrowser({ block, title, onPick, onBlank }) {
   let close = null;
   close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
-    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${() => { close(); onBlank(); }} onClose=${() => close()} />`,
+    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${onBlank ? () => { close(); onBlank(); } : null} onClose=${() => close()} />`,
   { onDismiss: () => close() });
 }
 
@@ -15599,7 +15600,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const [folder, setFolder] = useState(null);
   const [ex, setEx] = useState(null);
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
-  const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
+  const scope = all || !block ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
   const eon = eonFolders(pool);
   const own = ownFolders(pool);
@@ -15621,14 +15622,14 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const row = (e) => html`<${ExCard} e=${e} onClick=${() => choose(e)}
     sub=${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
 
-  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici · ${blockName(block)}`} onClose=${onClose} footer=${html`
-    <${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>
+  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici${block ? ` · ${blockName(block)}` : ''}`} onClose=${onClose} footer=${html`
+    ${onBlank && html`<${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>`}
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>`}>
     <div class="xb-top">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
-      <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
+      ${block && html`<label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>`}
     </div>
     ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<div class="xb-none"><p class="muted">Cap exercici coincideix. Crea'l a la biblioteca (amb el vídeo, si en tens) i després tria'l aquí, o afegeix-lo en blanc només en aquesta sessió.</p>
           <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: block || 'for' })}>Crea «${q.trim()}» a la biblioteca</${Btn}></div>`}</div>`
@@ -21886,6 +21887,15 @@ function SessionEditor({ id }) {
       if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
   };
+  const addExercise = (key, it) => {
+    const last = (prev || {})[it.name];
+    if (last && last.load) it.load = last.load;
+    upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
+    setTimeout(() => {
+      const el = document.querySelector(`section.block.blk-${key}`);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  };
   const removeBlock = async (key) => {
     const b = (s.blocks || []).find((x) => x.key === key);
     const n = b ? (b.items || []).filter((i) => i.name).length : 0;
@@ -21947,10 +21957,10 @@ function SessionEditor({ id }) {
 
     <${WellnessCard} id="se-wellness" value=${s.wellness} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
-    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
-    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} />`}
 
     <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
 
@@ -21980,15 +21990,41 @@ function SessionEditor({ id }) {
 // Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 // Botons per afegir a la sessió els blocs que encara no hi són.
-function AddBlocks({ blocks, onAdd, what = 'la sessió', who = 'aquest pacient' }) {
+// Posa un exercici de la biblioteca al seu bloc (el crea si encara no hi és) i, si el bloc està dividit, a l'últim subbloc.
+function putExercise(blocks, key, it) {
+  let b = blocks.find((x) => x.key === key);
+  if (!b) { b = Store.blankBlock(key); blocks.push(b); blocks.sort((x, y) => blockDef(x.key).num - blockDef(y.key).num); }
+  b.items = (b.items || []).filter((x) => x.name);
+  if (b.groups && b.groups.length) it.g = b.groups[b.groups.length - 1].id;
+  b.items.push(it);
+  Calc.sortByGroups(b);
+  return b;
+}
+
+// Exercici de la biblioteca sense passar abans pel bloc: va al bloc on està classificat.
+function pickAnyExercise(onPlace) {
+  openExerciseBrowser({
+    block: null,
+    title: 'Afegeix un exercici de la biblioteca',
+    onPick: (ex, mat) => {
+      onPlace(ex.block || 'for', itemFromExercise(ex, { material: mat || ex.material || '' }));
+      UI.toast(`${ex.name} · ${blockName(ex.block || 'for')}`);
+    },
+  });
+}
+
+function AddBlocks({ blocks, onAdd, onAddExercise, what = 'la sessió', who = 'aquest pacient' }) {
   const missing = BLOCKS.filter((b) => !(blocks || []).some((x) => x.key === b.key));
-  if (!missing.length) return null;
+  if (!missing.length && !onAddExercise) return null;
   const empty = !(blocks || []).length;
   return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label=${`Afegeix blocs a ${what}`}>
     ${empty ? html`<div><h2 class="h2">${`Blocs de ${what}`}</h2>
         <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen sols en l'ordre de la metodologia.`}</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
-    <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
+    <div class="addblocks-list">
+    ${onAddExercise && html`<button type="button" class="addblock addblock-lib" onClick=${() => pickAnyExercise(onAddExercise)}
+      title="Tria qualsevol exercici de la biblioteca: es posa al bloc on està classificat"><${Icon} name="search" size=${15} /><span class="addblock-name">Afegeix exercici de la biblioteca</span></button>`}
+    ${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
       <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
   </section>`;
 }
@@ -23065,6 +23101,7 @@ function TemplateEditor({ id }) {
   const blocks = t.kind === 'session' ? sortBlocks(t.blocks) : null;
   // Els blocs de la plantilla de sessió s'afegeixen a mà (en blanc) i es col·loquen en l'ordre de la metodologia.
   const addBlock = (key) => upd((x) => { x.blocks = sortBlocks([...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)]); });
+  const addExercise = (key, it) => upd((x) => { x.blocks = sortBlocks(x.blocks); putExercise(x.blocks, key, it); });
   const removeBlock = async (key) => {
     const b = (t.blocks || []).find((x) => x.key === key);
     const n = b ? (b.items || []).filter((i) => i.name).length : 0;
@@ -23087,10 +23124,10 @@ function TemplateEditor({ id }) {
       </div>
     </section>
     ${t.kind === 'session'
-      ? html`${!blocks.length && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} what="la plantilla" who="aquesta plantilla" />`}
+      ? html`${!blocks.length && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}
         ${blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true} onRemove=${() => removeBlock(b.key)}
           onChange=${(fn) => upd((x) => { x.blocks = sortBlocks(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)}
-        ${blocks.length > 0 && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} what="la plantilla" who="aquesta plantilla" />`}`
+        ${blocks.length > 0 && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}`
       : html`<${BlockCard} block=${{ key: t.block, focus: t.focus, groups: t.groups, items: t.items || [] }} templateMode=${true}
           onChange=${(fn) => upd((x) => {
             const bb = { key: x.block, focus: x.focus, groups: x.groups, items: x.items || [] };

@@ -57,6 +57,15 @@ function SessionEditor({ id }) {
       if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
   };
+  const addExercise = (key, it) => {
+    const last = (prev || {})[it.name];
+    if (last && last.load) it.load = last.load;
+    upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
+    setTimeout(() => {
+      const el = document.querySelector(`section.block.blk-${key}`);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  };
   const removeBlock = async (key) => {
     const b = (s.blocks || []).find((x) => x.key === key);
     const n = b ? (b.items || []).filter((i) => i.name).length : 0;
@@ -118,10 +127,10 @@ function SessionEditor({ id }) {
 
     <${WellnessCard} id="se-wellness" value=${s.wellness} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
-    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
-    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} />`}
 
     <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
 
@@ -151,15 +160,41 @@ function SessionEditor({ id }) {
 // Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 // Botons per afegir a la sessió els blocs que encara no hi són.
-function AddBlocks({ blocks, onAdd, what = 'la sessió', who = 'aquest pacient' }) {
+// Posa un exercici de la biblioteca al seu bloc (el crea si encara no hi és) i, si el bloc està dividit, a l'últim subbloc.
+function putExercise(blocks, key, it) {
+  let b = blocks.find((x) => x.key === key);
+  if (!b) { b = Store.blankBlock(key); blocks.push(b); blocks.sort((x, y) => blockDef(x.key).num - blockDef(y.key).num); }
+  b.items = (b.items || []).filter((x) => x.name);
+  if (b.groups && b.groups.length) it.g = b.groups[b.groups.length - 1].id;
+  b.items.push(it);
+  Calc.sortByGroups(b);
+  return b;
+}
+
+// Exercici de la biblioteca sense passar abans pel bloc: va al bloc on està classificat.
+function pickAnyExercise(onPlace) {
+  openExerciseBrowser({
+    block: null,
+    title: 'Afegeix un exercici de la biblioteca',
+    onPick: (ex, mat) => {
+      onPlace(ex.block || 'for', itemFromExercise(ex, { material: mat || ex.material || '' }));
+      UI.toast(`${ex.name} · ${blockName(ex.block || 'for')}`);
+    },
+  });
+}
+
+function AddBlocks({ blocks, onAdd, onAddExercise, what = 'la sessió', who = 'aquest pacient' }) {
   const missing = BLOCKS.filter((b) => !(blocks || []).some((x) => x.key === b.key));
-  if (!missing.length) return null;
+  if (!missing.length && !onAddExercise) return null;
   const empty = !(blocks || []).length;
   return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label=${`Afegeix blocs a ${what}`}>
     ${empty ? html`<div><h2 class="h2">${`Blocs de ${what}`}</h2>
         <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen sols en l'ordre de la metodologia.`}</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
-    <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
+    <div class="addblocks-list">
+    ${onAddExercise && html`<button type="button" class="addblock addblock-lib" onClick=${() => pickAnyExercise(onAddExercise)}
+      title="Tria qualsevol exercici de la biblioteca: es posa al bloc on està classificat"><${Icon} name="search" size=${15} /><span class="addblock-name">Afegeix exercici de la biblioteca</span></button>`}
+    ${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
       <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
   </section>`;
 }

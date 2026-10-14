@@ -92,7 +92,7 @@ function eonFolders(list) {
 function openExerciseBrowser({ block, title, onPick, onBlank }) {
   let close = null;
   close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
-    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${() => { close(); onBlank(); }} onClose=${() => close()} />`,
+    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${onBlank ? () => { close(); onBlank(); } : null} onClose=${() => close()} />`,
   { onDismiss: () => close() });
 }
 
@@ -103,7 +103,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const [folder, setFolder] = useState(null);
   const [ex, setEx] = useState(null);
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
-  const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
+  const scope = all || !block ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
   const eon = eonFolders(pool);
   const own = ownFolders(pool);
@@ -125,14 +125,14 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
   const row = (e) => html`<${ExCard} e=${e} onClick=${() => choose(e)}
     sub=${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
 
-  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici · ${blockName(block)}`} onClose=${onClose} footer=${html`
-    <${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>
+  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici${block ? ` · ${blockName(block)}` : ''}`} onClose=${onClose} footer=${html`
+    ${onBlank && html`<${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>`}
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>`}>
     <div class="xb-top">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
-      <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
+      ${block && html`<label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>`}
     </div>
     ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<div class="xb-none"><p class="muted">Cap exercici coincideix. Crea'l a la biblioteca (amb el vídeo, si en tens) i després tria'l aquí, o afegeix-lo en blanc només en aquesta sessió.</p>
           <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: block || 'for' })}>Crea «${q.trim()}» a la biblioteca</${Btn}></div>`}</div>`

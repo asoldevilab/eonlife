@@ -384,6 +384,9 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
 
 - **Biblioteca › Plantilles › Nova plantilla › Plantilla de sessió en blanc**: comença sense cap bloc i hi afegeixes només
   els que vols (Mobilitat, Força principal…) amb els botons «Afegeix un bloc». Es poden treure amb el menú del bloc.
+- **Afegeix exercici de la biblioteca** (a la sessió i a la plantilla, a la zona «Afegeix un bloc»): cerques o navegues per
+  tota la biblioteca sense haver obert cap bloc abans. L'exercici va al bloc on està classificat i, si el bloc encara no hi
+  és, es crea sol. Si el bloc ja està dividit en subblocs, va al darrer.
 - Dins de qualsevol bloc, **Afegeix superserie** crea un subbloc de superserie: hi poses 2 o 3 exercicis que es fan
   seguits, una volta rere l'altra. A la capçalera hi tries les **voltes** i el **descans entre voltes**; els exercicis
   no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
