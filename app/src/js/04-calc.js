@@ -808,6 +808,9 @@ const Flat = {
     for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
     o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
     o['Wellness observacions'] = x.notes || '';
+    o['HRV en repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC en repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },
 
@@ -821,6 +824,7 @@ const Flat = {
       'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
       'Sessió del pla': U.num(s.planN) ?? '',
       ...Flat.wellness(s.wellness),
+      'FC mitjana (bpm)': U.num(f.hrAvg) ?? '', 'FC màxima (bpm)': U.num(f.hrMax) ?? '', 'FC mínima (bpm)': U.num(f.hrMin) ?? '',
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
     };

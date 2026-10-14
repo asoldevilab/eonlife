@@ -1101,6 +1101,64 @@ const step = async (label, fn) => {
     const off = await page.evaluate(() => PdfSync.info('P-DEMO-JORDI').state);
     if (off !== 'off') throw new Error(`sense núvol l'estat és ${off}`);
   });
+  await step('dibuixos de politja: el Pro Inertial C2 (con, corda, cinturó) i el Keiser (cilindre d\'aire) es veuen a la miniatura', async () => {
+    const r = await page.evaluate(() => {
+      const svg = (name, material) => exercisePicSvg({ name, material, block: 'acc' }, null, 'start');
+      return {
+        cone: svg('Rem unilateral a la politja cònica', 'Politja cònica isoinercial'),
+        split: svg('Split squat a la politja cònica', 'Politja cònica isoinercial'),
+        lat: svg('Lateral lunge a la politja cònica', 'Politja cònica isoinercial'),
+        kcable: svg('Curl de bíceps a la politja', 'Keiser (pneumàtica)'),
+        kpress: svg('Press de pit Keiser', 'Keiser (pneumàtica)'),
+        klp: svg('Leg press unilateral Keiser', 'Keiser (pneumàtica)'),
+        plain: svg('Curl de bíceps a la politja', 'Politja Technogym'),
+        keys: ['Rem unilateral a la politja cònica', 'Split squat a la politja cònica', 'Lateral lunge a la politja cònica'].map((n) => picKeyOf({ name: n, material: 'Politja cònica isoinercial', block: 'acc' })),
+      };
+    });
+    for (const k of ['cone', 'split', 'lat']) if (!/class="pc"/.test(r[k]) || !/class="pc2"/.test(r[k])) throw new Error(`${k}: no es veu el con`);
+    for (const k of ['kcable', 'kpress', 'klp']) if (!/class="pka"/.test(r[k])) throw new Error(`${k}: no es veu el cilindre d'aire`);
+    if (/class="pc"|class="pka"/.test(r.plain)) throw new Error('la politja Technogym no ha de portar con ni cilindre');
+    if (r.keys.join() !== 'row_standing_cone,split_cone,lateral_lunge_cone') throw new Error(r.keys.join());
+  });
+  await step('FC i HRV: HRV en repòs opcional al wellness i FC mitjana de la sessió (strap simulat)', async () => {
+    const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
+    await goHash(page, `#/sessio/${sid}`);
+    const card = page.locator('#se-wellness');
+    await card.waitFor();
+    if (await card.locator('#se-wellness-hrv, #se-wellness-rhr, #se-wellness-hrvsrc').count()) throw new Error('no hi ha d\'haver-hi camps de la nit anterior');
+    // Sense Bluetooth (Chromium sense maniquí), la targeta ho diu i deixa escriure la FC a mà.
+    const hr = page.locator('#se-hr');
+    await hr.waitFor();
+    await hr.locator('#hr-avg').fill('128');
+    await hr.locator('#hr-max').fill('171');
+    await page.waitForTimeout(300);
+    let x = await page.evaluate((id) => { const s = Store.get('sessions', id); return { w: s.wellness, f: s.feedback }; }, sid);
+    if (x.f.hrAvg !== '128' || x.f.hrSource !== 'manual') throw new Error(JSON.stringify(x));
+    // HRV en repòs en arribar: opcional; es desplega, es pot escriure a mà i es guarda amb la font «a mà».
+    await card.locator('text=Afegeix l\'HRV en repòs en arribar').click();
+    await card.locator('#se-wellness-hrva-v').fill('58');
+    await card.locator('#se-wellness-hrva-h').fill('63');
+    await page.waitForTimeout(300);
+    const wa = await page.evaluate((id) => Store.get('sessions', id).wellness, sid);
+    if (wa.hrvA !== '58' || wa.hrvAhr !== '63' || wa.hrvAsrc !== 'manual') throw new Error(JSON.stringify(wa));
+    // Mesura amb el strap simulat: només és possible amb el strap connectat; la lògica es prova amb intervals RR reals.
+    const meas = await page.evaluate(() => new Promise((res) => {
+      HrLive.disconnect(); window.__fake = true;
+      // fingim la connexió: l'estat intern només es pot tocar via connect(); aquí comprovem que sense strap no mesura
+      res(HrLive.measure(2, () => {}));
+    }));
+    if (meas !== false) throw new Error('sense strap no es pot mesurar');
+    // Enregistrament amb el strap simulat: mostres reals a HrLive i «Atura i desa» escriu a la sessió.
+    await page.evaluate((id) => { HrLive.start(id); const t0 = Date.now() - 60000; for (let i = 0; i < 60; i++) HrLive._push(100 + (i % 3) * 10, t0 + i * 1000); }, sid);
+    await page.evaluate(() => { const s = HrLive.state; return s; });
+    const r = await page.evaluate(() => HrLive.stop());
+    if (!r || r.avg < 100 || r.avg > 120 || r.max !== 120) throw new Error(`resum del strap: ${JSON.stringify(r)}`);
+    await page.evaluate(({ id, r }) => Store.update('sessions', id, (x) => { x.feedback = { ...x.feedback, hrAvg: String(r.avg), hrSource: 'strap' }; }), { id: sid, r });
+    const flat = await page.evaluate((id) => { const s = Store.get('sessions', id); return Flat.session(s, Store.get('patients', s.patientId), Store.settings); }, sid);
+    if (flat['HRV en repòs en arribar (RMSSD, ms)'] !== 58 || flat['FC mitjana (bpm)'] !== r.avg) throw new Error(JSON.stringify(flat));
+    await hr.scrollIntoViewIfNeeded();
+    await shot(page, '08a-fc-hrv', false);
+  });
   await step('wellness a l\'inici de la sessió i de la valoració (1-5 i observacions)', async () => {
     const sid = await page.evaluate(() => Store.newSession('P-DEMO-ALEX', { date: U.today(), mode: 'blank' }).id);
     await goHash(page, `#/sessio/${sid}`);

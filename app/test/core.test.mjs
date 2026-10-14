@@ -688,7 +688,7 @@ test('dibuixos en 3D: cada moviment en la seva vista, el material de colors prop
   assert.equal(P.picViewOf(P.PICS[P.picKeyOf(ex('Back squat'))]), 'side');
   // El material, amb colors diferents del cos: pesos d'acer (pm), gomes i cables (pe), material tou (ps)
   const svg = (name) => P.exercisePicSvg(ex(name), null, 'still');
-  assert.ok(/class="pm"/.test(svg('Back squat')) && /class="pk"/.test(svg('Back squat')));
+  assert.ok(/class="pm"/.test(svg('Back squat')) && /class="pk pk-skin"/.test(svg('Back squat')));
   assert.ok(/class="pm"/.test(svg('Goblet squat')));
   assert.ok(/class="pe"/.test(svg('Monster walk · banda als genolls')));
   assert.ok(/class="pe"/.test(svg('Pallof press dinàmic')));
@@ -1086,4 +1086,115 @@ test('perfil càrrega-velocitat: dona els mateixos números que l\'app de l\'ADR
   // Equacions escrites com a l'ADR
   assert.equal(r.eq, 'Càrrega (kg) = −49,47 × velocitat + 87,49');
   assert.match(r.eqPct, /^%1RM = −62,\d\d × velocitat \+ 110,6\d$/);
+});
+
+// ── FC i HRV ──
+test('HR: lectura Bluetooth, resum de FC i RMSSD', () => {
+  const { HR } = loadCore();
+  const mk = (bytes) => { const b = new Uint8Array(bytes).buffer; return new DataView(b); };
+  // flags 0x10: FC en 8 bits + dos RR (1024 = 1000 ms, 512 = 500 ms)
+  const m = HR.parse(mk([0x10, 72, 0x00, 0x04, 0x00, 0x02]));
+  assert.equal(m.bpm, 72);
+  assert.deepEqual([...m.rr], [1000, 500]);
+  const w = HR.parse(mk([0x01, 0x2c, 0x01])); // 16 bits: 300 → 0x012c
+  assert.equal(w.bpm, 300);
+  assert.equal(HR.parse(mk([0x00])), null);
+  const s = HR.summarize([{ t: 0, bpm: 100 }, { t: 1000, bpm: 120 }, { t: 2000, bpm: 0 }, { t: 3000, bpm: 140 }]);
+  assert.equal(s.max, 140); assert.equal(s.min, 100); assert.ok(s.avg >= 115 && s.avg <= 125);
+  assert.equal(HR.summarize([{ t: 0, bpm: 0 }]), null);
+  // RMSSD: sèrie alterna 800/820 → diferències de 20 ms
+  const rr = Array.from({ length: 30 }, (_, i) => (i % 2 ? 820 : 800));
+  assert.equal(HR.rmssd(rr), 20);
+  assert.equal(HR.rmssd([800, 810]), null, 'massa pocs batecs');
+  assert.equal(HR.rmssd([...rr.slice(0, 15), 200, ...rr.slice(15)]), 20, 'un batec erroni no compta');
+});
+
+test('HR: línia de base d\'HRV del pacient i estat', () => {
+  const { HR, U } = loadCore();
+  const today = '2026-10-13';
+  const pts = Array.from({ length: 10 }, (_, i) => ({ date: U.addDays(today, -(i + 1) * 3), rmssd: 60 + (i % 3) * 4 }));
+  assert.equal(HR.baseline(pts.slice(0, 5), today), null, 'menys de 7 mesures: no hi ha base');
+  const b = HR.baseline(pts, today);
+  assert.ok(b && b.n === 10 && b.low < b.mean && b.high > b.mean);
+  assert.equal(HR.status(30, b), 'low');
+  assert.equal(HR.status(62, b), 'ok');
+  assert.equal(HR.status(120, b), 'high');
+  assert.equal(HR.status('', b), null);
+});
+
+test('HR: les dades surten a les columnes d\'Excel i a la taula', () => {
+  const { Flat } = loadCore();
+  const s = { id: 's1', date: '2026-10-13', status: 'feta', wellness: { hrvA: '58.5', hrvAhr: '63', hrvAsrc: 'strap' }, feedback: { rpe: '7', duration: '50', hrAvg: '131', hrMax: '168' }, blocks: [] };
+  const o = Flat.session(s, { name: 'Anna', surname: 'X' }, {});
+  assert.equal(o['HRV en repòs en arribar (RMSSD, ms)'], 58.5);
+  assert.equal(o['FC en repòs en arribar (bpm)'], 63);
+  assert.equal(o['HRV en arribar · mesura'], 'Strap');
+  assert.equal(o['FC mitjana (bpm)'], 131);
+  assert.equal(o['FC màxima (bpm)'], 168);
+  assert.ok(!Object.keys(o).some((k) => /nit/i.test(k)), 'no hi ha mètriques de la nit anterior');
+});
+
+test('HR: mesura en repòs (descarta l\'estabilització, qualitat i FC)', () => {
+  const { HR } = loadCore();
+  // 90 batecs alternant 800/820 ms (≈74 bpm, RMSSD 20) + un batec erroni
+  const rr = Array.from({ length: 90 }, (_, i) => (i % 2 ? 820 : 800));
+  rr.splice(40, 0, 150);
+  const a = HR.analyze(rr, 15000);
+  assert.equal(a.rmssd, 20);
+  assert.equal(a.hr, 74);
+  assert.ok(a.quality >= 98 && a.quality < 100, `qualitat ${a.quality}`);
+  assert.equal(HR.analyze([800, 810, 800], 0), null, 'massa pocs batecs');
+  // les mesures d'arribada tenen la seva pròpia línia de base
+  const U = loadCore().U;
+  const pts = HR.points([{ date: '2026-10-01', wellness: { hrvA: '70' } }, { date: '2026-10-02', wellness: { hrvA: '' } }]);
+  assert.deepEqual(pts.map((p) => p.rmssd), [70]);
+});
+
+// ── Dibuixos: continuïtat, contactes fixos i roba ──
+test('dibuixos: animacions contínues (sense girs de disc ni salts), peus fixos, i roba/cabell/sabatilles amb els colors del centre', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES } = loadCore();
+  const win = { matchMedia: () => ({ matches: false }) };
+  const P = new Function('U', 'window', 'localStorage', `${src}\nreturn { PICS, picKeyOf, picGearOf, exercisePicSvg, picFrames, picSvgOf, picMoves };`)(U, win, { getItem: () => null, setItem() {} });
+  const ex = (name) => SEED_EXERCISES.find((e) => e.name === name);
+  // Roba i cabell: cada part del cos té la seva classe (pell, samarreta, pantaló, sabatilles, cabell)
+  const s = P.exercisePicSvg(ex('Back squat'), null, 'still');
+  for (const c of ['pk-skin', 'pk-top', 'pk-short', 'pk-shoe']) assert.ok(s.includes(c), `falta ${c}`);
+  // Continuïtat: cap tros dels dibuixos fa un salt gran entre dos fotogrames consecutius (un disc que gira 180°, una
+  // anella de goma que «brilla», una barra que gira 360°…). Només passen algunes extremitats en moviments molt ràpids.
+  const nums = (d) => (d.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+  const paths = (svg) => [...svg.matchAll(/<path class="([^"]*)" d="([^"]*)"/g)].map((m) => ({ c: m[1], d: m[2] }));
+  const seen = new Set(), bad = [];
+  for (const e of SEED_EXERCISES) {
+    const key = P.picKeyOf(e), g = P.picGearOf(e, key), id = `${key}|${g.kind}|${g.at || ''}`;
+    if (seen.has(id) || !P.picMoves(key, e)) continue;
+    seen.add(id);
+    const F = P.picFrames(P.PICS[key] || P.PICS.stand, g);
+    const fr = F.scenes.map((_, i) => paths(P.picSvgOf(F.poses[i], F.scenes[i], F.order, g)));
+    for (let i = 0; i < fr[0].length; i++) {
+      for (let f = 1; f < fr.length; f++) {
+        const a = nums(fr[f - 1][i].d), b = nums(fr[f][i].d);
+        const worst = a.length === b.length ? Math.max(...a.map((v, k) => Math.abs(v - b[k]))) : 999;
+        // Es deixen passar només les extremitats de la pell (moviments rapidíssims de braços i cames) i el material petit que es mou amb elles
+        if (worst > 45 && !/pk-skin/.test(fr[0][i].c) && !/^(pm|pmh|pml)$/.test(fr[0][i].c)) bad.push(`${e.name} (${fr[0][i].c} ${Math.round(worst)})`);
+        if (worst > 45 && /^pe-ring$|^pe$/.test(fr[0][i].c)) bad.push(`${e.name} gomes`);
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `salts bruscs: ${bad.slice(0, 6).join(' · ')}`);
+  // Contactes fixos: al squat búlgar el peu de darrere es queda al banc i, al sumo i a l'estocada lateral, els peus no es mouen
+  const still = (name, k) => { const key = P.picKeyOf(ex(name)); const F = P.picFrames(P.PICS[key], P.picGearOf(ex(name), key)); return F.scenes.map((S) => S.key[k]); };
+  const drift = (pts) => Math.max(...pts.map((p) => p[0])) - Math.min(...pts.map((p) => p[0]));
+  assert.ok(drift(still('Split squat búlgar', 'fL')) < 1.2, 'el peu de darrere del búlgar es queda al banc');
+  assert.ok(drift(still('Sumo squat', 'fL')) < 1.2 && drift(still('Sumo squat', 'fR')) < 1.2, 'peus fixos al sumo');
+  assert.ok(drift(still('Cossack squat', 'fR')) < 1.2, 'peu fix a l\'estocada lateral');
+  // Les rotacions de discos i anelles no fan salts de 180° (el destello taronja del skipping amb banda)
+  const sk = ex('Skipping · banda als genolls');
+  const key = P.picKeyOf(sk), g = P.picGearOf(sk, key), F = P.picFrames(P.PICS[key], g);
+  const rings = F.scenes.map((_, i) => paths(P.picSvgOf(F.poses[i], F.scenes[i], F.order, g)).filter((x) => x.c === 'pe-ring'));
+  for (let f = 1; f < rings.length; f++) rings[f].forEach((r, i) => assert.ok(Math.max(...nums(r.d).map((v, k) => Math.abs(v - nums(rings[f - 1][i].d)[k]))) < 25, 'anella contínua'));
+  // Els alliberaments (corró, pilota) es mouen, i la pilota del slam surt de les mans
+  for (const name of ['Foam roller', 'Alliberament miofascial del dorsal · rodar', 'Alliberament miofascial dels bessons · cercles']) assert.ok(P.picMoves(P.picKeyOf(ex(name)), ex(name)), `${name} s'ha de moure`);
+  assert.ok(P.PICS.slam.bl === 1 && P.PICS.slam.from.bl === 0);
 });

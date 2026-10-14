@@ -67,6 +67,8 @@
   --pic-prop: #CEC5BB;
   --pic-prop-top: #DDD6CE; --pic-prop-side: #BCB1A5;
   --pic-metal: #3F5F7F; --pic-metal-2: #8DA2B6; --pic-elastic: #E5592C; --pic-soft: #1F9A8B;
+  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-air: #4C9AD6;
+  --pic-skin: #E4AE8A; --pic-skin-far: #C4906E; --pic-top: #5A1C21; --pic-top-far: #3C1316; --pic-short: #2F2527; --pic-short-far: #1D1618; --pic-shoe: #ECE6DD; --pic-shoe-far: #CFC7BB; --pic-hair: #3B261B; --pic-hair-far: #2A1A12;
   --grid: #ECE6E0;
   --axis: #978985;
   --baseline: #CFC7BF;
@@ -123,6 +125,8 @@
     --pic-prop: #5E5250;
     --pic-prop-top: #6E6260; --pic-prop-side: #514644;
     --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
+  --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
     --grid: #33242A;
     --axis: #9B8C88;
     --baseline: #56423F;
@@ -172,6 +176,8 @@
   --pic-prop: #5E5250;
   --pic-prop-top: #6E6260; --pic-prop-side: #514644;
   --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
+  --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
   --grid: #33242A;
   --axis: #9B8C88;
   --baseline: #56423F;
@@ -1463,6 +1469,13 @@ tfoot .rpc { font-size: 14px; }
 .pic path { stroke-linejoin: round; stroke-linecap: round; }
 .pic .pk { fill: var(--pic-body); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
 .pic .pkf { fill: var(--pic-far); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.55; }
+.pic .pko { fill: var(--pic-bg, var(--surface)); stroke: var(--pic-bg, var(--surface)); stroke-width: 1.1; }
+.pic .ns { stroke: none; }
+.pic .pk-skin { fill: var(--pic-skin); } .pic .pkf.pk-skin { fill: var(--pic-skin-far); }
+.pic .pk-top { fill: var(--pic-top); } .pic .pkf.pk-top { fill: var(--pic-top-far); }
+.pic .pk-short { fill: var(--pic-short); } .pic .pkf.pk-short { fill: var(--pic-short-far); }
+.pic .pk-shoe { fill: var(--pic-shoe); } .pic .pkf.pk-shoe { fill: var(--pic-shoe-far); }
+.pic .pk-hair { fill: var(--pic-hair); } .pic .pkf.pk-hair { fill: var(--pic-hair-far); }
 .pic .pm { fill: var(--pic-metal); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pmh { fill: var(--pic-metal-2); }
 .pic .pml { fill: none; stroke: var(--pic-metal); }
@@ -1473,6 +1486,10 @@ tfoot .rpc { font-size: 14px; }
 .pic .pp.pp-top { fill: var(--pic-prop-top); }
 .pic .pp.pp-side { fill: var(--pic-prop-side); }
 .pic .pl { fill: none; stroke: var(--pic-prop); }
+.pic .pc { fill: var(--pic-cone); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pc2 { fill: var(--pic-cone-2); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pkz { fill: var(--pic-keiser); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pka { fill: var(--pic-air); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pfl { fill: none; stroke: var(--line-2); }
 .pic .psh { fill: var(--ink); opacity: 0.08; }
 .ladder-step .exthumb { border-radius: 8px; }
@@ -1580,6 +1597,7 @@ tfoot .rpc { font-size: 14px; }
   --ok-ink: #3D6B2E; --warn-ink: #875D0A; --bad-ink: #A3302A; --ok-bg: #EEF4EA; --warn-bg: #FBF2E0; --bad-bg: #FBEBE9;
   --side-d: #8A2F36; --side-e: #B8862F; --series-1: #8A2F36; --series-2: #B8862F; --series-3: #2F6FB0;
   --grid: #ECE6E0; --axis: #978985; --baseline: #CFC7BF; --pic-prop: #CEC5BB; --pain: #8E8680;
+  --pic-skin: #E4AE8A; --pic-skin-far: #C4906E; --pic-top: #5A1C21; --pic-top-far: #3C1316; --pic-short: #2F2527; --pic-short-far: #1D1618; --pic-shoe: #ECE6DD; --pic-shoe-far: #CFC7BB; --pic-hair: #3B261B; --pic-hair-far: #2A1A12;
 }
 .report-dark {
   color-scheme: dark;
@@ -1590,6 +1608,7 @@ tfoot .rpc { font-size: 14px; }
   --ok: #9CC98B; --warn: #E6C55A; --bad: #EE7A8A; --pain: #BFA9A4;
   --side-d: #EE7A8A; --side-e: #E6C55A; --series-1: #EE7A8A; --series-2: #E6C55A; --series-3: #9CC6F0;
   --grid: #5C282C; --axis: #C9ABA5; --baseline: #84504F; --pic-prop: #7A4A4C;
+  --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
 }
 .present.report-light, .present.report-dark, .report.report-light, .report.report-dark, .sheet.report-light, .sheet.report-dark { background: var(--bg); color: var(--ink); }
 .report-theme .seg-btn { min-width: 64px; }
@@ -1733,6 +1752,26 @@ tfoot .rpc { font-size: 14px; }
 .adr-map summary { cursor: pointer; font-weight: 650; }
 .adr-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-top: 8px; }
 .adr-map-row { display: grid; gap: 3px; font-size: 13px; }
+
+/* FC i HRV */
+.hrv-status { display: flex; flex-direction: column; gap: 4px; align-self: center; }
+.hr-card .card-head .h2 { display: flex; align-items: center; gap: 8px; }
+.hr-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 12px; }
+.hr-bpm { display: flex; align-items: baseline; gap: 8px; min-width: 150px; }
+.hr-num { font-size: 44px; font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
+.hr-num.off { color: var(--muted); }
+.hr-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.hr-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: 12px 18px; align-items: end; margin-bottom: 8px; }
+.hr-card .hint.warn { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--bad, #B3261E) 45%, var(--line)); }
+
+.hrva, .hrva-add { margin: 0 0 14px; }
+.hrva { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.hrva-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 4px; }
+.hrva-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px 18px; align-items: start; margin: 10px 0; }
+.hrva-measure { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.hrva-run { display: inline-flex; align-items: baseline; gap: 6px; }
+.hrva .hr-num { font-size: 34px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.hrva-add .btn, .hrva-head .btn { white-space: normal; height: auto; min-height: 44px; text-align: left; max-width: 100%; }
 </style>
 </head>
 <body>
@@ -4045,7 +4084,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-12 16:08";
+window.EON_BUILD = "2026-10-13 17:13";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6532,6 +6571,9 @@ const Flat = {
     for (const q of WELLNESS) o[`${q.label} (1-5)`] = U.num(x[q.k]) ?? '';
     o['Wellness total (/25)'] = c && c.total != null ? c.total : '';
     o['Wellness observacions'] = x.notes || '';
+    o['HRV en repòs en arribar (RMSSD, ms)'] = U.num(x.hrvA) ?? '';
+    o['FC en repòs en arribar (bpm)'] = U.num(x.hrvAhr) ?? '';
+    o['HRV en arribar · mesura'] = x.hrvAsrc === 'strap' ? 'Strap' : x.hrvAsrc === 'manual' ? 'A mà' : '';
     return o;
   },
 
@@ -6545,6 +6587,7 @@ const Flat = {
       'Pla': s.planId && typeof Store !== 'undefined' && Store.get ? ((Store.get('templates', s.planId) || {}).name || '') : '',
       'Sessió del pla': U.num(s.planN) ?? '',
       ...Flat.wellness(s.wellness),
+      'FC mitjana (bpm)': U.num(f.hrAvg) ?? '', 'FC màxima (bpm)': U.num(f.hrMax) ?? '', 'FC mínima (bpm)': U.num(f.hrMin) ?? '',
       'RPE': U.num(f.rpe) ?? '', 'Durada (min)': U.num(f.duration) ?? '', 'Càrrega (UA)': Calc.sessionLoad(s) ?? '',
       'Dolor post (0-10)': U.num(f.pain) ?? '', 'Observacions': f.notes || '', 'Decisió propera sessió': f.decision || '',
     };
@@ -6879,6 +6922,104 @@ const Evol = {
       load: vals(list, 'load').length ? vals(list, 'load').reduce((a, b) => a + b, 0) : null,
     }));
   },
+};
+
+
+/* ── 04-hr.js ── */
+/* EON Life · freqüència cardíaca (FC) i variabilitat (HRV).
+   · FC mitjana de la sessió, mesurada amb un strap Bluetooth (Polar H10…) o escrita a mà.
+   · HRV en repòs en arribar (RMSSD en ms), opcional, mesurada amb el strap o escrita a mà.
+   Només càlculs, sense pantalla. */
+
+const HR = {
+  // Característica «Heart Rate Measurement» del Bluetooth (0x2A37): FC i, si n'hi ha, els intervals entre batecs (RR).
+  // Bit 0 dels flags: la FC va en 16 bits; bit 3: hi ha energia gastada; bit 4: hi ha intervals RR (en 1/1024 s).
+  parse(dv) {
+    if (!dv || dv.byteLength < 2) return null;
+    const flags = dv.getUint8(0);
+    let i = 1, bpm;
+    if (flags & 0x01) { bpm = dv.getUint16(i, true); i += 2; } else { bpm = dv.getUint8(i); i += 1; }
+    if (flags & 0x08) i += 2;
+    const rr = [];
+    if (flags & 0x10) for (; i + 1 < dv.byteLength; i += 2) rr.push(Math.round((dv.getUint16(i, true) / 1024) * 1000));
+    return { bpm, rr, contact: (flags & 0x04) ? !!(flags & 0x02) : null };
+  },
+
+  // Resum d'una sèrie de mostres [{t (ms), bpm}]: mitjana ponderada pel temps, màxim, mínim i durada.
+  // Les lectures de 0 o fora de rang (el strap sense contacte) no compten; els salts de més de 5 s no s'allarguen.
+  summarize(samples) {
+    const ok = (samples || []).filter((x) => x && x.bpm >= 30 && x.bpm <= 230 && Number.isFinite(x.t)).sort((a, b) => a.t - b.t);
+    if (!ok.length) return null;
+    let sum = 0, span = 0;
+    for (let i = 0; i < ok.length; i++) {
+      const next = ok[i + 1];
+      const dt = next ? Math.min(next.t - ok[i].t, 5000) : 1000;
+      sum += ok[i].bpm * dt; span += dt;
+    }
+    const bpms = ok.map((x) => x.bpm);
+    return {
+      avg: Math.round(sum / span), max: Math.max(...bpms), min: Math.min(...bpms),
+      minutes: Math.round(((ok[ok.length - 1].t - ok[0].t) / 60000) * 10) / 10, n: ok.length,
+    };
+  },
+
+  // RMSSD (ms) d'una llista d'intervals RR (ms). Descarta els batecs erronis (fora de 300–2000 ms o que s'allunyen
+  // més d'un 20 % de l'anterior) abans de calcular-lo.
+  rmssd(rr) {
+    const clean = [];
+    for (const v of rr || []) {
+      if (!(v >= 300 && v <= 2000)) continue;
+      if (clean.length && Math.abs(v - clean[clean.length - 1]) > 0.2 * clean[clean.length - 1]) continue;
+      clean.push(v);
+    }
+    if (clean.length < 10) return null;
+    let s = 0;
+    for (let i = 1; i < clean.length; i++) s += (clean[i] - clean[i - 1]) ** 2;
+    return Math.round(Math.sqrt(s / (clean.length - 1)) * 10) / 10;
+  },
+
+  // Anàlisi d'una mesura en repòs: RMSSD, FC mitjana i qualitat (percentatge de batecs vàlids). Es descarta el primer
+  // tram (l'estabilització): skipMs de batecs al principi.
+  analyze(rr, skipMs = 15000) {
+    let acc = 0;
+    const body = [];
+    for (const v of rr || []) { if (acc >= skipMs) body.push(v); acc += v; }
+    const clean = [];
+    for (const v of body) {
+      if (!(v >= 300 && v <= 2000)) continue;
+      if (clean.length && Math.abs(v - clean[clean.length - 1]) > 0.2 * clean[clean.length - 1]) continue;
+      clean.push(v);
+    }
+    const r = HR.rmssd(body);
+    if (r == null) return null;
+    const mean = clean.reduce((a, b) => a + b, 0) / clean.length;
+    return { rmssd: r, hr: Math.round(60000 / mean), n: body.length, clean: clean.length, quality: Math.round((clean.length / body.length) * 100) };
+  },
+
+  // Línia de base d'HRV d'un pacient: logaritme natural de l'RMSSD dels darrers 60 dies abans de la data, amb el rang
+  // normal = mitjana ± 0,75 desviacions (com fa HRV4Training). Cal un mínim de 7 mesures.
+  baseline(points, date) {
+    const end = date || U.today();
+    const from = U.addDays(end, -60);
+    const ln = (points || []).filter((p) => p.date && p.date >= from && p.date < end && p.rmssd > 0).map((p) => Math.log(p.rmssd));
+    if (ln.length < 7) return null;
+    const mean = ln.reduce((a, b) => a + b, 0) / ln.length;
+    const sd = Math.sqrt(ln.reduce((a, b) => a + (b - mean) ** 2, 0) / (ln.length - 1));
+    return { n: ln.length, mean: Math.exp(mean), low: Math.exp(mean - 0.75 * sd), high: Math.exp(mean + 0.75 * sd) };
+  },
+
+  // Estat d'un valor respecte de la línia de base: 'low', 'high' o 'ok' (null si no hi ha base o valor).
+  status(rmssd, base) {
+    const v = U.num(rmssd);
+    if (v == null || !base) return null;
+    return v < base.low ? 'low' : v > base.high ? 'high' : 'ok';
+  },
+
+  // RMSSD de les sessions d'un pacient: [{date, rmssd}]. key: el camp del wellness (per defecte hrvA, l'HRV en repòs).
+  points(sessions, key = 'hrvA') {
+    return (sessions || []).map((s) => ({ date: s.date, rmssd: U.num((s.wellness || {})[key]) })).filter((p) => p.rmssd != null);
+  },
+
 };
 
 
@@ -8345,6 +8486,9 @@ const DB = (() => {
       { id: 'goal', label: 'Objectiu', kind: 'text', wide: true, get: (r) => r.s.goal || '' },
       { id: 'status', label: 'Estat', kind: 'text', get: (r) => (r.s.status === 'feta' ? 'Feta' : 'Planificada'), tone: (r) => (r.s.status === 'feta' ? 'ok' : '') },
       ...wellnessCols((r) => r.s.wellness),
+      { id: 'hrva', group: 'Wellness', label: 'HRV en repòs', unit: 'ms', kind: 'num', dec: 0, get: (r) => num((r.s.wellness || {}).hrvA) },
+      { id: 'hravg', group: 'Tancament', label: 'FC mitjana', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrAvg) },
+      { id: 'hrmax', group: 'Tancament', label: 'FC màx.', unit: 'bpm', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).hrMax) },
       { id: 'rpe', group: 'Tancament', label: 'RPE', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).rpe) },
       { id: 'min', group: 'Tancament', label: 'Minuts', kind: 'num', dec: 0, get: (r) => num((r.s.feedback || {}).duration) },
       { id: 'load', group: 'Tancament', label: 'Càrrega', unit: 'UA', kind: 'num', dec: 0, get: (r) => Calc.sessionLoad(r.s) },
@@ -10710,7 +10854,7 @@ const ExcelClient = (() => {
 
   // ── Registre: una fila per sessió ──
   function registerSheet(ws, { p, rows, plans, where }) {
-    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11]];
+    const cols = [['Data', 11], ['Setmana', 11], ['Mes', 9], ['Sessió', 10], ['Estat', 15], ['Objectiu', 36], ['Professional', 16], ['Pla', 24], ['S del pla', 8], ['RPE', 7], ['Durada (min)', 10], ['Càrrega (UA)', 11], ['Dolor (EVA)', 8], ['Wellness (/25)', 10], ['Exercicis', 9], ['Fets', 7], ['Detall', 11], ['FC mitjana (bpm)', 12], ['HRV en repòs (ms)', 12]];
     ws.cols(cols.map((c) => c[1]));
     let r = xlTitle(ws, `Registre de sessions · ${U.fullName(p)}`, 'Una fila per sessió: filtra i ordena com vulguis (les dades són les de l\'app).', cols.length);
     ws.freeze(r + 1, 3);
@@ -10740,6 +10884,8 @@ const ExcelClient = (() => {
       ws.set(r, 16, x.n ? x.done : null, [XS.cell, { fmt: '0' }]);
       const at = where[s.id];
       if (at) { ws.set(r, 17, at.sheet, [XS.cell, XS.link]); ws.link(r, 17, xlGo(at.sheet, at.r, at.c), 'Vés a la sessió al full del mes'); } else ws.set(r, 17, '', XS.cell);
+      ws.set(r, 18, U.num((s.feedback || {}).hrAvg) ?? '', [XS.cell, { fmt: '0' }]);
+      ws.set(r, 19, U.num((s.wellness || {}).hrvA) ?? '', [XS.cell, { fmt: '0.0' }]);
       r++;
     }
     // La taula es pot ordenar (a un full protegit, Excel només ordena cel·les desbloquejades); la resta del full queda protegida.
@@ -13054,6 +13200,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Força**: en general 2–3 dies/setmana per grup muscular. Força màxima: 1–6 repeticions a ~80–95 % 1RM (RIR 1–3), descans de 2–5 min. Hipertròfia: 6–12 repeticions (també 12–30 si s'acosta a la fallada) a ~60–80 % 1RM, descans d'1–3 min; volum habitual 10–20 sèries efectives per grup muscular i setmana (menys en principiants o amb poc temps). Principiants: 1–3 sèries de 8–12 repeticions, 2 dies/setmana d'exercicis multiarticulars ja aporten molt. RIR (repeticions en reserva) 0–4 ≈ RPE 10–6.
 **Progressió simple**: si es completen totes les sèries al màxim del rang de repeticions amb RIR ≥ 2, pujar la càrrega un 2–10 % (regla del «2 per 2» en tècnica estable). Quan una variant fàcil ja és massa fàcil, passar al següent nivell de la família de progressió de la biblioteca.
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
+**FC i HRV**: a cada sessió l'app pot tenir la FC mitjana/màxima (strap) i, opcionalment, l'HRV en repòs en arribar (RMSSD en ms, mesura curta amb strap). L'HRV només es compara amb el mateix pacient i el mateix mètode; una HRV clarament per sota del seu normal (cal una base d'unes 7 mesures), juntament amb un wellness baix, suggereix reduir volum o intensitat aquell dia — és un senyal, no un diagnòstic. Una sola mesura mai decideix res.
 **Velocitat (VBT)**: amb encoder, una pèrdua de velocitat del 10–20 % dins de la sèrie manté la qualitat de potència; 20–30 % ja és més estímul d'hipertròfia/fatiga. Velocitats de referència orientatives: ≥ 1,0 m/s potència; 0,75 m/s força-velocitat; 0,5 m/s força màxima.
 **Perfil càrrega-velocitat (ADR Encoder)**: 4–6 càrregues creixents (la primera ~1 m/s i l'última cap a 0,5–0,6 m/s, sense arribar a la fallada), 2 repeticions a les lleugeres i 1–2 a les pesades, descans de 2–4 min i màxima intenció a la fase concèntrica. Amb la velocitat mitjana de cada càrrega es dibuixa una recta (la velocitat baixa linealment amb la càrrega): la 1RM s'estima a la velocitat mínima de l'exercici (squat ~0,30 m/s en homes i ~0,25 en dones, press banca ~0,17, pes mort ~0,15, hip thrust ~0,25; valors orientatius). R² ≥ 0,95 és un bon ajust; amb 2 punts és orientatiu i si totes les càrregues són lleugeres l'estimació extrapola molt. En un re-test, la recta que es desplaça cap a la dreta és millora de força. És una estimació: no substitueix una prova directa quan cal la 1RM exacta, i no es compara entre exercicis ni equips (Smith o barra lliure).
 **Dades de l'ADR a l'app**: l'app de l'ADR exporta els entrenaments a CSV (o Excel). A EON, el botó «Importa de l'ADR» llegeix el fitxer (persona pel nom, exercici, dia, velocitat mitjana/propulsiva/de pic) i el passa al perfil càrrega-velocitat de la valoració, a les sèries d'encoder d'una sessió o als salts de l'ADR Jumping; de cada càrrega es pot quedar la repetició més ràpida (recomanació de l'ADR) o totes. Si no reconeix columnes, es poden assignar a mà.
@@ -13397,7 +13544,7 @@ const NoeTools = (() => {
   // ── Ajudes de lectura ──
   const enc = (ctx, t) => (ctx.privacy ? ctx.ps.encode(str(t)) : str(t));
   const pat = (ctx, arg) => { const r = ctx.ps.resolve(arg); return r.error ? { err: r } : { pid: r.pid, p: Store.get('patients', r.pid) }; };
-  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total }); };
+  const feedbackOf = (s) => { const f = s.feedback || {}; return compact({ rpe: U.num(f.rpe), eva: U.num(f.pain), durada_min: U.num(f.duration), wellness: (Calc.wellness(s.wellness) || {}).total, hrv_repos_ms: U.num((s.wellness || {}).hrvA), fc_mitjana_bpm: U.num(f.hrAvg), fc_max_bpm: U.num(f.hrMax) }); };
 
   function itemOut(it) {
     return compact({ id: it.id, exercici_id: it.exId, nom: it.name, series: it.sets, repeticions: it.reps, carrega: Calc.load(it.load), intensitat: it.intensity, descans: it.rest, tempo: it.tempo, material: it.material, nota: short(it.note, 120), fet: it.done ? true : '' });
@@ -14192,6 +14339,7 @@ const ICONS = {
   users: html`<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.3 3.3 0 0 1 0 6.4"/><path d="M18 14.6c1.8.7 3 2.5 3.5 5.4"/>`,
   book: html`<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H20v15H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20"/><path d="M8 7h8M8 10.5h6"/>`,
   settings: html`<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>`,
+  heart: html`<path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>`,
   plus: html`<path d="M12 5v14M5 12h14"/>`,
   minus: html`<path d="M5 12h14"/>`,
   search: html`<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>`,
@@ -15296,7 +15444,7 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id }) {
+function WellnessCard({ value, onSet, id, hrvArrivalBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
   return html`<section class="card wellness" id=${id}>
@@ -15309,6 +15457,7 @@ function WellnessCard({ value, onSet, id }) {
         options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
       <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
     </div>`)}</div>
+    <${HrvArrival} w=${w} onSet=${onSet} id=${id} base=${hrvArrivalBase} />
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />
@@ -15566,6 +15715,12 @@ const picBackPad = (J, k0 = -0.2, k1 = 1.05) => {
   return [pk.cap(v3.add(v3.mul(J.u, k0 * PIC_L.trunk), back), v3.add(v3.mul(J.u, k1 * PIC_L.trunk), back), 2.4, 2.4, 'pp')];
 };
 
+// Copenhagen: el banc (de costat) amb el coixí i dues potes; el genoll (curt) o el turmell (llarg) de dalt reposa al coixí
+const picCopBench = (J, p) => { const top = p[1] - 3; return [
+  pk.box(p[0] - 7, p[0] + 7, top - 3.2, top, -18, 18, 'pp'),
+  pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, 13, 17, 'pp'), pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, -17, -13, 'pp')]; };
+const picCopBase = { front: true, t: 176, hd: -6, a: [90, [180, 64]], b: [100, 40] };
+
 const PICS = {
   // ── Dempeus, squats, estocades, pujades ──
   stand: { label: 'Dempeus', a: [95, 82], b: [85, 95], m: [92, 88] },
@@ -15575,18 +15730,18 @@ const PICS = {
   squat_back: { from: { t: -89, hd: 0, l: [91, 89] }, label: 'Squat amb barra', t: -60, hd: -12, l: [12, 108], a: [120, -78], grip: 'back' },
   squat_box: { from: { t: -88, hd: 0, l: [92, 88] }, label: 'Squat a caixa', t: -62, hd: -10, l: [8, 104], a: [6, 0],
     props: (J) => PROP3.box(J.pel[0] - 13, J.pel[0] + 1, J.pel[1] - 4.8, J, -8, 8) },
-  squat_sumo: { from: { l: [100, 92] }, band: 'knees', label: 'Squat sumo', front: true, t: -90, l: [[148, 40], 93], a: [68, 84], grip: 'center' },
+  squat_sumo: { plant: [{ leg: 0, y0: -32 }], pin: [{ leg: 1, ref: 0 }], fix: 'fR', from: { l: [100, 92] }, band: 'knees', label: 'Squat sumo', front: true, t: -90, l: [[148, 40], 93], a: [68, 84], grip: 'center' },
   squat_oh: { from: { t: -90, hd: 0, l: [92, 88] }, label: 'Squat amb braços amunt', t: -74, hd: -10, l: [12, 106], a: [-98, -100], grip: 'hands' },
   thruster: { from: { t: -64, hd: -8, l: [12, 108], a: [56, -104] }, label: 'Thruster', t: -90, l: [90, 90], a: [-92, -94], grip: 'hands' },
   sots: { from: { a: [56, -104] }, label: 'Sots press', t: -72, hd: -8, l: [12, 110], a: [-96, -98], grip: 'hands' },
   pistol: { from: { t: -86, hd: 0, l: [90, 90], m: [40, 40] }, label: 'Squat a una cama', t: -50, hd: -12, l: [10, 114], m: [-4, -4], a: [-2, -2], grip: 'chest', fix: 'fR' },
   pistol_box: { from: { t: -86, hd: 0, l: [90, 90], m: [40, 40] }, label: 'Squat a una cama a caixa', t: -56, hd: -10, l: [6, 106], m: [-6, -6], a: [-2, -2], grip: 'chest', fix: 'fR',
     props: (J) => PROP3.box(J.pel[0] - 13, J.pel[0] + 1, J.pel[1] - 4.8, J, -8, 8) },
-  split: { from: { t: -90, l: [68, 100], m: [114, 112] }, band: 'knees', label: 'Estocada', t: -88, l: [6, 92], m: [100, 172], a: [92, 90], grip: 'hands', fix: 'fR' },
-  split_bench: { from: { t: -88, l: [64, 102], m: [100, -164, 180] }, label: 'Squat búlgar', t: -84, l: [6, 94], m: [114, -148, 180], a: [92, 90], grip: 'hands', fix: 'fR',
+  split: { pin: [{ leg: 1, ref: 0 }], from: { t: -90, l: [68, 100], m: [114, 112] }, band: 'knees', label: 'Estocada', t: -88, l: [6, 92], m: [100, 172], a: [92, 90], grip: 'hands', fix: 'fR' },
+  split_bench: { pin: [{ leg: 1, ref: 0 }], from: { t: -88, l: [46, 102], m: [100, -164, 180] }, label: 'Squat búlgar', t: -84, l: [6, 94], m: [114, -148, 180], a: [92, 90], grip: 'hands', fix: 'fR',
     props: (J) => { const G = J.leg[1], x = Math.min(G.heel[0], G.toe[0]); return PROP3.bench(x - 7, x + 13, picSole(J, 1) + 0.3, J); } },
-  split_oh: { from: { t: -90, l: [68, 100], m: [114, 112] }, label: 'Estocada amb braços amunt', t: -88, hd: -6, l: [6, 92], m: [100, 172], a: [-92, -94], grip: 'hands', fix: 'fR' },
-  lateral_lunge: { from: { t: -90, l: [92, 90], m: [88, 90] }, label: 'Estocada lateral', front: true, t: -99, l: [[150, 34], 95], m: [57, 57], a: [[80, 20], [-58, 40]], grip: 'chest', fix: 'fL' },
+  split_oh: { pin: [{ leg: 1, ref: 0 }], from: { t: -90, l: [68, 100], m: [114, 112] }, label: 'Estocada amb braços amunt', t: -88, hd: -6, l: [6, 92], m: [100, 172], a: [-92, -94], grip: 'hands', fix: 'fR' },
+  lateral_lunge: { from: { t: -90, l: [[134, 14], 100], m: [66, 66] }, label: 'Estocada lateral', front: true, t: -99, l: [[150, 34], 95], m: [57, 57], a: [[80, 20], [-58, 40]], grip: 'chest', fix: 'fR', pin: [{ leg: 1, ref: 0 }] },
   side_step: { from: { l: [[98, 30], [91, -20]], m: [[82, 30], [89, -20]] }, band: 'knees', label: 'Passes laterals', front: true, t: -90, l: [[114, 30], [96, -20]], m: [[80, 30], [88, -20]], a: [106, 48], fix: 'fL' },
   stand_abd: { from: { l: [92, 90] }, band: 'knees', label: 'Abducció de maluc dempeus', front: true, t: -93, l: [124, 124], m: [88, 90], a: [106, 48], fix: 'fL' },
   stand_kick: { from: { l: [96, 92] }, label: 'Extensió de maluc dempeus', t: -76, l: [142, 150], m: [92, 90], a: [6, 0], fix: 'fL',
@@ -15630,11 +15785,15 @@ const PICS = {
       return [pk.cap(v3.add(pad, [0, -2, 0]), [foot[0] - 2, J.groundY, 0], 1.4, 1.4, 'pp'), pk.box(foot[0] - 9, foot[0] + 5, J.groundY, J.floorY, -7, 7, 'pp')]
         .concat(PROP3.pad(pad, 3.8, 7), PROP3.pad([foot[0] + 1, foot[1] + 4.2, 0], 2.2, 6)); } },
   // GHD: assegut al coixí, els turmells subjectes; el tronc baixa enrere i torna a pujar
-  ghd_situp: { from: { t: 176, tf: -6, a: [-176, -176] }, label: 'GHD sit-up', t: -96, hd: 8, l: [6, 30, -60], a: [-70, -60], lift: 22, fix: 'pel',
-    props: (J) => { const foot = J.leg[0].a;
-      return PROP3.pad([J.pel[0] + 1, J.pel[1] - 5.6, 0], 4, 7).concat(PROP3.pad([foot[0] + 1, foot[1] + 4.2, 0], 2.2, 6),
-        [pk.cap([J.pel[0] + 1, J.pel[1] - 8, 0], [J.pel[0] + 3, J.groundY, 0], 1.5, 1.5, 'pp'), pk.cap([foot[0] + 1, foot[1] + 1, 0], [foot[0] - 2, J.groundY, 0], 1.3, 1.3, 'pp')]); } },
-
+  // GHD: assegut al coixí, els turmells sota els corrons; el tronc baixa enrere i torna a pujar
+  ghd_situp: { from: { t: 178, tf: -8, a: [-176, -176], hd: 14 }, label: 'GHD sit-up', t: -92, hd: 6, l: [10, 16, -66], a: [-70, -60], lift: 22, fix: 'pel',
+    props: (J) => { const P = J.pel, f = J.leg[0].a;
+      return [pk.box(P[0] - 16, P[0] + 22, J.groundY, J.groundY + 2, -10, 10, 'pp'),
+        pk.box(P[0] + 4, P[0] + 9, J.groundY + 2, P[1] - 8, -3, 3, 'pp'),
+        pk.box(P[0] - 3, P[0] + 17, P[1] - 8.4, P[1] - 4.6, -8, 8, 'pp'),
+        pk.cap([P[0] + 7, J.groundY + 6, 0], [f[0] + 4, f[1] - 8, 0], 1.7, 1.7, 'pp'),
+        pk.box(f[0] - 5, f[0] + 9, f[1] - 9.4, f[1] - 7.4, -8, 8, 'pp'),
+        ...PROP3.pad([f[0] + 1, f[1] + 4.6, 0], 2.4, 8).map((o) => ({ ...o, cls: 'pm' }))]; } },
   // ── Core i terra ──
   plank: { label: 'Planxa', t: -10, hd: 4, l: [170, 170], a: [90, 0] },
   plank_high: { label: 'Planxa de braços estirats', t: -26, hd: 6, l: [154, 154], a: [90, 90] },
@@ -15643,6 +15802,8 @@ const PICS = {
   plank_tuck: { from: { l: [154, 154] }, label: 'Crunch invers en planxa', t: -30, hd: 8, l: [32, 150], a: [90, 90], fix: 'hR' },
   pushup: { from: { t: -26, l: [154, 154], a: [90, 90] }, label: 'Flexions', t: -8, hd: 4, l: [172, 172], a: [-158, 78], fix: 'hR' },
   pushup_scap: { from: { shp: -2.4, tf: -4 }, label: 'Push-up escapular', t: -26, hd: 6, tf: 6, shp: 2.4, l: [154, 154], a: [90, 90], fix: 'hR' },
+  // flexió amb passes laterals de mans (banda als canells): vista des de dalt i de davant, la mà s'obre i la banda s'estira
+  pushup_step: { from: { a: [[90, 0], [90, 0]], b: [[90, 0], [90, 0]] }, view: [-35, 45], label: 'Flexió amb passes laterals', t: -26, hd: 6, l: [154, 154], a: [[90, 34], [90, 34]], b: [[90, 0], [90, 0]], band: 'wrists', fix: 'tR' },
   pushup_incline: { from: { t: -40, l: [140, 140], a: [90, 90] }, label: 'Flexions inclinades', t: -26, hd: 4, l: [154, 154], a: [-156, 74], fix: 'hR',
     props: (J) => PROP3.bench(J.arm[0].h[0] - 9, J.arm[0].h[0] + 9, J.arm[0].h[1] - 1.8, J, 9) },
   renegade: { from: { a: [90, 90] }, label: 'Renegade row', t: -26, hd: 6, l: [[154, 6], 154], a: [-160, 94], b: [90, 90], grip: 'near', fix: 'tR' },
@@ -15671,7 +15832,7 @@ const PICS = {
   birddog: { from: { a: [90, 90], m: [90, 180, 180] }, label: 'Bird dog', t: -17, hd: 10, l: [90, 180, 180], m: [178, 176], a: [-4, -4], b: [90, 90], fix: 'kR' },
   quadruped: { label: 'Quadrupèdia', t: -17, hd: 10, l: [90, 180, 180], a: [90, 90] },
   cat_camel: { from: { t: -34, tf: 32, hd: 34 }, label: 'Cat-camel', t: -6, tf: -24, hd: -16, l: [90, 180, 180], a: [90, 90], fix: 'kR' },
-  rockback: { from: { t: -17, l: [90, 180, 180], a: [90, 90] }, label: 'Rock back', t: 8, hd: 16, l: [148, 180, 180], a: [24, 22], fix: 'kR' },
+  rockback: { pinArm: [{ leg: 0, ref: { limb: 'leg', idx: 0 } }, { leg: 1, ref: { limb: 'leg', idx: 1 } }], from: { t: -17, l: [90, 180, 180], a: [90, 90] }, label: 'Rock back', t: 8, hd: 16, l: [148, 180, 180], a: [24, 22], fix: 'kR' },
   quad_kick: { from: { l: [90, 180, 180] }, label: 'Kickback en quadrupèdia', t: -17, hd: 10, l: [194, 194], m: [90, 180, 180], a: [90, 90], fix: 'kL' },
   fire_hydrant: { from: { l: [90, 180, 180] }, view: 'back', label: 'Abducció de maluc en quadrupèdia', t: -17, hd: 10, l: [[90, 70], 180, 180], m: [90, 180, 180], a: [90, 90], fix: 'kL' },
   quad_walk: { from: { a: [[90, -8], 90], l: [[90, -6], 180, 180] }, view: 'q', label: 'Passes laterals en quadrupèdia', t: -17, hd: 10, l: [[90, 14], 180, 180], m: [[90, -6], 180, 180], a: [[90, 14], 90], b: [[90, -8], 90], fix: 'kL' },
@@ -15682,12 +15843,9 @@ const PICS = {
   side_plank_kb: { from: { b: [70, 60] }, label: 'Planxa lateral amb arrencada', front: true, t: 193, hd: -6, a: [90, [180, 64]], b: [-90, -90], l: [13, 13], m: [13, 13], grip: 'hands' },
   side_plank_arm: { label: 'Planxa lateral de braç estirat', front: true, t: 206, hd: -6, a: [90, 90], b: [-90, -90], l: [26, 26], m: [26, 26] },
   // Copenhagen: el genoll (curt) o el turmell (llarg) de dalt sobre el banc; la cama de sota, sota el banc
-  copenhagen: { label: 'Copenhagen curt', front: true, t: 186, hd: -6, a: [90, [180, 64]], b: [70, 30], m: [-6, -6], l: [30, [100, -30]],
-    props: (J) => { const k = J.leg[1].k; return [pk.box(-9, 9, J.groundY, k[1] - 3.2, k[2] - 6, k[2] + 15, 'pp')]; } },
-  copenhagen_long: { label: 'Copenhagen llarg', front: true, t: 188, hd: -6, a: [90, [180, 64]], b: [70, 30], m: [-8, -8], l: [40, 40],
-    props: (J) => { const k = J.leg[1].a; return [pk.box(-9, 9, J.groundY, k[1] - 2.6, k[2] - 6, k[2] + 15, 'pp')]; } },
-  copenhagen_dyn: { from: { l: [44, 44] }, label: 'Copenhagen llarg dinàmic', front: true, t: 188, hd: -6, a: [90, [180, 64]], b: [70, 30], m: [-8, -8], l: [-4, -4], fix: 'sh',
-    props: (J) => { const k = J.leg[1].a; return [pk.box(-9, 9, J.groundY, k[1] - 2.6, k[2] - 6, k[2] + 15, 'pp')]; } },
+  copenhagen: { ...picCopBase, label: 'Copenhagen curt', l: [[-6, 0], [-6, 80]], m: [-1, -1], props: (J) => picCopBench(J, J.leg[0].k) },
+  copenhagen_long: { ...picCopBase, label: 'Copenhagen llarg', t: 174, l: [-6, -6], m: [-1, -1], props: (J) => picCopBench(J, J.leg[0].a) },
+  copenhagen_dyn: { ...picCopBase, from: { m: [36, 36] }, label: 'Copenhagen llarg dinàmic', t: 174, l: [-6, -6], m: [-1, -1], props: (J) => picCopBench(J, J.leg[0].a) },
   side_abd: { from: { m: [6, 6] }, label: 'Abducció de maluc estirat de costat', front: true, t: 180, hd: -14, a: [180, -60], b: [40, 60], l: [6, 6], m: [-22, -22] },
   side_abd_elbow: { from: { m: [10, 10] }, label: 'Abducció de maluc recolzat al colze', front: true, t: 198, hd: -6, a: [90, [180, 64]], b: [60, 40], l: [12, 12], m: [-16, -16] },
   clamshell: { from: { m: [[18, 48], [8, -48]] }, band: 'knees', label: 'Clamshell', front: true, t: 180, hd: -14, a: [180, -60], b: [60, 70], l: [[18, 48], [8, -48]], m: [[-22, 44], [34, -50]] },
@@ -15709,7 +15867,7 @@ const PICS = {
   bench_incline: { from: { a: [[34, 58], [-74, 0]] }, anchor: 'hip', label: 'Press inclinat', t: -150, l: [8, 96], a: [[-90, 18], [-90, 18]], grip: 'hands',
     props: (J) => picBackPad(J).concat(PROP3.box(J.pel[0] - 9, J.pel[0] + 7, J.pel[1] - 4.8, J, -7, 7)) },
   floor_press: { from: { a: [[8, 55], [-90, 0]] }, anchor: 'hip', label: 'Press estirat a terra', t: 180, hd: -6, l: [-48, 58], a: [[-90, 16], [-90, 16]], grip: 'hands' },
-  fly: { from: { a: [[-90, 76], [-90, 84]] }, anchor: 'hip', view: [0, 62], label: 'Obertures', t: 180, hd: -4, l: [26, 92], a: [[-90, 8], [-90, 4]], grip: 'hands',
+  fly: { from: { a: [[-90, 76], [-90, 84]] }, anchor: 'hip', view: [-80, 32], label: 'Obertures', t: 180, hd: -4, l: [26, 92], a: [[-90, 8], [-90, 4]], grip: 'hands',
     props: (J) => PROP3.bench(J.neck[0] - 8, J.pel[0] + 6, J.pel[1] - 4.8, J) },
   seated_press: { from: { a: [[160, 46], [0, 6]] }, label: 'Press de pit assegut', t: -94, l: [0, 90], a: [[2, 12], [0, 12]], grip: 'hands', pull: 'back', fix: 'pel',
     props: (J) => PROP3.seat(J) },
@@ -15743,13 +15901,13 @@ const PICS = {
     props: (J) => PROP3.box(J.pel[0] - 9, J.pel[0] + 7, J.pel[1] - 4.8, J, -8, 8).concat([pk.box(J.leg[0].toe[0], J.leg[0].toe[0] + 1.6, J.groundY, J.leg[0].toe[1] + 3, -6, 6, 'pp')]) },
   row_standing: { from: { a: [4, 2] }, label: 'Rem dempeus', t: -84, l: [80, 98], m: [104, 84], a: [176, -6], grip: 'hands', pull: 'front', fix: 'fR' },
   face_pull: { from: { a: [-12, -8] }, label: 'Face pull', t: -88, l: [82, 96], m: [100, 86], a: [[-178, 34], [-84, 30]], grip: 'chest', pull: 'face', fix: 'fR' },
-  upright_row: { from: { a: [74, 88] }, front: true, label: 'Rem vertical', t: -90, a: [[-158, 30], [34, 30]], grip: 'center' },
+  upright_row: { from: { a: [74, 88] }, front: true, label: 'Rem vertical', t: -90, a: [[-158, 30], [58, 30]], grip: 'center' },
   inverted_row: { from: { a: [-44, -44] }, label: 'Rem invertit', t: -136, hd: 6, l: [44, 44], a: [150, -64], grip: 'hands', fix: 'hR' },
   pulldown: { propsMove: true, from: { a: [-114, -104] }, front: true, label: 'Jaló al pit', t: -92, hd: -6, l: [[90, 84], [90, 0]], a: [150, -88], grip: 'none', fix: 'pel',
     props: (J) => { const hR = J.arm[0].h, hL = J.arm[1].h, c = v3.lerp(hR, hL, 0.5), ax = v3.norm(v3.sub(hR, hL));
       return [pk.box(J.pel[0] - 7, J.pel[0] + 7, J.pel[1] - 8.2, J.pel[1] - 4.8, -9, 9, 'pp'), pk.box(J.pel[0] - 1.5, J.pel[0] + 1.5, J.groundY, J.pel[1] - 8.2, -1.5, 1.5, 'pp'),
         pk.line([c, [c[0], c[1] + 60, c[2]]], 1.1, 'pe'), pk.cap(v3.along(c, ax, -20), v3.along(c, ax, 20), 1.0, 1.0, 'pmh')]; } },
-  pullup: { from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
+  pullup: { hang: true, from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
     props: (J) => { const c = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5); return [pk.cap([c[0], c[1] + 1.2, c[2] - 26], [c[0], c[1] + 1.2, c[2] + 26], 1.1, 1.1, 'pmh')]; } },
   pullover: { from: { a: [-56, -60] }, label: 'Pullover a la politja', t: -64, hd: -4, l: [80, 98], a: [68, 72], grip: 'chest', pull: 'fronthigh', fix: 'fR' },
   pullover_supine: { from: { a: [-152, -166] }, anchor: 'hip', label: 'Pullover estirat', t: 180, hd: -4, l: [26, 92], a: [-92, -94], grip: 'chest',
@@ -15760,42 +15918,56 @@ const PICS = {
     props: (J) => PROP3.box(J.pel[0] - 7, J.pel[0] + 7, J.pel[1] - 4.8, J, -9, 9) },
   arnold: { from: { a: [[90, 72], [-90, 12]] }, front: true, label: 'Press Arnold', t: -90, a: [-84, -88], grip: 'hands' },
   push_press: { from: { l: [78, 102], a: [64, -114] }, label: 'Push press', t: -90, hd: -4, l: [90, 90], a: [-90, -92], grip: 'hands', fix: 'fR' },
-  landmine_press: { from: { a: [70, -110] }, label: 'Landmine press', t: -80, l: [76, 100], m: [108, 86], a: [-36, -34], grip: 'near', fix: 'fR' },
+  landmine_press: { from: { a: [70, -110] }, label: 'Landmine press de genolls', t: -86, l: [90, 180, 180], m: [90, 180, 180], a: [-36, -34], grip: 'near', fix: 'kR' },
   ytw: { from: { a: [[90, 2], [90, 2]] }, view: 'q', label: 'Y-T-W en banc inclinat', t: -38, hd: -8, l: [122, 100], a: [[90, 86], [90, 88]], grip: 'hands',
     props: (J) => [pk.cap(v3.add(v3.mul(J.u, -0.1 * PIC_L.trunk), v3.mul(J.f, 5.8)), v3.add(v3.mul(J.u, 0.95 * PIC_L.trunk), v3.mul(J.f, 5.8)), 2.4, 2.4, 'pp')] },
 
   // ── Potència: salts, llançaments, halterofília, carrera ──
-  jump: { from: { t: -58, hd: -10, l: [20, 108], a: [150, 152], lift: 0 }, label: 'Salt vertical', t: -90, hd: -6, l: [94, 84, 60], m: [90, 92, 60], a: [-88, -92], lift: 12, fix: 'free' },
+  jump: { from: { t: -58, hd: -10, l: [20, 108], m: [20, 108], a: [150, 152], lift: 0 }, view: [24, 6], label: 'Salt vertical', t: -90, hd: -6, l: [94, 84, 60], m: [90, 92, 60], a: [-88, -92], lift: 12, fix: 'free' },
   jump_sl: { from: { t: -60, hd: -10, l: [18, 110], m: [20, 120], a: [150, 152], lift: 0 }, label: 'Salt a una cama', t: -90, hd: -6, l: [94, 84, 60], m: [16, 104], a: [-88, -92], lift: 12, fix: 'free' },
-  hop: { from: { t: -88, l: [84, 98, 20], lift: 0 }, label: 'Pogo', t: -90, l: [92, 90, 60], a: [96, 84], b: [86, 96], lift: 6, fix: 'free' },
-  jump_load: { from: { t: -62, hd: -10, l: [18, 108], lift: 0 }, label: 'Salt amb càrrega', t: -88, l: [92, 88, 50], a: [93, 90], lift: 9, grip: 'hands', fix: 'free' },
+  hop: { from: { t: -88, l: [84, 98, 20], m: [84, 98, 20], lift: 0 }, view: [24, 6], label: 'Pogo', t: -90, l: [92, 90, 60], m: [92, 90, 60], a: [96, 84], b: [86, 96], lift: 6, fix: 'free' },
+  jump_load: { from: { t: -62, hd: -10, l: [18, 108], m: [18, 108], lift: 0 }, view: [24, 6], label: 'Salt amb càrrega', t: -88, l: [92, 88, 50], m: [92, 88, 50], a: [93, 90], lift: 9, grip: 'hands', fix: 'free' },
   jump_fwd: { from: { t: -50, hd: -14, l: [18, 110], a: [150, 154], lift: 0, dx: -18 }, label: 'Salt horitzontal', t: -58, hd: -4, l: [12, 96, 30], m: [46, 130, 40], a: [-30, -24], lift: 16, fix: 'free' },
   bounds: { from: { t: -72, l: [96, 100], m: [40, 116], a: [130, 100], b: [-20, -50], lift: 0, dx: -12 }, label: 'Bounds', t: -74, l: [146, 160], m: [-4, 100], a: [-26, -50], b: [140, 100], lift: 12, fix: 'free' },
   hurdles: { from: { t: -54, hd: -12, l: [18, 110], a: [150, 154], lift: 0, dx: -20 }, label: 'Salts sobre tanques', t: -70, l: [-20, 100, 40], a: [-30, -24], lift: 18, fix: 'free',
     props: (J) => { const x = J.pel[0] - 4; return [pk.cap([x, J.groundY, -9], [x, J.groundY + 13, -9], 0.8, 0.8, 'pp'), pk.cap([x, J.groundY, 9], [x, J.groundY + 13, 9], 0.8, 0.8, 'pp'), pk.cap([x, J.groundY + 13, -10], [x, J.groundY + 13, 10], 1.2, 1.2, 'pp')]; } },
-  box_jump: { from: { t: -50, hd: -12, l: [20, 110], a: [150, 154], lift: 0, dx: -24 }, label: 'Box jump', t: -64, l: [14, 104], a: [-10, -6], lift: 18, fix: 'free',
+  // box jump: de terra a dalt del cofre (una postura a l'aire a mig camí)
+  box_jump: { from: { t: -52, hd: -10, l: [24, 108], m: [24, 108], a: [140, 150], lift: 0, dx: -34 }, mid: { t: -80, hd: -8, l: [60, 120], m: [60, 120], a: [-20, -30], lift: 30, dx: -16 }, view: [24, 6], label: 'Box jump',
+    t: -64, hd: -8, l: [14, 104], m: [14, 104], a: [-6, -6], lift: 18, fix: 'free',
     props: (J) => PROP3.box(J.leg[0].toe[0] - 16, J.leg[0].toe[0] + 3, J.floorY, J, -11, 11) },
   drop_jump: { from: { t: -86, l: [92, 90], a: [100, 96], lift: 22, dx: -20 }, label: 'Drop jump', t: -56, hd: -10, l: [18, 110], a: [150, 152], lift: 0, fix: 'free',
     props: (J) => { const x = J.leg[0].toe[0] - 20; return PROP3.box(x - 13, x + 4, J.groundY + 22, J, -11, 11); } },
-  land: { from: { t: -90, hd: 0, l: [92, 90, 40], a: [-90, -92], lift: 3 }, label: 'Snap down', t: -54, hd: -14, l: [16, 110], a: [150, 152], lift: 0, fix: 'free' },
+  land: { from: { t: -90, hd: 0, l: [92, 90, 40], m: [92, 90, 40], a: [-90, -92], lift: 3 }, view: [24, 6], label: 'Snap down', t: -54, hd: -14, l: [16, 110], m: [16, 110], a: [150, 152], lift: 0, fix: 'free' },
   land_sl: { from: { t: -76, l: [80, 96], m: [40, 120], a: [-30, -60], lift: 10, dx: -12 }, label: 'Aterratge a una cama', t: -62, hd: -12, l: [24, 112], m: [30, 130], a: [40, 20], b: [120, 80], lift: 0, fix: 'free' },
-  skater: { from: { dx: -22, l: [[94, 40], [90, -40]], m: [[118, -30], [108, -52]], a: [[60, 30], 40], b: [[140, -10], 150] }, front: true, label: 'Skater', t: -86, hd: 6,
-    m: [[86, 40], [90, -40]], l: [[62, -30], [72, -52]], a: [[40, -10], 30], b: [[120, 30], 140], fix: 'free' },
+  skater: { front: true, view: [72, 8], label: 'Skater jump', fix: 'free',
+    from: { dx: -30, t: -76, hd: 4, l: [[94, 8], [86, -6]], m: [[84, -56], [56, -84]], a: [[30, 0], [20, 0]], b: [[150, 0], [168, 0]], lift: 0 },
+    mid: { dx: -15, t: -90, l: [[100, 18], [70, -30]], m: [[80, 18], [70, -30]], a: [[70, 0], [60, 0]], b: [[110, 0], [120, 0]], lift: 15 },
+    t: -104, hd: 4, l: [[84, -56], [56, -84]], m: [[86, 8], [94, -6]], a: [[30, 0], [20, 0]], b: [[160, 0], [170, 0]], lift: 0, dx: 0 },
   shuffle: { from: { dx: -10, l: [[112, 32], [96, -22]], m: [[84, 32], [88, -22]] }, front: true, label: 'Desplaçament lateral', t: -90, l: [[98, 32], [90, -22]], m: [[62, 32], [80, -22]],
     a: [[110, 40], [70, 30]], fix: 'free' },
   cut: { from: { t: -70, hd: 6, l: [-6, 96, 20], m: [130, 150, 60], a: [140, 60], b: [30, -60], dx: -14 }, label: 'Canvi de direcció', t: -100, hd: -6, l: [40, 50], m: [100, 118], a: [60, -20], b: [150, 100], fix: 'free' },
-  chest_pass: { from: { a: [[150, 34], [-56, -12]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
-  slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2 }, label: 'Slam', t: -40, hd: 10, l: [46, 112], a: [70, 90], grip: 'chest' },
+  chest_pass: { from: { a: [[172, 36], [-40, -14]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
+  // slam: la pilota surt de les mans, bota a terra i es torna a agafar (bl: 0 a les mans, 1 a terra)
+  slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2, bl: 0 }, mid: { t: -66, hd: 18, a: [20, -10], bl: 0, lift: 0, l: [70, 100, 40] }, view: [24, 6], label: 'Slam', t: -40, hd: 10, l: [46, 112], m: [46, 112], a: [60, 74], grip: 'chest', bl: 1 },
   rot_throw: { from: { tr: 46, t: -74, l: [72, 104], m: [102, 86], a: [[100, -40], [96, -30]], b: [[110, 30], [100, 20]] }, view: 'q', label: 'Llançament rotacional', t: -84, tr: -40,
     l: [92, 90], m: [[84, -10], 104, 40], a: [[-36, -30], [-38, -20]], b: [[-30, 30], [-34, 20]], grip: 'chest', fix: 'fL' },
   scoop: { from: { tr: 50, t: -60, l: [64, 108], m: [100, 90], a: [[100, -40], [100, -30]], b: [[110, 36], [100, 24]] }, view: 'q', label: 'Scoop throw', t: -96, tr: -30,
     l: [92, 90, 40], m: [92, 90, 40], a: [[-50, -20], [-56, -14]], b: [[-50, 20], [-56, 14]], lift: 4, grip: 'chest', fix: 'fL' },
   clean: { from: { t: -32, hd: -14, l: [64, 108], a: [90, 90] }, label: 'Cargolada', t: -84, l: [40, 116], a: [-6, -164], grip: 'hands', fix: 'fR' },
   kb_clean: { from: { t: -32, hd: -14, l: [70, 106], a: [100, 104] }, label: 'Cargolada amb kettlebell', t: -88, l: [86, 96], a: [64, -112], b: [96, 86], grip: 'near', fix: 'fR' },
-  high_pull: { from: { t: -36, l: [72, 104], a: [90, 90], lift: 0 }, label: 'High pull', t: -90, hd: -4, l: [92, 90, 50], a: [[-150, 40], [62, -24]], grip: 'hands', lift: 3, fix: 'free' },
-  snatch: { from: { t: -36, hd: -14, l: [64, 108], a: [[90, 28], [90, 28]] }, label: 'Arrencada', t: -76, hd: -10, l: [14, 106], a: [[-98, 26], [-100, 26]], grip: 'hands', fix: 'fR' },
-  kb_snatch: { from: { t: -32, hd: -18, l: [76, 102], a: [100, 104] }, label: 'Arrencada amb kettlebell', t: -90, l: [90, 90], a: [-90, -90], b: [96, 84], grip: 'near', fix: 'fR' },
-  split_jerk: { from: { l: [78, 102], m: [100, 80], a: [64, -114] }, label: 'Split jerk', t: -88, hd: -4, l: [36, 104], m: [124, 152], a: [-88, -92], grip: 'hands', fix: 'fR' },
+  high_pull: { front: true, view: [90, 4], label: 'High pull', fix: 'free', grip: 'hands',
+    from: { t: [-90, 42], hd: 6, l: [[104, 26], [88, -10]], a: [[116, 0], [114, 0]], lift: 0 },
+    t: -90, hd: -4, l: [[92, 6], [90, 0]], a: [[170, 0], [-90, 0]], lift: 3 },
+  // snatch, snatch high pull i arrencada amb kettlebell: de cara (agafada ampla), de penjat a sobre del cap
+  snatch: { front: true, view: [90, 4], label: 'Arrencada', fix: 'free', grip: 'hands',
+    from: { t: [-90, 42], hd: 6, l: [[104, 26], [88, -10]], a: [[116, 0], [114, 0]], lift: 0 },
+    mid: { t: [-90, 14], l: [[98, 10], [90, 0]], a: [[168, 0], [-96, 0]], lift: 5 },
+    t: -90, hd: -4, l: [[106, 26], [88, -8]], a: [[-124, 0], [-122, 0]], lift: 0 },
+  kb_snatch: { front: true, view: [90, 4], label: 'Arrencada amb kettlebell', fix: 'free', grip: 'near',
+    from: { t: [-90, 42], hd: 6, l: [[108, 26], [88, -10]], m: [[72, 26], [92, -10]], a: [[96, 0], [96, 0]], b: [[84, 0], [84, 0]], lift: 0 },
+    mid: { t: [-90, 14], l: [[98, 10], [90, 0]], m: [[82, 10], [90, 0]], a: [[150, 0], [-70, 0]], b: [[96, 0], [92, 0]], lift: 4 },
+    t: -90, hd: -4, l: [[96, 8], [90, 0]], m: [[84, 8], [90, 0]], a: [[-100, 0], [-98, 0]], b: [[104, 0], [100, 0]], lift: 0 },
+  split_jerk: { pin: [{ leg: 1, ref: 0 }], from: { l: [78, 102], m: [100, 80], a: [64, -114] }, label: 'Split jerk', t: -88, hd: -4, l: [36, 104], m: [124, 152], a: [-88, -92], grip: 'hands', fix: 'fR' },
   sprint: { from: { l: [124, 142, 60], m: [-18, 82, -10], a: [32, -70], b: [134, 54] }, label: 'Sprint', t: -68, hd: 10, l: [-18, 82, -10], m: [124, 142, 60], a: [134, 54], b: [32, -70], lift: 4 },
   skipping: { from: { l: [92, 92, 30], m: [-8, 90], a: [40, -60], b: [130, 50] }, label: 'Skipping', t: -88, l: [-8, 90], m: [92, 92, 30], a: [130, 50], b: [40, -60], lift: 2 },
   sled: { from: { l: [124, 150, 70], m: [30, 116] }, label: 'Empenta de trineu', t: -42, hd: -14, l: [30, 116], m: [124, 150, 70], a: [-12, -6], fix: 'hR',
@@ -15825,8 +15997,9 @@ const PICS = {
     props: (J) => PROP3.wall(J.leg[1].k[0] - 6.4, J) },
   wgs: { from: { tr: -8, a: [[0, -12], [0, -12]] }, view: 'q', rel: 'a', label: 'World\'s greatest stretch', t: -34, hd: 6, tr: 70, l: [22, 104], m: [150, 154], a: [[0, 92], [0, 92]], b: [92, 90], fix: 'fR' },
   kneel_rot: { from: { tr: 40 }, view: 'q', rel: 'arms', label: 'Rotació toràcica en mig genoll', t: -90, tr: -40, l: [6, 92], m: [110, 180, 180], a: [[176, 70], [-80, 0]], grip: 'back' },
-  sit_9090: { from: { l: [[2, 46], [0, -46]], m: [[90, 90], [180, 0]], tr: 0 }, view: [80, 26], label: '90/90', t: -90, l: [[2, 46], [0, -46]], m: [[90, 90], [180, 0]], tr: 30, a: [100, 92], b: [100, 92] },
-  sit_9090_lift: { from: { m: [[90, 90], [180, 0]] }, view: [80, 26], label: '90/90 amb lift-off', t: -90, l: [[2, 46], [0, -46]], m: [[90, 90], [-166, 0]], a: [100, 92], b: [100, 92] },
+  // 90/90: les dues cames giren sobre el terra com un eixugaparabrises (davant ↔ darrere), vistes de davant i una mica de dalt
+  sit_9090: { from: { l: [[0, 90], [0, 180]], m: [[0, 46], [0, -46]], tr: 22 }, view: [90, 62], label: '90/90 · rotació de maluc', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [0, 180]], tr: -22, a: [100, 92], b: [100, 92] },
+  sit_9090_lift: { from: { m: [[0, 90], [0, 180]] }, view: [90, 62], label: '90/90 amb lift-off', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [-65, 180]], a: [100, 92], b: [100, 92] },
   openbook: { from: { tr: 0, b: [[0, 0], [0, 0]] }, view: [20, 70], rel: 'all', roll: -90, label: 'Open book', t: 180, hd: -6, tr: 120, l: [[0, 0], [90, 0]], a: [[0, 0], [0, 0]], b: [[0, 90], [0, 90]],
     props: (J) => PROP3.mat(J) },
   pass_through: { from: { a: [60, 60] }, view: 'q', label: 'Pas d\'espatlles amb pica', t: -90, a: [[-160, 30], [-160, 30]], grip: 'hands' },
@@ -15840,17 +16013,17 @@ const PICS = {
     props: (J) => PROP3.box(J.leg[0].k[0] - 4, J.leg[0].a[0] + 8, J.leg[0].a[1] - 2.6, J, -10, 10) },
   prone: { label: 'Estirat panxa avall', t: 0, hd: -4, l: [180, 180], a: [[-30, 66], [180, -78]] },
   seated_breath: { label: 'Respiració asseguda', front: true, t: -90, l: [[150, 70], [20, -40]], m: [[30, 70], [160, -40]], a: [110, 40] },
-  roll_back: { label: 'Foam roller a l\'esquena', t: 196, tf: -10, hd: -10, l: [-36, 68], a: [[-140, 40], [10, -60]],
+  roll_back: { from: { dx: -9 }, fix: 'free', label: 'Foam roller a l\'esquena', t: 196, tf: -10, hd: -10, l: [-36, 68], a: [[-140, 40], [10, -60]],
     props: (J) => PROP3.roller(v3.add(v3.along(J.waist, J.uc, 0.32 * PIC_L.trunk), v3.mul(J.f, -9.4)), 3.8, 10) },
-  roll_side: { label: 'Alliberament de costat', front: true, t: 196, hd: -6, a: [180, [180, 60]], b: [70, 40], l: [13, 13], m: [13, 13],
+  roll_side: { from: { dx: -9 }, fix: 'free', label: 'Alliberament de costat', front: true, t: 196, hd: -6, a: [180, [180, 60]], b: [70, 40], l: [13, 13], m: [13, 13],
     props: (J) => [pk.ball(v3.add(J.sh[0], [0, -5.2, 0]), 3.4, 'ps')] },
-  roll_seated: { label: 'Alliberament assegut', t: -124, hd: 10, l: [-4, 2, -80], m: [-30, 60], a: [150, 102], lift: 9,
+  roll_seated: { from: { dx: -8 }, fix: 'free', label: 'Alliberament assegut', t: -124, hd: 10, l: [-4, 2, -80], m: [-30, 60], a: [150, 102], lift: 9,
     props: (J) => PROP3.ball(v3.add(v3.lerp(J.leg[0].k, J.leg[0].a, 0.5), [0, -6, 0]), 3.4) },
-  roll_prone: { label: 'Alliberament panxa avall', t: -12, hd: 6, l: [172, 170], a: [90, 0],
+  roll_prone: { from: { dx: -8 }, fix: 'free', label: 'Alliberament panxa avall', t: -12, hd: 6, l: [172, 170], a: [90, 0],
     props: (J) => PROP3.ball(v3.add(v3.lerp(J.leg[0].h, J.leg[0].k, 0.6), [0, -7.6, 0]), 3.6) },
-  roll_foot: { label: 'Pilota sota el peu', t: -90, l: [86, 96, 0], m: [92, 88], a: [94, 86], b: [86, 94],
-    props: (J) => PROP3.ball(v3.add(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.45), [0, -4.2, 0]), 3.2) },
-
+  // peu sobre la pilota: la pilota roda del taló a la punta del peu (el peu de la pilota, una mica avançat i aixecat)
+  roll_foot: { from: { bl: 0 }, bl: 1, propsMove: true, pin: [{ leg: 0, ref: 1, off: [14, 6.4, 7] }], label: 'Pilota sota el peu', t: -90, l: [90, 90, 0], m: [90, 90], a: [94, 86], b: [86, 94], view: [30, 10],
+    props: (J) => { const G = J.leg[0], k = J.P.bl == null ? 1 : J.P.bl; const c = v3.lerp(G.heel, G.toe, 0.1 + 0.8 * k); return PROP3.ball([c[0], J.groundY + 3.4, c[2]], 3.4); } },
   // ── Equilibri i vestibular ──
   balance: { from: { m: [92, 88] }, view: 'q', label: 'Equilibri a una cama', t: -90, l: [92, 90], m: [10, 100], a: [[90, 60], [90, 60]] },
   balance_dome: { from: { m: [92, 88] }, view: 'q', label: 'Equilibri inestable', t: -90, l: [92, 90], m: [10, 100], a: [[90, 60], [90, 60]], lift: 4.4,
@@ -15882,6 +16055,34 @@ const PICS = {
     props: (J) => [pk.box(-7, 7, J.pel[1] - 8.2, J.pel[1] - 4.8, -9, 9, 'pp'), pk.box(-1.5, 1.5, J.groundY, J.pel[1] - 8.2, -1.5, 1.5, 'pp'), pk.box(-14, -8, J.pel[1] - 5, J.pel[1] + 22, -7, 7, 'pp')]
       .concat([0, 1].map((i) => pk.ball(v3.add(J.leg[i].k, [0, 0, (i ? -1 : 1) * 3.6]), 2.6, 'pm'))) },
 };
+
+// ── Pro Inertial C2 (politja cònica isoinercial) ──
+// El con i la corda es dibuixen a 15-pics.js (gear «cone»). Estocada: cinturó al maluc i la corda recta cap avall, al con
+// del terra; rem a una mà: el con a l'alçada del pit, davant; estocada lateral: cinturó i el con al costat, a l'alçada del maluc.
+PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
+PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
+PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+
+// ── Keiser (resistència pneumàtica) ──
+// Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
+const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));
+const picAirCyl = (a, b) => {
+  const d = v3.norm(v3.sub(b, a));
+  return [pk.cap(a, b, 2.1, 2.1, 'pka'), pk.cap(b, v3.along(b, d, 7), 0.8, 0.8, 'pmh'), pk.ball(a, 2.2, 'pm')];
+};
+PICS.keiser_legpress = { ...PICS.legpress, label: 'Leg press Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legpress.props(J, k, C)).concat(picAirCyl(v3.add(J.pel, [-3, -9.6, 0]), v3.add(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.5), [2, -9, 0]))) };
+PICS.keiser_legext = { ...PICS.legext, label: 'Extensió de genoll Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.legext.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_curl = { ...PICS.seated_curl, label: 'Curl femoral Keiser',
+  props: (J, k, C) => picKeiserFrame(PICS.seated_curl.props(J, k, C)).concat(picAirCyl([J.pel[0] - 14, J.groundY + 5, 0], [J.pel[0] + 2, J.groundY + 5, 0])) };
+PICS.keiser_press = { propsMove: true, from: { a: [[160, 46], [0, 6]] }, label: 'Press de pit Keiser', t: -94, l: [0, 90], a: [[2, 12], [0, 12]], grip: 'hands', fix: 'pel',
+  props: (J) => {
+    const h = J.arm[0].h, px = J.pel[0] - 15;
+    return picKeiserFrame(PROP3.seat(J)).concat([
+      pk.cap([px, h[1], 0], h, 1.5, 1.5, 'pkz'), pk.cap(v3.add(h, [0, 0, -3.4]), v3.add(h, [0, 0, 3.4]), 0.9, 0.9, 'pmh'),
+    ], picAirCyl([px - 1, J.groundY + 6, 0], [px - 1, h[1] - 1, 0]));
+  } };
 
 
 /* ── 15-pics.js ── */
@@ -16067,6 +16268,8 @@ function picBodyPrims(J) {
   J.leg.forEach((G, i) => {
     const side = i ? 'L' : 'R';
     out.push(pk.cap(G.h, G.k, R.thigh[0], R.thigh[1], 'pk', { body: `thigh${side}`, limb: i ? 'm' : 'l' }));
+    // pantaló curt: el primer tram de la cuixa, una mica més ample
+    out.push(pk.cap(v3.along(G.h, G.d1, -1.2), v3.lerp(G.h, G.k, 0.52), R.thigh[0] * 1.08, R.thigh[0] * 0.98, 'pk', { body: `shorts${side}`, limb: i ? 'm' : 'l', zb: 0.006 }));
     out.push(pk.cap(G.k, G.a, R.shin[0], R.shin[1], 'pk', { body: `shin${side}`, limb: i ? 'm' : 'l', zb: 0.01 }));
     out.push(pk.cap(G.heel, G.toe, R.foot[0], R.foot[1], 'pk', { body: `foot${side}`, limb: i ? 'm' : 'l', zb: 0.02 }));
   });
@@ -16119,6 +16322,7 @@ function picProject(prims, C, J) {
     else if (q.t === 'ell') {
       o.c2 = picProj(C, q.c); o.depth = picDepth(C, q.c);
       Object.assign(o, picEllipse2(picProj(C, q.e1), picProj(C, q.e2)));
+      o.u2 = picProj(C, q.e1); o.v2 = picProj(C, q.e2);
       o.face = picDepth(C, v3.norm(v3.cross(q.e1, q.e2)));
     } else if (q.t === 'hull') {
       const pts = [];
@@ -16168,7 +16372,7 @@ function picPlace(o, s, dx, dy) {
   const n = { ...o };
   if (o.t === 'cap') { n.a2 = m(o.a2); n.b2 = m(o.b2); n.ra = o.ra * s; n.rb = o.rb * s; }
   else if (o.t === 'ball') { n.c2 = m(o.c2); n.r = o.r * s; }
-  else if (o.t === 'ell') { n.c2 = m(o.c2); n.rx = o.rx * s; n.ry = o.ry * s; }
+  else if (o.t === 'ell') { n.c2 = m(o.c2); n.rx = o.rx * s; n.ry = o.ry * s; n.u2 = [o.u2[0] * s, o.u2[1] * s]; n.v2 = [o.v2[0] * s, o.v2[1] * s]; }
   else if (o.t === 'hull' || o.t === 'poly' || o.t === 'line') { n.pts2 = o.pts2.map(m); if (o.w) n.w = o.w * s; }
   else if (o.t === 'box') n.faces = o.faces.map((f) => ({ ...f, pts: f.pts.map(m) }));
   return n;
@@ -16189,18 +16393,24 @@ function picCapPath(a, b, ra, rb) {
   const b2 = [b[0] + n2[0] * rb, b[1] + n2[1] * rb], a2 = [a[0] + n2[0] * ra, a[1] + n2[1] * ra];
   return `M${pp2(a1)}L${pp2(b1)}A${pf(rb)} ${pf(rb)} 0 0 0 ${pp2(b2)}L${pp2(a2)}A${pf(ra)} ${pf(ra)} 0 1 0 ${pp2(a1)}Z`;
 }
+// Elipse a partir dels dos semieixos conjugats (en 2D): quatre corbes de Bézier. Els números canvien de manera contínua
+// quan l'elipse es mou o gira, i per això no fa salts ni girs de 180° en animar-la.
+function picEllPath2(c, u, v) {
+  const k = 0.5523;
+  const P = (a, b) => [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b];
+  const seg = (a0, b0, a1, b1, da0, db0, da1, db1) => `C${pp2(P(a0 + da0 * k, b0 + db0 * k))} ${pp2(P(a1 + da1 * k, b1 + db1 * k))} ${pp2(P(a1, b1))}`;
+  return `M${pp2(P(1, 0))}${seg(1, 0, 0, 1, 0, 1, 1, 0)}${seg(0, 1, -1, 0, -1, 0, 0, 1)}${seg(-1, 0, 0, -1, 0, -1, -1, 0)}${seg(0, -1, 1, 0, 1, 0, 0, -1)}Z`;
+}
 function picEllPath(c, rx, ry, rot) {
-  const r = picRad(rot), ex = [Math.cos(r) * rx, Math.sin(r) * rx];
-  const p1 = [c[0] + ex[0], c[1] + ex[1]], p2 = [c[0] - ex[0], c[1] - ex[1]];
-  const R = `${pf(Math.max(rx, 0.05))} ${pf(Math.max(ry, 0.05))} ${pf(rot)}`;
-  return `M${pp2(p1)}A${R} 0 1 ${pp2(p2)}A${R} 0 1 ${pp2(p1)}Z`;
+  const r = picRad(rot);
+  return picEllPath2(c, [Math.cos(r) * rx, Math.sin(r) * rx], [-Math.sin(r) * ry, Math.cos(r) * ry]);
 }
 const picPolyPath = (pts, close = true) => `M${pts.map(pp2).join('L')}${close ? 'Z' : ''}`;
 function picPrimSvg(o) {
   const cls = o.cls;
   if (o.t === 'cap') return `<path class="${cls}" d="${picCapPath(o.a2, o.b2, o.ra, o.rb)}"/>`;
   if (o.t === 'ball') return `<path class="${cls}" d="${picEllPath(o.c2, o.r, o.r, 0)}"/>`;
-  if (o.t === 'ell') return `<path class="${cls}" d="${picEllPath(o.c2, o.rx, o.ry, o.rot)}"/>`;
+  if (o.t === 'ell') return `<path class="${cls}" d="${o.u2 ? picEllPath2(o.c2, o.u2, o.v2) : picEllPath(o.c2, o.rx, o.ry, o.rot)}"/>`;
   if (o.t === 'hull' || o.t === 'poly') return `<path class="${cls}" d="${picPolyPath(o.pts2)}"/>`;
   if (o.t === 'line') return `<path class="${cls}" d="${picPolyPath(o.pts2, false)}" stroke-width="${pf(o.w)}"/>`;
   if (o.t === 'box') return o.faces.map((f) => `<path class="${cls}${f.tone === 'top' ? ' pp-top' : f.tone === 'z' ? ' pp-side' : ''}" d="${picPolyPath(f.pts)}"/>`).join('');
@@ -16248,6 +16458,37 @@ function picKettlebell(hand, up, C) {
   return [pk.line(handle, 1.5, 'pml', { gear: 1 }), pk.ball(c, 4.1, 'pm', { gear: 1 })];
 }
 
+// ── Màquines de politja ──
+// Pro Inertial C2: un con (tambor cònic amb la corda enrotllada) amb un volant, fixat a la paret o al terra. La corda surt
+// de l'extrem petit; en estirar-la el con s'accelera i en tornar l'has de frenar. A: on surt la corda; d: cap on queda
+// el con (unitari, cap a l'altra banda de la persona).
+function picConeUnit(A, d, J) {
+  if (v3.len(d) < 0.01) d = [1, 0, 0];
+  const e1b = Math.abs(d[2]) > 0.9 ? [1, 0, 0] : [0, 1, 0], e2b = v3.cross(d, e1b);
+  const ring = (k, r) => ({ c: v3.along(A, d, k), a: v3.mul(e1b, r), b: v3.mul(e2b, r) });
+  const out = [];
+  const L = 11, r0 = 2.2, r1 = 6.4, n = 4;
+  for (let i = 0; i < n; i++) {
+    const k0 = (i / n) * L, k1 = ((i + 1) / n) * L, ra = r0 + (r1 - r0) * (i / n), rb = r0 + (r1 - r0) * ((i + 1) / n);
+    out.push({ t: 'hull', rings: [ring(k0, ra), ring(k1, rb), ring(k0, ra)], cls: i % 2 ? 'pc2' : 'pc', gear: 1, nofit: 1 });
+  }
+  out.push(picCyl(v3.along(A, d, L + 1.4), d, 1.1, 8.2, 'pm', { gear: 1, nofit: 1 }));
+  out.push(pk.disc(v3.along(A, d, L + 2.6), d, 2.4, 'pmh', { gear: 1, nofit: 1 }));
+  // suport: placa a la paret (o peu al terra si és a ran de terra)
+  const w = v3.along(A, d, L + 4.2);
+  out.push(pk.box(Math.min(w[0], w[0] + d[0] * 2.4), Math.max(w[0], w[0] + d[0] * 2.4) + 0.4, Math.max(J.groundY, w[1] - 12), w[1] + 12, w[2] - 8, w[2] + 8, 'pp', { gear: 1, nofit: 1, z: -40 }));
+  return out;
+}
+// Keiser (Infinity): columna alta, braç amb la politja a l'alçada triada i el cilindre d'aire a la base.
+function picKeiserColumn(A, J) {
+  const top = Math.max(A[1] + 7, J.floorY + 62);
+  return [
+    pk.box(A[0] - 2.4, A[0] + 2.4, J.floorY, top, A[2] - 2.4, A[2] + 2.4, 'pkz', { gear: 1, nofit: 1, z: -40 }),
+    pk.box(A[0] - 3.4, A[0] + 3.4, J.floorY, J.floorY + 22, A[2] - 3.4, A[2] + 3.4, 'pka', { gear: 1, nofit: 1, z: -39 }),
+    pk.ball(A, 3.1, 'pm', { gear: 1, nofit: 1 }), pk.ball(A, 1.3, 'pmh', { gear: 1, nofit: 1 }),
+  ];
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -16282,6 +16523,14 @@ function picGear3(J, P, g, C) {
     }
     return out;
   }
+  if (g.kind === 'cone' && Array.isArray(P.pull)) {
+    // corda del con a la mà o al cinturó (al maluc, amb una anella)
+    const A = P.pull, h = P.belt ? v3.add(J.pel, v3.mul(J.f, -4.2)) : grip === 'chest' ? mid : hR;
+    if (P.belt) out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+    else out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+    out.push(pk.line([h, A], 1.2, 'pe', { gear: 1 }));
+    return out.concat(picConeUnit(A, v3.norm([A[0] - h[0], 0, A[2] - h[2]]), J));
+  }
   if (grip === 'none') return out;
   if (g.kind === 'cable' || (g.kind === 'band' && P.pull)) {
     const h = grip === 'chest' ? mid : hR;
@@ -16291,7 +16540,8 @@ function picGear3(J, P, g, C) {
       const A = P.pull;
       out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
       out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -16329,6 +16579,11 @@ function picGear3(J, P, g, C) {
     if (g.kind === 'bar') return picBarbell(c, J.rs);
   }
   if (grip === 'throw') return [pk.ball(v3.add(hR, v3.mul(J.arm[0].d2, 3.6)), 4.6, 'ps', { gear: 1 })];
+  // slam: la pilota surt de les mans i va a terra, davant dels peus (P.bl = 0 a les mans, 1 a terra)
+  if (g.kind === 'ball' && P.bl != null) {
+    const inHand = v3.add(grip === 'chest' ? mid : hR, v3.mul(J.f, 3.4));
+    return [pk.ball(v3.lerp(inHand, [J.pel[0] + 14, J.groundY + 4.8, 0], Math.max(0, Math.min(1, P.bl))), 4.8, 'ps', { gear: 1 })];
+  }
   if (grip === 'swing') {
     // swing: la kettlebell continua la línia dels braços
     if (g.kind === 'kb') return picKettlebell(mid, v3.mul(J.arm[0].d2, -1), C);
@@ -16374,7 +16629,32 @@ function picGear3(J, P, g, C) {
 }
 
 // Cables i gomes ancorades (en 2D, cap a la politja o l'ancoratge del costat del dibuix) i la torre de la politja.
+// Con del Pro Inertial C2 en 2D: el tambor cònic (a ratlles), el volant i la placa de paret; la corda va a la mà o a un
+// cinturó al maluc. Si l'exercici té «belt», la corda surt del maluc.
+function picCone2(Q, P) {
+  const grip = P.grip || 'hands';
+  const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
+  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
+  const s = back ? -1 : 1, a = [back ? 20 : 80, y];
+  const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
+  for (let i = 0; i < n; i++) {
+    const k0 = (L * i) / n, k1 = (L * (i + 1)) / n, ra = r0 + ((r1 - r0) * i) / n, rb = r0 + ((r1 - r0) * (i + 1)) / n;
+    out.push({ t: 'poly', pts2: [[X(k0), y - ra], [X(k1), y - rb], [X(k1), y + rb], [X(k0), y + ra]], cls: i % 2 ? 'pc2' : 'pc' });
+  }
+  // volant (disc) i placa de fixació: a la paret, o al terra si el con va baix
+  out.push({ t: 'poly', pts2: [[X(L), y - 9.4], [X(L + 2.2), y - 9.4], [X(L + 2.2), y + 9.4], [X(L), y + 9.4]], cls: 'pm' });
+  out.push({ t: 'poly', pts2: [[X(L + 2.2), y - 2], [X(L + 3.2), y - 2], [X(L + 3.2), y + 2], [X(L + 2.2), y + 2]], cls: 'pmh' });
+  out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
+  if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
+  if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
+  out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
+  return out;
+}
+
 function picGear2(Q, P, g) {
+  if (g && g.kind === 'cone' && typeof P.pull === 'string') return picCone2(Q, P);
   if (g && g.kind === 'trx') return [Q.hR, Q.hL].map((h) => ({ t: 'line', pts2: [h, [Math.min(96, h[0] + 26), 3]], w: 1.3, cls: 'pml' }));
   if (!g || typeof P.pull !== 'string' || !(g.kind === 'cable' || g.kind === 'band') || (P.grip || 'hands') === 'none') return [];
   const grip = P.grip || 'hands';
@@ -16382,7 +16662,16 @@ function picGear2(Q, P, g) {
   const a = P.pull === 'back' ? [5, h[1]] : P.pull === 'high' ? [6, 8] : P.pull === 'over' ? [h[0] + 4, 4] : P.pull === 'face' ? [95, Q.head[1]]
     : P.pull === 'low' ? [95, 84] : P.pull === 'fronthigh' ? [94, 7] : P.pull === 'backlow' ? [5, 84] : [95, h[1]];
   const out = [];
-  if (g.kind === 'cable') {
+  if (g.kind === 'cable' && g.brand === 'keiser') {
+    // columna Keiser: pilar fosc, cilindre d'aire (blau) a la base i la politja a l'alçada triada
+    const x = a[0] < 50 ? 4 : 96, ya = Math.min(a[1], 80);
+    if (P.pull !== 'over') {
+      out.push({ t: 'poly', pts2: [[x - 2.4, 4], [x + 2.4, 4], [x + 2.4, 90], [x - 2.4, 90]], cls: 'pkz' });
+      out.push({ t: 'poly', pts2: [[x - 3.6, 64], [x + 3.6, 64], [x + 3.6, 90], [x - 3.6, 90]], cls: 'pka' });
+    }
+    out.push({ t: 'ball', c2: [x, ya], r: 3.1, cls: 'pm' }, { t: 'ball', c2: [x, ya], r: 1.2, cls: 'pmh' });
+    a[0] = x; a[1] = ya;
+  } else if (g.kind === 'cable') {
     const x = a[0] < 50 ? 3 : 97;
     if (P.pull !== 'over') out.push({ t: 'line', pts2: [[x, 4], [x, 90]], w: 3.2, cls: 'pl' });
     out.push({ t: 'ball', c2: a, r: 1.9, cls: 'pmh' });
@@ -16432,24 +16721,127 @@ function picPlaceScene(S, T) {
 // Cada postura dinàmica té la posició inicial (from: només el que canvia) i la final (la postura mateixa). Els fotogrames
 // s'interpolen angle a angle (no punt a punt, perquè els braços i les cames no s'escurcin).
 const picLerpN = (x, y, k) => x + (y - x) * k;
+// Els angles van pel camí més curt (un braç que passa de 150° a −84° puja cap a fora, no creua el cos).
+const picLerpA = (x, y, k) => x + ((((y - x) % 360) + 540) % 360 - 180) * k;
 function picLerpSpec(x, y, k) {
-  if (!Array.isArray(x) && !Array.isArray(y)) return picLerpN(x, y, k);
+  if (!Array.isArray(x) && !Array.isArray(y)) return picLerpA(x, y, k);
   const a = Array.isArray(x) ? x : [x, 0], b = Array.isArray(y) ? y : [y, 0];
-  return [picLerpN(a[0], b[0], k), picLerpN(a[1], b[1], k)];
+  return [picLerpA(a[0], b[0], k), picLerpA(a[1], b[1], k)];
+}
+// Braços: el moviment es fa en coordenades de l'articulació (no angle a angle del món): l'húmer (braç) va d'una direcció
+// a l'altra pel camí més curt (slerp), el colze es doblega o s'estira i el seu eix de bisagra es manté lligat a l'húmer, de
+// manera que el colze sempre es doblega pel seu costat i l'avantbraç mai es retorça ni travessa el cos.
+function picArmLerp(sa, sb, k, side, front) {
+  const D = (s) => v3.norm(picDir(s, side, front));
+  const deg = (r) => (r * 180) / Math.PI, ang = (a, b) => Math.acos(Math.max(-1, Math.min(1, v3.dot(a, b))));
+  const slerp = (a, b, q) => {
+    const c = v3.cross(a, b); let ax = v3.len(c) > 1e-6 ? v3.norm(c) : v3.norm(v3.cross(a, Math.abs(a[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0]));
+    return v3.rot(a, ax, deg(ang(a, b)) * q);
+  };
+  const u0 = D(sa[0]), w0 = D(sa[1]), u1 = D(sb[0]), w1 = D(sb[1]);
+  const b0 = ang(u0, w0), b1 = ang(u1, w1);
+  const hinge = (u, w, beta) => (beta > 0.1 ? v3.norm(v3.cross(u, w)) : null);
+  let h0 = hinge(u0, w0, b0), h1 = hinge(u1, w1, b1);
+  if (!h0 && !h1) { h0 = h1 = v3.norm(v3.cross(u0, Math.abs(u0[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0])); }
+  if (!h0) h0 = h1; if (!h1) h1 = h0;
+  const u = v3.norm(slerp(u0, u1, k));
+  const move = (h, uFrom) => { const c = v3.cross(uFrom, u); return v3.len(c) < 1e-6 ? h : v3.rot(h, v3.norm(c), deg(ang(uFrom, u))); };
+  const ha = move(h0, u0), hb = move(h1, u1);
+  const twist = deg(Math.atan2(v3.dot(v3.cross(ha, hb), u), v3.dot(ha, hb)));
+  const h = v3.norm(v3.rot(ha, u, twist * k));
+  const beta = b0 + (b1 - b0) * k;
+  const w = v3.add(v3.mul(u, Math.cos(beta)), v3.mul(v3.cross(h, u), Math.sin(beta)));
+  return [picDirSpec(u, side, front), picDirSpec(v3.norm(w), side, front)];
 }
 function picLerp(A, B, k) {
-  const out = { ...B };
-  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx']) {
+  const out = { ...B, k };
+  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl']) {
     const d = f === 't' ? -90 : 0;
-    if (A[f] != null || B[f] != null) out[f] = picLerpN(A[f] ?? d, B[f] ?? d, k);
+    const ang = !['shr', 'shp', 'lift', 'dx', 'bl'].includes(f);
+    if (A[f] != null || B[f] != null) {
+      const x = A[f] ?? d, y = B[f] ?? d;
+      out[f] = ang && (Array.isArray(x) || Array.isArray(y)) ? picLerpSpec(x, y, k) : (ang ? picLerpA : picLerpN)(x, y, k);
+    }
   }
   for (const f of ['a', 'b', 'l', 'm']) {
     const x = picSide(A, f), y = picSide(B, f);
+    if ((f === 'a' || f === 'b') && !A.rel && !B.rel && x.length >= 2 && y.length >= 2) { out[f] = picArmLerp(x, y, k, f === 'a' ? 1 : -1, !!B.front); continue; }
     out[f] = y.map((v, i) => (v == null ? v : picLerpSpec(x[i] ?? v, v, k)));
   }
   return out;
 }
 const picStart = (P) => ({ ...P, ...(P.from || {}) });
+
+// ── Punts de contacte fixos ──
+// P.pin: [{ leg: 1, ref: 0 }]: el turmell de la cama `leg` es queda a la mateixa distància del turmell de la cama `ref`
+// que a la postura final (un peu a la banqueta, a terra…): en moure el cos, els angles de la cama es recalculen
+// (cinemàtica inversa de dos segments, amb el genoll cap a on mira a la postura final). pinArm: igual amb els braços
+// (mans fixes sobre el terra o una barra).
+function picDirSpec(d, side, front) {
+  const deg = (r) => (r * 180) / Math.PI;
+  const c = (x) => Math.max(-1, Math.min(1, x));
+  if (front) return [deg(Math.atan2(-d[1], -d[2])), deg(Math.asin(c(d[0])))];
+  return [deg(Math.atan2(-d[1], d[0])), deg(Math.asin(c(d[2] * side)))];
+}
+function picIk(H, T, L1, L2, poleDir) {
+  const v = v3.sub(T, H);
+  const raw = v3.len(v) || 1e-6;
+  const D = Math.max(Math.abs(L1 - L2) + 0.3, Math.min(L1 + L2 - 0.05, raw));
+  const u = v3.mul(v, 1 / raw);
+  const a = (L1 * L1 - L2 * L2 + D * D) / (2 * D);
+  const h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+  let p = v3.sub(poleDir, v3.mul(u, v3.dot(poleDir, u)));
+  if (v3.len(p) < 0.05) p = [0, 1, 0];
+  p = v3.norm(p);
+  const K = v3.add(v3.along(H, u, a), v3.mul(p, h));
+  const E = v3.along(H, u, D);
+  return { K, E };
+}
+function picApplyPins(P, Q) {
+  if (!P.pin && !P.pinArm && !P.plant) return Q;
+  const J0 = picJoints(P), front = !!Q.front, out = { ...Q };
+  let J = picJoints(Q);
+  // plant: el turmell de la cama `leg` es queda a la mateixa x i z (respecte del maluc) que a la postura final i només
+  // canvia l'alçada (de y0 a la final): peus fixos a terra en un squat sumo, sense que s'obrin ni es tanquin
+  const k = Q.k == null ? 1 : Q.k;
+  for (const pl of [].concat(P.plant || [])) {
+    const G0 = J0.leg[pl.leg], H = J.hip[pl.leg];
+    const A0 = v3.sub(G0.a, J0.hip[pl.leg]);
+    const T = v3.add(H, [A0[0], pl.y0 + (A0[1] - pl.y0) * k, A0[2]]);
+    const pole = v3.sub(G0.k, J0.hip[pl.leg]);
+    const u0 = v3.norm(A0), pole0 = v3.sub(pole, v3.mul(u0, v3.dot(pole, u0)));
+    const { K, E } = picIk(H, T, PIC_L.thigh, PIC_L.shin, pole0);
+    const side = pl.leg ? -1 : 1, f = pl.leg ? 'm' : 'l', cur = picSide(out, f);
+    out[f] = [picDirSpec(v3.norm(v3.sub(K, H)), side, front), picDirSpec(v3.norm(v3.sub(E, K)), side, front), ...cur.slice(2)];
+    J = picJoints(out);
+  }
+  // pin / pinArm: el punt de contacte (turmell o canell) de la cama o el braç `leg` es queda a la mateixa distància del d'un
+  // altre membre (`ref`: un número del mateix tipus o { limb: 'arm' | 'leg', idx }) que a la postura final
+  const ank = (kind, g) => (kind === 'leg' ? g.a : g.w);
+  const mid = (kind, g) => (kind === 'leg' ? g.k : g.e);
+  const root = (kind, J2, i) => (kind === 'leg' ? J2.hip[i] : J2.sh[i]);
+  const limbs = (kind, J2) => (kind === 'leg' ? J2.leg : J2.arm);
+  for (const [list, kind] of [[P.pin, 'leg'], [P.pinArm, 'arm']]) {
+    for (const pin of [].concat(list || [])) {
+      const rk = pin.ref && typeof pin.ref === 'object' ? pin.ref.limb : kind, ri = pin.ref && typeof pin.ref === 'object' ? pin.ref.idx : pin.ref;
+      const G0 = limbs(kind, J0)[pin.leg], R0 = limbs(rk, J0)[ri], G = limbs(kind, J)[pin.leg], R = limbs(rk, J)[ri];
+      const L1 = kind === 'leg' ? PIC_L.thigh : PIC_L.upper, L2 = kind === 'leg' ? PIC_L.shin : PIC_L.fore;
+      const off = pin.off ? pin.off : v3.sub(ank(kind, G0), ank(rk, R0));
+      const T = v3.add(ank(rk, R), off);
+      const base0 = root(kind, J0, pin.leg), base = root(kind, J, pin.leg);
+      const u0 = v3.norm(v3.sub(ank(kind, G0), base0));
+      const pole = v3.sub(mid(kind, G0), base0);
+      const pole0 = v3.sub(pole, v3.mul(u0, v3.dot(pole, u0)));
+      const { K, E } = picIk(base, T, L1, L2, pole0);
+      const side = pin.leg ? -1 : 1;
+      const f = kind === 'leg' ? (pin.leg ? 'm' : 'l') : (pin.leg ? 'b' : 'a');
+      const cur = picSide(out, f);
+      out[f] = [picDirSpec(v3.norm(v3.sub(K, base)), side, front), picDirSpec(v3.norm(v3.sub(E, K)), side, front), ...cur.slice(2)];
+      J = picJoints(out);
+    }
+  }
+  return out;
+}
 const PIC_STEPS = 4;
 
 // Ordre de dibuix (el més lluny primer) i to (el costat que no es veu, més clar), segons la postura final, perquè tots
@@ -16458,10 +16850,27 @@ function picOrder(S) {
   const list = S.body.concat(S.items);
   const torso = (S.body.find((o) => o.body === 'chest') || {}).depth || 0;
   const key = (o) => o.depth + (o.z || 0) + (o.zb || 0);
-  const order = list.map((o, i) => i).sort((i, j) => key(list[i]) - key(list[j]) || i - j);
   const far = list.map((o) => o.cls === 'pk' && !/^(pelvis|chest|neck|head|nose)$/.test(o.body) && o.depth < torso - 2.2);
-  return { order, far };
+  // Cada braç (braç, avantbraç i mà) i cada cama (cuixa, pantaló, cama i peu) es dibuixa d'una tirada: primer la vora de
+  // tota la cadena i després el farciment, i així les articulacions (colze, genoll) no porten cap ratlla al mig.
+  const chainOf = (o) => {
+    const b = o.body || '';
+    const m = /^(upper|fore|hand)(R|L)$/.exec(b), n = /^(thigh|shorts|shin|foot)(R|L)$/.exec(b);
+    return m ? `arm${m[2]}` : n ? `leg${n[2]}` : null;
+  };
+  const units = [], chains = new Map();
+  list.forEach((o, i) => {
+    const c = chainOf(o);
+    if (!c) { units.push({ idx: [i], k: key(o) }); return; }
+    if (!chains.has(c)) chains.set(c, []);
+    chains.get(c).push(i);
+  });
+  for (const idx of chains.values()) units.push({ idx, chain: true, k: idx.reduce((sum, i) => sum + key(list[i]), 0) / idx.length });
+  units.sort((a, b) => a.k - b.k || a.idx[0] - b.idx[0]);
+  return { order: units.flatMap((u) => u.idx), units, far };
 }
+// Peça del cos → peça de roba (el color és de la paleta d'EON, a CSS): pell, samarreta, pantaló i sabatilles.
+const picPartOf = (b) => (b === 'pelvis' || /^shorts/.test(b) ? 'short' : b === 'chest' ? 'top' : /^foot/.test(b) ? 'shoe' : 'skin');
 function picSvgOf(P, S, ord, gear) {
   const parts = [`<path class="pfl" d="M4 ${PIC_FLOOR + 1.6}H96" stroke-width="1.6"/>`];
   const view = picViewOf(P);
@@ -16471,9 +16880,12 @@ function picSvgOf(P, S, ord, gear) {
   }
   for (const o of S.env) parts.push(picPrimSvg(o));
   const list = S.body.concat(S.items);
-  for (const i of ord.order) {
-    const o = list[i];
-    if (o) parts.push(picPrimSvg(ord.far[i] ? { ...o, cls: 'pkf' } : o));
+  const skin = (o, i) => (o.cls === 'pk' && o.body ? { ...o, cls: `${ord.far[i] ? 'pkf' : 'pk'} pk-${picPartOf(o.body)}` } : ord.far[i] ? { ...o, cls: 'pkf' } : o);
+  for (const u of ord.units) {
+    if (u.chain) {
+      for (const i of u.idx) if (list[i]) parts.push(picPrimSvg({ ...list[i], cls: 'pko' }));
+      for (const i of u.idx) if (list[i]) { const o = skin(list[i], i); parts.push(picPrimSvg({ ...o, cls: `${o.cls} ns` })); }
+    } else if (list[u.idx[0]]) parts.push(picPrimSvg(skin(list[u.idx[0]], u.idx[0])));
   }
   for (const o of picGear2(S.key, P, gear)) parts.push(picPrimSvg(o));
   return `<svg class="pic" viewBox="0 0 100 100" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round">${parts.join('')}</svg>`;
@@ -16484,17 +16896,77 @@ function picSvgOf(P, S, ord, gear) {
 function picFrames(P, gear = { kind: '' }) {
   const A = picStart(P);
   const ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * x);
-  const poses = Array.from({ length: PIC_STEPS + 1 }, (_, i) => (i === PIC_STEPS ? P : picLerp(A, P, ease(i / PIC_STEPS))));
-  const ref = picScene(P, gear);
+  // P.mid: una postura intermèdia (a l'aire, a mig recorregut): inici → mid → final, a velocitat constant
+  const M = P.mid ? { ...P, ...P.mid } : null;
+  const at = (i) => {
+    if (!M) return picLerp(A, P, ease(i / PIC_STEPS));
+    const h = PIC_STEPS / 2;
+    return i <= h ? picLerp(A, M, i / h) : picLerp(M, P, (i - h) / h);
+  };
+  const poses = Array.from({ length: PIC_STEPS + 1 }, (_, i) => picApplyPins(P, i === PIC_STEPS ? P : at(i)));
+  const ref = picScene(poses[PIC_STEPS], gear);
   const scenes = poses.map((Q, i) => (i === PIC_STEPS ? ref : picScene(Q, gear, P.propsMove ? null : ref.J)));
-  const s = Math.min(...scenes.map((S, i) => picFit(poses[i], S).s));
-  const endT = picFit({ ...P, dx: 0 }, ref, { s });
-  const opt = { s, ax: endT.anchorX * s + endT.dx, ay: endT.anchorY != null ? endT.anchorY * s + endT.dy : null };
-  let placed = scenes.map((S, i) => picPlaceScene(S, picFit(poses[i], S, opt)));
-  const fits = placed.every((S) => { const b = picUnion(S.body); return b.x0 > 1 && b.x1 < 99 && b.y0 > 1; });
+  let s = Math.min(...scenes.map((S, i) => picFit(poses[i], S).s));
+  // penjat d'una barra (dominades): les mans són sempre a la mateixa alçada i la figura sencera, de la part més alta a
+  // la més baixa de tots els fotogrames, cap dins del quadre i sense tocar el terra
+  let up = 0;
+  if (P.hang) {
+    const ext = scenes.map((S) => { const b = picUnion(S.body); return [S.key.hR[1] - b.y0, b.y1 - S.key.hR[1]]; });
+    up = Math.max(...ext.map((e) => e[0]));
+    s = Math.min(s, (PIC_FLOOR - 9) / (up + Math.max(...ext.map((e) => e[1]))));
+  }
+  const mkOpt = (sc) => {
+    const endT = picFit({ ...P, dx: 0 }, ref, { s: sc });
+    const o = { s: sc, ax: endT.anchorX * sc + endT.dx, ay: endT.anchorY != null ? endT.anchorY * sc + endT.dy : null };
+    if (P.hang && o.ay != null) o.ay = 4 + up * sc;
+    // desplaçaments (salts, rodar sobre un corró): s'encaixa el recorregut sencer, centrat
+    if (P.fix === 'free' && poses.some((Q) => Q.dx)) {
+      const rel = scenes.map((S, i) => { const b = picUnion(S.body), ax = (P.anchor === 'hip' ? S.key.pel[0] : S.key.fR[0]); return [b.x0 - ax + (poses[i].dx || 0), b.x1 - ax + (poses[i].dx || 0)]; });
+      const u0 = Math.min(...rel.map((r) => r[0])), u1 = Math.max(...rel.map((r) => r[1]));
+      if ((u1 - u0) * sc > 90) { sc = 90 / (u1 - u0); o.s = sc; }
+      o.ax = 50 - ((u0 + u1) / 2) * sc;
+    }
+    return o;
+  };
+  let opt = mkOpt(s);
+  s = opt.s;
+  let T = scenes.map((S, i) => picFit(poses[i], S, opt));
+  let placed = scenes.map((S, i) => picPlaceScene(S, T[i]));
+  // si tot el moviment no cap en amplada, es redueix l'escala; i es centra tot el recorregut (tots els fotogrames junts,
+  // perquè el peu fix no es mogui)
+  let U = picUnion(placed.flatMap((S) => S.body));
+  if (U.x1 - U.x0 > 94) {
+    opt = mkOpt(s * (94 / (U.x1 - U.x0)));
+    T = scenes.map((S, i) => picFit(poses[i], S, opt));
+    placed = scenes.map((S, i) => picPlaceScene(S, T[i]));
+    U = picUnion(placed.flatMap((S) => S.body));
+  }
+  if (U.x0 < 3 || U.x1 > 97) {
+    const sh = 50 - (U.x0 + U.x1) / 2;
+    T = T.map((q) => ({ ...q, dx: q.dx + sh }));
+    placed = scenes.map((S, i) => picPlaceScene(S, T[i]));
+  }
+  const fits = placed.every((S) => { const b = picUnion(S.body); return b.y0 > 1 && b.y1 < 99; });
   if (!fits) placed = scenes.map((S, i) => picPlaceScene(S, picFit(poses[i], S, { s })));
   const last = placed[placed.length - 1];
   if (!P.propsMove) placed = placed.map((S) => ({ ...S, env: last.env }));
+  // el·lipses (discos, anelles de goma): entre els quatre parells de semieixos equivalents es tria el més proper al
+  // fotograma anterior (sense girs de 90°, 180° ni 360° en animar-les)
+  for (const kind of ['items', 'env']) for (let f = 1; f < placed.length; f++) {
+    placed[f][kind] = placed[f][kind].map((o, j) => {
+      const q = placed[f - 1][kind][j];
+      // segments (barres, mànecs): els extrems no s'intercanvien d'un fotograma a l'altre
+      if (o && q && o.t === 'cap' && q.t === 'cap') {
+        const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+        return d(o.a2, q.b2) + d(o.b2, q.a2) < d(o.a2, q.a2) + d(o.b2, q.b2) ? { ...o, a2: o.b2, b2: o.a2, ra: o.rb, rb: o.ra } : o;
+      }
+      if (!(o && q && o.t === 'ell' && o.u2 && q.u2)) return o;
+      const eq = [[o.u2, o.v2], [o.v2, [-o.u2[0], -o.u2[1]]], [[-o.u2[0], -o.u2[1]], [-o.v2[0], -o.v2[1]]], [[-o.v2[0], -o.v2[1]], o.u2]];
+      const dist = ([a, b]) => Math.hypot(a[0] - q.u2[0], a[1] - q.u2[1]) + Math.hypot(b[0] - q.v2[0], b[1] - q.v2[1]);
+      const best = eq.reduce((m, c) => (dist(c) < dist(m) ? c : m), eq[0]);
+      return { ...o, u2: best[0], v2: best[1] };
+    });
+  }
   return { poses, scenes: placed, order: picOrder(last) };
 }
 
@@ -16535,7 +17007,7 @@ function picAnimate(frames) {
 
 // Dibuix quiet d'una postura (centrat).
 function picSvg(key, gear) {
-  const P = PICS[key] || PICS.stand;
+  const P = picApplyPins(PICS[key] || PICS.stand, PICS[key] || PICS.stand);
   const S = picScene(P, gear || { kind: '' });
   const placed = picPlaceScene(S, picFit(P, S));
   return picSvgOf(P, placed, picOrder(placed), gear || { kind: '' });
@@ -16571,6 +17043,10 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
+  // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
+  if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
   if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
@@ -16579,6 +17055,11 @@ function picGearOf(e, key) {
 // ── Quina postura té cada exercici ──
 // Per ordre: la primera regla que coincideix amb el nom (o el nom de Technogym) mana.
 const PIC_RULES = [
+  [/passes laterals de mans/, 'pushup_step'],
+  [/leg press.*keiser|keiser.*leg press/, 'keiser_legpress'],
+  [/extensio de genoll keiser|leg extension keiser/, 'keiser_legext'],
+  [/curl femoral keiser/, 'keiser_curl'],
+  [/press de pit keiser/, 'keiser_press'],
   [/\bbike\b|bicicleta estatica/, 'bike'],
   [/alliberament|miofascial|foam roller|mobility ball/, (t) => (/planta del peu|plantar/.test(t) ? 'roll_foot' : /bessons|calf|glut/.test(t) ? 'roll_seated'
     : /quadriceps/.test(t) ? 'roll_prone' : /dorsal|lats|iliotibial|ilio-tibial|espatlla|shoulder|mobility ball/.test(t) ? 'roll_side' : 'roll_back')],
@@ -16771,8 +17252,12 @@ function picKeyOf(e) {
   const pic = e.pic && (PICS[e.pic] ? e.pic : PIC_ALIAS[e.pic]);
   if (pic) return pic;
   const t = U.norm(`${e.name || ''} ${e.tg || ''}`);
-  for (const [re, key] of PIC_RULES) if (re.test(t)) return typeof key === 'function' ? key(t) : key;
-  return PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  let key = null;
+  for (const [re, k] of PIC_RULES) if (re.test(t)) { key = typeof k === 'function' ? k(t) : k; break; }
+  key = key || PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  // amb la politja cònica (Pro Inertial C2) la postura porta el con, la corda i, si cal, el cinturó
+  if (/conica|isoinercial|pro c2/.test(U.norm(`${e.material || ''} ${t}`)) && PICS[`${key}_cone`]) return `${key}_cone`;
+  return key;
 }
 
 // Dibuixos en moviment: es poden aturar a Configuració (en aquest aparell) i s'aturen sols si el sistema demana menys
@@ -16797,7 +17282,7 @@ function exercisePicSvg(e, keyOverride, mode = 'auto') {
   const g = picGearOf(e || {}, key);
   const P = PICS[key] || PICS.stand;
   const m = !picMoves(key, e) ? 'still' : mode === 'auto' ? (PicMotion.on() ? 'anim' : 'still') : mode;
-  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
+  const id = `${key}|${g.kind}|${g.brand || ''}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
   if (!PIC_CACHE.has(id)) {
     let svg;
     try {
@@ -20060,6 +20545,211 @@ function BikePhotoDialog({ file, a, unit: unit0, canSave, onApply, onClose }) {
 }
 
 
+/* ── 23-hr.js ── */
+/* EON Life · enregistrador de FC amb un strap Bluetooth (Polar H10 i qualsevol de pit que parli «Heart Rate»).
+   Funciona amb Chrome o Edge (Android, ordinador). Safari de l'iPad no deixa connectar Bluetooth des d'una pàgina web.
+   L'enregistrament és únic per a la tauleta i continua encara que canviïs de pantalla; es desa a la sessió en aturar-lo. */
+
+const HrLive = (() => {
+  const st = { device: null, server: null, char: null, running: false, connected: false, bpm: null, contact: null,
+    samples: [], sessionId: null, startedAt: null, error: '', name: '', busy: false, measuring: null, rr: [] };
+  const subs = new Set();
+  const emit = () => subs.forEach((f) => f({ ...st, samples: st.samples.length }));
+
+  const supported = () => typeof navigator !== 'undefined' && !!navigator.bluetooth && (typeof window === 'undefined' || window.isSecureContext !== false);
+
+  const onValue = (ev) => {
+    const m = HR.parse(ev.target.value);
+    if (!m) return;
+    st.bpm = m.bpm; st.contact = m.contact;
+    if (st.running && m.bpm > 0) st.samples.push({ t: Date.now(), bpm: m.bpm });
+    if (st.measuring) { for (const v of m.rr) st.rr.push(v); st.measuring.beats = st.rr.length; }
+    emit();
+  };
+  const onDrop = () => { st.connected = false; st.bpm = null; emit(); if (st.running) reconnect(); };
+
+  async function attach() {
+    st.server = await st.device.gatt.connect();
+    const svc = await st.server.getPrimaryService('heart_rate');
+    st.char = await svc.getCharacteristic('heart_rate_measurement');
+    st.char.addEventListener('characteristicvaluechanged', onValue);
+    await st.char.startNotifications();
+    st.connected = true; st.error = '';
+  }
+  async function reconnect() {
+    for (let i = 0; i < 5 && st.running && !st.connected && st.device; i++) {
+      try { await attach(); emit(); return; } catch { await new Promise((r) => setTimeout(r, 2000 * (i + 1))); }
+    }
+    if (!st.connected) { st.error = 'S\'ha perdut la connexió amb el strap. Torna a connectar-lo: el que s\'ha enregistrat fins ara es conserva.'; emit(); }
+  }
+
+  const friendly = (e) => {
+    const n = e && e.name, m = String((e && e.message) || e);
+    if (n === 'NotFoundError' || /cancel/i.test(m)) return 'No s\'ha triat cap strap. Mulla els elèctrodes del strap, posa\'l-te al pit i torna-ho a provar.';
+    if (n === 'SecurityError') return 'El navegador no deixa fer servir el Bluetooth des d\'aquesta pàgina.';
+    if (/GATT|disconnected|Unsupported device/i.test(m)) return 'No s\'ha pogut connectar. Comprova que el strap no està connectat a una altra app (Polar Beat, el rellotge…) i que té bateria.';
+    return `No s'ha pogut connectar el strap: ${m}`;
+  };
+
+  return {
+    supported,
+    subscribe(f) { subs.add(f); f({ ...st, samples: st.samples.length }); return () => subs.delete(f); },
+    get state() { return { ...st, samples: st.samples.length }; },
+    async connect() {
+      if (!supported()) { st.error = 'Aquest navegador no té Bluetooth web. Fes servir Chrome a la tauleta Android.'; emit(); return false; }
+      st.busy = true; st.error = ''; emit();
+      try {
+        if (!st.device) {
+          st.device = await navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] });
+          st.name = st.device.name || 'Strap';
+          st.device.addEventListener('gattserverdisconnected', onDrop);
+        }
+        await attach();
+        return true;
+      } catch (e) { st.error = friendly(e); return false; } finally { st.busy = false; emit(); }
+    },
+    start(sessionId) {
+      st.samples = []; st.sessionId = sessionId; st.startedAt = Date.now(); st.running = true; st.error = ''; emit();
+    },
+    // Atura l'enregistrament i torna el resum (o null si no hi ha lectures vàlides). El strap es manté connectat.
+    stop() {
+      st.running = false;
+      const sum = HR.summarize(st.samples);
+      const id = st.sessionId;
+      st.samples = []; emit();
+      return sum ? { ...sum, sessionId: id } : null;
+    },
+    // Mesura d'HRV en repòs: guarda els intervals RR durant `sec` segons i en torna l'anàlisi a onDone(res | null).
+    measure(sec, onDone) {
+      if (!st.connected || st.measuring) return false;
+      st.rr = []; st.measuring = { t0: Date.now(), sec, beats: 0 }; st.error = ''; emit();
+      const tick = setInterval(() => {
+        if (!st.measuring) { clearInterval(tick); return; }
+        if (!st.connected || Date.now() - st.measuring.t0 >= sec * 1000) {
+          clearInterval(tick);
+          const res = st.connected || st.rr.length ? HR.analyze(st.rr) : null;
+          st.measuring = null; st.rr = [];
+          if (!res) st.error = 'No hi ha prou batecs vàlids. Comprova que el strap fa bon contacte (elèctrodes mullats) i repeteix la mesura.';
+          emit();
+          if (onDone) onDone(res ? { ...res, sec } : null);
+        }
+      }, 500);
+      return true;
+    },
+    cancelMeasure() { st.measuring = null; st.rr = []; emit(); },
+    disconnect() {
+      st.running = false; st.measuring = null;
+      try { if (st.char) st.char.removeEventListener('characteristicvaluechanged', onValue); } catch {}
+      try { if (st.device && st.device.gatt && st.device.gatt.connected) st.device.gatt.disconnect(); } catch {}
+      st.device = st.server = st.char = null; st.connected = false; st.bpm = null; st.name = ''; emit();
+    },
+    // Per als tests: simula lectures sense Bluetooth.
+    _rr(list) { for (const v of list) st.rr.push(v); if (st.measuring) st.measuring.beats = st.rr.length; emit(); },
+    _push(bpm, t) { st.bpm = bpm; if (st.running) st.samples.push({ t: t ?? Date.now(), bpm }); emit(); },
+  };
+})();
+
+// Targeta «Freqüència cardíaca» de la sessió: strap en directe + FC mitjana, màxima i mínima a mà.
+function HeartRateCard({ session, onSet }) {
+  const [live, setLive] = useState(HrLive.state);
+  const [tick, setTick] = useState(0);
+  useEffect(() => HrLive.subscribe(setLive), []);
+  useEffect(() => {
+    if (!live.running) return undefined;
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [live.running]);
+  const f = session.feedback || {};
+  const mine = live.running && live.sessionId === session.id;
+  const elsewhere = live.running && live.sessionId !== session.id;
+  const secs = live.startedAt && live.running ? Math.floor((Date.now() - live.startedAt) / 1000) : 0;
+  void tick;
+  const stop = () => {
+    const r = HrLive.stop();
+    if (!r) { UI.toast('No hi ha hagut lectures vàlides del strap.'); return; }
+    Store.update('sessions', r.sessionId, (x) => {
+      x.feedback = { ...(x.feedback || {}), hrAvg: String(r.avg), hrMax: String(r.max), hrMin: String(r.min), hrMinutes: String(r.minutes), hrSource: 'strap' };
+    });
+    UI.toast(`FC mitjana desada: ${r.avg} bpm (màx. ${r.max}).`);
+  };
+  const clear = () => { for (const k of ['hrAvg', 'hrMax', 'hrMin', 'hrMinutes', 'hrSource']) onSet(k, ''); };
+
+  return html`<section class="card hr-card" id="se-hr">
+    <div class="card-head"><h2 class="h2"><${Icon} name="heart" size=${18} /> Freqüència cardíaca</h2>
+      ${f.hrAvg && html`<${Pill} tone="neutral">${f.hrAvg} bpm de mitjana</${Pill}>`}</div>
+    ${HrLive.supported()
+      ? html`<div class="hr-live">
+          <div class="hr-bpm" aria-live="off"><span class=${U.cls('hr-num', !live.connected && 'off')}>${live.connected && live.bpm ? live.bpm : '—'}</span><span class="muted small">bpm${live.name ? ` · ${live.name}` : ''}</span></div>
+          <div class="hr-actions">
+            ${!live.connected && html`<${Btn} icon="plus" onClick=${() => HrLive.connect()} disabled=${live.busy}>${live.busy ? 'Connectant…' : 'Connecta el strap'}</${Btn}>`}
+            ${live.connected && !live.running && html`<${Btn} variant="primary" icon="play" onClick=${() => HrLive.start(session.id)}>Comença a enregistrar</${Btn}>`}
+            ${mine && html`<${Btn} variant="primary" icon="check" onClick=${stop}>Atura i desa (${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')})</${Btn}>`}
+            ${live.connected && !live.running && html`<${Btn} variant="ghost" onClick=${() => HrLive.disconnect()}>Desconnecta</${Btn}>`}
+          </div>
+        </div>
+        ${elsewhere && html`<p class="hint warn">Hi ha un enregistrament en marxa d'una altra sessió. Atura'l des d'allà abans de començar-ne un de nou.</p>`}
+        ${live.error && html`<p class="hint warn" role="alert">${live.error}</p>`}`
+      : html`<p class="muted small">Aquest navegador no pot connectar-se al strap. A la tauleta Android fes servir Chrome; mentrestant pots escriure la FC a mà.</p>`}
+    <div class="hr-fields">
+      <${Field} label="FC mitjana" id="hr-avg"><${NumInput} id="hr-avg" value=${f.hrAvg} onValue=${(v) => { onSet('hrAvg', v); onSet('hrSource', v ? (f.hrSource === 'strap' ? 'strap' : 'manual') : ''); }} unit="bpm" /></${Field}>
+      <${Field} label="FC màxima" id="hr-max"><${NumInput} id="hr-max" value=${f.hrMax} onValue=${(v) => onSet('hrMax', v)} unit="bpm" /></${Field}>
+      <${Field} label="FC mínima" id="hr-min"><${NumInput} id="hr-min" value=${f.hrMin} onValue=${(v) => onSet('hrMin', v)} unit="bpm" /></${Field}>
+      ${f.hrAvg && html`<div class="hr-clear"><${Btn} variant="ghost" onClick=${clear}>Esborra la FC</${Btn}></div>`}
+    </div>
+    <p class="muted small">Posa el strap al pit amb els elèctrodes mullats. Prem «Atura i desa» en acabar: la mitjana es calcula amb tota la sessió.${f.hrSource === 'strap' && f.hrMinutes ? ` Enregistrat amb el strap (${U.num(f.hrMinutes) < 1 ? 'menys d\'1 min' : `${f.hrMinutes} min`}).` : ''}</p>
+  </section>`;
+}
+
+// HRV en repòs en arribar a l'entrenament (opcional, dins del wellness): amb el strap (1–5 min, quiet i respirant normal)
+// o escrit a mà. Es guarda l'RMSSD (ms), la FC de repòs i com s'ha mesurat.
+function HrvArrival({ w, onSet, id, base }) {
+  const has = U.num(w.hrvA) != null;
+  const [open, setOpen] = useState(has);
+  const [dur, setDur] = useState(120);
+  const [live, setLive] = useState(HrLive.state);
+  const [, setTick] = useState(0);
+  useEffect(() => HrLive.subscribe(setLive), []);
+  useEffect(() => {
+    if (!live.measuring) return undefined;
+    const t = setInterval(() => setTick((n) => n + 1), 500);
+    return () => clearInterval(t);
+  }, [!!live.measuring]);
+  const status = HR.status(w.hrvA, base);
+  const left = live.measuring ? Math.max(0, Math.ceil((live.measuring.sec * 1000 - (Date.now() - live.measuring.t0)) / 1000)) : 0;
+  const run = () => HrLive.measure(dur, (res) => {
+    if (!res) return;
+    onSet('hrvA', String(res.rmssd)); onSet('hrvAhr', String(res.hr)); onSet('hrvAsrc', 'strap');
+    onSet('hrvAdur', String(res.sec)); onSet('hrvAq', String(res.quality));
+    UI.toast(`HRV en repòs: ${res.rmssd} ms (FC ${res.hr} bpm).`);
+  });
+  const clear = () => { for (const k of ['hrvA', 'hrvAhr', 'hrvAsrc', 'hrvAdur', 'hrvAq']) onSet(k, ''); };
+  const p = id || 'wl';
+  if (!open) return html`<div class="hrva-add"><${Btn} variant="ghost" icon="heart" onClick=${() => setOpen(true)}>Afegeix l'HRV en repòs en arribar (opcional)</${Btn}></div>`;
+  return html`<div class="hrva" id=${`${p}-hrva`}>
+    <div class="hrva-head"><strong>HRV en repòs en arribar</strong> <span class="muted small">opcional · segons el cas</span>
+      ${!has && !live.measuring && html`<${Btn} variant="ghost" size="sm" onClick=${() => setOpen(false)}>Amaga</${Btn}>`}</div>
+    <p class="muted small">El pacient assegut o estirat, quiet, sense parlar i respirant amb normalitat. Es descarten els primers 15 s mentre s'estabilitza.</p>
+    <div class="hrva-grid">
+      <${Field} label="HRV (RMSSD)" id=${`${p}-hrva-v`}><${NumInput} id=${`${p}-hrva-v`} value=${w.hrvA} onValue=${(v) => { onSet('hrvA', v); if (w.hrvAsrc !== 'strap') onSet('hrvAsrc', v ? 'manual' : ''); }} unit="ms" /></${Field}>
+      <${Field} label="FC en repòs" id=${`${p}-hrva-h`}><${NumInput} id=${`${p}-hrva-h`} value=${w.hrvAhr} onValue=${(v) => onSet('hrvAhr', v)} unit="bpm" /></${Field}>
+      ${status && html`<div class="hrv-status"><${Pill} tone=${status === 'ok' ? 'ok' : status === 'low' ? 'bad' : 'neutral'}>${status === 'low' ? 'HRV baixa' : status === 'high' ? 'HRV alta' : 'HRV normal'}</${Pill}>
+        <span class="muted small">Normal en arribar: ${U.fmt(base.low, 0)}–${U.fmt(base.high, 0)} ms (${base.n} mesures)</span></div>`}
+    </div>
+    ${HrLive.supported() && html`<div class="hrva-measure">
+      ${!live.connected && html`<${Btn} icon="plus" onClick=${() => HrLive.connect()} disabled=${live.busy}>${live.busy ? 'Connectant…' : 'Connecta el strap'}</${Btn}>`}
+      ${live.connected && !live.measuring && html`<${Select} id=${`${p}-hrva-d`} value=${String(dur)} onValue=${(v) => setDur(Number(v))} ariaLabel="Durada de la mesura"
+        options=${[{ v: '60', label: '1 minut' }, { v: '120', label: '2 minuts' }, { v: '180', label: '3 minuts' }, { v: '300', label: '5 minuts' }]} />
+        <${Btn} variant="primary" icon="heart" onClick=${run}>Mesura l'HRV</${Btn}>`}
+      ${live.measuring && html`<span class="hrva-run"><span class="hr-num">${left}</span><span class="muted small"> s · ${live.bpm || '—'} bpm · ${live.measuring.beats} batecs</span></span>
+        <${Btn} variant="ghost" onClick=${() => HrLive.cancelMeasure()}>Cancel·la</${Btn}>`}
+    </div>`}
+    ${live.error && !live.measuring && html`<p class="hint warn" role="alert">${live.error}</p>`}
+    ${w.hrvAsrc === 'strap' && html`<p class="muted small">Mesurat amb el strap durant ${Math.round((U.num(w.hrvAdur) || 0) / 60 * 10) / 10} min · ${w.hrvAq || '—'} % de batecs vàlids${U.num(w.hrvAq) != null && U.num(w.hrvAq) < 85 ? ' (qualitat baixa: repeteix-la si pots)' : ''}.</p>`}
+    ${has && html`<div class="hr-clear"><${Btn} variant="ghost" onClick=${clear}>Esborra l'HRV en repòs</${Btn}></div>`}
+  </div>`;
+}
+
+
 /* ── 23-kinvent.js ── */
 /* EON Life · «Llegeix el PDF» de Kinvent a la valoració.
    L'informe de Kinvent Physio són imatges: es llegeixen amb Tesseract (OCR) a la mateixa tauleta, sense enviar-les
@@ -21135,6 +21825,8 @@ function SessionEditor({ id }) {
 
   const f = s.feedback || {};
   const load = Calc.sessionLoad(s);
+  const others = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id);
+  const hrvArrivalBase = HR.baseline(HR.points(others, 'hrvA'), s.date);
 
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
@@ -21226,12 +21918,14 @@ function SessionEditor({ id }) {
       </div>
     </section>
 
-    <${WellnessCard} id="se-wellness" value=${s.wellness} onSet=${(k, v) => setIn('wellness', k)(v)} />
+    <${WellnessCard} id="se-wellness" value=${s.wellness} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
     ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+
+    <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
 
     <section class="card feedback">
       <div class="card-head"><h2 class="h2">Tancament de la sessió</h2>

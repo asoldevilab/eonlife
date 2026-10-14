@@ -223,7 +223,7 @@ function KeyDates({ p }) {
 
 // ── Wellness a l'inici de la sessió o de la valoració ──
 // Cinc preguntes de l'1 al 5 (5 = el millor estat) i les observacions de l'entrenador.
-function WellnessCard({ value, onSet, id }) {
+function WellnessCard({ value, onSet, id, hrvArrivalBase }) {
   const w = value || {};
   const c = Calc.wellness(w);
   return html`<section class="card wellness" id=${id}>
@@ -236,6 +236,7 @@ function WellnessCard({ value, onSet, id }) {
         options=${['1', '2', '3', '4', '5'].map((v) => ({ v, label: v, title: v === '1' ? q.lo : v === '5' ? q.hi : '' }))} />
       <span class="wl-anchors"><span>1 · ${q.lo}</span><span>5 · ${q.hi}</span></span>
     </div>`)}</div>
+    <${HrvArrival} w=${w} onSet=${onSet} id=${id} base=${hrvArrivalBase} />
     <${Field} label="Observacions" id=${`${id || 'wl'}-notes`} wide=${true}>
       <${Area} id=${`${id || 'wl'}-notes`} value=${w.notes} onValue=${(v) => onSet('notes', v)} rows=${2}
         placeholder="El que el pacient us comenti o el que observeu (son, feina, molèsties, viatges…)" />

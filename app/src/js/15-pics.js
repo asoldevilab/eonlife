@@ -180,6 +180,8 @@ function picBodyPrims(J) {
   J.leg.forEach((G, i) => {
     const side = i ? 'L' : 'R';
     out.push(pk.cap(G.h, G.k, R.thigh[0], R.thigh[1], 'pk', { body: `thigh${side}`, limb: i ? 'm' : 'l' }));
+    // pantaló curt: el primer tram de la cuixa, una mica més ample
+    out.push(pk.cap(v3.along(G.h, G.d1, -1.2), v3.lerp(G.h, G.k, 0.52), R.thigh[0] * 1.08, R.thigh[0] * 0.98, 'pk', { body: `shorts${side}`, limb: i ? 'm' : 'l', zb: 0.006 }));
     out.push(pk.cap(G.k, G.a, R.shin[0], R.shin[1], 'pk', { body: `shin${side}`, limb: i ? 'm' : 'l', zb: 0.01 }));
     out.push(pk.cap(G.heel, G.toe, R.foot[0], R.foot[1], 'pk', { body: `foot${side}`, limb: i ? 'm' : 'l', zb: 0.02 }));
   });
@@ -232,6 +234,7 @@ function picProject(prims, C, J) {
     else if (q.t === 'ell') {
       o.c2 = picProj(C, q.c); o.depth = picDepth(C, q.c);
       Object.assign(o, picEllipse2(picProj(C, q.e1), picProj(C, q.e2)));
+      o.u2 = picProj(C, q.e1); o.v2 = picProj(C, q.e2);
       o.face = picDepth(C, v3.norm(v3.cross(q.e1, q.e2)));
     } else if (q.t === 'hull') {
       const pts = [];
@@ -281,7 +284,7 @@ function picPlace(o, s, dx, dy) {
   const n = { ...o };
   if (o.t === 'cap') { n.a2 = m(o.a2); n.b2 = m(o.b2); n.ra = o.ra * s; n.rb = o.rb * s; }
   else if (o.t === 'ball') { n.c2 = m(o.c2); n.r = o.r * s; }
-  else if (o.t === 'ell') { n.c2 = m(o.c2); n.rx = o.rx * s; n.ry = o.ry * s; }
+  else if (o.t === 'ell') { n.c2 = m(o.c2); n.rx = o.rx * s; n.ry = o.ry * s; n.u2 = [o.u2[0] * s, o.u2[1] * s]; n.v2 = [o.v2[0] * s, o.v2[1] * s]; }
   else if (o.t === 'hull' || o.t === 'poly' || o.t === 'line') { n.pts2 = o.pts2.map(m); if (o.w) n.w = o.w * s; }
   else if (o.t === 'box') n.faces = o.faces.map((f) => ({ ...f, pts: f.pts.map(m) }));
   return n;
@@ -302,18 +305,24 @@ function picCapPath(a, b, ra, rb) {
   const b2 = [b[0] + n2[0] * rb, b[1] + n2[1] * rb], a2 = [a[0] + n2[0] * ra, a[1] + n2[1] * ra];
   return `M${pp2(a1)}L${pp2(b1)}A${pf(rb)} ${pf(rb)} 0 0 0 ${pp2(b2)}L${pp2(a2)}A${pf(ra)} ${pf(ra)} 0 1 0 ${pp2(a1)}Z`;
 }
+// Elipse a partir dels dos semieixos conjugats (en 2D): quatre corbes de Bézier. Els números canvien de manera contínua
+// quan l'elipse es mou o gira, i per això no fa salts ni girs de 180° en animar-la.
+function picEllPath2(c, u, v) {
+  const k = 0.5523;
+  const P = (a, b) => [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b];
+  const seg = (a0, b0, a1, b1, da0, db0, da1, db1) => `C${pp2(P(a0 + da0 * k, b0 + db0 * k))} ${pp2(P(a1 + da1 * k, b1 + db1 * k))} ${pp2(P(a1, b1))}`;
+  return `M${pp2(P(1, 0))}${seg(1, 0, 0, 1, 0, 1, 1, 0)}${seg(0, 1, -1, 0, -1, 0, 0, 1)}${seg(-1, 0, 0, -1, 0, -1, -1, 0)}${seg(0, -1, 1, 0, 1, 0, 0, -1)}Z`;
+}
 function picEllPath(c, rx, ry, rot) {
-  const r = picRad(rot), ex = [Math.cos(r) * rx, Math.sin(r) * rx];
-  const p1 = [c[0] + ex[0], c[1] + ex[1]], p2 = [c[0] - ex[0], c[1] - ex[1]];
-  const R = `${pf(Math.max(rx, 0.05))} ${pf(Math.max(ry, 0.05))} ${pf(rot)}`;
-  return `M${pp2(p1)}A${R} 0 1 ${pp2(p2)}A${R} 0 1 ${pp2(p1)}Z`;
+  const r = picRad(rot);
+  return picEllPath2(c, [Math.cos(r) * rx, Math.sin(r) * rx], [-Math.sin(r) * ry, Math.cos(r) * ry]);
 }
 const picPolyPath = (pts, close = true) => `M${pts.map(pp2).join('L')}${close ? 'Z' : ''}`;
 function picPrimSvg(o) {
   const cls = o.cls;
   if (o.t === 'cap') return `<path class="${cls}" d="${picCapPath(o.a2, o.b2, o.ra, o.rb)}"/>`;
   if (o.t === 'ball') return `<path class="${cls}" d="${picEllPath(o.c2, o.r, o.r, 0)}"/>`;
-  if (o.t === 'ell') return `<path class="${cls}" d="${picEllPath(o.c2, o.rx, o.ry, o.rot)}"/>`;
+  if (o.t === 'ell') return `<path class="${cls}" d="${o.u2 ? picEllPath2(o.c2, o.u2, o.v2) : picEllPath(o.c2, o.rx, o.ry, o.rot)}"/>`;
   if (o.t === 'hull' || o.t === 'poly') return `<path class="${cls}" d="${picPolyPath(o.pts2)}"/>`;
   if (o.t === 'line') return `<path class="${cls}" d="${picPolyPath(o.pts2, false)}" stroke-width="${pf(o.w)}"/>`;
   if (o.t === 'box') return o.faces.map((f) => `<path class="${cls}${f.tone === 'top' ? ' pp-top' : f.tone === 'z' ? ' pp-side' : ''}" d="${picPolyPath(f.pts)}"/>`).join('');
@@ -361,6 +370,37 @@ function picKettlebell(hand, up, C) {
   return [pk.line(handle, 1.5, 'pml', { gear: 1 }), pk.ball(c, 4.1, 'pm', { gear: 1 })];
 }
 
+// ── Màquines de politja ──
+// Pro Inertial C2: un con (tambor cònic amb la corda enrotllada) amb un volant, fixat a la paret o al terra. La corda surt
+// de l'extrem petit; en estirar-la el con s'accelera i en tornar l'has de frenar. A: on surt la corda; d: cap on queda
+// el con (unitari, cap a l'altra banda de la persona).
+function picConeUnit(A, d, J) {
+  if (v3.len(d) < 0.01) d = [1, 0, 0];
+  const e1b = Math.abs(d[2]) > 0.9 ? [1, 0, 0] : [0, 1, 0], e2b = v3.cross(d, e1b);
+  const ring = (k, r) => ({ c: v3.along(A, d, k), a: v3.mul(e1b, r), b: v3.mul(e2b, r) });
+  const out = [];
+  const L = 11, r0 = 2.2, r1 = 6.4, n = 4;
+  for (let i = 0; i < n; i++) {
+    const k0 = (i / n) * L, k1 = ((i + 1) / n) * L, ra = r0 + (r1 - r0) * (i / n), rb = r0 + (r1 - r0) * ((i + 1) / n);
+    out.push({ t: 'hull', rings: [ring(k0, ra), ring(k1, rb), ring(k0, ra)], cls: i % 2 ? 'pc2' : 'pc', gear: 1, nofit: 1 });
+  }
+  out.push(picCyl(v3.along(A, d, L + 1.4), d, 1.1, 8.2, 'pm', { gear: 1, nofit: 1 }));
+  out.push(pk.disc(v3.along(A, d, L + 2.6), d, 2.4, 'pmh', { gear: 1, nofit: 1 }));
+  // suport: placa a la paret (o peu al terra si és a ran de terra)
+  const w = v3.along(A, d, L + 4.2);
+  out.push(pk.box(Math.min(w[0], w[0] + d[0] * 2.4), Math.max(w[0], w[0] + d[0] * 2.4) + 0.4, Math.max(J.groundY, w[1] - 12), w[1] + 12, w[2] - 8, w[2] + 8, 'pp', { gear: 1, nofit: 1, z: -40 }));
+  return out;
+}
+// Keiser (Infinity): columna alta, braç amb la politja a l'alçada triada i el cilindre d'aire a la base.
+function picKeiserColumn(A, J) {
+  const top = Math.max(A[1] + 7, J.floorY + 62);
+  return [
+    pk.box(A[0] - 2.4, A[0] + 2.4, J.floorY, top, A[2] - 2.4, A[2] + 2.4, 'pkz', { gear: 1, nofit: 1, z: -40 }),
+    pk.box(A[0] - 3.4, A[0] + 3.4, J.floorY, J.floorY + 22, A[2] - 3.4, A[2] + 3.4, 'pka', { gear: 1, nofit: 1, z: -39 }),
+    pk.ball(A, 3.1, 'pm', { gear: 1, nofit: 1 }), pk.ball(A, 1.3, 'pmh', { gear: 1, nofit: 1 }),
+  ];
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -395,6 +435,14 @@ function picGear3(J, P, g, C) {
     }
     return out;
   }
+  if (g.kind === 'cone' && Array.isArray(P.pull)) {
+    // corda del con a la mà o al cinturó (al maluc, amb una anella)
+    const A = P.pull, h = P.belt ? v3.add(J.pel, v3.mul(J.f, -4.2)) : grip === 'chest' ? mid : hR;
+    if (P.belt) out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+    else out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+    out.push(pk.line([h, A], 1.2, 'pe', { gear: 1 }));
+    return out.concat(picConeUnit(A, v3.norm([A[0] - h[0], 0, A[2] - h[2]]), J));
+  }
   if (grip === 'none') return out;
   if (g.kind === 'cable' || (g.kind === 'band' && P.pull)) {
     const h = grip === 'chest' ? mid : hR;
@@ -404,7 +452,8 @@ function picGear3(J, P, g, C) {
       const A = P.pull;
       out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
       out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -442,6 +491,11 @@ function picGear3(J, P, g, C) {
     if (g.kind === 'bar') return picBarbell(c, J.rs);
   }
   if (grip === 'throw') return [pk.ball(v3.add(hR, v3.mul(J.arm[0].d2, 3.6)), 4.6, 'ps', { gear: 1 })];
+  // slam: la pilota surt de les mans i va a terra, davant dels peus (P.bl = 0 a les mans, 1 a terra)
+  if (g.kind === 'ball' && P.bl != null) {
+    const inHand = v3.add(grip === 'chest' ? mid : hR, v3.mul(J.f, 3.4));
+    return [pk.ball(v3.lerp(inHand, [J.pel[0] + 14, J.groundY + 4.8, 0], Math.max(0, Math.min(1, P.bl))), 4.8, 'ps', { gear: 1 })];
+  }
   if (grip === 'swing') {
     // swing: la kettlebell continua la línia dels braços
     if (g.kind === 'kb') return picKettlebell(mid, v3.mul(J.arm[0].d2, -1), C);
@@ -487,7 +541,32 @@ function picGear3(J, P, g, C) {
 }
 
 // Cables i gomes ancorades (en 2D, cap a la politja o l'ancoratge del costat del dibuix) i la torre de la politja.
+// Con del Pro Inertial C2 en 2D: el tambor cònic (a ratlles), el volant i la placa de paret; la corda va a la mà o a un
+// cinturó al maluc. Si l'exercici té «belt», la corda surt del maluc.
+function picCone2(Q, P) {
+  const grip = P.grip || 'hands';
+  const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
+  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
+  const s = back ? -1 : 1, a = [back ? 20 : 80, y];
+  const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
+  for (let i = 0; i < n; i++) {
+    const k0 = (L * i) / n, k1 = (L * (i + 1)) / n, ra = r0 + ((r1 - r0) * i) / n, rb = r0 + ((r1 - r0) * (i + 1)) / n;
+    out.push({ t: 'poly', pts2: [[X(k0), y - ra], [X(k1), y - rb], [X(k1), y + rb], [X(k0), y + ra]], cls: i % 2 ? 'pc2' : 'pc' });
+  }
+  // volant (disc) i placa de fixació: a la paret, o al terra si el con va baix
+  out.push({ t: 'poly', pts2: [[X(L), y - 9.4], [X(L + 2.2), y - 9.4], [X(L + 2.2), y + 9.4], [X(L), y + 9.4]], cls: 'pm' });
+  out.push({ t: 'poly', pts2: [[X(L + 2.2), y - 2], [X(L + 3.2), y - 2], [X(L + 3.2), y + 2], [X(L + 2.2), y + 2]], cls: 'pmh' });
+  out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
+  if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
+  if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
+  out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
+  return out;
+}
+
 function picGear2(Q, P, g) {
+  if (g && g.kind === 'cone' && typeof P.pull === 'string') return picCone2(Q, P);
   if (g && g.kind === 'trx') return [Q.hR, Q.hL].map((h) => ({ t: 'line', pts2: [h, [Math.min(96, h[0] + 26), 3]], w: 1.3, cls: 'pml' }));
   if (!g || typeof P.pull !== 'string' || !(g.kind === 'cable' || g.kind === 'band') || (P.grip || 'hands') === 'none') return [];
   const grip = P.grip || 'hands';
@@ -495,7 +574,16 @@ function picGear2(Q, P, g) {
   const a = P.pull === 'back' ? [5, h[1]] : P.pull === 'high' ? [6, 8] : P.pull === 'over' ? [h[0] + 4, 4] : P.pull === 'face' ? [95, Q.head[1]]
     : P.pull === 'low' ? [95, 84] : P.pull === 'fronthigh' ? [94, 7] : P.pull === 'backlow' ? [5, 84] : [95, h[1]];
   const out = [];
-  if (g.kind === 'cable') {
+  if (g.kind === 'cable' && g.brand === 'keiser') {
+    // columna Keiser: pilar fosc, cilindre d'aire (blau) a la base i la politja a l'alçada triada
+    const x = a[0] < 50 ? 4 : 96, ya = Math.min(a[1], 80);
+    if (P.pull !== 'over') {
+      out.push({ t: 'poly', pts2: [[x - 2.4, 4], [x + 2.4, 4], [x + 2.4, 90], [x - 2.4, 90]], cls: 'pkz' });
+      out.push({ t: 'poly', pts2: [[x - 3.6, 64], [x + 3.6, 64], [x + 3.6, 90], [x - 3.6, 90]], cls: 'pka' });
+    }
+    out.push({ t: 'ball', c2: [x, ya], r: 3.1, cls: 'pm' }, { t: 'ball', c2: [x, ya], r: 1.2, cls: 'pmh' });
+    a[0] = x; a[1] = ya;
+  } else if (g.kind === 'cable') {
     const x = a[0] < 50 ? 3 : 97;
     if (P.pull !== 'over') out.push({ t: 'line', pts2: [[x, 4], [x, 90]], w: 3.2, cls: 'pl' });
     out.push({ t: 'ball', c2: a, r: 1.9, cls: 'pmh' });
@@ -545,24 +633,127 @@ function picPlaceScene(S, T) {
 // Cada postura dinàmica té la posició inicial (from: només el que canvia) i la final (la postura mateixa). Els fotogrames
 // s'interpolen angle a angle (no punt a punt, perquè els braços i les cames no s'escurcin).
 const picLerpN = (x, y, k) => x + (y - x) * k;
+// Els angles van pel camí més curt (un braç que passa de 150° a −84° puja cap a fora, no creua el cos).
+const picLerpA = (x, y, k) => x + ((((y - x) % 360) + 540) % 360 - 180) * k;
 function picLerpSpec(x, y, k) {
-  if (!Array.isArray(x) && !Array.isArray(y)) return picLerpN(x, y, k);
+  if (!Array.isArray(x) && !Array.isArray(y)) return picLerpA(x, y, k);
   const a = Array.isArray(x) ? x : [x, 0], b = Array.isArray(y) ? y : [y, 0];
-  return [picLerpN(a[0], b[0], k), picLerpN(a[1], b[1], k)];
+  return [picLerpA(a[0], b[0], k), picLerpA(a[1], b[1], k)];
+}
+// Braços: el moviment es fa en coordenades de l'articulació (no angle a angle del món): l'húmer (braç) va d'una direcció
+// a l'altra pel camí més curt (slerp), el colze es doblega o s'estira i el seu eix de bisagra es manté lligat a l'húmer, de
+// manera que el colze sempre es doblega pel seu costat i l'avantbraç mai es retorça ni travessa el cos.
+function picArmLerp(sa, sb, k, side, front) {
+  const D = (s) => v3.norm(picDir(s, side, front));
+  const deg = (r) => (r * 180) / Math.PI, ang = (a, b) => Math.acos(Math.max(-1, Math.min(1, v3.dot(a, b))));
+  const slerp = (a, b, q) => {
+    const c = v3.cross(a, b); let ax = v3.len(c) > 1e-6 ? v3.norm(c) : v3.norm(v3.cross(a, Math.abs(a[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0]));
+    return v3.rot(a, ax, deg(ang(a, b)) * q);
+  };
+  const u0 = D(sa[0]), w0 = D(sa[1]), u1 = D(sb[0]), w1 = D(sb[1]);
+  const b0 = ang(u0, w0), b1 = ang(u1, w1);
+  const hinge = (u, w, beta) => (beta > 0.1 ? v3.norm(v3.cross(u, w)) : null);
+  let h0 = hinge(u0, w0, b0), h1 = hinge(u1, w1, b1);
+  if (!h0 && !h1) { h0 = h1 = v3.norm(v3.cross(u0, Math.abs(u0[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0])); }
+  if (!h0) h0 = h1; if (!h1) h1 = h0;
+  const u = v3.norm(slerp(u0, u1, k));
+  const move = (h, uFrom) => { const c = v3.cross(uFrom, u); return v3.len(c) < 1e-6 ? h : v3.rot(h, v3.norm(c), deg(ang(uFrom, u))); };
+  const ha = move(h0, u0), hb = move(h1, u1);
+  const twist = deg(Math.atan2(v3.dot(v3.cross(ha, hb), u), v3.dot(ha, hb)));
+  const h = v3.norm(v3.rot(ha, u, twist * k));
+  const beta = b0 + (b1 - b0) * k;
+  const w = v3.add(v3.mul(u, Math.cos(beta)), v3.mul(v3.cross(h, u), Math.sin(beta)));
+  return [picDirSpec(u, side, front), picDirSpec(v3.norm(w), side, front)];
 }
 function picLerp(A, B, k) {
-  const out = { ...B };
-  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx']) {
+  const out = { ...B, k };
+  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl']) {
     const d = f === 't' ? -90 : 0;
-    if (A[f] != null || B[f] != null) out[f] = picLerpN(A[f] ?? d, B[f] ?? d, k);
+    const ang = !['shr', 'shp', 'lift', 'dx', 'bl'].includes(f);
+    if (A[f] != null || B[f] != null) {
+      const x = A[f] ?? d, y = B[f] ?? d;
+      out[f] = ang && (Array.isArray(x) || Array.isArray(y)) ? picLerpSpec(x, y, k) : (ang ? picLerpA : picLerpN)(x, y, k);
+    }
   }
   for (const f of ['a', 'b', 'l', 'm']) {
     const x = picSide(A, f), y = picSide(B, f);
+    if ((f === 'a' || f === 'b') && !A.rel && !B.rel && x.length >= 2 && y.length >= 2) { out[f] = picArmLerp(x, y, k, f === 'a' ? 1 : -1, !!B.front); continue; }
     out[f] = y.map((v, i) => (v == null ? v : picLerpSpec(x[i] ?? v, v, k)));
   }
   return out;
 }
 const picStart = (P) => ({ ...P, ...(P.from || {}) });
+
+// ── Punts de contacte fixos ──
+// P.pin: [{ leg: 1, ref: 0 }]: el turmell de la cama `leg` es queda a la mateixa distància del turmell de la cama `ref`
+// que a la postura final (un peu a la banqueta, a terra…): en moure el cos, els angles de la cama es recalculen
+// (cinemàtica inversa de dos segments, amb el genoll cap a on mira a la postura final). pinArm: igual amb els braços
+// (mans fixes sobre el terra o una barra).
+function picDirSpec(d, side, front) {
+  const deg = (r) => (r * 180) / Math.PI;
+  const c = (x) => Math.max(-1, Math.min(1, x));
+  if (front) return [deg(Math.atan2(-d[1], -d[2])), deg(Math.asin(c(d[0])))];
+  return [deg(Math.atan2(-d[1], d[0])), deg(Math.asin(c(d[2] * side)))];
+}
+function picIk(H, T, L1, L2, poleDir) {
+  const v = v3.sub(T, H);
+  const raw = v3.len(v) || 1e-6;
+  const D = Math.max(Math.abs(L1 - L2) + 0.3, Math.min(L1 + L2 - 0.05, raw));
+  const u = v3.mul(v, 1 / raw);
+  const a = (L1 * L1 - L2 * L2 + D * D) / (2 * D);
+  const h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+  let p = v3.sub(poleDir, v3.mul(u, v3.dot(poleDir, u)));
+  if (v3.len(p) < 0.05) p = [0, 1, 0];
+  p = v3.norm(p);
+  const K = v3.add(v3.along(H, u, a), v3.mul(p, h));
+  const E = v3.along(H, u, D);
+  return { K, E };
+}
+function picApplyPins(P, Q) {
+  if (!P.pin && !P.pinArm && !P.plant) return Q;
+  const J0 = picJoints(P), front = !!Q.front, out = { ...Q };
+  let J = picJoints(Q);
+  // plant: el turmell de la cama `leg` es queda a la mateixa x i z (respecte del maluc) que a la postura final i només
+  // canvia l'alçada (de y0 a la final): peus fixos a terra en un squat sumo, sense que s'obrin ni es tanquin
+  const k = Q.k == null ? 1 : Q.k;
+  for (const pl of [].concat(P.plant || [])) {
+    const G0 = J0.leg[pl.leg], H = J.hip[pl.leg];
+    const A0 = v3.sub(G0.a, J0.hip[pl.leg]);
+    const T = v3.add(H, [A0[0], pl.y0 + (A0[1] - pl.y0) * k, A0[2]]);
+    const pole = v3.sub(G0.k, J0.hip[pl.leg]);
+    const u0 = v3.norm(A0), pole0 = v3.sub(pole, v3.mul(u0, v3.dot(pole, u0)));
+    const { K, E } = picIk(H, T, PIC_L.thigh, PIC_L.shin, pole0);
+    const side = pl.leg ? -1 : 1, f = pl.leg ? 'm' : 'l', cur = picSide(out, f);
+    out[f] = [picDirSpec(v3.norm(v3.sub(K, H)), side, front), picDirSpec(v3.norm(v3.sub(E, K)), side, front), ...cur.slice(2)];
+    J = picJoints(out);
+  }
+  // pin / pinArm: el punt de contacte (turmell o canell) de la cama o el braç `leg` es queda a la mateixa distància del d'un
+  // altre membre (`ref`: un número del mateix tipus o { limb: 'arm' | 'leg', idx }) que a la postura final
+  const ank = (kind, g) => (kind === 'leg' ? g.a : g.w);
+  const mid = (kind, g) => (kind === 'leg' ? g.k : g.e);
+  const root = (kind, J2, i) => (kind === 'leg' ? J2.hip[i] : J2.sh[i]);
+  const limbs = (kind, J2) => (kind === 'leg' ? J2.leg : J2.arm);
+  for (const [list, kind] of [[P.pin, 'leg'], [P.pinArm, 'arm']]) {
+    for (const pin of [].concat(list || [])) {
+      const rk = pin.ref && typeof pin.ref === 'object' ? pin.ref.limb : kind, ri = pin.ref && typeof pin.ref === 'object' ? pin.ref.idx : pin.ref;
+      const G0 = limbs(kind, J0)[pin.leg], R0 = limbs(rk, J0)[ri], G = limbs(kind, J)[pin.leg], R = limbs(rk, J)[ri];
+      const L1 = kind === 'leg' ? PIC_L.thigh : PIC_L.upper, L2 = kind === 'leg' ? PIC_L.shin : PIC_L.fore;
+      const off = pin.off ? pin.off : v3.sub(ank(kind, G0), ank(rk, R0));
+      const T = v3.add(ank(rk, R), off);
+      const base0 = root(kind, J0, pin.leg), base = root(kind, J, pin.leg);
+      const u0 = v3.norm(v3.sub(ank(kind, G0), base0));
+      const pole = v3.sub(mid(kind, G0), base0);
+      const pole0 = v3.sub(pole, v3.mul(u0, v3.dot(pole, u0)));
+      const { K, E } = picIk(base, T, L1, L2, pole0);
+      const side = pin.leg ? -1 : 1;
+      const f = kind === 'leg' ? (pin.leg ? 'm' : 'l') : (pin.leg ? 'b' : 'a');
+      const cur = picSide(out, f);
+      out[f] = [picDirSpec(v3.norm(v3.sub(K, base)), side, front), picDirSpec(v3.norm(v3.sub(E, K)), side, front), ...cur.slice(2)];
+      J = picJoints(out);
+    }
+  }
+  return out;
+}
 const PIC_STEPS = 4;
 
 // Ordre de dibuix (el més lluny primer) i to (el costat que no es veu, més clar), segons la postura final, perquè tots
@@ -571,10 +762,27 @@ function picOrder(S) {
   const list = S.body.concat(S.items);
   const torso = (S.body.find((o) => o.body === 'chest') || {}).depth || 0;
   const key = (o) => o.depth + (o.z || 0) + (o.zb || 0);
-  const order = list.map((o, i) => i).sort((i, j) => key(list[i]) - key(list[j]) || i - j);
   const far = list.map((o) => o.cls === 'pk' && !/^(pelvis|chest|neck|head|nose)$/.test(o.body) && o.depth < torso - 2.2);
-  return { order, far };
+  // Cada braç (braç, avantbraç i mà) i cada cama (cuixa, pantaló, cama i peu) es dibuixa d'una tirada: primer la vora de
+  // tota la cadena i després el farciment, i així les articulacions (colze, genoll) no porten cap ratlla al mig.
+  const chainOf = (o) => {
+    const b = o.body || '';
+    const m = /^(upper|fore|hand)(R|L)$/.exec(b), n = /^(thigh|shorts|shin|foot)(R|L)$/.exec(b);
+    return m ? `arm${m[2]}` : n ? `leg${n[2]}` : null;
+  };
+  const units = [], chains = new Map();
+  list.forEach((o, i) => {
+    const c = chainOf(o);
+    if (!c) { units.push({ idx: [i], k: key(o) }); return; }
+    if (!chains.has(c)) chains.set(c, []);
+    chains.get(c).push(i);
+  });
+  for (const idx of chains.values()) units.push({ idx, chain: true, k: idx.reduce((sum, i) => sum + key(list[i]), 0) / idx.length });
+  units.sort((a, b) => a.k - b.k || a.idx[0] - b.idx[0]);
+  return { order: units.flatMap((u) => u.idx), units, far };
 }
+// Peça del cos → peça de roba (el color és de la paleta d'EON, a CSS): pell, samarreta, pantaló i sabatilles.
+const picPartOf = (b) => (b === 'pelvis' || /^shorts/.test(b) ? 'short' : b === 'chest' ? 'top' : /^foot/.test(b) ? 'shoe' : 'skin');
 function picSvgOf(P, S, ord, gear) {
   const parts = [`<path class="pfl" d="M4 ${PIC_FLOOR + 1.6}H96" stroke-width="1.6"/>`];
   const view = picViewOf(P);
@@ -584,9 +792,12 @@ function picSvgOf(P, S, ord, gear) {
   }
   for (const o of S.env) parts.push(picPrimSvg(o));
   const list = S.body.concat(S.items);
-  for (const i of ord.order) {
-    const o = list[i];
-    if (o) parts.push(picPrimSvg(ord.far[i] ? { ...o, cls: 'pkf' } : o));
+  const skin = (o, i) => (o.cls === 'pk' && o.body ? { ...o, cls: `${ord.far[i] ? 'pkf' : 'pk'} pk-${picPartOf(o.body)}` } : ord.far[i] ? { ...o, cls: 'pkf' } : o);
+  for (const u of ord.units) {
+    if (u.chain) {
+      for (const i of u.idx) if (list[i]) parts.push(picPrimSvg({ ...list[i], cls: 'pko' }));
+      for (const i of u.idx) if (list[i]) { const o = skin(list[i], i); parts.push(picPrimSvg({ ...o, cls: `${o.cls} ns` })); }
+    } else if (list[u.idx[0]]) parts.push(picPrimSvg(skin(list[u.idx[0]], u.idx[0])));
   }
   for (const o of picGear2(S.key, P, gear)) parts.push(picPrimSvg(o));
   return `<svg class="pic" viewBox="0 0 100 100" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round">${parts.join('')}</svg>`;
@@ -597,17 +808,77 @@ function picSvgOf(P, S, ord, gear) {
 function picFrames(P, gear = { kind: '' }) {
   const A = picStart(P);
   const ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * x);
-  const poses = Array.from({ length: PIC_STEPS + 1 }, (_, i) => (i === PIC_STEPS ? P : picLerp(A, P, ease(i / PIC_STEPS))));
-  const ref = picScene(P, gear);
+  // P.mid: una postura intermèdia (a l'aire, a mig recorregut): inici → mid → final, a velocitat constant
+  const M = P.mid ? { ...P, ...P.mid } : null;
+  const at = (i) => {
+    if (!M) return picLerp(A, P, ease(i / PIC_STEPS));
+    const h = PIC_STEPS / 2;
+    return i <= h ? picLerp(A, M, i / h) : picLerp(M, P, (i - h) / h);
+  };
+  const poses = Array.from({ length: PIC_STEPS + 1 }, (_, i) => picApplyPins(P, i === PIC_STEPS ? P : at(i)));
+  const ref = picScene(poses[PIC_STEPS], gear);
   const scenes = poses.map((Q, i) => (i === PIC_STEPS ? ref : picScene(Q, gear, P.propsMove ? null : ref.J)));
-  const s = Math.min(...scenes.map((S, i) => picFit(poses[i], S).s));
-  const endT = picFit({ ...P, dx: 0 }, ref, { s });
-  const opt = { s, ax: endT.anchorX * s + endT.dx, ay: endT.anchorY != null ? endT.anchorY * s + endT.dy : null };
-  let placed = scenes.map((S, i) => picPlaceScene(S, picFit(poses[i], S, opt)));
-  const fits = placed.every((S) => { const b = picUnion(S.body); return b.x0 > 1 && b.x1 < 99 && b.y0 > 1; });
+  let s = Math.min(...scenes.map((S, i) => picFit(poses[i], S).s));
+  // penjat d'una barra (dominades): les mans són sempre a la mateixa alçada i la figura sencera, de la part més alta a
+  // la més baixa de tots els fotogrames, cap dins del quadre i sense tocar el terra
+  let up = 0;
+  if (P.hang) {
+    const ext = scenes.map((S) => { const b = picUnion(S.body); return [S.key.hR[1] - b.y0, b.y1 - S.key.hR[1]]; });
+    up = Math.max(...ext.map((e) => e[0]));
+    s = Math.min(s, (PIC_FLOOR - 9) / (up + Math.max(...ext.map((e) => e[1]))));
+  }
+  const mkOpt = (sc) => {
+    const endT = picFit({ ...P, dx: 0 }, ref, { s: sc });
+    const o = { s: sc, ax: endT.anchorX * sc + endT.dx, ay: endT.anchorY != null ? endT.anchorY * sc + endT.dy : null };
+    if (P.hang && o.ay != null) o.ay = 4 + up * sc;
+    // desplaçaments (salts, rodar sobre un corró): s'encaixa el recorregut sencer, centrat
+    if (P.fix === 'free' && poses.some((Q) => Q.dx)) {
+      const rel = scenes.map((S, i) => { const b = picUnion(S.body), ax = (P.anchor === 'hip' ? S.key.pel[0] : S.key.fR[0]); return [b.x0 - ax + (poses[i].dx || 0), b.x1 - ax + (poses[i].dx || 0)]; });
+      const u0 = Math.min(...rel.map((r) => r[0])), u1 = Math.max(...rel.map((r) => r[1]));
+      if ((u1 - u0) * sc > 90) { sc = 90 / (u1 - u0); o.s = sc; }
+      o.ax = 50 - ((u0 + u1) / 2) * sc;
+    }
+    return o;
+  };
+  let opt = mkOpt(s);
+  s = opt.s;
+  let T = scenes.map((S, i) => picFit(poses[i], S, opt));
+  let placed = scenes.map((S, i) => picPlaceScene(S, T[i]));
+  // si tot el moviment no cap en amplada, es redueix l'escala; i es centra tot el recorregut (tots els fotogrames junts,
+  // perquè el peu fix no es mogui)
+  let U = picUnion(placed.flatMap((S) => S.body));
+  if (U.x1 - U.x0 > 94) {
+    opt = mkOpt(s * (94 / (U.x1 - U.x0)));
+    T = scenes.map((S, i) => picFit(poses[i], S, opt));
+    placed = scenes.map((S, i) => picPlaceScene(S, T[i]));
+    U = picUnion(placed.flatMap((S) => S.body));
+  }
+  if (U.x0 < 3 || U.x1 > 97) {
+    const sh = 50 - (U.x0 + U.x1) / 2;
+    T = T.map((q) => ({ ...q, dx: q.dx + sh }));
+    placed = scenes.map((S, i) => picPlaceScene(S, T[i]));
+  }
+  const fits = placed.every((S) => { const b = picUnion(S.body); return b.y0 > 1 && b.y1 < 99; });
   if (!fits) placed = scenes.map((S, i) => picPlaceScene(S, picFit(poses[i], S, { s })));
   const last = placed[placed.length - 1];
   if (!P.propsMove) placed = placed.map((S) => ({ ...S, env: last.env }));
+  // el·lipses (discos, anelles de goma): entre els quatre parells de semieixos equivalents es tria el més proper al
+  // fotograma anterior (sense girs de 90°, 180° ni 360° en animar-les)
+  for (const kind of ['items', 'env']) for (let f = 1; f < placed.length; f++) {
+    placed[f][kind] = placed[f][kind].map((o, j) => {
+      const q = placed[f - 1][kind][j];
+      // segments (barres, mànecs): els extrems no s'intercanvien d'un fotograma a l'altre
+      if (o && q && o.t === 'cap' && q.t === 'cap') {
+        const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+        return d(o.a2, q.b2) + d(o.b2, q.a2) < d(o.a2, q.a2) + d(o.b2, q.b2) ? { ...o, a2: o.b2, b2: o.a2, ra: o.rb, rb: o.ra } : o;
+      }
+      if (!(o && q && o.t === 'ell' && o.u2 && q.u2)) return o;
+      const eq = [[o.u2, o.v2], [o.v2, [-o.u2[0], -o.u2[1]]], [[-o.u2[0], -o.u2[1]], [-o.v2[0], -o.v2[1]]], [[-o.v2[0], -o.v2[1]], o.u2]];
+      const dist = ([a, b]) => Math.hypot(a[0] - q.u2[0], a[1] - q.u2[1]) + Math.hypot(b[0] - q.v2[0], b[1] - q.v2[1]);
+      const best = eq.reduce((m, c) => (dist(c) < dist(m) ? c : m), eq[0]);
+      return { ...o, u2: best[0], v2: best[1] };
+    });
+  }
   return { poses, scenes: placed, order: picOrder(last) };
 }
 
@@ -648,7 +919,7 @@ function picAnimate(frames) {
 
 // Dibuix quiet d'una postura (centrat).
 function picSvg(key, gear) {
-  const P = PICS[key] || PICS.stand;
+  const P = picApplyPins(PICS[key] || PICS.stand, PICS[key] || PICS.stand);
   const S = picScene(P, gear || { kind: '' });
   const placed = picPlaceScene(S, picFit(P, S));
   return picSvgOf(P, placed, picOrder(placed), gear || { kind: '' });
@@ -684,6 +955,10 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
+  // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
+  if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
   if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
@@ -692,6 +967,11 @@ function picGearOf(e, key) {
 // ── Quina postura té cada exercici ──
 // Per ordre: la primera regla que coincideix amb el nom (o el nom de Technogym) mana.
 const PIC_RULES = [
+  [/passes laterals de mans/, 'pushup_step'],
+  [/leg press.*keiser|keiser.*leg press/, 'keiser_legpress'],
+  [/extensio de genoll keiser|leg extension keiser/, 'keiser_legext'],
+  [/curl femoral keiser/, 'keiser_curl'],
+  [/press de pit keiser/, 'keiser_press'],
   [/\bbike\b|bicicleta estatica/, 'bike'],
   [/alliberament|miofascial|foam roller|mobility ball/, (t) => (/planta del peu|plantar/.test(t) ? 'roll_foot' : /bessons|calf|glut/.test(t) ? 'roll_seated'
     : /quadriceps/.test(t) ? 'roll_prone' : /dorsal|lats|iliotibial|ilio-tibial|espatlla|shoulder|mobility ball/.test(t) ? 'roll_side' : 'roll_back')],
@@ -884,8 +1164,12 @@ function picKeyOf(e) {
   const pic = e.pic && (PICS[e.pic] ? e.pic : PIC_ALIAS[e.pic]);
   if (pic) return pic;
   const t = U.norm(`${e.name || ''} ${e.tg || ''}`);
-  for (const [re, key] of PIC_RULES) if (re.test(t)) return typeof key === 'function' ? key(t) : key;
-  return PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  let key = null;
+  for (const [re, k] of PIC_RULES) if (re.test(t)) { key = typeof k === 'function' ? k(t) : k; break; }
+  key = key || PIC_BY_MUSCLE[e.gm] || PIC_BY_BLOCK[e.block] || 'stand';
+  // amb la politja cònica (Pro Inertial C2) la postura porta el con, la corda i, si cal, el cinturó
+  if (/conica|isoinercial|pro c2/.test(U.norm(`${e.material || ''} ${t}`)) && PICS[`${key}_cone`]) return `${key}_cone`;
+  return key;
 }
 
 // Dibuixos en moviment: es poden aturar a Configuració (en aquest aparell) i s'aturen sols si el sistema demana menys
@@ -910,7 +1194,7 @@ function exercisePicSvg(e, keyOverride, mode = 'auto') {
   const g = picGearOf(e || {}, key);
   const P = PICS[key] || PICS.stand;
   const m = !picMoves(key, e) ? 'still' : mode === 'auto' ? (PicMotion.on() ? 'anim' : 'still') : mode;
-  const id = `${key}|${g.kind}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
+  const id = `${key}|${g.kind}|${g.brand || ''}|${g.at || ''}|${g.one ? 1 : 0}|${m}`;
   if (!PIC_CACHE.has(id)) {
     let svg;
     try {
