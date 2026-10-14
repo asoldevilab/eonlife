@@ -89,25 +89,56 @@ function eonFolders(list) {
   return { key: 'eon', label: 'Exercicis EON', count: mine.length, list: list2 };
 }
 
-function openExerciseBrowser({ block, title, onPick, onBlank }) {
+// Exercicis triats fa poc (a aquesta tauleta) i els que el pacient ja ha fet, amb l'última càrrega.
+const RECENT_KEY = 'eon.recentEx';
+function recentExercises() { try { return JSON.parse(window.localStorage.getItem(RECENT_KEY) || '[]'); } catch (e) { return []; } }
+function noteRecentExercise(id) {
+  try { window.localStorage.setItem(RECENT_KEY, JSON.stringify([id, ...recentExercises().filter((x) => x !== id)].slice(0, 16))); } catch (e) { /* sense emmagatzematge */ }
+}
+function patientHistory(pid) {
+  const m = new Map();
+  if (!pid) return m;
+  for (const s of Store.sessionsOf(pid)) for (const b of s.blocks || []) for (const it of b.items || []) {
+    if (!it.name) continue;
+    const h = { it, date: s.date };
+    if (it.exId) m.set(it.exId, h);
+    m.set(U.norm(it.name), h);
+  }
+  return m;
+}
+function patientFolder(pool, hist) {
+  const mine = pool.map((e) => ({ e, h: hist.get(e.id) || hist.get(U.norm(e.name)) })).filter((x) => x.h).sort((a, b) => (a.h.date < b.h.date ? 1 : -1));
+  return { key: 'pat', label: 'Fets amb aquest pacient', count: mine.length, hist,
+    list: mine.length ? [{ name: 'pat-all', label: 'Els més recents primer', items: mine.map((x) => x.e) }] : [] };
+}
+function recentFolder(pool) {
+  const ids = recentExercises();
+  const items = ids.map((id) => pool.find((e) => e.id === id)).filter(Boolean);
+  return { key: 'rec', label: 'Triats fa poc', count: items.length, list: items.length ? [{ name: 'rec-all', label: 'Els últims triats', items }] : [] };
+}
+
+function openExerciseBrowser({ block, title, onPick, onBlank, patientId }) {
   let close = null;
-  close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
-    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${() => { close(); onBlank(); }} onClose=${() => close()} />`,
+  close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title} patientId=${patientId}
+    onPick=${(e, mat) => { close(); noteRecentExercise(e.id); onPick(e, mat); }} onBlank=${onBlank ? () => { close(); onBlank(); } : null} onClose=${() => close()} />`,
   { onDismiss: () => close() });
 }
 
-function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
+function ExerciseBrowser({ block, title, onPick, onBlank, onClose, patientId }) {
   const [all, setAll] = useState(false);
   const [q, setQ] = useState('');
   const [zone, setZone] = useState(null);
   const [folder, setFolder] = useState(null);
   const [ex, setEx] = useState(null);
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
-  const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
+  const scope = all || !block ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
   const eon = eonFolders(pool);
   const own = ownFolders(pool);
-  const zones = [...(eon.count ? [eon] : []), ...(own.count ? [own] : []), ...exerciseFolders(pool), materialFolders(pool)];
+  const hist = patientHistory(patientId);
+  const pat = patientId ? patientFolder(pool, hist) : null;
+  const rec = recentFolder(pool);
+  const zones = [...(pat && pat.count ? [pat] : []), ...(rec.count ? [rec] : []), ...(eon.count ? [eon] : []), ...(own.count ? [own] : []), ...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
@@ -122,17 +153,20 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
     ex && { label: ex.name },
   ].filter(Boolean);
   const back = () => (ex ? setEx(null) : folder ? setFolder(null) : setZone(null));
-  const row = (e) => html`<${ExCard} e=${e} onClick=${() => choose(e)}
-    sub=${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
+  const row = (e) => {
+    const h = zone === 'pat' ? (hist.get(e.id) || hist.get(U.norm(e.name))) : null;
+    return html`<${ExCard} e=${e} onClick=${() => choose(e)}
+      sub=${h ? `${U.fmtDateShort(h.date)} · ${Calc.presc(h.it) || '—'}` : (e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
+  };
 
-  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici · ${blockName(block)}`} onClose=${onClose} footer=${html`
-    <${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>
+  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici${block ? ` · ${blockName(block)}` : ''}`} onClose=${onClose} footer=${html`
+    ${onBlank && html`<${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>`}
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>`}>
     <div class="xb-top">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
-      <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
+      ${block && html`<label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>`}
     </div>
     ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<div class="xb-none"><p class="muted">Cap exercici coincideix. Crea'l a la biblioteca (amb el vídeo, si en tens) i després tria'l aquí, o afegeix-lo en blanc només en aquesta sessió.</p>
           <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: block || 'for' })}>Crea «${q.trim()}» a la biblioteca</${Btn}></div>`}</div>`

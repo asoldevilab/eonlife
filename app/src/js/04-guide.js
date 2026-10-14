@@ -1,0 +1,167 @@
+/* EON Life · ajudes per dissenyar la sessió: durades (descans i temps), progressió suggerida, 1RM del pacient,
+   càrrega a partir d'un %, precaucions per lesió i volum setmanal per múscul. Només càlculs, sense pantalla. */
+
+// Zones de lesió: paraules que les anomenen a la fitxa del pacient (sense accents ni majúscules) i com s'identifiquen
+// els exercicis que les carreguen (per múscul o per nom).
+const CAUTION_ZONES = [
+  { key: 'genoll', label: 'genoll',
+    say: /genoll|rotul|menisc|\blca\b|creuat|patel|tendo rotulia|salt del cavaller/,
+    muscles: ['Quàdriceps', 'Isquiotibials'],
+    names: /squat|sentadilla|gen[ou]flexio|zancada|lunge|split|bulgar|salt|jump|hop|skater|step|pujada|leg press|leg ext|extensio de genoll|nordic|box|sprint|correr|skipping/ },
+  { key: 'espatlla', label: 'espatlla',
+    say: /espatlla|manegot|rotador|acromi|clavicula|luxacio|supraespinos|hombro/,
+    muscles: ['Deltoides', 'Manegot rotador', 'Pectoral', 'Trapezi', 'Escàpula'],
+    names: /press|overhead|militar|snatch|arrencada|dominada|pull-?up|jalo|fons|dip|push-?up|flexio|elevacio|rem vertical/ },
+  { key: 'lumbar', label: 'esquena / lumbar',
+    say: /lumbar|esquena|hernia|discal|ciatica|lumbalgia|espondil|columna/,
+    muscles: ['Lumbar'],
+    names: /pes mort|deadlift|good morning|bon dia|hiperext|rem amb barra|remo con barra|swing|clean|snatch|arrencada|thruster|sentadilla|back squat/ },
+  { key: 'maluc', label: 'maluc / engonal',
+    say: /maluc|engonal|adductor|pubalgia|pubis|cadera|ingle|fai\b|pinçament/,
+    muscles: ['Adductors', 'Flexors de maluc', 'GMed'],
+    names: /copenhagen|sumo|lateral lunge|zancada lateral|cossack|split|aductor|abductor|90\/90|rotacio de maluc/ },
+  { key: 'turmell', label: 'turmell / peu',
+    say: /turmell|peu\b|aquil|fascitis|esquinc|tobillo|taló|talo/,
+    muscles: ['Bessons i soli', 'Tibial anterior'],
+    names: /salt|jump|hop|skipping|corda|sprint|correr|calf|bessons|taló|pujada de punta|box/ },
+  { key: 'canell', label: 'canell / colze',
+    say: /canell|colze|epicondil|tendinitis|codo|muñeca/,
+    muscles: ['Avantbraç', 'Bíceps', 'Tríceps'],
+    names: /push-?up|flexio|curl|triceps|press|fons|dip|dominada|pull-?up|rem|grip|prensio/ },
+];
+
+Object.assign(Calc, {
+  // ── Durades ──
+  // «2'», «90 s», «90"», «1:30», «2'30», «1-2'» → segons. Un número sol: ≥ 10 són segons, menys, minuts.
+  secs(text) {
+    const s = String(text == null ? '' : text).toLowerCase().replace(/,/g, '.').replace(/[”“″]/g, '"').replace(/[’‘′]/g, "'");
+    if (!s.trim()) return null;
+    let m = s.match(/(\d+)\s*[:']\s*(\d{1,2})\s*"?/);
+    if (m) return Number(m[1]) * 60 + Number(m[2]);
+    m = s.match(/(\d+(?:\.\d+)?)(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*(min|m\b|')/);
+    if (m) return Math.round(Number(m[1]) * 60);
+    m = s.match(/(\d+(?:\.\d+)?)(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*(seg|sec|s\b|")/);
+    if (m) return Math.round(Number(m[1]));
+    m = s.match(/^\s*(\d+(?:\.\d+)?)\s*$/);
+    if (m) { const n = Number(m[1]); return n <= 0 ? null : n >= 10 ? Math.round(n) : Math.round(n * 60); }
+    return null;
+  },
+  // El text indica un temps (30 s, 45", 2') i no repeticions.
+  isTime(text) { return /\d\s*(min|seg|sec|s\b|"|'|”|’)/i.test(String(text || '')); },
+  clock(n) {
+    const t = Math.max(0, Math.round(n || 0));
+    const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+    return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`;
+  },
+
+  // ── Progressió suggerida ──
+  // Càrrega en kg d'un camp («60», «60 kg», «62,5»); null si no és un número net.
+  loadKg(v) {
+    const m = String(v == null ? '' : v).trim().match(/^(\d+(?:[.,]\d+)?)\s*(kg)?$/i);
+    return m ? Number(m[1].replace(',', '.')) : null;
+  },
+  fmtKg(n) { return `${String(Math.round(n * 100) / 100).replace('.', ',')} kg`; },
+  // Què fer amb la càrrega de la darrera vegada segons com va anar aquella sessió (RPE 1–10 i dolor 0–10).
+  // Sense RPE ni dolor registrats no hi ha base per suggerir res.
+  suggestLoad(prev, ctx = {}) {
+    const base = Calc.loadKg(prev && prev.load);
+    if (base == null || base <= 0) return null;
+    const rpe = U.num(ctx.rpe), pain = U.num(ctx.pain);
+    if (rpe == null && pain == null) return null;
+    let pct = 0, why;
+    if (pain != null && pain >= 4) { pct = -5; why = `dolor ${U.fmt(pain, 0)}/10 la darrera sessió`; }
+    else if (rpe == null) return null;
+    else if (rpe <= 6) { pct = 5; why = `RPE ${U.fmt(rpe, 0)}: anava folgat`; }
+    else if (rpe < 8) { pct = 2.5; why = `RPE ${U.fmt(rpe, 0)}: marge per pujar`; }
+    else if (rpe < 10) { pct = 0; why = `RPE ${U.fmt(rpe, 0)}: ja era exigent`; }
+    else { pct = -2.5; why = 'RPE 10: va ser el màxim'; }
+    let load = Math.round((base * (1 + pct / 100)) * 2) / 2;
+    if (pct > 0 && load <= base) load = base + 0.5;
+    return { load, base, delta: load - base, pct, why, text: `${Calc.fmtKg(load)} (${why})` };
+  },
+
+  // ── 1RM del pacient i % → kg ──
+  // Estimació d'una sèrie (Epley, comptant les repeticions que sobraven): null si no hi ha càrrega o repeticions netes.
+  e1rm(it) {
+    const kg = Calc.loadKg(it && it.load), reps = U.num(String((it && it.reps) || '').match(/\d+/));
+    if (kg == null || kg <= 0 || reps == null || reps < 1 || reps > 12) return null;
+    const rir = String((it && it.intensity) || '').match(/RIR\s*(\d)/i);
+    return kg * (1 + (reps + (rir ? Number(rir[1]) : 0)) / 30);
+  },
+  // 1RM d'un exercici: la del perfil càrrega-velocitat més recent d'aquest exercici o, si no n'hi ha, la millor estimada
+  // amb les sessions fetes abans de la data. Retorna { rm, src, date } o null.
+  oneRm(pid, name, asOf) {
+    const nm = U.norm(name || '');
+    if (!pid || !nm) return null;
+    const end = asOf || '9999-99-99';
+    const hit = {
+      squat: /squat|sentadilla/, bench: /banca|bench/, deadlift: /pes mort|deadlift/, hipthrust: /hip ?thrust/,
+    };
+    const asses = U.sortBy(Store.byPatient('assessments', pid).filter((a) => a.date && a.date <= end), (a) => a.date, -1);
+    for (const a of asses) {
+      for (const x of Calc.lvpAnalysis(a, null)) {
+        if (!(x.rm > 0)) continue;
+        const key = U.norm(x.name || '');
+        const same = (hit[x.preset] && hit[x.preset].test(nm)) || (key && (nm.includes(key) || key.includes(nm)));
+        if (same) return { rm: x.rm, src: 'lvp', date: a.date };
+      }
+    }
+    let best = null;
+    for (const s of Store.sessionsOf(pid).filter((x) => x.date && x.date < end).slice(-12)) {
+      for (const b of s.blocks || []) for (const it of b.items || []) {
+        if (U.norm(it.name || '') !== nm) continue;
+        const e = Calc.e1rm(it);
+        if (e && (!best || e > best.rm)) best = { rm: e, src: 'sessions', date: s.date };
+      }
+    }
+    return best;
+  },
+  // «75 %» (o «75%») → número; null si el camp no és un percentatge.
+  pctOf(v) {
+    const m = String(v == null ? '' : v).trim().match(/^(\d+(?:[.,]\d+)?)\s*%$/);
+    return m ? Number(m[1].replace(',', '.')) : null;
+  },
+  loadFromPct(pct, rm) { return rm > 0 && pct > 0 ? Math.round(((rm * pct) / 100) * 2) / 2 : null; },
+
+  // ── Precaucions per lesió ──
+  // Text de la fitxa on el pacient té lesions, cirurgies o patologies.
+  cautionText(p) {
+    return U.norm([p && p.injuryNote, p && p.surgeryNote, p && p.history, p && p.conditions].filter(Boolean).join(' · '));
+  },
+  // Avisos d'un exercici ({ name, gm, muscles }) per a un pacient: [{ zone, label, why }]. Són orientatius: només
+  // senyalen que la zona anotada a la fitxa la carrega l'exercici.
+  cautions(p, ex) {
+    const txt = Calc.cautionText(p);
+    if (!txt || !ex) return [];
+    const nm = U.norm(ex.name || '');
+    const ms = [ex.gm, ...(ex.muscles || [])].filter(Boolean);
+    const out = [];
+    for (const z of CAUTION_ZONES) {
+      if (!z.say.test(txt)) continue;
+      const byMuscle = ms.find((m) => z.muscles.includes(m));
+      const byName = z.names.test(nm);
+      if (byMuscle || byName) out.push({ zone: z.key, label: z.label, why: byMuscle ? `treballa ${byMuscle.toLowerCase()}` : 'carrega aquesta zona' });
+    }
+    return out;
+  },
+
+  // ── Volum setmanal per múscul ──
+  // Sèries per múscul de les sessions del pacient a la setmana de la data (planificades i fetes), amb la sessió oberta
+  // tal com és ara. Retorna { rows: [{ muscle, sets }], missing: [múscul sense feina] }.
+  weekVolume(pid, date, current) {
+    const wk = U.weekStart(date || U.today());
+    const sessions = Store.sessionsOf(pid).filter((s) => U.weekStart(s.date) === wk && !(current && s.id === current.id));
+    if (current) sessions.push(current);
+    const by = {};
+    for (const s of sessions) for (const b of s.blocks || []) for (const it of b.items || []) {
+      if (!it.name) continue;
+      const ex = it.exId ? Store.exercise(it.exId) : null;
+      const sets = U.num(it.sets) || 1;
+      const ms = [it.gm || (ex && ex.gm)].filter(Boolean);
+      for (const m of ms.length ? ms : ['Sense múscul']) by[m] = (by[m] || 0) + sets;
+    }
+    const rows = Object.keys(by).map((muscle) => ({ muscle, sets: by[muscle] })).sort((a, b) => b.sets - a.sets);
+    const main = ['Quàdriceps', 'Isquiotibials', 'GMax', 'Pectoral', 'Dorsal', 'Deltoides', 'Core'];
+    return { rows, missing: main.filter((m) => !by[m]) };
+  },
+});

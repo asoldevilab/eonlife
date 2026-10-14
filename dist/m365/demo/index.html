@@ -1305,6 +1305,14 @@ tfoot .rpc { font-size: 14px; }
 .sgroup .items { margin-top: 4px; border-top: 0; }
 .sgroup .block-foot { margin-top: 8px; }
 .sgroup-empty { margin: 10px 0 0 4px; }
+.sgroup-head { flex-wrap: wrap; }
+.sgroup-super.on { background: var(--blk); color: var(--blk-ink); border-color: var(--blk); }
+.sgroup-f { display: flex; flex-direction: column; gap: 2px; flex: none; }
+.sgroup-f > span { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+.sgroup-f .input { width: 64px; min-height: 36px; text-align: center; padding-left: 6px; padding-right: 6px; }
+.sgroup-f-rest .input { width: 110px; }
+.rx-f .input:disabled { background: var(--surface-2); color: var(--ink-3); cursor: not-allowed; }
+.sx-super { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: var(--blk); color: var(--blk-ink); font-size: 12px; font-weight: 750; }
 .add-group { color: var(--ink-3); }
 .sx-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 14px 0 6px; border-top: 1px solid var(--line); }
 .sx-group-tag { font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); padding-left: 8px; border-left: 3px solid var(--blk); }
@@ -1515,6 +1523,7 @@ tfoot .rpc { font-size: 14px; }
 .addblock { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 14px 0 7px; border-radius: 12px; border: 1.5px dashed var(--line-2); background: var(--surface); color: var(--ink); font-weight: 650; cursor: pointer; }
 .addblock:hover { border-color: var(--blk); border-style: solid; }
 .addblock .ic { color: var(--ink-3); }
+.addblock-lib { padding-left: 14px; border-style: solid; border-color: var(--brand-2); }
 .addblock-num { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 18px; font-weight: 700; }
 
 /* Lectura de l'informe de Kinvent */
@@ -1772,6 +1781,52 @@ tfoot .rpc { font-size: 14px; }
 .hrva-run { display: inline-flex; align-items: baseline; gap: 6px; }
 .hrva .hr-num { font-size: 34px; font-weight: 750; font-variant-numeric: tabular-nums; }
 .hrva-add .btn, .hrva-head .btn { white-space: normal; height: auto; min-height: 44px; text-align: left; max-width: 100%; }
+
+/* Cronòmetre de la sessió */
+.tm-dock { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 56; display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(560px, calc(100vw - 170px)); pointer-events: none; }
+.tm-dock > * { pointer-events: auto; }
+.tm-pill { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px 0 14px; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 6px 20px rgba(40, 15, 17, 0.18); cursor: pointer; }
+.tm-pill:hover { border-color: var(--brand-2); }
+.tm-panel { width: 100%; padding: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 32px rgba(40, 15, 17, 0.28); display: grid; gap: 12px; }
+.tm-tabs { display: flex; align-items: center; gap: 6px; }
+.tm-tab { height: 38px; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--line-2); background: none; color: var(--ink-2); font-weight: 650; cursor: pointer; }
+.tm-tab.on { background: var(--brand-soft); border-color: var(--brand-2); color: var(--ink); }
+.tm-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.tm-presets .chip { min-height: 44px; padding: 0 16px; font-size: 16px; font-weight: 700; }
+.tm-custom { display: flex; gap: 8px; }
+.tm-custom .input { flex: 1 1 auto; min-width: 0; }
+.tm-prefs { display: grid; gap: 6px; font-size: 13.5px; color: var(--ink-2); }
+.tm-bar { position: relative; width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px 12px 8px; border-radius: 18px; background: #421215; color: #F6F1EA; box-shadow: 0 10px 28px rgba(40, 15, 17, 0.4); overflow: hidden; }
+.tm-work .tm-bar { background: #1F4B3A; }
+.tm-done .tm-bar { background: #B5471E; animation: tm-flash 0.9s ease-in-out infinite alternate; }
+@keyframes tm-flash { from { filter: none; } to { filter: brightness(1.25); } }
+@media (prefers-reduced-motion: reduce) { .tm-done .tm-bar { animation: none; } }
+.tm-openbtn { flex: none; width: 40px; height: 40px; border-radius: 12px; border: 0; background: rgba(255, 255, 255, 0.14); color: inherit; cursor: pointer; display: grid; place-items: center; }
+.tm-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.1; }
+.tm-time { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.tm-label { font-size: 12.5px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255, 255, 255, 0.18); }
+.tm-prog > span { display: block; height: 100%; background: #E9D8B8; transition: width 0.25s linear; }
+.tm-btns { flex: none; display: flex; gap: 6px; }
+.tm-b { min-width: 44px; height: 44px; padding: 0 10px; border-radius: 12px; border: 0; background: rgba(255, 255, 255, 0.16); color: inherit; font-weight: 750; font-size: 15px; cursor: pointer; display: inline-grid; place-items: center; }
+.tm-b:disabled { opacity: 0.4; cursor: default; }
+.tm-b:hover:not(:disabled), .tm-openbtn:hover { background: rgba(255, 255, 255, 0.28); }
+.tbtn { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 9px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
+.tbtn:hover { border-color: var(--brand-2); color: var(--ink); }
+.tbtn-work { border-color: #4F8A71; color: var(--ink); }
+@media (max-width: 720px) { .tm-dock { bottom: 74px; width: calc(100vw - 24px); } .tm-time { font-size: 28px; } }
+@media print { .tm-dock { display: none !important; } }
+
+/* Ajudes de disseny de la sessió */
+.sug { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; margin-left: 6px; border-radius: 8px; border: 1px solid var(--brand-2); background: var(--brand-soft); color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.sug:hover { filter: brightness(0.97); }
+.sug-on { opacity: 0.6; }
+.prev.caut { color: var(--warn-ink, #8A4B00); font-weight: 600; }
+.wkvol > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; cursor: pointer; list-style: none; }
+.wkvol > summary::-webkit-details-marker { display: none; }
+.wkvol-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.wkvol-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; background: var(--surface-3); color: var(--ink-2); font-size: 13px; }
+.wkvol-chip strong { color: var(--ink); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -4084,7 +4139,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-13 17:13";
+window.EON_BUILD = "2026-10-14 14:16";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6346,13 +6401,32 @@ const Calc = {
     (b.items || []).forEach((it, i) => { (out.find((x) => x.g.id === it.g) || out[0]).items.push({ it, i }); });
     return out;
   },
-  groupLabel(g, n) { return `Bloc ${n + 1}${g && g.name ? ` · ${g.name}` : ''}`; },
+  groupLabel(g, n) { return `Bloc ${n + 1}${Calc.superInfo(g) ? ` · ${Calc.superInfo(g)}` : ''}${g && g.name ? ` · ${g.name}` : ''}`; },
+  // Superserie: els exercicis del subbloc es fan seguits, una volta rere l'altra, i el descans és en acabar la volta.
+  isSuper(g) { return !!(g && g.kind === 'super'); },
+  superInfo(g) {
+    if (!Calc.isSuper(g)) return '';
+    const n = U.num(g.rounds), rest = String(g.rest || '').trim();
+    return `Superserie${n ? ` · ${n} ${n === 1 ? 'volta' : 'voltes'}` : ''}${rest ? ` · descans ${rest} entre voltes` : ''}`;
+  },
+  // Els exercicis d'una superserie hereten les voltes com a sèries i no tenen descans propi.
+  syncSuper(b) {
+    const gs = (b.groups || []).filter(Calc.isSuper);
+    if (!gs.length) return;
+    for (const it of b.items || []) {
+      const g = gs.find((x) => x.id === it.g);
+      if (!g) continue;
+      if (g.rounds) it.sets = String(g.rounds);
+      it.rest = '';
+    }
+  },
   // Ordena els exercicis segons l'ordre dels subblocs (manté l'ordre dins de cada subbloc).
   sortByGroups(b) {
     const gs = b.groups || [];
     if (!gs.length) return;
     const pos = (it) => { const k = gs.findIndex((g) => g.id === it.g); return k < 0 ? 0 : k; };
     b.items = (b.items || []).map((it, i) => ({ it, i })).sort((x, y) => pos(x.it) - pos(y.it) || x.i - y.i).map((x) => x.it);
+    Calc.syncSuper(b);
   },
 
   // Resum setmanal (dilluns a diumenge) de sessions fetes.
@@ -6923,6 +6997,176 @@ const Evol = {
     }));
   },
 };
+
+
+/* ── 04-guide.js ── */
+/* EON Life · ajudes per dissenyar la sessió: durades (descans i temps), progressió suggerida, 1RM del pacient,
+   càrrega a partir d'un %, precaucions per lesió i volum setmanal per múscul. Només càlculs, sense pantalla. */
+
+// Zones de lesió: paraules que les anomenen a la fitxa del pacient (sense accents ni majúscules) i com s'identifiquen
+// els exercicis que les carreguen (per múscul o per nom).
+const CAUTION_ZONES = [
+  { key: 'genoll', label: 'genoll',
+    say: /genoll|rotul|menisc|\blca\b|creuat|patel|tendo rotulia|salt del cavaller/,
+    muscles: ['Quàdriceps', 'Isquiotibials'],
+    names: /squat|sentadilla|gen[ou]flexio|zancada|lunge|split|bulgar|salt|jump|hop|skater|step|pujada|leg press|leg ext|extensio de genoll|nordic|box|sprint|correr|skipping/ },
+  { key: 'espatlla', label: 'espatlla',
+    say: /espatlla|manegot|rotador|acromi|clavicula|luxacio|supraespinos|hombro/,
+    muscles: ['Deltoides', 'Manegot rotador', 'Pectoral', 'Trapezi', 'Escàpula'],
+    names: /press|overhead|militar|snatch|arrencada|dominada|pull-?up|jalo|fons|dip|push-?up|flexio|elevacio|rem vertical/ },
+  { key: 'lumbar', label: 'esquena / lumbar',
+    say: /lumbar|esquena|hernia|discal|ciatica|lumbalgia|espondil|columna/,
+    muscles: ['Lumbar'],
+    names: /pes mort|deadlift|good morning|bon dia|hiperext|rem amb barra|remo con barra|swing|clean|snatch|arrencada|thruster|sentadilla|back squat/ },
+  { key: 'maluc', label: 'maluc / engonal',
+    say: /maluc|engonal|adductor|pubalgia|pubis|cadera|ingle|fai\b|pinçament/,
+    muscles: ['Adductors', 'Flexors de maluc', 'GMed'],
+    names: /copenhagen|sumo|lateral lunge|zancada lateral|cossack|split|aductor|abductor|90\/90|rotacio de maluc/ },
+  { key: 'turmell', label: 'turmell / peu',
+    say: /turmell|peu\b|aquil|fascitis|esquinc|tobillo|taló|talo/,
+    muscles: ['Bessons i soli', 'Tibial anterior'],
+    names: /salt|jump|hop|skipping|corda|sprint|correr|calf|bessons|taló|pujada de punta|box/ },
+  { key: 'canell', label: 'canell / colze',
+    say: /canell|colze|epicondil|tendinitis|codo|muñeca/,
+    muscles: ['Avantbraç', 'Bíceps', 'Tríceps'],
+    names: /push-?up|flexio|curl|triceps|press|fons|dip|dominada|pull-?up|rem|grip|prensio/ },
+];
+
+Object.assign(Calc, {
+  // ── Durades ──
+  // «2'», «90 s», «90"», «1:30», «2'30», «1-2'» → segons. Un número sol: ≥ 10 són segons, menys, minuts.
+  secs(text) {
+    const s = String(text == null ? '' : text).toLowerCase().replace(/,/g, '.').replace(/[”“″]/g, '"').replace(/[’‘′]/g, "'");
+    if (!s.trim()) return null;
+    let m = s.match(/(\d+)\s*[:']\s*(\d{1,2})\s*"?/);
+    if (m) return Number(m[1]) * 60 + Number(m[2]);
+    m = s.match(/(\d+(?:\.\d+)?)(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*(min|m\b|')/);
+    if (m) return Math.round(Number(m[1]) * 60);
+    m = s.match(/(\d+(?:\.\d+)?)(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*(seg|sec|s\b|")/);
+    if (m) return Math.round(Number(m[1]));
+    m = s.match(/^\s*(\d+(?:\.\d+)?)\s*$/);
+    if (m) { const n = Number(m[1]); return n <= 0 ? null : n >= 10 ? Math.round(n) : Math.round(n * 60); }
+    return null;
+  },
+  // El text indica un temps (30 s, 45", 2') i no repeticions.
+  isTime(text) { return /\d\s*(min|seg|sec|s\b|"|'|”|’)/i.test(String(text || '')); },
+  clock(n) {
+    const t = Math.max(0, Math.round(n || 0));
+    const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+    return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`;
+  },
+
+  // ── Progressió suggerida ──
+  // Càrrega en kg d'un camp («60», «60 kg», «62,5»); null si no és un número net.
+  loadKg(v) {
+    const m = String(v == null ? '' : v).trim().match(/^(\d+(?:[.,]\d+)?)\s*(kg)?$/i);
+    return m ? Number(m[1].replace(',', '.')) : null;
+  },
+  fmtKg(n) { return `${String(Math.round(n * 100) / 100).replace('.', ',')} kg`; },
+  // Què fer amb la càrrega de la darrera vegada segons com va anar aquella sessió (RPE 1–10 i dolor 0–10).
+  // Sense RPE ni dolor registrats no hi ha base per suggerir res.
+  suggestLoad(prev, ctx = {}) {
+    const base = Calc.loadKg(prev && prev.load);
+    if (base == null || base <= 0) return null;
+    const rpe = U.num(ctx.rpe), pain = U.num(ctx.pain);
+    if (rpe == null && pain == null) return null;
+    let pct = 0, why;
+    if (pain != null && pain >= 4) { pct = -5; why = `dolor ${U.fmt(pain, 0)}/10 la darrera sessió`; }
+    else if (rpe == null) return null;
+    else if (rpe <= 6) { pct = 5; why = `RPE ${U.fmt(rpe, 0)}: anava folgat`; }
+    else if (rpe < 8) { pct = 2.5; why = `RPE ${U.fmt(rpe, 0)}: marge per pujar`; }
+    else if (rpe < 10) { pct = 0; why = `RPE ${U.fmt(rpe, 0)}: ja era exigent`; }
+    else { pct = -2.5; why = 'RPE 10: va ser el màxim'; }
+    let load = Math.round((base * (1 + pct / 100)) * 2) / 2;
+    if (pct > 0 && load <= base) load = base + 0.5;
+    return { load, base, delta: load - base, pct, why, text: `${Calc.fmtKg(load)} (${why})` };
+  },
+
+  // ── 1RM del pacient i % → kg ──
+  // Estimació d'una sèrie (Epley, comptant les repeticions que sobraven): null si no hi ha càrrega o repeticions netes.
+  e1rm(it) {
+    const kg = Calc.loadKg(it && it.load), reps = U.num(String((it && it.reps) || '').match(/\d+/));
+    if (kg == null || kg <= 0 || reps == null || reps < 1 || reps > 12) return null;
+    const rir = String((it && it.intensity) || '').match(/RIR\s*(\d)/i);
+    return kg * (1 + (reps + (rir ? Number(rir[1]) : 0)) / 30);
+  },
+  // 1RM d'un exercici: la del perfil càrrega-velocitat més recent d'aquest exercici o, si no n'hi ha, la millor estimada
+  // amb les sessions fetes abans de la data. Retorna { rm, src, date } o null.
+  oneRm(pid, name, asOf) {
+    const nm = U.norm(name || '');
+    if (!pid || !nm) return null;
+    const end = asOf || '9999-99-99';
+    const hit = {
+      squat: /squat|sentadilla/, bench: /banca|bench/, deadlift: /pes mort|deadlift/, hipthrust: /hip ?thrust/,
+    };
+    const asses = U.sortBy(Store.byPatient('assessments', pid).filter((a) => a.date && a.date <= end), (a) => a.date, -1);
+    for (const a of asses) {
+      for (const x of Calc.lvpAnalysis(a, null)) {
+        if (!(x.rm > 0)) continue;
+        const key = U.norm(x.name || '');
+        const same = (hit[x.preset] && hit[x.preset].test(nm)) || (key && (nm.includes(key) || key.includes(nm)));
+        if (same) return { rm: x.rm, src: 'lvp', date: a.date };
+      }
+    }
+    let best = null;
+    for (const s of Store.sessionsOf(pid).filter((x) => x.date && x.date < end).slice(-12)) {
+      for (const b of s.blocks || []) for (const it of b.items || []) {
+        if (U.norm(it.name || '') !== nm) continue;
+        const e = Calc.e1rm(it);
+        if (e && (!best || e > best.rm)) best = { rm: e, src: 'sessions', date: s.date };
+      }
+    }
+    return best;
+  },
+  // «75 %» (o «75%») → número; null si el camp no és un percentatge.
+  pctOf(v) {
+    const m = String(v == null ? '' : v).trim().match(/^(\d+(?:[.,]\d+)?)\s*%$/);
+    return m ? Number(m[1].replace(',', '.')) : null;
+  },
+  loadFromPct(pct, rm) { return rm > 0 && pct > 0 ? Math.round(((rm * pct) / 100) * 2) / 2 : null; },
+
+  // ── Precaucions per lesió ──
+  // Text de la fitxa on el pacient té lesions, cirurgies o patologies.
+  cautionText(p) {
+    return U.norm([p && p.injuryNote, p && p.surgeryNote, p && p.history, p && p.conditions].filter(Boolean).join(' · '));
+  },
+  // Avisos d'un exercici ({ name, gm, muscles }) per a un pacient: [{ zone, label, why }]. Són orientatius: només
+  // senyalen que la zona anotada a la fitxa la carrega l'exercici.
+  cautions(p, ex) {
+    const txt = Calc.cautionText(p);
+    if (!txt || !ex) return [];
+    const nm = U.norm(ex.name || '');
+    const ms = [ex.gm, ...(ex.muscles || [])].filter(Boolean);
+    const out = [];
+    for (const z of CAUTION_ZONES) {
+      if (!z.say.test(txt)) continue;
+      const byMuscle = ms.find((m) => z.muscles.includes(m));
+      const byName = z.names.test(nm);
+      if (byMuscle || byName) out.push({ zone: z.key, label: z.label, why: byMuscle ? `treballa ${byMuscle.toLowerCase()}` : 'carrega aquesta zona' });
+    }
+    return out;
+  },
+
+  // ── Volum setmanal per múscul ──
+  // Sèries per múscul de les sessions del pacient a la setmana de la data (planificades i fetes), amb la sessió oberta
+  // tal com és ara. Retorna { rows: [{ muscle, sets }], missing: [múscul sense feina] }.
+  weekVolume(pid, date, current) {
+    const wk = U.weekStart(date || U.today());
+    const sessions = Store.sessionsOf(pid).filter((s) => U.weekStart(s.date) === wk && !(current && s.id === current.id));
+    if (current) sessions.push(current);
+    const by = {};
+    for (const s of sessions) for (const b of s.blocks || []) for (const it of b.items || []) {
+      if (!it.name) continue;
+      const ex = it.exId ? Store.exercise(it.exId) : null;
+      const sets = U.num(it.sets) || 1;
+      const ms = [it.gm || (ex && ex.gm)].filter(Boolean);
+      for (const m of ms.length ? ms : ['Sense múscul']) by[m] = (by[m] || 0) + sets;
+    }
+    const rows = Object.keys(by).map((muscle) => ({ muscle, sets: by[muscle] })).sort((a, b) => b.sets - a.sets);
+    const main = ['Quàdriceps', 'Isquiotibials', 'GMax', 'Pectoral', 'Dorsal', 'Deltoides', 'Core'];
+    return { rows, missing: main.filter((m) => !by[m]) };
+  },
+});
 
 
 /* ── 04-hr.js ── */
@@ -15558,25 +15802,56 @@ function eonFolders(list) {
   return { key: 'eon', label: 'Exercicis EON', count: mine.length, list: list2 };
 }
 
-function openExerciseBrowser({ block, title, onPick, onBlank }) {
+// Exercicis triats fa poc (a aquesta tauleta) i els que el pacient ja ha fet, amb l'última càrrega.
+const RECENT_KEY = 'eon.recentEx';
+function recentExercises() { try { return JSON.parse(window.localStorage.getItem(RECENT_KEY) || '[]'); } catch (e) { return []; } }
+function noteRecentExercise(id) {
+  try { window.localStorage.setItem(RECENT_KEY, JSON.stringify([id, ...recentExercises().filter((x) => x !== id)].slice(0, 16))); } catch (e) { /* sense emmagatzematge */ }
+}
+function patientHistory(pid) {
+  const m = new Map();
+  if (!pid) return m;
+  for (const s of Store.sessionsOf(pid)) for (const b of s.blocks || []) for (const it of b.items || []) {
+    if (!it.name) continue;
+    const h = { it, date: s.date };
+    if (it.exId) m.set(it.exId, h);
+    m.set(U.norm(it.name), h);
+  }
+  return m;
+}
+function patientFolder(pool, hist) {
+  const mine = pool.map((e) => ({ e, h: hist.get(e.id) || hist.get(U.norm(e.name)) })).filter((x) => x.h).sort((a, b) => (a.h.date < b.h.date ? 1 : -1));
+  return { key: 'pat', label: 'Fets amb aquest pacient', count: mine.length, hist,
+    list: mine.length ? [{ name: 'pat-all', label: 'Els més recents primer', items: mine.map((x) => x.e) }] : [] };
+}
+function recentFolder(pool) {
+  const ids = recentExercises();
+  const items = ids.map((id) => pool.find((e) => e.id === id)).filter(Boolean);
+  return { key: 'rec', label: 'Triats fa poc', count: items.length, list: items.length ? [{ name: 'rec-all', label: 'Els últims triats', items }] : [] };
+}
+
+function openExerciseBrowser({ block, title, onPick, onBlank, patientId }) {
   let close = null;
-  close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title}
-    onPick=${(e, mat) => { close(); onPick(e, mat); }} onBlank=${() => { close(); onBlank(); }} onClose=${() => close()} />`,
+  close = UI.open(() => html`<${ExerciseBrowser} block=${block} title=${title} patientId=${patientId}
+    onPick=${(e, mat) => { close(); noteRecentExercise(e.id); onPick(e, mat); }} onBlank=${onBlank ? () => { close(); onBlank(); } : null} onClose=${() => close()} />`,
   { onDismiss: () => close() });
 }
 
-function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
+function ExerciseBrowser({ block, title, onPick, onBlank, onClose, patientId }) {
   const [all, setAll] = useState(false);
   const [q, setQ] = useState('');
   const [zone, setZone] = useState(null);
   const [folder, setFolder] = useState(null);
   const [ex, setEx] = useState(null);
   // A Força principal i Accessoris es veuen els exercicis de tots dos blocs (són els de força).
-  const scope = all ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
+  const scope = all || !block ? null : ['for', 'acc'].includes(block) ? ['for', 'acc'] : [block];
   const pool = Store.exercises().filter((e) => !scope || scope.includes(e.block));
   const eon = eonFolders(pool);
   const own = ownFolders(pool);
-  const zones = [...(eon.count ? [eon] : []), ...(own.count ? [own] : []), ...exerciseFolders(pool), materialFolders(pool)];
+  const hist = patientHistory(patientId);
+  const pat = patientId ? patientFolder(pool, hist) : null;
+  const rec = recentFolder(pool);
+  const zones = [...(pat && pat.count ? [pat] : []), ...(rec.count ? [rec] : []), ...(eon.count ? [eon] : []), ...(own.count ? [own] : []), ...exerciseFolders(pool), materialFolders(pool)];
   const z = zone && zones.find((x) => x.key === zone);
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
@@ -15591,17 +15866,20 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose }) {
     ex && { label: ex.name },
   ].filter(Boolean);
   const back = () => (ex ? setEx(null) : folder ? setFolder(null) : setZone(null));
-  const row = (e) => html`<${ExCard} e=${e} onClick=${() => choose(e)}
-    sub=${(e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
+  const row = (e) => {
+    const h = zone === 'pat' ? (hist.get(e.id) || hist.get(U.norm(e.name))) : null;
+    return html`<${ExCard} e=${e} onClick=${() => choose(e)}
+      sub=${h ? `${U.fmtDateShort(h.date)} · ${Calc.presc(h.it) || '—'}` : (e.materials || []).length > 1 ? `${e.materials.length} materials` : e.material || ''} />`;
+  };
 
-  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici · ${blockName(block)}`} onClose=${onClose} footer=${html`
-    <${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>
+  return html`<${Dialog} wide=${true} title=${title || `Afegeix exercici${block ? ` · ${blockName(block)}` : ''}`} onClose=${onClose} footer=${html`
+    ${onBlank && html`<${Btn} variant="ghost" icon="edit" onClick=${onBlank}>Exercici en blanc (l'escric jo)</${Btn}>`}
     <span class="grow"></span>
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>`}>
     <div class="xb-top">
       <label class="search"><${Icon} name="search" size=${17} />
         <input class="input" type="search" placeholder="Cerca per nom, múscul o material…" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} aria-label="Cerca exercicis" /></label>
-      <label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>
+      ${block && html`<label class="check"><input type="checkbox" checked=${all} onChange=${(e) => { setAll(e.currentTarget.checked); setZone(null); setFolder(null); }} /> Tots els blocs</label>`}
     </div>
     ${found && !ex ? html`<div class="xb-grid">${found.length ? found.map(row) : html`<div class="xb-none"><p class="muted">Cap exercici coincideix. Crea'l a la biblioteca (amb el vídeo, si en tens) i després tria'l aquí, o afegeix-lo en blanc només en aquesta sessió.</p>
           <${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null, { name: q.trim(), block: block || 'for' })}>Crea «${q.trim()}» a la biblioteca</${Btn}></div>`}</div>`
@@ -21811,7 +22089,7 @@ function SessionEditor({ id }) {
     if (!s) return m;
     const before = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id && x.date <= s.date).reverse();
     for (const x of before) for (const b of x.blocks || []) for (const it of b.items || []) {
-      if (it.name && !m[it.name]) m[it.name] = { ...it, date: x.date };
+      if (it.name && !m[it.name]) m[it.name] = { ...it, date: x.date, _rpe: U.num((x.feedback || {}).rpe), _pain: U.num((x.feedback || {}).pain) };
     }
     return m;
   }, [s && s.patientId, s && s.date, id]);
@@ -21859,6 +22137,15 @@ function SessionEditor({ id }) {
       if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
   };
+  const addExercise = (key, it) => {
+    const last = (prev || {})[it.name];
+    if (last && last.load) it.load = last.load;
+    upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
+    setTimeout(() => {
+      const el = document.querySelector(`section.block.blk-${key}`);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  };
   const removeBlock = async (key) => {
     const b = (s.blocks || []).find((x) => x.key === key);
     const n = b ? (b.items || []).filter((i) => i.name).length : 0;
@@ -21897,6 +22184,13 @@ function SessionEditor({ id }) {
       <${Menu} items=${[
         { label: 'Duplica la sessió', icon: 'copy', onClick: duplicate },
         { label: 'Aplica una plantilla de sessió', icon: 'layers', onClick: applyTemplate },
+        { label: 'Aplica la càrrega suggerida a tota la sessió', icon: 'up', onClick: () => {
+          let n = 0;
+          for (const b of s.blocks || []) for (const it of b.items || []) { const sg = progressionOf(it, prev); if (sg && Calc.loadKg(it.load) !== sg.load) n++; }
+          if (!n) { UI.toast('Cap càrrega per canviar: cal el RPE o el dolor de la darrera sessió i una càrrega anotada.', 'bad'); return; }
+          upd((x) => { for (const b of x.blocks || []) applyProgression(b, prev); });
+          UI.toast(`Càrrega suggerida aplicada a ${n} ${n === 1 ? 'exercici' : 'exercicis'}.`);
+        } },
         { label: 'Desa com a plantilla', icon: 'download', onClick: saveTemplate },
         { sep: true },
         ...(Sync.available() ? [{ label: 'Puja l\'Excel a la carpeta ara', icon: 'refresh', onClick: () => syncNow(s.patientId) }] : []),
@@ -21920,10 +22214,12 @@ function SessionEditor({ id }) {
 
     <${WellnessCard} id="se-wellness" value=${s.wellness} hrvArrivalBase=${hrvArrivalBase} onSet=${(k, v) => setIn('wellness', k)(v)} />
 
-    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    <${WeekVolume} s=${s} />
+
+    ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
     ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
-    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} />`}
+    ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
 
     <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
 
@@ -21953,15 +22249,90 @@ function SessionEditor({ id }) {
 // Un bloc de la sessió (també es fa servir per editar plantilles). Es pot dividir en subblocs
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 // Botons per afegir a la sessió els blocs que encara no hi són.
-function AddBlocks({ blocks, onAdd }) {
+// Aplica la càrrega suggerida (segons RPE i dolor de la darrera sessió) als exercicis d'un bloc. Retorna quants n'han canviat.
+function progressionOf(it, prev) {
+  const p = it && it.name && prev ? prev[it.name] : null;
+  return p ? Calc.suggestLoad(p, { rpe: p._rpe, pain: p._pain }) : null;
+}
+function applyProgression(block, prev) {
+  let n = 0;
+  for (const it of block.items || []) {
+    const sg = progressionOf(it, prev);
+    if (sg && Calc.loadKg(it.load) !== sg.load) { it.load = String(sg.load).replace('.', ','); n++; }
+  }
+  return n;
+}
+
+// Edició en bloc: sèries, reps, intensitat, descans i tempo d'un cop per a molts exercicis (només els camps omplerts).
+function BulkForm({ count, superGroup, onDone }) {
+  const [v, setV] = useState({ sets: '', reps: '', intensity: '', rest: '', tempo: '' });
+  const f = (k, label, ph, on = true) => on && html`<${Field} label=${label} id=${`bk-${k}`}><${TextInput} id=${`bk-${k}`} value=${v[k]} placeholder=${ph} onValue=${(x) => setV({ ...v, [k]: x })} /></${Field}>`;
+  return html`<${Dialog} title="Edita els exercicis d'una vegada" onClose=${() => onDone(null)} footer=${html`
+    <${Btn} variant="ghost" onClick=${() => onDone(null)}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" onClick=${() => onDone(v)}>${`Aplica a ${count} ${count === 1 ? 'exercici' : 'exercicis'}`}</${Btn}>`}>
+    <p class="muted small">Només es canvien els camps que omplis; els que deixis buits es queden com estan.${superGroup ? ' A la superserie, les voltes i el descans es posen a la capçalera.' : ''}</p>
+    <div class="form-grid">
+      ${f('sets', 'Sèries', 'p. ex. 3', !superGroup)}${f('reps', 'Reps / temps', 'p. ex. 8 o 30 s')}
+      ${f('intensity', 'Intensitat', 'p. ex. RIR 2')}${f('rest', 'Descans', 'p. ex. 90 s', !superGroup)}${f('tempo', 'Tempo', 'p. ex. 3-1-1-0')}
+    </div>
+  </${Dialog}>`;
+}
+function askBulk(opts) {
+  return new Promise((resolve) => {
+    let close = null;
+    const done = (v) => { close(); resolve(v); };
+    close = UI.open(() => html`<${BulkForm} ...${opts} onDone=${done} />`, { size: 'sm', onDismiss: () => done(null) });
+  });
+}
+
+// Volum de la setmana: sèries per múscul de totes les sessions d'aquesta setmana (amb la que s'està dissenyant).
+function WeekVolume({ s }) {
+  const v = Calc.weekVolume(s.patientId, s.date, s);
+  if (!v.rows.length) return null;
+  return html`<details class="card wkvol">
+    <summary><span class="h2">Volum de la setmana</span><span class="muted small">sèries per múscul · sessions del ${U.fmtDateShort(U.weekStart(s.date))} en endavant</span></summary>
+    <div class="wkvol-chips">${v.rows.map((r) => html`<span class="wkvol-chip"><strong>${r.sets}</strong> ${muscleLabel(r.muscle)}</span>`)}</div>
+    ${v.missing.length > 0 && html`<p class="muted small">Encara sense feina aquesta setmana: ${v.missing.map(muscleLabel).join(', ')}.</p>`}
+  </details>`;
+}
+
+// Posa un exercici de la biblioteca al seu bloc (el crea si encara no hi és) i, si el bloc està dividit, a l'últim subbloc.
+function putExercise(blocks, key, it) {
+  let b = blocks.find((x) => x.key === key);
+  if (!b) { b = Store.blankBlock(key); blocks.push(b); blocks.sort((x, y) => blockDef(x.key).num - blockDef(y.key).num); }
+  b.items = (b.items || []).filter((x) => x.name);
+  if (b.groups && b.groups.length) it.g = b.groups[b.groups.length - 1].id;
+  b.items.push(it);
+  Calc.sortByGroups(b);
+  return b;
+}
+
+// Exercici de la biblioteca sense passar abans pel bloc: va al bloc on està classificat.
+function pickAnyExercise(onPlace, patient) {
+  openExerciseBrowser({
+    block: null,
+    patientId: patient && patient.id,
+    title: 'Afegeix un exercici de la biblioteca',
+    onPick: (ex, mat) => {
+      onPlace(ex.block || 'for', itemFromExercise(ex, { material: mat || ex.material || '' }));
+      const cw = patient ? Calc.cautions(patient, ex) : [];
+      UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name} · ${blockName(ex.block || 'for')}`, cw.length ? 'bad' : undefined);
+    },
+  });
+}
+
+function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió', who = 'aquest pacient' }) {
   const missing = BLOCKS.filter((b) => !(blocks || []).some((x) => x.key === b.key));
-  if (!missing.length) return null;
+  if (!missing.length && !onAddExercise) return null;
   const empty = !(blocks || []).length;
-  return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label="Afegeix blocs a la sessió">
-    ${empty ? html`<div><h2 class="h2">Blocs de la sessió</h2>
-        <p class="muted">Afegeix només els blocs que necessiti aquest pacient. Es posen sols en l'ordre de la metodologia.</p></div>`
+  return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label=${`Afegeix blocs a ${what}`}>
+    ${empty ? html`<div><h2 class="h2">${`Blocs de ${what}`}</h2>
+        <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen sols en l'ordre de la metodologia.`}</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
-    <div class="addblocks-list">${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
+    <div class="addblocks-list">
+    ${onAddExercise && html`<button type="button" class="addblock addblock-lib" onClick=${() => pickAnyExercise(onAddExercise, patient)}
+      title="Tria qualsevol exercici de la biblioteca: es posa al bloc on està classificat"><${Icon} name="search" size=${15} /><span class="addblock-name">Afegeix exercici de la biblioteca</span></button>`}
+    ${missing.map((b) => html`<button type="button" class=${`addblock blk-${b.key}`} onClick=${() => onAdd(b.key)}>
       <span class="addblock-num">${b.num}</span><span class="addblock-name">${blockName(b.key)}</span><${Icon} name="plus" size=${15} /></button>`)}</div>
   </section>`;
 }
@@ -21985,13 +22356,15 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     const n = gid && groups ? groups.findIndex((x) => x.g.id === gid) + 1 : 0;
     openExerciseBrowser({
       block: block.key,
+      patientId: patient && patient.id,
       title: `Afegeix exercici · ${blockName(block.key)}${n ? ` · Bloc ${n}` : ''}`,
       onPick: (ex, mat) => {
         const it = itemFromExercise(ex, { material: mat || ex.material || '' });
         const last = prev ? prev[ex.name] : null;
         if (last && last.load) it.load = last.load;
         put(it, false);
-        UI.toast(`${ex.name}${mat ? ` · ${mat}` : ''}`);
+        const cw = patient ? Calc.cautions(patient, ex) : [];
+        UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name}${mat ? ` · ${mat}` : ''}`, cw.length ? 'bad' : undefined);
       },
       onBlank: () => put(itemFromExercise(null), true),
     });
@@ -22021,14 +22394,47 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
   const removeItem = (iid) => onChange((b) => { b.items = b.items.filter((x) => x.id !== iid); });
   const dupItem = (i) => onChange((b) => { const arr = [...b.items]; arr.splice(i + 1, 0, { ...U.clone(arr[i]), id: U.uid('I'), done: false }); b.items = arr; });
   // Divideix el bloc: els exercicis que hi ha queden al Bloc 1 i s'afegeix un Bloc 2 buit.
-  const addGroup = () => onChange((b) => {
-    if (!(b.groups && b.groups.length)) {
+  // kind 'super': subbloc de superserie (3 exercicis seguits, una volta, i després el descans).
+  const addGroup = (kind) => onChange((b) => {
+    const ng = kind === 'super' ? { id: U.uid('G'), name: '', kind: 'super', rounds: '3', rest: '' } : { id: U.uid('G'), name: '' };
+    if (!(b.groups && b.groups.length) && (b.items || []).some((it) => it.name)) {
       const g1 = { id: U.uid('G'), name: '' };
       b.groups = [g1];
       for (const it of b.items || []) it.g = g1.id;
     }
-    b.groups = [...b.groups, { id: U.uid('G'), name: '' }];
+    b.groups = [...(b.groups || []), ng];
   });
+  const setSuper = (gid, on) => onChange((b) => {
+    const g = (b.groups || []).find((x) => x.id === gid);
+    if (!g) return;
+    if (on) { g.kind = 'super'; g.rounds = g.rounds || String(((b.items || []).find((it) => it.g === gid && it.sets) || {}).sets || '3'); g.rest = g.rest || ''; }
+    else { delete g.kind; delete g.rounds; delete g.rest; }
+    Calc.sortByGroups(b);
+  });
+  const setRounds = (gid) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) { g.rounds = v; Calc.syncSuper(b); } });
+  const bulk = async (gid) => {
+    const g = gid && (block.groups || []).find((x) => x.id === gid);
+    const target = items.filter((it) => it.name && (!gid || it.g === gid));
+    if (!target.length) { UI.toast('Encara no hi ha exercicis per editar.', 'bad'); return; }
+    const v = await askBulk({ count: target.length, superGroup: !!(g && Calc.isSuper(g)) });
+    if (!v) return;
+    const keys = ['sets', 'reps', 'intensity', 'rest', 'tempo'].filter((k) => String(v[k] || '').trim() !== '');
+    if (!keys.length) return;
+    onChange((b) => { for (const it of b.items || []) if (it.name && (!gid || it.g === gid)) for (const k of keys) it[k] = String(v[k]).trim(); Calc.syncSuper(b); });
+    UI.toast(`Canviat a ${target.length} ${target.length === 1 ? 'exercici' : 'exercicis'}.`);
+  };
+  const saveGroupTemplate = async (x) => {
+    const its = x.items.map((y) => y.it).filter((i) => i.name);
+    if (!its.length) { UI.toast('Afegeix algun exercici abans de desar la plantilla.', 'bad'); return; }
+    const name = await UI.prompt({ title: 'Desa el subbloc com a plantilla', label: 'Nom de la plantilla', value: `${blockName(block.key)} · ${Calc.superInfo(x.g) || `Bloc ${x.n}`}` });
+    if (name) { Store.saveBlockTemplate({ key: block.key, focus: block.focus, items: its, groups: [U.clone(x.g)] }, name); UI.toast('Plantilla desada: la trobaràs al menú de plantilles del bloc.'); }
+  };
+  const progress = () => {
+    const n = items.filter((it) => { const sg = progressionOf(it, prev); return sg && Calc.loadKg(it.load) !== sg.load; }).length;
+    if (!n) { UI.toast('Cap càrrega per canviar: cal el RPE o el dolor de la darrera sessió i una càrrega anotada.', 'bad'); return; }
+    onChange((b) => { applyProgression(b, prev); });
+    UI.toast(`Càrrega suggerida aplicada a ${n} ${n === 1 ? 'exercici' : 'exercicis'}.`);
+  };
   const setGroup = (gid, k) => (v) => onChange((b) => { const g = (b.groups || []).find((x) => x.id === gid); if (g) g[k] = v; });
   // Mètode (clúster, excèntric, contrast…) del bloc o d'un subbloc.
   const putMethod = (obj, t) => { if (t) { obj.method = t.id; obj.methodName = t.name; } else { delete obj.method; delete obj.methodName; } };
@@ -22041,7 +22447,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     onChange((b) => {
       b.items = (b.items || []).filter((it) => !ids.has(it.id));
       b.groups = (b.groups || []).filter((g) => g.id !== x.g.id);
-      if (b.groups.length < 2) ungroup(b);
+      if (b.groups.length < 2 && !b.groups.some(Calc.isSuper)) ungroup(b);
     });
   };
   const insertTemplate = (t) => onChange((b) => {
@@ -22061,7 +22467,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       for (const it of add) it.g = b.groups[b.groups.length - 1].id;
     }
     b.items = [...b.items, ...add];
-    if (b.groups && b.groups.length < 2) ungroup(b);
+    if (b.groups && b.groups.length < 2 && !b.groups.some(Calc.isSuper)) ungroup(b);
     Calc.sortByGroups(b);
     if (!b.focus) b.focus = t.focus || '';
   });
@@ -22074,7 +22480,12 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     if (await UI.confirm({ title: `Buidar el bloc ${blockName(block.key)}?`, text: 'Es trauran tots els exercicis del bloc.', ok: 'Buida', danger: true })) onChange((b) => { b.items = []; delete b.groups; });
   };
 
-  const row = (it, i, gi) => html`<${ItemRow} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`}
+  const restFor = (it, gi) => {
+    const g = groups && groups[gi];
+    if (g && Calc.isSuper(g.g)) { const last = g.items[g.items.length - 1]; return last && last.it === it ? Calc.secs(g.g.rest) || 0 : 0; }
+    return Calc.secs(it.rest) || 0;
+  };
+  const row = (it, i, gi) => html`<${ItemRow} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
     groups=${groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))}
     onGroup=${(gid) => toGroup(it.id, gid)}
@@ -22098,9 +22509,11 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
         ...tpls.map((t) => ({ label: t.name, icon: 'plus', onClick: () => insertTemplate(t) })),
         { sep: true },
         { label: 'Desa el bloc com a plantilla', icon: 'download', onClick: saveTemplate },
+        items.length ? { label: 'Edita sèries, reps, intensitat… de tots', icon: 'edit', onClick: () => bulk(null) } : null,
+        !templateMode && prev && items.some((it) => progressionOf(it, prev)) ? { label: 'Aplica la càrrega suggerida', icon: 'up', onClick: progress } : null,
         groups ? { label: 'Uneix els blocs en un de sol', icon: 'layers', onClick: () => onChange(ungroup) } : null,
         items.length ? { label: 'Buida el bloc', icon: 'trash', danger: true, onClick: clear } : null,
-        onRemove ? { label: 'Treu el bloc de la sessió', icon: 'x', danger: true, onClick: onRemove } : null,
+        onRemove ? { label: templateMode ? 'Treu el bloc de la plantilla' : 'Treu el bloc de la sessió', icon: 'x', danger: true, onClick: onRemove } : null,
       ]} />
     </header>
     ${block.method && html`<p class="method-hint"><strong>${block.methodName}</strong> · ${methodHint(block.method)}</p>`}
@@ -22114,9 +22527,16 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       ? groups.map((x, gi) => html`<div class="sgroup" key=${x.g.id} aria-label=${`Bloc ${x.n}`}>
           <div class="sgroup-head">
             <span class="sgroup-tag">Bloc ${x.n}</span>
+            <button type="button" class=${U.cls('chip sgroup-super', Calc.isSuper(x.g) && 'on')} aria-pressed=${Calc.isSuper(x.g)} onClick=${() => setSuper(x.g.id, !Calc.isSuper(x.g))}
+              title="Superserie: els exercicis es fan seguits, una volta, i el descans és al final de la volta"><${Icon} name="layers" size=${13} />Superserie</button>
+            ${Calc.isSuper(x.g) && html`<label class="sgroup-f"><span>Voltes</span><input class="input" inputmode="numeric" value=${x.g.rounds || ''} aria-label=${`Voltes del bloc ${x.n}`} onInput=${(e) => setRounds(x.g.id)(e.currentTarget.value)} /></label>
+              <label class="sgroup-f sgroup-f-rest"><span>Descans entre voltes</span><input class="input" value=${x.g.rest || ''} placeholder="p. ex. 90 s" aria-label=${`Descans entre voltes del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'rest')(e.currentTarget.value)} /></label>`}
             <input class="input sgroup-name" value=${x.g.name || ''} placeholder="Indicacions: p. ex. Superset · 3 voltes · 2' entre voltes"
               aria-label=${`Indicacions del bloc ${x.n}`} onInput=${(e) => setGroup(x.g.id, 'name')(e.currentTarget.value)} />
             <${MethodSelect} block=${block.key} value=${x.g.method} onPick=${(t) => setGroupMethod(x.g.id, t)} ariaLabel=${`Mètode del bloc ${x.n}`} />
+            ${!templateMode && Calc.isSuper(x.g) && html`<${TimerButton} secs=${Calc.secs(x.g.rest)} label=${`Descans · ${blockName(block.key)} · bloc ${x.n}`} title="Inicia el descans entre voltes" />`}
+            <button type="button" class="mini" title=${`Edita els exercicis del bloc ${x.n} d'una vegada`} onClick=${() => bulk(x.g.id)}><${Icon} name="edit" size=${15} /></button>
+            <button type="button" class="mini" title=${`Desa el bloc ${x.n} com a plantilla`} onClick=${() => saveGroupTemplate(x)}><${Icon} name="download" size=${15} /></button>
             <button type="button" class="mini" title=${`Treu el bloc ${x.n}`} onClick=${() => removeGroup(x)}><${Icon} name="x" size=${15} /></button>
           </div>
           ${x.g.method && html`<p class="method-hint"><strong>${x.g.methodName}</strong> · ${methodHint(x.g.method)}</p>`}
@@ -22130,15 +22550,17 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       : items.length > 0 && html`<div class="items">${items.map((it, i) => row(it, i, 0))}</div>`}
     <div class="block-foot">
       ${!groups && html`<button type="button" class="add-item" onClick=${() => add()}><${Icon} name="plus" size=${16} />Afegeix exercici</button>`}
-      <button type="button" class="add-item add-group" onClick=${addGroup} title="Divideix aquest bloc en blocs més petits (Bloc 1, Bloc 2…), cadascun amb els seus exercicis">
+      <button type="button" class="add-item add-group" onClick=${() => addGroup()} title="Divideix aquest bloc en blocs més petits (Bloc 1, Bloc 2…), cadascun amb els seus exercicis">
         <${Icon} name="layers" size=${16} />${groups ? `Afegeix el bloc ${groups.length + 1}` : 'Divideix en blocs'}</button>
+      <button type="button" class="add-item add-group" onClick=${() => addGroup('super')} title="Afegeix una superserie: 2 o 3 exercicis seguits, una volta, i després el descans">
+        <${Icon} name="plus" size=${16} />Afegeix superserie</button>
       ${!items.length && tpls.length > 0 && html`<span class="muted small">o insereix una plantilla:</span>
         ${tpls.slice(0, 3).map((t) => html`<button type="button" class="chip" onClick=${() => insertTemplate(t)}><${Icon} name="layers" size=${13} />${t.name.replace(`${blockName(block.key)} · `, '')}</button>`)}`}
     </div>
   </section>`;
 }
 
-function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
+function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
   const [open, setOpen] = useState(false);
   const [vbtOpen, setVbtOpen] = useState(false);
   const vbtSum = Calc.vbt(it);
@@ -22161,6 +22583,11 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
     it.material, it.gm, it.tempo && `Tempo ${it.tempo}`,
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
+  const sug = !templateMode && prev ? progressionOf(it, prevMap) : null;
+  const cautions = !templateMode && patient ? Calc.cautions(patient, { name: it.name, gm: it.gm, muscles: ex && ex.muscles }) : [];
+  const pct = Calc.pctOf(it.load);
+  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date) : null;
+  const pctKg = rmInfo ? Calc.loadFromPct(pct, rmInfo.rm) : null;
   const demo = it.demo || (ex && ex.video) || '';
   // Progressió: el mateix patró, un nivell més difícil (▲) o més fàcil (▼).
   const up = Store.stepLevel(ex, 1), down = Store.stepLevel(ex, -1);
@@ -22177,11 +22604,11 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
           <${ExercisePicker} value=${it.name} block=${block} onPick=${pick} onText=${set('name')} autoFocus=${autoFocus} />
         </div>
         <div class="rx">
-          <label class="rx-f rx-s"><span class="rxl">Sèries</span><input class="input" inputmode="numeric" value=${it.sets} aria-label="Sèries" onInput=${(e) => set('sets')(e.currentTarget.value)} /></label>
+          <label class="rx-f rx-s"><span class="rxl">${inSuper ? 'Voltes' : 'Sèries'}</span><input class="input" inputmode="numeric" value=${it.sets} aria-label=${inSuper ? 'Voltes de la superserie' : 'Sèries'} disabled=${inSuper} title=${inSuper ? 'Es canvia a la capçalera de la superserie' : ''} onInput=${(e) => set('sets')(e.currentTarget.value)} /></label>
           <label class="rx-f rx-r"><span class="rxl">Reps / temps</span><input class="input" value=${it.reps} aria-label="Repeticions o temps" onInput=${(e) => set('reps')(e.currentTarget.value)} /></label>
           <label class="rx-f rx-l"><span class="rxl">Càrrega</span><input class="input" value=${it.load} aria-label="Càrrega" placeholder=${prev && prev.load ? Calc.load(prev.load) : ''} onInput=${(e) => set('load')(e.currentTarget.value)} /></label>
           <label class="rx-f rx-i"><span class="rxl">Intensitat</span><input class="input" value=${it.intensity} aria-label="Intensitat" list="int-list" onInput=${(e) => set('intensity')(e.currentTarget.value)} /></label>
-          <label class="rx-f rx-d"><span class="rxl">Descans</span><input class="input" value=${it.rest} aria-label="Descans" onInput=${(e) => set('rest')(e.currentTarget.value)} /></label>
+          <label class="rx-f rx-d"><span class="rxl">Descans</span><input class="input" value=${inSuper ? '' : it.rest} aria-label="Descans" disabled=${inSuper} placeholder=${inSuper ? '—' : ''} title=${inSuper ? 'El descans és al final de la volta (capçalera de la superserie)' : ''} onInput=${(e) => set('rest')(e.currentTarget.value)} /></label>
         </div>
       </div>
       <div class="item-meta">
@@ -22199,9 +22626,18 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
         ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} date=${date} where="sessionVideos" onChange=${set('video')} />`}
         ${vbtOn && html`<button type="button" class=${U.cls('vbt-btn', (vbtOpen || vbtSum) && 'on')} aria-expanded=${vbtOpen} onClick=${() => setVbtOpen(!vbtOpen)}
           title="Registre per sèries de l'encoder ADR o de l'ADR Jumping"><${Icon} name="chart" size=${15} /><span>${vbtSum && vbtSum.text ? vbtSum.text : 'Encoder'}</span></button>`}
+        ${!templateMode && html`<${TimerButton} secs=${restSecs} label=${`Descans · ${it.name || 'exercici'}`} />`}
+        ${!templateMode && Calc.isTime(it.reps) && html`<${TimerButton} secs=${Calc.secs(it.reps)} kind="work" label=${it.name || 'Exercici'} title="Inicia el temps de l'exercici" />`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}</div>`}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}
+        ${sug && html` <button type="button" class=${U.cls('sug', Calc.loadKg(it.load) === sug.load && 'sug-on')} onClick=${() => set('load')(String(sug.load).replace('.', ','))}
+          title="Càrrega suggerida segons com va anar la darrera sessió. Toca per aplicar-la.">Suggeriment: ${sug.text}</button>`}</div>`}
+      ${pct != null && !templateMode && html`<div class="prev">${pctKg
+        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}) = <strong>${Calc.fmtKg(pctKg)}</strong>
+          <button type="button" class="sug" onClick=${() => set('load')(String(pctKg).replace('.', ','))}>Posa-ho a Càrrega</button>`
+        : 'Sense 1RM d\'aquest exercici per al pacient: cal una valoració càrrega-velocitat o sessions anteriors amb càrrega i repeticions.'}</div>`}
+      ${cautions.length > 0 && html`<div class="prev caut" role="note">⚠ Té anotat ${cautions.map((c) => c.label).join(' i ')} a la fitxa: aquest exercici ${cautions[0].why}. Valora si encaixa.</div>`}
       ${vbtOpen && vbtOn && html`<${VbtPanel} it=${it} onChange=${onChange} patient=${patient} date=${date} />`}
       ${open && html`<div class="item-details">
         <label class="rx-f"><span>Contracció</span><${Select} value=${it.cont} onValue=${set('cont')} options=${OPT.cont.map((o) => ({ v: o.v, label: `${o.v} · ${o.label}` }))} placeholder="—" /></label>
@@ -22214,7 +22650,7 @@ function ItemRow({ it, num, canUp, canDown, groups, onGroup, block, prevMap, onC
     </div>
     <div class="item-side">
       ${!templateMode && html`<button type="button" class=${U.cls('donebtn', it.done && 'on')} aria-pressed=${!!it.done} title=${it.done ? 'Fet' : 'Marca com a fet'}
-        onClick=${() => set('done')(!it.done)}><${Icon} name="check" size=${18} /></button>`}
+        onClick=${() => { const v = !it.done; set('done')(v); if (v && restSecs > 0) Timer.auto(restSecs, `Descans · ${it.name || 'exercici'}`); }}><${Icon} name="check" size=${18} /></button>`}
       <${Menu} items=${[
         { label: 'Mou amunt', icon: 'up', disabled: !canUp, onClick: () => onMove(-1) },
         { label: 'Mou avall', icon: 'down', disabled: !canDown, onClick: () => onMove(1) },
@@ -22438,7 +22874,7 @@ function SessionSheet({ id }) {
                 const head = g && (i === 0 || gOf(named[i - 1]) !== g);
                 const tags = [it.lat === 'UL' ? 'Unilateral' : '', it.cont ? (OPT.cont.find((o) => o.v === it.cont) || {}).label : '', it.material && !/^(Terra|Pes corporal)$/.test(it.material) ? it.material : ''].filter(Boolean);
                 const withVideo = b.items.filter((x) => x.name && demoOf(x));
-                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
+                return html`${head && html`<li class="sx-group"><span class="sx-group-tag">Bloc ${g.n}</span>${Calc.isSuper(g.g) && html`<span class="sx-super">${Calc.superInfo(g.g)}</span>`}${g.g.methodName && html`<span class="sx-method">${g.g.methodName}</span>`}${g.g.name && html`<span class="sx-group-name">${g.g.name}</span>`}</li>`}<li class="sx-item">
                   <span class="sx-n">${def.num}.${i + 1}</span>
                   <${ExThumb} it=${it} block=${b.key} size=${52} class="sx-thumb" seq=${true} />
                   <div class="sx-body">
@@ -22767,7 +23203,8 @@ function LibraryView({ tab = 'exercicis' }) {
         ${tab === 'exercicis' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null)}>Nou exercici</${Btn}>`
           : tab === 'metodes' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openMethod(null)}>Nou mètode</${Btn}>`
           : html`<${Menu} variant="primary" icon="plus" label="Nova plantilla" title="Nova plantilla" items=${[
-            { label: 'Plantilla de sessió (6 blocs)', icon: 'layers', onClick: () => newTemplate('session') },
+            { label: 'Plantilla de sessió en blanc', icon: 'layers', onClick: () => newTemplate('session', null, true) },
+            { label: 'Plantilla de sessió (6 blocs buits)', icon: 'layers', onClick: () => newTemplate('session') },
             { sep: true },
             ...BLOCKS.map((b) => ({ label: `Plantilla de ${blockName(b.key).toLowerCase()}`, icon: 'plus', onClick: () => newTemplate('block', b.key) })),
           ]} />`}
@@ -23000,9 +23437,9 @@ function TemplateList() {
   </div>`;
 }
 
-function newTemplate(kind, block) {
+function newTemplate(kind, block, blank) {
   const t = kind === 'session'
-    ? { id: U.uid('T'), kind: 'session', name: 'Nova sessió tipus', goal: '', blocks: Store.emptyBlocks() }
+    ? { id: U.uid('T'), kind: 'session', name: 'Nova sessió tipus', goal: '', blocks: blank ? [] : Store.emptyBlocks() }
     : { id: U.uid('T'), kind: 'block', block, name: `${blockName(block)} · nova`, focus: '', desc: '', items: [] };
   Store.put('templates', t, { immediate: true });
   go('plantilla', t.id);
@@ -23018,7 +23455,16 @@ function TemplateEditor({ id }) {
     Store.remove('templates', t.id);
     go('biblioteca', 'plantilles');
   };
-  const blocks = t.kind === 'session' ? cloneBlocksKeep(t.blocks) : null;
+  const blocks = t.kind === 'session' ? sortBlocks(t.blocks) : null;
+  // Els blocs de la plantilla de sessió s'afegeixen a mà (en blanc) i es col·loquen en l'ordre de la metodologia.
+  const addBlock = (key) => upd((x) => { x.blocks = sortBlocks([...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)]); });
+  const addExercise = (key, it) => upd((x) => { x.blocks = sortBlocks(x.blocks); putExercise(x.blocks, key, it); });
+  const removeBlock = async (key) => {
+    const b = (t.blocks || []).find((x) => x.key === key);
+    const n = b ? (b.items || []).filter((i) => i.name).length : 0;
+    if (n && !(await UI.confirm({ title: `Treure «${blockName(key)}»?`, text: n === 1 ? 'També s\'eliminarà l\'exercici que hi ha.' : `També s'eliminaran els ${n} exercicis que hi ha.`, ok: 'Treu el bloc', danger: true }))) return;
+    upd((x) => { x.blocks = (x.blocks || []).filter((y) => y.key !== key); });
+  };
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la biblioteca" onClick=${() => go('biblioteca', 'plantilles')} />
@@ -23035,8 +23481,10 @@ function TemplateEditor({ id }) {
       </div>
     </section>
     ${t.kind === 'session'
-      ? blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true}
-          onChange=${(fn) => upd((x) => { x.blocks = cloneBlocksKeep(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)
+      ? html`${!blocks.length && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}
+        ${blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true} onRemove=${() => removeBlock(b.key)}
+          onChange=${(fn) => upd((x) => { x.blocks = sortBlocks(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)}
+        ${blocks.length > 0 && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}`
       : html`<${BlockCard} block=${{ key: t.block, focus: t.focus, groups: t.groups, items: t.items || [] }} templateMode=${true}
           onChange=${(fn) => upd((x) => {
             const bb = { key: x.block, focus: x.focus, groups: x.groups, items: x.items || [] };
@@ -23047,10 +23495,9 @@ function TemplateEditor({ id }) {
   </div>`;
 }
 
-// Assegura els 6 blocs en ordre sense canviar els identificadors dels exercicis.
-function cloneBlocksKeep(blocks) {
-  const byKey = Object.fromEntries((blocks || []).map((b) => [b.key, b]));
-  return BLOCKS.map((b) => byKey[b.key] || { key: b.key, focus: '', note: '', items: [] });
+// Els blocs que té la plantilla, en l'ordre de la metodologia i sense canviar els identificadors dels exercicis.
+function sortBlocks(blocks) {
+  return (blocks || []).slice().sort((a, b) => blockDef(a.key).num - blockDef(b.key).num);
 }
 
 // ── Mètodes d'entrenament: els apunts del centre (què és, com es fa, exemple i fonts) ──
@@ -24759,6 +25206,189 @@ function NoeSettingsCard() {
 }
 
 
+/* ── 36-timer.js ── */
+/* EON Life · cronòmetre en directe per a la sessió: compte enrere de descans o de treball i cronòmetre.
+   Va per sota de tot (no s'atura en canviar de pantalla), avisa amb so i vibració i manté la pantalla encesa. */
+
+const Timer = (() => {
+  const KEY = 'eon.timer';
+  const prefs = { auto: true, sound: true };
+  try { Object.assign(prefs, JSON.parse(window.localStorage.getItem(KEY) || '{}')); } catch (e) { /* sense emmagatzematge */ }
+  const st = { kind: null, label: '', total: 0, endsAt: 0, left: 0, paused: false, from: 0, base: 0, done: false, open: false };
+  const subs = new Set();
+  let tick = null, audio = null, lock = null, lastBeep = -1;
+
+  const emit = () => { for (const f of subs) f(); };
+  const savePrefs = () => { try { window.localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) { /* res */ } };
+  const now = () => Date.now();
+  const counting = () => st.kind === 'rest' || st.kind === 'work';
+
+  const ctx = () => {
+    try {
+      if (!audio) { const A = window.AudioContext || window.webkitAudioContext; if (A) audio = new A(); }
+      if (audio && audio.state === 'suspended') audio.resume();
+    } catch (e) { audio = null; }
+    return audio;
+  };
+  const beep = (n = 1, hz = 880, ms = 160) => {
+    if (!prefs.sound) return;
+    const a = ctx();
+    if (!a) return;
+    for (let i = 0; i < n; i++) {
+      try {
+        const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + i * (ms + 90) / 1000;
+        o.frequency.value = hz; o.type = 'sine';
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
+        o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + ms / 1000 + 0.02);
+      } catch (e) { /* sense àudio */ }
+    }
+  };
+  const buzz = (p) => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* res */ } };
+  const keepAwake = async (on) => {
+    try {
+      if (on && !lock && navigator.wakeLock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); }
+      if (!on && lock) { await lock.release(); lock = null; }
+    } catch (e) { lock = null; }
+  };
+
+  const remaining = () => (st.paused ? st.left : Math.max(0, Math.ceil((st.endsAt - now()) / 1000)));
+  const elapsed = () => Math.floor(((st.paused ? st.base : st.base + (now() - st.from))) / 1000);
+
+  const title = (() => { let orig = null; return (txt) => {
+    try { if (orig === null) orig = document.title; document.title = txt == null ? orig : `${txt} · ${orig}`; if (txt == null) orig = null; } catch (e) { /* res */ }
+  }; })();
+
+  const loop = () => {
+    if (tick) return;
+    tick = setInterval(() => {
+      if (!st.kind) return;
+      if (counting() && !st.paused && !st.done) {
+        const left = remaining();
+        if (left <= 3 && left > 0 && left !== lastBeep) { lastBeep = left; beep(1, 660, 90); }
+        if (left <= 0) { st.done = true; beep(3, 988, 220); buzz([300, 120, 300, 120, 500]); title('✔ Temps!'); }
+        else title(Calc.clock(left));
+      } else if (st.kind === 'watch' && !st.paused) title(Calc.clock(elapsed()));
+      emit();
+    }, 250);
+  };
+
+  const api = {
+    st, prefs, subs, remaining, elapsed,
+    start(sec, label, kind = 'rest') {
+      const s = Math.round(sec);
+      if (!(s > 0)) return;
+      ctx();
+      Object.assign(st, { kind, label: label || (kind === 'work' ? 'Treball' : 'Descans'), total: s, endsAt: now() + s * 1000, left: s, paused: false, done: false });
+      lastBeep = -1;
+      keepAwake(true); loop(); emit();
+    },
+    watch(label) {
+      ctx();
+      Object.assign(st, { kind: 'watch', label: label || 'Cronòmetre', total: 0, from: now(), base: 0, paused: false, done: false });
+      keepAwake(true); loop(); emit();
+    },
+    // Descans automàtic en marcar un exercici com a fet (si l'opció és activa i hi ha un temps).
+    auto(sec, label) { if (prefs.auto && sec > 0) api.start(sec, label, 'rest'); },
+    pause() {
+      if (!st.kind || st.done) return;
+      if (st.paused) {
+        if (counting()) st.endsAt = now() + st.left * 1000; else st.from = now();
+        st.paused = false;
+      } else {
+        if (counting()) st.left = remaining(); else st.base += now() - st.from;
+        st.paused = true;
+      }
+      emit();
+    },
+    add(sec) {
+      if (!counting()) return;
+      if (st.done) { api.start(Math.max(5, sec), st.label, st.kind); return; }
+      if (st.paused) st.left = Math.max(1, st.left + sec); else st.endsAt = Math.max(now() + 1000, st.endsAt + sec * 1000);
+      st.total = Math.max(st.total, remaining());
+      emit();
+    },
+    stop() { Object.assign(st, { kind: null, done: false, paused: false }); keepAwake(false); title(null); emit(); },
+    setOpen(v) { st.open = !!v; emit(); },
+    setPref(k, v) { prefs[k] = v; savePrefs(); if (k === 'sound' && v) beep(1, 660, 90); emit(); },
+  };
+  return api;
+})();
+
+const TIMER_PRESETS = {
+  rest: [30, 45, 60, 90, 120, 180],
+  work: [15, 20, 30, 40, 45, 60],
+};
+
+function TimerDock({ route }) {
+  const [, force] = useState(0);
+  const [tab, setTab] = useState('rest');
+  const [custom, setCustom] = useState('');
+  useEffect(() => { const f = () => force((n) => n + 1); Timer.subs.add(f); return () => Timer.subs.delete(f); }, []);
+  const st = Timer.st, running = !!st.kind;
+  const onSession = route && route.name === 'sessio';
+  if (!running && !st.open && !onSession) return null;
+
+  const left = running && (st.kind === 'watch' ? Timer.elapsed() : Timer.remaining());
+  const pct = running && st.kind !== 'watch' && st.total ? Math.max(0, Math.min(100, (left / st.total) * 100)) : 0;
+  const startCustom = () => {
+    const secs = Calc.secs(custom);
+    if (!secs) { UI.toast('Escriu un temps, p. ex. 90 s, 1:30 o 2\'.', 'bad'); return; }
+    Timer.start(secs, tab === 'work' ? 'Treball' : 'Descans', tab);
+    setCustom('');
+    Timer.setOpen(false);
+  };
+  const preset = (s) => { Timer.start(s, tab === 'work' ? 'Treball' : 'Descans', tab); Timer.setOpen(false); };
+  const label = (s) => (s < 60 ? `${s} s` : s % 60 ? `${Math.floor(s / 60)}'${s % 60}"` : `${s / 60}'`);
+
+  return html`<div class=${U.cls('tm-dock', running && 'tm-run', st.done && 'tm-done', st.kind === 'work' && 'tm-work', st.open && 'tm-open')} role="region" aria-label="Cronòmetre">
+    ${st.open && html`<div class="tm-panel">
+      <div class="tm-tabs" role="tablist">
+        ${[['rest', 'Descans'], ['work', 'Treball'], ['watch', 'Cronòmetre']].map(([k, t]) => html`<button type="button" role="tab" aria-selected=${tab === k}
+          class=${U.cls('tm-tab', tab === k && 'on')} onClick=${() => setTab(k)}>${t}</button>`)}
+        <span class="grow"></span>
+        <button type="button" class="mini" title="Tanca" aria-label="Tanca el panell" onClick=${() => Timer.setOpen(false)}><${Icon} name="x" size=${15} /></button>
+      </div>
+      ${tab === 'watch'
+        ? html`<p class="muted small">Compta cap amunt: per mesurar el temps d'una sèrie o d'un exercici.</p>
+            <${Btn} variant="primary" icon="play" onClick=${() => { Timer.watch(); Timer.setOpen(false); }}>Inicia el cronòmetre</${Btn}>`
+        : html`<div class="tm-presets">${TIMER_PRESETS[tab].map((s) => html`<button type="button" class="chip" onClick=${() => preset(s)}>${label(s)}</button>`)}</div>
+            <div class="tm-custom">
+              <input class="input" value=${custom} placeholder="Altre temps: 75 s, 1:30…" aria-label="Temps personalitzat" inputmode="text"
+                onInput=${(e) => setCustom(e.currentTarget.value)} onKeyDown=${(e) => { if (e.key === 'Enter') startCustom(); }} />
+              <${Btn} variant="primary" icon="play" onClick=${startCustom}>Inicia</${Btn}>
+            </div>`}
+      <div class="tm-prefs">
+        <label class="check"><input type="checkbox" checked=${Timer.prefs.auto} onChange=${(e) => Timer.setPref('auto', e.currentTarget.checked)} /> Descans automàtic en marcar un exercici com a fet</label>
+        <label class="check"><input type="checkbox" checked=${Timer.prefs.sound} onChange=${(e) => Timer.setPref('sound', e.currentTarget.checked)} /> So i vibració</label>
+      </div>
+    </div>`}
+    ${running
+      ? html`<div class="tm-bar" role="timer" aria-live="off">
+          <button type="button" class="tm-openbtn" onClick=${() => Timer.setOpen(!st.open)} title="Canvia o inicia un altre temps"><${Icon} name="clock" size=${18} /></button>
+          <div class="tm-main">
+            <span class="tm-time" aria-label=${`${st.label}: ${Calc.clock(left)}`}>${st.done ? '0:00' : Calc.clock(left)}</span>
+            <span class="tm-label">${st.done ? `${st.label} acabat` : st.label}${st.paused ? ' · en pausa' : ''}</span>
+          </div>
+          ${st.kind !== 'watch' && html`<div class="tm-prog" aria-hidden="true"><span style=${`width:${pct}%`}></span></div>`}
+          <div class="tm-btns">
+            ${st.kind !== 'watch' && html`<button type="button" class="tm-b" onClick=${() => Timer.add(-15)} aria-label="Treu 15 segons" disabled=${st.done}>−15</button>
+              <button type="button" class="tm-b" onClick=${() => Timer.add(st.done ? 30 : 15)} aria-label=${st.done ? 'Afegeix 30 segons' : 'Afegeix 15 segons'}>+${st.done ? 30 : 15}</button>`}
+            ${!st.done && html`<button type="button" class="tm-b tm-b-ic" onClick=${() => Timer.pause()} aria-label=${st.paused ? 'Reprèn' : 'Pausa'}>${st.paused ? html`<${Icon} name="play" size=${16} />` : html`<span aria-hidden="true">❚❚</span>`}</button>`}
+            <button type="button" class="tm-b tm-b-ic" onClick=${() => Timer.stop()} aria-label="Atura i tanca"><${Icon} name="x" size=${16} /></button>
+          </div>
+        </div>`
+      : !st.open && html`<button type="button" class="tm-pill" onClick=${() => Timer.setOpen(true)}><${Icon} name="clock" size=${17} />Cronòmetre</button>`}
+  </div>`;
+}
+
+// Botó petit d'un exercici per posar en marxa un temps (descans o treball).
+function TimerButton({ secs, label, kind = 'rest', title }) {
+  if (!(secs > 0)) return null;
+  return html`<button type="button" class=${U.cls('tbtn', kind === 'work' && 'tbtn-work')} title=${title || `Inicia ${kind === 'work' ? 'el temps de treball' : 'el descans'}`}
+    onClick=${() => Timer.start(secs, label, kind)}><${Icon} name="clock" size=${14} />${Calc.clock(secs)}</button>`;
+}
+
+
 /* ── 98-update.js ── */
 /* EON Life · versió nova de l'app.
    La tauleta guarda la pàgina una estona i, oberta des de la icona, pot ensenyar la versió d'abans. En obrir l'app
@@ -24960,6 +25590,7 @@ function App() {
     <${SharedLists} />
     <${UpdateBanner} />
     ${!present && html`<${NoeLauncher} />`}
+    ${!present && html`<${TimerDock} route=${route} />`}
     <${ModalHost} />
   </div>`;
 }

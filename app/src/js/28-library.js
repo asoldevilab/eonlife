@@ -8,7 +8,8 @@ function LibraryView({ tab = 'exercicis' }) {
         ${tab === 'exercicis' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openExercise(null)}>Nou exercici</${Btn}>`
           : tab === 'metodes' ? html`<${Btn} variant="primary" icon="plus" onClick=${() => openMethod(null)}>Nou mètode</${Btn}>`
           : html`<${Menu} variant="primary" icon="plus" label="Nova plantilla" title="Nova plantilla" items=${[
-            { label: 'Plantilla de sessió (6 blocs)', icon: 'layers', onClick: () => newTemplate('session') },
+            { label: 'Plantilla de sessió en blanc', icon: 'layers', onClick: () => newTemplate('session', null, true) },
+            { label: 'Plantilla de sessió (6 blocs buits)', icon: 'layers', onClick: () => newTemplate('session') },
             { sep: true },
             ...BLOCKS.map((b) => ({ label: `Plantilla de ${blockName(b.key).toLowerCase()}`, icon: 'plus', onClick: () => newTemplate('block', b.key) })),
           ]} />`}
@@ -241,9 +242,9 @@ function TemplateList() {
   </div>`;
 }
 
-function newTemplate(kind, block) {
+function newTemplate(kind, block, blank) {
   const t = kind === 'session'
-    ? { id: U.uid('T'), kind: 'session', name: 'Nova sessió tipus', goal: '', blocks: Store.emptyBlocks() }
+    ? { id: U.uid('T'), kind: 'session', name: 'Nova sessió tipus', goal: '', blocks: blank ? [] : Store.emptyBlocks() }
     : { id: U.uid('T'), kind: 'block', block, name: `${blockName(block)} · nova`, focus: '', desc: '', items: [] };
   Store.put('templates', t, { immediate: true });
   go('plantilla', t.id);
@@ -259,7 +260,16 @@ function TemplateEditor({ id }) {
     Store.remove('templates', t.id);
     go('biblioteca', 'plantilles');
   };
-  const blocks = t.kind === 'session' ? cloneBlocksKeep(t.blocks) : null;
+  const blocks = t.kind === 'session' ? sortBlocks(t.blocks) : null;
+  // Els blocs de la plantilla de sessió s'afegeixen a mà (en blanc) i es col·loquen en l'ordre de la metodologia.
+  const addBlock = (key) => upd((x) => { x.blocks = sortBlocks([...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)]); });
+  const addExercise = (key, it) => upd((x) => { x.blocks = sortBlocks(x.blocks); putExercise(x.blocks, key, it); });
+  const removeBlock = async (key) => {
+    const b = (t.blocks || []).find((x) => x.key === key);
+    const n = b ? (b.items || []).filter((i) => i.name).length : 0;
+    if (n && !(await UI.confirm({ title: `Treure «${blockName(key)}»?`, text: n === 1 ? 'També s\'eliminarà l\'exercici que hi ha.' : `També s'eliminaran els ${n} exercicis que hi ha.`, ok: 'Treu el bloc', danger: true }))) return;
+    upd((x) => { x.blocks = (x.blocks || []).filter((y) => y.key !== key); });
+  };
   return html`<div class="page page-edit">
     <div class="editbar">
       <${Btn} variant="ghost" icon="back" title="Torna a la biblioteca" onClick=${() => go('biblioteca', 'plantilles')} />
@@ -276,8 +286,10 @@ function TemplateEditor({ id }) {
       </div>
     </section>
     ${t.kind === 'session'
-      ? blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true}
-          onChange=${(fn) => upd((x) => { x.blocks = cloneBlocksKeep(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)
+      ? html`${!blocks.length && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}
+        ${blocks.map((b) => html`<${BlockCard} key=${b.key} block=${b} templateMode=${true} onRemove=${() => removeBlock(b.key)}
+          onChange=${(fn) => upd((x) => { x.blocks = sortBlocks(x.blocks); const bb = x.blocks.find((y) => y.key === b.key); fn(bb); })} />`)}
+        ${blocks.length > 0 && html`<${AddBlocks} blocks=${blocks} onAdd=${addBlock} onAddExercise=${addExercise} what="la plantilla" who="aquesta plantilla" />`}`
       : html`<${BlockCard} block=${{ key: t.block, focus: t.focus, groups: t.groups, items: t.items || [] }} templateMode=${true}
           onChange=${(fn) => upd((x) => {
             const bb = { key: x.block, focus: x.focus, groups: x.groups, items: x.items || [] };
@@ -288,10 +300,9 @@ function TemplateEditor({ id }) {
   </div>`;
 }
 
-// Assegura els 6 blocs en ordre sense canviar els identificadors dels exercicis.
-function cloneBlocksKeep(blocks) {
-  const byKey = Object.fromEntries((blocks || []).map((b) => [b.key, b]));
-  return BLOCKS.map((b) => byKey[b.key] || { key: b.key, focus: '', note: '', items: [] });
+// Els blocs que té la plantilla, en l'ordre de la metodologia i sense canviar els identificadors dels exercicis.
+function sortBlocks(blocks) {
+  return (blocks || []).slice().sort((a, b) => blockDef(a.key).num - blockDef(b.key).num);
 }
 
 // ── Mètodes d'entrenament: els apunts del centre (què és, com es fa, exemple i fonts) ──

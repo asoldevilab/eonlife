@@ -450,7 +450,7 @@ const step = async (label, fn) => {
     await page.waitForSelector('section.block.blk-mob');
     const keys = await page.$$eval('section.block', (els) => els.map((e) => [...e.classList].find((c) => c.startsWith('blk-'))));
     if (keys.join() !== 'blk-mob,blk-for') throw new Error(`ordre dels blocs: ${keys}`);
-    if ((await page.locator('.addblock').count()) !== 4) throw new Error('han de quedar 4 blocs per afegir');
+    if ((await page.locator('.addblock:not(.addblock-lib)').count()) !== 4) throw new Error('han de quedar 4 blocs per afegir');
     await shot(page, '08e-sessio-blocs-a-ma');
     await page.locator('section.block.blk-mob .block-head button[title="Plantilles del bloc"]').click();
     await page.click('.menu-list >> text=Treu el bloc de la sessió');

@@ -380,6 +380,41 @@ articles). Se'n poden crear de nous.
 A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en triar-lo surt com es fa i l'exemple, i al
 **Presenta** el client veu el nom del mètode (p. ex. *Bloc 2 · Clúster*). Així no es fa sempre el mateix 3 × 10.
 
+### Plantilles en blanc i superseries
+
+- **Biblioteca › Plantilles › Nova plantilla › Plantilla de sessió en blanc**: comença sense cap bloc i hi afegeixes només
+  els que vols (Mobilitat, Força principal…) amb els botons «Afegeix un bloc». Es poden treure amb el menú del bloc.
+- **Afegeix exercici de la biblioteca** (a la sessió i a la plantilla, a la zona «Afegeix un bloc»): cerques o navegues per
+  tota la biblioteca sense haver obert cap bloc abans. L'exercici va al bloc on està classificat i, si el bloc encara no hi
+  és, es crea sol. Si el bloc ja està dividit en subblocs, va al darrer.
+- Dins de qualsevol bloc, **Afegeix superserie** crea un subbloc de superserie: hi poses 2 o 3 exercicis que es fan
+  seguits, una volta rere l'altra. A la capçalera hi tries les **voltes** i el **descans entre voltes**; els exercicis
+  no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
+  **Superserie**. Es veu al full de la sessió i als Excel com *Bloc 2 · Superserie · 3 voltes · descans 90 s entre voltes*.
+
+### Ajudes per dissenyar la sessió
+
+- **Anterior i suggeriment.** Sota cada exercici surt què va fer el pacient l'última vegada (sèries, reps, càrrega). Si aquella
+  sessió té RPE (o dolor), també surt un **Suggeriment** de càrrega: RPE ≤ 6 puja un 5 %, RPE 7 un 2,5 %, RPE 8-9 es manté,
+  RPE 10 baixa un 2,5 % i un dolor ≥ 4 baixa un 5 %. Toca el suggeriment per aplicar-lo. Al menú del bloc o de la sessió hi ha
+  **Aplica la càrrega suggerida** per fer-ho de cop. És una proposta: l'últim mot és del professional.
+- **Càrrega en %.** A *Càrrega* escriu «75 %» i l'app calcula els kg amb la 1RM del pacient (la de la darrera valoració
+  càrrega-velocitat o, si no n'hi ha, la millor estimada amb les seves sessions) i et deixa posar-los amb un toc.
+- **Buscador.** En afegir un exercici surten primer les carpetes **Fets amb aquest pacient** (amb la data i la càrrega de
+  l'última vegada) i **Triats fa poc**.
+- **Precaucions.** Si a la fitxa hi ha una lesió, cirurgia o patologia (genoll, espatlla, lumbar, maluc/engonal, turmell, canell/
+  colze) i l'exercici carrega aquella zona, surt un avís groc. És orientatiu: no bloqueja res.
+- **Superseries i subblocs.** Cada subbloc es pot **desar com a plantilla** (icona de baixada) i inserir després des del menú
+  de plantilles del bloc. La icona del llapis edita de cop sèries, reps, intensitat, descans i tempo de tots els exercicis del
+  subbloc; el mateix, per a tot el bloc, des del seu menú.
+- **Volum de la setmana.** Un desplegable amb les sèries per múscul de les sessions d'aquella setmana (amb la que estàs
+  dissenyant) i els músculs principals que encara no s'han treballat.
+- **Cronòmetre.** A la sessió, el botó **Cronòmetre** (a baix) obre el compte enrere de *Descans* o de *Treball* i un
+  cronòmetre. Al marcar un exercici com a fet arrenca sol el seu descans (en una superserie, el descans entre voltes en acabar
+  l'últim exercici); també hi ha un botó ⏱ a cada exercici amb el seu descans o amb el temps de treball (p. ex. 30 s). Té
+  −15 / +15, pausa i atura; avisa amb so i vibració, no s'atura si canvies de pantalla i manté la pantalla encesa.
+  Es pot desactivar l'arrencada automàtica i el so des del mateix panell.
+
 ### Professional de la sessió
 
 Les sessions noves es fan a nom del professional que va triar l'última vegada **aquella tauleta** (no del

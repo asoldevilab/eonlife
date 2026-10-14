@@ -583,13 +583,32 @@ const Calc = {
     (b.items || []).forEach((it, i) => { (out.find((x) => x.g.id === it.g) || out[0]).items.push({ it, i }); });
     return out;
   },
-  groupLabel(g, n) { return `Bloc ${n + 1}${g && g.name ? ` · ${g.name}` : ''}`; },
+  groupLabel(g, n) { return `Bloc ${n + 1}${Calc.superInfo(g) ? ` · ${Calc.superInfo(g)}` : ''}${g && g.name ? ` · ${g.name}` : ''}`; },
+  // Superserie: els exercicis del subbloc es fan seguits, una volta rere l'altra, i el descans és en acabar la volta.
+  isSuper(g) { return !!(g && g.kind === 'super'); },
+  superInfo(g) {
+    if (!Calc.isSuper(g)) return '';
+    const n = U.num(g.rounds), rest = String(g.rest || '').trim();
+    return `Superserie${n ? ` · ${n} ${n === 1 ? 'volta' : 'voltes'}` : ''}${rest ? ` · descans ${rest} entre voltes` : ''}`;
+  },
+  // Els exercicis d'una superserie hereten les voltes com a sèries i no tenen descans propi.
+  syncSuper(b) {
+    const gs = (b.groups || []).filter(Calc.isSuper);
+    if (!gs.length) return;
+    for (const it of b.items || []) {
+      const g = gs.find((x) => x.id === it.g);
+      if (!g) continue;
+      if (g.rounds) it.sets = String(g.rounds);
+      it.rest = '';
+    }
+  },
   // Ordena els exercicis segons l'ordre dels subblocs (manté l'ordre dins de cada subbloc).
   sortByGroups(b) {
     const gs = b.groups || [];
     if (!gs.length) return;
     const pos = (it) => { const k = gs.findIndex((g) => g.id === it.g); return k < 0 ? 0 : k; };
     b.items = (b.items || []).map((it, i) => ({ it, i })).sort((x, y) => pos(x.it) - pos(y.it) || x.i - y.i).map((x) => x.it);
+    Calc.syncSuper(b);
   },
 
   // Resum setmanal (dilluns a diumenge) de sessions fetes.
