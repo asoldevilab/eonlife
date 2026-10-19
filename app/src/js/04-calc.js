@@ -194,7 +194,6 @@ const Calc = {
       speedKmh: speed != null ? speed * k : null,
       peakRel: peak != null && w ? peak / w : null,
       meanRel: mean != null && w ? mean / w : null,
-      fatigue: peak && min != null ? ((peak - min) / peak) * 100 : null,
       meanPeak: peak && mean != null ? (mean / peak) * 100 : null,
       work: mean != null && time ? (mean * time) / 1000 : null,
       workKg: mean != null && time && w ? (mean * time) / w : null,
@@ -216,7 +215,6 @@ const Calc = {
     const lines = [], more = [], warns = [];
     const add = (text, extra) => { lines.push(text); if (extra) more.push(text); };
     if (b.mean != null) add(`Potència mitjana ${f0(b.mean)} W${b.meanRel != null ? ` (${f1(b.meanRel)} W/kg)` : ''}${b.meanPeak != null ? `: el ${f0(b.meanPeak)} % de la potència pic` : ''}.`, false);
-    if (b.meanPeak != null) more.push(`La potència mitjana és el ${f0(b.meanPeak)} % de la potència pic: com més a prop del 100 %, més sostinguda ha estat la potència.`);
     if (b.peak != null) add(`Potència pic ${f0(b.peak)} W${b.peakRel != null ? ` (${f1(b.peakRel)} W/kg)` : ''}.`, false);
     if (b.work != null) { add(`Treball total ${f1(b.work)} kJ en ${f0(b.time)} s${b.workKg != null ? ` (${f0(b.workKg)} J/kg)` : ''}.`, false); if (b.workKg != null) more.push(`Treball relatiu al pes: ${f0(b.workKg)} J/kg.`); }
     {
@@ -230,7 +228,6 @@ const Calc = {
       add(`Energia ${f1(b.cal)} kcal${b.calMin != null ? ` (${f1(b.calMin)} kcal/min${b.calKg != null ? `, ${U.fmt(b.calKg, 2)} kcal/kg` : ''})` : ''}.`, false);
       if (b.calMin != null) more.push(`Ritme d'energia: ${f1(b.calMin)} kcal/min${b.calKg != null ? ` (${U.fmt(b.calKg, 2)} kcal per kg de pes)` : ''}.`);
     }
-    if (b.fatigue != null) add(`Índex de fatiga ${f1(b.fatigue)} % (de ${f0(b.peak)} W de pic a ${f0(b.min)} W de mínima): com més baix, més bona resistència a la fatiga.`, true);
     if (pb && pb.any) {
       const bits = [];
       const cmp = (label, now, before, d, unit) => {
@@ -242,13 +239,12 @@ const Calc = {
       cmp('pic', b.peak, pb.peak, 0, 'W');
       cmp('W/kg mitjans', b.meanRel, pb.meanRel, 1, 'W/kg');
       cmp('distància', b.distKm, pb.distKm, 2, 'km');
-      if (b.fatigue != null && pb.fatigue != null) bits.push(`fatiga ${U.fmtSigned(b.fatigue - pb.fatigue, 1)} punts`);
+      if (b.meanPeak != null && pb.meanPeak != null) bits.push(`potència sostinguda ${U.fmtSigned(b.meanPeak - pb.meanPeak, 0)} punts`);
       if (bits.length) add(`Respecte de la valoració anterior${prev.date ? ` (${U.fmtDate(prev.date)})` : ''}: ${bits.join(' · ')}.`, true);
     }
     // Avisos de dades
     if (b.time != null && Math.abs(b.time - 30) > 2) warns.push(`El temps és de ${f0(b.time)} s: la prova és de 30 s all-out. Comprova que sigui el resum del final de la prova.`);
     if (b.peak != null && b.mean != null && b.peak < b.mean) warns.push('La potència pic és més baixa que la mitjana: revisa-les.');
-    if (b.min != null && b.mean != null && b.min > b.mean) warns.push('La potència mínima és més alta que la mitjana: revisa-les.');
     if (b.mean != null && (b.mean < 60 || b.mean > 1500)) warns.push(`La potència mitjana (${f0(b.mean)} W) és fora del rang habitual: revisa si s'ha llegit bé.`);
     if (b.rpm != null && (b.rpm < 20 || b.rpm > 200)) warns.push(`Les RPM (${f0(b.rpm)}) són fora del rang habitual: revisa-les.`);
     if (b.dist != null && b.speed != null && b.time) {
@@ -778,7 +774,7 @@ const Flat = {
           const b = Calc.bike(a);
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);
           o['Bike mitjana (W)'] = n(b.mean); o['Bike mitjana (W/kg)'] = n(b.meanRel);
-          o['Bike índex de fatiga (%)'] = n(b.fatigue);
+          o['Bike potència sostinguda (% del pic)'] = n(b.meanPeak);
           o['Bike temps (s)'] = n(b.time); o['Bike distància (km)'] = n(b.distKm); o['Bike calories (kcal)'] = n(b.cal);
           o['Bike velocitat mitjana (km/h)'] = n(b.speedKmh); o['Bike RPM mitjanes'] = n(b.rpm); o['Bike treball (kJ)'] = n(b.work);
         }

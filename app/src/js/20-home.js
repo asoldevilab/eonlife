@@ -55,6 +55,8 @@ function HomeView() {
 
     <${MaterialToday} sessions=${todays} />
 
+    <${WeekCalendar} />
+
     <div class="home-grid">
       <section class="card">
         <div class="card-head"><h2 class="h2">Sessions d'avui</h2></div>

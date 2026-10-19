@@ -97,6 +97,7 @@ function PatientSummary({ p, sessions, assessments }) {
       <button type="button" class="chip" onClick=${() => go('dades', 'valoracions', p.id)}><${Icon} name="table" size=${14} />Veure totes les dades</button>
     </div>
   </section>
+  ${sessions.some((x) => x.feedback && (x.feedback.rpe || x.feedback.pain)) && html`<${RpeEvaCard} p=${p} sessions=${sessions} />`}
   <div class="grid-2">
     <section class="card">
       <div class="card-head"><h2 class="h2">Propera sessió</h2>
@@ -212,6 +213,7 @@ function PatientSessions({ p, sessions }) {
         <${Btn} icon="calendar" onClick=${() => openPlanMonth(p, U.monthKey(U.today()))}>Planifica el mes</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
       </div></div>
+    ${sessions.length > 0 && html`<${RpeEvaCard} p=${p} sessions=${sessions} inner=${true} />`}
     ${keys.length ? keys.map((wk) => {
       const list = groups[wk].slice().reverse();
       const w = Calc.weeks(groups[wk], wk, 1)[0];

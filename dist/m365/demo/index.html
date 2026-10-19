@@ -55,7 +55,7 @@
   --bad-bg: #FBEBE9;
   --side-d: #8A2F36;
   --side-e: #B8862F;
-  --series-1: #8A2F36;
+  --series-1: #8A2F36; --series-2: #B8862F;
   --blk-mob: #2F6FB0;
   --blk-act: #1E8A5C;
   --blk-pot: #D35A2E;
@@ -113,7 +113,7 @@
     --bad-bg: #3A1D1B;
     --side-d: #C4545C;
     --side-e: #B58A36;
-    --series-1: #D0606A;
+    --series-1: #D0606A; --series-2: #E6C55A;
     --blk-mob: #4F8BD0;
     --blk-act: #2E9E6E;
     --blk-pot: #D0782C;
@@ -164,7 +164,7 @@
   --bad-bg: #3A1D1B;
   --side-d: #C4545C;
   --side-e: #B58A36;
-  --series-1: #D0606A;
+  --series-1: #D0606A; --series-2: #E6C55A;
   --blk-mob: #4F8BD0;
   --blk-act: #2E9E6E;
   --blk-pot: #D0782C;
@@ -1868,6 +1868,52 @@ tfoot .rpc { font-size: 14px; }
 .stime-chip { background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
 .block-time { display: inline-flex; align-items: center; margin-top: 4px; height: 22px; padding: 0 8px; border-radius: 7px; background: var(--surface-3); color: var(--ink-2); font-size: 12.5px; font-weight: 700; }
 @media print { .stime { display: none !important; } }
+
+/* Moure sessions al calendari */
+.cal-s { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.cal-s.selectable { position: relative; padding-left: 26px; }
+.cal-s-check { position: absolute; left: 6px; top: 6px; width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1; opacity: 0.85; }
+.cal-s.picked { outline: 3px solid #B5471E; outline-offset: 1px; }
+.cal-d.cal-drop { background: var(--brand-soft); box-shadow: inset 0 0 0 2px var(--brand-2); }
+body.cal-dragging, body.cal-dragging * { cursor: grabbing !important; }
+body.cal-dragging .cal-s { pointer-events: none; }
+.cal-ghost { position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none; padding: 8px 12px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-size: 13px; font-weight: 700; box-shadow: 0 10px 24px rgba(40, 15, 17, 0.35); max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-selbar { position: sticky; top: 64px; z-index: 6; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1.5px solid #B5471E; box-shadow: 0 6px 18px rgba(40, 15, 17, 0.12); }
+/* RPE i EVA a la fitxa */
+.rpeeva .kv small { display: block; font-size: 12.5px; margin-top: 2px; }
+.rpeeva-inner { margin: 6px 0 16px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); }
+.trend { font-weight: 700; color: var(--ink-2); }
+.trend-bad { color: var(--bad-ink, #A32A24); }
+.trend-good { color: var(--ok-ink, #1D6B48); }
+/* Calendari de la setmana (Inici) */
+.weekcal-head { flex-wrap: wrap; gap: 8px 16px; }
+.weekcal-filter { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.weekcal-filter .select, .weekcal-filter select { min-width: 200px; }
+.weekcal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.weekcal-day { display: flex; flex-direction: column; gap: 4px; min-height: 120px; padding: 6px; border-radius: 10px; background: var(--surface-2); min-width: 0; }
+.weekcal-day.today { background: var(--brand-soft); box-shadow: inset 0 0 0 1.5px var(--brand-2); }
+.weekcal-day.past { opacity: 0.8; }
+.weekcal-dn { display: flex; align-items: baseline; gap: 6px; padding: 0 2px 2px; font-size: 12.5px; color: var(--ink-3); text-transform: uppercase; font-weight: 700; }
+.weekcal-dn strong { font-size: 17px; color: var(--ink); }
+.weekcal-it { display: flex; flex-direction: column; gap: 1px; padding: 6px 7px; border: 0; border-radius: 8px; text-align: left; cursor: pointer; font-size: 12px; line-height: 1.25; min-width: 0; }
+.weekcal-it.done { background: var(--brand); color: var(--brand-ink); }
+.weekcal-it.plan { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--brand-2); }
+.weekcal-it.assess { background: #E4EEF8; color: #173C61; box-shadow: inset 0 0 0 1px #2F6DB0; }
+.weekcal-it.retest { background: #FBF0D9; color: #6B4700; box-shadow: inset 0 0 0 1px #D89A1B; border-style: dashed; }
+.weekcal-who { font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.weekcal-what { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.weekcal-empty { color: var(--ink-3); font-size: 13px; padding: 2px; }
+.cal-key.assess { background: #E4EEF8; box-shadow: inset 0 0 0 1px #2F6DB0; }
+.cal-key.retest { background: #FBF0D9; box-shadow: inset 0 0 0 1px #D89A1B; }
+@media (max-width: 760px) {
+  .weekcal-grid { grid-template-columns: 1fr; }
+  .weekcal-day { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .weekcal-dn { width: 64px; flex: none; }
+  .weekcal-it { flex: 1 1 160px; }
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .weekcal-it.assess { background: #1B2D40; color: #D6E6F7; } :root:not([data-theme="light"]) .weekcal-it.retest { background: #3A2E12; color: #F3DFB2; } }
+:root[data-theme="dark"] .weekcal-it.assess { background: #1B2D40; color: #D6E6F7; }
+:root[data-theme="dark"] .weekcal-it.retest { background: #3A2E12; color: #F3DFB2; }
 </style>
 </head>
 <body>
@@ -4180,7 +4226,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-14 16:54";
+window.EON_BUILD = "2026-10-19 10:46";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6400,7 +6446,6 @@ const Calc = {
       speedKmh: speed != null ? speed * k : null,
       peakRel: peak != null && w ? peak / w : null,
       meanRel: mean != null && w ? mean / w : null,
-      fatigue: peak && min != null ? ((peak - min) / peak) * 100 : null,
       meanPeak: peak && mean != null ? (mean / peak) * 100 : null,
       work: mean != null && time ? (mean * time) / 1000 : null,
       workKg: mean != null && time && w ? (mean * time) / w : null,
@@ -6422,7 +6467,6 @@ const Calc = {
     const lines = [], more = [], warns = [];
     const add = (text, extra) => { lines.push(text); if (extra) more.push(text); };
     if (b.mean != null) add(`Potència mitjana ${f0(b.mean)} W${b.meanRel != null ? ` (${f1(b.meanRel)} W/kg)` : ''}${b.meanPeak != null ? `: el ${f0(b.meanPeak)} % de la potència pic` : ''}.`, false);
-    if (b.meanPeak != null) more.push(`La potència mitjana és el ${f0(b.meanPeak)} % de la potència pic: com més a prop del 100 %, més sostinguda ha estat la potència.`);
     if (b.peak != null) add(`Potència pic ${f0(b.peak)} W${b.peakRel != null ? ` (${f1(b.peakRel)} W/kg)` : ''}.`, false);
     if (b.work != null) { add(`Treball total ${f1(b.work)} kJ en ${f0(b.time)} s${b.workKg != null ? ` (${f0(b.workKg)} J/kg)` : ''}.`, false); if (b.workKg != null) more.push(`Treball relatiu al pes: ${f0(b.workKg)} J/kg.`); }
     {
@@ -6436,7 +6480,6 @@ const Calc = {
       add(`Energia ${f1(b.cal)} kcal${b.calMin != null ? ` (${f1(b.calMin)} kcal/min${b.calKg != null ? `, ${U.fmt(b.calKg, 2)} kcal/kg` : ''})` : ''}.`, false);
       if (b.calMin != null) more.push(`Ritme d'energia: ${f1(b.calMin)} kcal/min${b.calKg != null ? ` (${U.fmt(b.calKg, 2)} kcal per kg de pes)` : ''}.`);
     }
-    if (b.fatigue != null) add(`Índex de fatiga ${f1(b.fatigue)} % (de ${f0(b.peak)} W de pic a ${f0(b.min)} W de mínima): com més baix, més bona resistència a la fatiga.`, true);
     if (pb && pb.any) {
       const bits = [];
       const cmp = (label, now, before, d, unit) => {
@@ -6448,13 +6491,12 @@ const Calc = {
       cmp('pic', b.peak, pb.peak, 0, 'W');
       cmp('W/kg mitjans', b.meanRel, pb.meanRel, 1, 'W/kg');
       cmp('distància', b.distKm, pb.distKm, 2, 'km');
-      if (b.fatigue != null && pb.fatigue != null) bits.push(`fatiga ${U.fmtSigned(b.fatigue - pb.fatigue, 1)} punts`);
+      if (b.meanPeak != null && pb.meanPeak != null) bits.push(`potència sostinguda ${U.fmtSigned(b.meanPeak - pb.meanPeak, 0)} punts`);
       if (bits.length) add(`Respecte de la valoració anterior${prev.date ? ` (${U.fmtDate(prev.date)})` : ''}: ${bits.join(' · ')}.`, true);
     }
     // Avisos de dades
     if (b.time != null && Math.abs(b.time - 30) > 2) warns.push(`El temps és de ${f0(b.time)} s: la prova és de 30 s all-out. Comprova que sigui el resum del final de la prova.`);
     if (b.peak != null && b.mean != null && b.peak < b.mean) warns.push('La potència pic és més baixa que la mitjana: revisa-les.');
-    if (b.min != null && b.mean != null && b.min > b.mean) warns.push('La potència mínima és més alta que la mitjana: revisa-les.');
     if (b.mean != null && (b.mean < 60 || b.mean > 1500)) warns.push(`La potència mitjana (${f0(b.mean)} W) és fora del rang habitual: revisa si s'ha llegit bé.`);
     if (b.rpm != null && (b.rpm < 20 || b.rpm > 200)) warns.push(`Les RPM (${f0(b.rpm)}) són fora del rang habitual: revisa-les.`);
     if (b.dist != null && b.speed != null && b.time) {
@@ -6984,7 +7026,7 @@ const Flat = {
           const b = Calc.bike(a);
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);
           o['Bike mitjana (W)'] = n(b.mean); o['Bike mitjana (W/kg)'] = n(b.meanRel);
-          o['Bike índex de fatiga (%)'] = n(b.fatigue);
+          o['Bike potència sostinguda (% del pic)'] = n(b.meanPeak);
           o['Bike temps (s)'] = n(b.time); o['Bike distància (km)'] = n(b.distKm); o['Bike calories (kcal)'] = n(b.cal);
           o['Bike velocitat mitjana (km/h)'] = n(b.speedKmh); o['Bike RPM mitjanes'] = n(b.rpm); o['Bike treball (kJ)'] = n(b.work);
         }
@@ -9185,7 +9227,7 @@ const DB = (() => {
       { id: 'bikepk', group: 'Assault bike 30 s', label: 'Pic', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).peak },
       { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
       { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },
-      { id: 'bikefat', group: 'Assault bike 30 s', label: 'Fatiga', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).fatigue },
+      { id: 'bikesust', group: 'Assault bike 30 s', label: 'Sostinguda', unit: '% del pic', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).meanPeak },
       { id: 'bikework', group: 'Assault bike 30 s', label: 'Treball', unit: 'kJ', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).work },
       { id: 'bikedist', group: 'Assault bike 30 s', label: 'Distància', unit: 'm', kind: 'num', dec: 0, get: (r) => { const d = Calc.bike(r.a).distKm; return d != null ? d * 1000 : null; } },
       { id: 'bikecal', group: 'Assault bike 30 s', label: 'Calories', unit: 'kcal', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).cal },
@@ -11261,15 +11303,15 @@ const ExcelAssessment = (() => {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
       r = xlHeader(ws, r, ['Mesura', 'Valor', 'Unitat']);
       const w = ref.weight;
-      const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0'], ['Potència mínima', xlNum(a.bike.min), 'W', '0']];
+      const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0']];
       const first = r;
       for (const [l, val, u, fmt] of rows) { ws.set(r, 1, l, XS.text); ws.set(r, 2, val, [XS.cell, { fmt }]); ws.set(r, 3, u, XS.cell); r++; }
       const rel = (cell, val) => ({ f: `IF(AND(ISNUMBER(${cell}),ISNUMBER(${w}),${w}>0),${cell}/${w},"")`, v: val ?? '' });
       ws.set(r, 1, 'Pic relatiu', XS.text); ws.set(r, 2, rel(xlRef(first, 2), b.peakRel), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'W/kg', XS.cell); r++;
       ws.set(r, 1, 'Mitjana relativa', XS.text); ws.set(r, 2, rel(xlRef(first + 1, 2), b.meanRel), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'W/kg', XS.cell); r++;
-      ws.set(r, 1, 'Índex de fatiga', XS.text);
-      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 2, 2)}),${xlRef(first, 2)}>0),(${xlRef(first, 2)}-${xlRef(first + 2, 2)})/${xlRef(first, 2)}*100,"")`, v: b.fatigue == null ? '' : b.fatigue }, [XS.cell, { fmt: '0.0' }]);
-      ws.set(r, 3, '%', XS.cell); r++;
+      ws.set(r, 1, 'Potència sostinguda (mitjana ÷ pic)', XS.text);
+      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 1, 2)}),${xlRef(first, 2)}>0),${xlRef(first + 1, 2)}/${xlRef(first, 2)}*100,"")`, v: b.meanPeak == null ? '' : b.meanPeak }, [XS.cell, { fmt: '0' }]);
+      ws.set(r, 3, '% del pic', XS.cell); r++;
       // Dades de la pantalla de l'aparell (en les unitats que té la pantalla: milles o km) i treball total.
       const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
       const screen = [['Temps', xlNum(a.bike.time), 's', '0'], ['Distància', xlNum(a.bike.dist), unitName, '0.00'], ['Calories', xlNum(a.bike.cal), 'kcal', '0.0'],
@@ -11391,7 +11433,7 @@ const ExcelAssessment = (() => {
         if (g.kind === 'bike') {
           rows.push({ label: 'Assault bike · potència pic', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).peak }) });
           rows.push({ label: 'Assault bike · potència mitjana', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).mean != null ? Calc.bike(a).mean : xlNum((a.bike || {}).mean) }) });
-          rows.push({ label: 'Assault bike · índex de fatiga', unit: '%', fmt: '0.0', dir: -1, get: (a) => ({ v: Calc.bike(a).fatigue }) });
+          rows.push({ label: 'Assault bike · potència sostinguda', unit: '% del pic', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).meanPeak }) });
           rows.push({ label: 'Assault bike · treball total', unit: 'kJ', fmt: '0.0', dir: 1, get: (a) => ({ v: Calc.bike(a).work }) });
           rows.push({ label: 'Assault bike · distància', unit: 'm', fmt: '0', dir: 1, get: (a) => { const d = Calc.bike(a).distKm; return { v: d != null ? d * 1000 : null }; } });
           continue;
@@ -14368,7 +14410,7 @@ const NoeTools = (() => {
           y_balance: ybt.d.comp != null || ybt.e.comp != null ? compact({ composite_d: ybt.d.comp, composite_e: ybt.e.comp, dif_anterior_cm: ybt.antDiff }) : '',
           patrons: patterns,
           carrega_velocitat: Calc.lvpAnalysis(a, prev).filter((x) => x.fit).map((x) => compact({ exercici: x.name || LVP.preset(x.preset).name, punts: x.rows.map((r) => ({ kg: r.load, m_s: r.mv })), v0_m_s: U.round(x.fit.v0, 2), l0_kg: x.fit.l0 != null ? U.round(x.fit.l0, 0) : '', r2: x.fit.r2 != null ? U.round(x.fit.r2, 3) : '', velocitat_minima_m_s: x.mvt, rm_estimada_kg: x.rm != null ? U.round(x.rm, 0) : '', canvi_rm_kg: x.cmp && x.cmp.rmDiff != null ? U.round(x.cmp.rmDiff, 0) : '', avisos: x.warns })),
-          assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, fatiga_pct: bike.fatigue }) : '',
+          assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, sostinguda_pct_pic: bike.meanPeak }) : '',
           conclusions: compact({ forts: enc(ctx, short((a.conclusions || {}).strengths, 300)), prioritats: enc(ctx, short((a.conclusions || {}).priorities, 300)), pla: enc(ctx, short((a.conclusions || {}).plan, 300)) }),
           canvis_respecte_anterior: prev ? Calc.compare(a, prev, true).slice(0, 14).map((c) => compact({ nom: c.label, anterior: c.prev, actual: c.cur, canvi: c.delta, millora: c.better === true ? true : c.better === false ? false : '' })) : '',
         });
@@ -19721,6 +19763,8 @@ function HomeView() {
 
     <${MaterialToday} sessions=${todays} />
 
+    <${WeekCalendar} />
+
     <div class="home-grid">
       <section class="card">
         <div class="card-head"><h2 class="h2">Sessions d'avui</h2></div>
@@ -19891,6 +19935,7 @@ function PatientSummary({ p, sessions, assessments }) {
       <button type="button" class="chip" onClick=${() => go('dades', 'valoracions', p.id)}><${Icon} name="table" size=${14} />Veure totes les dades</button>
     </div>
   </section>
+  ${sessions.some((x) => x.feedback && (x.feedback.rpe || x.feedback.pain)) && html`<${RpeEvaCard} p=${p} sessions=${sessions} />`}
   <div class="grid-2">
     <section class="card">
       <div class="card-head"><h2 class="h2">Propera sessió</h2>
@@ -20006,6 +20051,7 @@ function PatientSessions({ p, sessions }) {
         <${Btn} icon="calendar" onClick=${() => openPlanMonth(p, U.monthKey(U.today()))}>Planifica el mes</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${() => openNewSession(p.id)}>Nova sessió</${Btn}>
       </div></div>
+    ${sessions.length > 0 && html`<${RpeEvaCard} p=${p} sessions=${sessions} inner=${true} />`}
     ${keys.length ? keys.map((wk) => {
       const list = groups[wk].slice().reverse();
       const w = Calc.weeks(groups[wk], wk, 1)[0];
@@ -20935,7 +20981,6 @@ function BikeBlock({ a, p, upd }) {
     <div class="form-grid form-grid-4">
       <${Field} label="Potència pic"><${NumInput} value=${b.peak} onValue=${set('peak')} unit="W" /></${Field}>
       <${Field} label="Potència mitjana"><${NumInput} value=${b.mean} onValue=${set('mean')} unit="W" /></${Field}>
-      <${Field} label="Potència mínima"><${NumInput} value=${b.min} onValue=${set('min')} unit="W" /></${Field}>
       <${Field} label="Temps"><${NumInput} value=${b.time} onValue=${set('time')} unit="s" /></${Field}>
       <${Field} label=${`Distància (${unitName})`}><${NumInput} value=${b.dist} onValue=${set('dist')} /></${Field}>
       <${Field} label="Calories"><${NumInput} value=${b.cal} onValue=${set('cal')} unit="kcal" /></${Field}>
@@ -20948,7 +20993,7 @@ function BikeBlock({ a, p, upd }) {
     <div class="kv-row">
       <div class="kv"><span>Pic relatiu</span><strong>${r.peakRel != null ? `${U.fmt(r.peakRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
-      <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
+      <div class="kv"><span>Potència sostinguda</span><strong>${r.meanPeak != null ? `${U.fmt(r.meanPeak, 0)} %` : '—'}</strong><small>mitjana ÷ pic</small></div>
       <div class="kv"><span>Treball total</span><strong>${r.work != null ? `${U.fmt(r.work, 1)} kJ` : '—'}</strong><small>potència mitjana × temps</small></div>
     </div>
     ${an && an.lines.length > 0 && html`<div class="jump-analysis">
@@ -22351,7 +22396,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           <div class="kv-row">
             ${bike.peak != null && html`<div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>`}
             ${bike.mean != null && html`<div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>`}
-            ${bike.fatigue != null && html`<div class="kv"><span>Índex de fatiga</span><strong>${U.fmt(bike.fatigue, 1)} %</strong></div>`}
+            ${bike.meanPeak != null && html`<div class="kv"><span>Potència sostinguda</span><strong>${U.fmt(bike.meanPeak, 0)} %</strong><small>de la potència pic</small></div>`}
             ${bike.work != null && html`<div class="kv"><span>Treball total</span><strong>${U.fmt(bike.work, 1)} kJ</strong></div>`}
             ${bike.distKm != null && html`<div class="kv"><span>Distància</span><strong>${U.fmt(bike.distKm * 1000, 0)} m</strong>${bike.speedKmh != null && html`<small>${U.fmt(bike.speedKmh, 1)} km/h de mitjana</small>`}</div>`}
             ${bike.cal != null && html`<div class="kv"><span>Energia</span><strong>${U.fmt(bike.cal, 1)} kcal</strong>${bike.calMin != null && html`<small>${U.fmt(bike.calMin, 1)} kcal/min</small>`}</div>`}
@@ -23442,6 +23487,18 @@ function MonthView({ p, sessions }) {
   const today = U.today();
   const [month, setMonth] = useState(() => MonthNav.take(p.id) || U.monthKey(today));
   const [allBlocks, setAllBlocks] = useState(false);
+  // Selecció de sessions per moure-les o eliminar-les de cop.
+  const [selecting, setSelecting] = useState(false);
+  const [sel, setSel] = useState([]);
+  const toggleSel = (id) => setSel(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]);
+  // Arrossegar: si la sessió és dins la selecció, es mouen totes les seleccionades els mateixos dies.
+  const onDrop = async (ids, date) => {
+    const list = ids.map((id) => sessions.find((x) => x.id === id)).filter(Boolean);
+    const lead = list[0];
+    if (!lead) return;
+    const d = U.diffDays(lead.date, date);
+    if (await moveSessions(list, (x) => U.addDays(x.date, d)) && selecting) setSel([]);
+  };
   // En planificar un mes (Planifica el mes), el calendari hi va sol.
   useEffect(() => { const m = MonthNav.take(p.id); if (m) setMonth(m); });
   const first = `${month}-01`;
@@ -23477,13 +23534,19 @@ function MonthView({ p, sessions }) {
           <${Btn} variant="ghost" icon="right" title="Mes següent" onClick=${() => shift(1)} />
           ${month !== U.monthKey(today) && html`<${Btn} size="sm" variant="ghost" onClick=${() => setMonth(U.monthKey(today))}>Avui</${Btn}>`}
         </div>
-        <${Btn} variant="primary" icon="calendar" onClick=${() => openPlanMonth(p, month)}>Planifica el mes</${Btn}>
+        <div class="inline">
+          <${Btn} variant=${selecting ? 'secondary' : 'ghost'} icon="check" onClick=${() => { setSelecting(!selecting); setSel([]); }}
+            title="Selecciona sessions per moure-les o eliminar-les">${selecting ? 'Selecció activa' : 'Selecciona'}</${Btn}>
+          <${Btn} variant="primary" icon="calendar" onClick=${() => openPlanMonth(p, month)}>Planifica el mes</${Btn}>
+        </div>
         <div class="kv-row">
           <div class="kv"><span>Sessions fetes</span><strong>${done.length}<small> / ${inMonth.length}</small></strong></div>
           <div class="kv"><span>Càrrega del mes</span><strong>${loads.length ? `${U.fmt(loads.reduce((a, b) => a + b, 0), 0)} UA` : '—'}</strong></div>
           <div class="kv"><span>RPE mitjà</span><strong>${rpes.length ? U.fmt(rpes.reduce((a, b) => a + b, 0) / rpes.length, 1) : '—'}</strong></div>
         </div>
       </div>
+      ${selecting && html`<${CalSelectBar} selected=${sel.map((id) => sessions.find((x) => x.id === id)).filter(Boolean)} monthSessions=${inMonth}
+        onSelect=${setSel} onDone=${(changed) => { setSel([]); if (!changed) setSelecting(false); }} />`}
       <div class="cal-wrap">
         <div class="cal" role="group" aria-label=${`Calendari ${U.ofMonth(month)}`}>
           ${['dl', 'dt', 'dc', 'dj', 'dv', 'ds', 'dg'].map((d) => html`<div class="cal-h">${d}</div>`)}
@@ -23493,13 +23556,18 @@ function MonthView({ p, sessions }) {
               const date = U.addDays(w.start, i);
               const out = date < first || date > last;
               const list = sessions.filter((s) => s.date === date);
-              return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')}>
+              return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')} data-date=${date}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
                 ${list.map((s) => {
                   const quick = !sessionFilled(s);
                   const nums = sessionNums(s);
-                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick')}
-                    onClick=${() => (quick ? openQuickSession(p, { s }) : go('sessio', s.id))} title=${sessionTitle(s, quick)}>
+                  const picked = sel.includes(s.id);
+                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick', selecting && 'selectable', picked && 'picked')}
+                    ...${CalDrag.props(() => (selecting && picked ? sel : [s.id]), `S${s.number || ''} · ${s.goal || 'Sessió'}`, onDrop)}
+                    aria-pressed=${selecting ? picked : undefined}
+                    onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
+                    title=${selecting ? 'Toca per seleccionar-la' : `${sessionTitle(s, quick)} · Arrossega-la (o mantén-la premuda) per canviar-la de dia`}>
+                    ${selecting && html`<span class="cal-s-check" aria-hidden="true">${picked ? '✓' : ''}</span>`}
                     <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
                     ${nums}
@@ -23527,7 +23595,7 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -25954,6 +26022,254 @@ function SessionTime({ s, compact }) {
     <span class="stime-band">${band.label}${band.key === 'ideal' ? ' · cap a 1 h' : band.key === 'short' ? ` · falten ≈ ${60 - d.minutes} min per a 1 h` : ` · ≈ ${d.minutes - 60} min de més`}</span>
     <span class="stime-bar" aria-hidden="true"><span style=${`width:${pct}%`}></span><i></i></span>
   </div>`;
+}
+
+
+/* ── 38-calendar.js ── */
+/* EON Life · calendari: moure sessions arrossegant-les d'un dia a un altre (ratolí o dit), seleccionar-ne diverses per
+   moure-les o eliminar-les de cop, la gràfica RPE/EVA de la fitxa i el calendari de la setmana de l'Inici. */
+
+// ── Arrossegar sessions ──
+// Ratolí: comença en moure uns píxels. Dit: mantenir-la premuda un moment (així el desplaçament normal de la pàgina no
+// es trenca). Els dies del calendari porten data-date; en deixar-la anar, onDrop(ids, data).
+const CalDrag = {
+  st: null,
+  last: 0,
+  // Després d'arrossegar, el clic que ve darrere no ha d'obrir la sessió.
+  recent() { return Date.now() - this.last < 450; },
+  props(getIds, label, onDrop) {
+    return {
+      onMouseDown: (e) => { if (e.button === 0) CalDrag.arm(e.clientX, e.clientY, false, getIds, label, onDrop); },
+      onTouchStart: (e) => { const t = e.touches && e.touches[0]; if (t && e.touches.length === 1) CalDrag.arm(t.clientX, t.clientY, true, getIds, label, onDrop); },
+      onContextMenu: (e) => { if (CalDrag.st) e.preventDefault(); },
+    };
+  },
+  arm(x, y, touch, getIds, label, onDrop) {
+    this.cleanup();
+    const st = { x0: x, y0: y, x, y, touch, getIds, label, onDrop, active: false, timer: 0, ghost: null, over: null };
+    this.st = st;
+    const move = (cx, cy, ev) => {
+      if (this.st !== st) return;
+      st.x = cx; st.y = cy;
+      if (!st.active) {
+        const d = Math.hypot(cx - st.x0, cy - st.y0);
+        if (touch) { if (d > 10) this.cleanup(); return; }
+        if (d < 6) return;
+        this.begin();
+      }
+      if (ev && ev.cancelable) ev.preventDefault();
+      this.track();
+    };
+    st.onMM = (e) => move(e.clientX, e.clientY, e);
+    st.onTM = (e) => { const t = e.touches && e.touches[0]; if (t) move(t.clientX, t.clientY, e); };
+    st.onUp = () => this.finish();
+    if (touch) {
+      st.timer = setTimeout(() => { if (this.st === st) this.begin(); }, 380);
+      window.addEventListener('touchmove', st.onTM, { passive: false });
+      window.addEventListener('touchend', st.onUp);
+      window.addEventListener('touchcancel', st.onUp);
+    } else {
+      window.addEventListener('mousemove', st.onMM);
+      window.addEventListener('mouseup', st.onUp);
+    }
+  },
+  begin() {
+    const st = this.st;
+    if (!st || st.active) return;
+    st.active = true;
+    st.ids = st.getIds();
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) { /* res */ }
+    const g = document.createElement('div');
+    g.className = 'cal-ghost';
+    g.textContent = st.ids.length > 1 ? `${st.ids.length} sessions` : st.label;
+    document.body.appendChild(g);
+    st.ghost = g;
+    document.body.classList.add('cal-dragging');
+    this.track();
+  },
+  track() {
+    const st = this.st;
+    if (!st || !st.active) return;
+    st.ghost.style.transform = `translate(${st.x + 14}px, ${st.y + 14}px)`;
+    // A prop de la vora de la pantalla, la pàgina es desplaça per arribar als dies que no es veuen.
+    const edge = 70, h = window.innerHeight;
+    if (st.y > h - edge) window.scrollBy(0, Math.round((st.y - (h - edge)) / 3) + 4);
+    else if (st.y < edge) window.scrollBy(0, -Math.round((edge - st.y) / 3) - 4);
+    const el = document.elementFromPoint(st.x, st.y);
+    const over = el && el.closest ? el.closest('[data-date]') : null;
+    if (over !== st.over) {
+      if (st.over) st.over.classList.remove('cal-drop');
+      if (over) over.classList.add('cal-drop');
+      st.over = over;
+    }
+  },
+  finish() {
+    const st = this.st;
+    if (!st) return;
+    const date = st.active && st.over ? st.over.getAttribute('data-date') : null;
+    if (st.active) this.last = Date.now();
+    this.cleanup();
+    if (date) st.onDrop(st.ids, date);
+  },
+  cleanup() {
+    const st = this.st;
+    if (!st) return;
+    clearTimeout(st.timer);
+    window.removeEventListener('touchmove', st.onTM, { passive: false });
+    window.removeEventListener('touchend', st.onUp);
+    window.removeEventListener('touchcancel', st.onUp);
+    window.removeEventListener('mousemove', st.onMM);
+    window.removeEventListener('mouseup', st.onUp);
+    if (st.ghost) st.ghost.remove();
+    if (st.over) st.over.classList.remove('cal-drop');
+    document.body.classList.remove('cal-dragging');
+    this.st = null;
+  },
+};
+
+// Mou sessions: to(sessió) → data nova. Demana confirmació si n'hi ha de fetes. Retorna quantes s'han mogut.
+async function moveSessions(list, to) {
+  const moves = list.map((s) => ({ s, date: to(s) })).filter((m) => m.date && m.date !== m.s.date);
+  if (!moves.length) return 0;
+  const done = moves.filter((m) => m.s.status === 'feta').length;
+  if (done && !(await UI.confirm({
+    title: done === moves.length && done === 1 ? 'Moure una sessió feta?' : 'Moure sessions fetes?',
+    text: `${done === 1 ? 'Una de les sessions ja està feta' : `${done} de les sessions ja estan fetes`}: es canviarà la data on es van fer (i els seus resultats aniran amb la data nova).`,
+    ok: 'Mou-les igualment',
+  }))) return 0;
+  for (const m of moves) Store.update('sessions', m.s.id, (x) => { x.date = m.date; });
+  UI.toast(moves.length === 1 ? `Sessió ${moves[0].s.number || ''} moguda al ${U.fmtDate(moves[0].date)}.` : `${moves.length} sessions mogudes.`);
+  return moves.length;
+}
+
+async function deleteSessions(list) {
+  if (!list.length) return 0;
+  const done = list.filter((s) => s.status === 'feta').length;
+  const ok = await UI.confirm({
+    title: list.length === 1 ? 'Eliminar la sessió?' : `Eliminar ${list.length} sessions?`,
+    text: `${list.length === 1 ? `Sessió ${list[0].number || ''} del ${U.fmtDate(list[0].date)}.` : list.map((s) => `S${s.number || ''} (${U.fmtDateShort(s.date)})`).join(', ')}${done ? ` Compte: ${done === 1 ? 'una ja està feta i es perdran els seus resultats' : `${done} ja estan fetes i es perdran els seus resultats`}.` : ''}`,
+    ok: 'Elimina', danger: true,
+  });
+  if (!ok) return 0;
+  for (const s of list) Store.remove('sessions', s.id);
+  UI.toast(list.length === 1 ? 'Sessió eliminada.' : `${list.length} sessions eliminades.`);
+  return list.length;
+}
+
+// Barra d'accions de la selecció del seguiment mensual.
+function CalSelectBar({ selected, monthSessions, onSelect, onDone }) {
+  const n = selected.length;
+  const shift = async (d) => { if (await moveSessions(selected, (s) => U.addDays(s.date, d))) onDone(true); };
+  const toDate = async () => {
+    const first = U.sortBy(selected, 'date')[0];
+    const date = await askDate({ title: n > 1 ? `Moure ${n} sessions` : 'Canviar la data', label: n > 1 ? 'Nova data de la primera (les altres es mouen igual)' : 'Nova data', value: first ? first.date : U.today() });
+    if (!date || !first) return;
+    const d = U.diffDays(first.date, date);
+    if (await moveSessions(selected, (s) => U.addDays(s.date, d))) onDone(true);
+  };
+  const del = async () => { if (await deleteSessions(selected)) onDone(true); };
+  return html`<div class="cal-selbar" role="toolbar" aria-label="Accions de la selecció">
+    <strong>${n ? U.plural(n, 'sessió seleccionada', 'sessions seleccionades') : 'Toca les sessions per seleccionar-les'}</strong>
+    <span class="grow"></span>
+    ${monthSessions.length > 0 && html`<${Btn} size="sm" variant="ghost" onClick=${() => onSelect(n === monthSessions.length ? [] : monthSessions.map((s) => s.id))}>${n === monthSessions.length ? 'Cap' : 'Tot el mes'}</${Btn}>`}
+    ${n > 0 && html`
+      <${Btn} size="sm" onClick=${() => shift(-1)} title="Un dia abans">−1 dia</${Btn}>
+      <${Btn} size="sm" onClick=${() => shift(1)} title="Un dia després">+1 dia</${Btn}>
+      <${Btn} size="sm" onClick=${() => shift(7)} title="Una setmana després">+1 setmana</${Btn}>
+      <${Btn} size="sm" icon="calendar" onClick=${toDate}>Canvia la data…</${Btn}>
+      <${Btn} size="sm" variant="danger" icon="trash" onClick=${del}>Elimina</${Btn}>`}
+    <${Btn} size="sm" variant="ghost" icon="x" onClick=${() => onDone(false)}>Fet</${Btn}>
+  </div>`;
+}
+
+// ── Gràfica RPE i EVA de la fitxa del pacient ──
+function RpeEvaCard({ p, sessions, inner }) {
+  const from = U.addMonths(U.today(), -3);
+  const rows = sessions.filter((s) => s.date >= from && s.date <= U.today())
+    .map((s) => ({ date: s.date, rpe: U.num(s.feedback && s.feedback.rpe), pain: U.num(s.feedback && s.feedback.pain) }))
+    .filter((r) => r.rpe != null || r.pain != null);
+  const avg = (k) => { const v = rows.map((r) => r[k]).filter((x) => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+  // Tendència: mitjana de la meitat recent menys la de la primera meitat.
+  const trend = (k) => {
+    const v = rows.map((r) => r[k]).filter((x) => x != null);
+    if (v.length < 4) return null;
+    const h = Math.floor(v.length / 2), a = v.slice(0, h), b = v.slice(-h);
+    return b.reduce((x, y) => x + y, 0) / b.length - a.reduce((x, y) => x + y, 0) / a.length;
+  };
+  const arrow = (d, hiBad) => (d == null || Math.abs(d) < 0.5 ? html`<span class="muted">estable</span>`
+    : html`<span class=${U.cls('trend', (hiBad ? d > 0 : false) && 'trend-bad', (hiBad ? d < 0 : false) && 'trend-good')}>${d > 0 ? '↑ puja' : '↓ baixa'} ${U.fmt(Math.abs(d), 1)}</span>`);
+  return html`<section class=${U.cls('rpeeva', inner ? 'rpeeva-inner' : 'card')}>
+    <div class="card-head"><h2 class=${inner ? 'h3' : 'h2'}>RPE i EVA · últims 3 mesos</h2>
+      <${Btn} size="sm" icon="chart" onClick=${() => go('informesessions', p.id)}>Informe complet</${Btn}></div>
+    ${rows.length ? html`
+      <div class="kv-row">
+        <div class="kv"><span>RPE mitjà</span><strong>${avg('rpe') == null ? '—' : U.fmt(avg('rpe'), 1)}</strong><small>${arrow(trend('rpe'), false)}</small></div>
+        <div class="kv"><span>EVA mitjana (dolor en acabar)</span><strong>${avg('pain') == null ? '—' : U.fmt(avg('pain'), 1)}</strong><small>${arrow(trend('pain'), true)}</small></div>
+        <div class="kv"><span>Sessions amb dades</span><strong>${rows.length}</strong></div>
+      </div>
+      <${LineChart} series=${[
+        { name: 'RPE (esforç)', color: 'var(--series-1)', points: rows.map((r) => ({ x: r.date, y: r.rpe })) },
+        { name: 'EVA (dolor en acabar)', color: 'var(--series-2)', points: rows.map((r) => ({ x: r.date, y: r.pain })) },
+      ]} yMin=${0} yMax=${10} decimals=${0} height=${200} ariaLabel="Evolució de l'RPE i l'EVA dels últims 3 mesos" />`
+      : html`<p class="muted">Encara no hi ha sessions dels últims 3 mesos amb RPE o EVA. S'omplen al tancament de cada sessió.</p>`}
+  </section>`;
+}
+
+// ── Calendari de la setmana (Inici) ──
+function WeekCalendar() {
+  const today = U.today();
+  const [wk, setWk] = useState(() => U.weekStart(today));
+  const [prof, setProf] = useState(() => { try { return window.localStorage.getItem('eon.weekProf') || ''; } catch (e) { return ''; } });
+  const pickProf = (v) => { setProf(v); try { window.localStorage.setItem('eon.weekProf', v); } catch (e) { /* res */ } };
+  const end = U.addDays(wk, 6);
+  const name = (pid) => { const p = Store.get('patients', pid); return p ? U.fullName(p) : 'Pacient'; };
+  const profOf = (pid) => { const p = Store.get('patients', pid); return (p && p.professional) || ''; };
+  const okProf = (x, pid) => !prof || (x || profOf(pid)) === prof;
+  const sessions = Store.all('sessions').filter((s) => s.date >= wk && s.date <= end && okProf(s.professional, s.patientId));
+  const assessments = Store.all('assessments').filter((a) => a.date >= wk && a.date <= end && okProf(a.professional, a.patientId));
+  const retests = Store.patients().filter((p) => p.status === 'actiu' && okProf(p.professional, p.id))
+    .map((p) => ({ p, r: Calc.retestDue(Store.assessmentsOf(p.id)) }))
+    .filter((x) => x.r && x.r.due >= wk && x.r.due <= end);
+  const profs = Store.professionals();
+  const days = [0, 1, 2, 3, 4, 5, 6].map((i) => U.addDays(wk, i));
+  const total = sessions.length + assessments.length + retests.length;
+  return html`<section class="card weekcal" aria-label="Calendari de la setmana">
+    <div class="card-head weekcal-head">
+      <div class="month-nav">
+        <${Btn} variant="ghost" icon="left" title="Setmana anterior" onClick=${() => setWk(U.addDays(wk, -7))} />
+        <h2 class="h2">${wk === U.weekStart(today) ? 'Aquesta setmana' : `Setmana del ${U.fmtDateShort(wk)}`}</h2>
+        <${Btn} variant="ghost" icon="right" title="Setmana següent" onClick=${() => setWk(U.addDays(wk, 7))} />
+        ${wk !== U.weekStart(today) && html`<${Btn} size="sm" variant="ghost" onClick=${() => setWk(U.weekStart(today))}>Avui</${Btn}>`}
+      </div>
+      <div class="weekcal-filter">
+        <${Select} value=${prof} onValue=${pickProf} options=${profs.map((x) => ({ v: x, label: x }))} placeholder="Tots els professionals" ariaLabel="Filtra per professional" />
+        <span class="muted small">${U.plural(sessions.length, 'sessió', 'sessions')} · ${U.plural(assessments.length + retests.length, 'valoració', 'valoracions')}</span>
+      </div>
+    </div>
+    <div class="weekcal-grid">${days.map((d) => {
+      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => U.norm(name(s.patientId)));
+      const aa = assessments.filter((a) => a.date === d);
+      const rr = retests.filter((x) => x.r.due === d);
+      return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
+        <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
+        ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)}
+          title=${[name(s.patientId), `Sessió ${s.number || ''}`, s.goal, s.professional].filter(Boolean).join(' · ')}>
+          <span class="weekcal-who">${name(s.patientId)}</span>
+          <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
+        </button>`)}
+        ${aa.map((a) => html`<button type="button" class="weekcal-it assess" onClick=${() => go('valoracio', a.id)} title=${`Valoració · ${name(a.patientId)}`}>
+          <span class="weekcal-who">${name(a.patientId)}</span><span class="weekcal-what">Valoració</span>
+        </button>`)}
+        ${rr.map((x) => html`<button type="button" class="weekcal-it retest" onClick=${() => go('client', x.p.id, 'valoracions')} title="Toca el re-test">
+          <span class="weekcal-who">${U.fullName(x.p)}</span><span class="weekcal-what">Re-test pendent</span>
+        </button>`)}
+        ${!ss.length && !aa.length && !rr.length && html`<span class="weekcal-empty">—</span>`}
+      </div>`;
+    })}</div>
+    ${!total && html`<p class="muted small">No hi ha res programat aquesta setmana${prof ? ` per a ${prof}` : ''}.</p>`}
+    <div class="cal-legend"><span><i class="cal-key done"></i>Sessió feta</span><span><i class="cal-key plan"></i>Sessió programada</span>
+      <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
+  </section>`;
 }
 
 

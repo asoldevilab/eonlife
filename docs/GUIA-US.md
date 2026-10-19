@@ -392,6 +392,18 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
   no tenen descans propi (les voltes són les seves sèries). També es pot convertir un subbloc qualsevol amb el botó
   **Superserie**. Es veu al full de la sessió i als Excel com *Bloc 2 · Superserie · 3 voltes · descans 90 s entre voltes*.
 
+### Calendari: moure i eliminar sessions
+
+- Al **Seguiment mensual**, arrossega una sessió (programada o feta) a un altre dia per moure-la. Amb el dit, mantén-la premuda
+  un moment i després arrossega-la. Si és una sessió feta, l'app demana confirmació.
+- **Selecciona** activa la selecció: toca les sessions que vulguis (o «Tot el mes») i fes servir **−1 dia**, **+1 dia**,
+  **+1 setmana**, **Canvia la data…** (la primera va a la data triada i les altres es mouen igual) o **Elimina**. També pots
+  arrossegar-ne una de seleccionada i es mouen totes les seleccionades.
+- A l'**Inici** hi ha el **calendari de la setmana**: sessions (programades i fetes), valoracions i re-tests pendents de cada
+  dia, amb fletxes per canviar de setmana i un filtre per professional (es recorda en aquella tauleta).
+- A la fitxa del pacient (**Resum** i **Sessions**) hi ha la gràfica **RPE i EVA · últims 3 mesos**, amb les mitjanes i si
+  pugen o baixen. Per triar unes altres dates i treure'n el PDF: **Informe complet**.
+
 ### Durada estimada de la sessió
 
 A dalt de cada sessió surt la **durada estimada** (p. ex. *≈ 58 min*) amb un color: **blau** si és curta (menys de 50 min),
