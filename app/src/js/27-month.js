@@ -5,6 +5,18 @@ function MonthView({ p, sessions }) {
   const today = U.today();
   const [month, setMonth] = useState(() => MonthNav.take(p.id) || U.monthKey(today));
   const [allBlocks, setAllBlocks] = useState(false);
+  // Selecció de sessions per moure-les o eliminar-les de cop.
+  const [selecting, setSelecting] = useState(false);
+  const [sel, setSel] = useState([]);
+  const toggleSel = (id) => setSel(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]);
+  // Arrossegar: si la sessió és dins la selecció, es mouen totes les seleccionades els mateixos dies.
+  const onDrop = async (ids, date) => {
+    const list = ids.map((id) => sessions.find((x) => x.id === id)).filter(Boolean);
+    const lead = list[0];
+    if (!lead) return;
+    const d = U.diffDays(lead.date, date);
+    if (await moveSessions(list, (x) => U.addDays(x.date, d)) && selecting) setSel([]);
+  };
   // En planificar un mes (Planifica el mes), el calendari hi va sol.
   useEffect(() => { const m = MonthNav.take(p.id); if (m) setMonth(m); });
   const first = `${month}-01`;
@@ -40,13 +52,19 @@ function MonthView({ p, sessions }) {
           <${Btn} variant="ghost" icon="right" title="Mes següent" onClick=${() => shift(1)} />
           ${month !== U.monthKey(today) && html`<${Btn} size="sm" variant="ghost" onClick=${() => setMonth(U.monthKey(today))}>Avui</${Btn}>`}
         </div>
-        <${Btn} variant="primary" icon="calendar" onClick=${() => openPlanMonth(p, month)}>Planifica el mes</${Btn}>
+        <div class="inline">
+          <${Btn} variant=${selecting ? 'secondary' : 'ghost'} icon="check" onClick=${() => { setSelecting(!selecting); setSel([]); }}
+            title="Selecciona sessions per moure-les o eliminar-les">${selecting ? 'Selecció activa' : 'Selecciona'}</${Btn}>
+          <${Btn} variant="primary" icon="calendar" onClick=${() => openPlanMonth(p, month)}>Planifica el mes</${Btn}>
+        </div>
         <div class="kv-row">
           <div class="kv"><span>Sessions fetes</span><strong>${done.length}<small> / ${inMonth.length}</small></strong></div>
           <div class="kv"><span>Càrrega del mes</span><strong>${loads.length ? `${U.fmt(loads.reduce((a, b) => a + b, 0), 0)} UA` : '—'}</strong></div>
           <div class="kv"><span>RPE mitjà</span><strong>${rpes.length ? U.fmt(rpes.reduce((a, b) => a + b, 0) / rpes.length, 1) : '—'}</strong></div>
         </div>
       </div>
+      ${selecting && html`<${CalSelectBar} selected=${sel.map((id) => sessions.find((x) => x.id === id)).filter(Boolean)} monthSessions=${inMonth}
+        onSelect=${setSel} onDone=${(changed) => { setSel([]); if (!changed) setSelecting(false); }} />`}
       <div class="cal-wrap">
         <div class="cal" role="group" aria-label=${`Calendari ${U.ofMonth(month)}`}>
           ${['dl', 'dt', 'dc', 'dj', 'dv', 'ds', 'dg'].map((d) => html`<div class="cal-h">${d}</div>`)}
@@ -56,13 +74,18 @@ function MonthView({ p, sessions }) {
               const date = U.addDays(w.start, i);
               const out = date < first || date > last;
               const list = sessions.filter((s) => s.date === date);
-              return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')}>
+              return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')} data-date=${date}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
                 ${list.map((s) => {
                   const quick = !sessionFilled(s);
                   const nums = sessionNums(s);
-                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick')}
-                    onClick=${() => (quick ? openQuickSession(p, { s }) : go('sessio', s.id))} title=${sessionTitle(s, quick)}>
+                  const picked = sel.includes(s.id);
+                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick', selecting && 'selectable', picked && 'picked')}
+                    ...${CalDrag.props(() => (selecting && picked ? sel : [s.id]), `S${s.number || ''} · ${s.goal || 'Sessió'}`, onDrop)}
+                    aria-pressed=${selecting ? picked : undefined}
+                    onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
+                    title=${selecting ? 'Toca per seleccionar-la' : `${sessionTitle(s, quick)} · Arrossega-la (o mantén-la premuda) per canviar-la de dia`}>
+                    ${selecting && html`<span class="cal-s-check" aria-hidden="true">${picked ? '✓' : ''}</span>`}
                     <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
                     ${nums}
@@ -90,7 +113,7 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
