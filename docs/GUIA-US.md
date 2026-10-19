@@ -399,6 +399,7 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
 - **Selecciona** activa la selecció: toca les sessions que vulguis (o «Tot el mes») i fes servir **−1 dia**, **+1 dia**,
   **+1 setmana**, **Canvia la data…** (la primera va a la data triada i les altres es mouen igual) o **Elimina**. També pots
   arrossegar-ne una de seleccionada i es mouen totes les seleccionades.
+- Al Seguiment mensual també hi surten les **valoracions** (inicial, re-test, control) en blau clar, amb ✓ si ja s'han fet; tocant-les s'obren.
 - A l'**Inici** hi ha el **calendari de la setmana**: sessions (programades i fetes), valoracions i re-tests pendents de cada
   dia, amb fletxes per canviar de setmana i un filtre per professional (es recorda en aquella tauleta).
 - A la fitxa del pacient (**Resum** i **Sessions**) hi ha la gràfica **RPE i EVA · últims 3 mesos**, amb les mitjanes i si
