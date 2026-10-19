@@ -24,6 +24,10 @@ function MonthView({ p, sessions }) {
   const gridStart = U.weekStart(first);
   const weeksCount = Math.ceil((U.diffDays(gridStart, last) + 1) / 7);
   const inMonth = sessions.filter((s) => s.date >= first && s.date <= last);
+  // Valoracions (inicial, re-test, control…): surten al calendari en un color clar, fetes si la data ja ha passat.
+  const assessList = Store.assessmentsOf(p.id);
+  const assessMonth = assessList.filter((a) => a.date >= first && a.date <= last);
+  const assessLabel = (a) => ((OPT.assessmentTypes || []).find((t) => t.v === a.type) || {}).label || 'Valoració';
   const done = inMonth.filter((s) => s.status === 'feta');
   const loads = done.map(Calc.sessionLoad).filter((n) => n != null);
   const rpes = done.map((s) => U.num(s.feedback && s.feedback.rpe)).filter((n) => n != null);
@@ -60,6 +64,7 @@ function MonthView({ p, sessions }) {
         <div class="kv-row">
           <div class="kv"><span>Sessions fetes</span><strong>${done.length}<small> / ${inMonth.length}</small></strong></div>
           <div class="kv"><span>Càrrega del mes</span><strong>${loads.length ? `${U.fmt(loads.reduce((a, b) => a + b, 0), 0)} UA` : '—'}</strong></div>
+          <div class="kv"><span>Valoracions</span><strong>${assessMonth.length}</strong></div>
           <div class="kv"><span>RPE mitjà</span><strong>${rpes.length ? U.fmt(rpes.reduce((a, b) => a + b, 0) / rpes.length, 1) : '—'}</strong></div>
         </div>
       </div>
@@ -74,6 +79,7 @@ function MonthView({ p, sessions }) {
               const date = U.addDays(w.start, i);
               const out = date < first || date > last;
               const list = sessions.filter((s) => s.date === date);
+              const evals = assessList.filter((a) => a.date === date);
               return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')} data-date=${date}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
                 ${list.map((s) => {
@@ -91,13 +97,18 @@ function MonthView({ p, sessions }) {
                     ${nums}
                   </button>`;
                 })}
+                ${evals.map((a) => html`<button type="button" class=${U.cls('cal-s', 'assess', a.date > today && 'future')} onClick=${() => { if (!CalDrag.recent()) go('valoracio', a.id); }}
+                  title=${`${assessLabel(a)}${a.date > today ? ' · programada' : ' · feta'} · toca-la per obrir-la`}>
+                  <span class="cal-s-n">${assessLabel(a)}${a.date <= today ? ' ✓' : ''}</span>
+                  <span class="cal-s-goal">${a.professional ? `Valoració · ${a.professional}` : 'Valoració'}</span>
+                </button>`)}
                 ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
                   title=${`Prevista al pla «${x.plan.name}». Toca-la per preparar-la.`}>
                   <span class="cal-s-n">S${x.ps.n} del pla</span>
                   <span class="cal-s-goal">${x.ps.goal || x.ps.phase || x.plan.goal || x.plan.name}</span>
                 </button>`)}
-                ${!list.length && !planned[date] && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
-                ${!out && !list.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openCalendarAdd(p, date)}><${Icon} name="plus" size=${15} /></button>`}
+                ${!list.length && !evals.length && !planned[date] && !out && i === 6 && html`<span class="cal-off">OFF</span>`}
+                ${!out && !list.length && !evals.length && !planned[date] && i < 6 && html`<button type="button" class="cal-add" title=${`Nova sessió el ${U.fmtDate(date)}`} onClick=${() => openCalendarAdd(p, date)}><${Icon} name="plus" size=${15} /></button>`}
               </div>`;
             })}
             <div class="cal-w">
@@ -112,6 +123,7 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key plan"></i>Programada (amb exercicis)</span>
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
+        <span><i class="cal-key assess"></i>Valoració</span>
       </div>
       <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
