@@ -467,15 +467,15 @@ const ExcelAssessment = (() => {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
       r = xlHeader(ws, r, ['Mesura', 'Valor', 'Unitat']);
       const w = ref.weight;
-      const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0'], ['Potència mínima', xlNum(a.bike.min), 'W', '0']];
+      const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0']];
       const first = r;
       for (const [l, val, u, fmt] of rows) { ws.set(r, 1, l, XS.text); ws.set(r, 2, val, [XS.cell, { fmt }]); ws.set(r, 3, u, XS.cell); r++; }
       const rel = (cell, val) => ({ f: `IF(AND(ISNUMBER(${cell}),ISNUMBER(${w}),${w}>0),${cell}/${w},"")`, v: val ?? '' });
       ws.set(r, 1, 'Pic relatiu', XS.text); ws.set(r, 2, rel(xlRef(first, 2), b.peakRel), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'W/kg', XS.cell); r++;
       ws.set(r, 1, 'Mitjana relativa', XS.text); ws.set(r, 2, rel(xlRef(first + 1, 2), b.meanRel), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'W/kg', XS.cell); r++;
-      ws.set(r, 1, 'Índex de fatiga', XS.text);
-      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 2, 2)}),${xlRef(first, 2)}>0),(${xlRef(first, 2)}-${xlRef(first + 2, 2)})/${xlRef(first, 2)}*100,"")`, v: b.fatigue == null ? '' : b.fatigue }, [XS.cell, { fmt: '0.0' }]);
-      ws.set(r, 3, '%', XS.cell); r++;
+      ws.set(r, 1, 'Potència sostinguda (mitjana ÷ pic)', XS.text);
+      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 1, 2)}),${xlRef(first, 2)}>0),${xlRef(first + 1, 2)}/${xlRef(first, 2)}*100,"")`, v: b.meanPeak == null ? '' : b.meanPeak }, [XS.cell, { fmt: '0' }]);
+      ws.set(r, 3, '% del pic', XS.cell); r++;
       // Dades de la pantalla de l'aparell (en les unitats que té la pantalla: milles o km) i treball total.
       const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
       const screen = [['Temps', xlNum(a.bike.time), 's', '0'], ['Distància', xlNum(a.bike.dist), unitName, '0.00'], ['Calories', xlNum(a.bike.cal), 'kcal', '0.0'],
@@ -597,7 +597,7 @@ const ExcelAssessment = (() => {
         if (g.kind === 'bike') {
           rows.push({ label: 'Assault bike · potència pic', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).peak }) });
           rows.push({ label: 'Assault bike · potència mitjana', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).mean != null ? Calc.bike(a).mean : xlNum((a.bike || {}).mean) }) });
-          rows.push({ label: 'Assault bike · índex de fatiga', unit: '%', fmt: '0.0', dir: -1, get: (a) => ({ v: Calc.bike(a).fatigue }) });
+          rows.push({ label: 'Assault bike · potència sostinguda', unit: '% del pic', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).meanPeak }) });
           rows.push({ label: 'Assault bike · treball total', unit: 'kJ', fmt: '0.0', dir: 1, get: (a) => ({ v: Calc.bike(a).work }) });
           rows.push({ label: 'Assault bike · distància', unit: 'm', fmt: '0', dir: 1, get: (a) => { const d = Calc.bike(a).distKm; return { v: d != null ? d * 1000 : null }; } });
           continue;

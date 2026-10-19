@@ -206,7 +206,7 @@ const NoeTools = (() => {
           y_balance: ybt.d.comp != null || ybt.e.comp != null ? compact({ composite_d: ybt.d.comp, composite_e: ybt.e.comp, dif_anterior_cm: ybt.antDiff }) : '',
           patrons: patterns,
           carrega_velocitat: Calc.lvpAnalysis(a, prev).filter((x) => x.fit).map((x) => compact({ exercici: x.name || LVP.preset(x.preset).name, punts: x.rows.map((r) => ({ kg: r.load, m_s: r.mv })), v0_m_s: U.round(x.fit.v0, 2), l0_kg: x.fit.l0 != null ? U.round(x.fit.l0, 0) : '', r2: x.fit.r2 != null ? U.round(x.fit.r2, 3) : '', velocitat_minima_m_s: x.mvt, rm_estimada_kg: x.rm != null ? U.round(x.rm, 0) : '', canvi_rm_kg: x.cmp && x.cmp.rmDiff != null ? U.round(x.cmp.rmDiff, 0) : '', avisos: x.warns })),
-          assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, fatiga_pct: bike.fatigue }) : '',
+          assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, sostinguda_pct_pic: bike.meanPeak }) : '',
           conclusions: compact({ forts: enc(ctx, short((a.conclusions || {}).strengths, 300)), prioritats: enc(ctx, short((a.conclusions || {}).priorities, 300)), pla: enc(ctx, short((a.conclusions || {}).plan, 300)) }),
           canvis_respecte_anterior: prev ? Calc.compare(a, prev, true).slice(0, 14).map((c) => compact({ nom: c.label, anterior: c.prev, actual: c.cur, canvi: c.delta, millora: c.better === true ? true : c.better === false ? false : '' })) : '',
         });

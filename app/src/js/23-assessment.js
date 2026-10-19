@@ -489,7 +489,6 @@ function BikeBlock({ a, p, upd }) {
     <div class="form-grid form-grid-4">
       <${Field} label="Potència pic"><${NumInput} value=${b.peak} onValue=${set('peak')} unit="W" /></${Field}>
       <${Field} label="Potència mitjana"><${NumInput} value=${b.mean} onValue=${set('mean')} unit="W" /></${Field}>
-      <${Field} label="Potència mínima"><${NumInput} value=${b.min} onValue=${set('min')} unit="W" /></${Field}>
       <${Field} label="Temps"><${NumInput} value=${b.time} onValue=${set('time')} unit="s" /></${Field}>
       <${Field} label=${`Distància (${unitName})`}><${NumInput} value=${b.dist} onValue=${set('dist')} /></${Field}>
       <${Field} label="Calories"><${NumInput} value=${b.cal} onValue=${set('cal')} unit="kcal" /></${Field}>
@@ -502,7 +501,7 @@ function BikeBlock({ a, p, upd }) {
     <div class="kv-row">
       <div class="kv"><span>Pic relatiu</span><strong>${r.peakRel != null ? `${U.fmt(r.peakRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
-      <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
+      <div class="kv"><span>Potència sostinguda</span><strong>${r.meanPeak != null ? `${U.fmt(r.meanPeak, 0)} %` : '—'}</strong><small>mitjana ÷ pic</small></div>
       <div class="kv"><span>Treball total</span><strong>${r.work != null ? `${U.fmt(r.work, 1)} kJ` : '—'}</strong><small>potència mitjana × temps</small></div>
     </div>
     ${an && an.lines.length > 0 && html`<div class="jump-analysis">

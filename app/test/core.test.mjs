@@ -267,7 +267,7 @@ test('Assault bike: càlculs amb les dades de la pantalla', () => {
   assert.equal(Math.round(b.speedKmh * 10) / 10, 55.8);  // 34,7 mi/h
   assert.equal(Math.round(b.meanRel * 100) / 100, 11.44);
   assert.equal(Math.round(b.peakRel * 100) / 100, 13.75);
-  assert.equal(Math.round(b.fatigue * 10) / 10, 45.5);
+  assert.equal(b.fatigue, undefined, 'l\'índex de fatiga ja no es calcula');
   assert.equal(Math.round(b.meanPeak * 10) / 10, 83.2);
   assert.equal(b.work, 27.45);                          // 915 W × 30 s
   assert.equal(Math.round(b.workKg), 343);
@@ -280,7 +280,7 @@ test('Assault bike: càlculs amb les dades de la pantalla', () => {
   // Valoracions d'abans (només els watts) segueixen funcionant.
   const old = Calc.bike({ general: { weight: '70' }, bike: { peak: '720', mean: '520', min: '390' } });
   assert.equal(old.peak, 720);
-  assert.equal(Math.round(old.fatigue * 10) / 10, 45.8);
+  assert.equal(Math.round(old.meanPeak * 10) / 10, 72.2);
   assert.equal(old.work, null);
   assert.equal(old.any, true);
   assert.equal(Calc.bike({}).any, false);
@@ -301,7 +301,9 @@ test('Assault bike: anàlisi, comparació amb l\'anterior i avisos', () => {
   assert.match(warn({ time: '20' }), /temps és de 20 s/);
   assert.match(warn({ dist: '0,9' }), /no quadra amb la velocitat/);
   assert.match(warn({ peak: '800' }), /pic és més baixa que la mitjana/);
-  assert.match(warn({ min: '950' }), /mínima és més alta que la mitjana/);
+  assert.doesNotMatch(warn({ min: '950' }), /mínima/);
+  assert.ok(!an.lines.some((l) => /fatiga|mínima/i.test(l)));
+  assert.ok(an.lines.some((l) => /potència sostinguda/.test(l)));
   assert.match(warn({ mean: '40' }), /fora del rang habitual/);
   assert.match(warn({ rpm: '10' }), /RPM/);
   assert.match(Calc.bikeAnalysis({ bike: BIKE }, null).warns.join(' '), /Falta el pes/);

@@ -181,7 +181,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           <div class="kv-row">
             ${bike.peak != null && html`<div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>`}
             ${bike.mean != null && html`<div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>`}
-            ${bike.fatigue != null && html`<div class="kv"><span>Índex de fatiga</span><strong>${U.fmt(bike.fatigue, 1)} %</strong></div>`}
+            ${bike.meanPeak != null && html`<div class="kv"><span>Potència sostinguda</span><strong>${U.fmt(bike.meanPeak, 0)} %</strong><small>de la potència pic</small></div>`}
             ${bike.work != null && html`<div class="kv"><span>Treball total</span><strong>${U.fmt(bike.work, 1)} kJ</strong></div>`}
             ${bike.distKm != null && html`<div class="kv"><span>Distància</span><strong>${U.fmt(bike.distKm * 1000, 0)} m</strong>${bike.speedKmh != null && html`<small>${U.fmt(bike.speedKmh, 1)} km/h de mitjana</small>`}</div>`}
             ${bike.cal != null && html`<div class="kv"><span>Energia</span><strong>${U.fmt(bike.cal, 1)} kcal</strong>${bike.calMin != null && html`<small>${U.fmt(bike.calMin, 1)} kcal/min</small>`}</div>`}

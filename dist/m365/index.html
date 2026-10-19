@@ -4226,7 +4226,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-19 10:45";
+window.EON_BUILD = "2026-10-19 10:46";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6446,7 +6446,6 @@ const Calc = {
       speedKmh: speed != null ? speed * k : null,
       peakRel: peak != null && w ? peak / w : null,
       meanRel: mean != null && w ? mean / w : null,
-      fatigue: peak && min != null ? ((peak - min) / peak) * 100 : null,
       meanPeak: peak && mean != null ? (mean / peak) * 100 : null,
       work: mean != null && time ? (mean * time) / 1000 : null,
       workKg: mean != null && time && w ? (mean * time) / w : null,
@@ -6468,7 +6467,6 @@ const Calc = {
     const lines = [], more = [], warns = [];
     const add = (text, extra) => { lines.push(text); if (extra) more.push(text); };
     if (b.mean != null) add(`Potència mitjana ${f0(b.mean)} W${b.meanRel != null ? ` (${f1(b.meanRel)} W/kg)` : ''}${b.meanPeak != null ? `: el ${f0(b.meanPeak)} % de la potència pic` : ''}.`, false);
-    if (b.meanPeak != null) more.push(`La potència mitjana és el ${f0(b.meanPeak)} % de la potència pic: com més a prop del 100 %, més sostinguda ha estat la potència.`);
     if (b.peak != null) add(`Potència pic ${f0(b.peak)} W${b.peakRel != null ? ` (${f1(b.peakRel)} W/kg)` : ''}.`, false);
     if (b.work != null) { add(`Treball total ${f1(b.work)} kJ en ${f0(b.time)} s${b.workKg != null ? ` (${f0(b.workKg)} J/kg)` : ''}.`, false); if (b.workKg != null) more.push(`Treball relatiu al pes: ${f0(b.workKg)} J/kg.`); }
     {
@@ -6482,7 +6480,6 @@ const Calc = {
       add(`Energia ${f1(b.cal)} kcal${b.calMin != null ? ` (${f1(b.calMin)} kcal/min${b.calKg != null ? `, ${U.fmt(b.calKg, 2)} kcal/kg` : ''})` : ''}.`, false);
       if (b.calMin != null) more.push(`Ritme d'energia: ${f1(b.calMin)} kcal/min${b.calKg != null ? ` (${U.fmt(b.calKg, 2)} kcal per kg de pes)` : ''}.`);
     }
-    if (b.fatigue != null) add(`Índex de fatiga ${f1(b.fatigue)} % (de ${f0(b.peak)} W de pic a ${f0(b.min)} W de mínima): com més baix, més bona resistència a la fatiga.`, true);
     if (pb && pb.any) {
       const bits = [];
       const cmp = (label, now, before, d, unit) => {
@@ -6494,13 +6491,12 @@ const Calc = {
       cmp('pic', b.peak, pb.peak, 0, 'W');
       cmp('W/kg mitjans', b.meanRel, pb.meanRel, 1, 'W/kg');
       cmp('distància', b.distKm, pb.distKm, 2, 'km');
-      if (b.fatigue != null && pb.fatigue != null) bits.push(`fatiga ${U.fmtSigned(b.fatigue - pb.fatigue, 1)} punts`);
+      if (b.meanPeak != null && pb.meanPeak != null) bits.push(`potència sostinguda ${U.fmtSigned(b.meanPeak - pb.meanPeak, 0)} punts`);
       if (bits.length) add(`Respecte de la valoració anterior${prev.date ? ` (${U.fmtDate(prev.date)})` : ''}: ${bits.join(' · ')}.`, true);
     }
     // Avisos de dades
     if (b.time != null && Math.abs(b.time - 30) > 2) warns.push(`El temps és de ${f0(b.time)} s: la prova és de 30 s all-out. Comprova que sigui el resum del final de la prova.`);
     if (b.peak != null && b.mean != null && b.peak < b.mean) warns.push('La potència pic és més baixa que la mitjana: revisa-les.');
-    if (b.min != null && b.mean != null && b.min > b.mean) warns.push('La potència mínima és més alta que la mitjana: revisa-les.');
     if (b.mean != null && (b.mean < 60 || b.mean > 1500)) warns.push(`La potència mitjana (${f0(b.mean)} W) és fora del rang habitual: revisa si s'ha llegit bé.`);
     if (b.rpm != null && (b.rpm < 20 || b.rpm > 200)) warns.push(`Les RPM (${f0(b.rpm)}) són fora del rang habitual: revisa-les.`);
     if (b.dist != null && b.speed != null && b.time) {
@@ -7030,7 +7026,7 @@ const Flat = {
           const b = Calc.bike(a);
           o['Bike pic (W)'] = n(b.peak); o['Bike pic (W/kg)'] = n(b.peakRel);
           o['Bike mitjana (W)'] = n(b.mean); o['Bike mitjana (W/kg)'] = n(b.meanRel);
-          o['Bike índex de fatiga (%)'] = n(b.fatigue);
+          o['Bike potència sostinguda (% del pic)'] = n(b.meanPeak);
           o['Bike temps (s)'] = n(b.time); o['Bike distància (km)'] = n(b.distKm); o['Bike calories (kcal)'] = n(b.cal);
           o['Bike velocitat mitjana (km/h)'] = n(b.speedKmh); o['Bike RPM mitjanes'] = n(b.rpm); o['Bike treball (kJ)'] = n(b.work);
         }
@@ -9231,7 +9227,7 @@ const DB = (() => {
       { id: 'bikepk', group: 'Assault bike 30 s', label: 'Pic', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).peak },
       { id: 'bikepkr', group: 'Assault bike 30 s', label: 'Pic', unit: 'W/kg', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).peakRel },
       { id: 'bikemean', group: 'Assault bike 30 s', label: 'Mitjana', unit: 'W', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).mean },
-      { id: 'bikefat', group: 'Assault bike 30 s', label: 'Fatiga', unit: '%', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).fatigue },
+      { id: 'bikesust', group: 'Assault bike 30 s', label: 'Sostinguda', unit: '% del pic', kind: 'num', dec: 0, get: (r) => Calc.bike(r.a).meanPeak },
       { id: 'bikework', group: 'Assault bike 30 s', label: 'Treball', unit: 'kJ', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).work },
       { id: 'bikedist', group: 'Assault bike 30 s', label: 'Distància', unit: 'm', kind: 'num', dec: 0, get: (r) => { const d = Calc.bike(r.a).distKm; return d != null ? d * 1000 : null; } },
       { id: 'bikecal', group: 'Assault bike 30 s', label: 'Calories', unit: 'kcal', kind: 'num', dec: 1, get: (r) => Calc.bike(r.a).cal },
@@ -11307,15 +11303,15 @@ const ExcelAssessment = (() => {
       r = xlSection(ws, r, 'Assault bike  ·  30 s all-out', NC);
       r = xlHeader(ws, r, ['Mesura', 'Valor', 'Unitat']);
       const w = ref.weight;
-      const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0'], ['Potència mínima', xlNum(a.bike.min), 'W', '0']];
+      const rows = [['Potència pic', xlNum(a.bike.peak), 'W', '0'], ['Potència mitjana', xlNum(a.bike.mean), 'W', '0']];
       const first = r;
       for (const [l, val, u, fmt] of rows) { ws.set(r, 1, l, XS.text); ws.set(r, 2, val, [XS.cell, { fmt }]); ws.set(r, 3, u, XS.cell); r++; }
       const rel = (cell, val) => ({ f: `IF(AND(ISNUMBER(${cell}),ISNUMBER(${w}),${w}>0),${cell}/${w},"")`, v: val ?? '' });
       ws.set(r, 1, 'Pic relatiu', XS.text); ws.set(r, 2, rel(xlRef(first, 2), b.peakRel), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'W/kg', XS.cell); r++;
       ws.set(r, 1, 'Mitjana relativa', XS.text); ws.set(r, 2, rel(xlRef(first + 1, 2), b.meanRel), [XS.cell, { fmt: '0.0' }]); ws.set(r, 3, 'W/kg', XS.cell); r++;
-      ws.set(r, 1, 'Índex de fatiga', XS.text);
-      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 2, 2)}),${xlRef(first, 2)}>0),(${xlRef(first, 2)}-${xlRef(first + 2, 2)})/${xlRef(first, 2)}*100,"")`, v: b.fatigue == null ? '' : b.fatigue }, [XS.cell, { fmt: '0.0' }]);
-      ws.set(r, 3, '%', XS.cell); r++;
+      ws.set(r, 1, 'Potència sostinguda (mitjana ÷ pic)', XS.text);
+      ws.set(r, 2, { f: `IF(AND(ISNUMBER(${xlRef(first, 2)}),ISNUMBER(${xlRef(first + 1, 2)}),${xlRef(first, 2)}>0),${xlRef(first + 1, 2)}/${xlRef(first, 2)}*100,"")`, v: b.meanPeak == null ? '' : b.meanPeak }, [XS.cell, { fmt: '0' }]);
+      ws.set(r, 3, '% del pic', XS.cell); r++;
       // Dades de la pantalla de l'aparell (en les unitats que té la pantalla: milles o km) i treball total.
       const unitName = b.unit === 'km' ? 'km' : 'milles', speedUnit = b.unit === 'km' ? 'km/h' : 'mi/h';
       const screen = [['Temps', xlNum(a.bike.time), 's', '0'], ['Distància', xlNum(a.bike.dist), unitName, '0.00'], ['Calories', xlNum(a.bike.cal), 'kcal', '0.0'],
@@ -11437,7 +11433,7 @@ const ExcelAssessment = (() => {
         if (g.kind === 'bike') {
           rows.push({ label: 'Assault bike · potència pic', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).peak }) });
           rows.push({ label: 'Assault bike · potència mitjana', unit: 'W', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).mean != null ? Calc.bike(a).mean : xlNum((a.bike || {}).mean) }) });
-          rows.push({ label: 'Assault bike · índex de fatiga', unit: '%', fmt: '0.0', dir: -1, get: (a) => ({ v: Calc.bike(a).fatigue }) });
+          rows.push({ label: 'Assault bike · potència sostinguda', unit: '% del pic', fmt: '0', dir: 1, get: (a) => ({ v: Calc.bike(a).meanPeak }) });
           rows.push({ label: 'Assault bike · treball total', unit: 'kJ', fmt: '0.0', dir: 1, get: (a) => ({ v: Calc.bike(a).work }) });
           rows.push({ label: 'Assault bike · distància', unit: 'm', fmt: '0', dir: 1, get: (a) => { const d = Calc.bike(a).distKm; return { v: d != null ? d * 1000 : null }; } });
           continue;
@@ -14414,7 +14410,7 @@ const NoeTools = (() => {
           y_balance: ybt.d.comp != null || ybt.e.comp != null ? compact({ composite_d: ybt.d.comp, composite_e: ybt.e.comp, dif_anterior_cm: ybt.antDiff }) : '',
           patrons: patterns,
           carrega_velocitat: Calc.lvpAnalysis(a, prev).filter((x) => x.fit).map((x) => compact({ exercici: x.name || LVP.preset(x.preset).name, punts: x.rows.map((r) => ({ kg: r.load, m_s: r.mv })), v0_m_s: U.round(x.fit.v0, 2), l0_kg: x.fit.l0 != null ? U.round(x.fit.l0, 0) : '', r2: x.fit.r2 != null ? U.round(x.fit.r2, 3) : '', velocitat_minima_m_s: x.mvt, rm_estimada_kg: x.rm != null ? U.round(x.rm, 0) : '', canvi_rm_kg: x.cmp && x.cmp.rmDiff != null ? U.round(x.cmp.rmDiff, 0) : '', avisos: x.warns })),
-          assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, fatiga_pct: bike.fatigue }) : '',
+          assault_bike: bike.any ? compact({ pic_w: bike.peak, mitjana_w: bike.mean, w_kg_mitjana: bike.meanRel, sostinguda_pct_pic: bike.meanPeak }) : '',
           conclusions: compact({ forts: enc(ctx, short((a.conclusions || {}).strengths, 300)), prioritats: enc(ctx, short((a.conclusions || {}).priorities, 300)), pla: enc(ctx, short((a.conclusions || {}).plan, 300)) }),
           canvis_respecte_anterior: prev ? Calc.compare(a, prev, true).slice(0, 14).map((c) => compact({ nom: c.label, anterior: c.prev, actual: c.cur, canvi: c.delta, millora: c.better === true ? true : c.better === false ? false : '' })) : '',
         });
@@ -20985,7 +20981,6 @@ function BikeBlock({ a, p, upd }) {
     <div class="form-grid form-grid-4">
       <${Field} label="Potència pic"><${NumInput} value=${b.peak} onValue=${set('peak')} unit="W" /></${Field}>
       <${Field} label="Potència mitjana"><${NumInput} value=${b.mean} onValue=${set('mean')} unit="W" /></${Field}>
-      <${Field} label="Potència mínima"><${NumInput} value=${b.min} onValue=${set('min')} unit="W" /></${Field}>
       <${Field} label="Temps"><${NumInput} value=${b.time} onValue=${set('time')} unit="s" /></${Field}>
       <${Field} label=${`Distància (${unitName})`}><${NumInput} value=${b.dist} onValue=${set('dist')} /></${Field}>
       <${Field} label="Calories"><${NumInput} value=${b.cal} onValue=${set('cal')} unit="kcal" /></${Field}>
@@ -20998,7 +20993,7 @@ function BikeBlock({ a, p, upd }) {
     <div class="kv-row">
       <div class="kv"><span>Pic relatiu</span><strong>${r.peakRel != null ? `${U.fmt(r.peakRel, 1)} W/kg` : '—'}</strong></div>
       <div class="kv"><span>Mitjana relativa</span><strong>${r.meanRel != null ? `${U.fmt(r.meanRel, 1)} W/kg` : '—'}</strong></div>
-      <div class="kv"><span>Índex de fatiga</span><strong>${r.fatigue != null ? `${U.fmt(r.fatigue, 1)} %` : '—'}</strong><small>(pic − mínima) ÷ pic</small></div>
+      <div class="kv"><span>Potència sostinguda</span><strong>${r.meanPeak != null ? `${U.fmt(r.meanPeak, 0)} %` : '—'}</strong><small>mitjana ÷ pic</small></div>
       <div class="kv"><span>Treball total</span><strong>${r.work != null ? `${U.fmt(r.work, 1)} kJ` : '—'}</strong><small>potència mitjana × temps</small></div>
     </div>
     ${an && an.lines.length > 0 && html`<div class="jump-analysis">
@@ -22401,7 +22396,7 @@ function AssessmentReport({ id, scope: scopeParam = 'tot' }) {
           <div class="kv-row">
             ${bike.peak != null && html`<div class="kv"><span>Potència pic</span><strong>${U.fmt(bike.peak, 0)} W</strong>${bike.peakRel != null && html`<small>${U.fmt(bike.peakRel, 1)} W/kg</small>`}</div>`}
             ${bike.mean != null && html`<div class="kv"><span>Potència mitjana</span><strong>${U.fmt(bike.mean, 0)} W</strong>${bike.meanRel != null && html`<small>${U.fmt(bike.meanRel, 1)} W/kg</small>`}</div>`}
-            ${bike.fatigue != null && html`<div class="kv"><span>Índex de fatiga</span><strong>${U.fmt(bike.fatigue, 1)} %</strong></div>`}
+            ${bike.meanPeak != null && html`<div class="kv"><span>Potència sostinguda</span><strong>${U.fmt(bike.meanPeak, 0)} %</strong><small>de la potència pic</small></div>`}
             ${bike.work != null && html`<div class="kv"><span>Treball total</span><strong>${U.fmt(bike.work, 1)} kJ</strong></div>`}
             ${bike.distKm != null && html`<div class="kv"><span>Distància</span><strong>${U.fmt(bike.distKm * 1000, 0)} m</strong>${bike.speedKmh != null && html`<small>${U.fmt(bike.speedKmh, 1)} km/h de mitjana</small>`}</div>`}
             ${bike.cal != null && html`<div class="kv"><span>Energia</span><strong>${U.fmt(bike.cal, 1)} kcal</strong>${bike.calMin != null && html`<small>${U.fmt(bike.calMin, 1)} kcal/min</small>`}</div>`}
