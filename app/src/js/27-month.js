@@ -227,14 +227,15 @@ function QuickSessionDialog({ p, s, date, onClose }) {
   const f0 = (s && s.feedback) || {};
   const [f, setF] = useState({
     goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
-    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '',
+    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '', date: (s && s.date) || date,
   });
   const set = (k) => (v) => setF({ ...f, [k]: v });
-  const when = (s && s.date) || date;
+  const when = f.date || (s && s.date) || date;
   const save = (thenFull) => {
     if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
+    if (!f.date) { UI.toast('Tria la data de la sessió.', 'bad'); return null; }
     const apply = (x) => {
-      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status;
+      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status; x.date = f.date;
       if (f.time) x.time = f.time; else delete x.time;
       x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
     };
@@ -243,7 +244,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     else { rec = Store.addPlanned(p.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar }); rec = Store.update('sessions', rec.id, apply); }
     onClose();
     if (thenFull) go('sessio', rec.id);
-    else UI.toast(s ? 'Sessió desada.' : `Sessió anotada el ${U.fmtDate(when)}.`);
+    else UI.toast(s ? (s.date !== when ? `Sessió desada i moguda al ${U.fmtDate(when)}.` : 'Sessió desada.') : `Sessió anotada el ${U.fmtDate(when)}.`);
     return rec;
   };
   const remove = async () => {
@@ -260,6 +261,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
       <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
         <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
       </${Field}>
+      <${Field} label="Data" id="qs-date"><${TextInput} id="qs-date" type="date" value=${f.date} onValue=${set('date')} /></${Field}>
       <${Field} label="Hora" id="qs-time"><${TextInput} id="qs-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
       <${Field} label="Pilar" id="qs-pillar"><${Select} id="qs-pillar" value=${f.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
       <${Field} label="Estat" id="qs-status">
