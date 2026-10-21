@@ -436,6 +436,27 @@ PICS.prone_kick_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Extensi
 PICS.prone_curl_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Curl d\'isquios estirat a la politja cònica', t: 0, hd: -4, l: [180, -84], m: [180, 180],
   a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
 
+// ── kBox (Exxentric): plataforma amb volant; la corja va a l'armilla, al cinturó, a la kBar o a la nansa ──
+PICS.kb_squat_vest = { ...PICS.squat, band: undefined, label: 'Squat amb armilla a la kBox', kb: 'vest' };
+PICS.kb_split_vest = { ...PICS.split, band: undefined, label: 'Split squat amb armilla a la kBox', grip: 'none', kb: 'vest', kbFoot: 0 };
+PICS.kb_lateral_vest = { ...PICS.lateral_lunge, label: 'Squat lateral amb armilla a la kBox', grip: 'none', kb: 'vest', kbFoot: 0 };
+PICS.kb_bulgarian_vest = { ...PICS.split_bench, label: 'Squat búlgar amb armilla a la kBox', grip: 'none', kb: 'vest', kbFoot: 0 };
+PICS.kb_calf_vest = { ...PICS.calf, label: 'Elevació de talons amb armilla a la kBox', grip: 'none', kb: 'vest' };
+PICS.kb_squat_belt = { ...PICS.squat, band: undefined, label: 'Squat amb cinturó a la kBox', kb: 'belt' };
+PICS.kb_split_belt = { ...PICS.split, band: undefined, label: 'Split squat amb cinturó a la kBox', grip: 'none', kb: 'belt', kbFoot: 0 };
+PICS.kb_deadlift_bar = { ...PICS.deadlift, label: 'Pes mort amb kBar', kb: 'bar' };
+PICS.kb_rdl_bar = { ...PICS.hinge, label: 'Pes mort romanès amb kBar', kb: 'bar' };
+PICS.kb_row_bar = { ...PICS.row, label: 'Rem inclinat amb kBar', kb: 'bar' };
+PICS.kb_highpull_bar = { ...PICS.high_pull, label: 'Rem alt amb kBar', kb: 'bar' };
+PICS.kb_shrug_bar = { ...PICS.shrug, label: 'Encongiments amb kBar', kb: 'bar' };
+PICS.kb_curl_bar = { ...PICS.curl, pull: undefined, label: 'Curl de bíceps amb kBar', kb: 'bar' };
+PICS.kb_thruster_bar = { ...PICS.thruster, label: 'Thruster amb kBar', kb: 'bar' };
+PICS.kb_frontsquat_bar = { ...PICS.squat_front, label: 'Front squat amb kBar', kb: 'bar' };
+PICS.kb_swing_bar = { ...PICS.swing, label: 'Swing de maluc amb kBar', kb: 'bar' };
+PICS.kb_row_grip = { ...PICS.row_one, label: 'Rem a una mà amb nansa a la kBox', kb: 'grip' };
+PICS.kb_latraise_grip = { ...PICS.lat_raise, label: 'Elevació lateral amb nansa a la kBox', kb: 'grip' };
+PICS.kb_triceps_grip = { ...PICS.triceps_oh_one, label: 'Extensió de tríceps amb nansa a la kBox', kb: 'grip' };
+
 // ── Keiser (resistència pneumàtica) ──
 // Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
 const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));

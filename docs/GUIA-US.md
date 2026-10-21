@@ -665,6 +665,12 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   - **Core**: Pallof press i Rotació de tronc (llenyataire).
   Cada un té la indicació, el múscul, el bloc i un dibuix en moviment fet a partir dels vídeos del centre, amb el
   con i la corda al cinturó, al turmell o a la mà.
+- **kBox (Exxentric)**: cerqueu «kBox». Amb **armilla**: Squat, Split squat, Squat lateral, Squat búlgar i Elevació
+  de talons. Amb **cinturó de maluc**: Squat (belt squat) i Split squat (sense càrrega a l'esquena ni als braços).
+  Amb la **kBar**: Pes mort, Pes mort romanès, Rem inclinat, Rem alt (high pull), Encongiments, Curl de bíceps,
+  Thruster, Front squat i Swing de maluc. Amb la **nansa**: Rem a una mà, Elevació lateral i Extensió de tríceps.
+  Tots són de sobrecàrrega excèntrica: les 2 primeres repeticions engeguen el volant i la prescripció ho indica
+  («6 + 2 d'arrencada»). El dibuix mostra la plataforma i la corja a l'armilla, al cinturó, a la barra o a la nansa.
 - **Exercicis EON** (els que graveu vosaltres): a la biblioteca, vista **Exercicis EON**, hi ha una carpeta per
   bloc amb els exercicis numerats: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6. Amb
   **Afegeix el 1.4** es crea el següent, amb el codi, el bloc i el nom («1.4») ja posats: només cal enganxar
