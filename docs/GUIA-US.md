@@ -658,8 +658,13 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   - **Amb turmellera, de peu**: Kick back, Adducció i abducció, Patada d'isquios circular, Patada de quàdriceps
     circular, Patada alta d'isquios i Bessons i soli (Gem/Sol).
   - **Amb turmellera, estirat**: Kick back, Adducció i abducció, Patada d'isquios i Curl d'isquios.
-  - I el Pallof press (antirotació). Cada un té la indicació, el múscul, el bloc i el dibuix amb el con i la corda
-    al cinturó o al turmell. El vídeo de demostració s'hi afegeix des de la fitxa de l'exercici.
+  - **Més exercicis amb cinturó o arnès**: Pas creuat (crossover), Estocada frontal, Estocada enrere (reverse
+    lunge), Squat búlgar, Pes mort romanès amb arnès i Pull-through.
+  - **A la mà**: Rem a una mà i a dues mans dempeus, Press de pit a una mà, Curl de bíceps, Extensió de tríceps,
+    Elevació lateral, Face pull i Rotació externa d'espatlla.
+  - **Core**: Pallof press i Rotació de tronc (llenyataire).
+  Cada un té la indicació, el múscul, el bloc i un dibuix en moviment fet a partir dels vídeos del centre, amb el
+  con i la corda al cinturó, al turmell o a la mà.
 - **Exercicis EON** (els que graveu vosaltres): a la biblioteca, vista **Exercicis EON**, hi ha una carpeta per
   bloc amb els exercicis numerats: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6. Amb
   **Afegeix el 1.4** es crea el següent, amb el codi, el bloc i el nom («1.4») ja posats: només cal enganxar

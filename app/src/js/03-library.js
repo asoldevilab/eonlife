@@ -322,6 +322,34 @@ const SEED_EXERCISES = (() => {
     cues: 'Turmellera, estirat de bocaterrosa. Flexiona el genoll portant el taló al gluti i frena l\'extensió.' });
   pp(24, 'act', 'Pallof press · Pulley Pro', 'Core · antirotació', { pos: 'Bp', lat: 'UL', gm: 'Core', muscles: ['Oblics'], sets: '3', reps: '8/costat', cont: 'ISO',
     cues: 'De costat a la politja, mans al pit. Estén els braços sense deixar rotar el tronc i frena la tornada.' });
+  pp(25, 'act', 'Rotació de tronc (llenyataire) · Pulley Pro', 'Core · antirotació', { pic: 'woodchop_cone', lat: 'UL', gm: 'Oblics', muscles: ['Core', 'GMax'], sets: '3', reps: '8/costat',
+    cues: 'De costat a la politja, braços estirats. Gira el tronc i el maluc alhora portant les mans en diagonal; frena la tornada sense perdre la postura.' });
+  pp(26, 'for', 'Rem a dues mans dempeus · Pulley Pro', 'Tracció', { pic: 'row_standing_cone', lat: 'BL', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], sets: '3', reps: '8', cont: 'ECC',
+    cues: 'De cara a la columna, genolls lleugerament flexionats. Tira els colzes cap enrere juntant les escàpules i frena la tornada.' });
+  pp(27, 'for', 'Pes mort romanès amb arnès · Pulley Pro', 'Dominant de maluc', { pic: 'hinge_cone', lat: 'BL', gm: 'Isquiotibials', muscles: ['GMax', 'Lumbar'], sets: '3', reps: '8', cont: 'ECC',
+    cues: 'Arnès al maluc i esquena neutra. Porta el maluc enrere amb els genolls suaus i torna estirant el maluc; frena la baixada.' });
+  pp(28, 'for', 'Pull-through amb cinturó · Pulley Pro', 'Dominant de maluc', { pic: 'pull_through_cone', lat: 'BL', gm: 'GMax', muscles: ['Isquiotibials'], sets: '3', reps: '10',
+    cues: 'Cinturó, d\'esquena a la columna. Deixa que la politja et porti el maluc enrere i torna a dalt estrenyent els glutis.' });
+  pp(29, 'pot', 'Pas creuat (crossover) amb cinturó · Pulley Pro', 'Canvi de direcció', { ...SPEED, pic: 'crossstep_cone', gm: 'GMed', muscles: ['Adductors', 'Quàdriceps'], reps: '4/costat',
+    cues: 'Cinturó amb la politja al costat. Creua la cama de fora per davant i surt de costat; frena la tornada amb el maluc baix.' });
+  pp(30, 'for', 'Estocada frontal amb cinturó · Pulley Pro', 'Dominant de genoll', { pic: 'split_cone', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8/cama', cont: 'ECC',
+    cues: 'Cinturó, d\'esquena a la columna. Passa endavant i baixa controlant el genoll; empeny per tornar al disc.' });
+  pp(31, 'for', 'Estocada enrere (reverse lunge) amb cinturó · Pulley Pro', 'Dominant de genoll', { pic: 'reverse_lunge_cone', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8/cama', cont: 'ECC',
+    cues: 'Cinturó, de cara a la columna. Passa enrere i baixa fins que el genoll gairebé toca a terra; torna frenant la politja.' });
+  pp(32, 'for', 'Squat búlgar amb cinturó · Pulley Pro', 'Dominant de genoll', { pic: 'split_bench_cone', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8/cama', cont: 'ECC',
+    cues: 'Cinturó, peu de darrere al banc. Baixa vertical frenant la politja i puja ràpid; genoll alineat amb el peu.' });
+  pp(33, 'for', 'Press de pit a una mà dempeus · Pulley Pro', 'Empenta', { pic: 'press_standing_cone', gm: 'Pectoral', muscles: ['Tríceps', 'Core'], sets: '3', reps: '8/costat', cont: 'ECC',
+    cues: 'D\'esquena a la columna, peus en gambada. Empeny endavant sense girar el tronc i frena la tornada.' });
+  pp(34, 'acc', 'Curl de bíceps · Pulley Pro', 'Tren superior', { pic: 'curl', lat: 'BL', gm: 'Bíceps', sets: '3', reps: '10', cont: 'ECC',
+    cues: 'De cara a la columna, colzes enganxats al cos. Puja ràpid i frena la baixada.' });
+  pp(35, 'acc', 'Extensió de tríceps · Pulley Pro', 'Tren superior', { pic: 'pushdown_cone', lat: 'BL', gm: 'Tríceps', sets: '3', reps: '10', cont: 'ECC',
+    cues: 'Politja alta, colzes quiets al costat del cos. Estén els braços avall i frena la pujada.' });
+  pp(36, 'act', 'Face pull · Pulley Pro', 'Espatlla', { pic: 'face_pull', lat: 'BL', gm: 'Deltoides', muscles: ['Escàpula', 'Manegot rotador'], sets: '3', reps: '12',
+    cues: 'Politja a l\'alçada de la cara. Tira cap als ulls obrint els colzes i rotant les espatlles enfora; frena la tornada.' });
+  pp(37, 'act', 'Rotació externa d\'espatlla · Pulley Pro', 'Espatlla', { pic: 'ext_rot', gm: 'Manegot rotador', sets: '3', reps: '12/costat', cont: 'ECC',
+    cues: 'Colze enganxat al cos a 90°. Gira l\'avantbraç enfora i frena la tornada lentament.' });
+  pp(38, 'acc', 'Elevació lateral a una mà · Pulley Pro', 'Tren superior', { pic: 'lat_raise_cone', gm: 'Deltoides', sets: '3', reps: '10/costat', cont: 'ECC',
+    cues: 'De costat a la columna, politja baixa. Puja el braç fins a l\'alçada de l\'espatlla i frena la baixada.' });
 
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';

@@ -402,6 +402,16 @@ PICS.frenada_cone = { pin: [{ leg: 0, ref: 0 }], from: { t: -86, l: [86, 92], m:
 PICS.cut_cone = { ...PICS.cut, label: 'Sortida amb la politja cònica', grip: 'none', pull: 'back', belt: true, s: 0.84 };
 PICS.squat_cone = { ...PICS.squat, band: undefined, label: 'Squat amb cinturó a la politja cònica', pull: 'front', belt: true, s: 0.86 };
 PICS.shuffle_cone = { ...PICS.shuffle, label: 'Desplaçament lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+PICS.hinge_cone = { ...PICS.hinge, label: 'Pes mort romanès amb arnès a la politja cònica', a: PIC_HIPS, grip: 'none', pull: 'low', belt: true, s: 0.86 };
+PICS.pull_through_cone = { ...PICS.hinge, label: 'Pull-through amb cinturó a la politja cònica', a: PIC_HIPS, grip: 'none', pull: 'backlow', belt: true, s: 0.86 };
+PICS.crossstep_cone = { ...PICS.cut, label: 'Pas creuat amb cinturó a la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+PICS.reverse_lunge_cone = { ...PICS.frenada_cone, label: 'Estocada enrere amb cinturó a la politja cònica', l: [36, 100], m: [116, 168] };
+PICS.split_bench_cone = { ...PICS.split_bench, label: 'Squat búlgar amb cinturó a la politja cònica', a: PIC_HIPS, b: PIC_HIPS, grip: 'none', pull: 'front', belt: true, s: 0.86 };
+// Tren superior: la corda a la mà (press d'esquena a la columna, curl, tríceps, elevació lateral).
+PICS.press_standing_cone = { ...PICS.row_standing, from: { a: [176, -6] }, label: 'Press de pit a una mà amb la politja cònica', a: [4, 2], pull: 'back', s: 0.84 };
+PICS.woodchop_cone = { ...PICS.woodchop, label: 'Rotació de tronc a la politja cònica', pull: [-6, 14, 40] };
+PICS.pushdown_cone = { ...PICS.pushdown, label: 'Extensió de tríceps a la politja cònica', pull: 'high' };
+PICS.lat_raise_cone = { ...PICS.lat_raise, label: 'Elevació lateral a la politja cònica', pull: 'low', s: 0.86 };
 // Amb turmellera (la corda va del turmell a la politja baixa de la columna).
 // Kick back i Gem/Sol: de cara a la columna, mans recolzades i tronc inclinat; el genoll puja i la cama empeny enrere.
 PICS.kick_cone = { ...PICS.stand_kick, from: { l: [16, 104] }, label: 'Kick back amb turmellera a la politja cònica', t: -62, l: [116, 122],
