@@ -585,7 +585,8 @@ sessions previstes del pla d'entrenament.
   sessió, en dues etiquetes: **RPE** i **EVA** (l'EVA en verd, groc o vermell segons la intensitat), per veure d'un cop d'ull si pugen o baixen. Els diumenges sense sessió surten com a **OFF**.
 - El **+** d'un dia buit dona dues opcions: **Programa la sessió sencera** (com sempre: del pla, copiant l'última,
   d'una plantilla o en blanc) o **Només l'objectiu**, per omplir el calendari ràpid: s'escriu l'objectiu (i el pilar,
-  si vols) i surt al quadre del dia amb una vora daurada. Tocant-la es pot editar, marcar com a **Feta** amb l'RPE,
+  si vols), amb la **data** i l'**hora**, i surt al quadre del dia amb una vora daurada. Tocant-la es pot editar
+  (també canviar-ne la data per moure-la, a més d'arrossegar-la), marcar com a **Feta** amb l'RPE,
   el dolor i la durada, o **Programa-la sencera** per afegir-hi els blocs i els exercicis. Colors: granat = feta,
   rosa = programada amb exercicis, blanc amb vora daurada = només l'objectiu, discontínua = prevista al pla.
 - Columna **Setmana**: càrrega total, sessions fetes i RPE mitjà.
