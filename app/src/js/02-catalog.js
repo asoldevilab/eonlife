@@ -346,19 +346,21 @@ const CENTER_PROFESSIONALS = ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisi
 const PROFESSIONAL_RENAMES = { Richy: 'Ricardo Villamizar' };
 // Tipus de pacient que ja no hi són: la valoració inicial només la fa qui té la quota de membership.
 const SERVICE_RENAMES = { valoracio: 'membership' };
+// Material que ha canviat de nom: la politja cònica del centre és la Pulley Pro C2 Smart (Store.renameMaterials).
+const MATERIAL_RENAMES = { 'Politja cònica isoinercial': 'Pulley Pro C2 Smart', 'Politja cònica': 'Pulley Pro C2 Smart' };
 
 // Material del centre (es pot canviar a Configuració).
 const CENTER_MATERIALS = [
-  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
+  'Barra olímpica (20-25 kg)', 'Pulley Pro C2 Smart', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
   'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
-  'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
+  'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'kBox Lite Exxentric',
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
 ];
 
 // Material que per defecte compta com a únic (només n'hi ha un): es pot canviar a Configuració.
 const DEFAULT_UNIQUE_MATERIALS = [
-  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
-  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart',
+  'Barra olímpica (20-25 kg)', 'Pulley Pro C2 Smart', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
+  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym',
   'kBox Lite Exxentric', 'Power Personal Technogym',
 ];
 

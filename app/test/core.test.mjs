@@ -570,7 +570,7 @@ test('material del centre i músculs de la biblioteca', () => {
   const byGm = (m) => SEED_EXERCISES.filter((e) => e.gm === m || (e.muscles || []).includes(m)).length;
   for (const m of ['Bíceps', 'Tríceps', 'Deltoides', 'Pectoral', 'Dorsal', 'Quàdriceps', 'Isquiotibials', 'Bessons i soli']) assert.ok(byGm(m) >= 3, m);
   const center = Store.materials().center;
-  for (const m of ['Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'kBox Lite Exxentric', 'Banc GHD', 'AlterG']) assert.ok(center.includes(m), m);
+  for (const m of ['Barra olímpica (20-25 kg)', 'Pulley Pro C2 Smart', 'Keiser (pneumàtica)', 'kBox Lite Exxentric', 'Banc GHD', 'AlterG']) assert.ok(center.includes(m), m);
   assert.ok(!Store.materials().other.includes('Barra olímpica (20-25 kg)'));
   const squat = SEED_EXERCISES.find((e) => e.id === 'X-FOR-01');
   assert.deepEqual(Array.from(squat.materials).slice(0, 3), ['Barra olímpica (20-25 kg)', 'Mancuernes Technogym', 'Kettlebell']);
@@ -1262,9 +1262,9 @@ test('biblioteca: tots els exercicis amb nom tenen indicacions', () => {
 test('material de la sala: agrupat, sense terra ni pes corporal i amb la marca de preparat', () => {
   const it = (name, material) => ({ id: name, name, material });
   const s1 = { id: 'S1', prep: { 'Fitball': true }, blocks: [{ key: 'for', items: [it('Hip thrust', 'Barra olímpica (20-25 kg)'), it('Dead bug', 'Terra'), it('Curl femoral', 'Fitball'), it('Flexions', 'Pes corporal')] }] };
-  const s2 = { id: 'S2', blocks: [{ key: 'for', items: [it('Back squat', 'Barra olímpica (20-25 kg)'), it('Pallof', 'Politja cònica isoinercial')] }] };
+  const s2 = { id: 'S2', blocks: [{ key: 'for', items: [it('Back squat', 'Barra olímpica (20-25 kg)'), it('Pallof', 'Pulley Pro C2 Smart')] }] };
   const m = Calc.sessionMaterial([s1, s2]);
-  assert.equal(m.map((x) => x.name).join('|'), 'Barra olímpica (20-25 kg)|Politja cònica isoinercial|Fitball');
+  assert.equal(m.map((x) => x.name).join('|'), 'Barra olímpica (20-25 kg)|Pulley Pro C2 Smart|Fitball');
   const barra = m[0];
   assert.equal(barra.exercises.join(','), 'Hip thrust,Back squat');
   assert.equal(barra.sessions.length, 2);
@@ -1302,15 +1302,15 @@ test('durada estimada de la sessió i franja respecte de l\'hora', () => {
 test('conflictes d\'horari: material únic compartit i professional doble', () => {
   const it = (name, material) => ({ id: name, name, material });
   const ses = (id, patientId, time, professional, items, extra = {}) => ({ id, patientId, date: '2026-11-03', time, professional, status: 'planificada', blocks: [{ key: 'for', items }], ...extra });
-  const unique = new Set(['Politja cònica isoinercial', 'Barra olímpica (20-25 kg)']);
+  const unique = new Set(['Pulley Pro C2 Smart', 'Barra olímpica (20-25 kg)']);
   assert.equal(Calc.minutesOf('09:30'), 570);
   assert.equal(Calc.minutesOf(''), null);
   const list = [
-    ses('A', 'P1', '10:00', 'Arnau', [it('Pallof', 'Politja cònica isoinercial'), it('Remo', 'Fitball')]),
-    ses('B', 'P2', '10:30', 'Oriol', [it('Squat isoinercial', 'Politja cònica isoinercial'), it('Remo', 'Fitball')]),
+    ses('A', 'P1', '10:00', 'Arnau', [it('Pallof', 'Pulley Pro C2 Smart'), it('Remo', 'Fitball')]),
+    ses('B', 'P2', '10:30', 'Oriol', [it('Squat isoinercial', 'Pulley Pro C2 Smart'), it('Remo', 'Fitball')]),
     ses('C', 'P3', '11:00', 'Oriol', [it('Hip thrust', 'Barra olímpica (20-25 kg)')]),
     ses('D', 'P4', '11:15', 'Richy', [it('Back squat', 'Barra olímpica (20-25 kg)')], { status: 'feta' }),
-    ses('E', 'P5', '', 'Richy', [it('Pallof', 'Politja cònica isoinercial')]),
+    ses('E', 'P5', '', 'Richy', [it('Pallof', 'Pulley Pro C2 Smart')]),
     ses('F', 'P6', '18:00', '', [it('Dead bug', 'Terra')]),
     ses('G', 'P7', '18:30', '', [it('Dead bug', 'Terra')]),
   ];
@@ -1320,7 +1320,7 @@ test('conflictes d\'horari: material únic compartit i professional doble', () =
   const mat = c.filter((x) => x.kind === 'material');
   assert.equal(mat.length, 1);
   assert.equal(mat[0].a.id + mat[0].b.id, 'AB');
-  assert.equal(mat[0].mats.join(','), 'Politja cònica isoinercial');
+  assert.equal(mat[0].mats.join(','), 'Pulley Pro C2 Smart');
   // B–C: l'Oriol té dues sessions a menys d'una hora; F–G: mateix professional per la fitxa del pacient
   const prof = c.filter((x) => x.kind === 'prof');
   assert.equal(prof.map((x) => x.a.id + x.b.id).join(','), 'BC,FG');

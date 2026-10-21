@@ -392,6 +392,22 @@ const PICS = {
 PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
 PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
 PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+// Amb cinturó: accelerada (el con darrere), frenada (el con davant), sortides, squat i desplaçament lateral.
+PICS.sprint_cone = { ...PICS.sprint, label: 'Accelerada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.84 };
+PICS.split_front_cone = { ...PICS.split_cone, label: 'Frenada amb la politja cònica', pull: 'low' };
+PICS.cut_cone = { ...PICS.cut, label: 'Sortida amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.84 };
+PICS.squat_cone = { ...PICS.squat, band: undefined, label: 'Squat amb cinturó a la politja cònica', pull: 'low', belt: true, s: 0.86 };
+PICS.shuffle_cone = { ...PICS.shuffle, label: 'Desplaçament lateral amb la politja cònica', grip: 'none', pull: 'low', belt: true, s: 0.84 };
+// Amb turmellera: la corda va del con al turmell de la cama que treballa.
+PICS.stand_kick_cone = { ...PICS.stand_kick, band: undefined, label: 'Kick back amb turmellera a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.march_cone = { ...PICS.march, band: undefined, label: 'Patada de quàdriceps amb turmellera a la politja cònica', grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
+PICS.stand_abd_cone = { ...PICS.stand_abd, band: undefined, label: 'Adducció i abducció amb turmellera a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.calf_cone = { ...PICS.calf, label: 'Bessons i soli amb turmellera a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.side_abd_cone = { ...PICS.side_abd, label: 'Adducció i abducció estirat a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.prone_kick_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Extensió de maluc estirat a la politja cònica', t: 0, hd: -4, l: [200, 200], m: [180, 180],
+  a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
+PICS.prone_curl_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Curl d\'isquios estirat a la politja cònica', t: 0, hd: -4, l: [180, -84], m: [180, 180],
+  a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
 
 // ── Keiser (resistència pneumàtica) ──
 // Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.

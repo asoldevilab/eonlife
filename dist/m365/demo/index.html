@@ -4250,7 +4250,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-21 14:55";
+window.EON_BUILD = "2026-10-21 17:57";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4938,19 +4938,21 @@ const CENTER_PROFESSIONALS = ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisi
 const PROFESSIONAL_RENAMES = { Richy: 'Ricardo Villamizar' };
 // Tipus de pacient que ja no hi són: la valoració inicial només la fa qui té la quota de membership.
 const SERVICE_RENAMES = { valoracio: 'membership' };
+// Material que ha canviat de nom: la politja cònica del centre és la Pulley Pro C2 Smart (Store.renameMaterials).
+const MATERIAL_RENAMES = { 'Politja cònica isoinercial': 'Pulley Pro C2 Smart', 'Politja cònica': 'Pulley Pro C2 Smart' };
 
 // Material del centre (es pot canviar a Configuració).
 const CENTER_MATERIALS = [
-  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
+  'Barra olímpica (20-25 kg)', 'Pulley Pro C2 Smart', 'Keiser (pneumàtica)', 'Mancuernes Technogym', 'Kettlebell',
   'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
-  'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
+  'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'kBox Lite Exxentric',
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
 ];
 
 // Material que per defecte compta com a únic (només n'hi ha un): es pot canviar a Configuració.
 const DEFAULT_UNIQUE_MATERIALS = [
-  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
-  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart',
+  'Barra olímpica (20-25 kg)', 'Pulley Pro C2 Smart', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
+  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym',
   'kBox Lite Exxentric', 'Power Personal Technogym',
 ];
 
@@ -5229,7 +5231,7 @@ const SEED_EXERCISES = (() => {
   }
   // ── Exercicis amb el material del centre i de tren superior per grup muscular ──
   const add = (id, block, name, cat, material, extra) => { ex(id, block, name, cat, material, extra); byId[id] = list[list.length - 1]; };
-  const B = 'Barra olímpica (20-25 kg)', M = 'Mancuernes Technogym', K = 'Kettlebell', KS = 'Keiser (pneumàtica)', CO = 'Politja cònica isoinercial',
+  const B = 'Barra olímpica (20-25 kg)', M = 'Mancuernes Technogym', K = 'Kettlebell', KS = 'Keiser (pneumàtica)', CO = 'Pulley Pro C2 Smart',
     PT = 'Politja Technogym', KX = 'kBox Lite Exxentric', G = 'Goma elàstica', F = 'Lliscadors Flowin', PC = 'Pes corporal';
   add('X-ACC-32', 'acc', 'Curl de bíceps amb mancuernes', 'Tren superior', M, { pos: 'Bp', gm: 'Bíceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, B, PT, KS, G] });
   add('X-ACC-33', 'acc', 'Curl martell', 'Tren superior', M, { pos: 'Bp', gm: 'Bíceps', muscles: ['Avantbraç'], sets: '3', reps: '10', intensity: 'RIR 2', materials: [M, PT, G] });
@@ -5262,6 +5264,50 @@ const SEED_EXERCISES = (() => {
   add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
   add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
   add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+
+  // ── Pulley Pro C2 Smart (politja cònica): exercicis gravats pel centre, amb cinturó o amb turmellera ──
+  const pp = (n, block, name, cat, extra) => add(`X-PUL-${String(n).padStart(2, '0')}`, block, name, cat, CO, { pos: 'Bp', lat: 'UL', materials: [CO], ...extra });
+  const SPEED = { gm: 'Tren inferior', muscles: ['GMax', 'Quàdriceps', 'Isquiotibials'], sets: '4', reps: '5/cama', intensity: 'Màxima intenció', rest: '1\'30"' };
+  pp(1, 'pot', 'Accelerada · Pulley Pro', 'Acceleració', { pic: 'sprint_cone', ...SPEED, family: 'Pulley Pro · acceleració', level: '1',
+    cues: 'Cinturó, d\'esquena a la politja i peu de darrere al disc. Inclina\'t i fes una passa explosiva endavant amb braços de carrera; la politja et torna al disc.' });
+  pp(2, 'pot', 'Accelerada de 2 passos · Pulley Pro', 'Acceleració', { pic: 'sprint_cone', ...SPEED, family: 'Pulley Pro · acceleració', level: '2', reps: '4/cama',
+    cues: 'Com l\'accelerada però amb dues passes seguides abans de tornar. Inclinació de sortida, braços de carrera i frena en tornar al disc.' });
+  pp(3, 'pot', 'Frenada · Pulley Pro', 'Deceleració', { pic: 'split_front_cone', ...SPEED, cont: 'ECC', family: 'Pulley Pro · frenada', level: '1',
+    cues: 'Cinturó, de cara a la politja, mans a la cintura i peu davanter contra el disc. Passa enrere; quan la politja t\'estira endavant, frena-la amb control.' });
+  pp(4, 'pot', 'Frenada de 2 passos · Pulley Pro', 'Deceleració', { pic: 'split_front_cone', ...SPEED, cont: 'ECC', family: 'Pulley Pro · frenada', level: '2', reps: '4/cama',
+    cues: 'Com la frenada però amb dues passes enrere. Frena la tornada amb el maluc baix i el genoll alineat amb el peu.' });
+  pp(5, 'pot', 'Sortida oberta · Pulley Pro', 'Canvi de direcció', { pic: 'cut_cone', ...SPEED, muscles: ['GMax', 'GMed', 'Quàdriceps'], family: 'Pulley Pro · sortides', level: '1',
+    cues: 'Cinturó. Passa enrere i rota el maluc cap a fora per sortir de costat. Peu de suport ferm i tronc baix.' });
+  pp(6, 'pot', 'Sortida tancada · Pulley Pro', 'Canvi de direcció', { pic: 'cut_cone', ...SPEED, muscles: ['GMax', 'Adductors', 'Quàdriceps'], family: 'Pulley Pro · sortides', level: '2',
+    cues: 'Cinturó. Passa enrere i rota cap a dins creuant la cama per sortir de costat. Tronc baix i peu de suport ferm.' });
+  pp(7, 'acc', 'Squat amb cinturó · Pulley Pro', 'Politja cònica', { pic: 'squat_cone', lat: 'BL', gm: 'Quàdriceps', muscles: ['GMax'], cont: 'ECC', sets: '3', reps: '8',
+    cues: 'Cinturó, braços creuats al pit i peus al disc. Baixa frenant la politja i puja ràpid; genolls alineats amb els peus.' });
+  pp(8, 'pot', 'Desplaçament lateral (shuffle) · Pulley Pro', 'Canvi de direcció', { pic: 'shuffle_cone', ...SPEED, gm: 'GMed', muscles: ['Quàdriceps', 'Adductors'], reps: '4/costat',
+    cues: 'Cinturó amb la politja al costat. Dues o tres passes laterals ràpides sense creuar els peus i frena la tornada.' });
+  const ANKLE = { sets: '3', reps: '10/cama', cont: 'ECC' };
+  pp(10, 'acc', 'Kick back de peu · Pulley Pro', 'Politja cònica', { pic: 'stand_kick_cone', ...ANKLE, gm: 'GMax', muscles: ['Isquiotibials'],
+    cues: 'Turmellera, de cara a la columna i mans recolzades. Porta la cama enrere estirant el maluc sense arquejar l\'esquena; frena la tornada.' });
+  pp(11, 'acc', 'Adducció i abducció de peu · Pulley Pro', 'Politja cònica', { pic: 'stand_abd_cone', ...ANKLE, gm: 'Adductors', muscles: ['Abductors', 'GMed'],
+    cues: 'Turmellera, de cara i agafat a la barra. La cama s\'obre al costat i creua per davant; pelvis quieta i tronc alt.' });
+  pp(12, 'acc', 'Patada d\'isquios circular · Pulley Pro', 'Isquiotibials', { pic: 'stand_kick_cone', ...ANKLE, gm: 'Isquiotibials', muscles: ['GMax'],
+    cues: 'Turmellera, de cara a la politja i agafat a la barra. Cicle de carrera cap enrere: el peu baixa i passa per sota del maluc.' });
+  pp(13, 'acc', 'Patada de quàdriceps circular · Pulley Pro', 'Politja cònica', { pic: 'march_cone', ...ANKLE, gm: 'Quàdriceps', muscles: ['Flexors de maluc'],
+    cues: 'Turmellera, d\'esquena a la politja i agafat a la barra. Puja el genoll i estira la cama endavant en cercle; tronc alt.' });
+  pp(14, 'acc', 'Patada alta d\'isquios · Pulley Pro', 'Isquiotibials', { pic: 'stand_kick_cone', ...ANKLE, gm: 'Isquiotibials', muscles: ['GMax'],
+    cues: 'Turmellera, mans recolzades. La cama va enrere i amunt amb el genoll gairebé estirat; no arquegis l\'esquena.' });
+  pp(15, 'acc', 'Bessons i soli (Gem/Sol) · Pulley Pro', 'Politja cònica', { pic: 'calf_cone', ...ANKLE, gm: 'Bessons i soli', reps: '12/cama',
+    cues: 'Turmellera, mans a la columna i genoll avançat. Treballa la flexió plantar del turmell amb control a la tornada.' });
+  const LYING = { sets: '3', reps: '10/cama', cont: 'ECC' };
+  pp(20, 'acc', 'Kick back estirat · Pulley Pro', 'Politja cònica', { pic: 'prone_kick_cone', ...LYING, pos: 'Dp', gm: 'GMax', muscles: ['Isquiotibials'],
+    cues: 'Turmellera, estirat. Estén el maluc empenyent la cama enrere i frena la tornada sense moure la pelvis.' });
+  pp(21, 'acc', 'Adducció i abducció estirat · Pulley Pro', 'Politja cònica', { pic: 'side_abd_cone', ...LYING, pos: 'Dl', gm: 'Adductors', muscles: ['Abductors', 'GMed'],
+    cues: 'Turmellera, estirat de costat. Obre i tanca la cama amb la pelvis quieta i el genoll estirat.' });
+  pp(22, 'acc', 'Patada d\'isquios estirat · Pulley Pro', 'Isquiotibials', { pic: 'prone_kick_cone', ...LYING, pos: 'Ds', gm: 'Isquiotibials', muscles: ['GMax'],
+    cues: 'Turmellera, estirat. Baixa la cama estirada cap a terra amb força i frena la pujada.' });
+  pp(23, 'acc', 'Curl d\'isquios estirat · Pulley Pro', 'Isquiotibials', { pic: 'prone_curl_cone', ...LYING, pos: 'Dp', gm: 'Isquiotibials',
+    cues: 'Turmellera, estirat de bocaterrosa. Flexiona el genoll portant el taló al gluti i frena l\'extensió.' });
+  pp(24, 'act', 'Pallof press · Pulley Pro', 'Core · antirotació', { pos: 'Bp', lat: 'UL', gm: 'Core', muscles: ['Oblics'], sets: '3', reps: '8/costat', cont: 'ISO',
+    cues: 'De costat a la politja, mans al pit. Estén els braços sense deixar rotar el tronc i frena la tornada.' });
 
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
@@ -8203,6 +8249,7 @@ const Store = {
       this.ready = true;
       this.replayOutbox();
       this.renameProfessionals();
+      this.renameMaterials();
       if (typeof Sync !== 'undefined') Sync.resume();
       if (typeof PdfSync !== 'undefined') PdfSync.resume();
       if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els pacients de prova. Ja podeu afegir els vostres.'), 400);
@@ -8228,6 +8275,27 @@ const Store = {
     const list = this.settings.professionals;
     if (Array.isArray(list) && list.some((n) => map[n])) {
       this.saveSettings({ professionals: [...new Set(list.map((n) => map[n] || n))] });
+    }
+  },
+
+  // Material que ha canviat de nom (MATERIAL_RENAMES, a 02-catalog.js): es canvia a la llista de Configuració, als exercicis
+  // desats, a les sessions i a les plantilles. Un sol cop: després ja no queda cap registre amb el nom antic.
+  renameMaterials() {
+    const map = MATERIAL_RENAMES, ren = (m) => map[m] || m;
+    const list = (v) => Array.isArray(v) && v.some((m) => map[m]) ? [...new Set(v.map(ren))] : null;
+    const patch = {};
+    for (const k of ['materials', 'uniqueMaterials']) { const v = list(this.settings[k]); if (v) patch[k] = v; }
+    if (Object.keys(patch).length) this.saveSettings(patch);
+    for (const r of Object.values(this.data.exercises || {})) {
+      if (!r) continue;
+      const mats = list(r.materials);
+      if (map[r.material] || mats) this.put('exercises', { ...r, ...(map[r.material] ? { material: ren(r.material) } : {}), ...(mats ? { materials: mats } : {}) });
+    }
+    for (const k of ['sessions', 'templates']) {
+      for (const r of Object.values(this.data[k] || {})) {
+        if (!r || !(r.blocks || []).some((b) => (b.items || []).some((it) => map[it.material]))) continue;
+        this.put(k, { ...r, blocks: r.blocks.map((b) => ({ ...b, items: (b.items || []).map((it) => (map[it.material] ? { ...it, material: ren(it.material) } : it)) })) });
+      }
     }
   },
 
@@ -16937,6 +17005,22 @@ const PICS = {
 PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
 PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
 PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+// Amb cinturó: accelerada (el con darrere), frenada (el con davant), sortides, squat i desplaçament lateral.
+PICS.sprint_cone = { ...PICS.sprint, label: 'Accelerada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.84 };
+PICS.split_front_cone = { ...PICS.split_cone, label: 'Frenada amb la politja cònica', pull: 'low' };
+PICS.cut_cone = { ...PICS.cut, label: 'Sortida amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.84 };
+PICS.squat_cone = { ...PICS.squat, band: undefined, label: 'Squat amb cinturó a la politja cònica', pull: 'low', belt: true, s: 0.86 };
+PICS.shuffle_cone = { ...PICS.shuffle, label: 'Desplaçament lateral amb la politja cònica', grip: 'none', pull: 'low', belt: true, s: 0.84 };
+// Amb turmellera: la corda va del con al turmell de la cama que treballa.
+PICS.stand_kick_cone = { ...PICS.stand_kick, band: undefined, label: 'Kick back amb turmellera a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.march_cone = { ...PICS.march, band: undefined, label: 'Patada de quàdriceps amb turmellera a la politja cònica', grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
+PICS.stand_abd_cone = { ...PICS.stand_abd, band: undefined, label: 'Adducció i abducció amb turmellera a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.calf_cone = { ...PICS.calf, label: 'Bessons i soli amb turmellera a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.side_abd_cone = { ...PICS.side_abd, label: 'Adducció i abducció estirat a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.prone_kick_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Extensió de maluc estirat a la politja cònica', t: 0, hd: -4, l: [200, 200], m: [180, 180],
+  a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
+PICS.prone_curl_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Curl d\'isquios estirat a la politja cònica', t: 0, hd: -4, l: [180, -84], m: [180, 180],
+  a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
 
 // ── Keiser (resistència pneumàtica) ──
 // Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
@@ -17509,7 +17593,7 @@ function picGear3(J, P, g, C) {
 function picCone2(Q, P) {
   const grip = P.grip || 'hands';
   const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
-  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const h = P.ankle ? Q.fR : P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
   const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
   const s = back ? -1 : 1, a = [back ? 20 : 80, y];
   const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
@@ -17523,6 +17607,7 @@ function picCone2(Q, P) {
   out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
   if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
   if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else if (P.ankle) out.push({ t: 'ball', c2: h, r: 1.9, cls: 'pe' });
   else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
   out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
   return out;
@@ -17918,7 +18003,7 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
-  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà, a un cinturó o a una turmellera (el dibuix és el de la postura «_cone»)
   if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
   // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
   if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };

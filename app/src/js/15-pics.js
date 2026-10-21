@@ -546,7 +546,7 @@ function picGear3(J, P, g, C) {
 function picCone2(Q, P) {
   const grip = P.grip || 'hands';
   const back = P.pull === 'back' || P.pull === 'backlow', low = P.pull === 'low' || P.pull === 'backlow';
-  const h = P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
+  const h = P.ankle ? Q.fR : P.belt ? [Q.pel[0] + (back ? -2.6 : 2.6), Q.pel[1]] : grip === 'chest' ? [(Q.hR[0] + Q.hL[0]) / 2, (Q.hR[1] + Q.hL[1]) / 2] : Q.hR;
   const y = low ? 77 : Math.min(76, Math.max(22, P.pull === 'high' ? 22 : h[1]));
   const s = back ? -1 : 1, a = [back ? 20 : 80, y];
   const out = [], n = 3, L = 12, r0 = 2.6, r1 = 7.4, X = (k) => a[0] + s * k;
@@ -560,6 +560,7 @@ function picCone2(Q, P) {
   out.push({ t: 'poly', pts2: [[X(L + 3.2), Math.max(3, y - 16)], [X(L + 5.6), Math.max(3, y - 16)], [X(L + 5.6), 90], [X(L + 3.2), 90]], cls: 'pp' });
   if (low) out.push({ t: 'poly', pts2: [[X(L + 5.6), 90], [X(-3), 90], [X(-3), 88], [X(L + 5.6), 88]], cls: 'pp' });
   if (P.belt) out.push({ t: 'line', pts2: [[Q.pel[0], Q.pel[1] - 3.6], [Q.pel[0], Q.pel[1] + 3.6]], w: 2.4, cls: 'pe' });
+  else if (P.ankle) out.push({ t: 'ball', c2: h, r: 1.9, cls: 'pe' });
   else out.push({ t: 'ball', c2: h, r: 1.2, cls: 'pmh' });
   out.push({ t: 'line', pts2: [h, a], w: 1.3, cls: 'pe' });
   return out;
@@ -955,7 +956,7 @@ function picGearOf(e, key) {
   if (/mancuern|dumbbell/.test(m + ' ' + t)) return { kind: 'db' };
   if (/kettlebell|\bkb\b/.test(m + ' ' + t)) return { kind: 'kb', one: /una ma|a un brac|unilateral|alterna?t?\b|\bun\b/.test(t) && !/kettlebells|dues/.test(t) };
   if (/med ball|pilota medicinal|\bslam\b|shot put/.test(t + ' ' + m)) return { kind: 'ball' };
-  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà o a un cinturó (el dibuix és el de la postura «_cone»)
+  // Pro Inertial C2 (politja cònica): el con amb la corda, a una mà, a un cinturó o a una turmellera (el dibuix és el de la postura «_cone»)
   if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
   // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
   if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };

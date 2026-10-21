@@ -217,6 +217,7 @@ const Store = {
       this.ready = true;
       this.replayOutbox();
       this.renameProfessionals();
+      this.renameMaterials();
       if (typeof Sync !== 'undefined') Sync.resume();
       if (typeof PdfSync !== 'undefined') PdfSync.resume();
       if (meta.demoRemoved) setTimeout(() => UI.toast('S\'han esborrat els pacients de prova. Ja podeu afegir els vostres.'), 400);
@@ -242,6 +243,27 @@ const Store = {
     const list = this.settings.professionals;
     if (Array.isArray(list) && list.some((n) => map[n])) {
       this.saveSettings({ professionals: [...new Set(list.map((n) => map[n] || n))] });
+    }
+  },
+
+  // Material que ha canviat de nom (MATERIAL_RENAMES, a 02-catalog.js): es canvia a la llista de Configuració, als exercicis
+  // desats, a les sessions i a les plantilles. Un sol cop: després ja no queda cap registre amb el nom antic.
+  renameMaterials() {
+    const map = MATERIAL_RENAMES, ren = (m) => map[m] || m;
+    const list = (v) => Array.isArray(v) && v.some((m) => map[m]) ? [...new Set(v.map(ren))] : null;
+    const patch = {};
+    for (const k of ['materials', 'uniqueMaterials']) { const v = list(this.settings[k]); if (v) patch[k] = v; }
+    if (Object.keys(patch).length) this.saveSettings(patch);
+    for (const r of Object.values(this.data.exercises || {})) {
+      if (!r) continue;
+      const mats = list(r.materials);
+      if (map[r.material] || mats) this.put('exercises', { ...r, ...(map[r.material] ? { material: ren(r.material) } : {}), ...(mats ? { materials: mats } : {}) });
+    }
+    for (const k of ['sessions', 'templates']) {
+      for (const r of Object.values(this.data[k] || {})) {
+        if (!r || !(r.blocks || []).some((b) => (b.items || []).some((it) => map[it.material]))) continue;
+        this.put(k, { ...r, blocks: r.blocks.map((b) => ({ ...b, items: (b.items || []).map((it) => (map[it.material] ? { ...it, material: ren(it.material) } : it)) })) });
+      }
     }
   },
 
