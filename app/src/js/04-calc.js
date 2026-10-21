@@ -832,7 +832,7 @@ const Flat = {
   session(s, p, settings) {
     const f = s.feedback || {};
     const o = {
-      'Pacient': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
+      'Pacient': U.fullName(p), 'Data': s.date || '', 'Hora': s.time || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',

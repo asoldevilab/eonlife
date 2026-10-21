@@ -120,6 +120,7 @@ function SessionEditor({ id }) {
       ]} />
     </div>
 
+    <${SessionConflicts} s=${s} />
     <${SessionTime} s=${s} />
 
     ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
@@ -128,6 +129,7 @@ function SessionEditor({ id }) {
     <section class="card">
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
+        <${Field} label="Hora" id="se-time"><${TextInput} id="se-time" type="time" value=${s.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
         <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>

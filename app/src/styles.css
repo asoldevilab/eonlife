@@ -1903,3 +1903,21 @@ body.cal-dragging .cal-s { pointer-events: none; }
 .cal-s.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; border: 0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal-s.assess { background: #1B2D40; color: #D6E6F7; } }
 :root[data-theme="dark"] .cal-s.assess { background: #1B2D40; color: #D6E6F7; }
+
+/* Hora de la sessió i conflictes */
+.cal-s-time { display: inline-block; margin-right: 4px; padding: 0 4px; border-radius: 4px; font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums; opacity: 0.85; box-shadow: inset 0 0 0 1px currentColor; }
+.pm-row { display: flex; gap: 8px; align-items: center; }
+.pm-row > :first-child { flex: 1 1 auto; min-width: 0; }
+.pm-row input[type="time"] { width: 120px; flex: none; }
+.profchip-uniq { box-shadow: inset 0 0 0 1.5px #B5471E; }
+.uniq-toggle { display: inline-flex; align-items: center; margin-right: 4px; }
+.uniq-toggle input { width: 16px; height: 16px; accent-color: #B5471E; }
+.conflicts { border-left: 5px solid #C8382F; }
+.conflicts-inline { padding: 10px 14px; }
+.conf-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.conf { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.conf-head { display: flex; align-items: center; gap: 8px; color: #A32A24; font-size: 14px; }
+.conf-head strong { color: var(--ink); }
+.conf-pair { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.conf-s { flex: 1 1 240px; text-align: left; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: 13.5px; cursor: pointer; }
+.conf-s.me { border-color: #C8382F; }

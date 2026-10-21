@@ -441,9 +441,9 @@ test('professionals del centre i servei del client', () => {
   const profs = new Set(Object.values(db.patients).map((p) => p.professional));
   assert.ok(!profs.has('Pau Roca') && !profs.has('Marta Soler'));
   assert.deepEqual(Array.from(db.settings.professionals), ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']);
-  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Valoració inicial (Membership)', 'Bo (pacient puntual)']);
-  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Valoració inicial (Membership)');
-  assert.equal(Flat.patient({ service: 'bo' }).Servei, 'Bo (pacient puntual)');
+  assert.deepEqual(Array.from(OPT.services, (o) => o.label), ['Membership EON', 'Client']);
+  assert.equal(Flat.patient({ service: 'membership' }).Servei, 'Membership EON');
+  assert.equal(Flat.patient({ service: 'bo' }).Servei, 'Client');
   // Dades de prova antigues guardades a la tauleta.
   const old = { demo: true, patients: { 'P-DEMO-LAURA': { professional: 'Pau Roca' } }, assessments: {}, sessions: { s: { professional: 'Marta Soler' } },
     settings: { professionals: ['Pau Roca', 'Marta Soler'] } };
@@ -1297,4 +1297,34 @@ test('durada estimada de la sessió i franja respecte de l\'hora', () => {
   assert.equal(Calc.durationBand(70).key, 'long');
   assert.equal(Calc.durationBand(80).key, 'over');
   assert.equal(Calc.durationBand(0), null);
+});
+
+test('conflictes d\'horari: material únic compartit i professional doble', () => {
+  const it = (name, material) => ({ id: name, name, material });
+  const ses = (id, patientId, time, professional, items, extra = {}) => ({ id, patientId, date: '2026-11-03', time, professional, status: 'planificada', blocks: [{ key: 'for', items }], ...extra });
+  const unique = new Set(['Politja cònica isoinercial', 'Barra olímpica (20-25 kg)']);
+  assert.equal(Calc.minutesOf('09:30'), 570);
+  assert.equal(Calc.minutesOf(''), null);
+  const list = [
+    ses('A', 'P1', '10:00', 'Arnau', [it('Pallof', 'Politja cònica isoinercial'), it('Remo', 'Fitball')]),
+    ses('B', 'P2', '10:30', 'Oriol', [it('Squat isoinercial', 'Politja cònica isoinercial'), it('Remo', 'Fitball')]),
+    ses('C', 'P3', '11:00', 'Oriol', [it('Hip thrust', 'Barra olímpica (20-25 kg)')]),
+    ses('D', 'P4', '11:15', 'Richy', [it('Back squat', 'Barra olímpica (20-25 kg)')], { status: 'feta' }),
+    ses('E', 'P5', '', 'Richy', [it('Pallof', 'Politja cònica isoinercial')]),
+    ses('F', 'P6', '18:00', '', [it('Dead bug', 'Terra')]),
+    ses('G', 'P7', '18:30', '', [it('Dead bug', 'Terra')]),
+  ];
+  const profOf = (pid) => ({ P6: 'Richy', P7: 'Richy' })[pid] || '';
+  const c = Calc.scheduleConflicts(list, { unique, profOf });
+  // A–B: material únic (la politja), el Fitball no compta perquè no és únic
+  const mat = c.filter((x) => x.kind === 'material');
+  assert.equal(mat.length, 1);
+  assert.equal(mat[0].a.id + mat[0].b.id, 'AB');
+  assert.equal(mat[0].mats.join(','), 'Politja cònica isoinercial');
+  // B–C: l'Oriol té dues sessions a menys d'una hora; F–G: mateix professional per la fitxa del pacient
+  const prof = c.filter((x) => x.kind === 'prof');
+  assert.equal(prof.map((x) => x.a.id + x.b.id).join(','), 'BC,FG');
+  assert.equal(prof[1].prof, 'Richy');
+  // les fetes, les que no tenen hora i les que són fora de rang no compten
+  assert.equal(Calc.scheduleConflicts(list, { unique, profOf, from: '2026-11-04' }).length, 0);
 });

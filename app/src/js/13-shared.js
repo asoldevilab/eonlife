@@ -27,7 +27,7 @@ function SessionRow({ s, showPatient, compact }) {
     <button type="button" class="srow-main" onClick=${() => go('sessio', s.id)}>
       <span class="srow-title">
         ${showPatient && p && html`<strong>${U.fullName(p)}</strong>`}
-        <span class=${showPatient ? 'muted' : ''}>Sessió ${s.number || '—'}</span>
+        <span class=${showPatient ? 'muted' : ''}>Sessió ${s.number || '—'}${s.time ? ` · ${s.time}` : ''}</span>
       </span>
       <span class="srow-goal">${s.goal || 'Sense objectiu definit'}</span>
       <span class="srow-blocks" aria-label="Blocs amb exercicis">
@@ -165,6 +165,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const last = sessions.filter((s) => s.date <= (date || U.today())).pop() || sessions[sessions.length - 1];
   const tpls = Store.templates().filter((t) => t.kind === 'session');
   const [d, setD] = useState(date || U.today());
+  const [time, setTime] = useState(() => (last && last.time) || '');
   // Si el client té un pla, per defecte es fa la pròxima sessió del pla.
   const plans = Store.plans(pid).filter((x) => Store.nextPlanN(x));
   const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
@@ -173,7 +174,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
+    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
     onClose();
     go('sessio', s.id);
   };
@@ -184,7 +185,8 @@ function NewSessionDialog({ pid, date, onClose }) {
   return html`<${Dialog} title="Nova sessió" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
-    <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <div class="form-grid"><${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <${Field} label="Hora" id="ns-time"><${TextInput} id="ns-time" type="time" value=${time} onValue=${setTime} /></${Field}></div>
     <div class="choices">
       ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,
         mode === 'plan' && html`<div class="inline mt-s">

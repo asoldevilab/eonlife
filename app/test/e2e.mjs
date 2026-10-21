@@ -502,12 +502,12 @@ const step = async (label, fn) => {
     await page.waitForSelector('text=Dades personals');
   });
   await step('servei i professionals del centre', async () => {
-    await page.waitForSelector('.phead .eyebrow >> text=Valoració inicial (Membership)');
+    await page.waitForSelector('.phead .eyebrow >> text=Membership EON');
     if (await page.locator('[role="radiogroup"][aria-label="Servei"] button').count() !== 2) throw new Error('han de ser dos tipus de pacient');
-    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Bo (pacient puntual)');
-    await page.waitForSelector('.phead .eyebrow >> text=Bo (pacient puntual)');
-    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Valoració inicial (Membership)');
-    await page.waitForSelector('.phead .eyebrow >> text=Valoració inicial (Membership)');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Client');
+    await page.waitForSelector('.phead .eyebrow >> text=Client');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Membership EON');
+    await page.waitForSelector('.phead .eyebrow >> text=Membership EON');
     const profs = await page.$$eval('#pf-professional option', (o) => o.map((x) => x.value));
     for (const n of ['Ricardo Villamizar', 'Arnau', 'Oriol Pastor (fisioteràpia)']) if (!profs.includes(n)) throw new Error(`falta ${n}: ${profs}`);
     if (profs.some((n) => /Pau Roca|Marta Soler/.test(n))) throw new Error(`noms ficticis: ${profs}`);
@@ -1307,8 +1307,8 @@ const step = async (label, fn) => {
     await goHash(page, '#/client/P-DEMO-JORDI/fitxa');
     await page.waitForSelector('.pnotes');
     await page.fill('#pf-notes', 'Primera trobada: li fa por el salt');
-    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Bo (pacient puntual)');
-    await page.waitForSelector('.phead .eyebrow >> text=Bo (pacient puntual)');
+    await page.click('[role="radiogroup"][aria-label="Servei"] >> text=Client');
+    await page.waitForSelector('.phead .eyebrow >> text=Client');
     await page.click('.phead-actions >> text=Nou test');
     await page.waitForSelector('.dialog >> text=Nou test');
     const sel = await page.$eval('#am-client', (e) => e.value);

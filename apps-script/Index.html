@@ -1913,6 +1913,24 @@ body.cal-dragging .cal-s { pointer-events: none; }
 .cal-s.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; border: 0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal-s.assess { background: #1B2D40; color: #D6E6F7; } }
 :root[data-theme="dark"] .cal-s.assess { background: #1B2D40; color: #D6E6F7; }
+
+/* Hora de la sessió i conflictes */
+.cal-s-time { display: inline-block; margin-right: 4px; padding: 0 4px; border-radius: 4px; font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums; opacity: 0.85; box-shadow: inset 0 0 0 1px currentColor; }
+.pm-row { display: flex; gap: 8px; align-items: center; }
+.pm-row > :first-child { flex: 1 1 auto; min-width: 0; }
+.pm-row input[type="time"] { width: 120px; flex: none; }
+.profchip-uniq { box-shadow: inset 0 0 0 1.5px #B5471E; }
+.uniq-toggle { display: inline-flex; align-items: center; margin-right: 4px; }
+.uniq-toggle input { width: 16px; height: 16px; accent-color: #B5471E; }
+.conflicts { border-left: 5px solid #C8382F; }
+.conflicts-inline { padding: 10px 14px; }
+.conf-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.conf { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.conf-head { display: flex; align-items: center; gap: 8px; color: #A32A24; font-size: 14px; }
+.conf-head strong { color: var(--ink); }
+.conf-pair { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.conf-s { flex: 1 1 240px; text-align: left; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: 13.5px; cursor: pointer; }
+.conf-s.me { border-color: #C8382F; }
 </style>
 </head>
 <body>
@@ -4222,7 +4240,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-19 10:59";
+<script>window.EON_BUILD = "2026-10-21 14:32";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4622,8 +4640,8 @@ const OPT = {
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control', 'Readaptació'],
   // Servei que fa el client al centre.
   services: [
-    { v: 'membership', label: 'Valoració inicial (Membership)', desc: 'Quota de membership: valoració inicial i entrenament i seguiment continuat al centre' },
-    { v: 'bo', label: 'Bo (pacient puntual)', desc: 'Ha comprat un entrenament o un bo de sessions puntuals, sense membership' },
+    { v: 'membership', label: 'Membership EON', desc: 'Té la membership amb nosaltres: paquet d\'entrenaments, valoració inicial i seguiment continuat al centre' },
+    { v: 'bo', label: 'Client', desc: 'Compra bons d\'entrenament solts, sense membership' },
   ],
   status: [
     { v: 'actiu', label: 'Actiu' },
@@ -4917,6 +4935,13 @@ const CENTER_MATERIALS = [
   'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
   'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
+];
+
+// Material que per defecte compta com a únic (només n'hi ha un): es pot canviar a Configuració.
+const DEFAULT_UNIQUE_MATERIALS = [
+  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
+  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart',
+  'kBox Lite Exxentric', 'Power Personal Technogym',
 ];
 
 // Grups musculars en carpetes: tren superior, tren inferior, core i cos sencer.
@@ -7080,7 +7105,7 @@ const Flat = {
   session(s, p, settings) {
     const f = s.feedback || {};
     const o = {
-      'Pacient': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
+      'Pacient': U.fullName(p), 'Data': s.date || '', 'Hora': s.time || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
@@ -7683,6 +7708,39 @@ Object.assign(Calc, {
     if (minutes <= 75) return { key: 'long', label: 'Una mica llarga' };
     return { key: 'over', label: 'Massa llarga' };
   },
+
+  // ── Conflictes d'horari ──
+  // Minuts des de mitjanit d'una hora «HH:MM» (null si no n'hi ha).
+  minutesOf(t) { const m = /^(\d{1,2}):(\d{2})/.exec(String(t || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; },
+  // Sessions que coincideixen en el temps (cada sessió compta 1 hora des de l'hora d'inici). Dos tipus d'avís:
+  //  · 'prof': el mateix professional té dues sessions a la vegada;
+  //  · 'material': professionals diferents fan servir el mateix material únic (opt.unique, un Set de noms).
+  // opt: { from, to (AAAA-MM-DD), unique, profOf(pid) → professional del pacient, minutes (60) }.
+  scheduleConflicts(sessions, opt = {}) {
+    const dur = opt.minutes || 60;
+    const unique = opt.unique || new Set();
+    const prof = (s) => s.professional || (opt.profOf ? opt.profOf(s.patientId) : '') || '';
+    const list = (sessions || []).filter((s) => s.status !== 'feta' && Calc.minutesOf(s.time) != null
+      && (!opt.from || s.date >= opt.from) && (!opt.to || s.date <= opt.to));
+    const byDate = {};
+    for (const s of list) (byDate[s.date] = byDate[s.date] || []).push(s);
+    const out = [];
+    for (const date of Object.keys(byDate).sort()) {
+      const day = U.sortBy(byDate[date], (s) => Calc.minutesOf(s.time));
+      for (let i = 0; i < day.length; i++) for (let j = i + 1; j < day.length; j++) {
+        const a = day[i], b = day[j];
+        if (a.patientId === b.patientId) continue;
+        const ta = Calc.minutesOf(a.time), tb = Calc.minutesOf(b.time);
+        if (Math.abs(ta - tb) >= dur) continue;
+        const pa = prof(a), pb = prof(b);
+        if (pa && pa === pb) { out.push({ kind: 'prof', date, a, b, prof: pa }); continue; }
+        const ma = new Set(Calc.sessionMaterial(a).map((m) => m.name).filter((m) => unique.has(m)));
+        const mats = Calc.sessionMaterial(b).map((m) => m.name).filter((m) => ma.has(m));
+        if (mats.length) out.push({ kind: 'material', date, a, b, mats, profs: [pa, pb] });
+      }
+    }
+    return out;
+  },
 });
 
 
@@ -8242,6 +8300,11 @@ const Store = {
     const center = this.settings.materials && this.settings.materials.length ? this.settings.materials : CENTER_MATERIALS;
     return { center: [...center], other: OPT.material.filter((m) => !center.includes(m)) };
   },
+  // Material del qual només n'hi ha un al centre: si dues sessions a la mateixa hora el fan servir, l'Inici avisa.
+  uniqueMaterials() {
+    const v = this.settings.uniqueMaterials;
+    return new Set(Array.isArray(v) ? v : DEFAULT_UNIQUE_MATERIALS);
+  },
   professionals() {
     const set = new Set(this.settings.professionals || []);
     for (const p of this.all('patients')) if (p.professional) set.add(p.professional);
@@ -8399,7 +8462,7 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
+  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
     // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
@@ -8433,6 +8496,7 @@ const Store = {
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
+    if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
@@ -8449,13 +8513,14 @@ const Store = {
 
   // ── Planificar per endavant: sessions futures (un mes sencer, o una setmana copiada a les següents) ──
   // Crea una sessió planificada amb aquests blocs.
-  addPlanned(pid, { date, blocks, goal = '', pillar = '' }) {
+  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '' }) {
     const p = this.get('patients', pid);
     const s = {
       id: U.uid('S'), patientId: pid, date, number: this.nextSessionNumber(pid),
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
     };
+    if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
@@ -8478,6 +8543,7 @@ const Store = {
     const lastOn = (wd) => [...sessions].reverse().find((s) => filled(s) && U.parse(s.date).getDay() === wd)
       || [...sessions].reverse().find(filled) || null;
     const chain = {}; // dia de la setmana → { blocks, goal, pillar } de l'última sessió creada
+    const chainTime = {}; // dia de la setmana → hora de la sessió
     const seen = {};  // dia de la setmana → quantes se n'han creat en aquest mes
     const created = [], skipped = [];
     for (const date of this.monthDates(month, days)) {
@@ -8490,6 +8556,7 @@ const Store = {
         if (every > 0 && seen[wd] % every === 0) progressBlocks(blocks);
       } else {
         const base = bases[wd] || { mode: 'last' };
+        chainTime[wd] = base.time != null ? base.time : ((lastOn(wd) || {}).time || '');
         const tpl = base.mode === 'template' ? this.get('templates', base.templateId) : null;
         const src = base.mode === 'last' ? lastOn(wd) : null;
         if (tpl && tpl.kind === 'session') { blocks = this.templateBlocks(tpl); goal = tpl.goal || ''; }
@@ -8498,7 +8565,7 @@ const Store = {
       }
       seen[wd] = (seen[wd] || 0) + 1;
       chain[wd] = { blocks, goal, pillar };
-      created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
+      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
     }
     return { created, skipped };
   },
@@ -8518,7 +8585,7 @@ const Store = {
         cur[s.id] = blocks;
         if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
         taken.add(date);
-        created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
+        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
       }
     }
     return { created, skipped };
@@ -16009,7 +16076,7 @@ function SessionRow({ s, showPatient, compact }) {
     <button type="button" class="srow-main" onClick=${() => go('sessio', s.id)}>
       <span class="srow-title">
         ${showPatient && p && html`<strong>${U.fullName(p)}</strong>`}
-        <span class=${showPatient ? 'muted' : ''}>Sessió ${s.number || '—'}</span>
+        <span class=${showPatient ? 'muted' : ''}>Sessió ${s.number || '—'}${s.time ? ` · ${s.time}` : ''}</span>
       </span>
       <span class="srow-goal">${s.goal || 'Sense objectiu definit'}</span>
       <span class="srow-blocks" aria-label="Blocs amb exercicis">
@@ -16147,6 +16214,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const last = sessions.filter((s) => s.date <= (date || U.today())).pop() || sessions[sessions.length - 1];
   const tpls = Store.templates().filter((t) => t.kind === 'session');
   const [d, setD] = useState(date || U.today());
+  const [time, setTime] = useState(() => (last && last.time) || '');
   // Si el client té un pla, per defecte es fa la pròxima sessió del pla.
   const plans = Store.plans(pid).filter((x) => Store.nextPlanN(x));
   const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
@@ -16155,7 +16223,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
+    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
     onClose();
     go('sessio', s.id);
   };
@@ -16166,7 +16234,8 @@ function NewSessionDialog({ pid, date, onClose }) {
   return html`<${Dialog} title="Nova sessió" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
-    <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <div class="form-grid"><${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <${Field} label="Hora" id="ns-time"><${TextInput} id="ns-time" type="time" value=${time} onValue=${setTime} /></${Field}></div>
     <div class="choices">
       ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,
         mode === 'plan' && html`<div class="inline mt-s">
@@ -19759,6 +19828,8 @@ function HomeView() {
 
     <${MaterialToday} sessions=${todays} />
 
+    <${ConflictsCard} />
+
     <${WeekCalendar} />
 
     <div class="home-grid">
@@ -22723,6 +22794,7 @@ function SessionEditor({ id }) {
       ]} />
     </div>
 
+    <${SessionConflicts} s=${s} />
     <${SessionTime} s=${s} />
 
     ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
@@ -22731,6 +22803,7 @@ function SessionEditor({ id }) {
     <section class="card">
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
+        <${Field} label="Hora" id="se-time"><${TextInput} id="se-time" type="time" value=${s.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
         <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
@@ -23556,7 +23629,7 @@ function MonthView({ p, sessions }) {
             ${[0, 1, 2, 3, 4, 5, 6].map((i) => {
               const date = U.addDays(w.start, i);
               const out = date < first || date > last;
-              const list = sessions.filter((s) => s.date === date);
+              const list = U.sortBy(sessions.filter((s) => s.date === date), (s) => s.time || '99');
               const evals = assessList.filter((a) => a.date === date);
               return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')} data-date=${date}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
@@ -23570,7 +23643,7 @@ function MonthView({ p, sessions }) {
                     onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
                     title=${selecting ? 'Toca per seleccionar-la' : `${sessionTitle(s, quick)} · Arrossega-la (o mantén-la premuda) per canviar-la de dia`}>
                     ${selecting && html`<span class="cal-s-check" aria-hidden="true">${picked ? '✓' : ''}</span>`}
-                    <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
+                    <span class="cal-s-n">${s.time && html`<span class="cal-s-time">${s.time}</span>`}S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
                     ${nums}
                   </button>`;
@@ -23705,7 +23778,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
   const f0 = (s && s.feedback) || {};
   const [f, setF] = useState({
     goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
-    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '',
+    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '',
   });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const when = (s && s.date) || date;
@@ -23713,6 +23786,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
     const apply = (x) => {
       x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status;
+      if (f.time) x.time = f.time; else delete x.time;
       x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
     };
     let rec;
@@ -23737,6 +23811,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
       <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
         <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
       </${Field}>
+      <${Field} label="Hora" id="qs-time"><${TextInput} id="qs-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
       <${Field} label="Pilar" id="qs-pillar"><${Select} id="qs-pillar" value=${f.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
       <${Field} label="Estat" id="qs-status">
         <${Seg} value=${f.status} onValue=${set('status')} allowEmpty=${false} ariaLabel="Estat" options=${OPT.sessionStatus.map((o) => ({ v: o.v, label: o.label }))} />
@@ -24168,6 +24243,8 @@ function SettingsView() {
     setNewMat('');
   };
   const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
+  const uniq = Store.uniqueMaterials();
+  const toggleUniq = (name, on) => { const next = new Set(uniq); if (on) next.add(name); else next.delete(name); Store.saveSettings({ uniqueMaterials: [...next] }); };
 
   const exportJson = async () => {
     const status = await U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
@@ -24292,8 +24369,12 @@ function SettingsView() {
     <section class="card">
       <div class="card-head"><h2 class="h2">Material del centre</h2><span class="muted">Surt primer en triar el material d'un exercici</span></div>
       <div class="proflist">
-        ${mats.map((name) => html`<span class="profchip">${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
+        ${mats.map((name) => html`<span class=${U.cls('profchip', uniq.has(name) && 'profchip-uniq')}>
+          <label class="uniq-toggle" title="Només n'hi ha un: avisa si dos professionals el fan servir a la mateixa hora">
+            <input type="checkbox" checked=${uniq.has(name)} onChange=${(e) => toggleUniq(name, e.currentTarget.checked)} aria-label=${`${name}: només n'hi ha un`} /></label>
+          ${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
       </div>
+      <p class="muted small">Marca la casella del material del qual <strong>només n'hi ha un</strong> (cònica, Keiser, barra olímpica…). Si dos professionals el fan servir a la mateixa hora, l'Inici avisa del conflicte. El que en tenim diversos (mancuernes, gomes, kettlebells) no cal marcar-ho.</p>
       <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addMat(); }}>
         <${TextInput} value=${newMat} onValue=${setNewMat} placeholder="p. ex. Trineu" ariaLabel="Material nou" />
         <${Btn} type="submit" icon="plus">Afegeix</${Btn}>
@@ -25273,6 +25354,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const [month, setMonth] = useState(m0);
   const [days, setDays] = useState(usual);
   const [bases, setBases] = useState({});
+  const [times, setTimes] = useState({});
   const [every, setEvery] = useState('0');
   const [skip, setSkip] = useState(true);
   const thisMonth = U.monthKey(U.today());
@@ -25284,11 +25366,12 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const count = skip ? fresh.length : dates.length;
   const toggle = (d) => setDays(days.includes(d) ? days.filter((x) => x !== d) : [...days, d]);
   const baseOf = (wd) => bases[wd] || 'last';
+  const timeOf = (wd) => (times[wd] != null ? times[wd] : ([...sessions].reverse().find((s) => s.time && U.parse(s.date).getDay() === wd) || {}).time || '');
   const lastOn = (wd) => [...sessions].reverse().find((s) => Calc.itemCount(s) > 0 && U.parse(s.date).getDay() === wd);
   const create = () => {
     if (!days.length) { UI.toast('Tria almenys un dia de la setmana.', 'bad'); return; }
     const objs = {};
-    for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; }
+    for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; objs[d].time = timeOf(d); }
     const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip });
     onClose();
     MonthNav.show(p.id, month);
@@ -25318,7 +25401,8 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
       <${Field} label="Dies d'entrenament" wide=${true}>
         <div class="chips">${WEEK_ORDER.map((d) => html`<${Chip} on=${days.includes(d)} onClick=${() => toggle(d)}>${WEEKDAYS[d]}</${Chip}>`)}</div></${Field}>
       ${WEEK_ORDER.filter((d) => days.includes(d)).map((d) => html`<${Field} label=${`Sessió de ${WEEKDAYS[d]}`} id=${`pm-base-${d}`} wide=${true}>
-        <${Select} id=${`pm-base-${d}`} value=${baseOf(d)} onValue=${(v) => setBases({ ...bases, [d]: v })} options=${baseOptions(d)} /></${Field}>`)}
+        <div class="pm-row"><${Select} id=${`pm-base-${d}`} value=${baseOf(d)} onValue=${(v) => setBases({ ...bases, [d]: v })} options=${baseOptions(d)} />
+          <${TextInput} type="time" value=${timeOf(d)} onValue=${(v) => setTimes({ ...times, [d]: v })} ariaLabel=${`Hora de la sessió de ${WEEKDAYS[d]}`} /></div></${Field}>`)}
     </div>
     <label class="check"><input type="checkbox" checked=${skip} onChange=${(e) => setSkip(e.currentTarget.checked)} /> Salta els dies que ja tenen una sessió</label>
     <p class="muted mt">${dates.length ? html`${U.plural(count, 'sessió', 'sessions')} noves${skip && dates.length > fresh.length ? ` (${U.plural(dates.length - fresh.length, 'dia ja ocupat', 'dies ja ocupats')})` : ''}: ${(skip ? fresh : dates).map((d) => `${U.weekdayShort(d)} ${U.parse(d).getDate()}`).join(' · ') || '—'}` : 'Aquest mes no té cap dia dels triats.'}</p>
@@ -26255,14 +26339,14 @@ function WeekCalendar() {
       </div>
     </div>
     <div class="weekcal-grid">${days.map((d) => {
-      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => U.norm(name(s.patientId)));
+      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => `${s.time || '99'}#${U.norm(name(s.patientId))}`);
       const aa = assessments.filter((a) => a.date === d);
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
         ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)}
           title=${[name(s.patientId), `Sessió ${s.number || ''}`, s.goal, s.professional].filter(Boolean).join(' · ')}>
-          <span class="weekcal-who">${name(s.patientId)}</span>
+          <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
         </button>`)}
         ${aa.map((a) => html`<button type="button" class="weekcal-it assess" onClick=${() => go('valoracio', a.id)} title=${`Valoració · ${name(a.patientId)}`}>
@@ -26277,6 +26361,49 @@ function WeekCalendar() {
     ${!total && html`<p class="muted small">No hi ha res programat aquesta setmana${prof ? ` per a ${prof}` : ''}.</p>`}
     <div class="cal-legend"><span><i class="cal-key done"></i>Sessió feta</span><span><i class="cal-key plan"></i>Sessió programada</span>
       <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
+  </section>`;
+}
+
+// ── Conflictes d'horari (Inici i sessió) ──
+function scheduleConflictsFor(sessions, from, to) {
+  const profOf = (pid) => { const p = Store.get('patients', pid); return (p && p.professional) || ''; };
+  return Calc.scheduleConflicts(sessions, { from, to, unique: Store.uniqueMaterials(), profOf });
+}
+
+function ConflictItem({ c, focus }) {
+  const who = (s) => { const p = Store.get('patients', s.patientId); return p ? U.fullName(p) : 'Pacient'; };
+  const prof = (s) => s.professional || ((Store.get('patients', s.patientId) || {}).professional) || 'sense professional';
+  const side = (s) => html`<button type="button" class=${U.cls('conf-s', focus && focus === s.id && 'me')} onClick=${() => go('sessio', s.id)}>
+    <strong>${s.time}</strong> · ${who(s)} <span class="muted">· ${prof(s)} · S${s.number || ''}</span></button>`;
+  return html`<li class=${`conf conf-${c.kind}`}>
+    <div class="conf-head"><${Icon} name="alert" size=${16} />
+      <span>${U.weekdayShort(c.date)} ${U.fmtDateShort(c.date)} · ${c.kind === 'prof'
+        ? html`<strong>${c.prof}</strong> té dues sessions a la vegada`
+        : html`material compartit: <strong>${c.mats.join(', ')}</strong>`}</span></div>
+    <div class="conf-pair">${side(c.a)}${side(c.b)}</div>
+  </li>`;
+}
+
+// Avís de l'Inici: conflictes de les properes 2 setmanes.
+function ConflictsCard() {
+  const today = U.today();
+  const list = scheduleConflictsFor(Store.all('sessions'), today, U.addDays(today, 13));
+  if (!list.length) return null;
+  return html`<section class="card conflicts" aria-label="Conflictes d'horari">
+    <div class="card-head"><h2 class="h2">Conflictes d'horari · properes 2 setmanes</h2>
+      <span class="muted small">Cada sessió compta 1 hora. Material únic: Configuració › Material del centre.</span></div>
+    <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} />`)}</ul>
+  </section>`;
+}
+
+// Avís a dalt de la sessió si coincideix amb una altra.
+function SessionConflicts({ s }) {
+  if (!s.time || s.status === 'feta') return null;
+  const list = scheduleConflictsFor(Store.all('sessions').filter((x) => x.date === s.date), s.date, s.date)
+    .filter((c) => c.a.id === s.id || c.b.id === s.id);
+  if (!list.length) return null;
+  return html`<section class="card conflicts conflicts-inline no-print" role="alert">
+    <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} focus=${s.id} />`)}</ul>
   </section>`;
 }
 

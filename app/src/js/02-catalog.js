@@ -58,8 +58,8 @@ const OPT = {
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control', 'Readaptació'],
   // Servei que fa el client al centre.
   services: [
-    { v: 'membership', label: 'Valoració inicial (Membership)', desc: 'Quota de membership: valoració inicial i entrenament i seguiment continuat al centre' },
-    { v: 'bo', label: 'Bo (pacient puntual)', desc: 'Ha comprat un entrenament o un bo de sessions puntuals, sense membership' },
+    { v: 'membership', label: 'Membership EON', desc: 'Té la membership amb nosaltres: paquet d\'entrenaments, valoració inicial i seguiment continuat al centre' },
+    { v: 'bo', label: 'Client', desc: 'Compra bons d\'entrenament solts, sense membership' },
   ],
   status: [
     { v: 'actiu', label: 'Actiu' },
@@ -353,6 +353,13 @@ const CENTER_MATERIALS = [
   'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
   'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
+];
+
+// Material que per defecte compta com a únic (només n'hi ha un): es pot canviar a Configuració.
+const DEFAULT_UNIQUE_MATERIALS = [
+  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
+  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart',
+  'kBox Lite Exxentric', 'Power Personal Technogym',
 ];
 
 // Grups musculars en carpetes: tren superior, tren inferior, core i cos sencer.

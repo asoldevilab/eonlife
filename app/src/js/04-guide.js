@@ -255,4 +255,37 @@ Object.assign(Calc, {
     if (minutes <= 75) return { key: 'long', label: 'Una mica llarga' };
     return { key: 'over', label: 'Massa llarga' };
   },
+
+  // ── Conflictes d'horari ──
+  // Minuts des de mitjanit d'una hora «HH:MM» (null si no n'hi ha).
+  minutesOf(t) { const m = /^(\d{1,2}):(\d{2})/.exec(String(t || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; },
+  // Sessions que coincideixen en el temps (cada sessió compta 1 hora des de l'hora d'inici). Dos tipus d'avís:
+  //  · 'prof': el mateix professional té dues sessions a la vegada;
+  //  · 'material': professionals diferents fan servir el mateix material únic (opt.unique, un Set de noms).
+  // opt: { from, to (AAAA-MM-DD), unique, profOf(pid) → professional del pacient, minutes (60) }.
+  scheduleConflicts(sessions, opt = {}) {
+    const dur = opt.minutes || 60;
+    const unique = opt.unique || new Set();
+    const prof = (s) => s.professional || (opt.profOf ? opt.profOf(s.patientId) : '') || '';
+    const list = (sessions || []).filter((s) => s.status !== 'feta' && Calc.minutesOf(s.time) != null
+      && (!opt.from || s.date >= opt.from) && (!opt.to || s.date <= opt.to));
+    const byDate = {};
+    for (const s of list) (byDate[s.date] = byDate[s.date] || []).push(s);
+    const out = [];
+    for (const date of Object.keys(byDate).sort()) {
+      const day = U.sortBy(byDate[date], (s) => Calc.minutesOf(s.time));
+      for (let i = 0; i < day.length; i++) for (let j = i + 1; j < day.length; j++) {
+        const a = day[i], b = day[j];
+        if (a.patientId === b.patientId) continue;
+        const ta = Calc.minutesOf(a.time), tb = Calc.minutesOf(b.time);
+        if (Math.abs(ta - tb) >= dur) continue;
+        const pa = prof(a), pb = prof(b);
+        if (pa && pa === pb) { out.push({ kind: 'prof', date, a, b, prof: pa }); continue; }
+        const ma = new Set(Calc.sessionMaterial(a).map((m) => m.name).filter((m) => unique.has(m)));
+        const mats = Calc.sessionMaterial(b).map((m) => m.name).filter((m) => ma.has(m));
+        if (mats.length) out.push({ kind: 'material', date, a, b, mats, profs: [pa, pb] });
+      }
+    }
+    return out;
+  },
 });
