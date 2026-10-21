@@ -351,6 +351,49 @@ const SEED_EXERCISES = (() => {
   pp(38, 'acc', 'Elevació lateral a una mà · Pulley Pro', 'Tren superior', { pic: 'lat_raise_cone', gm: 'Deltoides', sets: '3', reps: '10/costat', cont: 'ECC',
     cues: 'De costat a la columna, politja baixa. Puja el braç fins a l\'alçada de l\'espatlla i frena la baixada.' });
 
+  // ── kBox (Exxentric): sobrecàrrega excèntrica amb volant; armilla, cinturó de maluc, kBar o nanses (kGrip) ──
+  const kbx = (n, block, name, cat, extra) => add(`X-KBX-${String(n).padStart(2, '0')}`, block, name, cat, KX,
+    { pos: 'Bp', lat: 'BL', cont: 'ECC', sets: '3', reps: '6 + 2 d\'arrencada', intensity: 'Màxima intenció', rest: '2\'', materials: [KX], ...extra });
+  const KB_ECC = '2 reps d\'arrencada; puja ràpid i frena al final.';
+  Object.assign(byId['X-FOR-39'], { name: 'Squat amb armilla · kBox', pic: 'kb_squat_vest',
+    cues: 'Armilla ben ajustada i peus a l\'amplada de les espatlles a la plataforma. ' + KB_ECC });
+  Object.assign(byId['X-FOR-40'], { name: 'Pes mort romanès amb kBar · kBox', pic: 'kb_rdl_bar',
+    cues: 'kBar a les mans i genolls suaus; porta el maluc enrere amb l\'esquena neutra. ' + KB_ECC });
+  kbx(1, 'for', 'Split squat amb armilla · kBox', 'Dominant de genoll', { pic: 'kb_split_vest', lat: 'UL', gm: 'Quàdriceps', muscles: ['GMax'], reps: '6/cama + 2',
+    cues: 'Peu de davant a la plataforma i el de darrere a terra. Baixa vertical i puja ràpid; frena al final de la baixada.' });
+  kbx(2, 'for', 'Squat lateral amb armilla · kBox', 'Dominant de genoll', { pic: 'kb_lateral_vest', lat: 'UL', gm: 'Adductors', muscles: ['Quàdriceps', 'GMax'], reps: '6/costat + 2',
+    cues: 'Un peu a la plataforma i l\'altre a terra, ample. Seu sobre la cama de la plataforma amb el genoll alineat i torna ràpid.' });
+  kbx(3, 'for', 'Squat búlgar amb armilla · kBox', 'Dominant de genoll', { pic: 'kb_bulgarian_vest', lat: 'UL', gm: 'Quàdriceps', muscles: ['GMax'], reps: '6/cama + 2',
+    cues: 'Peu de darrere en un banc i el de davant a la plataforma. Baixa vertical, frena al final i puja amb intenció.' });
+  kbx(4, 'acc', 'Elevació de talons amb armilla · kBox', 'Tren inferior', { pic: 'kb_calf_vest', gm: 'Bessons i soli', reps: '10 + 2',
+    cues: 'Puntes a la tauleta de la plataforma i genolls estirats. Puja de puntetes ràpid i baixa frenant fins a estirar el panxell.' });
+  kbx(5, 'for', 'Squat amb cinturó (belt squat) · kBox', 'Dominant de genoll', { pic: 'kb_squat_belt', gm: 'Quàdriceps', muscles: ['GMax'],
+    cues: 'Cinturó de maluc: la càrrega no passa per l\'esquena ni pels braços (útil amb lesions d\'espatlla o canell). ' + KB_ECC });
+  kbx(6, 'for', 'Split squat amb cinturó · kBox', 'Dominant de genoll', { pic: 'kb_split_belt', lat: 'UL', gm: 'Quàdriceps', muscles: ['GMax'], reps: '6/cama + 2',
+    cues: 'Cinturó de maluc i peu de davant a la plataforma. Tronc alt, baixa vertical i puja ràpid.' });
+  kbx(7, 'for', 'Pes mort amb kBar · kBox', 'Dominant de maluc', { pic: 'kb_deadlift_bar', gm: 'GMax', muscles: ['Isquiotibials', 'Quàdriceps', 'Lumbar'],
+    cues: 'kBar entre les cames i esquena neutra. Empeny el terra i estira el maluc a dalt; frena la baixada sense arrodonir l\'esquena.' });
+  kbx(8, 'for', 'Rem inclinat amb kBar · kBox', 'Tracció', { pic: 'kb_row_bar', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], reps: '8 + 2',
+    cues: 'Tronc inclinat i esquena neutra. Tira la kBar cap al melic juntant les escàpules i frena la baixada.' });
+  kbx(9, 'pot', 'Rem alt (high pull) amb kBar · kBox', 'Derivat olímpic', { pic: 'kb_highpull_bar', gm: 'Trapezi', muscles: ['Deltoides', 'GMax'], reps: '5 + 2',
+    cues: 'Estira maluc i genolls amb força i continua amb els colzes amunt fins al pit. Frena la baixada.' });
+  kbx(10, 'acc', 'Encongiments amb kBar · kBox', 'Tren superior', { pic: 'kb_shrug_bar', gm: 'Trapezi', reps: '10 + 2',
+    cues: 'Braços estirats; puja les espatlles cap a les orelles ràpid i baixa frenant.' });
+  kbx(11, 'acc', 'Curl de bíceps amb kBar · kBox', 'Tren superior', { pic: 'kb_curl_bar', gm: 'Bíceps', muscles: ['Avantbraç'], reps: '8 + 2',
+    cues: 'Colzes enganxats al cos. Puja ràpid i frena la baixada fins a estirar els braços.' });
+  kbx(12, 'pot', 'Thruster amb kBar · kBox', 'Balístic', { pic: 'kb_thruster_bar', gm: 'Quàdriceps', muscles: ['GMax', 'Deltoides', 'Tríceps'], reps: '5 + 2',
+    cues: 'kBar a l\'alçada de les espatlles. Puja del squat i acaba amb els braços amunt en un sol moviment; frena tornant al squat.' });
+  kbx(13, 'for', 'Front squat amb kBar · kBox', 'Dominant de genoll', { pic: 'kb_frontsquat_bar', gm: 'Quàdriceps', muscles: ['GMax', 'Core'],
+    cues: 'kBar davant de les espatlles i colzes amunt. Tronc vertical, baixa frenant i puja ràpid.' });
+  kbx(14, 'pot', 'Swing de maluc amb kBar · kBox', 'Balístic', { pic: 'kb_swing_bar', gm: 'GMax', muscles: ['Isquiotibials'], reps: '8 + 2',
+    cues: 'Bisagra de maluc explosiva: la kBar passa entre les cames i puja fins al pit amb els braços relaxats. Frena la tornada amb el maluc.' });
+  kbx(15, 'for', 'Rem a una mà amb nansa · kBox', 'Tracció', { pic: 'kb_row_grip', lat: 'UL', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], reps: '8/costat + 2',
+    cues: 'Nansa (kGrip) a una mà i l\'altra recolzada. Tira el colze cap al maluc i frena la baixada.' });
+  kbx(16, 'acc', 'Elevació lateral amb nansa · kBox', 'Tren superior', { pic: 'kb_latraise_grip', lat: 'UL', gm: 'Deltoides', reps: '8/costat + 2',
+    cues: 'Nansa a la mà del costat contrari a la corja. Puja el braç fins a l\'alçada de l\'espatlla i frena la baixada.' });
+  kbx(17, 'acc', 'Extensió de tríceps amb nansa · kBox', 'Tren superior', { pic: 'kb_triceps_grip', lat: 'UL', gm: 'Tríceps', reps: '8/costat + 2',
+    cues: 'Nansa darrere del cap i colze apuntant amunt. Estén el braç i frena la tornada.' });
+
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
   const lb = (n, block, name, tg, gm, extra = {}) => add(`X-LB-${String(n).padStart(2, '0')}`, block, name, 'Loop band', LB,

@@ -4250,7 +4250,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-21 18:10";
+window.EON_BUILD = "2026-10-21 18:23";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5336,6 +5336,49 @@ const SEED_EXERCISES = (() => {
     cues: 'Colze enganxat al cos a 90°. Gira l\'avantbraç enfora i frena la tornada lentament.' });
   pp(38, 'acc', 'Elevació lateral a una mà · Pulley Pro', 'Tren superior', { pic: 'lat_raise_cone', gm: 'Deltoides', sets: '3', reps: '10/costat', cont: 'ECC',
     cues: 'De costat a la columna, politja baixa. Puja el braç fins a l\'alçada de l\'espatlla i frena la baixada.' });
+
+  // ── kBox (Exxentric): sobrecàrrega excèntrica amb volant; armilla, cinturó de maluc, kBar o nanses (kGrip) ──
+  const kbx = (n, block, name, cat, extra) => add(`X-KBX-${String(n).padStart(2, '0')}`, block, name, cat, KX,
+    { pos: 'Bp', lat: 'BL', cont: 'ECC', sets: '3', reps: '6 + 2 d\'arrencada', intensity: 'Màxima intenció', rest: '2\'', materials: [KX], ...extra });
+  const KB_ECC = '2 reps d\'arrencada; puja ràpid i frena al final.';
+  Object.assign(byId['X-FOR-39'], { name: 'Squat amb armilla · kBox', pic: 'kb_squat_vest',
+    cues: 'Armilla ben ajustada i peus a l\'amplada de les espatlles a la plataforma. ' + KB_ECC });
+  Object.assign(byId['X-FOR-40'], { name: 'Pes mort romanès amb kBar · kBox', pic: 'kb_rdl_bar',
+    cues: 'kBar a les mans i genolls suaus; porta el maluc enrere amb l\'esquena neutra. ' + KB_ECC });
+  kbx(1, 'for', 'Split squat amb armilla · kBox', 'Dominant de genoll', { pic: 'kb_split_vest', lat: 'UL', gm: 'Quàdriceps', muscles: ['GMax'], reps: '6/cama + 2',
+    cues: 'Peu de davant a la plataforma i el de darrere a terra. Baixa vertical i puja ràpid; frena al final de la baixada.' });
+  kbx(2, 'for', 'Squat lateral amb armilla · kBox', 'Dominant de genoll', { pic: 'kb_lateral_vest', lat: 'UL', gm: 'Adductors', muscles: ['Quàdriceps', 'GMax'], reps: '6/costat + 2',
+    cues: 'Un peu a la plataforma i l\'altre a terra, ample. Seu sobre la cama de la plataforma amb el genoll alineat i torna ràpid.' });
+  kbx(3, 'for', 'Squat búlgar amb armilla · kBox', 'Dominant de genoll', { pic: 'kb_bulgarian_vest', lat: 'UL', gm: 'Quàdriceps', muscles: ['GMax'], reps: '6/cama + 2',
+    cues: 'Peu de darrere en un banc i el de davant a la plataforma. Baixa vertical, frena al final i puja amb intenció.' });
+  kbx(4, 'acc', 'Elevació de talons amb armilla · kBox', 'Tren inferior', { pic: 'kb_calf_vest', gm: 'Bessons i soli', reps: '10 + 2',
+    cues: 'Puntes a la tauleta de la plataforma i genolls estirats. Puja de puntetes ràpid i baixa frenant fins a estirar el panxell.' });
+  kbx(5, 'for', 'Squat amb cinturó (belt squat) · kBox', 'Dominant de genoll', { pic: 'kb_squat_belt', gm: 'Quàdriceps', muscles: ['GMax'],
+    cues: 'Cinturó de maluc: la càrrega no passa per l\'esquena ni pels braços (útil amb lesions d\'espatlla o canell). ' + KB_ECC });
+  kbx(6, 'for', 'Split squat amb cinturó · kBox', 'Dominant de genoll', { pic: 'kb_split_belt', lat: 'UL', gm: 'Quàdriceps', muscles: ['GMax'], reps: '6/cama + 2',
+    cues: 'Cinturó de maluc i peu de davant a la plataforma. Tronc alt, baixa vertical i puja ràpid.' });
+  kbx(7, 'for', 'Pes mort amb kBar · kBox', 'Dominant de maluc', { pic: 'kb_deadlift_bar', gm: 'GMax', muscles: ['Isquiotibials', 'Quàdriceps', 'Lumbar'],
+    cues: 'kBar entre les cames i esquena neutra. Empeny el terra i estira el maluc a dalt; frena la baixada sense arrodonir l\'esquena.' });
+  kbx(8, 'for', 'Rem inclinat amb kBar · kBox', 'Tracció', { pic: 'kb_row_bar', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], reps: '8 + 2',
+    cues: 'Tronc inclinat i esquena neutra. Tira la kBar cap al melic juntant les escàpules i frena la baixada.' });
+  kbx(9, 'pot', 'Rem alt (high pull) amb kBar · kBox', 'Derivat olímpic', { pic: 'kb_highpull_bar', gm: 'Trapezi', muscles: ['Deltoides', 'GMax'], reps: '5 + 2',
+    cues: 'Estira maluc i genolls amb força i continua amb els colzes amunt fins al pit. Frena la baixada.' });
+  kbx(10, 'acc', 'Encongiments amb kBar · kBox', 'Tren superior', { pic: 'kb_shrug_bar', gm: 'Trapezi', reps: '10 + 2',
+    cues: 'Braços estirats; puja les espatlles cap a les orelles ràpid i baixa frenant.' });
+  kbx(11, 'acc', 'Curl de bíceps amb kBar · kBox', 'Tren superior', { pic: 'kb_curl_bar', gm: 'Bíceps', muscles: ['Avantbraç'], reps: '8 + 2',
+    cues: 'Colzes enganxats al cos. Puja ràpid i frena la baixada fins a estirar els braços.' });
+  kbx(12, 'pot', 'Thruster amb kBar · kBox', 'Balístic', { pic: 'kb_thruster_bar', gm: 'Quàdriceps', muscles: ['GMax', 'Deltoides', 'Tríceps'], reps: '5 + 2',
+    cues: 'kBar a l\'alçada de les espatlles. Puja del squat i acaba amb els braços amunt en un sol moviment; frena tornant al squat.' });
+  kbx(13, 'for', 'Front squat amb kBar · kBox', 'Dominant de genoll', { pic: 'kb_frontsquat_bar', gm: 'Quàdriceps', muscles: ['GMax', 'Core'],
+    cues: 'kBar davant de les espatlles i colzes amunt. Tronc vertical, baixa frenant i puja ràpid.' });
+  kbx(14, 'pot', 'Swing de maluc amb kBar · kBox', 'Balístic', { pic: 'kb_swing_bar', gm: 'GMax', muscles: ['Isquiotibials'], reps: '8 + 2',
+    cues: 'Bisagra de maluc explosiva: la kBar passa entre les cames i puja fins al pit amb els braços relaxats. Frena la tornada amb el maluc.' });
+  kbx(15, 'for', 'Rem a una mà amb nansa · kBox', 'Tracció', { pic: 'kb_row_grip', lat: 'UL', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], reps: '8/costat + 2',
+    cues: 'Nansa (kGrip) a una mà i l\'altra recolzada. Tira el colze cap al maluc i frena la baixada.' });
+  kbx(16, 'acc', 'Elevació lateral amb nansa · kBox', 'Tren superior', { pic: 'kb_latraise_grip', lat: 'UL', gm: 'Deltoides', reps: '8/costat + 2',
+    cues: 'Nansa a la mà del costat contrari a la corja. Puja el braç fins a l\'alçada de l\'espatlla i frena la baixada.' });
+  kbx(17, 'acc', 'Extensió de tríceps amb nansa · kBox', 'Tren superior', { pic: 'kb_triceps_grip', lat: 'UL', gm: 'Tríceps', reps: '8/costat + 2',
+    cues: 'Nansa darrere del cap i colze apuntant amunt. Estén el braç i frena la tornada.' });
 
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
@@ -17077,6 +17120,27 @@ PICS.prone_kick_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Extensi
 PICS.prone_curl_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Curl d\'isquios estirat a la politja cònica', t: 0, hd: -4, l: [180, -84], m: [180, 180],
   a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
 
+// ── kBox (Exxentric): plataforma amb volant; la corja va a l'armilla, al cinturó, a la kBar o a la nansa ──
+PICS.kb_squat_vest = { ...PICS.squat, band: undefined, label: 'Squat amb armilla a la kBox', kb: 'vest' };
+PICS.kb_split_vest = { ...PICS.split, band: undefined, label: 'Split squat amb armilla a la kBox', grip: 'none', kb: 'vest', kbFoot: 0 };
+PICS.kb_lateral_vest = { ...PICS.lateral_lunge, label: 'Squat lateral amb armilla a la kBox', grip: 'none', kb: 'vest', kbFoot: 0 };
+PICS.kb_bulgarian_vest = { ...PICS.split_bench, label: 'Squat búlgar amb armilla a la kBox', grip: 'none', kb: 'vest', kbFoot: 0 };
+PICS.kb_calf_vest = { ...PICS.calf, label: 'Elevació de talons amb armilla a la kBox', grip: 'none', kb: 'vest' };
+PICS.kb_squat_belt = { ...PICS.squat, band: undefined, label: 'Squat amb cinturó a la kBox', kb: 'belt' };
+PICS.kb_split_belt = { ...PICS.split, band: undefined, label: 'Split squat amb cinturó a la kBox', grip: 'none', kb: 'belt', kbFoot: 0 };
+PICS.kb_deadlift_bar = { ...PICS.deadlift, label: 'Pes mort amb kBar', kb: 'bar' };
+PICS.kb_rdl_bar = { ...PICS.hinge, label: 'Pes mort romanès amb kBar', kb: 'bar' };
+PICS.kb_row_bar = { ...PICS.row, label: 'Rem inclinat amb kBar', kb: 'bar' };
+PICS.kb_highpull_bar = { ...PICS.high_pull, label: 'Rem alt amb kBar', kb: 'bar' };
+PICS.kb_shrug_bar = { ...PICS.shrug, label: 'Encongiments amb kBar', kb: 'bar' };
+PICS.kb_curl_bar = { ...PICS.curl, pull: undefined, label: 'Curl de bíceps amb kBar', kb: 'bar' };
+PICS.kb_thruster_bar = { ...PICS.thruster, label: 'Thruster amb kBar', kb: 'bar' };
+PICS.kb_frontsquat_bar = { ...PICS.squat_front, label: 'Front squat amb kBar', kb: 'bar' };
+PICS.kb_swing_bar = { ...PICS.swing, label: 'Swing de maluc amb kBar', kb: 'bar' };
+PICS.kb_row_grip = { ...PICS.row_one, label: 'Rem a una mà amb nansa a la kBox', kb: 'grip' };
+PICS.kb_latraise_grip = { ...PICS.lat_raise, label: 'Elevació lateral amb nansa a la kBox', kb: 'grip' };
+PICS.kb_triceps_grip = { ...PICS.triceps_oh_one, label: 'Extensió de tríceps amb nansa a la kBox', kb: 'grip' };
+
 // ── Keiser (resistència pneumàtica) ──
 // Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
 const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));
@@ -17525,9 +17589,31 @@ function picGear3(J, P, g, C) {
     return out;
   }
   if (g.kind === 'kbox') {
-    const c = v3.lerp(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.5), v3.lerp(J.leg[1].heel, J.leg[1].toe, 0.5), 0.5);
-    out.push(pk.box(c[0] - 13, c[0] + 13, J.floorY - 2.2, J.floorY, -9, 9, 'pp', { gear: 1, under: 1 }));
-    out.push(pk.line([v3.add(J.pel, v3.mul(J.f, 3.5)), [c[0] + 1, J.floorY, 0]], 1.2, 'pe', { gear: 1 }));
+    // plataforma kBox sota els peus (o sota el peu de davant a l'estocada: P.kbFoot) i la corja fins al volant;
+    // accessori P.kb: 'belt' (cinturó al maluc, per defecte), 'vest' (armilla a les espatlles), 'bar' (kBar a les mans)
+    // o 'grip' (nansa a una mà)
+    const foot = (G) => v3.lerp(G.heel, G.toe, 0.5);
+    const c = P.kbFoot != null ? foot(J.leg[P.kbFoot]) : v3.lerp(foot(J.leg[0]), foot(J.leg[1]), 0.5);
+    const base = [c[0] + 1, J.floorY, c[2]];
+    out.push(pk.box(c[0] - 13, c[0] + 13, J.floorY - 2.2, J.floorY, c[2] - 9, c[2] + 9, 'pp', { gear: 1, under: 1 }));
+    const kb = P.kb || 'belt';
+    if (kb === 'vest') {
+      // armilla: tirants de les espatlles fins al pit (per davant del cos) i la corja des del pit
+      const chest = v3.add(v3.lerp(v3.lerp(J.sh[0], J.sh[1], 0.5), J.pel, 0.45), v3.mul(J.f, 4.2));
+      for (const S of J.sh) out.push(pk.line([v3.add(S, v3.mul(J.f, 2.6)), chest], 2.4, 'pe', { gear: 1 }));
+      out.push(pk.disc(chest, J.f, 2.2, 'pe-ring', { gear: 1 }));
+      out.push(pk.line([chest, base], 1.2, 'pe', { gear: 1 }));
+    } else if (kb === 'bar') {
+      out.push(pk.cap(v3.along(mid, J.rs, -13), v3.along(mid, J.rs, 13), 0.95, 0.95, 'pmh', { gear: 1 }));
+      for (const k of [-1, 1]) out.push(pk.disc(v3.along(mid, J.rs, k * 13), J.rs, 1.8, 'pmh', { gear: 1 }));
+      out.push(pk.line([mid, base], 1.2, 'pe', { gear: 1 }));
+    } else if (kb === 'grip') {
+      out.push(pk.cap(v3.along(hR, C.right, -1.6), v3.along(hR, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+      out.push(pk.line([hR, base], 1.2, 'pe', { gear: 1 }));
+    } else {
+      out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+      out.push(pk.line([v3.add(J.pel, v3.mul(J.f, 3.5)), base], 1.2, 'pe', { gear: 1 }));
+    }
     return out;
   }
   if (g.kind === 'sliders') {

@@ -423,9 +423,31 @@ function picGear3(J, P, g, C) {
     return out;
   }
   if (g.kind === 'kbox') {
-    const c = v3.lerp(v3.lerp(J.leg[0].heel, J.leg[0].toe, 0.5), v3.lerp(J.leg[1].heel, J.leg[1].toe, 0.5), 0.5);
-    out.push(pk.box(c[0] - 13, c[0] + 13, J.floorY - 2.2, J.floorY, -9, 9, 'pp', { gear: 1, under: 1 }));
-    out.push(pk.line([v3.add(J.pel, v3.mul(J.f, 3.5)), [c[0] + 1, J.floorY, 0]], 1.2, 'pe', { gear: 1 }));
+    // plataforma kBox sota els peus (o sota el peu de davant a l'estocada: P.kbFoot) i la corja fins al volant;
+    // accessori P.kb: 'belt' (cinturó al maluc, per defecte), 'vest' (armilla a les espatlles), 'bar' (kBar a les mans)
+    // o 'grip' (nansa a una mà)
+    const foot = (G) => v3.lerp(G.heel, G.toe, 0.5);
+    const c = P.kbFoot != null ? foot(J.leg[P.kbFoot]) : v3.lerp(foot(J.leg[0]), foot(J.leg[1]), 0.5);
+    const base = [c[0] + 1, J.floorY, c[2]];
+    out.push(pk.box(c[0] - 13, c[0] + 13, J.floorY - 2.2, J.floorY, c[2] - 9, c[2] + 9, 'pp', { gear: 1, under: 1 }));
+    const kb = P.kb || 'belt';
+    if (kb === 'vest') {
+      // armilla: tirants de les espatlles fins al pit (per davant del cos) i la corja des del pit
+      const chest = v3.add(v3.lerp(v3.lerp(J.sh[0], J.sh[1], 0.5), J.pel, 0.45), v3.mul(J.f, 4.2));
+      for (const S of J.sh) out.push(pk.line([v3.add(S, v3.mul(J.f, 2.6)), chest], 2.4, 'pe', { gear: 1 }));
+      out.push(pk.disc(chest, J.f, 2.2, 'pe-ring', { gear: 1 }));
+      out.push(pk.line([chest, base], 1.2, 'pe', { gear: 1 }));
+    } else if (kb === 'bar') {
+      out.push(pk.cap(v3.along(mid, J.rs, -13), v3.along(mid, J.rs, 13), 0.95, 0.95, 'pmh', { gear: 1 }));
+      for (const k of [-1, 1]) out.push(pk.disc(v3.along(mid, J.rs, k * 13), J.rs, 1.8, 'pmh', { gear: 1 }));
+      out.push(pk.line([mid, base], 1.2, 'pe', { gear: 1 }));
+    } else if (kb === 'grip') {
+      out.push(pk.cap(v3.along(hR, C.right, -1.6), v3.along(hR, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+      out.push(pk.line([hR, base], 1.2, 'pe', { gear: 1 }));
+    } else {
+      out.push(pk.disc(v3.add(J.pel, v3.mul(J.u, 3.2)), J.u, 5.4, 'pe-ring', { gear: 1 }));
+      out.push(pk.line([v3.add(J.pel, v3.mul(J.f, 3.5)), base], 1.2, 'pe', { gear: 1 }));
+    }
     return out;
   }
   if (g.kind === 'sliders') {
