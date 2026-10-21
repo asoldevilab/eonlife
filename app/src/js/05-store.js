@@ -324,6 +324,11 @@ const Store = {
     const center = this.settings.materials && this.settings.materials.length ? this.settings.materials : CENTER_MATERIALS;
     return { center: [...center], other: OPT.material.filter((m) => !center.includes(m)) };
   },
+  // Material del qual només n'hi ha un al centre: si dues sessions a la mateixa hora el fan servir, l'Inici avisa.
+  uniqueMaterials() {
+    const v = this.settings.uniqueMaterials;
+    return new Set(Array.isArray(v) ? v : DEFAULT_UNIQUE_MATERIALS);
+  },
   professionals() {
     const set = new Set(this.settings.professionals || []);
     for (const p of this.all('patients')) if (p.professional) set.add(p.professional);
@@ -481,7 +486,7 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
+  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
     // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
@@ -515,6 +520,7 @@ const Store = {
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
+    if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
@@ -531,13 +537,14 @@ const Store = {
 
   // ── Planificar per endavant: sessions futures (un mes sencer, o una setmana copiada a les següents) ──
   // Crea una sessió planificada amb aquests blocs.
-  addPlanned(pid, { date, blocks, goal = '', pillar = '' }) {
+  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '' }) {
     const p = this.get('patients', pid);
     const s = {
       id: U.uid('S'), patientId: pid, date, number: this.nextSessionNumber(pid),
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
     };
+    if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
@@ -560,6 +567,7 @@ const Store = {
     const lastOn = (wd) => [...sessions].reverse().find((s) => filled(s) && U.parse(s.date).getDay() === wd)
       || [...sessions].reverse().find(filled) || null;
     const chain = {}; // dia de la setmana → { blocks, goal, pillar } de l'última sessió creada
+    const chainTime = {}; // dia de la setmana → hora de la sessió
     const seen = {};  // dia de la setmana → quantes se n'han creat en aquest mes
     const created = [], skipped = [];
     for (const date of this.monthDates(month, days)) {
@@ -572,6 +580,7 @@ const Store = {
         if (every > 0 && seen[wd] % every === 0) progressBlocks(blocks);
       } else {
         const base = bases[wd] || { mode: 'last' };
+        chainTime[wd] = base.time != null ? base.time : ((lastOn(wd) || {}).time || '');
         const tpl = base.mode === 'template' ? this.get('templates', base.templateId) : null;
         const src = base.mode === 'last' ? lastOn(wd) : null;
         if (tpl && tpl.kind === 'session') { blocks = this.templateBlocks(tpl); goal = tpl.goal || ''; }
@@ -580,7 +589,7 @@ const Store = {
       }
       seen[wd] = (seen[wd] || 0) + 1;
       chain[wd] = { blocks, goal, pillar };
-      created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
+      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
     }
     return { created, skipped };
   },
@@ -600,7 +609,7 @@ const Store = {
         cur[s.id] = blocks;
         if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
         taken.add(date);
-        created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
+        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
       }
     }
     return { created, skipped };

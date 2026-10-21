@@ -22,6 +22,8 @@ function SettingsView() {
     setNewMat('');
   };
   const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
+  const uniq = Store.uniqueMaterials();
+  const toggleUniq = (name, on) => { const next = new Set(uniq); if (on) next.add(name); else next.delete(name); Store.saveSettings({ uniqueMaterials: [...next] }); };
 
   const exportJson = async () => {
     const status = await U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
@@ -146,8 +148,12 @@ function SettingsView() {
     <section class="card">
       <div class="card-head"><h2 class="h2">Material del centre</h2><span class="muted">Surt primer en triar el material d'un exercici</span></div>
       <div class="proflist">
-        ${mats.map((name) => html`<span class="profchip">${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
+        ${mats.map((name) => html`<span class=${U.cls('profchip', uniq.has(name) && 'profchip-uniq')}>
+          <label class="uniq-toggle" title="Només n'hi ha un: avisa si dos professionals el fan servir a la mateixa hora">
+            <input type="checkbox" checked=${uniq.has(name)} onChange=${(e) => toggleUniq(name, e.currentTarget.checked)} aria-label=${`${name}: només n'hi ha un`} /></label>
+          ${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
       </div>
+      <p class="muted small">Marca la casella del material del qual <strong>només n'hi ha un</strong> (cònica, Keiser, barra olímpica…). Si dos professionals el fan servir a la mateixa hora, l'Inici avisa del conflicte. El que en tenim diversos (mancuernes, gomes, kettlebells) no cal marcar-ho.</p>
       <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addMat(); }}>
         <${TextInput} value=${newMat} onValue=${setNewMat} placeholder="p. ex. Trineu" ariaLabel="Material nou" />
         <${Btn} type="submit" icon="plus">Afegeix</${Btn}>

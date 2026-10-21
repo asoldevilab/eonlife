@@ -55,6 +55,8 @@ function HomeView() {
 
     <${MaterialToday} sessions=${todays} />
 
+    <${ConflictsCard} />
+
     <${WeekCalendar} />
 
     <div class="home-grid">

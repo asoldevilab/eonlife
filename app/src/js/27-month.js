@@ -78,7 +78,7 @@ function MonthView({ p, sessions }) {
             ${[0, 1, 2, 3, 4, 5, 6].map((i) => {
               const date = U.addDays(w.start, i);
               const out = date < first || date > last;
-              const list = sessions.filter((s) => s.date === date);
+              const list = U.sortBy(sessions.filter((s) => s.date === date), (s) => s.time || '99');
               const evals = assessList.filter((a) => a.date === date);
               return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')} data-date=${date}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
@@ -92,7 +92,7 @@ function MonthView({ p, sessions }) {
                     onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
                     title=${selecting ? 'Toca per seleccionar-la' : `${sessionTitle(s, quick)} · Arrossega-la (o mantén-la premuda) per canviar-la de dia`}>
                     ${selecting && html`<span class="cal-s-check" aria-hidden="true">${picked ? '✓' : ''}</span>`}
-                    <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
+                    <span class="cal-s-n">${s.time && html`<span class="cal-s-time">${s.time}</span>`}S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
                     ${nums}
                   </button>`;
@@ -227,7 +227,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
   const f0 = (s && s.feedback) || {};
   const [f, setF] = useState({
     goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
-    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '',
+    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '',
   });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const when = (s && s.date) || date;
@@ -235,6 +235,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
     const apply = (x) => {
       x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status;
+      if (f.time) x.time = f.time; else delete x.time;
       x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
     };
     let rec;
@@ -259,6 +260,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
       <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
         <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
       </${Field}>
+      <${Field} label="Hora" id="qs-time"><${TextInput} id="qs-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
       <${Field} label="Pilar" id="qs-pillar"><${Select} id="qs-pillar" value=${f.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
       <${Field} label="Estat" id="qs-status">
         <${Seg} value=${f.status} onValue=${set('status')} allowEmpty=${false} ariaLabel="Estat" options=${OPT.sessionStatus.map((o) => ({ v: o.v, label: o.label }))} />

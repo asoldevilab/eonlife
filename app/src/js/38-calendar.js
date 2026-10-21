@@ -219,14 +219,14 @@ function WeekCalendar() {
       </div>
     </div>
     <div class="weekcal-grid">${days.map((d) => {
-      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => U.norm(name(s.patientId)));
+      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => `${s.time || '99'}#${U.norm(name(s.patientId))}`);
       const aa = assessments.filter((a) => a.date === d);
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
         ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)}
           title=${[name(s.patientId), `Sessió ${s.number || ''}`, s.goal, s.professional].filter(Boolean).join(' · ')}>
-          <span class="weekcal-who">${name(s.patientId)}</span>
+          <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
         </button>`)}
         ${aa.map((a) => html`<button type="button" class="weekcal-it assess" onClick=${() => go('valoracio', a.id)} title=${`Valoració · ${name(a.patientId)}`}>
@@ -241,5 +241,48 @@ function WeekCalendar() {
     ${!total && html`<p class="muted small">No hi ha res programat aquesta setmana${prof ? ` per a ${prof}` : ''}.</p>`}
     <div class="cal-legend"><span><i class="cal-key done"></i>Sessió feta</span><span><i class="cal-key plan"></i>Sessió programada</span>
       <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
+  </section>`;
+}
+
+// ── Conflictes d'horari (Inici i sessió) ──
+function scheduleConflictsFor(sessions, from, to) {
+  const profOf = (pid) => { const p = Store.get('patients', pid); return (p && p.professional) || ''; };
+  return Calc.scheduleConflicts(sessions, { from, to, unique: Store.uniqueMaterials(), profOf });
+}
+
+function ConflictItem({ c, focus }) {
+  const who = (s) => { const p = Store.get('patients', s.patientId); return p ? U.fullName(p) : 'Pacient'; };
+  const prof = (s) => s.professional || ((Store.get('patients', s.patientId) || {}).professional) || 'sense professional';
+  const side = (s) => html`<button type="button" class=${U.cls('conf-s', focus && focus === s.id && 'me')} onClick=${() => go('sessio', s.id)}>
+    <strong>${s.time}</strong> · ${who(s)} <span class="muted">· ${prof(s)} · S${s.number || ''}</span></button>`;
+  return html`<li class=${`conf conf-${c.kind}`}>
+    <div class="conf-head"><${Icon} name="alert" size=${16} />
+      <span>${U.weekdayShort(c.date)} ${U.fmtDateShort(c.date)} · ${c.kind === 'prof'
+        ? html`<strong>${c.prof}</strong> té dues sessions a la vegada`
+        : html`material compartit: <strong>${c.mats.join(', ')}</strong>`}</span></div>
+    <div class="conf-pair">${side(c.a)}${side(c.b)}</div>
+  </li>`;
+}
+
+// Avís de l'Inici: conflictes de les properes 2 setmanes.
+function ConflictsCard() {
+  const today = U.today();
+  const list = scheduleConflictsFor(Store.all('sessions'), today, U.addDays(today, 13));
+  if (!list.length) return null;
+  return html`<section class="card conflicts" aria-label="Conflictes d'horari">
+    <div class="card-head"><h2 class="h2">Conflictes d'horari · properes 2 setmanes</h2>
+      <span class="muted small">Cada sessió compta 1 hora. Material únic: Configuració › Material del centre.</span></div>
+    <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} />`)}</ul>
+  </section>`;
+}
+
+// Avís a dalt de la sessió si coincideix amb una altra.
+function SessionConflicts({ s }) {
+  if (!s.time || s.status === 'feta') return null;
+  const list = scheduleConflictsFor(Store.all('sessions').filter((x) => x.date === s.date), s.date, s.date)
+    .filter((c) => c.a.id === s.id || c.b.id === s.id);
+  if (!list.length) return null;
+  return html`<section class="card conflicts conflicts-inline no-print" role="alert">
+    <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} focus=${s.id} />`)}</ul>
   </section>`;
 }

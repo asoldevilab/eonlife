@@ -1920,6 +1920,24 @@ body.cal-dragging .cal-s { pointer-events: none; }
 .cal-s.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; border: 0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal-s.assess { background: #1B2D40; color: #D6E6F7; } }
 :root[data-theme="dark"] .cal-s.assess { background: #1B2D40; color: #D6E6F7; }
+
+/* Hora de la sessió i conflictes */
+.cal-s-time { display: inline-block; margin-right: 4px; padding: 0 4px; border-radius: 4px; font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums; opacity: 0.85; box-shadow: inset 0 0 0 1px currentColor; }
+.pm-row { display: flex; gap: 8px; align-items: center; }
+.pm-row > :first-child { flex: 1 1 auto; min-width: 0; }
+.pm-row input[type="time"] { width: 120px; flex: none; }
+.profchip-uniq { box-shadow: inset 0 0 0 1.5px #B5471E; }
+.uniq-toggle { display: inline-flex; align-items: center; margin-right: 4px; }
+.uniq-toggle input { width: 16px; height: 16px; accent-color: #B5471E; }
+.conflicts { border-left: 5px solid #C8382F; }
+.conflicts-inline { padding: 10px 14px; }
+.conf-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.conf { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.conf-head { display: flex; align-items: center; gap: 8px; color: #A32A24; font-size: 14px; }
+.conf-head strong { color: var(--ink); }
+.conf-pair { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.conf-s { flex: 1 1 240px; text-align: left; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: 13.5px; cursor: pointer; }
+.conf-s.me { border-color: #C8382F; }
 </style>
 </head>
 <body>
@@ -4232,7 +4250,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-19 10:59";
+window.EON_BUILD = "2026-10-21 14:32";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4632,8 +4650,8 @@ const OPT = {
   pillars: ['Força i potència', 'Mobilitat', 'Control i agilitat', 'Capacitat cardiovascular', 'Força i autonomia', 'Equilibri i control', 'Readaptació'],
   // Servei que fa el client al centre.
   services: [
-    { v: 'membership', label: 'Valoració inicial (Membership)', desc: 'Quota de membership: valoració inicial i entrenament i seguiment continuat al centre' },
-    { v: 'bo', label: 'Bo (pacient puntual)', desc: 'Ha comprat un entrenament o un bo de sessions puntuals, sense membership' },
+    { v: 'membership', label: 'Membership EON', desc: 'Té la membership amb nosaltres: paquet d\'entrenaments, valoració inicial i seguiment continuat al centre' },
+    { v: 'bo', label: 'Client', desc: 'Compra bons d\'entrenament solts, sense membership' },
   ],
   status: [
     { v: 'actiu', label: 'Actiu' },
@@ -4927,6 +4945,13 @@ const CENTER_MATERIALS = [
   'Pliometria', 'Skillmill', 'AlterG', 'Leg extension Technogym', 'Premsa Technogym', 'Lower back bench', 'Banc GHD',
   'Politja Technogym', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart', 'kBox Lite Exxentric',
   'Mobility ball Technogym', 'Goma elàstica', 'Lliscadors Flowin', 'Bike Technogym', 'Skill Up', 'Loop band Technogym', 'Power Personal Technogym',
+];
+
+// Material que per defecte compta com a únic (només n'hi ha un): es pot canviar a Configuració.
+const DEFAULT_UNIQUE_MATERIALS = [
+  'Barra olímpica (20-25 kg)', 'Politja cònica isoinercial', 'Keiser (pneumàtica)', 'Skillmill', 'AlterG', 'Leg extension Technogym',
+  'Premsa Technogym', 'Lower back bench', 'Banc GHD', 'Leg press Biostrength', 'Abductor/adductor 700 Technogym', 'Pulley Pro C2 Smart',
+  'kBox Lite Exxentric', 'Power Personal Technogym',
 ];
 
 // Grups musculars en carpetes: tren superior, tren inferior, core i cos sencer.
@@ -7090,7 +7115,7 @@ const Flat = {
   session(s, p, settings) {
     const f = s.feedback || {};
     const o = {
-      'Pacient': U.fullName(p), 'Data': s.date || '', 'Setmana': U.weekStart(s.date),
+      'Pacient': U.fullName(p), 'Data': s.date || '', 'Hora': s.time || '', 'Setmana': U.weekStart(s.date),
       'Nº sessió': U.num(s.number) ?? '', 'Professional': s.professional || '',
       'Estat': (OPT.sessionStatus.find((x) => x.v === s.status) || {}).label || '',
       'Objectiu': s.goal || '', 'Pilar': s.pillar || '',
@@ -7693,6 +7718,39 @@ Object.assign(Calc, {
     if (minutes <= 75) return { key: 'long', label: 'Una mica llarga' };
     return { key: 'over', label: 'Massa llarga' };
   },
+
+  // ── Conflictes d'horari ──
+  // Minuts des de mitjanit d'una hora «HH:MM» (null si no n'hi ha).
+  minutesOf(t) { const m = /^(\d{1,2}):(\d{2})/.exec(String(t || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; },
+  // Sessions que coincideixen en el temps (cada sessió compta 1 hora des de l'hora d'inici). Dos tipus d'avís:
+  //  · 'prof': el mateix professional té dues sessions a la vegada;
+  //  · 'material': professionals diferents fan servir el mateix material únic (opt.unique, un Set de noms).
+  // opt: { from, to (AAAA-MM-DD), unique, profOf(pid) → professional del pacient, minutes (60) }.
+  scheduleConflicts(sessions, opt = {}) {
+    const dur = opt.minutes || 60;
+    const unique = opt.unique || new Set();
+    const prof = (s) => s.professional || (opt.profOf ? opt.profOf(s.patientId) : '') || '';
+    const list = (sessions || []).filter((s) => s.status !== 'feta' && Calc.minutesOf(s.time) != null
+      && (!opt.from || s.date >= opt.from) && (!opt.to || s.date <= opt.to));
+    const byDate = {};
+    for (const s of list) (byDate[s.date] = byDate[s.date] || []).push(s);
+    const out = [];
+    for (const date of Object.keys(byDate).sort()) {
+      const day = U.sortBy(byDate[date], (s) => Calc.minutesOf(s.time));
+      for (let i = 0; i < day.length; i++) for (let j = i + 1; j < day.length; j++) {
+        const a = day[i], b = day[j];
+        if (a.patientId === b.patientId) continue;
+        const ta = Calc.minutesOf(a.time), tb = Calc.minutesOf(b.time);
+        if (Math.abs(ta - tb) >= dur) continue;
+        const pa = prof(a), pb = prof(b);
+        if (pa && pa === pb) { out.push({ kind: 'prof', date, a, b, prof: pa }); continue; }
+        const ma = new Set(Calc.sessionMaterial(a).map((m) => m.name).filter((m) => unique.has(m)));
+        const mats = Calc.sessionMaterial(b).map((m) => m.name).filter((m) => ma.has(m));
+        if (mats.length) out.push({ kind: 'material', date, a, b, mats, profs: [pa, pb] });
+      }
+    }
+    return out;
+  },
 });
 
 
@@ -8252,6 +8310,11 @@ const Store = {
     const center = this.settings.materials && this.settings.materials.length ? this.settings.materials : CENTER_MATERIALS;
     return { center: [...center], other: OPT.material.filter((m) => !center.includes(m)) };
   },
+  // Material del qual només n'hi ha un al centre: si dues sessions a la mateixa hora el fan servir, l'Inici avisa.
+  uniqueMaterials() {
+    const v = this.settings.uniqueMaterials;
+    return new Set(Array.isArray(v) ? v : DEFAULT_UNIQUE_MATERIALS);
+  },
   professionals() {
     const set = new Set(this.settings.professionals || []);
     for (const p of this.all('patients')) if (p.professional) set.add(p.professional);
@@ -8409,7 +8472,7 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
+  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
     // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
@@ -8443,6 +8506,7 @@ const Store = {
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
+    if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
@@ -8459,13 +8523,14 @@ const Store = {
 
   // ── Planificar per endavant: sessions futures (un mes sencer, o una setmana copiada a les següents) ──
   // Crea una sessió planificada amb aquests blocs.
-  addPlanned(pid, { date, blocks, goal = '', pillar = '' }) {
+  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '' }) {
     const p = this.get('patients', pid);
     const s = {
       id: U.uid('S'), patientId: pid, date, number: this.nextSessionNumber(pid),
       professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
     };
+    if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
@@ -8488,6 +8553,7 @@ const Store = {
     const lastOn = (wd) => [...sessions].reverse().find((s) => filled(s) && U.parse(s.date).getDay() === wd)
       || [...sessions].reverse().find(filled) || null;
     const chain = {}; // dia de la setmana → { blocks, goal, pillar } de l'última sessió creada
+    const chainTime = {}; // dia de la setmana → hora de la sessió
     const seen = {};  // dia de la setmana → quantes se n'han creat en aquest mes
     const created = [], skipped = [];
     for (const date of this.monthDates(month, days)) {
@@ -8500,6 +8566,7 @@ const Store = {
         if (every > 0 && seen[wd] % every === 0) progressBlocks(blocks);
       } else {
         const base = bases[wd] || { mode: 'last' };
+        chainTime[wd] = base.time != null ? base.time : ((lastOn(wd) || {}).time || '');
         const tpl = base.mode === 'template' ? this.get('templates', base.templateId) : null;
         const src = base.mode === 'last' ? lastOn(wd) : null;
         if (tpl && tpl.kind === 'session') { blocks = this.templateBlocks(tpl); goal = tpl.goal || ''; }
@@ -8508,7 +8575,7 @@ const Store = {
       }
       seen[wd] = (seen[wd] || 0) + 1;
       chain[wd] = { blocks, goal, pillar };
-      created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
+      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
     }
     return { created, skipped };
   },
@@ -8528,7 +8595,7 @@ const Store = {
         cur[s.id] = blocks;
         if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
         taken.add(date);
-        created.push(this.addPlanned(pid, { date, blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
+        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
       }
     }
     return { created, skipped };
@@ -16019,7 +16086,7 @@ function SessionRow({ s, showPatient, compact }) {
     <button type="button" class="srow-main" onClick=${() => go('sessio', s.id)}>
       <span class="srow-title">
         ${showPatient && p && html`<strong>${U.fullName(p)}</strong>`}
-        <span class=${showPatient ? 'muted' : ''}>Sessió ${s.number || '—'}</span>
+        <span class=${showPatient ? 'muted' : ''}>Sessió ${s.number || '—'}${s.time ? ` · ${s.time}` : ''}</span>
       </span>
       <span class="srow-goal">${s.goal || 'Sense objectiu definit'}</span>
       <span class="srow-blocks" aria-label="Blocs amb exercicis">
@@ -16157,6 +16224,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const last = sessions.filter((s) => s.date <= (date || U.today())).pop() || sessions[sessions.length - 1];
   const tpls = Store.templates().filter((t) => t.kind === 'session');
   const [d, setD] = useState(date || U.today());
+  const [time, setTime] = useState(() => (last && last.time) || '');
   // Si el client té un pla, per defecte es fa la pròxima sessió del pla.
   const plans = Store.plans(pid).filter((x) => Store.nextPlanN(x));
   const [planId, setPlanId] = useState(plans[0] ? plans[0].id : '');
@@ -16165,7 +16233,7 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
+    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
     onClose();
     go('sessio', s.id);
   };
@@ -16176,7 +16244,8 @@ function NewSessionDialog({ pid, date, onClose }) {
   return html`<${Dialog} title="Nova sessió" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
-    <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <div class="form-grid"><${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <${Field} label="Hora" id="ns-time"><${TextInput} id="ns-time" type="time" value=${time} onValue=${setTime} /></${Field}></div>
     <div class="choices">
       ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,
         mode === 'plan' && html`<div class="inline mt-s">
@@ -19769,6 +19838,8 @@ function HomeView() {
 
     <${MaterialToday} sessions=${todays} />
 
+    <${ConflictsCard} />
+
     <${WeekCalendar} />
 
     <div class="home-grid">
@@ -22733,6 +22804,7 @@ function SessionEditor({ id }) {
       ]} />
     </div>
 
+    <${SessionConflicts} s=${s} />
     <${SessionTime} s=${s} />
 
     ${s.status !== 'feta' && html`<${MaterialPrep} sessions=${s} tone=${s.date === U.today() ? 'today' : ''} open=${s.date <= U.addDays(U.today(), 1)}
@@ -22741,6 +22813,7 @@ function SessionEditor({ id }) {
     <section class="card">
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
+        <${Field} label="Hora" id="se-time"><${TextInput} id="se-time" type="time" value=${s.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
         <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
@@ -23566,7 +23639,7 @@ function MonthView({ p, sessions }) {
             ${[0, 1, 2, 3, 4, 5, 6].map((i) => {
               const date = U.addDays(w.start, i);
               const out = date < first || date > last;
-              const list = sessions.filter((s) => s.date === date);
+              const list = U.sortBy(sessions.filter((s) => s.date === date), (s) => s.time || '99');
               const evals = assessList.filter((a) => a.date === date);
               return html`<div class=${U.cls('cal-d', out && 'out', date === today && 'today', i >= 5 && 'wkend')} data-date=${date}>
                 <div class="cal-dn">${U.parse(date).getDate()}</div>
@@ -23580,7 +23653,7 @@ function MonthView({ p, sessions }) {
                     onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
                     title=${selecting ? 'Toca per seleccionar-la' : `${sessionTitle(s, quick)} · Arrossega-la (o mantén-la premuda) per canviar-la de dia`}>
                     ${selecting && html`<span class="cal-s-check" aria-hidden="true">${picked ? '✓' : ''}</span>`}
-                    <span class="cal-s-n">S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
+                    <span class="cal-s-n">${s.time && html`<span class="cal-s-time">${s.time}</span>`}S${s.number}${quick ? ' · objectiu' : ''}${s.status === 'feta' ? ' ✓' : ''}</span>
                     <span class="cal-s-goal">${s.goal || 'Sessió'}</span>
                     ${nums}
                   </button>`;
@@ -23715,7 +23788,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
   const f0 = (s && s.feedback) || {};
   const [f, setF] = useState({
     goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
-    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '',
+    rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '',
   });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const when = (s && s.date) || date;
@@ -23723,6 +23796,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
     const apply = (x) => {
       x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status;
+      if (f.time) x.time = f.time; else delete x.time;
       x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
     };
     let rec;
@@ -23747,6 +23821,7 @@ function QuickSessionDialog({ p, s, date, onClose }) {
       <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
         <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
       </${Field}>
+      <${Field} label="Hora" id="qs-time"><${TextInput} id="qs-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
       <${Field} label="Pilar" id="qs-pillar"><${Select} id="qs-pillar" value=${f.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
       <${Field} label="Estat" id="qs-status">
         <${Seg} value=${f.status} onValue=${set('status')} allowEmpty=${false} ariaLabel="Estat" options=${OPT.sessionStatus.map((o) => ({ v: o.v, label: o.label }))} />
@@ -24178,6 +24253,8 @@ function SettingsView() {
     setNewMat('');
   };
   const delMat = (name) => Store.saveSettings({ materials: mats.filter((x) => x !== name) });
+  const uniq = Store.uniqueMaterials();
+  const toggleUniq = (name, on) => { const next = new Set(uniq); if (on) next.add(name); else next.delete(name); Store.saveSettings({ uniqueMaterials: [...next] }); };
 
   const exportJson = async () => {
     const status = await U.download(`eonlife-copia-${U.today()}.json`, Store.exportAll(), 'application/json');
@@ -24302,8 +24379,12 @@ function SettingsView() {
     <section class="card">
       <div class="card-head"><h2 class="h2">Material del centre</h2><span class="muted">Surt primer en triar el material d'un exercici</span></div>
       <div class="proflist">
-        ${mats.map((name) => html`<span class="profchip">${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
+        ${mats.map((name) => html`<span class=${U.cls('profchip', uniq.has(name) && 'profchip-uniq')}>
+          <label class="uniq-toggle" title="Només n'hi ha un: avisa si dos professionals el fan servir a la mateixa hora">
+            <input type="checkbox" checked=${uniq.has(name)} onChange=${(e) => toggleUniq(name, e.currentTarget.checked)} aria-label=${`${name}: només n'hi ha un`} /></label>
+          ${name}<button type="button" title=${`Treu ${name}`} onClick=${() => delMat(name)}><${Icon} name="x" size=${14} /></button></span>`)}
       </div>
+      <p class="muted small">Marca la casella del material del qual <strong>només n'hi ha un</strong> (cònica, Keiser, barra olímpica…). Si dos professionals el fan servir a la mateixa hora, l'Inici avisa del conflicte. El que en tenim diversos (mancuernes, gomes, kettlebells) no cal marcar-ho.</p>
       <form class="inline mt" onSubmit=${(e) => { e.preventDefault(); addMat(); }}>
         <${TextInput} value=${newMat} onValue=${setNewMat} placeholder="p. ex. Trineu" ariaLabel="Material nou" />
         <${Btn} type="submit" icon="plus">Afegeix</${Btn}>
@@ -25283,6 +25364,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const [month, setMonth] = useState(m0);
   const [days, setDays] = useState(usual);
   const [bases, setBases] = useState({});
+  const [times, setTimes] = useState({});
   const [every, setEvery] = useState('0');
   const [skip, setSkip] = useState(true);
   const thisMonth = U.monthKey(U.today());
@@ -25294,11 +25376,12 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const count = skip ? fresh.length : dates.length;
   const toggle = (d) => setDays(days.includes(d) ? days.filter((x) => x !== d) : [...days, d]);
   const baseOf = (wd) => bases[wd] || 'last';
+  const timeOf = (wd) => (times[wd] != null ? times[wd] : ([...sessions].reverse().find((s) => s.time && U.parse(s.date).getDay() === wd) || {}).time || '');
   const lastOn = (wd) => [...sessions].reverse().find((s) => Calc.itemCount(s) > 0 && U.parse(s.date).getDay() === wd);
   const create = () => {
     if (!days.length) { UI.toast('Tria almenys un dia de la setmana.', 'bad'); return; }
     const objs = {};
-    for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; }
+    for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; objs[d].time = timeOf(d); }
     const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip });
     onClose();
     MonthNav.show(p.id, month);
@@ -25328,7 +25411,8 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
       <${Field} label="Dies d'entrenament" wide=${true}>
         <div class="chips">${WEEK_ORDER.map((d) => html`<${Chip} on=${days.includes(d)} onClick=${() => toggle(d)}>${WEEKDAYS[d]}</${Chip}>`)}</div></${Field}>
       ${WEEK_ORDER.filter((d) => days.includes(d)).map((d) => html`<${Field} label=${`Sessió de ${WEEKDAYS[d]}`} id=${`pm-base-${d}`} wide=${true}>
-        <${Select} id=${`pm-base-${d}`} value=${baseOf(d)} onValue=${(v) => setBases({ ...bases, [d]: v })} options=${baseOptions(d)} /></${Field}>`)}
+        <div class="pm-row"><${Select} id=${`pm-base-${d}`} value=${baseOf(d)} onValue=${(v) => setBases({ ...bases, [d]: v })} options=${baseOptions(d)} />
+          <${TextInput} type="time" value=${timeOf(d)} onValue=${(v) => setTimes({ ...times, [d]: v })} ariaLabel=${`Hora de la sessió de ${WEEKDAYS[d]}`} /></div></${Field}>`)}
     </div>
     <label class="check"><input type="checkbox" checked=${skip} onChange=${(e) => setSkip(e.currentTarget.checked)} /> Salta els dies que ja tenen una sessió</label>
     <p class="muted mt">${dates.length ? html`${U.plural(count, 'sessió', 'sessions')} noves${skip && dates.length > fresh.length ? ` (${U.plural(dates.length - fresh.length, 'dia ja ocupat', 'dies ja ocupats')})` : ''}: ${(skip ? fresh : dates).map((d) => `${U.weekdayShort(d)} ${U.parse(d).getDate()}`).join(' · ') || '—'}` : 'Aquest mes no té cap dia dels triats.'}</p>
@@ -26265,14 +26349,14 @@ function WeekCalendar() {
       </div>
     </div>
     <div class="weekcal-grid">${days.map((d) => {
-      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => U.norm(name(s.patientId)));
+      const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => `${s.time || '99'}#${U.norm(name(s.patientId))}`);
       const aa = assessments.filter((a) => a.date === d);
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
         ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)}
           title=${[name(s.patientId), `Sessió ${s.number || ''}`, s.goal, s.professional].filter(Boolean).join(' · ')}>
-          <span class="weekcal-who">${name(s.patientId)}</span>
+          <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
         </button>`)}
         ${aa.map((a) => html`<button type="button" class="weekcal-it assess" onClick=${() => go('valoracio', a.id)} title=${`Valoració · ${name(a.patientId)}`}>
@@ -26287,6 +26371,49 @@ function WeekCalendar() {
     ${!total && html`<p class="muted small">No hi ha res programat aquesta setmana${prof ? ` per a ${prof}` : ''}.</p>`}
     <div class="cal-legend"><span><i class="cal-key done"></i>Sessió feta</span><span><i class="cal-key plan"></i>Sessió programada</span>
       <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
+  </section>`;
+}
+
+// ── Conflictes d'horari (Inici i sessió) ──
+function scheduleConflictsFor(sessions, from, to) {
+  const profOf = (pid) => { const p = Store.get('patients', pid); return (p && p.professional) || ''; };
+  return Calc.scheduleConflicts(sessions, { from, to, unique: Store.uniqueMaterials(), profOf });
+}
+
+function ConflictItem({ c, focus }) {
+  const who = (s) => { const p = Store.get('patients', s.patientId); return p ? U.fullName(p) : 'Pacient'; };
+  const prof = (s) => s.professional || ((Store.get('patients', s.patientId) || {}).professional) || 'sense professional';
+  const side = (s) => html`<button type="button" class=${U.cls('conf-s', focus && focus === s.id && 'me')} onClick=${() => go('sessio', s.id)}>
+    <strong>${s.time}</strong> · ${who(s)} <span class="muted">· ${prof(s)} · S${s.number || ''}</span></button>`;
+  return html`<li class=${`conf conf-${c.kind}`}>
+    <div class="conf-head"><${Icon} name="alert" size=${16} />
+      <span>${U.weekdayShort(c.date)} ${U.fmtDateShort(c.date)} · ${c.kind === 'prof'
+        ? html`<strong>${c.prof}</strong> té dues sessions a la vegada`
+        : html`material compartit: <strong>${c.mats.join(', ')}</strong>`}</span></div>
+    <div class="conf-pair">${side(c.a)}${side(c.b)}</div>
+  </li>`;
+}
+
+// Avís de l'Inici: conflictes de les properes 2 setmanes.
+function ConflictsCard() {
+  const today = U.today();
+  const list = scheduleConflictsFor(Store.all('sessions'), today, U.addDays(today, 13));
+  if (!list.length) return null;
+  return html`<section class="card conflicts" aria-label="Conflictes d'horari">
+    <div class="card-head"><h2 class="h2">Conflictes d'horari · properes 2 setmanes</h2>
+      <span class="muted small">Cada sessió compta 1 hora. Material únic: Configuració › Material del centre.</span></div>
+    <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} />`)}</ul>
+  </section>`;
+}
+
+// Avís a dalt de la sessió si coincideix amb una altra.
+function SessionConflicts({ s }) {
+  if (!s.time || s.status === 'feta') return null;
+  const list = scheduleConflictsFor(Store.all('sessions').filter((x) => x.date === s.date), s.date, s.date)
+    .filter((c) => c.a.id === s.id || c.b.id === s.id);
+  if (!list.length) return null;
+  return html`<section class="card conflicts conflicts-inline no-print" role="alert">
+    <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} focus=${s.id} />`)}</ul>
   </section>`;
 }
 

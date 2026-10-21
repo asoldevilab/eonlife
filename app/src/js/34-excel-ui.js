@@ -158,6 +158,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const [month, setMonth] = useState(m0);
   const [days, setDays] = useState(usual);
   const [bases, setBases] = useState({});
+  const [times, setTimes] = useState({});
   const [every, setEvery] = useState('0');
   const [skip, setSkip] = useState(true);
   const thisMonth = U.monthKey(U.today());
@@ -169,11 +170,12 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const count = skip ? fresh.length : dates.length;
   const toggle = (d) => setDays(days.includes(d) ? days.filter((x) => x !== d) : [...days, d]);
   const baseOf = (wd) => bases[wd] || 'last';
+  const timeOf = (wd) => (times[wd] != null ? times[wd] : ([...sessions].reverse().find((s) => s.time && U.parse(s.date).getDay() === wd) || {}).time || '');
   const lastOn = (wd) => [...sessions].reverse().find((s) => Calc.itemCount(s) > 0 && U.parse(s.date).getDay() === wd);
   const create = () => {
     if (!days.length) { UI.toast('Tria almenys un dia de la setmana.', 'bad'); return; }
     const objs = {};
-    for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; }
+    for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; objs[d].time = timeOf(d); }
     const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip });
     onClose();
     MonthNav.show(p.id, month);
@@ -203,7 +205,8 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
       <${Field} label="Dies d'entrenament" wide=${true}>
         <div class="chips">${WEEK_ORDER.map((d) => html`<${Chip} on=${days.includes(d)} onClick=${() => toggle(d)}>${WEEKDAYS[d]}</${Chip}>`)}</div></${Field}>
       ${WEEK_ORDER.filter((d) => days.includes(d)).map((d) => html`<${Field} label=${`Sessió de ${WEEKDAYS[d]}`} id=${`pm-base-${d}`} wide=${true}>
-        <${Select} id=${`pm-base-${d}`} value=${baseOf(d)} onValue=${(v) => setBases({ ...bases, [d]: v })} options=${baseOptions(d)} /></${Field}>`)}
+        <div class="pm-row"><${Select} id=${`pm-base-${d}`} value=${baseOf(d)} onValue=${(v) => setBases({ ...bases, [d]: v })} options=${baseOptions(d)} />
+          <${TextInput} type="time" value=${timeOf(d)} onValue=${(v) => setTimes({ ...times, [d]: v })} ariaLabel=${`Hora de la sessió de ${WEEKDAYS[d]}`} /></div></${Field}>`)}
     </div>
     <label class="check"><input type="checkbox" checked=${skip} onChange=${(e) => setSkip(e.currentTarget.checked)} /> Salta els dies que ja tenen una sessió</label>
     <p class="muted mt">${dates.length ? html`${U.plural(count, 'sessió', 'sessions')} noves${skip && dates.length > fresh.length ? ` (${U.plural(dates.length - fresh.length, 'dia ja ocupat', 'dies ja ocupats')})` : ''}: ${(skip ? fresh : dates).map((d) => `${U.weekdayShort(d)} ${U.parse(d).getDate()}`).join(' · ') || '—'}` : 'Aquest mes no té cap dia dels triats.'}</p>

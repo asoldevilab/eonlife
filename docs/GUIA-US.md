@@ -41,8 +41,8 @@ Y-Balance / Salts / Patrons**.
   (cada 3 mesos) i la llista de pacients amb filtres per estat, tipus de pacient i professional.
 - **Nou pacient**: primer el **tipus de pacient**, després nom, cognoms i professional. Amb Microsoft 365 o Google es
   crea automàticament la carpeta del pacient (amb *Valoracions* i *Sessions*, i dins de cadascuna la carpeta dels seus vídeos).
-- **Tipus de pacient**: *Valoració inicial (Membership)* (la valoració inicial només la fa qui té la quota de membership) o *Bo (pacient puntual)*
-  (ha comprat un entrenament o un bo de sessions). Surt a la capçalera de la fitxa, al filtre de l'inici
+- **Tipus de pacient**: *Membership EON* (té la membership amb nosaltres: paquet d'entrenaments, valoració inicial i
+  seguiment continuat) o *Client* (compra bons d'entrenament solts, sense membership). Surt a la capçalera de la fitxa, al filtre de l'inici
   i a la columna *Servei* de l'Excel. Es canvia a la pestanya **Fitxa › Seguiment al centre**.
 - **Professional de referència**: Ricardo Villamizar, Arnau o Oriol Pastor (fisioteràpia). La llista es canvia a **Configuració**.
 - **Objectiu**: el primer quadre de la pestanya *Fitxa* i del *Resum*: el que el pacient vol aconseguir i el que es
@@ -404,6 +404,22 @@ A la sessió, cada bloc i cada subbloc té el desplegable **Mètode…**: en tri
   dia, amb fletxes per canviar de setmana i un filtre per professional (es recorda en aquella tauleta).
 - A la fitxa del pacient (**Resum** i **Sessions**) hi ha la gràfica **RPE i EVA · últims 3 mesos**, amb les mitjanes i si
   pugen o baixen. Per triar unes altres dates i treure'n el PDF: **Informe complet**.
+
+### Hora de la sessió i conflictes d'horari
+
+- Cada sessió té una **Hora** (camp *Hora* de la sessió, de la sessió ràpida del calendari i de *Nova sessió*). A
+  **Planifica el mes** es posa una hora per a cada dia de la setmana; per defecte, la de l'última sessió d'aquell dia.
+- Al calendari mensual i al de la setmana de l'Inici l'hora surt petita davant de cada sessió, i les sessions d'un
+  mateix dia s'ordenen per hora.
+- Cada sessió compta **1 hora** des de l'hora d'inici. L'**Inici** mostra el quadre *Conflictes d'horari* (propers 14 dies)
+  quan:
+  - dos professionals diferents tenen sessions que se solapen i fan servir el mateix **material únic**, o
+  - un mateix professional té dues sessions que se solapen.
+  Clicant una sessió del quadre s'obre per canviar-ne l'hora o el material. El mateix avís surt a dalt de la sessió.
+- Quin material és únic es marca a **Configuració › Material del centre** amb la casella de cada material
+  (per defecte: barra olímpica, cònica isoinercial, Keiser, Skillmill, AlterG, màquines Technogym grans…). El material
+  del qual en teniu diversos (mancuernes, gomes, kettlebells) no cal marcar-lo.
+- Les sessions ja fetes i les que no tenen hora no compten.
 
 ### Durada estimada de la sessió
 
