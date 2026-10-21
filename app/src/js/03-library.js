@@ -286,9 +286,9 @@ const SEED_EXERCISES = (() => {
     cues: 'Cinturó, d\'esquena a la politja i peu de darrere al disc. Inclina\'t i fes una passa explosiva endavant amb braços de carrera; la politja et torna al disc.' });
   pp(2, 'pot', 'Accelerada de 2 passos · Pulley Pro', 'Acceleració', { pic: 'sprint_cone', ...SPEED, family: 'Pulley Pro · acceleració', level: '2', reps: '4/cama',
     cues: 'Com l\'accelerada però amb dues passes seguides abans de tornar. Inclinació de sortida, braços de carrera i frena en tornar al disc.' });
-  pp(3, 'pot', 'Frenada · Pulley Pro', 'Deceleració', { pic: 'split_front_cone', ...SPEED, cont: 'ECC', family: 'Pulley Pro · frenada', level: '1',
+  pp(3, 'pot', 'Frenada · Pulley Pro', 'Deceleració', { pic: 'frenada_cone', ...SPEED, cont: 'ECC', family: 'Pulley Pro · frenada', level: '1',
     cues: 'Cinturó, de cara a la politja, mans a la cintura i peu davanter contra el disc. Passa enrere; quan la politja t\'estira endavant, frena-la amb control.' });
-  pp(4, 'pot', 'Frenada de 2 passos · Pulley Pro', 'Deceleració', { pic: 'split_front_cone', ...SPEED, cont: 'ECC', family: 'Pulley Pro · frenada', level: '2', reps: '4/cama',
+  pp(4, 'pot', 'Frenada de 2 passos · Pulley Pro', 'Deceleració', { pic: 'frenada_cone', ...SPEED, cont: 'ECC', family: 'Pulley Pro · frenada', level: '2', reps: '4/cama',
     cues: 'Com la frenada però amb dues passes enrere. Frena la tornada amb el maluc baix i el genoll alineat amb el peu.' });
   pp(5, 'pot', 'Sortida oberta · Pulley Pro', 'Canvi de direcció', { pic: 'cut_cone', ...SPEED, muscles: ['GMax', 'GMed', 'Quàdriceps'], family: 'Pulley Pro · sortides', level: '1',
     cues: 'Cinturó. Passa enrere i rota el maluc cap a fora per sortir de costat. Peu de suport ferm i tronc baix.' });
@@ -299,18 +299,18 @@ const SEED_EXERCISES = (() => {
   pp(8, 'pot', 'Desplaçament lateral (shuffle) · Pulley Pro', 'Canvi de direcció', { pic: 'shuffle_cone', ...SPEED, gm: 'GMed', muscles: ['Quàdriceps', 'Adductors'], reps: '4/costat',
     cues: 'Cinturó amb la politja al costat. Dues o tres passes laterals ràpides sense creuar els peus i frena la tornada.' });
   const ANKLE = { sets: '3', reps: '10/cama', cont: 'ECC' };
-  pp(10, 'acc', 'Kick back de peu · Pulley Pro', 'Politja cònica', { pic: 'stand_kick_cone', ...ANKLE, gm: 'GMax', muscles: ['Isquiotibials'],
-    cues: 'Turmellera, de cara a la columna i mans recolzades. Porta la cama enrere estirant el maluc sense arquejar l\'esquena; frena la tornada.' });
+  pp(10, 'acc', 'Kick back de peu · Pulley Pro', 'Politja cònica', { pic: 'kick_cone', ...ANKLE, gm: 'GMax', muscles: ['Isquiotibials'],
+    cues: 'Turmellera, de cara a la columna i mans recolzades. Des del genoll amunt, empeny la cama avall i enrere fins a estirar el maluc; frena la tornada.' });
   pp(11, 'acc', 'Adducció i abducció de peu · Pulley Pro', 'Politja cònica', { pic: 'stand_abd_cone', ...ANKLE, gm: 'Adductors', muscles: ['Abductors', 'GMed'],
     cues: 'Turmellera, de cara i agafat a la barra. La cama s\'obre al costat i creua per davant; pelvis quieta i tronc alt.' });
-  pp(12, 'acc', 'Patada d\'isquios circular · Pulley Pro', 'Isquiotibials', { pic: 'stand_kick_cone', ...ANKLE, gm: 'Isquiotibials', muscles: ['GMax'],
-    cues: 'Turmellera, de cara a la politja i agafat a la barra. Cicle de carrera cap enrere: el peu baixa i passa per sota del maluc.' });
-  pp(13, 'acc', 'Patada de quàdriceps circular · Pulley Pro', 'Politja cònica', { pic: 'march_cone', ...ANKLE, gm: 'Quàdriceps', muscles: ['Flexors de maluc'],
-    cues: 'Turmellera, d\'esquena a la politja i agafat a la barra. Puja el genoll i estira la cama endavant en cercle; tronc alt.' });
-  pp(14, 'acc', 'Patada alta d\'isquios · Pulley Pro', 'Isquiotibials', { pic: 'stand_kick_cone', ...ANKLE, gm: 'Isquiotibials', muscles: ['GMax'],
+  pp(12, 'acc', 'Patada d\'isquios circular · Pulley Pro', 'Isquiotibials', { pic: 'ham_cycle_cone', ...ANKLE, gm: 'Isquiotibials', muscles: ['GMax'],
+    cues: 'Turmellera, de cara a la politja i agafat a la pica. El genoll puja davant i la cama passa per sota del maluc fins enrere amb el taló amunt.' });
+  pp(13, 'acc', 'Patada de quàdriceps circular · Pulley Pro', 'Politja cònica', { pic: 'q_cycle_cone', ...ANKLE, gm: 'Quàdriceps', muscles: ['Flexors de maluc'],
+    cues: 'Turmellera, d\'esquena a la politja i agafat a la pica. La cama ve de darrere, puja el genoll i s\'estira endavant; tronc alt.' });
+  pp(14, 'acc', 'Patada alta d\'isquios · Pulley Pro', 'Isquiotibials', { pic: 'high_kick_cone', ...ANKLE, gm: 'Isquiotibials', muscles: ['GMax'],
     cues: 'Turmellera, mans recolzades. La cama va enrere i amunt amb el genoll gairebé estirat; no arquegis l\'esquena.' });
-  pp(15, 'acc', 'Bessons i soli (Gem/Sol) · Pulley Pro', 'Politja cònica', { pic: 'calf_cone', ...ANKLE, gm: 'Bessons i soli', reps: '12/cama',
-    cues: 'Turmellera, mans a la columna i genoll avançat. Treballa la flexió plantar del turmell amb control a la tornada.' });
+  pp(15, 'acc', 'Bessons i soli (Gem/Sol) · Pulley Pro', 'Politja cònica', { pic: 'gemsol_cone', ...ANKLE, gm: 'Bessons i soli', reps: '12/cama',
+    cues: 'Turmellera, de cara a la columna i mans recolzades. Del genoll amunt empeny enrere i acaba de puntetes amb el peu de darrere; frena la tornada.' });
   const LYING = { sets: '3', reps: '10/cama', cont: 'ECC' };
   pp(20, 'acc', 'Kick back estirat · Pulley Pro', 'Politja cònica', { pic: 'prone_kick_cone', ...LYING, pos: 'Dp', gm: 'GMax', muscles: ['Isquiotibials'],
     cues: 'Turmellera, estirat. Estén el maluc empenyent la cama enrere i frena la tornada sense moure la pelvis.' });
