@@ -392,6 +392,49 @@ const PICS = {
 PICS.split_cone = { ...PICS.split, from: { ...PICS.split.from }, band: undefined, label: 'Estocada amb la politja cònica', grip: 'none', pull: 'backlow', belt: true, s: 0.88 };
 PICS.row_standing_cone = { ...PICS.row_standing, label: 'Rem a una mà amb la politja cònica', b: [96, 40], pull: 'front', s: 0.84 };
 PICS.lateral_lunge_cone = { ...PICS.lateral_lunge, label: 'Estocada lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+// Pulley Pro C2 Smart, com als vídeos del centre (la columna a la paret i el con a la base).
+// Amb cinturó (corda horitzontal a l'alçada del maluc): accelerada d'esquena a la columna, frenada de cara amb les mans
+// a la cintura i el peu davanter contra el disc, sortides, squat amb els braços creuats i desplaçament lateral.
+const PIC_HIPS = [112, 28];
+PICS.sprint_cone = { ...PICS.sprint, label: 'Accelerada amb la politja cònica', grip: 'none', pull: 'back', belt: true, s: 0.84 };
+PICS.frenada_cone = { pin: [{ leg: 0, ref: 0 }], from: { t: -86, l: [86, 92], m: [94, 92] }, label: 'Frenada amb la politja cònica', t: -78, hd: 4,
+  l: [62, 104], m: [126, 146], a: PIC_HIPS, b: PIC_HIPS, grip: 'none', pull: 'front', belt: true, fix: 'fR', s: 0.86 };
+PICS.cut_cone = { ...PICS.cut, label: 'Sortida amb la politja cònica', grip: 'none', pull: 'back', belt: true, s: 0.84 };
+PICS.squat_cone = { ...PICS.squat, band: undefined, label: 'Squat amb cinturó a la politja cònica', pull: 'front', belt: true, s: 0.86 };
+PICS.shuffle_cone = { ...PICS.shuffle, label: 'Desplaçament lateral amb la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+PICS.hinge_cone = { ...PICS.hinge, label: 'Pes mort romanès amb arnès a la politja cònica', a: PIC_HIPS, grip: 'none', pull: 'low', belt: true, s: 0.86 };
+PICS.pull_through_cone = { ...PICS.hinge, label: 'Pull-through amb cinturó a la politja cònica', a: PIC_HIPS, grip: 'none', pull: 'backlow', belt: true, s: 0.86 };
+PICS.crossstep_cone = { ...PICS.cut, label: 'Pas creuat amb cinturó a la politja cònica', grip: 'none', pull: 'front', belt: true, s: 0.84 };
+PICS.reverse_lunge_cone = { ...PICS.frenada_cone, label: 'Estocada enrere amb cinturó a la politja cònica', l: [36, 100], m: [116, 168] };
+PICS.split_bench_cone = { ...PICS.split_bench, label: 'Squat búlgar amb cinturó a la politja cònica', a: PIC_HIPS, b: PIC_HIPS, grip: 'none', pull: 'front', belt: true, s: 0.86 };
+// Tren superior: la corda a la mà (press d'esquena a la columna, curl, tríceps, elevació lateral).
+PICS.press_standing_cone = { ...PICS.row_standing, from: { a: [176, -6] }, label: 'Press de pit a una mà amb la politja cònica', a: [4, 2], pull: 'back', s: 0.84 };
+PICS.woodchop_cone = { ...PICS.woodchop, label: 'Rotació de tronc a la politja cònica', pull: [-6, 14, 40] };
+PICS.pushdown_cone = { ...PICS.pushdown, label: 'Extensió de tríceps a la politja cònica', pull: 'high' };
+PICS.lat_raise_cone = { ...PICS.lat_raise, label: 'Elevació lateral a la politja cònica', pull: 'low', s: 0.86 };
+// Amb turmellera (la corda va del turmell a la politja baixa de la columna).
+// Kick back i Gem/Sol: de cara a la columna, mans recolzades i tronc inclinat; el genoll puja i la cama empeny enrere.
+PICS.kick_cone = { ...PICS.stand_kick, from: { l: [16, 104] }, label: 'Kick back amb turmellera a la politja cònica', t: -62, l: [116, 122],
+  grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.gemsol_cone = { ...PICS.kick_cone, from: { l: [22, 112] }, label: 'Bessons i soli amb turmellera a la politja cònica', l: [104, 100] };
+// Patada d'isquios circular: el genoll puja davant i la cama passa per sota del maluc fins enrere amb el taló amunt.
+PICS.ham_cycle_cone = { ...PICS.march, band: undefined, from: { l: [30, 112] }, label: 'Patada d\'isquios circular a la politja cònica', t: -84,
+  l: [122, 196], a: PIC_HIPS, b: PIC_HIPS, grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+// Patada de quàdriceps circular: d'esquena a la columna; la cama ve de darrere, puja el genoll i estira endavant.
+PICS.q_cycle_cone = { ...PICS.march, band: undefined, from: { l: [118, 156] }, label: 'Patada de quàdriceps circular a la politja cònica', t: -92,
+  l: [26, 34], a: PIC_HIPS, b: PIC_HIPS, grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
+// Patada alta d'isquios: mans a la cintura, la cama estirada va enrere i amunt.
+PICS.high_kick_cone = { ...PICS.march, band: undefined, from: { l: [84, 86] }, label: 'Patada alta d\'isquios a la politja cònica', t: -80,
+  l: [148, 150], a: PIC_HIPS, b: PIC_HIPS, grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+// Adducció i abducció de peu (de cara): la cama creua per davant i després s'obre al costat.
+PICS.stand_abd_cone = { ...PICS.stand_abd, band: undefined, from: { l: [70, 72] }, label: 'Adducció i abducció amb turmellera a la politja cònica',
+  l: [122, 122], grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+// Estirat (sense vídeo): adducció i abducció de costat, extensió de maluc i curl d'isquios de bocaterrosa.
+PICS.side_abd_cone = { ...PICS.side_abd, label: 'Adducció i abducció estirat a la politja cònica', grip: 'none', pull: 'low', ankle: true, s: 0.86 };
+PICS.prone_kick_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Extensió de maluc estirat a la politja cònica', t: 0, hd: -4, l: [200, 200], m: [180, 180],
+  a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
+PICS.prone_curl_cone = { from: { l: [180, 180], m: [180, 180] }, label: 'Curl d\'isquios estirat a la politja cònica', t: 0, hd: -4, l: [180, -84], m: [180, 180],
+  a: [[-30, 66], [180, -78]], grip: 'none', pull: 'backlow', ankle: true, s: 0.86 };
 
 // ── Keiser (resistència pneumàtica) ──
 // Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
