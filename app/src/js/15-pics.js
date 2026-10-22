@@ -529,6 +529,8 @@ function picGear3(J, P, g, C) {
     const inHand = v3.add(grip === 'chest' ? mid : hR, v3.mul(J.f, 3.4));
     return [pk.ball(v3.lerp(inHand, [J.pel[0] + 14, J.groundY + 4.8, 0], Math.max(0, Math.min(1, P.bl))), 4.8, 'ps', { gear: 1 })];
   }
+  // llançament amunt: la pilota surt de les mans cap a on mira el pit (P.bu = distància per sobre de les mans)
+  if (g.kind === 'ball' && P.bu != null) return [pk.ball(v3.add(grip === 'chest' ? mid : hR, v3.mul(J.f, 4.4 + P.bu)), 4.8, 'ps', { gear: 1 })];
   if (grip === 'swing') {
     // swing: la kettlebell continua la línia dels braços
     if (g.kind === 'kb') return picKettlebell(mid, v3.mul(J.arm[0].d2, -1), C);
@@ -701,9 +703,9 @@ function picArmLerp(sa, sb, k, side, front) {
 }
 function picLerp(A, B, k) {
   const out = { ...B, k };
-  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl']) {
+  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl', 'bu']) {
     const d = f === 't' ? -90 : 0;
-    const ang = !['shr', 'shp', 'lift', 'dx', 'bl'].includes(f);
+    const ang = !['shr', 'shp', 'lift', 'dx', 'bl', 'bu'].includes(f);
     if (A[f] != null || B[f] != null) {
       const x = A[f] ?? d, y = B[f] ?? d;
       out[f] = ang && (Array.isArray(x) || Array.isArray(y)) ? picLerpSpec(x, y, k) : (ang ? picLerpA : picLerpN)(x, y, k);
