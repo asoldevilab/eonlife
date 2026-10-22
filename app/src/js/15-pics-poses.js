@@ -457,6 +457,15 @@ PICS.kb_row_grip = { ...PICS.row_one, label: 'Rem a una mà amb nansa a la kBox'
 PICS.kb_latraise_grip = { ...PICS.lat_raise, label: 'Elevació lateral amb nansa a la kBox', kb: 'grip' };
 PICS.kb_triceps_grip = { ...PICS.triceps_oh_one, label: 'Extensió de tríceps amb nansa a la kBox', kb: 'grip' };
 
+// ── Escala de coordinació (l'escala es dibuixa a terra): peus ràpids, passes laterals i salts curts ──
+PICS.esc_quick = { ...PICS.skipping, from: { l: [92, 92, 30], m: [44, 112], a: [60, -40], b: [120, 40] }, label: 'Peus ràpids a l\'escala', t: -84,
+  l: [44, 112], m: [92, 92, 30], a: [120, 40], b: [60, -40], lift: 3 };
+PICS.esc_inout = { ...PICS.side_step, band: undefined, label: 'Dins i fora de l\'escala', a: [96, 84], fix: 'free', lift: 2 };
+PICS.esc_hop_sl = { ...PICS.hop, label: 'Salts a una cama a l\'escala', from: { ...PICS.hop.from, m: [60, 124] }, m: [56, 128] };
+PICS.esc_lat_hop = { ...PICS.hop, label: 'Salts laterals a l\'escala', front: true, view: undefined, from: { ...PICS.hop.from, dx: -12 } };
+PICS.esc_lat_hop_sl = { ...PICS.esc_lat_hop, label: 'Salts laterals a una cama a l\'escala', from: { ...PICS.esc_lat_hop.from, m: [96, 24] }, m: [96, 24] };
+PICS.esc_jack = { ...PICS.hop, label: 'Obrir i tancar a l\'escala', front: true, view: undefined, from: { t: -88, l: [104, 100], m: [76, 80], lift: 0 }, l: [90, 90], m: [90, 90], lift: 6 };
+
 // ── Keiser (resistència pneumàtica) ──
 // Bastidor fosc i, a cada màquina, el cilindre d'aire (blau) amb la seva tija: és el que dona la resistència.
 const picKeiserFrame = (list) => list.map((o) => (o.cls === 'pp' ? { ...o, cls: 'pkz' } : o));

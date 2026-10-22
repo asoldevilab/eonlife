@@ -422,6 +422,17 @@ function picGear3(J, P, g, C) {
     }
     return out;
   }
+  if (g.kind === 'ladder') {
+    // escala de coordinació a terra: els travessers cada ~45 cm al llarg del dibuix (endavant de perfil, de costat de cara)
+    // l'escala va en la direcció horitzontal de la càmera (x de perfil, z de cara)
+    const c = v3.lerp(J.leg[0].a, J.leg[1].a, 0.5), alongX = Math.abs(C.right[0]) >= Math.abs(C.right[2]);
+    const slab = (a0, a1, b0, b1, h, cls) => (alongX ? pk.box(a0, a1, J.groundY - h, J.groundY, b0, b1, cls, { gear: 1, under: 1, nofit: 1 })
+      : pk.box(b0, b1, J.groundY - h, J.groundY, a0, a1, cls, { gear: 1, under: 1, nofit: 1 }));
+    const a = alongX ? c[0] : c[2], b = alongX ? c[2] : c[0];
+    for (let i = -3; i <= 3; i++) out.push(slab(a + i * 22 + 11 - 1.6, a + i * 22 + 11 + 1.6, b - 10, b + 10, 1.4, 'pe'));
+    for (const k of [-10, 10]) out.push(slab(a - 66, a + 66, b + k - 0.6, b + k + 0.6, 0.6, 'pp'));
+    return out;
+  }
   if (g.kind === 'kbox') {
     // plataforma kBox sota els peus (o sota el peu de davant a l'estocada: P.kbFoot) i la corja fins al volant;
     // accessori P.kb: 'belt' (cinturó al maluc, per defecte), 'vest' (armilla a les espatlles), 'bar' (kBar a les mans)
@@ -965,6 +976,7 @@ function picGearOf(e, key) {
   if (/trx/.test(m + ' ' + t)) return { kind: 'trx' };
   if (/landmine/.test(m + ' ' + t)) return { kind: 'landmine' };
   if (/loop band/.test(m) || at) return at || lower ? { kind: 'loop', at: at || P.band || 'knees' } : { kind: 'band' };
+  if (/escala de coordinacio|escala d.agilitat|agility ladder/.test(m)) return { kind: 'ladder' };
   if (/kbox/.test(m)) return { kind: 'kbox' };
   if (/lliscador|flowin/.test(m + t)) return { kind: 'sliders' };
   if (/power personal/.test(m)) {
