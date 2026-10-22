@@ -201,7 +201,7 @@ function WeekCalendar() {
   const assessments = Store.all('assessments').filter((a) => a.date >= wk && a.date <= end && okProf(a.professional, a.patientId));
   const retests = Store.patients().filter((p) => p.status === 'actiu' && okProf(p.professional, p.id))
     .map((p) => ({ p, r: Calc.retestDue(Store.assessmentsOf(p.id)) }))
-    .filter((x) => x.r && x.r.due >= wk && x.r.due <= end);
+    .filter((x) => x.r && !x.r.scheduled && x.r.due >= wk && x.r.due <= end);
   const profs = Store.professionals();
   const days = [0, 1, 2, 3, 4, 5, 6].map((i) => U.addDays(wk, i));
   const total = sessions.length + assessments.length + retests.length;
@@ -220,7 +220,7 @@ function WeekCalendar() {
     </div>
     <div class="weekcal-grid">${days.map((d) => {
       const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => `${s.time || '99'}#${U.norm(name(s.patientId))}`);
-      const aa = assessments.filter((a) => a.date === d);
+      const aa = U.sortBy(assessments.filter((a) => a.date === d), (a) => a.time || '99');
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
@@ -229,9 +229,13 @@ function WeekCalendar() {
           <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
         </button>`)}
-        ${aa.map((a) => html`<button type="button" class="weekcal-it assess" onClick=${() => go('valoracio', a.id)} title=${`Valoració · ${name(a.patientId)}`}>
-          <span class="weekcal-who">${name(a.patientId)}</span><span class="weekcal-what">Valoració</span>
-        </button>`)}
+        ${aa.map((a) => {
+          const booked = Calc.assessScheduled(a), label = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
+          return html`<button type="button" class=${U.cls('weekcal-it', 'assess', booked && 'future')} onClick=${() => go('valoracio', a.id)}
+            title=${[name(a.patientId), label, booked ? 'programada' : '', a.professional].filter(Boolean).join(' · ')}>
+            <span class="weekcal-who">${a.time && html`<span class="cal-s-time">${a.time}</span>`}${name(a.patientId)}</span><span class="weekcal-what">${label}${booked ? ' · programada' : ''}</span>
+          </button>`;
+        })}
         ${rr.map((x) => html`<button type="button" class="weekcal-it retest" onClick=${() => go('client', x.p.id, 'valoracions')} title="Toca el re-test">
           <span class="weekcal-who">${U.fullName(x.p)}</span><span class="weekcal-what">Re-test pendent</span>
         </button>`)}
@@ -240,7 +244,7 @@ function WeekCalendar() {
     })}</div>
     ${!total && html`<p class="muted small">No hi ha res programat aquesta setmana${prof ? ` per a ${prof}` : ''}.</p>`}
     <div class="cal-legend"><span><i class="cal-key done"></i>Sessió feta</span><span><i class="cal-key plan"></i>Sessió programada</span>
-      <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
+      <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key assess-plan"></i>Valoració programada</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
   </section>`;
 }
 

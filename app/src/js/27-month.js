@@ -17,6 +17,13 @@ function MonthView({ p, sessions }) {
     const d = U.diffDays(lead.date, date);
     if (await moveSessions(list, (x) => U.addDays(x.date, d)) && selecting) setSel([]);
   };
+  // Una valoració programada també es pot arrossegar a un altre dia.
+  const onDropAssess = (ids, date) => {
+    const a = Store.get('assessments', ids[0]);
+    if (!a || a.date === date) return;
+    Store.update('assessments', a.id, (x) => { x.date = date; });
+    UI.toast(`Valoració moguda al ${U.fmtDate(date)}.`);
+  };
   // En planificar un mes (Planifica el mes), el calendari hi va sol.
   useEffect(() => { const m = MonthNav.take(p.id); if (m) setMonth(m); });
   const first = `${month}-01`;
@@ -97,11 +104,16 @@ function MonthView({ p, sessions }) {
                     ${nums}
                   </button>`;
                 })}
-                ${evals.map((a) => html`<button type="button" class=${U.cls('cal-s', 'assess', a.date > today && 'future')} onClick=${() => { if (!CalDrag.recent()) go('valoracio', a.id); }}
-                  title=${`${assessLabel(a)}${a.date > today ? ' · programada' : ' · feta'} · toca-la per obrir-la`}>
-                  <span class="cal-s-n">${assessLabel(a)}${a.date <= today ? ' ✓' : ''}</span>
-                  <span class="cal-s-goal">${a.professional ? `Valoració · ${a.professional}` : 'Valoració'}</span>
-                </button>`)}
+                ${evals.map((a) => {
+                  const booked = Calc.assessScheduled(a), fet = !booked && a.date <= today;
+                  return html`<button type="button" class=${U.cls('cal-s', 'assess', !fet && 'future')}
+                    ...${booked ? CalDrag.props(() => [a.id], assessLabel(a), onDropAssess) : {}}
+                    onClick=${() => { if (CalDrag.recent()) return; if (booked) openScheduleAssessment(p, { a }); else go('valoracio', a.id); }}
+                    title=${booked ? `${assessLabel(a)} · programada · toca-la per canviar-la o començar-la; arrossega-la per moure-la de dia` : `${assessLabel(a)}${fet ? ' · feta' : ''} · toca-la per obrir-la`}>
+                    <span class="cal-s-n">${a.time && html`<span class="cal-s-time">${a.time}</span>`}${assessLabel(a)}${fet ? ' ✓' : ''}</span>
+                    <span class="cal-s-goal">${booked ? `Programada${a.professional ? ` · ${a.professional}` : ''}` : a.professional ? `Valoració · ${a.professional}` : 'Valoració'}</span>
+                  </button>`;
+                })}
                 ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
                   title=${`Prevista al pla «${x.plan.name}». Toca-la per preparar-la.`}>
                   <span class="cal-s-n">S${x.ps.n} del pla</span>
@@ -124,8 +136,9 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
         <span><i class="cal-key assess"></i>Valoració</span>
+        <span><i class="cal-key assess-plan"></i>Valoració programada</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera, per anotar-ne només l'objectiu o per programar una valoració (inicial, re-test…), o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -204,15 +217,18 @@ function CalendarAddDialog({ p, date, onClose }) {
     <span class="choice-body"><span class="choice-title">${title}</span><span class="choice-text">${text}</span></span>
   </label>`;
   if (mode === 'quick-form') return html`<${QuickSessionDialog} p=${p} date=${date} onClose=${onClose} />`;
+  if (mode === 'assess-form') return html`<${ScheduleAssessmentDialog} p=${p} date=${date} onClose=${onClose} />`;
   const next = () => {
-    if (mode === 'full') { onClose(); openNewSession(p.id, date); } else setMode('quick-form');
+    if (mode === 'full') { onClose(); openNewSession(p.id, date); } else setMode(mode === 'assess' ? 'assess-form' : 'quick-form');
   };
-  return html`<${Dialog} title=${`Nova sessió · ${U.fmtDateLong(date)}`} onClose=${onClose} footer=${html`
+  return html`<${Dialog} title=${`Nou al calendari · ${U.fmtDateLong(date)}`} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="right" onClick=${next}>Continua</${Btn}>`}>
     <div class="choices">
       ${option('quick', 'Només l\'objectiu', 'Per omplir el calendari ràpid: s\'anota l\'objectiu (i el pilar, si vols) i surt al quadre del dia. Més endavant la pots programar sencera.')}
       ${option('full', 'Programa la sessió sencera', 'Amb els blocs i els exercicis: del pla, copiant l\'última, d\'una plantilla o en blanc.')}
+      ${option('assess', 'Programa una valoració', Store.doneAssessmentsOf(p.id).length ? 'Re-test, control de mesures o alta: es reserva el dia (i l\'hora) i el dia que toca la comences.'
+        : 'La valoració inicial d\'un pacient nou: es reserva el dia (i l\'hora) i el dia que toca la comences.')}
     </div>
   </${Dialog}>`;
 }
@@ -279,4 +295,62 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     </form>
     ${!done && html`<p class="dialog-text">Quan el pacient l'hagi feta, torna-la a obrir i marca-la com a <strong>Feta</strong> per anotar-hi l'RPE i el dolor: surten al quadre del dia.</p>`}
   </${Dialog}>`;
+}
+
+// ── Valoració programada ──
+// Reserva una valoració al calendari (inicial, re-test…) amb el dia, l'hora i el professional. No compta com a feta
+// (ni per a l'informe ni per a l'evolució) fins que es comença.
+function openScheduleAssessment(p, { a, date } = {}) {
+  let close = null;
+  close = UI.open(() => html`<${ScheduleAssessmentDialog} p=${p} a=${a} date=${date} onClose=${() => close()} />`);
+}
+
+function ScheduleAssessmentDialog({ p, a, date, onClose }) {
+  const first = !Store.doneAssessmentsOf(p.id).length;
+  const [f, setF] = useState({
+    type: (a && a.type) || (first ? 'inicial' : 'retest'), date: (a && a.date) || date || U.today(), time: (a && a.time) || '',
+    professional: (a && a.professional) || p.professional || '',
+  });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const typeLabel = (OPT.assessmentTypes.find((t) => t.v === f.type) || {}).label || 'Valoració';
+  const save = () => {
+    if (!f.date) { UI.toast('Tria el dia de la valoració.', 'bad'); return null; }
+    const apply = (x) => {
+      x.type = f.type; x.date = f.date; x.professional = f.professional;
+      if (f.time) x.time = f.time; else delete x.time;
+    };
+    const rec = a ? Store.update('assessments', a.id, apply) : Store.newAssessment(p.id, { date: f.date, type: f.type, time: f.time, scheduled: true });
+    if (!a) Store.update('assessments', rec.id, apply);
+    onClose();
+    UI.toast(`${typeLabel} programada el ${U.fmtDate(f.date)}${f.time ? ` a les ${f.time}` : ''}.`);
+    return rec;
+  };
+  const start = () => { const rec = save(); if (rec) startAssessment(Store.get('assessments', rec.id)); };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: 'Treure aquesta valoració del calendari?', text: `${typeLabel} · ${U.fmtDate(a.date)}`, ok: 'Treu-la', danger: true }))) return;
+    Store.remove('assessments', a.id);
+    onClose();
+  };
+  return html`<${Dialog} title=${a ? `${typeLabel} programada` : 'Programa una valoració'} onClose=${onClose} footer=${html`
+    ${a && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Treu-la</${Btn}>`}
+    ${a && html`<${Btn} variant="ghost" icon="clipboard" onClick=${start}>Comença-la ara</${Btn}>`}
+    <${Btn} variant="primary" icon="calendar" onClick=${save}>${a ? 'Desa' : 'Programa-la'}</${Btn}>`}>
+    <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); save(); }}>
+      <${Field} label="Tipus" id="sa-type" wide=${true}>
+        <${Seg} value=${f.type} onValue=${set('type')} allowEmpty=${false} ariaLabel="Tipus de valoració" options=${OPT.assessmentTypes.map((o) => ({ v: o.v, label: o.short || o.label }))} />
+      </${Field}>
+      <${Field} label="Dia" id="sa-date"><${TextInput} id="sa-date" type="date" value=${f.date} onValue=${set('date')} /></${Field}>
+      <${Field} label="Hora" id="sa-time"><${TextInput} id="sa-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
+      <${Field} label="Professional" id="sa-prof"><${ProfSelect} id="sa-prof" value=${f.professional} onValue=${set('professional')} /></${Field}>
+      <button type="submit" hidden></button>
+    </form>
+    <p class="dialog-text">Surt al calendari del pacient i al de la setmana de l'Inici. El dia que toqui, obre-la i toca <strong>Comença-la ara</strong> (o «${first ? 'Valoració inicial' : 'Nou re-test'}» a la fitxa): s'omple com sempre.</p>
+  </${Dialog}>`;
+}
+
+// Començar una valoració programada: deixa de ser «programada» i passa a la data d'avui (el dia que es fa).
+function startAssessment(a) {
+  if (!a) return;
+  Store.update('assessments', a.id, (x) => { delete x.status; x.date = U.today(); });
+  go('valoracio', a.id);
 }

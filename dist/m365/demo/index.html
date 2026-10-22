@@ -1904,6 +1904,7 @@ body.cal-dragging .cal-s { pointer-events: none; }
 .weekcal-what { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .weekcal-empty { color: var(--ink-3); font-size: 13px; padding: 2px; }
 .cal-key.assess { background: #E4EEF8; box-shadow: inset 0 0 0 1px #2F6DB0; }
+.cal-key.assess-plan { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; }
 .cal-key.retest { background: #FBF0D9; box-shadow: inset 0 0 0 1px #D89A1B; }
 @media (max-width: 760px) {
   .weekcal-grid { grid-template-columns: 1fr; }
@@ -1918,6 +1919,7 @@ body.cal-dragging .cal-s { pointer-events: none; }
 /* Valoracions al seguiment mensual */
 .cal-s.assess { background: #E4EEF8; color: #173C61; box-shadow: inset 0 0 0 1px #2F6DB0; }
 .cal-s.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; border: 0; }
+.weekcal-it.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal-s.assess { background: #1B2D40; color: #D6E6F7; } }
 :root[data-theme="dark"] .cal-s.assess { background: #1B2D40; color: #D6E6F7; }
 
@@ -4250,7 +4252,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-22 09:11";
+window.EON_BUILD = "2026-10-22 17:12";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7085,8 +7087,14 @@ const Calc = {
     return out;
   },
 
+  // Valoració programada al calendari que encara no s'ha començat.
+  assessScheduled(a) { return !!a && a.status === 'programada'; },
+  // Propera valoració: la programada al calendari (si n'hi ha) o la de l'última feta + els mesos del re-test.
   retestDue(assessments) {
-    const last = U.sortBy(assessments, 'date', -1)[0];
+    const done = (assessments || []).filter((a) => !Calc.assessScheduled(a));
+    const last = U.sortBy(done, 'date', -1)[0] || null;
+    const booked = U.sortBy((assessments || []).filter((a) => Calc.assessScheduled(a) && (!last || a.date >= last.date)), 'date')[0];
+    if (booked) return { last, due: booked.date, days: U.diffDays(U.today(), booked.date), scheduled: booked };
     if (!last) return null;
     const due = last.nextRetest || U.addMonths(last.date, T.retestMonths);
     return { last, due, days: U.diffDays(U.today(), due) };
@@ -7736,7 +7744,7 @@ Object.assign(Calc, {
     const hit = {
       squat: /squat|sentadilla/, bench: /banca|bench/, deadlift: /pes mort|deadlift/, hipthrust: /hip ?thrust/,
     };
-    const asses = U.sortBy(Store.byPatient('assessments', pid).filter((a) => a.date && a.date <= end), (a) => a.date, -1);
+    const asses = U.sortBy(Store.byPatient('assessments', pid).filter((a) => a.date && a.date <= end && !Calc.assessScheduled(a)), (a) => a.date, -1);
     for (const a of asses) {
       for (const x of Calc.lvpAnalysis(a, null)) {
         if (!(x.rm > 0)) continue;
@@ -8455,6 +8463,8 @@ const Store = {
   patients() { return U.sortBy(this.all('patients'), (p) => U.norm(`${p.lastName} ${p.firstName}`)); },
   sessionsOf(pid) { return U.sortBy(this.byPatient('sessions', pid), (s) => `${s.date}#${String(U.num(s.number) || 0).padStart(4, '0')}`); },
   assessmentsOf(pid) { return U.sortBy(this.byPatient('assessments', pid), 'date'); },
+  // Només les fetes (sense les programades al calendari que encara no s'han començat).
+  doneAssessmentsOf(pid) { return this.assessmentsOf(pid).filter((a) => !Calc.assessScheduled(a)); },
 
   // Biblioteca = exercicis de base + canvis i exercicis nous desats.
   exercises() {
@@ -8631,7 +8641,7 @@ const Store = {
 
   newAssessment(pid, opts = {}) {
     const p = this.get('patients', pid);
-    const prev = this.assessmentsOf(pid);
+    const prev = this.doneAssessmentsOf(pid);
     const last = prev[prev.length - 1];
     const date = opts.date || U.today();
     const a = {
@@ -8647,6 +8657,9 @@ const Store = {
       nextRetest: opts.type === 'control' && last ? (last.nextRetest || U.addMonths(last.date, T.retestMonths)) : U.addMonths(date, T.retestMonths),
       createdAt: new Date().toISOString(),
     };
+    // Programada des del calendari (amb l'hora, si se sap): no compta com a feta fins que es comença.
+    if (opts.time) a.time = opts.time;
+    if (opts.scheduled) a.status = 'programada';
     return this.put('assessments', a, { immediate: true });
   },
 
@@ -9404,7 +9417,7 @@ const DB = (() => {
       { id: 'start', label: 'Alta', kind: 'date', get: (r) => r.p.startDate || '' },
       { id: 'done', label: 'Sessions fetes', kind: 'num', dec: 0, get: (r) => Store.byPatient('sessions', r.p.id).filter((s) => s.status === 'feta').length },
       { id: 'lastSession', label: 'Última sessió', kind: 'date', get: (r) => (U.sortBy(Store.byPatient('sessions', r.p.id).filter((s) => s.status === 'feta'), 'date', -1)[0] || {}).date || '' },
-      { id: 'lastAssessment', label: 'Última valoració', kind: 'date', get: (r) => (Store.assessmentsOf(r.p.id).pop() || {}).date || '' },
+      { id: 'lastAssessment', label: 'Última valoració', kind: 'date', get: (r) => (Store.doneAssessmentsOf(r.p.id).pop() || {}).date || '' },
       { id: 'retest', label: 'Propera valoració', kind: 'date', get: (r) => { const x = Calc.retestDue(Store.assessmentsOf(r.p.id)); return x ? x.due : ''; },
         tone: (r, v) => (v && v <= U.today() ? 'warn' : '') },
       { id: 'iq', label: 'Dies des de la IQ', kind: 'num', dec: 0, get: (r) => (r.p.surgeryDate ? U.diffDays(r.p.surgeryDate, U.today()) : null) },
@@ -12383,7 +12396,7 @@ const ExcelSet = (() => {
     const byDate = (a, b) => (a.date === b.date ? (U.num(a.number) || 0) - (U.num(b.number) || 0) : a.date < b.date ? -1 : 1);
     // Sense data (p. ex. mentre s'escriu una de nova) no es pot situar al calendari ni donar nom a un fitxer: queden fora fins que en tinguin.
     const sessions = get('sessions').filter((s) => s.patientId === pid && U.parse(s.date)).sort(byDate);
-    const assessments = get('assessments').filter((a) => a.patientId === pid && U.parse(a.date)).sort((a, b) => (a.date === b.date ? xlStr(a.createdAt).localeCompare(xlStr(b.createdAt)) : a.date < b.date ? -1 : 1));
+    const assessments = get('assessments').filter((a) => a.patientId === pid && U.parse(a.date) && a.status !== 'programada').sort((a, b) => (a.date === b.date ? xlStr(a.createdAt).localeCompare(xlStr(b.createdAt)) : a.date < b.date ? -1 : 1));
     const templates = S.templates ? S.templates() : real(Object.values(S.data.templates || {}));
     const plans = templates.filter((t) => t.kind === 'plan' && t.patientId === pid && !t.deleted);
     return { patient, sessions, assessments, plans, settings: S.settings || defaultSettings(), exercise: (id) => (S.exercise ? S.exercise(id) : null) };
@@ -14605,7 +14618,7 @@ const NoeTools = (() => {
       const rows = list.map((p) => {
         const sess = Store.sessionsOf(p.id), done = sess.filter((s) => s.status === 'feta');
         const last = done[done.length - 1], next = sess.find((s) => s.status !== 'feta' && s.date >= today);
-        const as = Store.assessmentsOf(p.id), la = as[as.length - 1];
+        const as = Store.doneAssessmentsOf(p.id), la = as[as.length - 1];
         return { p, row: compact({ pacient: ctx.ps.ref(p.id), edat: U.age(p.birthDate), sexe: sexName(p.sex), servei: p.service, estat: p.status || 'actiu', professional: p.professional,
           objectiu: enc(ctx, short(p.goal, 140)), darrera_sessio_feta: last ? last.date : '', dies_sense_sessio: last ? U.diffDays(last.date, today) : '', sessions_fetes_30d: done.filter((s) => s.date >= U.addDays(today, -30)).length,
           propera_sessio: next ? next.date : '', valoracions: as.length, retest: la ? la.nextRetest || '' : '' }) };
@@ -14640,7 +14653,7 @@ const NoeTools = (() => {
       if (r.err) return r.err;
       const p = r.p, today = U.today();
       const sess = Store.sessionsOf(p.id), done = sess.filter((s) => s.status === 'feta');
-      const as = Store.assessmentsOf(p.id), la = as[as.length - 1];
+      const as = Store.doneAssessmentsOf(p.id), la = as[as.length - 1];
       const recent = done.slice(-5);
       const avg = (k) => { const v = recent.map((s) => U.num((s.feedback || {})[k])).filter((n) => n != null); return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 10) / 10 : ''; };
       const wl = recent.map((s) => (Calc.wellness(s.wellness) || {}).total).filter((n) => n != null);
@@ -14664,7 +14677,7 @@ const NoeTools = (() => {
       const r = pat(ctx, i.pacient);
       if (r.err) return r.err;
       const n = Math.max(1, Math.min(3, i.ultimes || 1));
-      const all = Store.assessmentsOf(r.pid);
+      const all = Store.doneAssessmentsOf(r.pid);
       if (!all.length) return { pacient: ctx.ps.ref(r.pid), valoracions: [], nota: 'Aquest pacient encara no té cap valoració.' };
       const out = all.slice(-n).reverse().map((a) => {
         const idx = all.indexOf(a), prev = idx > 0 ? all[idx - 1] : null;
@@ -16315,13 +16328,21 @@ function openNewPatient() {
 
 function NewPatientDialog({ onClose }) {
   const [f, setF] = useState({ firstName: '', lastName: '', service: 'membership', professional: Store.professionals()[0] || '', birthDate: '' });
+  // Opcional: deixar ja reservada la valoració inicial al calendari (dia i hora).
+  const [va, setVa] = useState({ date: '', time: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del pacient.', 'bad'); return; }
+    if (va.time && !va.date) { UI.toast('Tria també el dia de la valoració inicial.', 'bad'); return; }
     const p = Store.newPatient({ ...f, firstName: f.firstName.trim(), lastName: f.lastName.trim() });
+    if (va.date) {
+      const a = Store.newAssessment(p.id, { date: va.date, type: 'inicial', time: va.time, scheduled: true });
+      if (f.professional) Store.update('assessments', a.id, (x) => { x.professional = f.professional; });
+    }
     onClose();
     if (Store.cloud()) ensureFolder(p);
-    go('client', p.id, 'fitxa');
+    if (va.date) UI.toast(`Valoració inicial programada el ${U.fmtDate(va.date)}${va.time ? ` a les ${va.time}` : ''}.`);
+    go('client', p.id, va.date ? 'mes' : 'fitxa');
   };
   return html`<${Dialog} title="Nou pacient" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
@@ -16335,6 +16356,12 @@ function NewPatientDialog({ onClose }) {
       <${Field} label="Data de naixement" id="np-birth"><${TextInput} id="np-birth" type="date" value=${f.birthDate} onValue=${set('birthDate')} /></${Field}>
       <${Field} label="Professional de referència" id="np-prof">
         <${ProfSelect} id="np-prof" value=${f.professional} onValue=${set('professional')} />
+      </${Field}>
+      <${Field} label="Valoració inicial · dia" id="np-vdate" hint="Opcional: la deixa programada al calendari.">
+        <${TextInput} id="np-vdate" type="date" value=${va.date} onValue=${(v) => setVa({ ...va, date: v })} />
+      </${Field}>
+      <${Field} label="Valoració inicial · hora" id="np-vtime">
+        <${TextInput} id="np-vtime" type="time" value=${va.time} onValue=${(v) => setVa({ ...va, time: v })} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
@@ -16461,6 +16488,9 @@ function NewSessionDialog({ pid, date, onClose }) {
 
 // ── Nova valoració ──
 function createAssessment(pid) {
+  // Si n'hi ha una de programada per a avui (o d'un dia que ja ha passat), es comença aquesta.
+  const booked = Store.assessmentsOf(pid).find((x) => Calc.assessScheduled(x) && x.date <= U.today());
+  if (booked) { startAssessment(booked); return; }
   const a = Store.newAssessment(pid);
   go('valoracio', a.id);
 }
@@ -19753,7 +19783,7 @@ const PdfSet = (() => {
     const base = { p: person(p), b: brand(), f: PDF_FORMAT };
     const items = [];
     const dropped = [];
-    const assessments = Store.assessmentsOf(pid);
+    const assessments = Store.doneAssessmentsOf(pid);
     assessments.forEach((a, i) => {
       if (!hasData(a)) return;
       const label = typeLabelOf(a);
@@ -20157,7 +20187,7 @@ function HomeView() {
       <${Stat} icon="users" label="Pacients actius" value=${active.length} sub=${`${patients.length} en total`} />
       <${Stat} icon="calendar" label="Sessions d'avui" value=${todays.length} sub=${todays.length ? `${todays.filter((s) => s.status === 'feta').length} fetes` : 'Cap sessió planificada'} />
       <${Stat} icon="dumbbell" label="Aquesta setmana" value=${week.filter((s) => s.status === 'feta').length} unit=${`/ ${week.length}`} sub="sessions fetes / planificades" />
-      <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && x.r.days <= 0) ? 'warn' : ''} />
+      <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && !x.r.scheduled && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && !x.r.scheduled && x.r.days <= 0) ? 'warn' : ''} />
     </section>
 
     <${MaterialToday} sessions=${todays} />
@@ -20179,9 +20209,11 @@ function HomeView() {
         <div class="card-head"><h2 class="h2">Valoracions pendents</h2></div>
         ${retests.length ? html`<ul class="plainlist">${retests.map(({ p, r }) => html`<li class="retest">
           <${PatientChip} p=${p} />
-          ${r ? html`<span class=${U.cls('retest-when', r.days <= 0 && 'due')}>${r.days <= 0 ? `Re-test des del ${U.fmtDate(r.due)}` : `Re-test el ${U.fmtDate(r.due)}`}</span>`
+          ${r && r.scheduled ? html`<span class=${U.cls('retest-when', r.days < 0 && 'due')}>${(OPT.assessmentTypes.find((t) => t.v === r.scheduled.type) || {}).label || 'Valoració'} programada el ${U.fmtDate(r.due)}${r.scheduled.time ? ` a les ${r.scheduled.time}` : ''}</span>`
+            : r ? html`<span class=${U.cls('retest-when', r.days <= 0 && 'due')}>${r.days <= 0 ? `Re-test des del ${U.fmtDate(r.due)}` : `Re-test el ${U.fmtDate(r.due)}`}</span>`
             : html`<span class="retest-when due">Sense valoració inicial</span>`}
-          <${Btn} size="sm" variant="ghost" icon="clipboard" onClick=${() => createAssessment(p.id)}>${r ? 'Re-test' : 'Valorar'}</${Btn}>
+          ${r && r.scheduled ? html`<${Btn} size="sm" variant="ghost" icon="calendar" onClick=${() => openScheduleAssessment(p, { a: r.scheduled })}>Obre</${Btn}>`
+            : html`<${Btn} size="sm" variant="ghost" icon="clipboard" onClick=${() => createAssessment(p.id)}>${r ? 'Re-test' : 'Valorar'}</${Btn}>`}
         </li>`)}</ul>` : html`<${Empty} icon="check" title="Tot al dia" text="No hi ha re-tests en les properes 3 setmanes." />`}
       </section>
     </div>
@@ -20211,7 +20243,7 @@ function ClientRow({ p, sessions }) {
   const today = U.today();
   const done = U.sortBy(sessions.filter((s) => s.status === 'feta'), 'date', -1)[0];
   const next = U.sortBy(sessions.filter((s) => s.date >= today && s.status !== 'feta'), 'date')[0];
-  const last = Store.assessmentsOf(p.id).pop();
+  const last = Store.doneAssessmentsOf(p.id).pop();
   const age = U.age(p.birthDate);
   return html`<button type="button" class="crow" onClick=${() => go('client', p.id)}>
     <${Avatar} p=${p} />
@@ -20244,7 +20276,9 @@ function PatientView({ id, tab = 'resum' }) {
   if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest pacient" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
   const sessions = Store.sessionsOf(id);
-  const assessments = Store.assessmentsOf(id);
+  const allAssessments = Store.assessmentsOf(id);
+  // Les programades al calendari surten a la llista de valoracions, però no compten per al resum ni l'evolució.
+  const assessments = allAssessments.filter((a) => !Calc.assessScheduled(a));
   const setTab = (t) => go('client', id, t);
   const service = OPT.services.find((o) => o.v === p.service);
   const age = U.age(p.birthDate);
@@ -20296,7 +20330,7 @@ function PatientView({ id, tab = 'resum' }) {
       { id: 'sessions', label: 'Sessions', count: sessions.length },
       { id: 'pla', label: 'Pla i progrés', count: Store.plans(p.id).length || undefined },
       { id: 'mes', label: 'Seguiment mensual' },
-      { id: 'valoracions', label: 'Valoracions', count: assessments.length },
+      { id: 'valoracions', label: 'Valoracions', count: allAssessments.length },
       { id: 'fitxa', label: 'Fitxa' },
     ]} />
 
@@ -20304,7 +20338,7 @@ function PatientView({ id, tab = 'resum' }) {
     ${tab === 'sessions' && html`<${PatientSessions} p=${p} sessions=${sessions} />`}
     ${tab === 'pla' && html`<${PatientPlan} p=${p} />`}
     ${tab === 'mes' && html`<${MonthView} p=${p} sessions=${sessions} />`}
-    ${tab === 'valoracions' && html`<${PatientAssessments} p=${p} assessments=${assessments} />`}
+    ${tab === 'valoracions' && html`<${PatientAssessments} p=${p} assessments=${allAssessments} />`}
     ${tab === 'fitxa' && html`<${PatientForm} p=${p} onRemove=${remove} />`}
   </div>`;
 }
@@ -20469,7 +20503,8 @@ function PatientSessions({ p, sessions }) {
 function PatientAssessments({ p, assessments }) {
   const [allRows, setAllRows] = useState(false);
   const list = assessments.slice().reverse();
-  const cur = list[0], prev = list[1];
+  const doneList = list.filter((a) => !Calc.assessScheduled(a));
+  const cur = doneList[0], prev = doneList[1];
   const cmp = cur && prev ? Calc.compare(cur, prev, !allRows) : [];
   const remove = async (a) => {
     const ok = await UI.confirm({ title: 'Eliminar la valoració?', text: `${(OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label} del ${U.fmtDate(a.date)}.`, ok: 'Elimina', danger: true });
@@ -20479,11 +20514,23 @@ function PatientAssessments({ p, assessments }) {
     <section class="card">
       <div class="card-head"><h2 class="h2">Valoracions</h2>
         <div class="inline">
-          ${list.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('informetests', p.id)}>Informe de tests</${Btn}>`}
-          <${Btn} variant="primary" icon="clipboard" onClick=${() => createAssessment(p.id)}>${list.length ? 'Nou re-test' : 'Valoració inicial'}</${Btn}>
+          ${doneList.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('informetests', p.id)}>Informe de tests</${Btn}>`}
+          <${Btn} icon="calendar" onClick=${() => openScheduleAssessment(p)}>Programa-la</${Btn}>
+          <${Btn} variant="primary" icon="clipboard" onClick=${() => createAssessment(p.id)}>${doneList.length ? 'Nou re-test' : 'Valoració inicial'}</${Btn}>
         </div></div>
       ${list.length ? html`<div class="alist">${list.map((a) => {
         const c = Calc.cmj(a), pc = Calc.patterns(a), al = Calc.alerts(a);
+        if (Calc.assessScheduled(a)) return html`<div class="arow">
+          <${DateBlock} date=${a.date} />
+          <button type="button" class="arow-main" onClick=${() => openScheduleAssessment(p, { a })}>
+            <span class="arow-title"><strong>${(OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label}</strong><span class="muted">${a.professional}</span></span>
+            <span class="arow-meta"><${Pill} tone="brand" icon="calendar">Programada${a.time ? ` · ${a.time}` : ''}</${Pill}><span class="muted">Toca-la per canviar el dia o començar-la</span></span>
+          </button>
+          <div class="arow-actions">
+            <${Btn} variant="ghost" icon="play" title="Comença la valoració" onClick=${() => startAssessment(a)} />
+            <${Menu} items=${[{ label: 'Canvia el dia o l\'hora', icon: 'calendar', onClick: () => openScheduleAssessment(p, { a }) }, { label: 'Elimina', icon: 'trash', danger: true, onClick: () => remove(a) }]} />
+          </div>
+        </div>`;
         return html`<div class="arow">
           <${DateBlock} date=${a.date} />
           <button type="button" class="arow-main" onClick=${() => go('valoracio', a.id)}>
@@ -20920,8 +20967,10 @@ function AssessmentEditor({ id, focus }) {
     if ((k === 'weight' || k === 'height') && list.length && list[list.length - 1].id === a.id) Store.update('patients', a.patientId, (x) => { x[k] = v; });
   };
   const setCon = (k) => (v) => upd((x) => { x.conclusions = { ...(x.conclusions || {}), [k]: v }; });
-  const setVal = (tid, k, v) => upd((x) => { x.values = x.values || {}; x.values[tid] = { ...(x.values[tid] || {}), [k]: v }; });
+  // Si estava programada al calendari, en entrar-hi el primer resultat ja compta com a feta.
+  const setVal = (tid, k, v) => upd((x) => { delete x.status; x.values = x.values || {}; x.values[tid] = { ...(x.values[tid] || {}), [k]: v }; });
   const g = a.general || {}, c = a.conclusions || {};
+  const booked = Calc.assessScheduled(a);
   const alerts = Calc.alerts(a);
   const typeLabel = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
 
@@ -20952,10 +21001,17 @@ function AssessmentEditor({ id, focus }) {
       </nav>
     </div>
 
+    ${booked && html`<div class="banner" role="status">
+      <${Icon} name="calendar" size=${18} />
+      <div>Valoració <strong>programada</strong> per al ${U.fmtDateLong(a.date)}${a.time ? ` a les ${a.time}` : ''}. No compta com a feta fins que la comencis (o hi entris el primer resultat).</div>
+      <${Btn} size="sm" variant="primary" icon="clipboard" onClick=${() => startAssessment(a)}>Comença-la ara</${Btn}>
+    </div>`}
+
     <section class="card" id="sec-dades">
       <div class="card-head"><h2 class="h2">Dades de la valoració</h2></div>
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="as-date"><${TextInput} id="as-date" type="date" value=${a.date} onValue=${set('date')} /></${Field}>
+        <${Field} label="Hora" id="as-time"><${TextInput} id="as-time" type="time" value=${a.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Tipus" id="as-type"><${Select} id="as-type" value=${a.type} onValue=${set('type')} options=${OPT.assessmentTypes} /></${Field}>
         <${Field} label="Professional" id="as-prof"><${ProfSelect} id="as-prof" value=${a.professional} onValue=${set('professional')} /></${Field}>
         <${Field} label="Pes" id="as-weight"><${NumInput} id="as-weight" value=${g.weight} onValue=${setGen('weight')} unit="kg" /></${Field}>
@@ -23902,6 +23958,13 @@ function MonthView({ p, sessions }) {
     const d = U.diffDays(lead.date, date);
     if (await moveSessions(list, (x) => U.addDays(x.date, d)) && selecting) setSel([]);
   };
+  // Una valoració programada també es pot arrossegar a un altre dia.
+  const onDropAssess = (ids, date) => {
+    const a = Store.get('assessments', ids[0]);
+    if (!a || a.date === date) return;
+    Store.update('assessments', a.id, (x) => { x.date = date; });
+    UI.toast(`Valoració moguda al ${U.fmtDate(date)}.`);
+  };
   // En planificar un mes (Planifica el mes), el calendari hi va sol.
   useEffect(() => { const m = MonthNav.take(p.id); if (m) setMonth(m); });
   const first = `${month}-01`;
@@ -23982,11 +24045,16 @@ function MonthView({ p, sessions }) {
                     ${nums}
                   </button>`;
                 })}
-                ${evals.map((a) => html`<button type="button" class=${U.cls('cal-s', 'assess', a.date > today && 'future')} onClick=${() => { if (!CalDrag.recent()) go('valoracio', a.id); }}
-                  title=${`${assessLabel(a)}${a.date > today ? ' · programada' : ' · feta'} · toca-la per obrir-la`}>
-                  <span class="cal-s-n">${assessLabel(a)}${a.date <= today ? ' ✓' : ''}</span>
-                  <span class="cal-s-goal">${a.professional ? `Valoració · ${a.professional}` : 'Valoració'}</span>
-                </button>`)}
+                ${evals.map((a) => {
+                  const booked = Calc.assessScheduled(a), fet = !booked && a.date <= today;
+                  return html`<button type="button" class=${U.cls('cal-s', 'assess', !fet && 'future')}
+                    ...${booked ? CalDrag.props(() => [a.id], assessLabel(a), onDropAssess) : {}}
+                    onClick=${() => { if (CalDrag.recent()) return; if (booked) openScheduleAssessment(p, { a }); else go('valoracio', a.id); }}
+                    title=${booked ? `${assessLabel(a)} · programada · toca-la per canviar-la o començar-la; arrossega-la per moure-la de dia` : `${assessLabel(a)}${fet ? ' · feta' : ''} · toca-la per obrir-la`}>
+                    <span class="cal-s-n">${a.time && html`<span class="cal-s-time">${a.time}</span>`}${assessLabel(a)}${fet ? ' ✓' : ''}</span>
+                    <span class="cal-s-goal">${booked ? `Programada${a.professional ? ` · ${a.professional}` : ''}` : a.professional ? `Valoració · ${a.professional}` : 'Valoració'}</span>
+                  </button>`;
+                })}
                 ${(planned[date] || []).map((x) => html`<button type="button" class="cal-s ghost" onClick=${() => fromPlan(date, x)}
                   title=${`Prevista al pla «${x.plan.name}». Toca-la per preparar-la.`}>
                   <span class="cal-s-n">S${x.ps.n} del pla</span>
@@ -24009,8 +24077,9 @@ function MonthView({ p, sessions }) {
         <span><i class="cal-key quick"></i>Només l'objectiu</span>
         <span><i class="cal-key ghost"></i>Prevista al pla</span>
         <span><i class="cal-key assess"></i>Valoració</span>
+        <span><i class="cal-key assess-plan"></i>Valoració programada</span>
       </div>
-      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera o per anotar-ne només l'objectiu, o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
+      <p class="muted small">Sota l'objectiu de cada sessió: l'RPE i l'EVA (dolor en acabar la sessió). Càrrega de sessió = RPE (1–10) × durada en minuts, en unitats arbitràries (UA). Arrossega una sessió a un altre dia per moure-la (amb el dit, mantén-la premuda un moment); amb «Selecciona» en pots moure o eliminar diverses de cop. Toca el + d'un dia buit per programar-hi una sessió sencera, per anotar-ne només l'objectiu o per programar una valoració (inicial, re-test…), o planifica un mes sencer d'un cop. Les sessions amb vora discontínua són les previstes al pla d'entrenament. Tot el que hi ha aquí (fet, planificat i previst) surt també al full del mes de l'Excel del pacient.</p>
     </section>
 
     <section class="card">
@@ -24089,15 +24158,18 @@ function CalendarAddDialog({ p, date, onClose }) {
     <span class="choice-body"><span class="choice-title">${title}</span><span class="choice-text">${text}</span></span>
   </label>`;
   if (mode === 'quick-form') return html`<${QuickSessionDialog} p=${p} date=${date} onClose=${onClose} />`;
+  if (mode === 'assess-form') return html`<${ScheduleAssessmentDialog} p=${p} date=${date} onClose=${onClose} />`;
   const next = () => {
-    if (mode === 'full') { onClose(); openNewSession(p.id, date); } else setMode('quick-form');
+    if (mode === 'full') { onClose(); openNewSession(p.id, date); } else setMode(mode === 'assess' ? 'assess-form' : 'quick-form');
   };
-  return html`<${Dialog} title=${`Nova sessió · ${U.fmtDateLong(date)}`} onClose=${onClose} footer=${html`
+  return html`<${Dialog} title=${`Nou al calendari · ${U.fmtDateLong(date)}`} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
     <${Btn} variant="primary" icon="right" onClick=${next}>Continua</${Btn}>`}>
     <div class="choices">
       ${option('quick', 'Només l\'objectiu', 'Per omplir el calendari ràpid: s\'anota l\'objectiu (i el pilar, si vols) i surt al quadre del dia. Més endavant la pots programar sencera.')}
       ${option('full', 'Programa la sessió sencera', 'Amb els blocs i els exercicis: del pla, copiant l\'última, d\'una plantilla o en blanc.')}
+      ${option('assess', 'Programa una valoració', Store.doneAssessmentsOf(p.id).length ? 'Re-test, control de mesures o alta: es reserva el dia (i l\'hora) i el dia que toca la comences.'
+        : 'La valoració inicial d\'un pacient nou: es reserva el dia (i l\'hora) i el dia que toca la comences.')}
     </div>
   </${Dialog}>`;
 }
@@ -24164,6 +24236,64 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     </form>
     ${!done && html`<p class="dialog-text">Quan el pacient l'hagi feta, torna-la a obrir i marca-la com a <strong>Feta</strong> per anotar-hi l'RPE i el dolor: surten al quadre del dia.</p>`}
   </${Dialog}>`;
+}
+
+// ── Valoració programada ──
+// Reserva una valoració al calendari (inicial, re-test…) amb el dia, l'hora i el professional. No compta com a feta
+// (ni per a l'informe ni per a l'evolució) fins que es comença.
+function openScheduleAssessment(p, { a, date } = {}) {
+  let close = null;
+  close = UI.open(() => html`<${ScheduleAssessmentDialog} p=${p} a=${a} date=${date} onClose=${() => close()} />`);
+}
+
+function ScheduleAssessmentDialog({ p, a, date, onClose }) {
+  const first = !Store.doneAssessmentsOf(p.id).length;
+  const [f, setF] = useState({
+    type: (a && a.type) || (first ? 'inicial' : 'retest'), date: (a && a.date) || date || U.today(), time: (a && a.time) || '',
+    professional: (a && a.professional) || p.professional || '',
+  });
+  const set = (k) => (v) => setF({ ...f, [k]: v });
+  const typeLabel = (OPT.assessmentTypes.find((t) => t.v === f.type) || {}).label || 'Valoració';
+  const save = () => {
+    if (!f.date) { UI.toast('Tria el dia de la valoració.', 'bad'); return null; }
+    const apply = (x) => {
+      x.type = f.type; x.date = f.date; x.professional = f.professional;
+      if (f.time) x.time = f.time; else delete x.time;
+    };
+    const rec = a ? Store.update('assessments', a.id, apply) : Store.newAssessment(p.id, { date: f.date, type: f.type, time: f.time, scheduled: true });
+    if (!a) Store.update('assessments', rec.id, apply);
+    onClose();
+    UI.toast(`${typeLabel} programada el ${U.fmtDate(f.date)}${f.time ? ` a les ${f.time}` : ''}.`);
+    return rec;
+  };
+  const start = () => { const rec = save(); if (rec) startAssessment(Store.get('assessments', rec.id)); };
+  const remove = async () => {
+    if (!(await UI.confirm({ title: 'Treure aquesta valoració del calendari?', text: `${typeLabel} · ${U.fmtDate(a.date)}`, ok: 'Treu-la', danger: true }))) return;
+    Store.remove('assessments', a.id);
+    onClose();
+  };
+  return html`<${Dialog} title=${a ? `${typeLabel} programada` : 'Programa una valoració'} onClose=${onClose} footer=${html`
+    ${a && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Treu-la</${Btn}>`}
+    ${a && html`<${Btn} variant="ghost" icon="clipboard" onClick=${start}>Comença-la ara</${Btn}>`}
+    <${Btn} variant="primary" icon="calendar" onClick=${save}>${a ? 'Desa' : 'Programa-la'}</${Btn}>`}>
+    <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); save(); }}>
+      <${Field} label="Tipus" id="sa-type" wide=${true}>
+        <${Seg} value=${f.type} onValue=${set('type')} allowEmpty=${false} ariaLabel="Tipus de valoració" options=${OPT.assessmentTypes.map((o) => ({ v: o.v, label: o.short || o.label }))} />
+      </${Field}>
+      <${Field} label="Dia" id="sa-date"><${TextInput} id="sa-date" type="date" value=${f.date} onValue=${set('date')} /></${Field}>
+      <${Field} label="Hora" id="sa-time"><${TextInput} id="sa-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
+      <${Field} label="Professional" id="sa-prof"><${ProfSelect} id="sa-prof" value=${f.professional} onValue=${set('professional')} /></${Field}>
+      <button type="submit" hidden></button>
+    </form>
+    <p class="dialog-text">Surt al calendari del pacient i al de la setmana de l'Inici. El dia que toqui, obre-la i toca <strong>Comença-la ara</strong> (o «${first ? 'Valoració inicial' : 'Nou re-test'}» a la fitxa): s'omple com sempre.</p>
+  </${Dialog}>`;
+}
+
+// Començar una valoració programada: deixa de ser «programada» i passa a la data d'avui (el dia que es fa).
+function startAssessment(a) {
+  if (!a) return;
+  Store.update('assessments', a.id, (x) => { delete x.status; x.date = U.today(); });
+  go('valoracio', a.id);
 }
 
 
@@ -26657,7 +26787,7 @@ function WeekCalendar() {
   const assessments = Store.all('assessments').filter((a) => a.date >= wk && a.date <= end && okProf(a.professional, a.patientId));
   const retests = Store.patients().filter((p) => p.status === 'actiu' && okProf(p.professional, p.id))
     .map((p) => ({ p, r: Calc.retestDue(Store.assessmentsOf(p.id)) }))
-    .filter((x) => x.r && x.r.due >= wk && x.r.due <= end);
+    .filter((x) => x.r && !x.r.scheduled && x.r.due >= wk && x.r.due <= end);
   const profs = Store.professionals();
   const days = [0, 1, 2, 3, 4, 5, 6].map((i) => U.addDays(wk, i));
   const total = sessions.length + assessments.length + retests.length;
@@ -26676,7 +26806,7 @@ function WeekCalendar() {
     </div>
     <div class="weekcal-grid">${days.map((d) => {
       const ss = U.sortBy(sessions.filter((s) => s.date === d), (s) => `${s.time || '99'}#${U.norm(name(s.patientId))}`);
-      const aa = assessments.filter((a) => a.date === d);
+      const aa = U.sortBy(assessments.filter((a) => a.date === d), (a) => a.time || '99');
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
@@ -26685,9 +26815,13 @@ function WeekCalendar() {
           <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
         </button>`)}
-        ${aa.map((a) => html`<button type="button" class="weekcal-it assess" onClick=${() => go('valoracio', a.id)} title=${`Valoració · ${name(a.patientId)}`}>
-          <span class="weekcal-who">${name(a.patientId)}</span><span class="weekcal-what">Valoració</span>
-        </button>`)}
+        ${aa.map((a) => {
+          const booked = Calc.assessScheduled(a), label = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
+          return html`<button type="button" class=${U.cls('weekcal-it', 'assess', booked && 'future')} onClick=${() => go('valoracio', a.id)}
+            title=${[name(a.patientId), label, booked ? 'programada' : '', a.professional].filter(Boolean).join(' · ')}>
+            <span class="weekcal-who">${a.time && html`<span class="cal-s-time">${a.time}</span>`}${name(a.patientId)}</span><span class="weekcal-what">${label}${booked ? ' · programada' : ''}</span>
+          </button>`;
+        })}
         ${rr.map((x) => html`<button type="button" class="weekcal-it retest" onClick=${() => go('client', x.p.id, 'valoracions')} title="Toca el re-test">
           <span class="weekcal-who">${U.fullName(x.p)}</span><span class="weekcal-what">Re-test pendent</span>
         </button>`)}
@@ -26696,7 +26830,7 @@ function WeekCalendar() {
     })}</div>
     ${!total && html`<p class="muted small">No hi ha res programat aquesta setmana${prof ? ` per a ${prof}` : ''}.</p>`}
     <div class="cal-legend"><span><i class="cal-key done"></i>Sessió feta</span><span><i class="cal-key plan"></i>Sessió programada</span>
-      <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
+      <span><i class="cal-key assess"></i>Valoració</span><span><i class="cal-key assess-plan"></i>Valoració programada</span><span><i class="cal-key retest"></i>Re-test pendent</span></div>
   </section>`;
 }
 

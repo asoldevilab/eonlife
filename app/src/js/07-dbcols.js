@@ -108,7 +108,7 @@ const DB = (() => {
       { id: 'start', label: 'Alta', kind: 'date', get: (r) => r.p.startDate || '' },
       { id: 'done', label: 'Sessions fetes', kind: 'num', dec: 0, get: (r) => Store.byPatient('sessions', r.p.id).filter((s) => s.status === 'feta').length },
       { id: 'lastSession', label: 'Última sessió', kind: 'date', get: (r) => (U.sortBy(Store.byPatient('sessions', r.p.id).filter((s) => s.status === 'feta'), 'date', -1)[0] || {}).date || '' },
-      { id: 'lastAssessment', label: 'Última valoració', kind: 'date', get: (r) => (Store.assessmentsOf(r.p.id).pop() || {}).date || '' },
+      { id: 'lastAssessment', label: 'Última valoració', kind: 'date', get: (r) => (Store.doneAssessmentsOf(r.p.id).pop() || {}).date || '' },
       { id: 'retest', label: 'Propera valoració', kind: 'date', get: (r) => { const x = Calc.retestDue(Store.assessmentsOf(r.p.id)); return x ? x.due : ''; },
         tone: (r, v) => (v && v <= U.today() ? 'warn' : '') },
       { id: 'iq', label: 'Dies des de la IQ', kind: 'num', dec: 0, get: (r) => (r.p.surgeryDate ? U.diffDays(r.p.surgeryDate, U.today()) : null) },

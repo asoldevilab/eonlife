@@ -1328,3 +1328,30 @@ test('conflictes d\'horari: material únic compartit i professional doble', () =
   // les fetes, les que no tenen hora i les que són fora de rang no compten
   assert.equal(Calc.scheduleConflicts(list, { unique, profOf, from: '2026-11-04' }).length, 0);
 });
+
+test('valoració programada al calendari: no compta com a feta i marca la propera valoració', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const { Store, Calc, U: Ut } = core;
+  Store.put('patients', { id: 'P-NOU', firstName: 'Nou', professional: 'Oriol' }, { immediate: true });
+  const day = Ut.addDays(Ut.today(), 5);
+  const a = Store.newAssessment('P-NOU', { date: day, type: 'inicial', time: '10:30', scheduled: true });
+  assert.equal(a.status, 'programada');
+  assert.equal(a.time, '10:30');
+  assert.ok(Calc.assessScheduled(a));
+  assert.equal(Store.assessmentsOf('P-NOU').length, 1);
+  assert.equal(Store.doneAssessmentsOf('P-NOU').length, 0);
+  // Pacient nou: la propera valoració és la programada (no «sense valoració inicial»).
+  const r = Calc.retestDue(Store.assessmentsOf('P-NOU'));
+  assert.equal(r.due, day);
+  assert.equal(r.scheduled.id, a.id);
+  assert.equal(r.last, null);
+  // Feta una valoració abans, el re-test per defecte surt de la feta; si n'hi ha una de programada, mana la programada.
+  const done = [{ id: 'V1', date: '2026-01-10', type: 'inicial' }];
+  assert.equal(Calc.retestDue(done).due, Ut.addMonths('2026-01-10', core.THRESHOLDS.retestMonths));
+  const booked = { id: 'V2', date: '2026-03-02', type: 'retest', status: 'programada' };
+  assert.equal(Calc.retestDue([...done, booked]).due, '2026-03-02');
+  // Una de programada no és la «darrera» per a la fitxa del client ni la referència d'un re-test nou.
+  const b = Store.newAssessment('P-NOU', { date: Ut.today() });
+  assert.equal(b.type, 'inicial');
+});

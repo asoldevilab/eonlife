@@ -58,13 +58,21 @@ function openNewPatient() {
 
 function NewPatientDialog({ onClose }) {
   const [f, setF] = useState({ firstName: '', lastName: '', service: 'membership', professional: Store.professionals()[0] || '', birthDate: '' });
+  // Opcional: deixar ja reservada la valoració inicial al calendari (dia i hora).
+  const [va, setVa] = useState({ date: '', time: '' });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const create = () => {
     if (!f.firstName.trim()) { UI.toast('Escriu el nom del pacient.', 'bad'); return; }
+    if (va.time && !va.date) { UI.toast('Tria també el dia de la valoració inicial.', 'bad'); return; }
     const p = Store.newPatient({ ...f, firstName: f.firstName.trim(), lastName: f.lastName.trim() });
+    if (va.date) {
+      const a = Store.newAssessment(p.id, { date: va.date, type: 'inicial', time: va.time, scheduled: true });
+      if (f.professional) Store.update('assessments', a.id, (x) => { x.professional = f.professional; });
+    }
     onClose();
     if (Store.cloud()) ensureFolder(p);
-    go('client', p.id, 'fitxa');
+    if (va.date) UI.toast(`Valoració inicial programada el ${U.fmtDate(va.date)}${va.time ? ` a les ${va.time}` : ''}.`);
+    go('client', p.id, va.date ? 'mes' : 'fitxa');
   };
   return html`<${Dialog} title="Nou pacient" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
@@ -78,6 +86,12 @@ function NewPatientDialog({ onClose }) {
       <${Field} label="Data de naixement" id="np-birth"><${TextInput} id="np-birth" type="date" value=${f.birthDate} onValue=${set('birthDate')} /></${Field}>
       <${Field} label="Professional de referència" id="np-prof">
         <${ProfSelect} id="np-prof" value=${f.professional} onValue=${set('professional')} />
+      </${Field}>
+      <${Field} label="Valoració inicial · dia" id="np-vdate" hint="Opcional: la deixa programada al calendari.">
+        <${TextInput} id="np-vdate" type="date" value=${va.date} onValue=${(v) => setVa({ ...va, date: v })} />
+      </${Field}>
+      <${Field} label="Valoració inicial · hora" id="np-vtime">
+        <${TextInput} id="np-vtime" type="time" value=${va.time} onValue=${(v) => setVa({ ...va, time: v })} />
       </${Field}>
       <button type="submit" hidden></button>
     </form>
@@ -204,6 +218,9 @@ function NewSessionDialog({ pid, date, onClose }) {
 
 // ── Nova valoració ──
 function createAssessment(pid) {
+  // Si n'hi ha una de programada per a avui (o d'un dia que ja ha passat), es comença aquesta.
+  const booked = Store.assessmentsOf(pid).find((x) => Calc.assessScheduled(x) && x.date <= U.today());
+  if (booked) { startAssessment(booked); return; }
   const a = Store.newAssessment(pid);
   go('valoracio', a.id);
 }

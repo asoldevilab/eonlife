@@ -97,7 +97,7 @@ Object.assign(Calc, {
     const hit = {
       squat: /squat|sentadilla/, bench: /banca|bench/, deadlift: /pes mort|deadlift/, hipthrust: /hip ?thrust/,
     };
-    const asses = U.sortBy(Store.byPatient('assessments', pid).filter((a) => a.date && a.date <= end), (a) => a.date, -1);
+    const asses = U.sortBy(Store.byPatient('assessments', pid).filter((a) => a.date && a.date <= end && !Calc.assessScheduled(a)), (a) => a.date, -1);
     for (const a of asses) {
       for (const x of Calc.lvpAnalysis(a, null)) {
         if (!(x.rm > 0)) continue;
