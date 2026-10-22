@@ -50,7 +50,7 @@ function HomeView() {
       <${Stat} icon="users" label="Pacients actius" value=${active.length} sub=${`${patients.length} en total`} />
       <${Stat} icon="calendar" label="Sessions d'avui" value=${todays.length} sub=${todays.length ? `${todays.filter((s) => s.status === 'feta').length} fetes` : 'Cap sessió planificada'} />
       <${Stat} icon="dumbbell" label="Aquesta setmana" value=${week.filter((s) => s.status === 'feta').length} unit=${`/ ${week.length}`} sub="sessions fetes / planificades" />
-      <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && x.r.days <= 0) ? 'warn' : ''} />
+      <${Stat} icon="clipboard" label="Re-tests pendents" value=${retests.filter((x) => x.r && !x.r.scheduled && x.r.days <= 0).length} sub=${`Valoració cada ${THRESHOLDS.retestMonths} mesos`} tone=${retests.some((x) => x.r && !x.r.scheduled && x.r.days <= 0) ? 'warn' : ''} />
     </section>
 
     <${MaterialToday} sessions=${todays} />
@@ -72,9 +72,11 @@ function HomeView() {
         <div class="card-head"><h2 class="h2">Valoracions pendents</h2></div>
         ${retests.length ? html`<ul class="plainlist">${retests.map(({ p, r }) => html`<li class="retest">
           <${PatientChip} p=${p} />
-          ${r ? html`<span class=${U.cls('retest-when', r.days <= 0 && 'due')}>${r.days <= 0 ? `Re-test des del ${U.fmtDate(r.due)}` : `Re-test el ${U.fmtDate(r.due)}`}</span>`
+          ${r && r.scheduled ? html`<span class=${U.cls('retest-when', r.days < 0 && 'due')}>${(OPT.assessmentTypes.find((t) => t.v === r.scheduled.type) || {}).label || 'Valoració'} programada el ${U.fmtDate(r.due)}${r.scheduled.time ? ` a les ${r.scheduled.time}` : ''}</span>`
+            : r ? html`<span class=${U.cls('retest-when', r.days <= 0 && 'due')}>${r.days <= 0 ? `Re-test des del ${U.fmtDate(r.due)}` : `Re-test el ${U.fmtDate(r.due)}`}</span>`
             : html`<span class="retest-when due">Sense valoració inicial</span>`}
-          <${Btn} size="sm" variant="ghost" icon="clipboard" onClick=${() => createAssessment(p.id)}>${r ? 'Re-test' : 'Valorar'}</${Btn}>
+          ${r && r.scheduled ? html`<${Btn} size="sm" variant="ghost" icon="calendar" onClick=${() => openScheduleAssessment(p, { a: r.scheduled })}>Obre</${Btn}>`
+            : html`<${Btn} size="sm" variant="ghost" icon="clipboard" onClick=${() => createAssessment(p.id)}>${r ? 'Re-test' : 'Valorar'}</${Btn}>`}
         </li>`)}</ul>` : html`<${Empty} icon="check" title="Tot al dia" text="No hi ha re-tests en les properes 3 setmanes." />`}
       </section>
     </div>
@@ -104,7 +106,7 @@ function ClientRow({ p, sessions }) {
   const today = U.today();
   const done = U.sortBy(sessions.filter((s) => s.status === 'feta'), 'date', -1)[0];
   const next = U.sortBy(sessions.filter((s) => s.date >= today && s.status !== 'feta'), 'date')[0];
-  const last = Store.assessmentsOf(p.id).pop();
+  const last = Store.doneAssessmentsOf(p.id).pop();
   const age = U.age(p.birthDate);
   return html`<button type="button" class="crow" onClick=${() => go('client', p.id)}>
     <${Avatar} p=${p} />

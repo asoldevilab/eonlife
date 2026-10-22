@@ -130,7 +130,7 @@ const NoeTools = (() => {
       const rows = list.map((p) => {
         const sess = Store.sessionsOf(p.id), done = sess.filter((s) => s.status === 'feta');
         const last = done[done.length - 1], next = sess.find((s) => s.status !== 'feta' && s.date >= today);
-        const as = Store.assessmentsOf(p.id), la = as[as.length - 1];
+        const as = Store.doneAssessmentsOf(p.id), la = as[as.length - 1];
         return { p, row: compact({ pacient: ctx.ps.ref(p.id), edat: U.age(p.birthDate), sexe: sexName(p.sex), servei: p.service, estat: p.status || 'actiu', professional: p.professional,
           objectiu: enc(ctx, short(p.goal, 140)), darrera_sessio_feta: last ? last.date : '', dies_sense_sessio: last ? U.diffDays(last.date, today) : '', sessions_fetes_30d: done.filter((s) => s.date >= U.addDays(today, -30)).length,
           propera_sessio: next ? next.date : '', valoracions: as.length, retest: la ? la.nextRetest || '' : '' }) };
@@ -165,7 +165,7 @@ const NoeTools = (() => {
       if (r.err) return r.err;
       const p = r.p, today = U.today();
       const sess = Store.sessionsOf(p.id), done = sess.filter((s) => s.status === 'feta');
-      const as = Store.assessmentsOf(p.id), la = as[as.length - 1];
+      const as = Store.doneAssessmentsOf(p.id), la = as[as.length - 1];
       const recent = done.slice(-5);
       const avg = (k) => { const v = recent.map((s) => U.num((s.feedback || {})[k])).filter((n) => n != null); return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 10) / 10 : ''; };
       const wl = recent.map((s) => (Calc.wellness(s.wellness) || {}).total).filter((n) => n != null);
@@ -189,7 +189,7 @@ const NoeTools = (() => {
       const r = pat(ctx, i.pacient);
       if (r.err) return r.err;
       const n = Math.max(1, Math.min(3, i.ultimes || 1));
-      const all = Store.assessmentsOf(r.pid);
+      const all = Store.doneAssessmentsOf(r.pid);
       if (!all.length) return { pacient: ctx.ps.ref(r.pid), valoracions: [], nota: 'Aquest pacient encara no té cap valoració.' };
       const out = all.slice(-n).reverse().map((a) => {
         const idx = all.indexOf(a), prev = idx > 0 ? all[idx - 1] : null;

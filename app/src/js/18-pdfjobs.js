@@ -53,7 +53,7 @@ const PdfSet = (() => {
     const base = { p: person(p), b: brand(), f: PDF_FORMAT };
     const items = [];
     const dropped = [];
-    const assessments = Store.assessmentsOf(pid);
+    const assessments = Store.doneAssessmentsOf(pid);
     assessments.forEach((a, i) => {
       if (!hasData(a)) return;
       const label = typeLabelOf(a);

@@ -293,6 +293,8 @@ const Store = {
   patients() { return U.sortBy(this.all('patients'), (p) => U.norm(`${p.lastName} ${p.firstName}`)); },
   sessionsOf(pid) { return U.sortBy(this.byPatient('sessions', pid), (s) => `${s.date}#${String(U.num(s.number) || 0).padStart(4, '0')}`); },
   assessmentsOf(pid) { return U.sortBy(this.byPatient('assessments', pid), 'date'); },
+  // Només les fetes (sense les programades al calendari que encara no s'han començat).
+  doneAssessmentsOf(pid) { return this.assessmentsOf(pid).filter((a) => !Calc.assessScheduled(a)); },
 
   // Biblioteca = exercicis de base + canvis i exercicis nous desats.
   exercises() {
@@ -469,7 +471,7 @@ const Store = {
 
   newAssessment(pid, opts = {}) {
     const p = this.get('patients', pid);
-    const prev = this.assessmentsOf(pid);
+    const prev = this.doneAssessmentsOf(pid);
     const last = prev[prev.length - 1];
     const date = opts.date || U.today();
     const a = {
@@ -485,6 +487,9 @@ const Store = {
       nextRetest: opts.type === 'control' && last ? (last.nextRetest || U.addMonths(last.date, T.retestMonths)) : U.addMonths(date, T.retestMonths),
       createdAt: new Date().toISOString(),
     };
+    // Programada des del calendari (amb l'hora, si se sap): no compta com a feta fins que es comença.
+    if (opts.time) a.time = opts.time;
+    if (opts.scheduled) a.status = 'programada';
     return this.put('assessments', a, { immediate: true });
   },
 

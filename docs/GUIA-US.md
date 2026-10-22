@@ -589,6 +589,14 @@ sessions previstes del pla d'entrenament.
   (també canviar-ne la data per moure-la, a més d'arrossegar-la), marcar com a **Feta** amb l'RPE,
   el dolor i la durada, o **Programa-la sencera** per afegir-hi els blocs i els exercicis. Colors: granat = feta,
   rosa = programada amb exercicis, blanc amb vora daurada = només l'objectiu, discontínua = prevista al pla.
+- El mateix **+** també permet **Programa una valoració** (inicial, re-test, control o alta) amb el **dia**, l'**hora**
+  i el **professional**: surt al calendari del pacient i al de la setmana de l'Inici amb una vora blava i el text
+  «programada», i a l'Inici, a *Valoracions pendents*. Es pot arrossegar a un altre dia o tocar-la per canviar-la,
+  treure-la o **Comença-la ara**. Mentre és programada no compta com a feta (ni per al resum, l'evolució, l'Excel o
+  els informes); en començar-la (o en entrar-hi el primer resultat) passa a la data d'avui i s'omple com sempre. Si
+  el dia que toca es prem **Valoració inicial** / **Nou re-test** a la fitxa, s'obre la programada.
+- Pacient nou: al diàleg **Nou pacient** hi ha **Valoració inicial · dia / hora** (opcional). Si s'omple, el
+  pacient es crea amb la valoració inicial ja programada al calendari, per avançar-ne la planificació.
 - Columna **Setmana**: càrrega total, sessions fetes i RPE mitjà.
 - **Progressió de càrregues**: taula exercici × sessió amb la càrrega i les sèries × reps de cada dia.
 - **Planifica el mes**: crea d'una vegada les sessions d'un mes ja **planificades**. Tries el mes, els dies

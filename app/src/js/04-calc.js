@@ -626,8 +626,14 @@ const Calc = {
     return out;
   },
 
+  // Valoració programada al calendari que encara no s'ha començat.
+  assessScheduled(a) { return !!a && a.status === 'programada'; },
+  // Propera valoració: la programada al calendari (si n'hi ha) o la de l'última feta + els mesos del re-test.
   retestDue(assessments) {
-    const last = U.sortBy(assessments, 'date', -1)[0];
+    const done = (assessments || []).filter((a) => !Calc.assessScheduled(a));
+    const last = U.sortBy(done, 'date', -1)[0] || null;
+    const booked = U.sortBy((assessments || []).filter((a) => Calc.assessScheduled(a) && (!last || a.date >= last.date)), 'date')[0];
+    if (booked) return { last, due: booked.date, days: U.diffDays(U.today(), booked.date), scheduled: booked };
     if (!last) return null;
     const due = last.nextRetest || U.addMonths(last.date, T.retestMonths);
     return { last, due, days: U.diffDays(U.today(), due) };

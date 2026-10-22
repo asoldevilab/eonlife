@@ -27,8 +27,10 @@ function AssessmentEditor({ id, focus }) {
     if ((k === 'weight' || k === 'height') && list.length && list[list.length - 1].id === a.id) Store.update('patients', a.patientId, (x) => { x[k] = v; });
   };
   const setCon = (k) => (v) => upd((x) => { x.conclusions = { ...(x.conclusions || {}), [k]: v }; });
-  const setVal = (tid, k, v) => upd((x) => { x.values = x.values || {}; x.values[tid] = { ...(x.values[tid] || {}), [k]: v }; });
+  // Si estava programada al calendari, en entrar-hi el primer resultat ja compta com a feta.
+  const setVal = (tid, k, v) => upd((x) => { delete x.status; x.values = x.values || {}; x.values[tid] = { ...(x.values[tid] || {}), [k]: v }; });
   const g = a.general || {}, c = a.conclusions || {};
+  const booked = Calc.assessScheduled(a);
   const alerts = Calc.alerts(a);
   const typeLabel = (OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label || 'Valoració';
 
@@ -59,10 +61,17 @@ function AssessmentEditor({ id, focus }) {
       </nav>
     </div>
 
+    ${booked && html`<div class="banner" role="status">
+      <${Icon} name="calendar" size=${18} />
+      <div>Valoració <strong>programada</strong> per al ${U.fmtDateLong(a.date)}${a.time ? ` a les ${a.time}` : ''}. No compta com a feta fins que la comencis (o hi entris el primer resultat).</div>
+      <${Btn} size="sm" variant="primary" icon="clipboard" onClick=${() => startAssessment(a)}>Comença-la ara</${Btn}>
+    </div>`}
+
     <section class="card" id="sec-dades">
       <div class="card-head"><h2 class="h2">Dades de la valoració</h2></div>
       <div class="form-grid form-grid-4">
         <${Field} label="Data" id="as-date"><${TextInput} id="as-date" type="date" value=${a.date} onValue=${set('date')} /></${Field}>
+        <${Field} label="Hora" id="as-time"><${TextInput} id="as-time" type="time" value=${a.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Tipus" id="as-type"><${Select} id="as-type" value=${a.type} onValue=${set('type')} options=${OPT.assessmentTypes} /></${Field}>
         <${Field} label="Professional" id="as-prof"><${ProfSelect} id="as-prof" value=${a.professional} onValue=${set('professional')} /></${Field}>
         <${Field} label="Pes" id="as-weight"><${NumInput} id="as-weight" value=${g.weight} onValue=${setGen('weight')} unit="kg" /></${Field}>

@@ -5,7 +5,9 @@ function PatientView({ id, tab = 'resum' }) {
   if (!p) return html`<div class="page"><${Empty} icon="users" title="No trobo aquest pacient" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
   const sessions = Store.sessionsOf(id);
-  const assessments = Store.assessmentsOf(id);
+  const allAssessments = Store.assessmentsOf(id);
+  // Les programades al calendari surten a la llista de valoracions, però no compten per al resum ni l'evolució.
+  const assessments = allAssessments.filter((a) => !Calc.assessScheduled(a));
   const setTab = (t) => go('client', id, t);
   const service = OPT.services.find((o) => o.v === p.service);
   const age = U.age(p.birthDate);
@@ -57,7 +59,7 @@ function PatientView({ id, tab = 'resum' }) {
       { id: 'sessions', label: 'Sessions', count: sessions.length },
       { id: 'pla', label: 'Pla i progrés', count: Store.plans(p.id).length || undefined },
       { id: 'mes', label: 'Seguiment mensual' },
-      { id: 'valoracions', label: 'Valoracions', count: assessments.length },
+      { id: 'valoracions', label: 'Valoracions', count: allAssessments.length },
       { id: 'fitxa', label: 'Fitxa' },
     ]} />
 
@@ -65,7 +67,7 @@ function PatientView({ id, tab = 'resum' }) {
     ${tab === 'sessions' && html`<${PatientSessions} p=${p} sessions=${sessions} />`}
     ${tab === 'pla' && html`<${PatientPlan} p=${p} />`}
     ${tab === 'mes' && html`<${MonthView} p=${p} sessions=${sessions} />`}
-    ${tab === 'valoracions' && html`<${PatientAssessments} p=${p} assessments=${assessments} />`}
+    ${tab === 'valoracions' && html`<${PatientAssessments} p=${p} assessments=${allAssessments} />`}
     ${tab === 'fitxa' && html`<${PatientForm} p=${p} onRemove=${remove} />`}
   </div>`;
 }
@@ -230,7 +232,8 @@ function PatientSessions({ p, sessions }) {
 function PatientAssessments({ p, assessments }) {
   const [allRows, setAllRows] = useState(false);
   const list = assessments.slice().reverse();
-  const cur = list[0], prev = list[1];
+  const doneList = list.filter((a) => !Calc.assessScheduled(a));
+  const cur = doneList[0], prev = doneList[1];
   const cmp = cur && prev ? Calc.compare(cur, prev, !allRows) : [];
   const remove = async (a) => {
     const ok = await UI.confirm({ title: 'Eliminar la valoració?', text: `${(OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label} del ${U.fmtDate(a.date)}.`, ok: 'Elimina', danger: true });
@@ -240,11 +243,23 @@ function PatientAssessments({ p, assessments }) {
     <section class="card">
       <div class="card-head"><h2 class="h2">Valoracions</h2>
         <div class="inline">
-          ${list.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('informetests', p.id)}>Informe de tests</${Btn}>`}
-          <${Btn} variant="primary" icon="clipboard" onClick=${() => createAssessment(p.id)}>${list.length ? 'Nou re-test' : 'Valoració inicial'}</${Btn}>
+          ${doneList.length > 0 && html`<${Btn} icon="chart" onClick=${() => go('informetests', p.id)}>Informe de tests</${Btn}>`}
+          <${Btn} icon="calendar" onClick=${() => openScheduleAssessment(p)}>Programa-la</${Btn}>
+          <${Btn} variant="primary" icon="clipboard" onClick=${() => createAssessment(p.id)}>${doneList.length ? 'Nou re-test' : 'Valoració inicial'}</${Btn}>
         </div></div>
       ${list.length ? html`<div class="alist">${list.map((a) => {
         const c = Calc.cmj(a), pc = Calc.patterns(a), al = Calc.alerts(a);
+        if (Calc.assessScheduled(a)) return html`<div class="arow">
+          <${DateBlock} date=${a.date} />
+          <button type="button" class="arow-main" onClick=${() => openScheduleAssessment(p, { a })}>
+            <span class="arow-title"><strong>${(OPT.assessmentTypes.find((t) => t.v === a.type) || {}).label}</strong><span class="muted">${a.professional}</span></span>
+            <span class="arow-meta"><${Pill} tone="brand" icon="calendar">Programada${a.time ? ` · ${a.time}` : ''}</${Pill}><span class="muted">Toca-la per canviar el dia o començar-la</span></span>
+          </button>
+          <div class="arow-actions">
+            <${Btn} variant="ghost" icon="play" title="Comença la valoració" onClick=${() => startAssessment(a)} />
+            <${Menu} items=${[{ label: 'Canvia el dia o l\'hora', icon: 'calendar', onClick: () => openScheduleAssessment(p, { a }) }, { label: 'Elimina', icon: 'trash', danger: true, onClick: () => remove(a) }]} />
+          </div>
+        </div>`;
         return html`<div class="arow">
           <${DateBlock} date=${a.date} />
           <button type="button" class="arow-main" onClick=${() => go('valoracio', a.id)}>

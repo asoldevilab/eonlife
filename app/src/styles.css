@@ -1887,6 +1887,7 @@ body.cal-dragging .cal-s { pointer-events: none; }
 .weekcal-what { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .weekcal-empty { color: var(--ink-3); font-size: 13px; padding: 2px; }
 .cal-key.assess { background: #E4EEF8; box-shadow: inset 0 0 0 1px #2F6DB0; }
+.cal-key.assess-plan { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; }
 .cal-key.retest { background: #FBF0D9; box-shadow: inset 0 0 0 1px #D89A1B; }
 @media (max-width: 760px) {
   .weekcal-grid { grid-template-columns: 1fr; }
@@ -1901,6 +1902,7 @@ body.cal-dragging .cal-s { pointer-events: none; }
 /* Valoracions al seguiment mensual */
 .cal-s.assess { background: #E4EEF8; color: #173C61; box-shadow: inset 0 0 0 1px #2F6DB0; }
 .cal-s.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; border: 0; }
+.weekcal-it.assess.future { background: transparent; box-shadow: inset 0 0 0 1.5px #2F6DB0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal-s.assess { background: #1B2D40; color: #D6E6F7; } }
 :root[data-theme="dark"] .cal-s.assess { background: #1B2D40; color: #D6E6F7; }
 
