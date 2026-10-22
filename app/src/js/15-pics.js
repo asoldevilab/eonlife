@@ -977,6 +977,7 @@ function picGearOf(e, key) {
   if (/landmine/.test(m + ' ' + t)) return { kind: 'landmine' };
   if (/loop band/.test(m) || at) return at || lower ? { kind: 'loop', at: at || P.band || 'knees' } : { kind: 'band' };
   if (/escala de coordinacio|escala d.agilitat|agility ladder/.test(m)) return { kind: 'ladder' };
+  if (/skierg/.test(m)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/kbox/.test(m)) return { kind: 'kbox' };
   if (/lliscador|flowin/.test(m + t)) return { kind: 'sliders' };
   if (/power personal/.test(m)) {
@@ -1018,6 +1019,7 @@ const PIC_RULES = [
   [/\bbike\b|bicicleta estatica/, 'bike'],
   [/alterg|carrera/, 'run_tread'],
   [/trineu|sled/, 'sled'],
+  [/skierg|ski erg/, 'skierg'],
   [/sprint al skillmill|skillmill/, 'run_tread'],
   [/knee-to-wall/, 'ankle_wall'],
   [/dorsiflexio en estocada/, 'ankle_kneel'],

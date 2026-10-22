@@ -457,6 +457,10 @@ PICS.kb_row_grip = { ...PICS.row_one, label: 'Rem a una mà amb nansa a la kBox'
 PICS.kb_latraise_grip = { ...PICS.lat_raise, label: 'Elevació lateral amb nansa a la kBox', kb: 'grip' };
 PICS.kb_triceps_grip = { ...PICS.triceps_oh_one, label: 'Extensió de tríceps amb nansa a la kBox', kb: 'grip' };
 
+// ── SkiErg: estirada de les dues nanses des de dalt fins al costat dels malucs, amb flexió de maluc i genolls ──
+PICS.skierg = { from: { t: -86, hd: -4, l: [92, 88], a: [-64, -56] }, label: 'SkiErg', t: -42, hd: 10, l: [62, 112], a: [104, 96], grip: 'hands',
+  pull: 'fronthigh', fix: 'fR' };
+
 // ── Escala de coordinació (l'escala es dibuixa a terra): peus ràpids, passes laterals i salts curts ──
 PICS.esc_quick = { ...PICS.skipping, from: { l: [92, 92, 30], m: [44, 112], a: [60, -40], b: [120, 40] }, label: 'Peus ràpids a l\'escala', t: -84,
   l: [44, 112], m: [92, 92, 30], a: [120, 40], b: [60, -40], lift: 3 };

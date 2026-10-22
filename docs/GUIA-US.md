@@ -676,6 +676,9 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   cada forat, skipping. Lateral: dues passes a cada forat, icky shuffle, dins-dins-fora-fora. Salts: peus junts
   endavant, obrir i tancar (rayuela), dins i fora lateral, esquiador. A una cama: endavant i lateral. El dibuix
   mostra l'escala a terra; la prescripció per defecte és 3 × 2 passades amb 1' de descans.
+- **Condicionament** (bloc **Accessoris**, carpeta *Condicionament*): Assault bike, SkiErg i Skillmill en format
+  **Tabata** (8 × 20" a tope / 10" de descans, 4' en total) i Assault bike i SkiErg en **intervals**. També hi ha el
+  mètode **Tabata** per posar-lo a un bloc o subbloc. Per al temps, el cronòmetre de la sessió: pestanya *Treball* 20 s.
 - **Exercicis EON** (els que graveu vosaltres): a la biblioteca, vista **Exercicis EON**, hi ha una carpeta per
   bloc amb els exercicis numerats: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6. Amb
   **Afegeix el 1.4** es crea el següent, amb el codi, el bloc i el nom («1.4») ja posats: només cal enganxar
