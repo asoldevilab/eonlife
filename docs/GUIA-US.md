@@ -679,6 +679,9 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
 - **Condicionament** (bloc **Accessoris**, carpeta *Condicionament*): Assault bike, SkiErg i Skillmill en format
   **Tabata** (8 × 20" a tope / 10" de descans, 4' en total) i Assault bike i SkiErg en **intervals**. També hi ha el
   mètode **Tabata** per posar-lo a un bloc o subbloc. Per al temps, el cronòmetre de la sessió: pestanya *Treball* 20 s.
+- **Potència del tren superior i salts** (bloc **Potència**): llançament de pilota medicinal estirat (sol i **reactiu
+  amb company**: el company, dret al costat del cap, llança la pilota avall i el pacient la torna amunt com més
+  ràpid millor), caiguda de genolls a flexió explosiva, salt vertical assistit amb goma i jump squat amb mancuernes.
 - **Exercicis EON** (els que graveu vosaltres): a la biblioteca, vista **Exercicis EON**, hi ha una carpeta per
   bloc amb els exercicis numerats: 1.0, 1.1, 1.2… de mobilitat; 2.0, 2.1… d'activació, i així fins al 6. Amb
   **Afegeix el 1.4** es crea el següent, amb el codi, el bloc i el nom («1.4») ja posats: només cal enganxar

@@ -278,6 +278,22 @@ const SEED_EXERCISES = (() => {
   add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
   add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
   add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+  // Vídeos d'EON (22/10): llançaments estirat, caiguda de genolls i salts (amb goma i amb mancuernes)
+  add('X-POT-41', 'pot', 'Llançament de pilota medicinal estirat amb company (reactiu)', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
+    sets: '3', reps: '6-8', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_react',
+    cues: 'Estirat, genolls flexionats. El company, dret al costat del cap, et llança la pilota avall; atrapa-la al pit i torna-la amunt com més ràpid millor.' });
+  add('X-POT-42', 'pot', 'Llançament de pilota medicinal estirat', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides'],
+    sets: '3', reps: '6', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_throw',
+    cues: 'Llança la pilota amunt des del pit estirant del tot els braços; atrapa-la, frena-la al pit i repeteix.' });
+  add('X-POT-43', 'pot', 'Caiguda de genolls a flexió explosiva', 'Pliometria tren superior', 'Pes corporal', { pos: 'Ag', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
+    sets: '3', reps: '5', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'kneel_drop',
+    cues: 'De genolls i tronc dret, deixa\'t caure endavant, frena amb les mans a l\'alçada del pit i empeny fort per tornar a quedar dret.' });
+  add('X-POT-44', 'pot', 'Salt vertical assistit amb goma', 'Pliometria', 'Goma elàstica', { pos: 'Bp', gm: 'Tren inferior', muscles: ['Quàdriceps', 'GMax', 'Bessons i soli'],
+    sets: '3', reps: '5', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'jump_band',
+    cues: 'Agafa la goma ancorada a dalt; baixa ràpid a mig squat i salta al màxim. La goma t\'ajuda a enlairar-te més ràpid (sobrevelocitat).' });
+  add('X-POT-45', 'pot', 'Jump squat amb mancuernes', 'Pliometria', 'Mancuernes Technogym', { pos: 'Bp', gm: 'Tren inferior', muscles: ['Quàdriceps', 'GMax', 'Bessons i soli'],
+    sets: '3', reps: '5', rest: '2\'', intensity: 'Màxima intenció', pic: 'jump_load',
+    cues: 'Mancuernes als costats; baixa a quart de squat i salta tan alt com puguis. Aterra suau i estabilitza abans del següent.' });
 
   // ── Pulley Pro C2 Smart (politja cònica): exercicis gravats pel centre, amb cinturó o amb turmellera ──
   const pp = (n, block, name, cat, extra) => add(`X-PUL-${String(n).padStart(2, '0')}`, block, name, cat, CO, { pos: 'Bp', lat: 'UL', materials: [CO], ...extra });

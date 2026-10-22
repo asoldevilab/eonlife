@@ -4250,7 +4250,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-22 08:44";
+window.EON_BUILD = "2026-10-22 09:11";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5264,6 +5264,22 @@ const SEED_EXERCISES = (() => {
   add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
   add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
   add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+  // Vídeos d'EON (22/10): llançaments estirat, caiguda de genolls i salts (amb goma i amb mancuernes)
+  add('X-POT-41', 'pot', 'Llançament de pilota medicinal estirat amb company (reactiu)', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
+    sets: '3', reps: '6-8', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_react',
+    cues: 'Estirat, genolls flexionats. El company, dret al costat del cap, et llança la pilota avall; atrapa-la al pit i torna-la amunt com més ràpid millor.' });
+  add('X-POT-42', 'pot', 'Llançament de pilota medicinal estirat', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides'],
+    sets: '3', reps: '6', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_throw',
+    cues: 'Llança la pilota amunt des del pit estirant del tot els braços; atrapa-la, frena-la al pit i repeteix.' });
+  add('X-POT-43', 'pot', 'Caiguda de genolls a flexió explosiva', 'Pliometria tren superior', 'Pes corporal', { pos: 'Ag', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
+    sets: '3', reps: '5', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'kneel_drop',
+    cues: 'De genolls i tronc dret, deixa\'t caure endavant, frena amb les mans a l\'alçada del pit i empeny fort per tornar a quedar dret.' });
+  add('X-POT-44', 'pot', 'Salt vertical assistit amb goma', 'Pliometria', 'Goma elàstica', { pos: 'Bp', gm: 'Tren inferior', muscles: ['Quàdriceps', 'GMax', 'Bessons i soli'],
+    sets: '3', reps: '5', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'jump_band',
+    cues: 'Agafa la goma ancorada a dalt; baixa ràpid a mig squat i salta al màxim. La goma t\'ajuda a enlairar-te més ràpid (sobrevelocitat).' });
+  add('X-POT-45', 'pot', 'Jump squat amb mancuernes', 'Pliometria', 'Mancuernes Technogym', { pos: 'Bp', gm: 'Tren inferior', muscles: ['Quàdriceps', 'GMax', 'Bessons i soli'],
+    sets: '3', reps: '5', rest: '2\'', intensity: 'Màxima intenció', pic: 'jump_load',
+    cues: 'Mancuernes als costats; baixa a quart de squat i salta tan alt com puguis. Aterra suau i estabilitza abans del següent.' });
 
   // ── Pulley Pro C2 Smart (politja cònica): exercicis gravats pel centre, amb cinturó o amb turmellera ──
   const pp = (n, block, name, cat, extra) => add(`X-PUL-${String(n).padStart(2, '0')}`, block, name, cat, CO, { pos: 'Bp', lat: 'UL', materials: [CO], ...extra });
@@ -17003,6 +17019,16 @@ const PICS = {
   shuffle: { from: { dx: -10, l: [[112, 32], [96, -22]], m: [[84, 32], [88, -22]] }, front: true, label: 'Desplaçament lateral', t: -90, l: [[98, 32], [90, -22]], m: [[62, 32], [80, -22]],
     a: [[110, 40], [70, 30]], fix: 'free' },
   cut: { from: { t: -70, hd: 6, l: [-6, 96, 20], m: [130, 150, 60], a: [140, 60], b: [30, -60], dx: -14 }, label: 'Canvi de direcció', t: -100, hd: -6, l: [40, 50], m: [100, 118], a: [60, -20], b: [150, 100], fix: 'free' },
+  // llançament estirat: la pilota surt del pit cap amunt (bu: distància de la pilota per sobre de les mans)
+  mb_supine_throw: { from: { a: [[8, 40], [-90, 0]], bu: 0 }, anchor: 'hip', label: 'Llançament de pilota estirat', t: 180, hd: -6, l: [-48, 58], a: [[-90, 6], [-90, 6]], grip: 'chest', bu: 20 },
+  // reactiu amb company: la pilota baixa de dalt, s'atrapa al pit i es torna a llançar com més aviat millor
+  mb_supine_react: { from: { a: [[8, 40], [-90, 0]], bu: 26 }, mid: { a: [[-30, 30], [-60, 0]], bu: 0 }, anchor: 'hip', label: 'Llançament reactiu estirat', t: 180, hd: -6, l: [-48, 58],
+    a: [[-90, 6], [-90, 6]], grip: 'chest', bu: 22 },
+  // caiguda de genolls: de genolls amb el tronc dret, es deixa caure endavant i frena amb les mans (i empeny de tornada)
+  kneel_drop: { from: { t: -88, hd: 0, l: [90, 180, 180], a: [96, 92] }, label: 'Caiguda de genolls a flexió', t: -20, hd: 8, l: [150, 180, 180], a: [164, 72], fix: 'kR' },
+  // salt assistit: agafat a una goma ancorada a dalt (descarrega una mica el pes i el salt és més ràpid)
+  jump_band: { from: { t: -58, hd: -10, l: [20, 108], m: [20, 108], a: [-30, -120], lift: 0 }, view: [24, 6], label: 'Salt assistit amb goma', t: -90, hd: -6, l: [94, 84, 60], m: [90, 92, 60],
+    a: [-60, -130], lift: 12, grip: 'chest', pull: 'high', fix: 'free' },
   chest_pass: { from: { a: [[172, 36], [-40, -14]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
   // slam: la pilota surt de les mans, bota a terra i es torna a agafar (bl: 0 a les mans, 1 a terra)
   slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2, bl: 0 }, mid: { t: -66, hd: 18, a: [20, -10], bl: 0, lift: 0, l: [70, 100, 40] }, view: [24, 6], label: 'Slam', t: -40, hd: 10, l: [46, 112], m: [46, 112], a: [60, 74], grip: 'chest', bl: 1 },
@@ -17751,6 +17777,8 @@ function picGear3(J, P, g, C) {
     const inHand = v3.add(grip === 'chest' ? mid : hR, v3.mul(J.f, 3.4));
     return [pk.ball(v3.lerp(inHand, [J.pel[0] + 14, J.groundY + 4.8, 0], Math.max(0, Math.min(1, P.bl))), 4.8, 'ps', { gear: 1 })];
   }
+  // llançament amunt: la pilota surt de les mans cap a on mira el pit (P.bu = distància per sobre de les mans)
+  if (g.kind === 'ball' && P.bu != null) return [pk.ball(v3.add(grip === 'chest' ? mid : hR, v3.mul(J.f, 4.4 + P.bu)), 4.8, 'ps', { gear: 1 })];
   if (grip === 'swing') {
     // swing: la kettlebell continua la línia dels braços
     if (g.kind === 'kb') return picKettlebell(mid, v3.mul(J.arm[0].d2, -1), C);
@@ -17923,9 +17951,9 @@ function picArmLerp(sa, sb, k, side, front) {
 }
 function picLerp(A, B, k) {
   const out = { ...B, k };
-  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl']) {
+  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl', 'bu']) {
     const d = f === 't' ? -90 : 0;
-    const ang = !['shr', 'shp', 'lift', 'dx', 'bl'].includes(f);
+    const ang = !['shr', 'shp', 'lift', 'dx', 'bl', 'bu'].includes(f);
     if (A[f] != null || B[f] != null) {
       const x = A[f] ?? d, y = B[f] ?? d;
       out[f] = ang && (Array.isArray(x) || Array.isArray(y)) ? picLerpSpec(x, y, k) : (ang ? picLerpA : picLerpN)(x, y, k);

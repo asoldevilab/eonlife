@@ -276,6 +276,16 @@ const PICS = {
   shuffle: { from: { dx: -10, l: [[112, 32], [96, -22]], m: [[84, 32], [88, -22]] }, front: true, label: 'Desplaçament lateral', t: -90, l: [[98, 32], [90, -22]], m: [[62, 32], [80, -22]],
     a: [[110, 40], [70, 30]], fix: 'free' },
   cut: { from: { t: -70, hd: 6, l: [-6, 96, 20], m: [130, 150, 60], a: [140, 60], b: [30, -60], dx: -14 }, label: 'Canvi de direcció', t: -100, hd: -6, l: [40, 50], m: [100, 118], a: [60, -20], b: [150, 100], fix: 'free' },
+  // llançament estirat: la pilota surt del pit cap amunt (bu: distància de la pilota per sobre de les mans)
+  mb_supine_throw: { from: { a: [[8, 40], [-90, 0]], bu: 0 }, anchor: 'hip', label: 'Llançament de pilota estirat', t: 180, hd: -6, l: [-48, 58], a: [[-90, 6], [-90, 6]], grip: 'chest', bu: 20 },
+  // reactiu amb company: la pilota baixa de dalt, s'atrapa al pit i es torna a llançar com més aviat millor
+  mb_supine_react: { from: { a: [[8, 40], [-90, 0]], bu: 26 }, mid: { a: [[-30, 30], [-60, 0]], bu: 0 }, anchor: 'hip', label: 'Llançament reactiu estirat', t: 180, hd: -6, l: [-48, 58],
+    a: [[-90, 6], [-90, 6]], grip: 'chest', bu: 22 },
+  // caiguda de genolls: de genolls amb el tronc dret, es deixa caure endavant i frena amb les mans (i empeny de tornada)
+  kneel_drop: { from: { t: -88, hd: 0, l: [90, 180, 180], a: [96, 92] }, label: 'Caiguda de genolls a flexió', t: -20, hd: 8, l: [150, 180, 180], a: [164, 72], fix: 'kR' },
+  // salt assistit: agafat a una goma ancorada a dalt (descarrega una mica el pes i el salt és més ràpid)
+  jump_band: { from: { t: -58, hd: -10, l: [20, 108], m: [20, 108], a: [-30, -120], lift: 0 }, view: [24, 6], label: 'Salt assistit amb goma', t: -90, hd: -6, l: [94, 84, 60], m: [90, 92, 60],
+    a: [-60, -130], lift: 12, grip: 'chest', pull: 'high', fix: 'free' },
   chest_pass: { from: { a: [[172, 36], [-40, -14]] }, label: 'Passada de pit', t: -82, l: [70, 100], m: [108, 88], a: [-4, -2], grip: 'chest', fix: 'fR' },
   // slam: la pilota surt de les mans, bota a terra i es torna a agafar (bl: 0 a les mans, 1 a terra)
   slam: { from: { t: -94, hd: 24, l: [92, 88, 40], a: [-90, -92], lift: 2, bl: 0 }, mid: { t: -66, hd: 18, a: [20, -10], bl: 0, lift: 0, l: [70, 100, 40] }, view: [24, 6], label: 'Slam', t: -40, hd: 10, l: [46, 112], m: [46, 112], a: [60, 74], grip: 'chest', bl: 1 },
