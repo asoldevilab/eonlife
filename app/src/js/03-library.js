@@ -394,6 +394,48 @@ const SEED_EXERCISES = (() => {
   kbx(17, 'acc', 'Extensió de tríceps amb nansa · kBox', 'Tren superior', { pic: 'kb_triceps_grip', lat: 'UL', gm: 'Tríceps', reps: '8/costat + 2',
     cues: 'Nansa darrere del cap i colze apuntant amunt. Estén el braç i frena la tornada.' });
 
+  // ── Escala de coordinació: coordinació i pliometria extensiva (contactes curts i ràpids, poca alçada) ──
+  const ESC = 'Escala de coordinació';
+  const esc = (n, name, extra) => add(`X-ESC-${String(n).padStart(2, '0')}`, 'pot', name, 'Escala de coordinació', ESC,
+    { pos: 'Bp', lat: 'BL', gm: 'Tren inferior', muscles: ['Bessons i soli', 'Quàdriceps'], sets: '3', reps: '2 passades', intensity: 'Ràpid i curt', rest: '1\'', materials: [ESC], ...extra });
+  esc(1, 'Una passa a cada forat · escala', { pic: 'esc_quick', family: 'Escala · peus ràpids', level: '1',
+    cues: 'Endavant amb un peu a cada forat, de puntetes i amb braços de carrera. Contactes curts sense trepitjar els travessers.' });
+  esc(2, 'Dues passes a cada forat · escala', { pic: 'esc_quick', family: 'Escala · peus ràpids', level: '2',
+    cues: 'Els dos peus entren a cada forat (dreta-esquerra) abans d\'avançar. Freqüència alta, de puntetes i mirada endavant.' });
+  esc(3, 'Skipping a l\'escala', { pic: 'skipping', family: 'Escala · peus ràpids', level: '3', muscles: ['Flexors de maluc', 'Bessons i soli'],
+    cues: 'Genolls amunt fins al maluc, un peu a cada forat. Tronc alt i braços coordinats amb les cames.' });
+  esc(4, 'Lateral: dues passes a cada forat · escala', { pic: 'shuffle', family: 'Escala · lateral', level: '1', gm: 'GMed', muscles: ['Adductors', 'Bessons i soli'],
+    cues: 'De costat a l\'escala, els dos peus entren a cada forat i surten. Maluc baix, sense creuar els peus.' });
+  esc(5, 'Icky shuffle (dins-dins-fora) · escala', { pic: 'shuffle', family: 'Escala · lateral', level: '2', gm: 'GMed', muscles: ['Adductors', 'Bessons i soli'],
+    cues: 'Dins-dins-fora: entres amb els dos peus i en surts amb un pel costat, avançant en zig-zag. Ritme constant.' });
+  esc(6, 'Dins-dins-fora-fora de cara · escala', { pic: 'esc_inout', family: 'Escala · lateral', level: '3', gm: 'GMed', muscles: ['Adductors', 'Bessons i soli'],
+    cues: 'De cara a l\'escala: els dos peus entren al forat i surten a fora pels costats, avançant d\'un forat cada vegada.' });
+  esc(7, 'Salts a peus junts endavant · escala', { pic: 'hop', family: 'Escala · salts', level: '1',
+    cues: 'Pliometria extensiva: salts curts a peus junts d\'un forat a l\'altre, turmells rígids i el mínim temps a terra.' });
+  esc(8, 'Obrir i tancar (rayuela) · escala', { pic: 'esc_jack', family: 'Escala · salts', level: '2', muscles: ['Bessons i soli', 'Adductors', 'GMed'],
+    cues: 'Peus junts dins del forat i peus oberts fora, avançant un forat a cada salt. Aterra de puntetes.' });
+  esc(9, 'Salts laterals dins i fora · escala', { pic: 'esc_lat_hop', family: 'Escala · salts', level: '3', muscles: ['Bessons i soli', 'GMed'],
+    cues: 'De costat a l\'escala: salt a dins i salt a fora a peus junts, avançant un forat cada vegada. Contactes curts.' });
+  esc(10, 'Esquiador (salts laterals en zig-zag) · escala', { pic: 'esc_lat_hop', family: 'Escala · salts', level: '4', muscles: ['Bessons i soli', 'GMed', 'Adductors'],
+    cues: 'Peus junts saltant en diagonal d\'un costat a l\'altre de l\'escala mentre avances. Malucs quiets i turmells rígids.' });
+  esc(11, 'Salts a una cama endavant · escala', { pic: 'esc_hop_sl', lat: 'UL', family: 'Escala · salts a una cama', level: '1', reps: '1 passada/cama',
+    cues: 'Salts curts a una cama, un forat cada vegada. Genoll alineat amb el peu i aterratge silenciós.' });
+  esc(12, 'Salts laterals a una cama · escala', { pic: 'esc_lat_hop_sl', lat: 'UL', family: 'Escala · salts a una cama', level: '2', reps: '1 passada/cama', muscles: ['Bessons i soli', 'GMed'],
+    cues: 'A una cama i de costat: dins i fora de cada forat. Pelvis horitzontal i el genoll sense anar cap a dins.' });
+
+  // ── Condicionament: màquines de cardio per a blocs de Tabata o intervals al final de la sessió ──
+  const TAB = { pos: 'Bp', lat: 'BL', gm: 'Global', sets: '1', reps: '8 × 20"', rest: '10"', intensity: 'Màxima intenció' };
+  add('X-CND-01', 'acc', 'Assault bike · Tabata', 'Condicionament', 'Assault bike', { ...TAB, pos: 'Sd', pic: 'bike', muscles: ['Quàdriceps', 'GMax', 'Deltoides'], materials: ['Assault bike', 'Bike Technogym'],
+    cues: 'Tabata: 8 rondes de 20" a tope i 10" de descans (4\'). Empeny i estira els braços alhora que pedales; tronc estable.' });
+  add('X-CND-02', 'acc', 'SkiErg · Tabata', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], materials: ['SkiErg'],
+    cues: 'Tabata: 8 × 20" a tope / 10". Estira les nanses des de dalt fins als malucs amb tot el cos: braços, tronc i una mica de genolls.' });
+  add('X-CND-03', 'acc', 'Skillmill · Tabata', 'Condicionament', 'Skillmill', { ...TAB, pic: 'run_tread', gm: 'Tren inferior', muscles: ['GMax', 'Isquiotibials', 'Quàdriceps'], materials: ['Skillmill'],
+    cues: 'Tabata: 8 × 20" de sprint / 10" a peu. Inclina\'t endavant i empeny la cinta amb passes curtes i ràpides.' });
+  add('X-CND-04', 'acc', 'Assault bike · intervals', 'Condicionament', 'Assault bike', { ...TAB, pos: 'Sd', pic: 'bike', muscles: ['Quàdriceps', 'GMax', 'Deltoides'], reps: '6 × 30"', rest: '1\'30"',
+    materials: ['Assault bike', 'Bike Technogym'], cues: 'Intervals: 30" a tope i 1\'30" suau. Mantén el mateix ritme a totes les sèries.' });
+  add('X-CND-05', 'acc', 'SkiErg · intervals', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], reps: '6 × 250 m', rest: '1\'',
+    materials: ['SkiErg'], cues: 'Intervals: 250 m forts i 1\' suau. Estirada llarga amb tot el cos i recuperació relaxada.' });
+
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
   const lb = (n, block, name, tg, gm, extra = {}) => add(`X-LB-${String(n).padStart(2, '0')}`, block, name, 'Loop band', LB,
@@ -757,6 +799,7 @@ const SEED_TEMPLATES = (() => {
     m('M-19', 'EMOM', ['pot', 'acc'], 'Qualitat amb descans fix.', 'Cada minut, al principi, unes poques repeticions; descans la resta del minut.', 'EMOM 8\' · 3 salts'),
     m('M-20', 'Equilibri progressiu', ['acc'], 'Control postural i sistema vestibular.', 'De base estable a inestable, d\'ulls oberts a tancats, i afegint girs de cap i doble tasca.', '3 × 30 s/cama'),
     m('M-21', 'Escalfament RAMP', ['mob', 'act'], 'Preparar el cos de general a específic.', 'Raise (pujar temperatura), Activate (activar), Mobilise (mobilitzar), Potentiate (potenciar).', '8-12\' abans de la força'),
+    m('M-23', 'Tabata', ['acc', 'pot'], 'Capacitat anaeròbica i condicionament en molt poc temps.', '8 rondes de 20" a màxima intensitat amb 10" de descans (4\' en total). Ideal per acabar la sessió.', 'Assault bike, SkiErg o Skillmill · 8 × 20"/10"'),
     m('M-22', 'Respiració parasimpàtica', ['cal'], 'Baixar pulsacions i començar la recuperació.', 'Exhalació més llarga que la inspiració, 3-5 minuts asseguts o estirats.', '4-6 · 3\''),
   ];
 
