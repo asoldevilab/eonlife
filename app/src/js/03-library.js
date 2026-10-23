@@ -452,6 +452,34 @@ const SEED_EXERCISES = (() => {
   add('X-CND-05', 'acc', 'SkiErg · intervals', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], reps: '6 × 250 m', rest: '1\'',
     materials: ['SkiErg'], cues: 'Intervals: 250 m forts i 1\' suau. Estirada llarga amb tot el cos i recuperació relaxada.' });
 
+  // ── Keiser Functional Trainer: exercicis que fa servir Michael Boyle (MBSC) ──
+  // Core: primer s'aprèn a evitar la rotació (Pallof, chop i lift) i després el Push/Pull, «un dels millors exercicis de
+  // core»; la progressió del chop i el lift va de mig genoll a genolls i a dret.
+  const ks = (n, block, name, cat, extra) => add(`X-KSR-${String(n).padStart(2, '0')}`, block, name, cat, KS, { pos: 'Bp', lat: 'UL', materials: [KS], ...extra });
+  const CORE = { gm: 'Core', muscles: ['Oblics'], sets: '3', reps: '8/costat' };
+  ks(1, 'acc', 'Push/Pull · Keiser', 'Core · antirotació', { ...CORE, pic: 'kx_pushpull', muscles: ['Oblics', 'Pectoral', 'Dorsal'], reps: '8/costat', family: 'Keiser · core', level: '2',
+    cues: 'En posició de pas, entre les dues columnes: un braç empeny i l\'altre estira alhora. Les espatlles no giren gens; si giren, es perd el treball de core.' });
+  ks(2, 'acc', 'Anti-rotation press (Pallof) · Keiser', 'Core · antirotació', { ...CORE, pic: 'pallof', cont: 'ISO', family: 'Keiser · core', level: '1',
+    cues: 'De costat a la columna, nansa al pit. Estén els braços sense deixar rotar el tronc, aguanta 2" i torna a poc a poc.' });
+  ks(3, 'acc', 'Chop amb mig genoll · Keiser', 'Core · antirotació', { ...CORE, pos: 'Sa', pic: 'kx_chop_half', family: 'Keiser · chop', level: '1',
+    cues: 'Mig genoll, barra o corda des de dalt. Porta les mans en diagonal cap al maluc contrari sense deixar girar el tronc ni la pelvis.' });
+  ks(4, 'acc', 'Chop de genolls · Keiser', 'Core · antirotació', { ...CORE, pos: 'Ag', pic: 'kx_chop_tall', family: 'Keiser · chop', level: '2',
+    cues: 'De genolls, glutis actius i tronc dret. Diagonal de dalt a baix amb els braços; el tronc no gira.' });
+  ks(5, 'acc', 'Chop dret · Keiser', 'Core · antirotació', { ...CORE, pic: 'woodchop', muscles: ['Oblics', 'GMax'], family: 'Keiser · chop', level: '3',
+    cues: 'Dret, cable des de dalt. Diagonal de dalt a baix amb tot el cos coordinat; frena la tornada sense perdre la postura.' });
+  ks(6, 'acc', 'Lift amb mig genoll · Keiser', 'Core · antirotació', { ...CORE, pos: 'Sa', pic: 'kx_lift_half', family: 'Keiser · lift', level: '1',
+    cues: 'Mig genoll, cable des de baix. Estira cap amunt en diagonal fins per sobre de l\'espatlla contrària amb el tronc i la pelvis quiets.' });
+  ks(7, 'acc', 'Lift de genolls · Keiser', 'Core · antirotació', { ...CORE, pos: 'Ag', pic: 'kx_lift_tall', family: 'Keiser · lift', level: '2',
+    cues: 'De genolls, glutis actius. Diagonal de baix a dalt; el tronc no gira ni s\'arqueja.' });
+  ks(8, 'acc', 'Lift dret · Keiser', 'Core · antirotació', { ...CORE, pic: 'kx_lift', muscles: ['Oblics', 'GMax'], family: 'Keiser · lift', level: '3',
+    cues: 'Dret, cable des de baix. Empeny en diagonal fins a dalt estenent malucs i genolls; frena la tornada.' });
+  ks(9, 'acc', 'Flexió de maluc estirat · Keiser', 'Tren inferior', { pos: 'Ds', pic: 'kx_hipflex', gm: 'Flexors de maluc', muscles: ['Core'], sets: '3', reps: '10/cama',
+    cues: 'Estirat, turmellera a la cama que treballa i la columna als peus. Porta el genoll al pit sense despegar la zona lumbar de terra.' });
+  ks(10, 'for', 'Split squat assistit · Keiser', 'Squat unilateral', { pic: 'kx_split_assist', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8/cama',
+    cues: 'Readaptació: agafa la nansa del cable alt al davant. Baixa el genoll de darrere fins a terra; l\'assistència es treu de mica en mica.' });
+  ks(11, 'for', 'Rem a una mà amb mig genoll · Keiser', 'Tracció', { pos: 'Sa', pic: 'kx_row_half', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula', 'Core'], sets: '3', reps: '10/costat',
+    cues: 'Mig genoll, cable de davant a l\'alçada del pit. Estira el colze enrere sense girar el tronc i frena la tornada.' });
+
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
   const lb = (n, block, name, tg, gm, extra = {}) => add(`X-LB-${String(n).padStart(2, '0')}`, block, name, 'Loop band', LB,

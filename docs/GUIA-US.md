@@ -687,6 +687,10 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
 - **Condicionament** (bloc **Accessoris**, carpeta *Condicionament*): Assault bike, SkiErg i Skillmill en format
   **Tabata** (8 × 20" a tope / 10" de descans, 4' en total) i Assault bike i SkiErg en **intervals**. També hi ha el
   mètode **Tabata** per posar-lo a un bloc o subbloc. Per al temps, el cronòmetre de la sessió: pestanya *Treball* 20 s.
+- **Keiser · Michael Boyle** (cerca «Keiser»): els exercicis de la Keiser Functional Trainer que fa servir Boyle (MBSC).
+  Core (bloc **Accessoris**, carpeta *Core · antirotació*): anti-rotation press (Pallof), **Push/Pull** (un braç empeny
+  i l'altre estira; les espatlles no giren), i **chop** i **lift** amb mig genoll → de genolls → dret (famílies amb
+  nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació) i rem a una mà amb mig genoll.
 - **Potència del tren superior i salts** (bloc **Potència**): llançament de pilota medicinal estirat (sol i **reactiu
   amb company**: el company, dret al costat del cap, llança la pilota avall i el pacient la torna amunt com més
   ràpid millor), caiguda de genolls a flexió explosiva, salt vertical assistit amb goma i jump squat amb mancuernes.
