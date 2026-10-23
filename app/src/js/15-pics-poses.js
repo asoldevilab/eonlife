@@ -500,3 +500,32 @@ PICS.keiser_press = { propsMove: true, from: { a: [[160, 46], [0, 6]] }, label: 
       pk.cap([px, h[1], 0], h, 1.5, 1.5, 'pkz'), pk.cap(v3.add(h, [0, 0, -3.4]), v3.add(h, [0, 0, 3.4]), 0.9, 0.9, 'pmh'),
     ], picAirCyl([px - 1, J.groundY + 6, 0], [px - 1, h[1] - 1, 0]));
   } };
+
+// Keiser Functional Trainer (exercicis de Michael Boyle, MBSC): columnes amb el cilindre d'aire a l'alçada triada.
+// Push/Pull: en posició de pas, un braç empeny (cable de darrere) i l'altre estira (cable de davant) alhora.
+const KX_FRONT = [38, 20, -12];
+PICS.kx_pushpull = { ...PICS.row_standing, propsMove: true, view: 'q', label: 'Push/Pull a la Keiser', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6],
+  grip: 'near', pull: [-30, 20, 12], s: 0.86,
+  props: (J) => [pk.cap(v3.add(J.arm[1].h, [0, 0, -1.6]), v3.add(J.arm[1].h, [0, 0, 1.6]), 0.9, 0.9, 'pmh', { gear: 1 }),
+    pk.line([J.arm[1].h, KX_FRONT], 1.1, 'pe', { gear: 1 }), ...picKeiserColumn(KX_FRONT, J)] };
+// Chop (de dalt a baix, en diagonal) i lift (de baix a dalt): dret, de genolls i amb mig genoll (el tronc no gira gaire:
+// primer s'aprèn a evitar la rotació).
+const KX_CHOP = { from: { tr: 30, a: [[-48, 34], [-46, 34]], b: [[-50, -40], [-46, -40]] }, tr: -26, a: [[64, -30], [64, -30]], b: [[64, 34], [64, 34]], grip: 'chest' };
+const KX_LIFT = { from: { tr: 30, a: [[64, 30], [64, 30]], b: [[64, -34], [64, -34]] }, tr: -26, a: [[-48, -34], [-46, -34]], b: [[-50, 40], [-46, 40]], grip: 'chest' };
+const KX_HALF = { t: -90, l: [6, 92], m: [110, 180, 180], fix: 'kL' }, KX_TALL = { t: -90, l: [90, 180, 180], m: [90, 180, 180], fix: 'kR' };
+PICS.kx_lift = { ...PICS.woodchop, ...KX_LIFT, from: { ...KX_LIFT.from }, label: 'Lift a la Keiser', pull: [-6, -34, 34] };
+PICS.kx_chop_half = { ...KX_CHOP, ...KX_HALF, view: 'q', label: 'Chop amb mig genoll a la Keiser', pull: [-6, 44, 34] };
+PICS.kx_lift_half = { ...KX_LIFT, ...KX_HALF, view: 'q', label: 'Lift amb mig genoll a la Keiser', pull: [-6, -20, 34] };
+PICS.kx_chop_tall = { ...KX_CHOP, ...KX_TALL, view: 'q', label: 'Chop de genolls a la Keiser', pull: [-6, 44, 34] };
+PICS.kx_lift_tall = { ...KX_LIFT, ...KX_TALL, view: 'q', label: 'Lift de genolls a la Keiser', pull: [-6, -20, 34] };
+// Flexió de maluc estirat: turmellera a la cama que puja, el cable va cap a la columna més enllà dels peus.
+PICS.kx_hipflex = { propsMove: true, s: 0.82, anchor: 'hip', label: 'Flexió de maluc estirat a la Keiser', t: 180, hd: -6, from: { l: [-6, -2] }, l: [-90, 0], m: [-6, -2],
+  a: [[24, 30], [-40, -40]],
+  props: (J) => {
+    const ank = J.leg[0].a, A = [J.leg[1].toe[0] + 7, J.groundY + 4, ank[2]];
+    return [pk.disc(ank, J.leg[0].d2 || [0, 1, 0], 2.2, 'pe-ring', { gear: 1 }), pk.line([ank, A], 1.1, 'pe', { gear: 1 }), ...picKeiserColumn(A, J)];
+  } };
+// Split squat assistit: s'agafa la nansa d'un cable alt al davant, que treu una mica de pes en baixar.
+PICS.kx_split_assist = { ...PICS.split, from: { ...PICS.split.from, a: [-14, -24] }, band: undefined, label: 'Split squat assistit a la Keiser', a: [-34, -44], grip: 'chest', pull: [40, 36, 0] };
+// Rem a una mà amb mig genoll: el cable surt de davant a l'alçada del pit.
+PICS.kx_row_half = { ...KX_HALF, label: 'Rem a una mà amb mig genoll a la Keiser', from: { a: [4, 2] }, a: [176, -6], b: [96, 84], grip: 'near', pull: [46, 16, 8] };

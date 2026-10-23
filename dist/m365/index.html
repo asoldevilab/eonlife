@@ -4252,7 +4252,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-22 17:12";
+window.EON_BUILD = "2026-10-23 08:04";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5439,6 +5439,34 @@ const SEED_EXERCISES = (() => {
     materials: ['Assault bike', 'Bike Technogym'], cues: 'Intervals: 30" a tope i 1\'30" suau. Mantén el mateix ritme a totes les sèries.' });
   add('X-CND-05', 'acc', 'SkiErg · intervals', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], reps: '6 × 250 m', rest: '1\'',
     materials: ['SkiErg'], cues: 'Intervals: 250 m forts i 1\' suau. Estirada llarga amb tot el cos i recuperació relaxada.' });
+
+  // ── Keiser Functional Trainer: exercicis que fa servir Michael Boyle (MBSC) ──
+  // Core: primer s'aprèn a evitar la rotació (Pallof, chop i lift) i després el Push/Pull, «un dels millors exercicis de
+  // core»; la progressió del chop i el lift va de mig genoll a genolls i a dret.
+  const ks = (n, block, name, cat, extra) => add(`X-KSR-${String(n).padStart(2, '0')}`, block, name, cat, KS, { pos: 'Bp', lat: 'UL', materials: [KS], ...extra });
+  const CORE = { gm: 'Core', muscles: ['Oblics'], sets: '3', reps: '8/costat' };
+  ks(1, 'acc', 'Push/Pull · Keiser', 'Core · antirotació', { ...CORE, pic: 'kx_pushpull', muscles: ['Oblics', 'Pectoral', 'Dorsal'], reps: '8/costat', family: 'Keiser · core', level: '2',
+    cues: 'En posició de pas, entre les dues columnes: un braç empeny i l\'altre estira alhora. Les espatlles no giren gens; si giren, es perd el treball de core.' });
+  ks(2, 'acc', 'Anti-rotation press (Pallof) · Keiser', 'Core · antirotació', { ...CORE, pic: 'pallof', cont: 'ISO', family: 'Keiser · core', level: '1',
+    cues: 'De costat a la columna, nansa al pit. Estén els braços sense deixar rotar el tronc, aguanta 2" i torna a poc a poc.' });
+  ks(3, 'acc', 'Chop amb mig genoll · Keiser', 'Core · antirotació', { ...CORE, pos: 'Sa', pic: 'kx_chop_half', family: 'Keiser · chop', level: '1',
+    cues: 'Mig genoll, barra o corda des de dalt. Porta les mans en diagonal cap al maluc contrari sense deixar girar el tronc ni la pelvis.' });
+  ks(4, 'acc', 'Chop de genolls · Keiser', 'Core · antirotació', { ...CORE, pos: 'Ag', pic: 'kx_chop_tall', family: 'Keiser · chop', level: '2',
+    cues: 'De genolls, glutis actius i tronc dret. Diagonal de dalt a baix amb els braços; el tronc no gira.' });
+  ks(5, 'acc', 'Chop dret · Keiser', 'Core · antirotació', { ...CORE, pic: 'woodchop', muscles: ['Oblics', 'GMax'], family: 'Keiser · chop', level: '3',
+    cues: 'Dret, cable des de dalt. Diagonal de dalt a baix amb tot el cos coordinat; frena la tornada sense perdre la postura.' });
+  ks(6, 'acc', 'Lift amb mig genoll · Keiser', 'Core · antirotació', { ...CORE, pos: 'Sa', pic: 'kx_lift_half', family: 'Keiser · lift', level: '1',
+    cues: 'Mig genoll, cable des de baix. Estira cap amunt en diagonal fins per sobre de l\'espatlla contrària amb el tronc i la pelvis quiets.' });
+  ks(7, 'acc', 'Lift de genolls · Keiser', 'Core · antirotació', { ...CORE, pos: 'Ag', pic: 'kx_lift_tall', family: 'Keiser · lift', level: '2',
+    cues: 'De genolls, glutis actius. Diagonal de baix a dalt; el tronc no gira ni s\'arqueja.' });
+  ks(8, 'acc', 'Lift dret · Keiser', 'Core · antirotació', { ...CORE, pic: 'kx_lift', muscles: ['Oblics', 'GMax'], family: 'Keiser · lift', level: '3',
+    cues: 'Dret, cable des de baix. Empeny en diagonal fins a dalt estenent malucs i genolls; frena la tornada.' });
+  ks(9, 'acc', 'Flexió de maluc estirat · Keiser', 'Tren inferior', { pos: 'Ds', pic: 'kx_hipflex', gm: 'Flexors de maluc', muscles: ['Core'], sets: '3', reps: '10/cama',
+    cues: 'Estirat, turmellera a la cama que treballa i la columna als peus. Porta el genoll al pit sense despegar la zona lumbar de terra.' });
+  ks(10, 'for', 'Split squat assistit · Keiser', 'Squat unilateral', { pic: 'kx_split_assist', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8/cama',
+    cues: 'Readaptació: agafa la nansa del cable alt al davant. Baixa el genoll de darrere fins a terra; l\'assistència es treu de mica en mica.' });
+  ks(11, 'for', 'Rem a una mà amb mig genoll · Keiser', 'Tracció', { pos: 'Sa', pic: 'kx_row_half', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula', 'Core'], sets: '3', reps: '10/costat',
+    cues: 'Mig genoll, cable de davant a l\'alçada del pit. Estira el colze enrere sense girar el tronc i frena la tornada.' });
 
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
@@ -17273,6 +17301,35 @@ PICS.keiser_press = { propsMove: true, from: { a: [[160, 46], [0, 6]] }, label: 
       pk.cap([px, h[1], 0], h, 1.5, 1.5, 'pkz'), pk.cap(v3.add(h, [0, 0, -3.4]), v3.add(h, [0, 0, 3.4]), 0.9, 0.9, 'pmh'),
     ], picAirCyl([px - 1, J.groundY + 6, 0], [px - 1, h[1] - 1, 0]));
   } };
+
+// Keiser Functional Trainer (exercicis de Michael Boyle, MBSC): columnes amb el cilindre d'aire a l'alçada triada.
+// Push/Pull: en posició de pas, un braç empeny (cable de darrere) i l'altre estira (cable de davant) alhora.
+const KX_FRONT = [38, 20, -12];
+PICS.kx_pushpull = { ...PICS.row_standing, propsMove: true, view: 'q', label: 'Push/Pull a la Keiser', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6],
+  grip: 'near', pull: [-30, 20, 12], s: 0.86,
+  props: (J) => [pk.cap(v3.add(J.arm[1].h, [0, 0, -1.6]), v3.add(J.arm[1].h, [0, 0, 1.6]), 0.9, 0.9, 'pmh', { gear: 1 }),
+    pk.line([J.arm[1].h, KX_FRONT], 1.1, 'pe', { gear: 1 }), ...picKeiserColumn(KX_FRONT, J)] };
+// Chop (de dalt a baix, en diagonal) i lift (de baix a dalt): dret, de genolls i amb mig genoll (el tronc no gira gaire:
+// primer s'aprèn a evitar la rotació).
+const KX_CHOP = { from: { tr: 30, a: [[-48, 34], [-46, 34]], b: [[-50, -40], [-46, -40]] }, tr: -26, a: [[64, -30], [64, -30]], b: [[64, 34], [64, 34]], grip: 'chest' };
+const KX_LIFT = { from: { tr: 30, a: [[64, 30], [64, 30]], b: [[64, -34], [64, -34]] }, tr: -26, a: [[-48, -34], [-46, -34]], b: [[-50, 40], [-46, 40]], grip: 'chest' };
+const KX_HALF = { t: -90, l: [6, 92], m: [110, 180, 180], fix: 'kL' }, KX_TALL = { t: -90, l: [90, 180, 180], m: [90, 180, 180], fix: 'kR' };
+PICS.kx_lift = { ...PICS.woodchop, ...KX_LIFT, from: { ...KX_LIFT.from }, label: 'Lift a la Keiser', pull: [-6, -34, 34] };
+PICS.kx_chop_half = { ...KX_CHOP, ...KX_HALF, view: 'q', label: 'Chop amb mig genoll a la Keiser', pull: [-6, 44, 34] };
+PICS.kx_lift_half = { ...KX_LIFT, ...KX_HALF, view: 'q', label: 'Lift amb mig genoll a la Keiser', pull: [-6, -20, 34] };
+PICS.kx_chop_tall = { ...KX_CHOP, ...KX_TALL, view: 'q', label: 'Chop de genolls a la Keiser', pull: [-6, 44, 34] };
+PICS.kx_lift_tall = { ...KX_LIFT, ...KX_TALL, view: 'q', label: 'Lift de genolls a la Keiser', pull: [-6, -20, 34] };
+// Flexió de maluc estirat: turmellera a la cama que puja, el cable va cap a la columna més enllà dels peus.
+PICS.kx_hipflex = { propsMove: true, s: 0.82, anchor: 'hip', label: 'Flexió de maluc estirat a la Keiser', t: 180, hd: -6, from: { l: [-6, -2] }, l: [-90, 0], m: [-6, -2],
+  a: [[24, 30], [-40, -40]],
+  props: (J) => {
+    const ank = J.leg[0].a, A = [J.leg[1].toe[0] + 7, J.groundY + 4, ank[2]];
+    return [pk.disc(ank, J.leg[0].d2 || [0, 1, 0], 2.2, 'pe-ring', { gear: 1 }), pk.line([ank, A], 1.1, 'pe', { gear: 1 }), ...picKeiserColumn(A, J)];
+  } };
+// Split squat assistit: s'agafa la nansa d'un cable alt al davant, que treu una mica de pes en baixar.
+PICS.kx_split_assist = { ...PICS.split, from: { ...PICS.split.from, a: [-14, -24] }, band: undefined, label: 'Split squat assistit a la Keiser', a: [-34, -44], grip: 'chest', pull: [40, 36, 0] };
+// Rem a una mà amb mig genoll: el cable surt de davant a l'alçada del pit.
+PICS.kx_row_half = { ...KX_HALF, label: 'Rem a una mà amb mig genoll a la Keiser', from: { a: [4, 2] }, a: [176, -6], b: [96, 84], grip: 'near', pull: [46, 16, 8] };
 
 
 /* ── 15-pics.js ── */
