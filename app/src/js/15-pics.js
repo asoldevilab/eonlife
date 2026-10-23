@@ -1177,6 +1177,7 @@ const PIC_RULES = [
   [/split squat|estocad|lunge|pas enrere/, 'split'],
   [/pistol|unipodal a caixa/, (t) => (/caixa/.test(t) ? 'pistol_box' : 'pistol')],
   [/squat a caixa/, 'squat_box'],
+  [/squat.*(cunya|falca|talons elevats)|heel.elevated/, 'squat_wedge'],
   [/sumo/, 'squat_sumo'],
   [/front squat/, 'squat_front'],
   [/back squat|squat amb barra|squat al power personal|squat amb pausa/, 'squat_back'],

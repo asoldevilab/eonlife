@@ -690,7 +690,8 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
 - **Keiser · Michael Boyle** (cerca «Keiser»): els exercicis de la Keiser Functional Trainer que fa servir Boyle (MBSC).
   Core (bloc **Accessoris**, carpeta *Core · antirotació*): anti-rotation press (Pallof), **Push/Pull** (un braç empeny
   i l'altre estira; les espatlles no giren), i **chop** i **lift** amb mig genoll → de genolls → dret (famílies amb
-  nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació) i rem a una mà amb mig genoll.
+  nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació), rem a una mà amb mig genoll i press
+  unilateral dempeus. També hi ha el **goblet squat amb cunya** (talons elevats), al bloc Força.
 - **Potència del tren superior i salts** (bloc **Potència**): llançament de pilota medicinal estirat (sol i **reactiu
   amb company**: el company, dret al costat del cap, llança la pilota avall i el pacient la torna amunt com més
   ràpid millor), caiguda de genolls a flexió explosiva, salt vertical assistit amb goma i jump squat amb mancuernes.
