@@ -477,6 +477,8 @@ const SEED_EXERCISES = (() => {
     cues: 'Estirat, turmellera a la cama que treballa i la columna als peus. Porta el genoll al pit sense despegar la zona lumbar de terra.' });
   ks(10, 'for', 'Split squat assistit · Keiser', 'Squat unilateral', { pic: 'kx_split_assist', gm: 'Quàdriceps', muscles: ['GMax'], sets: '3', reps: '8/cama',
     cues: 'Readaptació: agafa la nansa del cable alt al davant. Baixa el genoll de darrere fins a terra; l\'assistència es treu de mica en mica.' });
+  ks(12, 'for', 'Press unilateral dempeus · Keiser', 'Empenta', { pic: 'kx_press_one', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Oblics'], sets: '3', reps: '8/costat',
+    cues: 'D\'esquena a la columna, en posició de pas (cama contrària al braç davant). Empeny la nansa endavant sense girar el tronc ni les espatlles i frena la tornada.' });
   ks(11, 'for', 'Rem a una mà amb mig genoll · Keiser', 'Tracció', { pos: 'Sa', pic: 'kx_row_half', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula', 'Core'], sets: '3', reps: '10/costat',
     cues: 'Mig genoll, cable de davant a l\'alçada del pit. Estira el colze enrere sense girar el tronc i frena la tornada.' });
 
@@ -661,6 +663,9 @@ const SEED_EXERCISES = (() => {
   db(7, 'acc', "Curl amb rotació amb mancuernes", "Arm curl - twisting", 'Bíceps', { muscles: ['Avantbraç'] });
   db(8, 'for', "Estocada endavant alterna amb mancuernes", "Forward lunge - alternated", 'Quàdriceps', { muscles: ['GMax'], sets: '3', reps: '8/cama', lat: 'UL' });
   db(9, 'for', "Goblet squat amb mancuerna", "Goblet squat", 'Quàdriceps', { muscles: ['GMax', 'Core'], sets: '3', reps: '10' });
+  add('X-FOR-90', 'for', 'Goblet squat amb cunya', 'Dominant de genoll', K, { pos: 'Bp', gm: 'Quàdriceps', muscles: ['GMax', 'Core'], sets: '3', reps: '10', intensity: 'RIR 2',
+    pic: 'squat_wedge', materials: [K, M, 'Cunya'],
+    cues: 'Talons damunt de la cunya, pes al pit. Baixa tan avall com puguis amb el tronc dret i els genolls endavant per sobre dels dits.' });
   db(10, 'for', "Squat sumo amb mancuernes", "Sumo squat", 'Quàdriceps', { muscles: ['Adductors', 'GMax'], sets: '3', reps: '10' });
   db(11, 'acc', "Press francès estirat amb mancuernes", "French press - supine", 'Tríceps', { pos: 'Ds' });
   db(12, 'acc', "Curl martell amb mancuernes", "Hammer curl", 'Bíceps', { muscles: ['Avantbraç'] });

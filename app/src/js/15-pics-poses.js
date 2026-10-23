@@ -529,3 +529,15 @@ PICS.kx_hipflex = { propsMove: true, s: 0.82, anchor: 'hip', label: 'Flexió de 
 PICS.kx_split_assist = { ...PICS.split, from: { ...PICS.split.from, a: [-14, -24] }, band: undefined, label: 'Split squat assistit a la Keiser', a: [-34, -44], grip: 'chest', pull: [40, 36, 0] };
 // Rem a una mà amb mig genoll: el cable surt de davant a l'alçada del pit.
 PICS.kx_row_half = { ...KX_HALF, label: 'Rem a una mà amb mig genoll a la Keiser', from: { a: [4, 2] }, a: [176, -6], b: [96, 84], grip: 'near', pull: [46, 16, 8] };
+
+// Goblet squat amb cunya: els talons damunt d'una cunya (falca) inclinada; el genoll avança més i el tronc queda més dret.
+const picWedge = (J) => {
+  const h = J.leg[0].heel, t = J.leg[0].toe, y0 = J.groundY, yh = Math.max(y0 + 1, h[1] - PIC_R.foot[0]);
+  const x0 = Math.min(t[0], h[0]) - (h[0] < t[0] ? 3 : 1.5), x1 = Math.max(t[0], h[0]) + (h[0] < t[0] ? 1.5 : 3), hx = h[0] < t[0] ? x0 : x1, tx = h[0] < t[0] ? x1 : x0;
+  return [-8, 8].map((z) => pk.poly([[tx, y0, z], [hx, y0, z], [hx, yh, z]], 'pkz')).concat([
+    pk.poly([[tx, y0, -8], [hx, yh, -8], [hx, yh, 8], [tx, y0, 8]], 'pkz'), pk.poly([[hx, y0, -8], [hx, yh, -8], [hx, yh, 8], [hx, y0, 8]], 'pkz')]);
+};
+PICS.squat_wedge = { ...PICS.squat, band: undefined, label: 'Goblet squat amb cunya', from: { t: -88, hd: 0, l: [92, 88, 26], m: [92, 88, 26], a: [70, -74] }, t: -74, hd: -8,
+  l: [6, 118, 26], m: [6, 118, 26], a: [70, -74], fix: 'tR', props: (J) => picWedge(J) };
+// Press unilateral dempeus a la Keiser: en posició de pas, d'esquena a la columna, empeny amb un braç sense girar el tronc.
+PICS.kx_press_one = { ...PICS.row_standing, label: 'Press unilateral a la Keiser', from: { a: [176, -6] }, a: [4, 2], b: [96, 84], grip: 'near', pull: [-30, 20, 8], s: 0.88 };
