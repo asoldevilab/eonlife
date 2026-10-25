@@ -191,6 +191,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font: 15px/1.5 var(--font-ui);
+  /* xifres de línia també amb la Cormorant (per defecte fa servir xifres antigues: l'1 sembla una I) */
+  font-variant-numeric: lining-nums;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
@@ -1089,13 +1091,15 @@ input[type="search"].input { -webkit-appearance: none; }
 .sblock-main { border: 2px solid var(--blk); }
 @media (max-width: 860px) { .sheet-blocks { grid-template-columns: minmax(0, 1fr); } .sblock { grid-column: 1 / -1; } }
 .sblock-head { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-.sblock-num { width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 26px; font-weight: 700; }
+.sblock-num { width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-ui); font-size: 24px; font-weight: 750; font-variant-numeric: lining-nums tabular-nums; }
 .sblock-name { margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1; }
 .sblock-focus { margin: 4px 0 0; font-size: 12.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
 .sx { list-style: none; margin: 0; padding: 0; }
 .sx-item { display: grid; grid-template-columns: 42px 52px minmax(0, 1fr); gap: 10px; align-items: start; padding: 13px 0; border-top: 1px solid var(--line); }
 .sx-n { padding-top: 3px; font-weight: 750; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .sx-line { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+/* al mòbil, la prescripció sempre a sota del nom (si no, uns exercicis la porten al costat i d'altres a sota) */
+@media (max-width: 640px) { .sx-line { flex-direction: column; align-items: flex-start; gap: 2px; } }
 .sx-name { font-size: 19px; font-weight: 650; }
 .sx-rx { font-size: 17px; font-weight: 700; color: var(--link); font-variant-numeric: tabular-nums; }
 .sblock-main .sx-name { font-size: 22px; }
@@ -4252,7 +4256,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-23 08:31";
+window.EON_BUILD = "2026-10-25 20:35";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -17146,7 +17150,7 @@ const PICS = {
   // 90/90: les dues cames giren sobre el terra com un eixugaparabrises (davant ↔ darrere), vistes de davant i una mica de dalt
   sit_9090: { from: { l: [[0, 90], [0, 180]], m: [[0, 46], [0, -46]], tr: 22 }, view: [90, 62], label: '90/90 · rotació de maluc', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [0, 180]], tr: -22, a: [100, 92], b: [100, 92] },
   sit_9090_lift: { from: { m: [[0, 90], [0, 180]] }, view: [90, 62], label: '90/90 amb lift-off', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [-65, 180]], a: [100, 92], b: [100, 92] },
-  openbook: { from: { tr: 0, b: [[0, 0], [0, 0]] }, view: [20, 70], rel: 'all', roll: -90, label: 'Open book', t: 180, hd: -6, tr: 120, l: [[0, 0], [90, 0]], a: [[0, 0], [0, 0]], b: [[0, 90], [0, 90]],
+  openbook: { from: { tr: 0, b: [[0, 0], [0, 0]] }, view: 'top', rel: 'all', roll: -90, label: 'Open book', t: 180, hd: -6, tr: 120, l: [[0, 0], [90, 0]], a: [[0, 0], [0, 0]], b: [[0, 90], [0, 90]],
     props: (J) => PROP3.mat(J) },
   pass_through: { from: { a: [60, 60] }, view: 'q', label: 'Pas d\'espatlles amb pica', t: -90, a: [[-160, 30], [-160, 30]], grip: 'hands' },
   wall_slide: { from: { a: [[90, 52], [-82, 8]] }, view: 'back', label: 'Wall slides', t: -90, a: [[-90, 30], [-92, 30]],

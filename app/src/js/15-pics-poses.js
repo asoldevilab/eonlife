@@ -340,7 +340,7 @@ const PICS = {
   // 90/90: les dues cames giren sobre el terra com un eixugaparabrises (davant ↔ darrere), vistes de davant i una mica de dalt
   sit_9090: { from: { l: [[0, 90], [0, 180]], m: [[0, 46], [0, -46]], tr: 22 }, view: [90, 62], label: '90/90 · rotació de maluc', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [0, 180]], tr: -22, a: [100, 92], b: [100, 92] },
   sit_9090_lift: { from: { m: [[0, 90], [0, 180]] }, view: [90, 62], label: '90/90 amb lift-off', t: -90, l: [[0, 46], [0, -46]], m: [[0, 90], [-65, 180]], a: [100, 92], b: [100, 92] },
-  openbook: { from: { tr: 0, b: [[0, 0], [0, 0]] }, view: [20, 70], rel: 'all', roll: -90, label: 'Open book', t: 180, hd: -6, tr: 120, l: [[0, 0], [90, 0]], a: [[0, 0], [0, 0]], b: [[0, 90], [0, 90]],
+  openbook: { from: { tr: 0, b: [[0, 0], [0, 0]] }, view: 'top', rel: 'all', roll: -90, label: 'Open book', t: 180, hd: -6, tr: 120, l: [[0, 0], [90, 0]], a: [[0, 0], [0, 0]], b: [[0, 90], [0, 90]],
     props: (J) => PROP3.mat(J) },
   pass_through: { from: { a: [60, 60] }, view: 'q', label: 'Pas d\'espatlles amb pica', t: -90, a: [[-160, 30], [-160, 30]], grip: 'hands' },
   wall_slide: { from: { a: [[90, 52], [-82, 8]] }, view: 'back', label: 'Wall slides', t: -90, a: [[-90, 30], [-92, 30]],
