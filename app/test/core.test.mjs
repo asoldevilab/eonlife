@@ -86,6 +86,12 @@ test('prescripció', () => {
   assert.equal(Calc.load('0'), '');
   assert.equal(Calc.presc({ sets: '2', reps: '10', load: '30-30Kg' }), '2 × 10 · 30-30Kg');
   assert.equal(Calc.presc({ reps: '10\'' }), '10\'');
+  // Unilateral: les repeticions són per braç, per cama o per costat
+  assert.equal(Calc.presc({ sets: '3', reps: '12', lat: 'UL', gm: 'Dorsal' }), '3 × 12/braç');
+  assert.equal(Calc.presc({ sets: '3', reps: '8-10', lat: 'UL', gm: 'Quàdriceps' }), '3 × 8-10/cama');
+  assert.equal(Calc.presc({ sets: '2', reps: '30"', lat: 'UL', gm: 'Core' }), '2 × 30"/costat');
+  assert.equal(Calc.presc({ sets: '3', reps: '6/costat', lat: 'UL', gm: 'Dorsal' }), '3 × 6/costat');
+  assert.equal(Calc.presc({ sets: '3', reps: '12', lat: 'BL', gm: 'Dorsal' }), '3 × 12');
 });
 
 test('càrrega de sessió = RPE × minuts', () => {

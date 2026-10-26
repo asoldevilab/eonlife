@@ -477,9 +477,17 @@ const Calc = {
   },
 
   // ── Sessions ──
+  // Unilateral: les repeticions són per braç, per cama o per costat (segons el grup muscular).
+  uniSide(it) {
+    const z = MUSCLE_ZONES.find((x) => x.muscles.includes((it && it.gm) || ''));
+    return z && z.key === 'sup' ? 'braç' : z && z.key === 'inf' ? 'cama' : 'costat';
+  },
   presc(it) {
     if (!it) return '';
-    const s = String(it.sets || '').trim(), r = String(it.reps || '').trim();
+    const s = String(it.sets || '').trim();
+    let r = String(it.reps || '').trim();
+    // «12» en un exercici unilateral → «12/braç» (primer un costat i després l'altre)
+    if (it.lat === 'UL' && /^\d+(\s*[-–]\s*\d+)?\s*(s|"|'|'')?$/.test(r)) r = `${r}/${Calc.uniSide(it)}`;
     const parts = [];
     if (s && r) parts.push(`${s} × ${r}`);
     else if (r) parts.push(r);

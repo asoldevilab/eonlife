@@ -678,8 +678,12 @@ input[type="search"].input { -webkit-appearance: none; }
 
 .block { scroll-margin-top: 90px; container: blk / inline-size; }
 .block-head { display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap; }
-.block-num { width: 38px; height: 38px; flex: none; border-radius: 11px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 22px; font-weight: 700; }
-.block-title { flex: 1 1 220px; min-width: 0; }
+/* fletxes per pujar o baixar el bloc dins la sessió, apilades al costat del número */
+.block-move { display: inline-flex; flex-direction: column; gap: 2px; margin-left: -6px; }
+.block-move .mini { width: 28px; height: 22px; border-radius: 6px; }
+.block-move .mini:disabled { opacity: .3; cursor: default; }
+.block-num { width: 38px; height: 38px; flex: none; border-radius: 11px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-ui); font-size: 20px; font-weight: 750; font-variant-numeric: lining-nums tabular-nums; }
+.block-title { flex: 1 1 170px; min-width: 0; }
 .block-title .h2 { font-family: var(--font-display); font-size: 25px; font-weight: 600; line-height: 1.05; }
 .block-desc { margin: 3px 0 0; font-size: 13px; color: var(--ink-3); }
 .block-focus { flex: 0 1 270px; min-width: 180px; }
@@ -1289,8 +1293,8 @@ tfoot .rpc { font-size: 14px; }
 .bv-dot.on { background: var(--blk); transform: scale(1.25); }
 
 /* Encoder ADR / ADR Jumping */
-.vbt-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px dashed var(--line-2); background: none; color: var(--ink-3); font-size: 12.5px; font-weight: 650; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.vbt-btn.on { border-style: solid; border-color: var(--blk); color: var(--ink); background: var(--surface-2); }
+.vbt-btn, .uni-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px dashed var(--line-2); background: none; color: var(--ink-3); font-size: 12.5px; font-weight: 650; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.vbt-btn.on, .uni-btn.on { border-style: solid; border-color: var(--blk); color: var(--ink); background: var(--surface-2); }
 .vbt { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
 .vbt-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .vbt-sum { font-weight: 650; font-size: 13.5px; font-variant-numeric: tabular-nums; }
@@ -4256,7 +4260,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-25 20:35";
+window.EON_BUILD = "2026-10-26 13:03";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -6975,9 +6979,17 @@ const Calc = {
   },
 
   // ── Sessions ──
+  // Unilateral: les repeticions són per braç, per cama o per costat (segons el grup muscular).
+  uniSide(it) {
+    const z = MUSCLE_ZONES.find((x) => x.muscles.includes((it && it.gm) || ''));
+    return z && z.key === 'sup' ? 'braç' : z && z.key === 'inf' ? 'cama' : 'costat';
+  },
   presc(it) {
     if (!it) return '';
-    const s = String(it.sets || '').trim(), r = String(it.reps || '').trim();
+    const s = String(it.sets || '').trim();
+    let r = String(it.reps || '').trim();
+    // «12» en un exercici unilateral → «12/braç» (primer un costat i després l'altre)
+    if (it.lat === 'UL' && /^\d+(\s*[-–]\s*\d+)?\s*(s|"|'|'')?$/.test(r)) r = `${r}/${Calc.uniSide(it)}`;
     const parts = [];
     if (s && r) parts.push(`${s} × ${r}`);
     else if (r) parts.push(r);
@@ -23193,7 +23205,8 @@ function SessionEditor({ id }) {
   // Els blocs s'afegeixen a mà (no totes les sessions tenen els 6) i es col·loquen en l'ordre de la metodologia.
   const addBlock = (key) => {
     upd((x) => {
-      x.blocks = [...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)].sort((a, b) => blockDef(a.key).num - blockDef(b.key).num);
+      if ((x.blocks || []).some((b) => b.key === key)) return;
+      x.blocks = insertBlock([...(x.blocks || [])], Store.blankBlock(key));
     });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -23208,6 +23221,27 @@ function SessionEditor({ id }) {
       const el = document.querySelector(`section.block.blk-${key}`);
       if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 80);
+  };
+  // Ordre lliure: els blocs es poden pujar i baixar, i un exercici es pot passar a un altre bloc de la sessió.
+  const moveBlock = (key, dir) => upd((x) => {
+    const arr = [...(x.blocks || [])];
+    const i = arr.findIndex((b) => b.key === key), j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    x.blocks = arr;
+  });
+  const moveItemTo = (fromKey, iid, toKey) => {
+    upd((x) => {
+      const from = (x.blocks || []).find((b) => b.key === fromKey), to = (x.blocks || []).find((b) => b.key === toKey);
+      const it = from && (from.items || []).find((y) => y.id === iid);
+      if (!it || !to) return;
+      from.items = from.items.filter((y) => y.id !== iid);
+      delete it.g;
+      if (to.groups && to.groups.length) it.g = to.groups[to.groups.length - 1].id;
+      to.items = [...(to.items || []).filter((y) => y.name), it];
+      Calc.sortByGroups(to);
+    });
+    UI.toast(`Mogut a ${blockName(toKey)}: col·loca'l amb «Mou amunt / avall».`);
   };
   const removeBlock = async (key) => {
     const b = (s.blocks || []).find((x) => x.key === key);
@@ -23287,8 +23321,10 @@ function SessionEditor({ id }) {
     <${WeekVolume} s=${s} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
-    ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
-      onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
+    ${(s.blocks || []).map((b, bi, all) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
+      onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)}
+      onMoveBlock=${(dir) => moveBlock(b.key, dir)} canBlockUp=${bi > 0} canBlockDown=${bi < all.length - 1}
+      otherBlocks=${all.filter((o) => o.key !== b.key).map((o) => o.key)} onMoveItemTo=${(iid, to) => moveItemTo(b.key, iid, to)} />`)}
     ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
 
     <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
@@ -23367,9 +23403,17 @@ function WeekVolume({ s }) {
 }
 
 // Posa un exercici de la biblioteca al seu bloc (el crea si encara no hi és) i, si el bloc està dividit, a l'últim subbloc.
+// Un bloc nou va al lloc que li toca per la metodologia (abans del primer bloc de número més alt), sense
+// reordenar els que ja hi ha (l'ordre que hagi triat el professional es manté).
+function insertBlock(blocks, b) {
+  const i = blocks.findIndex((x) => blockDef(x.key).num > blockDef(b.key).num);
+  blocks.splice(i < 0 ? blocks.length : i, 0, b);
+  return blocks;
+}
+
 function putExercise(blocks, key, it) {
   let b = blocks.find((x) => x.key === key);
-  if (!b) { b = Store.blankBlock(key); blocks.push(b); blocks.sort((x, y) => blockDef(x.key).num - blockDef(y.key).num); }
+  if (!b) { b = Store.blankBlock(key); insertBlock(blocks, b); }
   b.items = (b.items || []).filter((x) => x.name);
   if (b.groups && b.groups.length) it.g = b.groups[b.groups.length - 1].id;
   b.items.push(it);
@@ -23397,7 +23441,7 @@ function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió',
   const empty = !(blocks || []).length;
   return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label=${`Afegeix blocs a ${what}`}>
     ${empty ? html`<div><h2 class="h2">${`Blocs de ${what}`}</h2>
-        <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen sols en l'ordre de la metodologia.`}</p></div>`
+        <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen en l'ordre de la metodologia i després els pots moure amb les fletxes.`}</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
     <div class="addblocks-list">
     ${onAddExercise && html`<button type="button" class="addblock addblock-lib" onClick=${() => pickAnyExercise(onAddExercise, patient)}
@@ -23407,7 +23451,7 @@ function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió',
   </section>`;
 }
 
-function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove }) {
+function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove, onMoveBlock, canBlockUp, canBlockDown, otherBlocks, onMoveItemTo }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -23557,14 +23601,19 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
   };
   const row = (it, i, gi) => html`<${ItemRow} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
-    groups=${groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))}
-    onGroup=${(gid) => toGroup(it.id, gid)}
+    groups=${[...((groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))) || []),
+      ...((onMoveItemTo && otherBlocks) || []).map((k) => ({ id: `blk:${k}`, label: `Mou a ${blockName(k)}` }))]}
+    onGroup=${(gid) => (String(gid).startsWith('blk:') ? onMoveItemTo(it.id, gid.slice(4)) : toGroup(it.id, gid))}
     block=${block.key} prevMap=${prev} autoFocus=${focusId === it.id} templateMode=${templateMode} patient=${patient} date=${date}
     onChange=${setItem(it.id)} onMove=${(dir) => move(i, dir)} onRemove=${() => removeItem(it.id)} onDuplicate=${() => dupItem(i)} />`;
 
   return html`<section class=${`card block blk-${block.key}`} aria-label=${`Bloc ${def.num}: ${blockName(block.key)}`}>
     <header class="block-head">
       <span class="block-num">${def.num}</span>
+      ${onMoveBlock && html`<span class="block-move">
+        <button type="button" class="mini" disabled=${!canBlockUp} title="Puja el bloc (abans a la sessió)" aria-label=${`Puja el bloc ${blockName(block.key)}`} onClick=${() => onMoveBlock(-1)}><${Icon} name="up" size=${16} /></button>
+        <button type="button" class="mini" disabled=${!canBlockDown} title="Baixa el bloc (després a la sessió)" aria-label=${`Baixa el bloc ${blockName(block.key)}`} onClick=${() => onMoveBlock(1)}><${Icon} name="down" size=${16} /></button>
+      </span>`}
       <div class="block-title">
         <h2 class="h2">${blockName(block.key)}</h2>
         <p class="block-desc">${blockDesc(block.key)}</p>
@@ -23650,7 +23699,6 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
     it.pos && (OPT.pos.find((o) => o.v === it.pos) || {}).label,
-    it.lat && (OPT.lat.find((o) => o.v === it.lat) || {}).label,
     it.material, it.gm, it.tempo && `Tempo ${it.tempo}`,
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
@@ -23683,6 +23731,8 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
+        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+          title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
           <${Icon} name=${open ? 'up' : 'down'} size=${14} />
@@ -23728,6 +23778,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
         up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
+        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: () => set('lat')(it.lat === 'UL' ? 'BL' : 'UL') },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
@@ -23893,7 +23944,9 @@ function SessionSheet({ id }) {
   // Escalfament (1-3) en una fila, força principal a tota l'amplada i tancament (5-6) en una altra fila.
   const warm = blocks.filter((b) => ['mob', 'act', 'pot'].includes(b.key)).length;
   const fin = blocks.filter((b) => ['acc', 'cal'].includes(b.key)).length;
-  const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
+  // Si els blocs no van en l'ordre de la metodologia (p. ex. activació enmig), cadascun a tota l'amplada i en l'ordre triat.
+  const custom = blocks.some((b, i) => i > 0 && blockDef(b.key).num < blockDef(blocks[i - 1].key).num);
+  const span = (key) => (custom ? 6 : ['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
   const theme = reportThemeClass(p);
   return html`<div class=${`present ${theme}`}>
     <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}
