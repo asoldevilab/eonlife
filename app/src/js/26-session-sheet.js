@@ -43,7 +43,9 @@ function SessionSheet({ id }) {
   // Escalfament (1-3) en una fila, força principal a tota l'amplada i tancament (5-6) en una altra fila.
   const warm = blocks.filter((b) => ['mob', 'act', 'pot'].includes(b.key)).length;
   const fin = blocks.filter((b) => ['acc', 'cal'].includes(b.key)).length;
-  const span = (key) => (['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
+  // Si els blocs no van en l'ordre de la metodologia (p. ex. activació enmig), cadascun a tota l'amplada i en l'ordre triat.
+  const custom = blocks.some((b, i) => i > 0 && blockDef(b.key).num < blockDef(blocks[i - 1].key).num);
+  const span = (key) => (custom ? 6 : ['mob', 'act', 'pot'].includes(key) ? 6 / warm : ['acc', 'cal'].includes(key) ? 6 / fin : 6);
   const theme = reportThemeClass(p);
   return html`<div class=${`present ${theme}`}>
     <${PresentBar} title=${`Sessió ${s.number} · ${U.fullName(p)}`} onClose=${() => go('sessio', s.id)} noTheme=${true}

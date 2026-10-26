@@ -50,7 +50,8 @@ function SessionEditor({ id }) {
   // Els blocs s'afegeixen a mà (no totes les sessions tenen els 6) i es col·loquen en l'ordre de la metodologia.
   const addBlock = (key) => {
     upd((x) => {
-      x.blocks = [...(x.blocks || []).filter((b) => b.key !== key), Store.blankBlock(key)].sort((a, b) => blockDef(a.key).num - blockDef(b.key).num);
+      if ((x.blocks || []).some((b) => b.key === key)) return;
+      x.blocks = insertBlock([...(x.blocks || [])], Store.blankBlock(key));
     });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -65,6 +66,27 @@ function SessionEditor({ id }) {
       const el = document.querySelector(`section.block.blk-${key}`);
       if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 80);
+  };
+  // Ordre lliure: els blocs es poden pujar i baixar, i un exercici es pot passar a un altre bloc de la sessió.
+  const moveBlock = (key, dir) => upd((x) => {
+    const arr = [...(x.blocks || [])];
+    const i = arr.findIndex((b) => b.key === key), j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    x.blocks = arr;
+  });
+  const moveItemTo = (fromKey, iid, toKey) => {
+    upd((x) => {
+      const from = (x.blocks || []).find((b) => b.key === fromKey), to = (x.blocks || []).find((b) => b.key === toKey);
+      const it = from && (from.items || []).find((y) => y.id === iid);
+      if (!it || !to) return;
+      from.items = from.items.filter((y) => y.id !== iid);
+      delete it.g;
+      if (to.groups && to.groups.length) it.g = to.groups[to.groups.length - 1].id;
+      to.items = [...(to.items || []).filter((y) => y.name), it];
+      Calc.sortByGroups(to);
+    });
+    UI.toast(`Mogut a ${blockName(toKey)}: col·loca'l amb «Mou amunt / avall».`);
   };
   const removeBlock = async (key) => {
     const b = (s.blocks || []).find((x) => x.key === key);
@@ -144,8 +166,10 @@ function SessionEditor({ id }) {
     <${WeekVolume} s=${s} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
-    ${(s.blocks || []).map((b) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
-      onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)} />`)}
+    ${(s.blocks || []).map((b, bi, all) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
+      onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)}
+      onMoveBlock=${(dir) => moveBlock(b.key, dir)} canBlockUp=${bi > 0} canBlockDown=${bi < all.length - 1}
+      otherBlocks=${all.filter((o) => o.key !== b.key).map((o) => o.key)} onMoveItemTo=${(iid, to) => moveItemTo(b.key, iid, to)} />`)}
     ${(s.blocks || []).length > 0 && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
 
     <${HeartRateCard} session=${s} onSet=${(k, v) => setIn('feedback', k)(v)} />
@@ -224,9 +248,17 @@ function WeekVolume({ s }) {
 }
 
 // Posa un exercici de la biblioteca al seu bloc (el crea si encara no hi és) i, si el bloc està dividit, a l'últim subbloc.
+// Un bloc nou va al lloc que li toca per la metodologia (abans del primer bloc de número més alt), sense
+// reordenar els que ja hi ha (l'ordre que hagi triat el professional es manté).
+function insertBlock(blocks, b) {
+  const i = blocks.findIndex((x) => blockDef(x.key).num > blockDef(b.key).num);
+  blocks.splice(i < 0 ? blocks.length : i, 0, b);
+  return blocks;
+}
+
 function putExercise(blocks, key, it) {
   let b = blocks.find((x) => x.key === key);
-  if (!b) { b = Store.blankBlock(key); blocks.push(b); blocks.sort((x, y) => blockDef(x.key).num - blockDef(y.key).num); }
+  if (!b) { b = Store.blankBlock(key); insertBlock(blocks, b); }
   b.items = (b.items || []).filter((x) => x.name);
   if (b.groups && b.groups.length) it.g = b.groups[b.groups.length - 1].id;
   b.items.push(it);
@@ -254,7 +286,7 @@ function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió',
   const empty = !(blocks || []).length;
   return html`<section class=${U.cls('card addblocks', empty && 'addblocks-empty')} aria-label=${`Afegeix blocs a ${what}`}>
     ${empty ? html`<div><h2 class="h2">${`Blocs de ${what}`}</h2>
-        <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen sols en l'ordre de la metodologia.`}</p></div>`
+        <p class="muted">${`Afegeix només els blocs que necessiti ${who}. Es posen en l'ordre de la metodologia i després els pots moure amb les fletxes.`}</p></div>`
       : html`<span class="addblocks-label">Afegeix un bloc</span>`}
     <div class="addblocks-list">
     ${onAddExercise && html`<button type="button" class="addblock addblock-lib" onClick=${() => pickAnyExercise(onAddExercise, patient)}
@@ -264,7 +296,7 @@ function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió',
   </section>`;
 }
 
-function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove }) {
+function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove, onMoveBlock, canBlockUp, canBlockDown, otherBlocks, onMoveItemTo }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -414,14 +446,19 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
   };
   const row = (it, i, gi) => html`<${ItemRow} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
-    groups=${groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))}
-    onGroup=${(gid) => toGroup(it.id, gid)}
+    groups=${[...((groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))) || []),
+      ...((onMoveItemTo && otherBlocks) || []).map((k) => ({ id: `blk:${k}`, label: `Mou a ${blockName(k)}` }))]}
+    onGroup=${(gid) => (String(gid).startsWith('blk:') ? onMoveItemTo(it.id, gid.slice(4)) : toGroup(it.id, gid))}
     block=${block.key} prevMap=${prev} autoFocus=${focusId === it.id} templateMode=${templateMode} patient=${patient} date=${date}
     onChange=${setItem(it.id)} onMove=${(dir) => move(i, dir)} onRemove=${() => removeItem(it.id)} onDuplicate=${() => dupItem(i)} />`;
 
   return html`<section class=${`card block blk-${block.key}`} aria-label=${`Bloc ${def.num}: ${blockName(block.key)}`}>
     <header class="block-head">
       <span class="block-num">${def.num}</span>
+      ${onMoveBlock && html`<span class="block-move">
+        <button type="button" class="mini" disabled=${!canBlockUp} title="Puja el bloc (abans a la sessió)" aria-label=${`Puja el bloc ${blockName(block.key)}`} onClick=${() => onMoveBlock(-1)}><${Icon} name="up" size=${16} /></button>
+        <button type="button" class="mini" disabled=${!canBlockDown} title="Baixa el bloc (després a la sessió)" aria-label=${`Baixa el bloc ${blockName(block.key)}`} onClick=${() => onMoveBlock(1)}><${Icon} name="down" size=${16} /></button>
+      </span>`}
       <div class="block-title">
         <h2 class="h2">${blockName(block.key)}</h2>
         <p class="block-desc">${blockDesc(block.key)}</p>

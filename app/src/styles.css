@@ -661,8 +661,12 @@ input[type="search"].input { -webkit-appearance: none; }
 
 .block { scroll-margin-top: 90px; container: blk / inline-size; }
 .block-head { display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap; }
-.block-num { width: 38px; height: 38px; flex: none; border-radius: 11px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-display); font-size: 22px; font-weight: 700; }
-.block-title { flex: 1 1 220px; min-width: 0; }
+/* fletxes per pujar o baixar el bloc dins la sessió, apilades al costat del número */
+.block-move { display: inline-flex; flex-direction: column; gap: 2px; margin-left: -6px; }
+.block-move .mini { width: 28px; height: 22px; border-radius: 6px; }
+.block-move .mini:disabled { opacity: .3; cursor: default; }
+.block-num { width: 38px; height: 38px; flex: none; border-radius: 11px; display: grid; place-items: center; background: var(--blk); color: var(--blk-ink); font-family: var(--font-ui); font-size: 20px; font-weight: 750; font-variant-numeric: lining-nums tabular-nums; }
+.block-title { flex: 1 1 170px; min-width: 0; }
 .block-title .h2 { font-family: var(--font-display); font-size: 25px; font-weight: 600; line-height: 1.05; }
 .block-desc { margin: 3px 0 0; font-size: 13px; color: var(--ink-3); }
 .block-focus { flex: 0 1 270px; min-width: 180px; }
