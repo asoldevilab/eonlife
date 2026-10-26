@@ -507,7 +507,6 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
     it.pos && (OPT.pos.find((o) => o.v === it.pos) || {}).label,
-    it.lat && (OPT.lat.find((o) => o.v === it.lat) || {}).label,
     it.material, it.gm, it.tempo && `Tempo ${it.tempo}`,
   ].filter(Boolean);
   const ex = it.exId ? Store.exercise(it.exId) : null;
@@ -540,6 +539,8 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
+        <button type="button" class=${U.cls('vbt-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+          title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
           <${Icon} name=${open ? 'up' : 'down'} size=${14} />
@@ -585,6 +586,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
         up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
+        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: () => set('lat')(it.lat === 'UL' ? 'BL' : 'UL') },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,

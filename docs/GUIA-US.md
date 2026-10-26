@@ -307,6 +307,9 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
   S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la
   prescripció per defecte. El material i el grup muscular es poden canviar als *Detalls* de l'exercici.
+- **Unilateral**: el botó *Unilateral* de cada exercici (o *Fes-lo unilateral* al menú ⋮) el passa a un costat i després
+  l'altre. La prescripció surt per braç, per cama o per costat segons el grup muscular (p. ex. jaló al pit 3 × 12/braç),
+  a la sessió, a la fitxa del client i a l'Excel. Tornant-lo a tocar, torna a ser bilateral.
 - Una línia per exercici: **sèries × reps/temps · càrrega · intensitat (RIR/RPE) · descans**.
   Exemple: 3 × 6 · 60 kg · RIR 2 · 2'.
 - Sota de cada exercici surt **Anterior**: què va fer el client l'última vegada, per decidir la progressió.
