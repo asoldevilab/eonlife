@@ -4260,7 +4260,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-26 13:03";
+window.EON_BUILD = "2026-10-26 13:21";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7051,7 +7051,10 @@ const Calc = {
         const level = { a: lvl(prev), b: lvl(it) };
         level.diff = match === 'family' || match === 'name' ? d(level.a, level.b) : null;
         const same = match === 'name';
-        const kg = { a: same ? Calc.kg(prev) : null, b: Calc.kg(it) };
+        // si abans era bilateral i ara unilateral (o al revés), es compara amb la càrrega equivalent (×½ o ×2)
+        const lf = same ? Calc.latFactor(prev, it) : 1;
+        const ka = same ? Calc.kg(prev) : null;
+        const kg = { a: ka != null && lf !== 1 ? Calc.roundKg(ka * lf) : ka, b: Calc.kg(it), lat: lf !== 1 ? `${Calc.latOf(prev)}→${Calc.latOf(it)}` : '' };
         kg.diff = d(kg.a, kg.b);
         kg.pct = kg.diff != null && kg.a ? Math.round((kg.diff / kg.a) * 100) : null;
         const va = same ? Calc.vbt(prev) : null, vb = Calc.vbt(it);
@@ -7757,6 +7760,45 @@ Object.assign(Calc, {
     return m ? Number(m[1].replace(',', '.')) : null;
   },
   fmtKg(n) { return `${String(Math.round(n * 100) / 100).replace('.', ',')} kg`; },
+
+  // ── Unilateral i bilateral ──
+  // Per costat es mou més o menys la meitat del que es mou amb els dos (dèficit bilateral): referència 50 %, i
+  // entre el 40 i el 60 % és coherent. Una lateralitat buida compta com a bilateral.
+  latOf(it) { return it && it.lat === 'UL' ? 'UL' : 'BL'; },
+  // Factor per passar una càrrega de la lateralitat de `from` a la de `to` (1 si és la mateixa).
+  latFactor(from, to) { const a = Calc.latOf(from), b = Calc.latOf(to); return a === b ? 1 : a === 'BL' ? 0.5 : 2; },
+  roundKg(n) { return Math.round(n * 2) / 2; },
+  latLoad(kg, from, to) { return kg == null ? null : Calc.roundKg(kg * Calc.latFactor(from, to)); },
+  // La càrrega de la darrera vegada per posar-la a l'exercici d'ara: si la lateralitat ha canviat, adaptada (×½ o ×2).
+  carryLoad(last, it) {
+    if (!last || !last.load) return '';
+    const kg = Calc.loadKg(last.load);
+    if (kg == null || Calc.latFactor(last, it) === 1) return last.load;
+    return String(Calc.latLoad(kg, last, it)).replace('.', ',');
+  },
+  // Quan l'exercici canvia de lateralitat respecte de la darrera vegada: la càrrega de referència, el marge coherent i
+  // com és la que hi ha posada ({ ref, lo, hi, kg, state: 'none'|'ok'|'high'|'low', pct, text }). null si no canvia.
+  latCheck(it, prev) {
+    if (!it || !prev || Calc.latOf(it) === Calc.latOf(prev)) return null;
+    const pk = Calc.loadKg(prev.load);
+    if (pk == null || pk <= 0) return null;
+    const toUL = Calc.latOf(it) === 'UL';
+    const side = Calc.uniSide(it);
+    const ref = Calc.latLoad(pk, prev, it);
+    const lo = Calc.roundKg(toUL ? pk * 0.4 : pk / 0.6), hi = Calc.roundKg(toUL ? pk * 0.6 : pk / 0.4);
+    const kg = Calc.loadKg(it.load);
+    const pct = kg != null ? Math.round(((toUL ? kg / pk : pk / kg)) * 100) : null;
+    const was = `La darrera vegada (${U.fmtDateShort(prev.date)}) el va fer ${toUL ? 'bilateral' : `unilateral, ${Calc.fmtKg(pk)} per ${side}`}${toUL ? ` amb ${Calc.fmtKg(pk)}` : ''}.`;
+    const refTxt = toUL ? `En unilateral, per ${side}, la referència és ~${Calc.fmtKg(ref)} (la meitat; coherent entre ${Calc.fmtKg(lo)} i ${Calc.fmtKg(hi)}).`
+      : `En bilateral, la referència és ~${Calc.fmtKg(ref)} (el doble; coherent entre ${Calc.fmtKg(lo)} i ${Calc.fmtKg(hi)}).`;
+    let state = 'none', verdict = '';
+    if (kg != null && kg > 0) {
+      if (kg > hi) { state = 'high'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és el ${pct} % del que movia amb les dues: probablement massa pesat.` : `${Calc.fmtKg(kg)} és més del doble i mig del que movia per ${side}: probablement massa pesat.`; }
+      else if (kg < lo) { state = 'low'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és només el ${pct} % del que movia amb les dues: segurament es queda lleuger.` : `${Calc.fmtKg(kg)} és poc més del que movia per ${side}: segurament es queda lleuger.`; }
+      else { state = 'ok'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és coherent (${pct} % de la càrrega bilateral).` : `${Calc.fmtKg(kg)} és coherent amb el que movia per ${side}.`; }
+    }
+    return { ref, lo, hi, kg, pk, toUL, side, state, pct, text: [was, refTxt, verdict].filter(Boolean).join(' ') };
+  },
   // Què fer amb la càrrega de la darrera vegada segons com va anar aquella sessió (RPE 1–10 i dolor 0–10).
   // Sense RPE ni dolor registrats no hi ha base per suggerir res.
   suggestLoad(prev, ctx = {}) {
@@ -7786,8 +7828,9 @@ Object.assign(Calc, {
   },
   // 1RM d'un exercici: la del perfil càrrega-velocitat més recent d'aquest exercici o, si no n'hi ha, la millor estimada
   // amb les sessions fetes abans de la data. Retorna { rm, src, date } o null.
-  oneRm(pid, name, asOf) {
+  oneRm(pid, name, asOf, lat) {
     const nm = U.norm(name || '');
+    const want = { lat: lat === 'UL' ? 'UL' : 'BL' };
     if (!pid || !nm) return null;
     const end = asOf || '9999-99-99';
     const hit = {
@@ -7799,18 +7842,22 @@ Object.assign(Calc, {
         if (!(x.rm > 0)) continue;
         const key = U.norm(x.name || '');
         const same = (hit[x.preset] && hit[x.preset].test(nm)) || (key && (nm.includes(key) || key.includes(nm)));
-        if (same) return { rm: x.rm, src: 'lvp', date: a.date };
+        // el perfil càrrega-velocitat és bilateral: per a un exercici unilateral, la meitat
+        if (same) return want.lat === 'UL' ? { rm: Calc.latLoad(x.rm, { lat: 'BL' }, want), src: 'lvp', date: a.date, conv: 'BL' } : { rm: x.rm, src: 'lvp', date: a.date };
       }
     }
-    let best = null;
+    // de les sessions, primer les fetes amb la mateixa lateralitat; si no n'hi ha, les altres convertides (×½ o ×2)
+    let best = null, other = null;
     for (const s of Store.sessionsOf(pid).filter((x) => x.date && x.date < end).slice(-12)) {
       for (const b of s.blocks || []) for (const it of b.items || []) {
         if (U.norm(it.name || '') !== nm) continue;
         const e = Calc.e1rm(it);
-        if (e && (!best || e > best.rm)) best = { rm: e, src: 'sessions', date: s.date };
+        if (!e) continue;
+        if (Calc.latOf(it) === want.lat) { if (!best || e > best.rm) best = { rm: e, src: 'sessions', date: s.date }; }
+        else { const c = e * Calc.latFactor(it, want); if (!other || c > other.rm) other = { rm: c, src: 'sessions', date: s.date, conv: Calc.latOf(it) }; }
       }
     }
-    return best;
+    return best || other;
   },
   // «75 %» (o «75%») → número; null si el camp no és un percentatge.
   pctOf(v) {
@@ -14296,6 +14343,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Principis**: especificitat (l'entrenament s'assembla a l'objectiu), sobrecàrrega progressiva (augmentar de manera gradual càrrega, volum o complexitat), individualització, variació i recuperació.
 
 **Força**: en general 2–3 dies/setmana per grup muscular. Força màxima: 1–6 repeticions a ~80–95 % 1RM (RIR 1–3), descans de 2–5 min. Hipertròfia: 6–12 repeticions (també 12–30 si s'acosta a la fallada) a ~60–80 % 1RM, descans d'1–3 min; volum habitual 10–20 sèries efectives per grup muscular i setmana (menys en principiants o amb poc temps). Principiants: 1–3 sèries de 8–12 repeticions, 2 dies/setmana d'exercicis multiarticulars ja aporten molt. RIR (repeticions en reserva) 0–4 ≈ RPE 10–6.
+**Unilateral i bilateral**: quan un exercici passa de bilateral a unilateral (o al revés), la càrrega no es compara directament: per costat es mou aproximadament la meitat de la càrrega bilateral (dèficit bilateral; coherent entre el 40 i el 60 %). Exemple: leg press bilateral 100 kg → unilateral ~50 kg per cama (40–60 kg). En sentit invers, el doble (≈1,7–2,5×). Prescriu les repeticions per costat ("8/cama", "10/braç").
 **Progressió simple**: si es completen totes les sèries al màxim del rang de repeticions amb RIR ≥ 2, pujar la càrrega un 2–10 % (regla del «2 per 2» en tècnica estable). Quan una variant fàcil ja és massa fàcil, passar al següent nivell de la família de progressió de la biblioteca.
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
 **FC i HRV**: a cada sessió l'app pot tenir la FC mitjana/màxima (strap) i, opcionalment, l'HRV en repòs en arribar (RMSSD en ms, mesura curta amb strap). L'HRV només es compara amb el mateix pacient i el mateix mètode; una HRV clarament per sota del seu normal (cal una base d'unes 7 mesures), juntament amb un wellness baix, suggereix reduir volum o intensitat aquell dia — és un senyal, no un diagnòstic. Una sola mesura mai decideix res.
@@ -23215,7 +23263,7 @@ function SessionEditor({ id }) {
   };
   const addExercise = (key, it) => {
     const last = (prev || {})[it.name];
-    if (last && last.load) it.load = last.load;
+    if (last && last.load) it.load = Calc.carryLoad(last, it);
     upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -23358,7 +23406,13 @@ function SessionEditor({ id }) {
 // Aplica la càrrega suggerida (segons RPE i dolor de la darrera sessió) als exercicis d'un bloc. Retorna quants n'han canviat.
 function progressionOf(it, prev) {
   const p = it && it.name && prev ? prev[it.name] : null;
-  return p ? Calc.suggestLoad(p, { rpe: p._rpe, pain: p._pain }) : null;
+  if (!p) return null;
+  // si abans el feia bilateral i ara unilateral (o al revés), es parteix de la càrrega equivalent
+  const lf = Calc.latFactor(p, it);
+  const base = lf !== 1 && Calc.loadKg(p.load) != null ? { ...p, load: String(Calc.latLoad(Calc.loadKg(p.load), p, it)) } : p;
+  const sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
+  if (sg && lf !== 1) { sg.why += Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)'; sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`; }
+  return sg;
 }
 function applyProgression(block, prev) {
   let n = 0;
@@ -23475,7 +23529,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       onPick: (ex, mat) => {
         const it = itemFromExercise(ex, { material: mat || ex.material || '' });
         const last = prev ? prev[ex.name] : null;
-        if (last && last.load) it.load = last.load;
+        if (last && last.load) it.load = Calc.carryLoad(last, it);
         put(it, false);
         const cw = patient ? Calc.cautions(patient, ex) : [];
         UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name}${mat ? ` · ${mat}` : ''}`, cw.length ? 'bad' : undefined);
@@ -23694,7 +23748,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
     for (const k of ['gm', 'cont', 'pos', 'lat', 'material']) x[k] = ex[k] || '';
     for (const k of ['sets', 'reps', 'intensity', 'rest', 'tempo']) if (!x[k]) x[k] = ex[k] || '';
     const last = prevMap ? prevMap[ex.name] : null;
-    if (last && !x.load && last.load) x.load = last.load;
+    if (last && !x.load && last.load) x.load = Calc.carryLoad(last, x);
   });
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
@@ -23705,11 +23759,21 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
   const sug = !templateMode && prev ? progressionOf(it, prevMap) : null;
   const cautions = !templateMode && patient ? Calc.cautions(patient, { name: it.name, gm: it.gm, muscles: ex && ex.muscles }) : [];
   const pct = Calc.pctOf(it.load);
-  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date) : null;
+  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date, it.lat) : null;
   const pctKg = rmInfo ? Calc.loadFromPct(pct, rmInfo.rm) : null;
   const demo = it.demo || (ex && ex.video) || '';
   // Progressió: el mateix patró, un nivell més difícil (▲) o més fàcil (▼).
   const up = Store.stepLevel(ex, 1), down = Store.stepLevel(ex, -1);
+  // Unilateral ⇄ bilateral: si la càrrega posada és la de la darrera vegada (encara sense adaptar), s'adapta sola.
+  const toggleLat = () => {
+    const to = { ...it, lat: it.lat === 'UL' ? 'BL' : 'UL' };
+    const pk = prev ? Calc.loadKg(prev.load) : null, cur = Calc.loadKg(it.load);
+    let adapted = null;
+    if (pk != null && cur != null && (cur === pk || cur === Calc.latLoad(pk, prev, it))) adapted = Calc.latLoad(pk, prev, to);
+    onChange((x) => { x.lat = to.lat; if (adapted != null && adapted !== cur) x.load = String(adapted).replace('.', ','); });
+    if (adapted != null && adapted !== cur) UI.toast(`Càrrega adaptada: ${Calc.fmtKg(cur)} → ${Calc.fmtKg(adapted)}${to.lat === 'UL' ? ` per ${Calc.uniSide(it)} (≈ la meitat de la bilateral)` : ' en bilateral (≈ el doble)'}. Revisa-la.`);
+  };
+  const latInfo = !templateMode ? Calc.latCheck(it, prev) : null;
   const swap = (nx) => {
     onChange((x) => progressItem(x, nx, prevMap));
     UI.toast(`${nx.name} · nivell ${nx.level}`);
@@ -23731,7 +23795,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
-        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${toggleLat}
           title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
@@ -23751,11 +23815,13 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ${!templateMode && Calc.isTime(it.reps) && html`<${TimerButton} secs=${Calc.secs(it.reps)} kind="work" label=${it.name || 'Exercici'} title="Inicia el temps de l'exercici" />`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
         ${sug && html` <button type="button" class=${U.cls('sug', Calc.loadKg(it.load) === sug.load && 'sug-on')} onClick=${() => set('load')(String(sug.load).replace('.', ','))}
           title="Càrrega suggerida segons com va anar la darrera sessió. Toca per aplicar-la.">Suggeriment: ${sug.text}</button>`}</div>`}
+      ${latInfo && html`<div class=${U.cls('prev', (latInfo.state === 'high' || latInfo.state === 'low') && 'caut')} role="note">${latInfo.state === 'high' || latInfo.state === 'low' ? '⚠ ' : latInfo.state === 'ok' ? '✓ ' : ''}${latInfo.text}${latInfo.state !== 'ok' && html` <button type="button" class="sug" onClick=${() => set('load')(String(latInfo.ref).replace('.', ','))}
+          title="Posa la càrrega de referència per a la nova lateralitat">Posa-hi ${Calc.fmtKg(latInfo.ref)}</button>`}</div>`}
       ${pct != null && !templateMode && html`<div class="prev">${pctKg
-        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}) = <strong>${Calc.fmtKg(pctKg)}</strong>
+        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}${rmInfo.conv ? (rmInfo.conv === 'BL' ? ', a partir de la bilateral (½)' : ', a partir de la unilateral (×2)') : ''}) = <strong>${Calc.fmtKg(pctKg)}</strong>
           <button type="button" class="sug" onClick=${() => set('load')(String(pctKg).replace('.', ','))}>Posa-ho a Càrrega</button>`
         : 'Sense 1RM d\'aquest exercici per al pacient: cal una valoració càrrega-velocitat o sessions anteriors amb càrrega i repeticions.'}</div>`}
       ${cautions.length > 0 && html`<div class="prev caut" role="note">⚠ Té anotat ${cautions.map((c) => c.label).join(' i ')} a la fitxa: aquest exercici ${cautions[0].why}. Valora si encaixa.</div>`}
@@ -23778,7 +23844,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
         up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
-        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: () => set('lat')(it.lat === 'UL' ? 'BL' : 'UL') },
+        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: toggleLat },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
@@ -25750,6 +25816,7 @@ function ProgressRow({ r }) {
   const chips = [];
   const sign = (n) => (n > 0 ? '+' : n < 0 ? '−' : '');
   if (r.level.diff) chips.push({ up: r.level.diff > 0, text: `${r.level.diff > 0 ? '▲' : '▼'} ${U.plural(Math.abs(r.level.diff), 'nivell', 'nivells')}` });
+  if (r.kg.lat) chips.push({ text: r.kg.lat === 'BL→UL' ? 'Ara unilateral (kg comparats a la meitat)' : 'Ara bilateral (kg comparats al doble)', muted: true });
   if (r.kg.diff) chips.push({ up: r.kg.diff > 0, text: `${sign(r.kg.diff)}${U.fmt(Math.abs(r.kg.diff), 1)} kg${r.kg.pct != null ? ` (${sign(r.kg.pct)}${Math.abs(r.kg.pct)} %)` : ''}` });
   if (r.v1.diff) chips.push({ up: r.v1.diff > 0, text: `${sign(r.v1.diff)}${U.fmtFixed(Math.abs(r.v1.diff), 2)} m/s` });
   if (!r.before) chips.push({ text: 'Nou' });

@@ -79,6 +79,7 @@ function ProgressRow({ r }) {
   const chips = [];
   const sign = (n) => (n > 0 ? '+' : n < 0 ? '−' : '');
   if (r.level.diff) chips.push({ up: r.level.diff > 0, text: `${r.level.diff > 0 ? '▲' : '▼'} ${U.plural(Math.abs(r.level.diff), 'nivell', 'nivells')}` });
+  if (r.kg.lat) chips.push({ text: r.kg.lat === 'BL→UL' ? 'Ara unilateral (kg comparats a la meitat)' : 'Ara bilateral (kg comparats al doble)', muted: true });
   if (r.kg.diff) chips.push({ up: r.kg.diff > 0, text: `${sign(r.kg.diff)}${U.fmt(Math.abs(r.kg.diff), 1)} kg${r.kg.pct != null ? ` (${sign(r.kg.pct)}${Math.abs(r.kg.pct)} %)` : ''}` });
   if (r.v1.diff) chips.push({ up: r.v1.diff > 0, text: `${sign(r.v1.diff)}${U.fmtFixed(Math.abs(r.v1.diff), 2)} m/s` });
   if (!r.before) chips.push({ text: 'Nou' });

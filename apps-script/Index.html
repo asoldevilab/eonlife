@@ -4250,7 +4250,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-26 13:03";
+<script>window.EON_BUILD = "2026-10-26 13:21";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -7041,7 +7041,10 @@ const Calc = {
         const level = { a: lvl(prev), b: lvl(it) };
         level.diff = match === 'family' || match === 'name' ? d(level.a, level.b) : null;
         const same = match === 'name';
-        const kg = { a: same ? Calc.kg(prev) : null, b: Calc.kg(it) };
+        // si abans era bilateral i ara unilateral (o al revés), es compara amb la càrrega equivalent (×½ o ×2)
+        const lf = same ? Calc.latFactor(prev, it) : 1;
+        const ka = same ? Calc.kg(prev) : null;
+        const kg = { a: ka != null && lf !== 1 ? Calc.roundKg(ka * lf) : ka, b: Calc.kg(it), lat: lf !== 1 ? `${Calc.latOf(prev)}→${Calc.latOf(it)}` : '' };
         kg.diff = d(kg.a, kg.b);
         kg.pct = kg.diff != null && kg.a ? Math.round((kg.diff / kg.a) * 100) : null;
         const va = same ? Calc.vbt(prev) : null, vb = Calc.vbt(it);
@@ -7747,6 +7750,45 @@ Object.assign(Calc, {
     return m ? Number(m[1].replace(',', '.')) : null;
   },
   fmtKg(n) { return `${String(Math.round(n * 100) / 100).replace('.', ',')} kg`; },
+
+  // ── Unilateral i bilateral ──
+  // Per costat es mou més o menys la meitat del que es mou amb els dos (dèficit bilateral): referència 50 %, i
+  // entre el 40 i el 60 % és coherent. Una lateralitat buida compta com a bilateral.
+  latOf(it) { return it && it.lat === 'UL' ? 'UL' : 'BL'; },
+  // Factor per passar una càrrega de la lateralitat de `from` a la de `to` (1 si és la mateixa).
+  latFactor(from, to) { const a = Calc.latOf(from), b = Calc.latOf(to); return a === b ? 1 : a === 'BL' ? 0.5 : 2; },
+  roundKg(n) { return Math.round(n * 2) / 2; },
+  latLoad(kg, from, to) { return kg == null ? null : Calc.roundKg(kg * Calc.latFactor(from, to)); },
+  // La càrrega de la darrera vegada per posar-la a l'exercici d'ara: si la lateralitat ha canviat, adaptada (×½ o ×2).
+  carryLoad(last, it) {
+    if (!last || !last.load) return '';
+    const kg = Calc.loadKg(last.load);
+    if (kg == null || Calc.latFactor(last, it) === 1) return last.load;
+    return String(Calc.latLoad(kg, last, it)).replace('.', ',');
+  },
+  // Quan l'exercici canvia de lateralitat respecte de la darrera vegada: la càrrega de referència, el marge coherent i
+  // com és la que hi ha posada ({ ref, lo, hi, kg, state: 'none'|'ok'|'high'|'low', pct, text }). null si no canvia.
+  latCheck(it, prev) {
+    if (!it || !prev || Calc.latOf(it) === Calc.latOf(prev)) return null;
+    const pk = Calc.loadKg(prev.load);
+    if (pk == null || pk <= 0) return null;
+    const toUL = Calc.latOf(it) === 'UL';
+    const side = Calc.uniSide(it);
+    const ref = Calc.latLoad(pk, prev, it);
+    const lo = Calc.roundKg(toUL ? pk * 0.4 : pk / 0.6), hi = Calc.roundKg(toUL ? pk * 0.6 : pk / 0.4);
+    const kg = Calc.loadKg(it.load);
+    const pct = kg != null ? Math.round(((toUL ? kg / pk : pk / kg)) * 100) : null;
+    const was = `La darrera vegada (${U.fmtDateShort(prev.date)}) el va fer ${toUL ? 'bilateral' : `unilateral, ${Calc.fmtKg(pk)} per ${side}`}${toUL ? ` amb ${Calc.fmtKg(pk)}` : ''}.`;
+    const refTxt = toUL ? `En unilateral, per ${side}, la referència és ~${Calc.fmtKg(ref)} (la meitat; coherent entre ${Calc.fmtKg(lo)} i ${Calc.fmtKg(hi)}).`
+      : `En bilateral, la referència és ~${Calc.fmtKg(ref)} (el doble; coherent entre ${Calc.fmtKg(lo)} i ${Calc.fmtKg(hi)}).`;
+    let state = 'none', verdict = '';
+    if (kg != null && kg > 0) {
+      if (kg > hi) { state = 'high'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és el ${pct} % del que movia amb les dues: probablement massa pesat.` : `${Calc.fmtKg(kg)} és més del doble i mig del que movia per ${side}: probablement massa pesat.`; }
+      else if (kg < lo) { state = 'low'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és només el ${pct} % del que movia amb les dues: segurament es queda lleuger.` : `${Calc.fmtKg(kg)} és poc més del que movia per ${side}: segurament es queda lleuger.`; }
+      else { state = 'ok'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és coherent (${pct} % de la càrrega bilateral).` : `${Calc.fmtKg(kg)} és coherent amb el que movia per ${side}.`; }
+    }
+    return { ref, lo, hi, kg, pk, toUL, side, state, pct, text: [was, refTxt, verdict].filter(Boolean).join(' ') };
+  },
   // Què fer amb la càrrega de la darrera vegada segons com va anar aquella sessió (RPE 1–10 i dolor 0–10).
   // Sense RPE ni dolor registrats no hi ha base per suggerir res.
   suggestLoad(prev, ctx = {}) {
@@ -7776,8 +7818,9 @@ Object.assign(Calc, {
   },
   // 1RM d'un exercici: la del perfil càrrega-velocitat més recent d'aquest exercici o, si no n'hi ha, la millor estimada
   // amb les sessions fetes abans de la data. Retorna { rm, src, date } o null.
-  oneRm(pid, name, asOf) {
+  oneRm(pid, name, asOf, lat) {
     const nm = U.norm(name || '');
+    const want = { lat: lat === 'UL' ? 'UL' : 'BL' };
     if (!pid || !nm) return null;
     const end = asOf || '9999-99-99';
     const hit = {
@@ -7789,18 +7832,22 @@ Object.assign(Calc, {
         if (!(x.rm > 0)) continue;
         const key = U.norm(x.name || '');
         const same = (hit[x.preset] && hit[x.preset].test(nm)) || (key && (nm.includes(key) || key.includes(nm)));
-        if (same) return { rm: x.rm, src: 'lvp', date: a.date };
+        // el perfil càrrega-velocitat és bilateral: per a un exercici unilateral, la meitat
+        if (same) return want.lat === 'UL' ? { rm: Calc.latLoad(x.rm, { lat: 'BL' }, want), src: 'lvp', date: a.date, conv: 'BL' } : { rm: x.rm, src: 'lvp', date: a.date };
       }
     }
-    let best = null;
+    // de les sessions, primer les fetes amb la mateixa lateralitat; si no n'hi ha, les altres convertides (×½ o ×2)
+    let best = null, other = null;
     for (const s of Store.sessionsOf(pid).filter((x) => x.date && x.date < end).slice(-12)) {
       for (const b of s.blocks || []) for (const it of b.items || []) {
         if (U.norm(it.name || '') !== nm) continue;
         const e = Calc.e1rm(it);
-        if (e && (!best || e > best.rm)) best = { rm: e, src: 'sessions', date: s.date };
+        if (!e) continue;
+        if (Calc.latOf(it) === want.lat) { if (!best || e > best.rm) best = { rm: e, src: 'sessions', date: s.date }; }
+        else { const c = e * Calc.latFactor(it, want); if (!other || c > other.rm) other = { rm: c, src: 'sessions', date: s.date, conv: Calc.latOf(it) }; }
       }
     }
-    return best;
+    return best || other;
   },
   // «75 %» (o «75%») → número; null si el camp no és un percentatge.
   pctOf(v) {
@@ -14286,6 +14333,7 @@ Parles sempre en català (oral, clar i proper, amb tractament de "tu" amb l'equi
 **Principis**: especificitat (l'entrenament s'assembla a l'objectiu), sobrecàrrega progressiva (augmentar de manera gradual càrrega, volum o complexitat), individualització, variació i recuperació.
 
 **Força**: en general 2–3 dies/setmana per grup muscular. Força màxima: 1–6 repeticions a ~80–95 % 1RM (RIR 1–3), descans de 2–5 min. Hipertròfia: 6–12 repeticions (també 12–30 si s'acosta a la fallada) a ~60–80 % 1RM, descans d'1–3 min; volum habitual 10–20 sèries efectives per grup muscular i setmana (menys en principiants o amb poc temps). Principiants: 1–3 sèries de 8–12 repeticions, 2 dies/setmana d'exercicis multiarticulars ja aporten molt. RIR (repeticions en reserva) 0–4 ≈ RPE 10–6.
+**Unilateral i bilateral**: quan un exercici passa de bilateral a unilateral (o al revés), la càrrega no es compara directament: per costat es mou aproximadament la meitat de la càrrega bilateral (dèficit bilateral; coherent entre el 40 i el 60 %). Exemple: leg press bilateral 100 kg → unilateral ~50 kg per cama (40–60 kg). En sentit invers, el doble (≈1,7–2,5×). Prescriu les repeticions per costat ("8/cama", "10/braç").
 **Progressió simple**: si es completen totes les sèries al màxim del rang de repeticions amb RIR ≥ 2, pujar la càrrega un 2–10 % (regla del «2 per 2» en tècnica estable). Quan una variant fàcil ja és massa fàcil, passar al següent nivell de la família de progressió de la biblioteca.
 **Potència**: sèries curtes (1–5 repeticions) amb màxima intenció i descans complet (2–5 min), amb càrrega lleugera–moderada (~0–60 % 1RM segons l'exercici) o llançaments i salts. Es fa al principi de la sessió, amb el sistema nerviós fresc. Pliometria (contactes de peu per sessió, orientatiu): principiant 60–100, intermedi 100–120, avançat 120–200; progressar de salts amb aterratge controlat a reactius i unilaterals; no abans d'una base de força i control d'aterratge.
 **FC i HRV**: a cada sessió l'app pot tenir la FC mitjana/màxima (strap) i, opcionalment, l'HRV en repòs en arribar (RMSSD en ms, mesura curta amb strap). L'HRV només es compara amb el mateix pacient i el mateix mètode; una HRV clarament per sota del seu normal (cal una base d'unes 7 mesures), juntament amb un wellness baix, suggereix reduir volum o intensitat aquell dia — és un senyal, no un diagnòstic. Una sola mesura mai decideix res.
@@ -23205,7 +23253,7 @@ function SessionEditor({ id }) {
   };
   const addExercise = (key, it) => {
     const last = (prev || {})[it.name];
-    if (last && last.load) it.load = last.load;
+    if (last && last.load) it.load = Calc.carryLoad(last, it);
     upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -23348,7 +23396,13 @@ function SessionEditor({ id }) {
 // Aplica la càrrega suggerida (segons RPE i dolor de la darrera sessió) als exercicis d'un bloc. Retorna quants n'han canviat.
 function progressionOf(it, prev) {
   const p = it && it.name && prev ? prev[it.name] : null;
-  return p ? Calc.suggestLoad(p, { rpe: p._rpe, pain: p._pain }) : null;
+  if (!p) return null;
+  // si abans el feia bilateral i ara unilateral (o al revés), es parteix de la càrrega equivalent
+  const lf = Calc.latFactor(p, it);
+  const base = lf !== 1 && Calc.loadKg(p.load) != null ? { ...p, load: String(Calc.latLoad(Calc.loadKg(p.load), p, it)) } : p;
+  const sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
+  if (sg && lf !== 1) { sg.why += Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)'; sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`; }
+  return sg;
 }
 function applyProgression(block, prev) {
   let n = 0;
@@ -23465,7 +23519,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       onPick: (ex, mat) => {
         const it = itemFromExercise(ex, { material: mat || ex.material || '' });
         const last = prev ? prev[ex.name] : null;
-        if (last && last.load) it.load = last.load;
+        if (last && last.load) it.load = Calc.carryLoad(last, it);
         put(it, false);
         const cw = patient ? Calc.cautions(patient, ex) : [];
         UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name}${mat ? ` · ${mat}` : ''}`, cw.length ? 'bad' : undefined);
@@ -23684,7 +23738,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
     for (const k of ['gm', 'cont', 'pos', 'lat', 'material']) x[k] = ex[k] || '';
     for (const k of ['sets', 'reps', 'intensity', 'rest', 'tempo']) if (!x[k]) x[k] = ex[k] || '';
     const last = prevMap ? prevMap[ex.name] : null;
-    if (last && !x.load && last.load) x.load = last.load;
+    if (last && !x.load && last.load) x.load = Calc.carryLoad(last, x);
   });
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
@@ -23695,11 +23749,21 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
   const sug = !templateMode && prev ? progressionOf(it, prevMap) : null;
   const cautions = !templateMode && patient ? Calc.cautions(patient, { name: it.name, gm: it.gm, muscles: ex && ex.muscles }) : [];
   const pct = Calc.pctOf(it.load);
-  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date) : null;
+  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date, it.lat) : null;
   const pctKg = rmInfo ? Calc.loadFromPct(pct, rmInfo.rm) : null;
   const demo = it.demo || (ex && ex.video) || '';
   // Progressió: el mateix patró, un nivell més difícil (▲) o més fàcil (▼).
   const up = Store.stepLevel(ex, 1), down = Store.stepLevel(ex, -1);
+  // Unilateral ⇄ bilateral: si la càrrega posada és la de la darrera vegada (encara sense adaptar), s'adapta sola.
+  const toggleLat = () => {
+    const to = { ...it, lat: it.lat === 'UL' ? 'BL' : 'UL' };
+    const pk = prev ? Calc.loadKg(prev.load) : null, cur = Calc.loadKg(it.load);
+    let adapted = null;
+    if (pk != null && cur != null && (cur === pk || cur === Calc.latLoad(pk, prev, it))) adapted = Calc.latLoad(pk, prev, to);
+    onChange((x) => { x.lat = to.lat; if (adapted != null && adapted !== cur) x.load = String(adapted).replace('.', ','); });
+    if (adapted != null && adapted !== cur) UI.toast(`Càrrega adaptada: ${Calc.fmtKg(cur)} → ${Calc.fmtKg(adapted)}${to.lat === 'UL' ? ` per ${Calc.uniSide(it)} (≈ la meitat de la bilateral)` : ' en bilateral (≈ el doble)'}. Revisa-la.`);
+  };
+  const latInfo = !templateMode ? Calc.latCheck(it, prev) : null;
   const swap = (nx) => {
     onChange((x) => progressItem(x, nx, prevMap));
     UI.toast(`${nx.name} · nivell ${nx.level}`);
@@ -23721,7 +23785,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
-        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${toggleLat}
           title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
@@ -23741,11 +23805,13 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ${!templateMode && Calc.isTime(it.reps) && html`<${TimerButton} secs=${Calc.secs(it.reps)} kind="work" label=${it.name || 'Exercici'} title="Inicia el temps de l'exercici" />`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
         ${sug && html` <button type="button" class=${U.cls('sug', Calc.loadKg(it.load) === sug.load && 'sug-on')} onClick=${() => set('load')(String(sug.load).replace('.', ','))}
           title="Càrrega suggerida segons com va anar la darrera sessió. Toca per aplicar-la.">Suggeriment: ${sug.text}</button>`}</div>`}
+      ${latInfo && html`<div class=${U.cls('prev', (latInfo.state === 'high' || latInfo.state === 'low') && 'caut')} role="note">${latInfo.state === 'high' || latInfo.state === 'low' ? '⚠ ' : latInfo.state === 'ok' ? '✓ ' : ''}${latInfo.text}${latInfo.state !== 'ok' && html` <button type="button" class="sug" onClick=${() => set('load')(String(latInfo.ref).replace('.', ','))}
+          title="Posa la càrrega de referència per a la nova lateralitat">Posa-hi ${Calc.fmtKg(latInfo.ref)}</button>`}</div>`}
       ${pct != null && !templateMode && html`<div class="prev">${pctKg
-        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}) = <strong>${Calc.fmtKg(pctKg)}</strong>
+        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}${rmInfo.conv ? (rmInfo.conv === 'BL' ? ', a partir de la bilateral (½)' : ', a partir de la unilateral (×2)') : ''}) = <strong>${Calc.fmtKg(pctKg)}</strong>
           <button type="button" class="sug" onClick=${() => set('load')(String(pctKg).replace('.', ','))}>Posa-ho a Càrrega</button>`
         : 'Sense 1RM d\'aquest exercici per al pacient: cal una valoració càrrega-velocitat o sessions anteriors amb càrrega i repeticions.'}</div>`}
       ${cautions.length > 0 && html`<div class="prev caut" role="note">⚠ Té anotat ${cautions.map((c) => c.label).join(' i ')} a la fitxa: aquest exercici ${cautions[0].why}. Valora si encaixa.</div>`}
@@ -23768,7 +23834,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
         up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
-        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: () => set('lat')(it.lat === 'UL' ? 'BL' : 'UL') },
+        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: toggleLat },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
@@ -25740,6 +25806,7 @@ function ProgressRow({ r }) {
   const chips = [];
   const sign = (n) => (n > 0 ? '+' : n < 0 ? '−' : '');
   if (r.level.diff) chips.push({ up: r.level.diff > 0, text: `${r.level.diff > 0 ? '▲' : '▼'} ${U.plural(Math.abs(r.level.diff), 'nivell', 'nivells')}` });
+  if (r.kg.lat) chips.push({ text: r.kg.lat === 'BL→UL' ? 'Ara unilateral (kg comparats a la meitat)' : 'Ara bilateral (kg comparats al doble)', muted: true });
   if (r.kg.diff) chips.push({ up: r.kg.diff > 0, text: `${sign(r.kg.diff)}${U.fmt(Math.abs(r.kg.diff), 1)} kg${r.kg.pct != null ? ` (${sign(r.kg.pct)}${Math.abs(r.kg.pct)} %)` : ''}` });
   if (r.v1.diff) chips.push({ up: r.v1.diff > 0, text: `${sign(r.v1.diff)}${U.fmtFixed(Math.abs(r.v1.diff), 2)} m/s` });
   if (!r.before) chips.push({ text: 'Nou' });

@@ -549,7 +549,10 @@ const Calc = {
         const level = { a: lvl(prev), b: lvl(it) };
         level.diff = match === 'family' || match === 'name' ? d(level.a, level.b) : null;
         const same = match === 'name';
-        const kg = { a: same ? Calc.kg(prev) : null, b: Calc.kg(it) };
+        // si abans era bilateral i ara unilateral (o al revés), es compara amb la càrrega equivalent (×½ o ×2)
+        const lf = same ? Calc.latFactor(prev, it) : 1;
+        const ka = same ? Calc.kg(prev) : null;
+        const kg = { a: ka != null && lf !== 1 ? Calc.roundKg(ka * lf) : ka, b: Calc.kg(it), lat: lf !== 1 ? `${Calc.latOf(prev)}→${Calc.latOf(it)}` : '' };
         kg.diff = d(kg.a, kg.b);
         kg.pct = kg.diff != null && kg.a ? Math.round((kg.diff / kg.a) * 100) : null;
         const va = same ? Calc.vbt(prev) : null, vb = Calc.vbt(it);

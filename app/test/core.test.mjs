@@ -1361,3 +1361,42 @@ test('valoració programada al calendari: no compta com a feta i marca la proper
   const b = Store.newAssessment('P-NOU', { date: Ut.today() });
   assert.equal(b.type, 'inicial');
 });
+
+test('unilateral vs bilateral: la càrrega per costat és ~la meitat (avisos, conversió, progrés i 1RM)', async () => {
+  const core = loadCore();
+  await core.Store.init();
+  const { Store, Calc } = core;
+  const prev = { name: 'Leg press', gm: 'Quàdriceps', lat: 'BL', load: '100', date: '2026-10-01' };
+  const it = (load) => ({ name: 'Leg press', gm: 'Quàdriceps', lat: 'UL', load });
+  assert.equal(Calc.latFactor(prev, it('')), 0.5);
+  assert.equal(Calc.latFactor({ lat: '' }, { lat: 'BL' }), 1);
+  // 50 kg per cama després de 100 kg bilateral: coherent; 80 kg massa pesat; 30 kg lleuger
+  const ok = Calc.latCheck(it('50'), prev);
+  assert.deepEqual([ok.state, ok.ref, ok.lo, ok.hi, ok.pct], ['ok', 50, 40, 60, 50]);
+  assert.match(ok.text, /per cama/);
+  assert.equal(Calc.latCheck(it('80'), prev).state, 'high');
+  assert.equal(Calc.latCheck(it('30'), prev).state, 'low');
+  assert.equal(Calc.latCheck(it(''), prev).state, 'none');
+  assert.equal(Calc.latCheck({ ...prev, load: '100' }, prev), null);
+  // De unilateral a bilateral: el doble
+  const back = Calc.latCheck({ name: 'Leg press', gm: 'Quàdriceps', lat: 'BL', load: '100' }, { ...prev, lat: 'UL', load: '50' });
+  assert.deepEqual([back.state, back.ref], ['ok', 100]);
+  // La càrrega de la darrera vegada s'adapta en posar l'exercici
+  assert.equal(Calc.carryLoad(prev, it('')), '50');
+  assert.equal(Calc.carryLoad({ ...prev, load: '62,5' }, it('')), '31,5');
+  assert.equal(Calc.carryLoad({ ...prev, lat: 'UL' }, it('')), '100');
+  assert.equal(Calc.carryLoad({ ...prev, load: 'goma verda' }, it('')), 'goma verda');
+  // Progrés: de 100 kg bilateral a 50 kg unilateral no és una baixada
+  const S = (lat, load) => ({ blocks: [{ key: 'for', items: [{ name: 'Leg press', gm: 'Quàdriceps', lat, load }] }] });
+  const pr = Calc.progress(S('BL', '100'), S('UL', '50'));
+  const row = pr.blocks[0].rows[0];
+  assert.deepEqual([row.kg.a, row.kg.b, row.kg.diff, row.kg.lat], [50, 50, 0, 'BL→UL']);
+  assert.equal(Calc.progress(S('BL', '100'), S('UL', '55')).blocks[0].rows[0].kg.diff, 5);
+  // 1RM estimada amb sessions bilaterals, demanada per a l'unilateral: la meitat
+  Store.put('patients', { id: 'P-LAT', firstName: 'Lat' }, { immediate: true });
+  Store.addPlanned('P-LAT', { date: '2026-10-01', blocks: [{ key: 'for', items: [{ id: 'I1', name: 'Leg press', lat: 'BL', sets: '3', reps: '10', load: '100' }] }] });
+  const bl = Calc.oneRm('P-LAT', 'Leg press', '2026-10-20', 'BL'), ul = Calc.oneRm('P-LAT', 'Leg press', '2026-10-20', 'UL');
+  assert.ok(bl && ul);
+  assert.equal(ul.conv, 'BL');
+  assert.ok(Math.abs(ul.rm - bl.rm / 2) < 0.6);
+});

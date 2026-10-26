@@ -61,6 +61,45 @@ Object.assign(Calc, {
     return m ? Number(m[1].replace(',', '.')) : null;
   },
   fmtKg(n) { return `${String(Math.round(n * 100) / 100).replace('.', ',')} kg`; },
+
+  // ── Unilateral i bilateral ──
+  // Per costat es mou més o menys la meitat del que es mou amb els dos (dèficit bilateral): referència 50 %, i
+  // entre el 40 i el 60 % és coherent. Una lateralitat buida compta com a bilateral.
+  latOf(it) { return it && it.lat === 'UL' ? 'UL' : 'BL'; },
+  // Factor per passar una càrrega de la lateralitat de `from` a la de `to` (1 si és la mateixa).
+  latFactor(from, to) { const a = Calc.latOf(from), b = Calc.latOf(to); return a === b ? 1 : a === 'BL' ? 0.5 : 2; },
+  roundKg(n) { return Math.round(n * 2) / 2; },
+  latLoad(kg, from, to) { return kg == null ? null : Calc.roundKg(kg * Calc.latFactor(from, to)); },
+  // La càrrega de la darrera vegada per posar-la a l'exercici d'ara: si la lateralitat ha canviat, adaptada (×½ o ×2).
+  carryLoad(last, it) {
+    if (!last || !last.load) return '';
+    const kg = Calc.loadKg(last.load);
+    if (kg == null || Calc.latFactor(last, it) === 1) return last.load;
+    return String(Calc.latLoad(kg, last, it)).replace('.', ',');
+  },
+  // Quan l'exercici canvia de lateralitat respecte de la darrera vegada: la càrrega de referència, el marge coherent i
+  // com és la que hi ha posada ({ ref, lo, hi, kg, state: 'none'|'ok'|'high'|'low', pct, text }). null si no canvia.
+  latCheck(it, prev) {
+    if (!it || !prev || Calc.latOf(it) === Calc.latOf(prev)) return null;
+    const pk = Calc.loadKg(prev.load);
+    if (pk == null || pk <= 0) return null;
+    const toUL = Calc.latOf(it) === 'UL';
+    const side = Calc.uniSide(it);
+    const ref = Calc.latLoad(pk, prev, it);
+    const lo = Calc.roundKg(toUL ? pk * 0.4 : pk / 0.6), hi = Calc.roundKg(toUL ? pk * 0.6 : pk / 0.4);
+    const kg = Calc.loadKg(it.load);
+    const pct = kg != null ? Math.round(((toUL ? kg / pk : pk / kg)) * 100) : null;
+    const was = `La darrera vegada (${U.fmtDateShort(prev.date)}) el va fer ${toUL ? 'bilateral' : `unilateral, ${Calc.fmtKg(pk)} per ${side}`}${toUL ? ` amb ${Calc.fmtKg(pk)}` : ''}.`;
+    const refTxt = toUL ? `En unilateral, per ${side}, la referència és ~${Calc.fmtKg(ref)} (la meitat; coherent entre ${Calc.fmtKg(lo)} i ${Calc.fmtKg(hi)}).`
+      : `En bilateral, la referència és ~${Calc.fmtKg(ref)} (el doble; coherent entre ${Calc.fmtKg(lo)} i ${Calc.fmtKg(hi)}).`;
+    let state = 'none', verdict = '';
+    if (kg != null && kg > 0) {
+      if (kg > hi) { state = 'high'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és el ${pct} % del que movia amb les dues: probablement massa pesat.` : `${Calc.fmtKg(kg)} és més del doble i mig del que movia per ${side}: probablement massa pesat.`; }
+      else if (kg < lo) { state = 'low'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és només el ${pct} % del que movia amb les dues: segurament es queda lleuger.` : `${Calc.fmtKg(kg)} és poc més del que movia per ${side}: segurament es queda lleuger.`; }
+      else { state = 'ok'; verdict = toUL ? `${Calc.fmtKg(kg)} per ${side} és coherent (${pct} % de la càrrega bilateral).` : `${Calc.fmtKg(kg)} és coherent amb el que movia per ${side}.`; }
+    }
+    return { ref, lo, hi, kg, pk, toUL, side, state, pct, text: [was, refTxt, verdict].filter(Boolean).join(' ') };
+  },
   // Què fer amb la càrrega de la darrera vegada segons com va anar aquella sessió (RPE 1–10 i dolor 0–10).
   // Sense RPE ni dolor registrats no hi ha base per suggerir res.
   suggestLoad(prev, ctx = {}) {
@@ -90,8 +129,9 @@ Object.assign(Calc, {
   },
   // 1RM d'un exercici: la del perfil càrrega-velocitat més recent d'aquest exercici o, si no n'hi ha, la millor estimada
   // amb les sessions fetes abans de la data. Retorna { rm, src, date } o null.
-  oneRm(pid, name, asOf) {
+  oneRm(pid, name, asOf, lat) {
     const nm = U.norm(name || '');
+    const want = { lat: lat === 'UL' ? 'UL' : 'BL' };
     if (!pid || !nm) return null;
     const end = asOf || '9999-99-99';
     const hit = {
@@ -103,18 +143,22 @@ Object.assign(Calc, {
         if (!(x.rm > 0)) continue;
         const key = U.norm(x.name || '');
         const same = (hit[x.preset] && hit[x.preset].test(nm)) || (key && (nm.includes(key) || key.includes(nm)));
-        if (same) return { rm: x.rm, src: 'lvp', date: a.date };
+        // el perfil càrrega-velocitat és bilateral: per a un exercici unilateral, la meitat
+        if (same) return want.lat === 'UL' ? { rm: Calc.latLoad(x.rm, { lat: 'BL' }, want), src: 'lvp', date: a.date, conv: 'BL' } : { rm: x.rm, src: 'lvp', date: a.date };
       }
     }
-    let best = null;
+    // de les sessions, primer les fetes amb la mateixa lateralitat; si no n'hi ha, les altres convertides (×½ o ×2)
+    let best = null, other = null;
     for (const s of Store.sessionsOf(pid).filter((x) => x.date && x.date < end).slice(-12)) {
       for (const b of s.blocks || []) for (const it of b.items || []) {
         if (U.norm(it.name || '') !== nm) continue;
         const e = Calc.e1rm(it);
-        if (e && (!best || e > best.rm)) best = { rm: e, src: 'sessions', date: s.date };
+        if (!e) continue;
+        if (Calc.latOf(it) === want.lat) { if (!best || e > best.rm) best = { rm: e, src: 'sessions', date: s.date }; }
+        else { const c = e * Calc.latFactor(it, want); if (!other || c > other.rm) other = { rm: c, src: 'sessions', date: s.date, conv: Calc.latOf(it) }; }
       }
     }
-    return best;
+    return best || other;
   },
   // «75 %» (o «75%») → número; null si el camp no és un percentatge.
   pctOf(v) {

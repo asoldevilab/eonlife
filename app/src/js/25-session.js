@@ -60,7 +60,7 @@ function SessionEditor({ id }) {
   };
   const addExercise = (key, it) => {
     const last = (prev || {})[it.name];
-    if (last && last.load) it.load = last.load;
+    if (last && last.load) it.load = Calc.carryLoad(last, it);
     upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -203,7 +203,13 @@ function SessionEditor({ id }) {
 // Aplica la càrrega suggerida (segons RPE i dolor de la darrera sessió) als exercicis d'un bloc. Retorna quants n'han canviat.
 function progressionOf(it, prev) {
   const p = it && it.name && prev ? prev[it.name] : null;
-  return p ? Calc.suggestLoad(p, { rpe: p._rpe, pain: p._pain }) : null;
+  if (!p) return null;
+  // si abans el feia bilateral i ara unilateral (o al revés), es parteix de la càrrega equivalent
+  const lf = Calc.latFactor(p, it);
+  const base = lf !== 1 && Calc.loadKg(p.load) != null ? { ...p, load: String(Calc.latLoad(Calc.loadKg(p.load), p, it)) } : p;
+  const sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
+  if (sg && lf !== 1) { sg.why += Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)'; sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`; }
+  return sg;
 }
 function applyProgression(block, prev) {
   let n = 0;
@@ -320,7 +326,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       onPick: (ex, mat) => {
         const it = itemFromExercise(ex, { material: mat || ex.material || '' });
         const last = prev ? prev[ex.name] : null;
-        if (last && last.load) it.load = last.load;
+        if (last && last.load) it.load = Calc.carryLoad(last, it);
         put(it, false);
         const cw = patient ? Calc.cautions(patient, ex) : [];
         UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name}${mat ? ` · ${mat}` : ''}`, cw.length ? 'bad' : undefined);
@@ -539,7 +545,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
     for (const k of ['gm', 'cont', 'pos', 'lat', 'material']) x[k] = ex[k] || '';
     for (const k of ['sets', 'reps', 'intensity', 'rest', 'tempo']) if (!x[k]) x[k] = ex[k] || '';
     const last = prevMap ? prevMap[ex.name] : null;
-    if (last && !x.load && last.load) x.load = last.load;
+    if (last && !x.load && last.load) x.load = Calc.carryLoad(last, x);
   });
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
@@ -550,11 +556,21 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
   const sug = !templateMode && prev ? progressionOf(it, prevMap) : null;
   const cautions = !templateMode && patient ? Calc.cautions(patient, { name: it.name, gm: it.gm, muscles: ex && ex.muscles }) : [];
   const pct = Calc.pctOf(it.load);
-  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date) : null;
+  const rmInfo = pct != null && patient ? Calc.oneRm(patient.id, it.name, date, it.lat) : null;
   const pctKg = rmInfo ? Calc.loadFromPct(pct, rmInfo.rm) : null;
   const demo = it.demo || (ex && ex.video) || '';
   // Progressió: el mateix patró, un nivell més difícil (▲) o més fàcil (▼).
   const up = Store.stepLevel(ex, 1), down = Store.stepLevel(ex, -1);
+  // Unilateral ⇄ bilateral: si la càrrega posada és la de la darrera vegada (encara sense adaptar), s'adapta sola.
+  const toggleLat = () => {
+    const to = { ...it, lat: it.lat === 'UL' ? 'BL' : 'UL' };
+    const pk = prev ? Calc.loadKg(prev.load) : null, cur = Calc.loadKg(it.load);
+    let adapted = null;
+    if (pk != null && cur != null && (cur === pk || cur === Calc.latLoad(pk, prev, it))) adapted = Calc.latLoad(pk, prev, to);
+    onChange((x) => { x.lat = to.lat; if (adapted != null && adapted !== cur) x.load = String(adapted).replace('.', ','); });
+    if (adapted != null && adapted !== cur) UI.toast(`Càrrega adaptada: ${Calc.fmtKg(cur)} → ${Calc.fmtKg(adapted)}${to.lat === 'UL' ? ` per ${Calc.uniSide(it)} (≈ la meitat de la bilateral)` : ' en bilateral (≈ el doble)'}. Revisa-la.`);
+  };
+  const latInfo = !templateMode ? Calc.latCheck(it, prev) : null;
   const swap = (nx) => {
     onChange((x) => progressItem(x, nx, prevMap));
     UI.toast(`${nx.name} · nivell ${nx.level}`);
@@ -576,7 +592,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
-        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${toggleLat}
           title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
@@ -596,11 +612,13 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ${!templateMode && Calc.isTime(it.reps) && html`<${TimerButton} secs=${Calc.secs(it.reps)} kind="work" label=${it.name || 'Exercici'} title="Inicia el temps de l'exercici" />`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
         ${sug && html` <button type="button" class=${U.cls('sug', Calc.loadKg(it.load) === sug.load && 'sug-on')} onClick=${() => set('load')(String(sug.load).replace('.', ','))}
           title="Càrrega suggerida segons com va anar la darrera sessió. Toca per aplicar-la.">Suggeriment: ${sug.text}</button>`}</div>`}
+      ${latInfo && html`<div class=${U.cls('prev', (latInfo.state === 'high' || latInfo.state === 'low') && 'caut')} role="note">${latInfo.state === 'high' || latInfo.state === 'low' ? '⚠ ' : latInfo.state === 'ok' ? '✓ ' : ''}${latInfo.text}${latInfo.state !== 'ok' && html` <button type="button" class="sug" onClick=${() => set('load')(String(latInfo.ref).replace('.', ','))}
+          title="Posa la càrrega de referència per a la nova lateralitat">Posa-hi ${Calc.fmtKg(latInfo.ref)}</button>`}</div>`}
       ${pct != null && !templateMode && html`<div class="prev">${pctKg
-        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}) = <strong>${Calc.fmtKg(pctKg)}</strong>
+        ? html`${U.fmt(pct, 0)} % de la 1RM (${Calc.fmtKg(rmInfo.rm)}, ${rmInfo.src === 'lvp' ? 'perfil càrrega-velocitat' : 'estimada amb les sessions'}${rmInfo.conv ? (rmInfo.conv === 'BL' ? ', a partir de la bilateral (½)' : ', a partir de la unilateral (×2)') : ''}) = <strong>${Calc.fmtKg(pctKg)}</strong>
           <button type="button" class="sug" onClick=${() => set('load')(String(pctKg).replace('.', ','))}>Posa-ho a Càrrega</button>`
         : 'Sense 1RM d\'aquest exercici per al pacient: cal una valoració càrrega-velocitat o sessions anteriors amb càrrega i repeticions.'}</div>`}
       ${cautions.length > 0 && html`<div class="prev caut" role="note">⚠ Té anotat ${cautions.map((c) => c.label).join(' i ')} a la fitxa: aquest exercici ${cautions[0].why}. Valora si encaixa.</div>`}
@@ -623,7 +641,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         ...(groups || []).map((g) => ({ label: g.label, icon: 'layers', onClick: () => onGroup(g.id) })),
         up ? { label: `Progressa: ${up.name}`, icon: 'up', onClick: () => swap(up) } : null,
         down ? { label: `Regressa: ${down.name}`, icon: 'down', onClick: () => swap(down) } : null,
-        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: () => set('lat')(it.lat === 'UL' ? 'BL' : 'UL') },
+        { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: toggleLat },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
         !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
