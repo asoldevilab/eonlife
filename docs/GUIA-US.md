@@ -310,6 +310,12 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
 - **Unilateral**: el botó *Unilateral* de cada exercici (o *Fes-lo unilateral* al menú ⋮) el passa a un costat i després
   l'altre. La prescripció surt per braç, per cama o per costat segons el grup muscular (p. ex. jaló al pit 3 × 12/braç),
   a la sessió, a la fitxa del client i a l'Excel. Tornant-lo a tocar, torna a ser bilateral.
+- **Càrrega unilateral vs bilateral**: l'app sap que per costat es mou més o menys **la meitat** de la càrrega
+  bilateral (coherent entre el 40 i el 60 %). Si l'exercici la darrera vegada era bilateral i ara és unilateral (o al
+  revés): la càrrega que es copia de la darrera vegada s'adapta sola (100 kg → 50 kg per cama), el suggeriment de
+  càrrega també, i sota l'exercici surt si la càrrega posada és coherent, massa pesada o massa lleugera, amb el botó
+  *Posa-hi … kg*. La 1RM per als % i el *Progrés* entre sessions comparen amb la càrrega equivalent, de manera que
+  passar de 100 kg bilateral a 50 kg unilateral no compta com una baixada.
 - **Ordre lliure**: els blocs nous es posen en l'ordre de la metodologia, però amb les fletxes ▲▼ del costat del
   número els pots pujar o baixar (p. ex. Activació després de la Força principal). Un exercici es pot passar a un altre
   bloc de la sessió amb el menú ⋮ → *Mou a …* i després col·locar-lo amb *Mou amunt / avall* (p. ex. un exercici
