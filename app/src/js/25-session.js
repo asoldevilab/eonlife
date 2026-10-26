@@ -539,7 +539,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
-        <button type="button" class=${U.cls('vbt-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
           title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}

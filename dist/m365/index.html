@@ -1289,8 +1289,8 @@ tfoot .rpc { font-size: 14px; }
 .bv-dot.on { background: var(--blk); transform: scale(1.25); }
 
 /* Encoder ADR / ADR Jumping */
-.vbt-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px dashed var(--line-2); background: none; color: var(--ink-3); font-size: 12.5px; font-weight: 650; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.vbt-btn.on { border-style: solid; border-color: var(--blk); color: var(--ink); background: var(--surface-2); }
+.vbt-btn, .uni-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px dashed var(--line-2); background: none; color: var(--ink-3); font-size: 12.5px; font-weight: 650; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.vbt-btn.on, .uni-btn.on { border-style: solid; border-color: var(--blk); color: var(--ink); background: var(--surface-2); }
 .vbt { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
 .vbt-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .vbt-sum { font-weight: 650; font-size: 13.5px; font-variant-numeric: tabular-nums; }
@@ -4256,7 +4256,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-26 12:53";
+window.EON_BUILD = "2026-10-26 12:56";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -23690,7 +23690,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </div>
       </div>
       <div class="item-meta">
-        <button type="button" class=${U.cls('vbt-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
+        <button type="button" class=${U.cls('uni-btn', it.lat === 'UL' && 'on')} aria-pressed=${it.lat === 'UL'} onClick=${() => set('lat')(it.lat === 'UL' ? 'BL' : 'UL')}
           title=${it.lat === 'UL' ? `Unilateral: les repeticions són per ${Calc.uniSide(it)}. Toca-ho per tornar-lo bilateral.` : 'Fes-lo unilateral: primer amb un costat i després amb l\'altre'}>${it.lat === 'UL' ? `Unilateral · /${Calc.uniSide(it)}` : 'Unilateral'}</button>
         <button type="button" class=${U.cls('tags', open && 'open')} onClick=${() => setOpen(!open)} aria-expanded=${open} title="Contracció, posició, lateralitat, material, grup muscular i tempo">
           ${tags.length ? tags.map((t) => html`<span class="tag">${t}</span>`) : html`<span class="tag tag-empty">Detalls</span>`}
