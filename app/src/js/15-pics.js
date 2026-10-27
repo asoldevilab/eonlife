@@ -482,11 +482,16 @@ function picGear3(J, P, g, C) {
     if (g.kind === 'cable') out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
     // politja o ancoratge en 3D (pull: [x, y, z] respecte del maluc): el cable, la politja i la torre
     if (Array.isArray(P.pull)) {
-      const A = P.pull;
-      out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
-      out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
-      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      // pull2: el cable de la mà esquerra (creuament: dues politges, una a cada costat; 'mirror' = la simètrica)
+      const A2 = P.pull2 === 'mirror' ? [P.pull[0], P.pull[1], -P.pull[2]] : P.pull2;
+      const cables = [[h, P.pull]].concat(Array.isArray(A2) ? [[hL, A2]] : []);
+      if (A2 && g.kind === 'cable') out.push(pk.cap(v3.along(hL, C.right, -1.6), v3.along(hL, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+      for (const [hh, A] of cables) {
+        out.push(pk.line([hh, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
+        out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
+        if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+        else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      }
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;

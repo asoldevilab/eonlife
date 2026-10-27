@@ -481,6 +481,14 @@ const SEED_EXERCISES = (() => {
     cues: 'D\'esquena a la columna, en posició de pas (cama contrària al braç davant). Empeny la nansa endavant sense girar el tronc ni les espatlles i frena la tornada.' });
   ks(11, 'for', 'Rem a una mà amb mig genoll · Keiser', 'Tracció', { pos: 'Sa', pic: 'kx_row_half', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula', 'Core'], sets: '3', reps: '10/costat',
     cues: 'Mig genoll, cable de davant a l\'alçada del pit. Estira el colze enrere sense girar el tronc i frena la tornada.' });
+  // Creuament de politges (cable crossover, «cruce de poleas»): l'altura de les politges decideix la part del pectoral.
+  const CX = { lat: 'BL', gm: 'Pectoral', sets: '3', reps: '12', intensity: 'RIR 2', materials: [KS, PT] };
+  ks(13, 'acc', 'Creuament de politges de dalt a baix · pectoral inferior', 'Cable crossover · obertures', { ...CX, pic: 'cx_high', muscles: ['Deltoides', 'Core'],
+    cues: 'Politges a dalt, posició de pas i tronc una mica endavant. Colzes poc flexionats i fixos: mans en arc cap avall fins davant dels malucs, prem 1" i torna a poc a poc.' });
+  ks(14, 'acc', 'Creuament de politges a l\'altura del pit · pectoral mitjà', 'Cable crossover · obertures', { ...CX, pic: 'cx_mid', muscles: ['Deltoides'],
+    cues: 'Politges a l\'altura de les espatlles, posició de pas i pit amunt. Colzes poc flexionats: tanca en arc fins que les mans es troben davant del pit, sense avançar les espatlles.' });
+  ks(15, 'acc', 'Creuament de politges de baix a dalt · pectoral superior', 'Cable crossover · obertures', { ...CX, pic: 'cx_low', muscles: ['Deltoides'],
+    cues: 'Politges a baix, palmells amunt i colzes poc flexionats. Mans en arc cap amunt i endavant fins a la barbeta, espatlles avall i sense arquejar la zona lumbar. Torna a poc a poc.' });
 
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';

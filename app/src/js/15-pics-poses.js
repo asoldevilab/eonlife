@@ -375,6 +375,14 @@ const PICS = {
 
   // ── Altres ──
   squeeze: { label: 'Squeeze amb pilota', t: 180, hd: -6, l: [-50, 56], a: [6, 2], props: (J) => PROP3.ball(v3.lerp(J.leg[0].k, J.leg[1].k, 0.5), 4.4) },
+  // Creuament a la politja de cara, amb les dues politges: de dalt a baix (pectoral inferior), a l'altura de les espatlles
+  // (mitjà) i de baix a dalt (superior). Les mans es troben davant dels malucs, del pit o de la cara.
+  cx_high: { from: { a: [[-150, -6], [-145, 0]], b: [[-30, -6], [-35, 0]] }, front: true, label: 'Creuament de dalt a baix', t: -90, l: [92, 90], m: [88, 90],
+    a: [[72, 40], [78, 30]], b: [[108, 40], [102, 30]], grip: 'hands', pull: [-6, 36, 36], pull2: 'mirror' },
+  cx_mid: { from: { a: [[178, -8], [176, 4]], b: [[2, -8], [4, 4]] }, front: true, label: 'Creuament a l\'altura del pit', t: -90, l: [92, 90], m: [88, 90],
+    a: [[8, 74], [8, 70]], b: [[172, 74], [172, 70]], grip: 'hands', pull: [-6, 24, 34], pull2: 'mirror' },
+  cx_low: { from: { a: [[125, -4], [118, 6]], b: [[55, -4], [62, 6]] }, front: true, label: 'Creuament de baix a dalt', t: -90, l: [92, 90], m: [88, 90],
+    a: [[-40, 68], [-40, 62]], b: [[220, 68], [220, 62]], grip: 'hands', pull: [-6, -30, 34], pull2: 'mirror' },
   crossover: { from: { t: -82, a: [[-34, 70], [-30, 74]] }, view: 'q', label: 'Creuament a la politja', t: -78, l: [82, 96], m: [104, 86], a: [[50, -8], [46, -12]], grip: 'hands', fix: 'fR', pull: [-4, 44, 40] },
   skull: { from: { a: [-88, -90] }, anchor: 'hip', label: 'Press francès estirat', t: 180, hd: -4, l: [26, 92], a: [-96, -168], grip: 'chest',
     props: (J) => PROP3.bench(J.neck[0] - 8, J.pel[0] + 6, J.pel[1] - 4.8, J) },
