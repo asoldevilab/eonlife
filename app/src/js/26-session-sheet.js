@@ -111,6 +111,8 @@ function SessionSheet({ id }) {
         })}
       </div>` : html`<${Empty} icon="dumbbell" title="Aquesta sessió encara no té exercicis" text="Omple els blocs a l'editor de la sessió." />`}
 
+      <${SessionClose} s=${s} blocks=${blocks} />
+
       <footer class="sheet-foot">
         <span>${Store.settings.centerName || 'EON Life'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
         <span>${U.plural(total, 'exercici', 'exercicis')} · ${U.fmtDate(s.date)}</span>
@@ -118,6 +120,42 @@ function SessionSheet({ id }) {
     </article>
   </div>`;
 }
+
+// Tancament d'una sessió feta (al final de la fitxa i del PDF): wellness en arribar, RPE, dolor (EVA), càrrega i
+// totes les observacions, les generals i les de cada exercici.
+function SessionClose({ s, blocks }) {
+  if (s.status !== 'feta') return null;
+  const f = s.feedback || {}, w = s.wellness || {};
+  const wl = Calc.wellness(w);
+  const rpe = U.num(f.rpe), pain = U.num(f.pain), min = U.num(f.duration), load = Calc.sessionLoad(s), hr = U.num(f.hrAvg);
+  const exNotes = [];
+  for (const b of blocks) b.items.filter((i) => i.name).forEach((it, i) => { if (it.note) exNotes.push({ n: `${blockDef(b.key).num}.${i + 1}`, name: it.name, note: it.note }); });
+  const notes = [['Com arriba', w.notes], ['Observacions de la sessió', f.notes], ['Per a la propera sessió', f.decision]].filter(([, t]) => t);
+  if (!wl && rpe == null && pain == null && !notes.length && !exNotes.length) return null;
+  return html`<section class="ssum" aria-label="Com ha anat la sessió">
+    <h2 class="ssum-title">Com ha anat la sessió</h2>
+    <div class="ssum-tiles">
+      ${wl && html`<${Stat} label="Wellness en arribar" value=${wl.total != null ? wl.total : U.fmt(wl.avg, 1)} unit=${wl.total != null ? '/25' : '/5 de mitjana'}
+        tone=${wl.tone === 'bad' ? 'warn' : ''} sub=${wl.low.length ? `Baix: ${wl.low.join(', ').toLowerCase()}` : wl.total != null ? '5 preguntes de l\'1 al 5' : `${wl.n} de 5 respostes`} />`}
+      ${rpe != null && html`<${Stat} label="RPE de la sessió" value=${U.fmt(rpe, 0)} unit="/10" sub=${rpeWord(rpe)} />`}
+      ${pain != null && html`<${Stat} label="Dolor en acabar (EVA)" value=${U.fmt(pain, 0)} unit="/10" tone=${pain >= 5 ? 'warn' : ''} sub=${pain === 0 ? 'Sense dolor' : pain <= 3 ? 'Lleu' : pain <= 6 ? 'Moderat' : 'Intens'} />`}
+      ${load != null && html`<${Stat} label="Càrrega" value=${U.fmt(load, 0)} unit="UA" sub=${`RPE × ${U.fmt(min, 0)} min`} />`}
+      ${load == null && min != null && html`<${Stat} label="Durada" value=${U.fmt(min, 0)} unit="min" />`}
+      ${hr != null && html`<${Stat} label="FC mitjana" value=${U.fmt(hr, 0)} unit="bpm" sub=${U.num(f.hrMax) != null ? `Màxima ${U.fmt(U.num(f.hrMax), 0)} bpm` : ''} />`}
+    </div>
+    ${wl && html`<ul class="ssum-wl">${WELLNESS.map((q) => {
+      const v = U.num(w[q.k]);
+      return html`<li class=${U.cls(v != null && v <= 2 && 'low')}><span>${q.label}</span><strong>${v == null ? '—' : v}</strong></li>`;
+    })}</ul>`}
+    ${(notes.length > 0 || exNotes.length > 0) && html`<div class="ssum-notes">
+      ${notes.map(([label, t]) => html`<div class="ssum-note"><h3 class="eyebrow">${label}</h3><p>${t}</p></div>`)}
+      ${exNotes.length > 0 && html`<div class="ssum-note"><h3 class="eyebrow">Observacions dels exercicis</h3>
+        <ul class="ssum-ex">${exNotes.map((x) => html`<li><span class="sx-n">${x.n}</span><span><strong>${x.name}</strong> · ${x.note}</span></li>`)}</ul></div>`}
+    </div>`}
+  </section>`;
+}
+
+const rpeWord = (v) => (v <= 2 ? 'Molt suau' : v <= 4 ? 'Moderat' : v <= 6 ? 'Dur' : v <= 8 ? 'Molt dur' : 'Esforç màxim');
 
 // Vídeo de demostració d'un exercici: el de la sessió o, si no n'hi ha, el de la biblioteca.
 function demoOf(it) {

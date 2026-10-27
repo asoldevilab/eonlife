@@ -1096,7 +1096,7 @@ const step = async (label, fn) => {
     if (!r.sessionSame) throw new Error('un canvi a la valoració no ha de refer el PDF d\'una sessió');
     if (!r.themeChanged) throw new Error('el disseny del pacient ha de refer el PDF');
     if (!r.droppedHas || r.stillThere || !r.nameOk) throw new Error(`valoració esborrada: ${JSON.stringify(r)}`);
-    if (r.folders !== 'reports=Informes reportAssess=Informes/Valoracions reportTests=Informes/Tests reportSessions=Informes/Sessions reportArchive=Informes/Arxiu') throw new Error(r.folders);
+    if (r.folders !== 'reports=Informes reportAssess=Informes/Valoracions reportTests=Informes/Tests reportSessions=Sessions/Informes sessions reportArchive=Informes/Arxiu') throw new Error(r.folders);
     // Versió de prova (sense núvol): no hi ha cua automàtica ni badge, només el botó de descàrrega.
     const off = await page.evaluate(() => PdfSync.info('P-DEMO-JORDI').state);
     if (off !== 'off') throw new Error(`sense núvol l'estat és ${off}`);
@@ -1619,6 +1619,34 @@ const step = async (label, fn) => {
     await page.click('.editbar >> text=Presenta');
     await page.waitForSelector('.sheet');
     if (shots) await page.pdf({ path: join(shots, 'fitxa-sessio.pdf'), format: 'A4', printBackground: true });
+  });
+  await step('fitxa d\'una sessió feta: wellness, RPE, EVA i observacions (generals i de cada exercici)', async () => {
+    const sid = await page.evaluate(() => {
+      const s = Store.sessionsOf('P-DEMO-LAURA').find((x) => x.status === 'feta' && Calc.itemCount(x) > 0);
+      Store.update('sessions', s.id, (x) => {
+        x.wellness = { fatigue: '4', sleep: '2', soreness: '4', stress: '3', mood: '5', notes: 'Ha dormit poc per feina' };
+        x.feedback = { ...(x.feedback || {}), rpe: '7', pain: '2', duration: '60', notes: 'Bona tècnica, una mica de fatiga al final', decision: 'Pujar 2,5 kg al squat' };
+        const it = x.blocks.find((b) => b.items.some((i) => i.name)).items.find((i) => i.name);
+        it.note = 'Molèstia lleu al genoll dret';
+      });
+      return s.id;
+    });
+    await goHash(page, `#/fitxa/${sid}`);
+    await page.waitForSelector('.ssum');
+    const t = await page.textContent('.ssum');
+    for (const x of ['Wellness en arribar', '18/25', 'qualitat del son', 'RPE de la sessió', '7/10', 'Dolor en acabar (EVA)', '2/10', '420UA',
+      'Ha dormit poc per feina', 'Bona tècnica, una mica de fatiga al final', 'Pujar 2,5 kg al squat', 'Molèstia lleu al genoll dret']) {
+      if (!t.replace(/\s+/g, ' ').includes(x) && !t.replace(/\s+/g, '').includes(x.replace(/\s+/g, ''))) throw new Error(`falta «${x}»: ${t}`);
+    }
+    await shot(page, 'fitxa-sessio-feta');
+    if (shots) await page.pdf({ path: join(shots, 'fitxa-sessio-feta.pdf'), format: 'A4', printBackground: true });
+    // Una sessió que encara no és feta no en porta cap.
+    const planned = await page.evaluate(() => { const s = Store.sessionsOf('P-DEMO-LAURA').find((x) => x.status !== 'feta'); return s && s.id; });
+    if (planned) {
+      await goHash(page, `#/fitxa/${planned}`);
+      await page.waitForSelector('.sheet');
+      if (await page.locator('.ssum').count()) throw new Error('una sessió no feta no ha de portar el tancament');
+    }
   });
   await step('PDF de l\'informe', async () => {
     await goHash(page, '#/client/P-DEMO-LAURA/valoracions');

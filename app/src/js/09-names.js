@@ -5,8 +5,9 @@
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
-     Informes/                            els PDF que fa l'app sols (18-pdfsync.js)
-       Valoracions/ · Tests/ · Sessions/  un PDF per valoració, un PDF viu de tests i un PDF per sessió feta
+       Informes sessions/                 un PDF per sessió feta i el PDF viu d'evolució de les sessions (18-pdfsync.js)
+     Informes/                            els altres PDF que fa l'app sola (18-pdfsync.js)
+       Valoracions/ · Tests/              un PDF per valoració i un PDF viu de tests
        Arxiu/                             els PDF d'una valoració o sessió que s'ha esborrat (mai s'esborra res)
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
      seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
@@ -21,9 +22,11 @@ const EXPORT_FOLDERS = {
   reports: ['Informes'],
   reportAssess: ['Informes', 'Valoracions'],
   reportTests: ['Informes', 'Tests'],
-  reportSessions: ['Informes', 'Sessions'],
+  reportSessions: ['Sessions', 'Informes sessions'],
   reportArchive: ['Informes', 'Arxiu'],
 };
+// On anaven abans els PDF de les sessions: la carpeta es trasllada sola a «Sessions › Informes sessions» (18-pdfsync.js).
+const OLD_SESSION_REPORTS = ['Informes', 'Sessions'];
 
 const Names = (() => {
   // Paraules petites que no cal posar al nom d'un exercici o d'un test («Test de flexió de tronc» → testflexiotronc).

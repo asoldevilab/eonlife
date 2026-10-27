@@ -1103,6 +1103,21 @@ input[type="search"].input { -webkit-appearance: none; }
 .sblock-main .sx-rx { font-size: 19px; }
 .sx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
 .sx-note { font-size: 14.5px; font-style: italic; color: var(--ink-2); }
+/* Tancament de la sessió feta: wellness, RPE, EVA i observacions */
+.ssum { margin-top: 26px; padding: 22px 24px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; }
+.ssum-title { margin: 0 0 14px; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1; }
+.ssum-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.ssum-tiles .stat { background: var(--bg); }
+.ssum-wl { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.ssum-wl li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+.ssum-wl strong { font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ssum-wl li.low { background: var(--warn-bg); border-color: transparent; }
+@media (max-width: 760px) { .ssum-wl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ssum-notes { display: grid; gap: 14px; margin-top: 18px; }
+.ssum-note .eyebrow { margin: 0 0 4px; }
+.ssum-note p { margin: 0; white-space: pre-line; font-size: 15.5px; line-height: 1.45; }
+.ssum-ex { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ssum-ex li { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; font-size: 15px; line-height: 1.4; }
 .sheet-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12.5px; letter-spacing: 0.04em; color: var(--ink-3); }
 
 .report-cover { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 24px 44px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
@@ -1235,6 +1250,15 @@ tfoot .rpc { font-size: 14px; }
   .rsec-title, .h3 { break-after: avoid; }
   .table-wrap { overflow: visible; }
   .sheet-foot { margin-top: 12pt; }
+  .ssum { margin-top: 10pt; padding: 10pt 12pt; border-radius: 10pt; }
+  .ssum-title { font-size: 18pt; margin-bottom: 8pt; }
+  .ssum-tiles { grid-template-columns: repeat(auto-fill, minmax(110pt, 1fr)); gap: 6pt; }
+  .ssum-tiles .stat { padding: 7pt 9pt; }
+  .ssum-tiles .stat-value { font-size: 18pt; }
+  .ssum-wl { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4pt; margin-top: 6pt; }
+  .ssum-wl li { padding: 4pt 6pt; font-size: 9pt; }
+  .ssum-note p, .ssum-ex li { font-size: 10pt; }
+  .ssum-ex li { grid-template-columns: 26pt minmax(0, 1fr); }
 }
 
 /* Vídeos a l'informe */
@@ -4250,7 +4274,7 @@ var qrcode = function() {
 ;
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
 </script>
-<script>window.EON_BUILD = "2026-10-26 13:21";
+<script>window.EON_BUILD = "2026-10-27 12:04";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -13358,6 +13382,16 @@ class M365Api {
     return cur;
   }
 
+  // Carpeta d'una ruta, si existeix (sense crear-ne cap): null si falta algun nivell.
+  async findPath(rootId, path) {
+    let cur = { id: rootId };
+    for (const name of path) {
+      cur = await this.child(cur.id, name);
+      if (!cur || !cur.folder) return null;
+    }
+    return cur;
+  }
+
   // Tots els fitxers de la carpeta d'un client (fins a dos nivells de subcarpetes: Valoracions › Vídeos valoracions…).
   async listFiles(folderId, { limit = 400 } = {}) {
     if (!folderId) return [];
@@ -13455,9 +13489,12 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || name, url: (item && item.webUrl) || '' };
   }
 
-  // Mou un fitxer a una altra carpeta (si ja hi ha un fitxer amb el mateix nom, el que arriba pren un nom nou: no se'n perd cap).
-  async moveItem(itemId, parentId) {
-    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body: { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' } });
+  // Mou un fitxer o una carpeta a una altra carpeta, i li canvia el nom si se'n dona un (si ja hi ha un element amb el
+  // mateix nom, el que arriba pren un nom nou: no se'n perd cap).
+  async moveItem(itemId, parentId, name = '') {
+    const body = { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' };
+    if (name) body.name = name;
+    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body });
     return { id: item && item.id, name: (item && item.name) || '', url: (item && item.webUrl) || '' };
   }
 
@@ -13547,7 +13584,8 @@ const M365Backend = {
   children(folderId) { return this.api.children(folderId); },
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
-  moveItem(itemId, parentId) { return this.api.moveItem(itemId, parentId); },
+  moveItem(itemId, parentId, name) { return this.api.moveItem(itemId, parentId, name); },
+  findPath(rootId, path) { return this.api.findPath(rootId, path); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
   // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
   // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:
@@ -13606,8 +13644,9 @@ const M365Backend = {
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
-     Informes/                            els PDF que fa l'app sols (18-pdfsync.js)
-       Valoracions/ · Tests/ · Sessions/  un PDF per valoració, un PDF viu de tests i un PDF per sessió feta
+       Informes sessions/                 un PDF per sessió feta i el PDF viu d'evolució de les sessions (18-pdfsync.js)
+     Informes/                            els altres PDF que fa l'app sola (18-pdfsync.js)
+       Valoracions/ · Tests/              un PDF per valoració i un PDF viu de tests
        Arxiu/                             els PDF d'una valoració o sessió que s'ha esborrat (mai s'esborra res)
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
      seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
@@ -13622,9 +13661,11 @@ const EXPORT_FOLDERS = {
   reports: ['Informes'],
   reportAssess: ['Informes', 'Valoracions'],
   reportTests: ['Informes', 'Tests'],
-  reportSessions: ['Informes', 'Sessions'],
+  reportSessions: ['Sessions', 'Informes sessions'],
   reportArchive: ['Informes', 'Arxiu'],
 };
+// On anaven abans els PDF de les sessions: la carpeta es trasllada sola a «Sessions › Informes sessions» (18-pdfsync.js).
+const OLD_SESSION_REPORTS = ['Informes', 'Sessions'];
 
 const Names = (() => {
   // Paraules petites que no cal posar al nom d'un exercici o d'un test («Test de flexió de tronc» → testflexiotronc).
@@ -16512,6 +16553,7 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
   const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
+  if (where === 'reportSessions' && typeof PdfSync !== 'undefined') await PdfSync.moveSessionReports(fid).catch(() => 0); // la carpeta d'abans, si n'hi ha
   const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
   try {
@@ -19859,16 +19901,18 @@ const ReportPdf = (() => {
 /* ── 18-pdfjobs.js ── */
 /* EON Life · els informes en PDF d'un pacient: quins n'hi ha d'haver, amb quin nom, i com es fan sense cap pantalla.
    (18-pdfsync.js els fa i els deixa a la carpeta del pacient.)
-   Dins la carpeta del pacient hi ha «Informes», amb tres subcarpetes:
+   Dins la carpeta del pacient hi ha «Informes», amb dues subcarpetes, i els de les sessions van a «Sessions»:
      Valoracions/  un PDF per valoració amb dades (l'informe complet, en el disseny que té el pacient: clar o fosc)
                    informevaloracioinicial_lauravidalserra_20260702_01.pdf
      Tests/        un sol PDF «viu» per pacient amb l'evolució dels tests, que es refà quan hi ha resultats nous
                    informetests_lauravidalserra_01.pdf
-     Sessions/     un PDF per sessió feta (la fitxa) i un PDF «viu» amb l'evolució de les sessions
+     Sessions › Informes sessions/
+                   un PDF per sessió feta (la fitxa, amb el wellness, l'RPE, l'EVA i les observacions) i un PDF «viu»
+                   amb l'evolució de les sessions
                    sessio12_lauravidalserra_20261002_01.pdf · informeevoluciosessions_lauravidalserra_01.pdf
    El nom és sempre el mateix per al mateix informe: en canviar-lo es substitueix el PDF, no se'n fan còpies. */
 
-const PDF_FORMAT = 1; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
+const PDF_FORMAT = 2; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
 
 const PdfSet = (() => {
   // Resum estable d'unes dades: el mateix contingut dona el mateix resum, sigui quin sigui l'ordre de les claus.
@@ -20084,6 +20128,38 @@ const PdfSync = (() => {
     return (e && e.message) || 'No s\'han pogut desar els PDF.';
   }
 
+  // Els PDF de les sessions abans anaven a «Informes › Sessions»: la carpeta sencera es trasllada (i es reanomena) a
+  // «Sessions › Informes sessions», al costat dels vídeos. Si ja hi ha la carpeta nova, s'hi passen els fitxers un per un
+  // i s'esborra la vella si queda buida. Res no es torna a fer: els PDF mantenen el nom i el que l'app recorda d'ells.
+  const moved = new Set();                  // carpetes de pacient ja mirades en aquesta obertura de l'app
+  async function moveSessionReports(fid, { again = false } = {}) {
+    const b = Store.backend;
+    if (!fid || (moved.has(fid) && !again) || !b || typeof b.findPath !== 'function' || typeof b.moveItem !== 'function') return 0;
+    const old = await b.findPath(fid, OLD_SESSION_REPORTS);
+    let n = 0;
+    if (old) {
+      const path = EXPORT_FOLDERS.reportSessions;
+      const now = await b.findPath(fid, path);
+      if (!now) {
+        const parent = await b.ensurePath(fid, path.slice(0, -1));
+        await b.moveItem(old.id, parent.id, path[path.length - 1]);
+        n = 1;
+      } else {
+        for (const it of await b.children(old.id)) {
+          await b.moveItem(it.id, now.id);
+          const hk = `${old.id}/${it.name}`;
+          if (hashes[hk]) { hashes[`${now.id}/${it.name}`] = hashes[hk]; delete hashes[hk]; }
+          n++;
+        }
+        if (typeof b.removeItem === 'function' && !(await b.children(old.id)).length) await b.removeItem(old.id);
+      }
+      if (typeof b.forgetPaths === 'function') b.forgetPaths();
+      write(PDF_KEYS.hashes, hashes);
+    }
+    moved.add(fid);
+    return n;
+  }
+
   // Fa (o refà) els PDF d'un pacient i els deixa a «Informes». Retorna { made, kept, archived, failed?, failedNames?, files, folderUrl }.
   async function syncPatient(pid, { force = false } = {}) {
     const b = Store.backend;
@@ -20096,6 +20172,7 @@ const PdfSync = (() => {
       own = true; // desar la carpeta a la fitxa no ha de tornar a posar el pacient a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
     }
+    await moveSessionReports(fid);
     const root = await b.ensurePath(fid, EXPORT_FOLDERS.reports);
     const dirs = {}, existing = {};
     for (const key of ['reportAssess', 'reportTests', 'reportSessions']) {
@@ -20152,7 +20229,7 @@ const PdfSync = (() => {
   }
 
   const api = {
-    available, enabled,
+    available, enabled, moveSessionReports,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
     // Un pacient té canvis que poden canviar els seus PDF. urgent: en acabar una sessió.
@@ -23067,7 +23144,7 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
 
 // Botó del PDF d'un informe (el de la valoració, el de tests i el de sessions): fa el PDF de l'informe de la pantalla
 // (.present .report o .sheet) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'reportAssess', 'reportTests'
-// o 'reportSessions' = «Informes › …»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
+// = «Informes › …», o 'reportSessions' = «Sessions › Informes sessions»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
 function PdfSaveButton({ p, name, title, footer, where = 'reportAssess', onSaved }) {
   const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
   const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
@@ -24068,6 +24145,8 @@ function SessionSheet({ id }) {
         })}
       </div>` : html`<${Empty} icon="dumbbell" title="Aquesta sessió encara no té exercicis" text="Omple els blocs a l'editor de la sessió." />`}
 
+      <${SessionClose} s=${s} blocks=${blocks} />
+
       <footer class="sheet-foot">
         <span>${Store.settings.centerName || 'EON Life'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
         <span>${U.plural(total, 'exercici', 'exercicis')} · ${U.fmtDate(s.date)}</span>
@@ -24075,6 +24154,42 @@ function SessionSheet({ id }) {
     </article>
   </div>`;
 }
+
+// Tancament d'una sessió feta (al final de la fitxa i del PDF): wellness en arribar, RPE, dolor (EVA), càrrega i
+// totes les observacions, les generals i les de cada exercici.
+function SessionClose({ s, blocks }) {
+  if (s.status !== 'feta') return null;
+  const f = s.feedback || {}, w = s.wellness || {};
+  const wl = Calc.wellness(w);
+  const rpe = U.num(f.rpe), pain = U.num(f.pain), min = U.num(f.duration), load = Calc.sessionLoad(s), hr = U.num(f.hrAvg);
+  const exNotes = [];
+  for (const b of blocks) b.items.filter((i) => i.name).forEach((it, i) => { if (it.note) exNotes.push({ n: `${blockDef(b.key).num}.${i + 1}`, name: it.name, note: it.note }); });
+  const notes = [['Com arriba', w.notes], ['Observacions de la sessió', f.notes], ['Per a la propera sessió', f.decision]].filter(([, t]) => t);
+  if (!wl && rpe == null && pain == null && !notes.length && !exNotes.length) return null;
+  return html`<section class="ssum" aria-label="Com ha anat la sessió">
+    <h2 class="ssum-title">Com ha anat la sessió</h2>
+    <div class="ssum-tiles">
+      ${wl && html`<${Stat} label="Wellness en arribar" value=${wl.total != null ? wl.total : U.fmt(wl.avg, 1)} unit=${wl.total != null ? '/25' : '/5 de mitjana'}
+        tone=${wl.tone === 'bad' ? 'warn' : ''} sub=${wl.low.length ? `Baix: ${wl.low.join(', ').toLowerCase()}` : wl.total != null ? '5 preguntes de l\'1 al 5' : `${wl.n} de 5 respostes`} />`}
+      ${rpe != null && html`<${Stat} label="RPE de la sessió" value=${U.fmt(rpe, 0)} unit="/10" sub=${rpeWord(rpe)} />`}
+      ${pain != null && html`<${Stat} label="Dolor en acabar (EVA)" value=${U.fmt(pain, 0)} unit="/10" tone=${pain >= 5 ? 'warn' : ''} sub=${pain === 0 ? 'Sense dolor' : pain <= 3 ? 'Lleu' : pain <= 6 ? 'Moderat' : 'Intens'} />`}
+      ${load != null && html`<${Stat} label="Càrrega" value=${U.fmt(load, 0)} unit="UA" sub=${`RPE × ${U.fmt(min, 0)} min`} />`}
+      ${load == null && min != null && html`<${Stat} label="Durada" value=${U.fmt(min, 0)} unit="min" />`}
+      ${hr != null && html`<${Stat} label="FC mitjana" value=${U.fmt(hr, 0)} unit="bpm" sub=${U.num(f.hrMax) != null ? `Màxima ${U.fmt(U.num(f.hrMax), 0)} bpm` : ''} />`}
+    </div>
+    ${wl && html`<ul class="ssum-wl">${WELLNESS.map((q) => {
+      const v = U.num(w[q.k]);
+      return html`<li class=${U.cls(v != null && v <= 2 && 'low')}><span>${q.label}</span><strong>${v == null ? '—' : v}</strong></li>`;
+    })}</ul>`}
+    ${(notes.length > 0 || exNotes.length > 0) && html`<div class="ssum-notes">
+      ${notes.map(([label, t]) => html`<div class="ssum-note"><h3 class="eyebrow">${label}</h3><p>${t}</p></div>`)}
+      ${exNotes.length > 0 && html`<div class="ssum-note"><h3 class="eyebrow">Observacions dels exercicis</h3>
+        <ul class="ssum-ex">${exNotes.map((x) => html`<li><span class="sx-n">${x.n}</span><span><strong>${x.name}</strong> · ${x.note}</span></li>`)}</ul></div>`}
+    </div>`}
+  </section>`;
+}
+
+const rpeWord = (v) => (v <= 2 ? 'Molt suau' : v <= 4 ? 'Moderat' : v <= 6 ? 'Dur' : v <= 8 ? 'Molt dur' : 'Esforç màxim');
 
 // Vídeo de demostració d'un exercici: el de la sessió o, si no n'hi ha, el de la biblioteca.
 function demoOf(it) {

@@ -554,7 +554,7 @@ Es pot posar a pantalla completa o desar en PDF.
   (EVA)** i el **wellness** que el pacient omple a cada sessió, en un rang de dates (per defecte, els últims 3 mesos).
   Resum amb les mitjanes i si pugen o baixen, la taula de **xifres del període** (sessions, mitjana, mínim, màxim, primera,
   última i tendència), una gràfica de cada dada amb el **valor escrit a cada punt**, opcionalment el wellness pregunta per
-  pregunta i la càrrega (RPE × minuts), les mitjanes **per mesos i per setmanes** i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Informes › Sessions*.
+  pregunta i la càrrega (RPE × minuts), les mitjanes **per mesos i per setmanes** i la taula sessió a sessió. El PDF (`informeevoluciosessions_…`) es desa a *Sessions › Informes sessions*.
 - **Clar o fosc**: a la barra de qualsevol informe (el de la valoració, aquests dos, la fitxa de la sessió i el progrés) hi ha **Clar | Fosc**. El fosc fa
   servir els colors d'EON Life al revés: **fons granat** i text crema (dreta en rosa i esquerra en daurat). Es recorda
   per a cada pacient, i el PDF i el paper surten igual que a la pantalla.
@@ -562,14 +562,15 @@ Es pot posar a pantalla completa o desar en PDF.
 
 ### PDF automàtics dels informes
 
-Amb Microsoft 365, l'app fa **sola** els PDF dels informes de cada pacient i els deixa a la seva carpeta, dins **Informes**
-(no cal prémer res):
+Amb Microsoft 365, l'app fa **sola** els PDF dels informes de cada pacient i els deixa a la seva carpeta: els de les
+valoracions i els tests dins **Informes**, i els de les sessions dins **Sessions › Informes sessions**, al costat dels
+vídeos de les sessions (no cal prémer res):
 
 | Carpeta | Què hi ha | Nom |
 |---|---|---|
 | *Informes › Valoracions* | un PDF per valoració amb dades (l'informe complet) | `informevaloracioinicial_lauravidalserra_20260702_01.pdf` |
 | *Informes › Tests* | **un sol PDF «viu»** amb l'evolució dels tests clau, de la primera valoració a avui | `informetests_lauravidalserra_01.pdf` |
-| *Informes › Sessions* | un PDF per **sessió feta** (la fitxa) i un PDF «viu» amb l'evolució de les sessions (RPE, dolor, wellness) | `sessio12_lauravidalserra_20261002_01.pdf` · `informeevoluciosessions_lauravidalserra_01.pdf` |
+| *Sessions › Informes sessions* | un PDF per **sessió feta** (la fitxa, amb el tancament: wellness, RPE, dolor (EVA), càrrega i totes les observacions) i un PDF «viu» amb l'evolució de les sessions (RPE, dolor, wellness) | `sessio12_lauravidalserra_20261002_01.pdf` · `informeevoluciosessions_lauravidalserra_01.pdf` |
 | *Informes › Arxiu* | els PDF d'una valoració o d'una sessió que s'ha esborrat | (el mateix nom) |
 
 - **Es refan sols** quan algú canvia una valoració, una sessió o les dades del pacient i fa **un minut** que no hi toca (en
@@ -577,6 +578,15 @@ Amb Microsoft 365, l'app fa **sola** els PDF dels informes de cada pacient i els
   es **substitueix** (el nom és sempre el mateix: no se'n fan còpies), de manera que el que hi ha a SharePoint és sempre la
   versió final.
 - Surten en el **disseny (clar o fosc) que té el pacient** a la barra de l'informe, igual que a la pantalla.
+- El PDF de cada sessió feta acaba amb **«Com ha anat la sessió»**: el wellness en arribar (total sobre 25 i les cinc
+  respostes, amb les baixes marcades), l'RPE, el dolor en acabar (EVA), la càrrega (RPE × minuts), la FC si s'ha mesurat, i
+  totes les observacions: *Com arriba* (les del wellness), *Observacions de la sessió*, *Per a la propera sessió* i les
+  **observacions de cada exercici** (amb el seu número, p. ex. «4.1 Back squat · Molèstia lleu al genoll»). Si s'omple o es
+  canvia alguna cosa després de marcar-la com a feta, el PDF es refà sol amb el mateix nom.
+- **Carpeta d'abans:** fins ara els PDF de les sessions anaven a *Informes › Sessions*. La primera vegada que l'app desa un
+  PDF d'un pacient, **trasllada sola** aquella carpeta a *Sessions* i la reanomena *Informes sessions*, amb tots els PDF a
+  dins (no se'n refà cap ni se'n perd cap). Si ja hi havia les dues carpetes, passa els PDF a la nova i esborra la vella
+  buida.
 - Una **sessió només té PDF quan és *feta***. Si una valoració o una sessió s'esborra (o una sessió deixa de ser feta), el seu PDF
   **no s'esborra**: es mou a *Informes › Arxiu*. Mai es toca cap altre fitxer: els PDF que deseu a mà amb *Desa el PDF a la
   carpeta* (informes d'un sol apartat, un informe de tests amb data…) es queden on són.

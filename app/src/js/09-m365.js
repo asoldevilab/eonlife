@@ -828,6 +828,16 @@ class M365Api {
     return cur;
   }
 
+  // Carpeta d'una ruta, si existeix (sense crear-ne cap): null si falta algun nivell.
+  async findPath(rootId, path) {
+    let cur = { id: rootId };
+    for (const name of path) {
+      cur = await this.child(cur.id, name);
+      if (!cur || !cur.folder) return null;
+    }
+    return cur;
+  }
+
   // Tots els fitxers de la carpeta d'un client (fins a dos nivells de subcarpetes: Valoracions › Vídeos valoracions…).
   async listFiles(folderId, { limit = 400 } = {}) {
     if (!folderId) return [];
@@ -925,9 +935,12 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || name, url: (item && item.webUrl) || '' };
   }
 
-  // Mou un fitxer a una altra carpeta (si ja hi ha un fitxer amb el mateix nom, el que arriba pren un nom nou: no se'n perd cap).
-  async moveItem(itemId, parentId) {
-    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body: { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' } });
+  // Mou un fitxer o una carpeta a una altra carpeta, i li canvia el nom si se'n dona un (si ja hi ha un element amb el
+  // mateix nom, el que arriba pren un nom nou: no se'n perd cap).
+  async moveItem(itemId, parentId, name = '') {
+    const body = { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' };
+    if (name) body.name = name;
+    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body });
     return { id: item && item.id, name: (item && item.name) || '', url: (item && item.webUrl) || '' };
   }
 
@@ -1017,7 +1030,8 @@ const M365Backend = {
   children(folderId) { return this.api.children(folderId); },
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
-  moveItem(itemId, parentId) { return this.api.moveItem(itemId, parentId); },
+  moveItem(itemId, parentId, name) { return this.api.moveItem(itemId, parentId, name); },
+  findPath(rootId, path) { return this.api.findPath(rootId, path); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
   // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
   // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:
