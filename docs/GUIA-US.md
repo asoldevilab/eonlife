@@ -715,6 +715,11 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   i l'altre estira; les espatlles no giren), i **chop** i **lift** amb mig genoll → de genolls → dret (famílies amb
   nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació), rem a una mà amb mig genoll i press
   unilateral dempeus. També hi ha el **goblet squat amb cunya** (talons elevats), al bloc Força.
+- **Creuament de politges** (cable crossover, «cruce de poleas»; bloc **Accessoris**, carpeta *Cable crossover ·
+  obertures*, cerca «creuament», «crossover» o «obertures»): tres variants segons l'altura de les politges, a la Keiser
+  o a la politja Technogym. **De dalt a baix** (pectoral inferior: les mans acaben davant dels malucs), **a l'altura del
+  pit** (pectoral mitjà) i **de baix a dalt** (pectoral superior: les mans acaben a l'altura de la barbeta). El dibuix
+  és de cara, amb les dues politges.
 - **Potència del tren superior i salts** (bloc **Potència**): llançament de pilota medicinal estirat (sol i **reactiu
   amb company**: el company, dret al costat del cap, llança la pilota avall i el pacient la torna amunt com més
   ràpid millor), caiguda de genolls a flexió explosiva, salt vertical assistit amb goma i jump squat amb mancuernes.

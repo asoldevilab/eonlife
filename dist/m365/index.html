@@ -4284,7 +4284,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":""};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-10-27 12:04";
+window.EON_BUILD = "2026-10-27 12:59";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5501,6 +5501,14 @@ const SEED_EXERCISES = (() => {
     cues: 'D\'esquena a la columna, en posició de pas (cama contrària al braç davant). Empeny la nansa endavant sense girar el tronc ni les espatlles i frena la tornada.' });
   ks(11, 'for', 'Rem a una mà amb mig genoll · Keiser', 'Tracció', { pos: 'Sa', pic: 'kx_row_half', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula', 'Core'], sets: '3', reps: '10/costat',
     cues: 'Mig genoll, cable de davant a l\'alçada del pit. Estira el colze enrere sense girar el tronc i frena la tornada.' });
+  // Creuament de politges (cable crossover, «cruce de poleas»): l'altura de les politges decideix la part del pectoral.
+  const CX = { lat: 'BL', gm: 'Pectoral', sets: '3', reps: '12', intensity: 'RIR 2', materials: [KS, PT] };
+  ks(13, 'acc', 'Creuament de politges de dalt a baix · pectoral inferior', 'Cable crossover · obertures', { ...CX, pic: 'cx_high', muscles: ['Deltoides', 'Core'],
+    cues: 'Politges a dalt, posició de pas i tronc una mica endavant. Colzes poc flexionats i fixos: mans en arc cap avall fins davant dels malucs, prem 1" i torna a poc a poc.' });
+  ks(14, 'acc', 'Creuament de politges a l\'altura del pit · pectoral mitjà', 'Cable crossover · obertures', { ...CX, pic: 'cx_mid', muscles: ['Deltoides'],
+    cues: 'Politges a l\'altura de les espatlles, posició de pas i pit amunt. Colzes poc flexionats: tanca en arc fins que les mans es troben davant del pit, sense avançar les espatlles.' });
+  ks(15, 'acc', 'Creuament de politges de baix a dalt · pectoral superior', 'Cable crossover · obertures', { ...CX, pic: 'cx_low', muscles: ['Deltoides'],
+    cues: 'Politges a baix, palmells amunt i colzes poc flexionats. Mans en arc cap amunt i endavant fins a la barbeta, espatlles avall i sense arquejar la zona lumbar. Torna a poc a poc.' });
 
   // ── Loop band Technogym (els 50 exercicis de l'app de Technogym; «tg» és el nom que hi surt) ──
   const LB = 'Loop band Technogym';
@@ -17287,6 +17295,14 @@ const PICS = {
 
   // ── Altres ──
   squeeze: { label: 'Squeeze amb pilota', t: 180, hd: -6, l: [-50, 56], a: [6, 2], props: (J) => PROP3.ball(v3.lerp(J.leg[0].k, J.leg[1].k, 0.5), 4.4) },
+  // Creuament a la politja de cara, amb les dues politges: de dalt a baix (pectoral inferior), a l'altura de les espatlles
+  // (mitjà) i de baix a dalt (superior). Les mans es troben davant dels malucs, del pit o de la cara.
+  cx_high: { from: { a: [[-150, -6], [-145, 0]], b: [[-30, -6], [-35, 0]] }, front: true, label: 'Creuament de dalt a baix', t: -90, l: [92, 90], m: [88, 90],
+    a: [[72, 40], [78, 30]], b: [[108, 40], [102, 30]], grip: 'hands', pull: [-6, 36, 36], pull2: 'mirror' },
+  cx_mid: { from: { a: [[178, -8], [176, 4]], b: [[2, -8], [4, 4]] }, front: true, label: 'Creuament a l\'altura del pit', t: -90, l: [92, 90], m: [88, 90],
+    a: [[8, 74], [8, 70]], b: [[172, 74], [172, 70]], grip: 'hands', pull: [-6, 24, 34], pull2: 'mirror' },
+  cx_low: { from: { a: [[125, -4], [118, 6]], b: [[55, -4], [62, 6]] }, front: true, label: 'Creuament de baix a dalt', t: -90, l: [92, 90], m: [88, 90],
+    a: [[-40, 68], [-40, 62]], b: [[220, 68], [220, 62]], grip: 'hands', pull: [-6, -30, 34], pull2: 'mirror' },
   crossover: { from: { t: -82, a: [[-34, 70], [-30, 74]] }, view: 'q', label: 'Creuament a la politja', t: -78, l: [82, 96], m: [104, 86], a: [[50, -8], [46, -12]], grip: 'hands', fix: 'fR', pull: [-4, 44, 40] },
   skull: { from: { a: [-88, -90] }, anchor: 'hip', label: 'Press francès estirat', t: 180, hd: -4, l: [26, 92], a: [-96, -168], grip: 'chest',
     props: (J) => PROP3.bench(J.neck[0] - 8, J.pel[0] + 6, J.pel[1] - 4.8, J) },
@@ -17940,11 +17956,16 @@ function picGear3(J, P, g, C) {
     if (g.kind === 'cable') out.push(pk.cap(v3.along(h, C.right, -1.6), v3.along(h, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
     // politja o ancoratge en 3D (pull: [x, y, z] respecte del maluc): el cable, la politja i la torre
     if (Array.isArray(P.pull)) {
-      const A = P.pull;
-      out.push(pk.line([h, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
-      out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
-      if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
-      else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      // pull2: el cable de la mà esquerra (creuament: dues politges, una a cada costat; 'mirror' = la simètrica)
+      const A2 = P.pull2 === 'mirror' ? [P.pull[0], P.pull[1], -P.pull[2]] : P.pull2;
+      const cables = [[h, P.pull]].concat(Array.isArray(A2) ? [[hL, A2]] : []);
+      if (A2 && g.kind === 'cable') out.push(pk.cap(v3.along(hL, C.right, -1.6), v3.along(hL, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
+      for (const [hh, A] of cables) {
+        out.push(pk.line([hh, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
+        out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
+        if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
+        else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
+      }
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
