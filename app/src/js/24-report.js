@@ -266,7 +266,7 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
 
 // Botó del PDF d'un informe (el de la valoració, el de tests i el de sessions): fa el PDF de l'informe de la pantalla
 // (.present .report o .sheet) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'reportAssess', 'reportTests'
-// o 'reportSessions' = «Informes › …»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
+// = «Informes › …», o 'reportSessions' = «Sessions › Informes sessions»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
 function PdfSaveButton({ p, name, title, footer, where = 'reportAssess', onSaved }) {
   const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
   const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta

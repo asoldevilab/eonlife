@@ -1110,6 +1110,21 @@ input[type="search"].input { -webkit-appearance: none; }
 .sblock-main .sx-rx { font-size: 19px; }
 .sx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
 .sx-note { font-size: 14.5px; font-style: italic; color: var(--ink-2); }
+/* Tancament de la sessió feta: wellness, RPE, EVA i observacions */
+.ssum { margin-top: 26px; padding: 22px 24px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; }
+.ssum-title { margin: 0 0 14px; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1; }
+.ssum-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.ssum-tiles .stat { background: var(--bg); }
+.ssum-wl { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.ssum-wl li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+.ssum-wl strong { font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ssum-wl li.low { background: var(--warn-bg); border-color: transparent; }
+@media (max-width: 760px) { .ssum-wl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ssum-notes { display: grid; gap: 14px; margin-top: 18px; }
+.ssum-note .eyebrow { margin: 0 0 4px; }
+.ssum-note p { margin: 0; white-space: pre-line; font-size: 15.5px; line-height: 1.45; }
+.ssum-ex { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ssum-ex li { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; font-size: 15px; line-height: 1.4; }
 .sheet-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12.5px; letter-spacing: 0.04em; color: var(--ink-3); }
 
 .report-cover { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 24px 44px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
@@ -1242,6 +1257,15 @@ tfoot .rpc { font-size: 14px; }
   .rsec-title, .h3 { break-after: avoid; }
   .table-wrap { overflow: visible; }
   .sheet-foot { margin-top: 12pt; }
+  .ssum { margin-top: 10pt; padding: 10pt 12pt; border-radius: 10pt; }
+  .ssum-title { font-size: 18pt; margin-bottom: 8pt; }
+  .ssum-tiles { grid-template-columns: repeat(auto-fill, minmax(110pt, 1fr)); gap: 6pt; }
+  .ssum-tiles .stat { padding: 7pt 9pt; }
+  .ssum-tiles .stat-value { font-size: 18pt; }
+  .ssum-wl { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4pt; margin-top: 6pt; }
+  .ssum-wl li { padding: 4pt 6pt; font-size: 9pt; }
+  .ssum-note p, .ssum-ex li { font-size: 10pt; }
+  .ssum-ex li { grid-template-columns: 26pt minmax(0, 1fr); }
 }
 
 /* Vídeos a l'informe */
@@ -4260,7 +4284,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-26 13:21";
+window.EON_BUILD = "2026-10-27 12:04";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -13368,6 +13392,16 @@ class M365Api {
     return cur;
   }
 
+  // Carpeta d'una ruta, si existeix (sense crear-ne cap): null si falta algun nivell.
+  async findPath(rootId, path) {
+    let cur = { id: rootId };
+    for (const name of path) {
+      cur = await this.child(cur.id, name);
+      if (!cur || !cur.folder) return null;
+    }
+    return cur;
+  }
+
   // Tots els fitxers de la carpeta d'un client (fins a dos nivells de subcarpetes: Valoracions › Vídeos valoracions…).
   async listFiles(folderId, { limit = 400 } = {}) {
     if (!folderId) return [];
@@ -13465,9 +13499,12 @@ class M365Api {
     return { id: item && item.id, name: (item && item.name) || name, url: (item && item.webUrl) || '' };
   }
 
-  // Mou un fitxer a una altra carpeta (si ja hi ha un fitxer amb el mateix nom, el que arriba pren un nom nou: no se'n perd cap).
-  async moveItem(itemId, parentId) {
-    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body: { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' } });
+  // Mou un fitxer o una carpeta a una altra carpeta, i li canvia el nom si se'n dona un (si ja hi ha un element amb el
+  // mateix nom, el que arriba pren un nom nou: no se'n perd cap).
+  async moveItem(itemId, parentId, name = '') {
+    const body = { parentReference: { id: parentId }, '@microsoft.graph.conflictBehavior': 'rename' };
+    if (name) body.name = name;
+    const item = await this.g.req('PATCH', `${this.drive}/items/${itemId}`, { body });
     return { id: item && item.id, name: (item && item.name) || '', url: (item && item.webUrl) || '' };
   }
 
@@ -13557,7 +13594,8 @@ const M365Backend = {
   children(folderId) { return this.api.children(folderId); },
   putFile(parentId, name, bytes, opts) { return this.api.putFile(parentId, name, bytes, opts); },
   removeItem(itemId) { return this.api.removeItem(itemId); },
-  moveItem(itemId, parentId) { return this.api.moveItem(itemId, parentId); },
+  moveItem(itemId, parentId, name) { return this.api.moveItem(itemId, parentId, name); },
+  findPath(rootId, path) { return this.api.findPath(rootId, path); },
   forgetPaths() { if (this.api && this.api.paths) this.api.paths.clear(); },
   // { enllaç desat → { id, name, url, thumb, play } } per a les fotos i els vídeos de la carpeta del pacient.
   // L'enllaç d'un fitxer canvia si algú canvia el nom (o mou) una carpeta per sobre seu; per això es busca, per ordre:
@@ -13616,8 +13654,9 @@ const M365Backend = {
        Vídeos valoracions/                vídeos dels tests i dels patrons de moviment
      Sessions/
        Vídeos sessions d'entrenament/     vídeos dels exercicis de les sessions
-     Informes/                            els PDF que fa l'app sols (18-pdfsync.js)
-       Valoracions/ · Tests/ · Sessions/  un PDF per valoració, un PDF viu de tests i un PDF per sessió feta
+       Informes sessions/                 un PDF per sessió feta i el PDF viu d'evolució de les sessions (18-pdfsync.js)
+     Informes/                            els altres PDF que fa l'app sola (18-pdfsync.js)
+       Valoracions/ · Tests/              un PDF per valoració i un PDF viu de tests
        Arxiu/                             els PDF d'una valoració o sessió que s'ha esborrat (mai s'esborra res)
    Noms: tot en minúscules, sense accents ni espais, amb la data com a AAAAMMDD i un número de sèrie (_01, _02…):
      seguiment_lauravidalserra_01.xlsx · informekinvent_lauravidalserra_20260702_01.pdf
@@ -13632,9 +13671,11 @@ const EXPORT_FOLDERS = {
   reports: ['Informes'],
   reportAssess: ['Informes', 'Valoracions'],
   reportTests: ['Informes', 'Tests'],
-  reportSessions: ['Informes', 'Sessions'],
+  reportSessions: ['Sessions', 'Informes sessions'],
   reportArchive: ['Informes', 'Arxiu'],
 };
+// On anaven abans els PDF de les sessions: la carpeta es trasllada sola a «Sessions › Informes sessions» (18-pdfsync.js).
+const OLD_SESSION_REPORTS = ['Informes', 'Sessions'];
 
 const Names = (() => {
   // Paraules petites que no cal posar al nom d'un exercici o d'un test («Test de flexió de tronc» → testflexiotronc).
@@ -16522,6 +16563,7 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
   const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
+  if (where === 'reportSessions' && typeof PdfSync !== 'undefined') await PdfSync.moveSessionReports(fid).catch(() => 0); // la carpeta d'abans, si n'hi ha
   const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
   try {
@@ -19869,16 +19911,18 @@ const ReportPdf = (() => {
 /* ── 18-pdfjobs.js ── */
 /* EON Life · els informes en PDF d'un pacient: quins n'hi ha d'haver, amb quin nom, i com es fan sense cap pantalla.
    (18-pdfsync.js els fa i els deixa a la carpeta del pacient.)
-   Dins la carpeta del pacient hi ha «Informes», amb tres subcarpetes:
+   Dins la carpeta del pacient hi ha «Informes», amb dues subcarpetes, i els de les sessions van a «Sessions»:
      Valoracions/  un PDF per valoració amb dades (l'informe complet, en el disseny que té el pacient: clar o fosc)
                    informevaloracioinicial_lauravidalserra_20260702_01.pdf
      Tests/        un sol PDF «viu» per pacient amb l'evolució dels tests, que es refà quan hi ha resultats nous
                    informetests_lauravidalserra_01.pdf
-     Sessions/     un PDF per sessió feta (la fitxa) i un PDF «viu» amb l'evolució de les sessions
+     Sessions › Informes sessions/
+                   un PDF per sessió feta (la fitxa, amb el wellness, l'RPE, l'EVA i les observacions) i un PDF «viu»
+                   amb l'evolució de les sessions
                    sessio12_lauravidalserra_20261002_01.pdf · informeevoluciosessions_lauravidalserra_01.pdf
    El nom és sempre el mateix per al mateix informe: en canviar-lo es substitueix el PDF, no se'n fan còpies. */
 
-const PDF_FORMAT = 1; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
+const PDF_FORMAT = 2; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
 
 const PdfSet = (() => {
   // Resum estable d'unes dades: el mateix contingut dona el mateix resum, sigui quin sigui l'ordre de les claus.
@@ -20094,6 +20138,38 @@ const PdfSync = (() => {
     return (e && e.message) || 'No s\'han pogut desar els PDF.';
   }
 
+  // Els PDF de les sessions abans anaven a «Informes › Sessions»: la carpeta sencera es trasllada (i es reanomena) a
+  // «Sessions › Informes sessions», al costat dels vídeos. Si ja hi ha la carpeta nova, s'hi passen els fitxers un per un
+  // i s'esborra la vella si queda buida. Res no es torna a fer: els PDF mantenen el nom i el que l'app recorda d'ells.
+  const moved = new Set();                  // carpetes de pacient ja mirades en aquesta obertura de l'app
+  async function moveSessionReports(fid, { again = false } = {}) {
+    const b = Store.backend;
+    if (!fid || (moved.has(fid) && !again) || !b || typeof b.findPath !== 'function' || typeof b.moveItem !== 'function') return 0;
+    const old = await b.findPath(fid, OLD_SESSION_REPORTS);
+    let n = 0;
+    if (old) {
+      const path = EXPORT_FOLDERS.reportSessions;
+      const now = await b.findPath(fid, path);
+      if (!now) {
+        const parent = await b.ensurePath(fid, path.slice(0, -1));
+        await b.moveItem(old.id, parent.id, path[path.length - 1]);
+        n = 1;
+      } else {
+        for (const it of await b.children(old.id)) {
+          await b.moveItem(it.id, now.id);
+          const hk = `${old.id}/${it.name}`;
+          if (hashes[hk]) { hashes[`${now.id}/${it.name}`] = hashes[hk]; delete hashes[hk]; }
+          n++;
+        }
+        if (typeof b.removeItem === 'function' && !(await b.children(old.id)).length) await b.removeItem(old.id);
+      }
+      if (typeof b.forgetPaths === 'function') b.forgetPaths();
+      write(PDF_KEYS.hashes, hashes);
+    }
+    moved.add(fid);
+    return n;
+  }
+
   // Fa (o refà) els PDF d'un pacient i els deixa a «Informes». Retorna { made, kept, archived, failed?, failedNames?, files, folderUrl }.
   async function syncPatient(pid, { force = false } = {}) {
     const b = Store.backend;
@@ -20106,6 +20182,7 @@ const PdfSync = (() => {
       own = true; // desar la carpeta a la fitxa no ha de tornar a posar el pacient a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
     }
+    await moveSessionReports(fid);
     const root = await b.ensurePath(fid, EXPORT_FOLDERS.reports);
     const dirs = {}, existing = {};
     for (const key of ['reportAssess', 'reportTests', 'reportSessions']) {
@@ -20162,7 +20239,7 @@ const PdfSync = (() => {
   }
 
   const api = {
-    available, enabled,
+    available, enabled, moveSessionReports,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
     // Un pacient té canvis que poden canviar els seus PDF. urgent: en acabar una sessió.
@@ -23077,7 +23154,7 @@ function ReportPdfButton({ a, p, typeLabel, scopeSec }) {
 
 // Botó del PDF d'un informe (el de la valoració, el de tests i el de sessions): fa el PDF de l'informe de la pantalla
 // (.present .report o .sheet) i, amb Microsoft 365, el desa a la carpeta del pacient (where: 'reportAssess', 'reportTests'
-// o 'reportSessions' = «Informes › …»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
+// = «Informes › …», o 'reportSessions' = «Sessions › Informes sessions»), substituint el del mateix nom. Sense carpeta al núvol, es descarrega.
 function PdfSaveButton({ p, name, title, footer, where = 'reportAssess', onSaved }) {
   const [busy, setBusy] = useState(null);   // progrés (0-1) mentre es fa
   const [saved, setSaved] = useState(null); // { name, url } de l'últim desat a la carpeta
@@ -24078,6 +24155,8 @@ function SessionSheet({ id }) {
         })}
       </div>` : html`<${Empty} icon="dumbbell" title="Aquesta sessió encara no té exercicis" text="Omple els blocs a l'editor de la sessió." />`}
 
+      <${SessionClose} s=${s} blocks=${blocks} />
+
       <footer class="sheet-foot">
         <span>${Store.settings.centerName || 'EON Life'} · ${Store.settings.centerTagline || 'Human Performance'}</span>
         <span>${U.plural(total, 'exercici', 'exercicis')} · ${U.fmtDate(s.date)}</span>
@@ -24085,6 +24164,42 @@ function SessionSheet({ id }) {
     </article>
   </div>`;
 }
+
+// Tancament d'una sessió feta (al final de la fitxa i del PDF): wellness en arribar, RPE, dolor (EVA), càrrega i
+// totes les observacions, les generals i les de cada exercici.
+function SessionClose({ s, blocks }) {
+  if (s.status !== 'feta') return null;
+  const f = s.feedback || {}, w = s.wellness || {};
+  const wl = Calc.wellness(w);
+  const rpe = U.num(f.rpe), pain = U.num(f.pain), min = U.num(f.duration), load = Calc.sessionLoad(s), hr = U.num(f.hrAvg);
+  const exNotes = [];
+  for (const b of blocks) b.items.filter((i) => i.name).forEach((it, i) => { if (it.note) exNotes.push({ n: `${blockDef(b.key).num}.${i + 1}`, name: it.name, note: it.note }); });
+  const notes = [['Com arriba', w.notes], ['Observacions de la sessió', f.notes], ['Per a la propera sessió', f.decision]].filter(([, t]) => t);
+  if (!wl && rpe == null && pain == null && !notes.length && !exNotes.length) return null;
+  return html`<section class="ssum" aria-label="Com ha anat la sessió">
+    <h2 class="ssum-title">Com ha anat la sessió</h2>
+    <div class="ssum-tiles">
+      ${wl && html`<${Stat} label="Wellness en arribar" value=${wl.total != null ? wl.total : U.fmt(wl.avg, 1)} unit=${wl.total != null ? '/25' : '/5 de mitjana'}
+        tone=${wl.tone === 'bad' ? 'warn' : ''} sub=${wl.low.length ? `Baix: ${wl.low.join(', ').toLowerCase()}` : wl.total != null ? '5 preguntes de l\'1 al 5' : `${wl.n} de 5 respostes`} />`}
+      ${rpe != null && html`<${Stat} label="RPE de la sessió" value=${U.fmt(rpe, 0)} unit="/10" sub=${rpeWord(rpe)} />`}
+      ${pain != null && html`<${Stat} label="Dolor en acabar (EVA)" value=${U.fmt(pain, 0)} unit="/10" tone=${pain >= 5 ? 'warn' : ''} sub=${pain === 0 ? 'Sense dolor' : pain <= 3 ? 'Lleu' : pain <= 6 ? 'Moderat' : 'Intens'} />`}
+      ${load != null && html`<${Stat} label="Càrrega" value=${U.fmt(load, 0)} unit="UA" sub=${`RPE × ${U.fmt(min, 0)} min`} />`}
+      ${load == null && min != null && html`<${Stat} label="Durada" value=${U.fmt(min, 0)} unit="min" />`}
+      ${hr != null && html`<${Stat} label="FC mitjana" value=${U.fmt(hr, 0)} unit="bpm" sub=${U.num(f.hrMax) != null ? `Màxima ${U.fmt(U.num(f.hrMax), 0)} bpm` : ''} />`}
+    </div>
+    ${wl && html`<ul class="ssum-wl">${WELLNESS.map((q) => {
+      const v = U.num(w[q.k]);
+      return html`<li class=${U.cls(v != null && v <= 2 && 'low')}><span>${q.label}</span><strong>${v == null ? '—' : v}</strong></li>`;
+    })}</ul>`}
+    ${(notes.length > 0 || exNotes.length > 0) && html`<div class="ssum-notes">
+      ${notes.map(([label, t]) => html`<div class="ssum-note"><h3 class="eyebrow">${label}</h3><p>${t}</p></div>`)}
+      ${exNotes.length > 0 && html`<div class="ssum-note"><h3 class="eyebrow">Observacions dels exercicis</h3>
+        <ul class="ssum-ex">${exNotes.map((x) => html`<li><span class="sx-n">${x.n}</span><span><strong>${x.name}</strong> · ${x.note}</span></li>`)}</ul></div>`}
+    </div>`}
+  </section>`;
+}
+
+const rpeWord = (v) => (v <= 2 ? 'Molt suau' : v <= 4 ? 'Moderat' : v <= 6 ? 'Dur' : v <= 8 ? 'Molt dur' : 'Esforç màxim');
 
 // Vídeo de demostració d'un exercici: el de la sessió o, si no n'hi ha, el de la biblioteca.
 function demoOf(it) {

@@ -1,15 +1,17 @@
 /* EON Life · els informes en PDF d'un pacient: quins n'hi ha d'haver, amb quin nom, i com es fan sense cap pantalla.
    (18-pdfsync.js els fa i els deixa a la carpeta del pacient.)
-   Dins la carpeta del pacient hi ha «Informes», amb tres subcarpetes:
+   Dins la carpeta del pacient hi ha «Informes», amb dues subcarpetes, i els de les sessions van a «Sessions»:
      Valoracions/  un PDF per valoració amb dades (l'informe complet, en el disseny que té el pacient: clar o fosc)
                    informevaloracioinicial_lauravidalserra_20260702_01.pdf
      Tests/        un sol PDF «viu» per pacient amb l'evolució dels tests, que es refà quan hi ha resultats nous
                    informetests_lauravidalserra_01.pdf
-     Sessions/     un PDF per sessió feta (la fitxa) i un PDF «viu» amb l'evolució de les sessions
+     Sessions › Informes sessions/
+                   un PDF per sessió feta (la fitxa, amb el wellness, l'RPE, l'EVA i les observacions) i un PDF «viu»
+                   amb l'evolució de les sessions
                    sessio12_lauravidalserra_20261002_01.pdf · informeevoluciosessions_lauravidalserra_01.pdf
    El nom és sempre el mateix per al mateix informe: en canviar-lo es substitueix el PDF, no se'n fan còpies. */
 
-const PDF_FORMAT = 1; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
+const PDF_FORMAT = 2; // forma dels PDF: si canvia, el pròxim cop que es toqui un pacient es refan tots els seus PDF
 
 const PdfSet = (() => {
   // Resum estable d'unes dades: el mateix contingut dona el mateix resum, sigui quin sigui l'ordre de les claus.

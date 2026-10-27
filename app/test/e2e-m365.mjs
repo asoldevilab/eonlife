@@ -287,13 +287,13 @@ let pid = null;
     if (await page.locator('.rvideos').count()) throw new Error('a mobilitat no hi ha vídeos');
     await page.click('.presentbar >> text=Torna');
     await page.waitForSelector('#sec-forca >> text=Informe de força');
-    // L'informe d'evolució de les sessions va a «Informes › Sessions» de la carpeta, en mode fosc si així està triat
+    // L'informe d'evolució de les sessions va a «Sessions › Informes sessions» de la carpeta, en mode fosc si així està triat
     const pid = await page.evaluate((id) => Store.get('assessments', id).patientId, aid);
     await page.evaluate((x) => { Store.update('patients', x, (p) => { p.reportTheme = 'dark'; }); go('informesessions', x); }, pid);
     await page.waitForSelector('.present.report-dark .report');
     await page.click('.presentbar >> text=Desa el PDF a la carpeta');
     await page.waitForSelector('.toast >> text=PDF desat a la carpeta del pacient: informeevoluciosessions_', { timeout: 120000 });
-    if (!files('Informes', 'Sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Sessions: ${files('Informes', 'Sessions')}`);
+    if (!files('Sessions', 'Informes sessions').some((n) => /^informeevoluciosessions_montseriera_\d{8}_01\.pdf$/.test(n))) throw new Error(`Sessions: ${files('Sessions', 'Informes sessions')}`);
     await page.evaluate((x) => { go('valoracio', x); }, aid);
     await page.waitForSelector('#sec-forca >> text=Informe de força');
   });
@@ -469,9 +469,38 @@ let pid = null;
     await page.locator('label.check', { hasText: 'Puja\'l sol a la carpeta' }).locator('input').check();
     await waitSaved(page);
   });
-  await step('PDF automàtics: «Informes» amb Valoracions, Tests i Sessions; es refan al lloc quan hi ha canvis', async () => {
-    const pdfs = (...path) => files('Informes', ...path).filter((n) => /\.pdf$/.test(n));
-    const bytesOf = (name, ...path) => mock.child(sub('Informes', ...path).id, name).content;
+  await step('carpetes d\'abans: «Informes › Sessions» passa sola a «Sessions › Informes sessions» (sense refer cap PDF)', async () => {
+    // Com estava abans: la carpeta dels PDF de les sessions dins d'«Informes».
+    const fid = sub().id;
+    const keep = sub('Sessions', 'Informes sessions');
+    const r1 = await page.evaluate(async ({ fid, id }) => {
+      const b = Store.backend;
+      const inf = await b.ensurePath(fid, ['Informes']);
+      await b.moveItem(id, inf.id, 'Sessions');
+      b.forgetPaths();
+      return PdfSync.moveSessionReports(fid, { again: true });
+    }, { fid, id: keep.id });
+    if (r1 !== 1) throw new Error(`carpeta moguda: ${r1}`);
+    if (mock.child(sub('Informes').id, 'Sessions')) throw new Error('encara hi ha «Informes › Sessions»');
+    const now = sub('Sessions', 'Informes sessions');
+    if (!now || now.id !== keep.id) throw new Error('no és la mateixa carpeta (s\'havia de moure, no copiar)');
+    if (!files('Sessions', 'Informes sessions').some((n) => /^informeevoluciosessions_/.test(n))) throw new Error(`PDF: ${files('Sessions', 'Informes sessions')}`);
+    // Si ja hi ha les dues carpetes, els PDF passen un per un a la nova i la vella s'esborra.
+    const r2 = await page.evaluate(async (fid) => {
+      const b = Store.backend;
+      const old = await b.ensurePath(fid, ['Informes', 'Sessions']);
+      await b.putFile(old.id, 'informeantic_prova_01.pdf', new TextEncoder().encode('%PDF-1.4 prova'), { mime: 'application/pdf' });
+      return PdfSync.moveSessionReports(fid, { again: true });
+    }, fid);
+    if (r2 !== 1) throw new Error(`fitxers moguts: ${r2}`);
+    if (mock.child(sub('Informes').id, 'Sessions')) throw new Error('la carpeta vella no s\'ha esborrat');
+    if (!files('Sessions', 'Informes sessions').includes('informeantic_prova_01.pdf')) throw new Error(`PDF: ${files('Sessions', 'Informes sessions')}`);
+    if (mock.childrenOf(sub('Sessions').id).map((x) => x.name).sort().join('|') !== 'Informes sessions|Vídeos sessions d\'entrenament') throw new Error(`Sessions: ${mock.childrenOf(sub('Sessions').id).map((x) => x.name)}`);
+  });
+  await step('PDF automàtics: «Informes» amb Valoracions i Tests, i «Sessions › Informes sessions»; es refan al lloc quan hi ha canvis', async () => {
+    const where = (path) => (path[0] === 'Sessions' ? ['Sessions', 'Informes sessions'] : ['Informes', ...path]);
+    const pdfs = (...path) => files(...where(path)).filter((n) => /\.pdf$/.test(n));
+    const bytesOf = (name, ...path) => mock.child(sub(...where(path)).id, name).content;
     const sid = await page.evaluate((id) => Store.sessionsOf(id).find((x) => (x.feedback || {}).rpe).id, pid);
     // La sessió només té PDF quan és feta.
     await page.evaluate((id) => Store.update('sessions', id, (x) => { x.status = 'feta'; }), sid);
@@ -484,7 +513,7 @@ let pid = null;
     const top = mock.childrenOf(sub().id).map((x) => x.name).sort();
     if (!top.includes('Informes')) throw new Error(`carpetes: ${top}`);
     const inf = mock.childrenOf(sub('Informes').id).map((x) => x.name).sort();
-    if (inf.join('|') !== 'Sessions|Tests|Valoracions') throw new Error(`subcarpetes d'Informes: ${inf}`);
+    if (inf.join('|') !== 'Tests|Valoracions') throw new Error(`subcarpetes d'Informes: ${inf}`);
     const val = pdfs('Valoracions'), tests = pdfs('Tests'), ses = pdfs('Sessions').filter((n) => /^sessio\d/.test(n));
     if (val.length !== 1 || !/^informevaloracioinicial_montseriera_\d{8}_01\.pdf$/.test(val[0])) throw new Error(`valoracions: ${val}`);
     if (tests.join() !== 'informetests_montseriera_01.pdf') throw new Error(`tests: ${tests}`);

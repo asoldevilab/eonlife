@@ -85,6 +85,38 @@ const PdfSync = (() => {
     return (e && e.message) || 'No s\'han pogut desar els PDF.';
   }
 
+  // Els PDF de les sessions abans anaven a «Informes › Sessions»: la carpeta sencera es trasllada (i es reanomena) a
+  // «Sessions › Informes sessions», al costat dels vídeos. Si ja hi ha la carpeta nova, s'hi passen els fitxers un per un
+  // i s'esborra la vella si queda buida. Res no es torna a fer: els PDF mantenen el nom i el que l'app recorda d'ells.
+  const moved = new Set();                  // carpetes de pacient ja mirades en aquesta obertura de l'app
+  async function moveSessionReports(fid, { again = false } = {}) {
+    const b = Store.backend;
+    if (!fid || (moved.has(fid) && !again) || !b || typeof b.findPath !== 'function' || typeof b.moveItem !== 'function') return 0;
+    const old = await b.findPath(fid, OLD_SESSION_REPORTS);
+    let n = 0;
+    if (old) {
+      const path = EXPORT_FOLDERS.reportSessions;
+      const now = await b.findPath(fid, path);
+      if (!now) {
+        const parent = await b.ensurePath(fid, path.slice(0, -1));
+        await b.moveItem(old.id, parent.id, path[path.length - 1]);
+        n = 1;
+      } else {
+        for (const it of await b.children(old.id)) {
+          await b.moveItem(it.id, now.id);
+          const hk = `${old.id}/${it.name}`;
+          if (hashes[hk]) { hashes[`${now.id}/${it.name}`] = hashes[hk]; delete hashes[hk]; }
+          n++;
+        }
+        if (typeof b.removeItem === 'function' && !(await b.children(old.id)).length) await b.removeItem(old.id);
+      }
+      if (typeof b.forgetPaths === 'function') b.forgetPaths();
+      write(PDF_KEYS.hashes, hashes);
+    }
+    moved.add(fid);
+    return n;
+  }
+
   // Fa (o refà) els PDF d'un pacient i els deixa a «Informes». Retorna { made, kept, archived, failed?, failedNames?, files, folderUrl }.
   async function syncPatient(pid, { force = false } = {}) {
     const b = Store.backend;
@@ -97,6 +129,7 @@ const PdfSync = (() => {
       own = true; // desar la carpeta a la fitxa no ha de tornar a posar el pacient a la cua
       try { Store.update('patients', pid, (x) => { x.folderUrl = folder.folderUrl; x.folderId = fid; }); } finally { own = false; }
     }
+    await moveSessionReports(fid);
     const root = await b.ensurePath(fid, EXPORT_FOLDERS.reports);
     const dirs = {}, existing = {};
     for (const key of ['reportAssess', 'reportTests', 'reportSessions']) {
@@ -153,7 +186,7 @@ const PdfSync = (() => {
   }
 
   const api = {
-    available, enabled,
+    available, enabled, moveSessionReports,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
     // Un pacient té canvis que poden canviar els seus PDF. urgent: en acabar una sessió.

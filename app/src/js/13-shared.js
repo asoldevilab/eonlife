@@ -155,6 +155,7 @@ async function uploadToClient(patient, file, { label, date, where = 'sessionVide
   }
   if (!fid) throw new Error('No s\'ha pogut crear la carpeta del pacient.');
   const path = EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos;
+  if (where === 'reportSessions' && typeof PdfSync !== 'undefined') await PdfSync.moveSessionReports(fid).catch(() => 0); // la carpeta d'abans, si n'hi ha
   const opts = name ? { name, path, onProgress, conflict: replace ? 'replace' : 'rename' } : { stem, ext, path, onProgress };
   let res;
   try {

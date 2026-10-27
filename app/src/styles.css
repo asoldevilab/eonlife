@@ -1093,6 +1093,21 @@ input[type="search"].input { -webkit-appearance: none; }
 .sblock-main .sx-rx { font-size: 19px; }
 .sx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
 .sx-note { font-size: 14.5px; font-style: italic; color: var(--ink-2); }
+/* Tancament de la sessió feta: wellness, RPE, EVA i observacions */
+.ssum { margin-top: 26px; padding: 22px 24px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); break-inside: avoid; }
+.ssum-title { margin: 0 0 14px; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1; }
+.ssum-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.ssum-tiles .stat { background: var(--bg); }
+.ssum-wl { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.ssum-wl li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+.ssum-wl strong { font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ssum-wl li.low { background: var(--warn-bg); border-color: transparent; }
+@media (max-width: 760px) { .ssum-wl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ssum-notes { display: grid; gap: 14px; margin-top: 18px; }
+.ssum-note .eyebrow { margin: 0 0 4px; }
+.ssum-note p { margin: 0; white-space: pre-line; font-size: 15.5px; line-height: 1.45; }
+.ssum-ex { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ssum-ex li { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; font-size: 15px; line-height: 1.4; }
 .sheet-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12.5px; letter-spacing: 0.04em; color: var(--ink-3); }
 
 .report-cover { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 24px 44px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
@@ -1225,6 +1240,15 @@ tfoot .rpc { font-size: 14px; }
   .rsec-title, .h3 { break-after: avoid; }
   .table-wrap { overflow: visible; }
   .sheet-foot { margin-top: 12pt; }
+  .ssum { margin-top: 10pt; padding: 10pt 12pt; border-radius: 10pt; }
+  .ssum-title { font-size: 18pt; margin-bottom: 8pt; }
+  .ssum-tiles { grid-template-columns: repeat(auto-fill, minmax(110pt, 1fr)); gap: 6pt; }
+  .ssum-tiles .stat { padding: 7pt 9pt; }
+  .ssum-tiles .stat-value { font-size: 18pt; }
+  .ssum-wl { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4pt; margin-top: 6pt; }
+  .ssum-wl li { padding: 4pt 6pt; font-size: 9pt; }
+  .ssum-note p, .ssum-ex li { font-size: 10pt; }
+  .ssum-ex li { grid-template-columns: 26pt minmax(0, 1fr); }
 }
 
 /* Vídeos a l'informe */
