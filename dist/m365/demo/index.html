@@ -4284,7 +4284,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-10-27 12:59";
+window.EON_BUILD = "2026-11-09 17:05";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5296,8 +5296,36 @@ const SEED_EXERCISES = (() => {
   add('X-ACT-25', 'act', 'GHD sit-up', 'Core', 'Banc GHD', { pos: 'Sd', gm: 'Core', sets: '2', reps: '10', materials: ['Banc GHD'] });
   add('X-MOB-22', 'mob', 'Carrera a l\'AlterG amb descàrrega', 'Escalfament', 'AlterG', { pos: 'Bp', sets: '1', reps: '10\'', intensity: '70 % del pes', cues: 'Pes corporal reduït per córrer sense dolor; es puja el percentatge setmana a setmana.' });
   add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
-  add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
-  add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+  // ── Skillmill Technogym: cinta corba sense motor amb resistència (de carrera lliure a «paracaigudes» i trineu) ──
+  const SKM = 'Skillmill', SKG = { pos: 'Bp', gm: 'Tren inferior', muscles: ['GMax', 'Quàdriceps', 'Isquiotibials'], materials: [SKM] };
+  add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', SKM, { ...SKG, pic: 'skm_sled', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'',
+    family: 'Skillmill · trineu', level: '2', muscles: ['GMax', 'Quàdriceps', 'Bessons i soli'],
+    cues: 'Resistència alta (trineu), mans a les nanses baixes i cos inclinat en línia recta. Passes curtes i potents empenyent la cinta enrere; no aixequis el maluc.' });
+  add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', SKM, { ...SKG, pic: 'skm_resist', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'',
+    family: 'Skillmill · carrera', level: '2',
+    cues: 'Resistència baixa. Des de parat, inclina\'t i accelera a tope amb braços de carrera; peu a sota del maluc. Mira la potència (W) i intenta repetir-la a cada sèrie.' });
+  add('X-SKM-01', 'mob', 'Escalfament progressiu al Skillmill', 'Escalfament', SKM, { ...SKG, pic: 'skm_run', sets: '1', reps: '5\'', intensity: 'De suau a moderat',
+    cues: 'Resistència baixa. Comença caminant i ves pujant el ritme cada minut fins a trotar; els darrers 30" una mica més ràpid.' });
+  add('X-SKM-02', 'for', 'Marxa amb trineu pesat al Skillmill', 'Trineu', SKM, { ...SKG, pic: 'skm_march', sets: '4', reps: '20"', rest: '1\'30"', intensity: 'Resistència alta',
+    family: 'Skillmill · trineu', level: '1', muscles: ['GMax', 'Quàdriceps', 'Bessons i soli'],
+    cues: 'Readaptació i força sense impacte. Nanses baixes, cos inclinat i passes llargues i lentes, empenyent amb tot el peu. Sense salts ni fase de vol.' });
+  add('X-SKM-03', 'pot', 'Empenta de trineu reactiva al Skillmill', 'Acceleració', SKM, { ...SKG, pic: 'skm_sled', sets: '6', reps: '5"', rest: '1\'30"', intensity: 'Màxima intenció',
+    family: 'Skillmill · trineu', level: '3', muscles: ['GMax', 'Quàdriceps', 'Bessons i soli'],
+    cues: 'Resistència alta. A la senyal del professional, arrenca a tope des de parat durant 5"; para del tot i torna a començar. Primeres passes curtes i explosives.' });
+  add('X-SKM-04', 'pot', 'Carrera resistida al Skillmill (paracaigudes)', 'Acceleració', SKM, { ...SKG, pic: 'skm_resist', sets: '6', reps: '10"', rest: '1\'', intensity: 'Màxima intenció',
+    family: 'Skillmill · carrera', level: '1',
+    cues: 'Resistència mitjana: com córrer amb paracaigudes. Inclinació de sortida, genolls amunt i braços de carrera; mantén la tècnica encara que la velocitat baixi.' });
+  add('X-SKM-05', 'pot', 'Sprints repetits al Skillmill', 'Velocitat', SKM, { ...SKG, pic: 'skm_resist', sets: '2', reps: '6 × 6"', rest: '24" / 3\' entre sèries', intensity: 'Màxima intenció',
+    family: 'Skillmill · carrera', level: '3',
+    cues: 'Resistència baixa. 6 sprints de 6" amb 24" caminant; mira que la potència (W) no caigui més d\'un 10 % entre el primer i l\'últim.' });
+  add('X-SKM-06', 'act', 'Carrera d\'esquena al Skillmill', 'Readaptació', SKM, { ...SKG, pic: 'skm_back', sets: '3', reps: '30"', rest: '1\'', intensity: 'Moderada',
+    gm: 'Quàdriceps', muscles: ['Bessons i soli', 'GMax'],
+    cues: 'D\'esquena a la consola i agafat a les nanses al principi. Passes curtes enrere amb la punta del peu i genolls una mica flexionats; treballa el quàdriceps sense estrès al genoll.' });
+  add('X-SKM-07', 'act', 'Passes laterals al Skillmill', 'Readaptació', SKM, { ...SKG, pic: 'skm_side', sets: '3', reps: '20"/costat', rest: '45"', intensity: 'Moderada',
+    gm: 'GMed', muscles: ['Adductors', 'Quàdriceps'],
+    cues: 'De costat a la cinta i resistència mitjana. Mig squat, pit amunt i passes laterals curtes sense creuar els peus; el genoll no va cap a dins. Canvia de costat.' });
+  add('X-SKM-08', 'acc', 'Intervals de potència al Skillmill', 'Condicionament', SKM, { ...SKG, pic: 'skm_resist', sets: '1', reps: '8 × 15"', rest: '45"', intensity: 'Màxima intenció',
+    cues: 'Resistència mitjana. 15" a tope i 45" caminant, 8 vegades. Apunta els watts de cada sèrie per seguir la millora d\'una sessió a l\'altra.' });
   // Vídeos d'EON (22/10): llançaments estirat, caiguda de genolls i salts (amb goma i amb mancuernes)
   add('X-POT-41', 'pot', 'Llançament de pilota medicinal estirat amb company (reactiu)', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
     sets: '3', reps: '6-8', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_react',
@@ -5465,7 +5493,7 @@ const SEED_EXERCISES = (() => {
     cues: 'Tabata: 8 rondes de 20" a tope i 10" de descans (4\'). Empeny i estira els braços alhora que pedales; tronc estable.' });
   add('X-CND-02', 'acc', 'SkiErg · Tabata', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], materials: ['SkiErg'],
     cues: 'Tabata: 8 × 20" a tope / 10". Estira les nanses des de dalt fins als malucs amb tot el cos: braços, tronc i una mica de genolls.' });
-  add('X-CND-03', 'acc', 'Skillmill · Tabata', 'Condicionament', 'Skillmill', { ...TAB, pic: 'run_tread', gm: 'Tren inferior', muscles: ['GMax', 'Isquiotibials', 'Quàdriceps'], materials: ['Skillmill'],
+  add('X-CND-03', 'acc', 'Skillmill · Tabata', 'Condicionament', 'Skillmill', { ...TAB, pic: 'skm_resist', gm: 'Tren inferior', muscles: ['GMax', 'Isquiotibials', 'Quàdriceps'], materials: ['Skillmill'],
     cues: 'Tabata: 8 × 20" de sprint / 10" a peu. Inclina\'t endavant i empeny la cinta amb passes curtes i ràpides.' });
   add('X-CND-04', 'acc', 'Assault bike · intervals', 'Condicionament', 'Assault bike', { ...TAB, pos: 'Sd', pic: 'bike', muscles: ['Quàdriceps', 'GMax', 'Deltoides'], reps: '6 × 30"', rest: '1\'30"',
     materials: ['Assault bike', 'Bike Technogym'], cues: 'Intervals: 30" a tope i 1\'30" suau. Mantén el mateix ritme a totes les sèries.' });
@@ -16971,6 +16999,24 @@ const picCopBench = (J, p) => { const top = p[1] - 3; return [
   pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, 13, 17, 'pp'), pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, -17, -13, 'pp')]; };
 const picCopBase = { front: true, t: 176, hd: -6, a: [90, [180, 64]], b: [100, 40] };
 
+// Skillmill: cinta corba sota els peus (més alta al davant), i nanses del trineu a les mans o consola al davant/darrere.
+// side: de cara, amb la cinta de costat per a les passes laterals.
+const picSkm = (J, { handles = 0, console: cons = 0, side = 0 } = {}) => {
+  const top = J.groundY + (J.P.lift || 0), x = J.pel[0], cls = 'pp';
+  if (side) return [pk.box(x - 10, x + 10, J.groundY, top, -30, 30, cls), pk.box(x - 10, x + 10, J.groundY, top + 2.4, 26, 32, cls)];
+  const out = [pk.box(x - 30, x + 28, J.groundY, top, -10, 10, cls), pk.box(x + 22, x + 30, J.groundY, top + 2.6, -10, 10, cls)];
+  if (handles) {
+    const h = J.arm[0].h;
+    for (const z of [-11, 11]) out.push(pk.cap([h[0] + 1.5, J.groundY + 2, z], [h[0] + 1.5, h[1] + 3, z], 1.2, 1.2, cls));
+    out.push(pk.cap([h[0] + 1.5, h[1], -11], [h[0] + 1.5, h[1], 11], 1.1, 1.1, 'pmh'));
+  }
+  if (cons) {
+    const cx = cons > 0 ? x + 30 : x - 32, d = cons > 0 ? -8 : 8;
+    out.push(pk.cap([cx, J.groundY + 3, 0], [cx + d, J.groundY + 46, 0], 1.4, 1.4, cls), pk.box(Math.min(cx + d, cx + d + d * 0.9) - 1, Math.max(cx + d, cx + d + d * 0.9) + 1, J.groundY + 44, J.groundY + 48, -9, 9, cls));
+  }
+  return out;
+};
+
 const PICS = {
   // ── Dempeus, squats, estocades, pujades ──
   stand: { label: 'Dempeus', a: [95, 82], b: [85, 95], m: [92, 88] },
@@ -17235,6 +17281,19 @@ const PICS = {
   run_tread: { from: { l: [118, 146, 70], m: [-8, 84, -10], a: [36, -66], b: [130, 56] }, label: 'Cinta de córrer', t: -78, hd: 4, l: [-8, 84, -10], m: [118, 146, 70], a: [130, 56], b: [36, -66], lift: 4,
     props: (J) => [pk.box(J.pel[0] - 30, J.pel[0] + 30, J.groundY, J.groundY + 3.5, -12, 12, 'pp'), pk.cap([J.pel[0] + 30, J.groundY + 3, 0], [J.pel[0] + 22, J.groundY + 44, 0], 1.4, 1.4, 'pp'),
       pk.box(J.pel[0] + 16, J.pel[0] + 24, J.groundY + 42, J.groundY + 46, -9, 9, 'pp')] },
+  // ── Skillmill (cinta corba sense motor): la cinta sota els peus, les nanses del trineu i la consola ──
+  skm_run: { from: { l: [28, 108, 0], m: [86, 94, 0], a: [36, -66], b: [130, 56] }, label: 'Carrera al Skillmill', t: -80, hd: 4, l: [86, 94, 0], m: [28, 108, 0],
+    a: [130, 56], b: [36, -66], lift: 4, fix: 'pel', props: (J) => picSkm(J, { console: 1 }) },
+  skm_resist: { from: { l: [10, 104, 0], m: [100, 108, 10], a: [32, -70], b: [134, 54] }, label: 'Carrera resistida al Skillmill', t: -64, hd: 10, l: [100, 108, 10], m: [10, 104, 0],
+    a: [134, 54], b: [32, -70], lift: 4, fix: 'pel', props: (J) => picSkm(J, { console: 1 }) },
+  skm_sled: { from: { l: [124, 150, 70], m: [30, 116] }, label: 'Trineu al Skillmill', t: -42, hd: -14, l: [30, 116], m: [124, 150, 70], a: [-12, -6], fix: 'hR', lift: 4,
+    props: (J) => picSkm(J, { handles: 1 }) },
+  skm_march: { from: { l: [112, 128, 64], m: [56, 110] }, label: 'Marxa amb trineu al Skillmill', t: -54, hd: -10, l: [56, 110], m: [112, 128, 64], a: [-6, -2], fix: 'hR', lift: 4,
+    props: (J) => picSkm(J, { handles: 1 }) },
+  skm_back: { from: { l: [124, 96, 20], m: [86, 94, 0], a: [64, -40], b: [116, 62] }, label: 'Carrera d\'esquena al Skillmill', t: -84, hd: 6, l: [86, 94, 0], m: [124, 96, 20],
+    a: [116, 62], b: [64, -40], lift: 4, fix: 'pel', props: (J) => picSkm(J, { console: -1 }) },
+  skm_side: { from: { l: [[112, 32], [96, -22]], m: [[84, 32], [88, -22]] }, front: true, label: 'Passes laterals al Skillmill', t: -90, l: [[98, 32], [90, -22]], m: [[62, 32], [80, -22]],
+    a: [[110, 40], [70, 30]], lift: 4, props: (J) => picSkm(J, { side: 1 }) },
   // bicicleta estàtica: seient, manillar i pedals
   bike: { from: { l: [62, 72, 10], m: [26, 108, 0] }, label: 'Bicicleta', t: -66, hd: -4, l: [26, 108, 0], m: [62, 72, 10], a: [14, 30], fix: 'pel',
     props: (J) => { const seat = [J.pel[0], J.pel[1] - 5, 0], bars = J.arm[0].h, crank = v3.lerp(J.leg[0].a, J.leg[1].a, 0.5);
@@ -18501,7 +18560,7 @@ const PIC_RULES = [
   [/alterg|carrera/, 'run_tread'],
   [/trineu|sled/, 'sled'],
   [/skierg|ski erg/, 'skierg'],
-  [/sprint al skillmill|skillmill/, 'run_tread'],
+  [/skillmill/, 'skm_run'],
   [/knee-to-wall/, 'ankle_wall'],
   [/dorsiflexio en estocada/, 'ankle_kneel'],
   [/mobilitat de turmell/, (t) => (/goma|banda/.test(t) ? 'ankle_band' : 'ankle_wall')],
