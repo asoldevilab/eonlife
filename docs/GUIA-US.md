@@ -715,6 +715,12 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   i l'altre estira; les espatlles no giren), i **chop** i **lift** amb mig genoll → de genolls → dret (famílies amb
   nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació), rem a una mà amb mig genoll i press
   unilateral dempeus. També hi ha el **goblet squat amb cunya** (talons elevats), al bloc Força.
+- **Skillmill Technogym** (cerca «Skillmill»): la cinta corba sense motor, amb dues famílies amb nivells per progressar.
+  *Skillmill · trineu*: marxa amb trineu pesat (força i readaptació, sense impacte) → empenta de trineu → empenta de
+  trineu reactiva. *Skillmill · carrera*: carrera resistida (paracaigudes) → sprint → sprints repetits (mirant que la
+  potència en watts no caigui més d'un 10 %). A més: escalfament progressiu, carrera d'esquena i passes laterals
+  (readaptació, bloc Activació), intervals de potència (bloc Accessoris) i el Tabata. Els dibuixos mostren la cinta, les
+  nanses del trineu i la consola.
 - **Creuament de politges** (cable crossover, «cruce de poleas»; bloc **Accessoris**, carpeta *Cable crossover ·
   obertures*, cerca «creuament», «crossover» o «obertures»): tres variants segons l'altura de les politges, a la Keiser
   o a la politja Technogym. **De dalt a baix** (pectoral inferior: les mans acaben davant dels malucs), **a l'altura del

@@ -51,6 +51,24 @@ const picCopBench = (J, p) => { const top = p[1] - 3; return [
   pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, 13, 17, 'pp'), pk.box(p[0] - 5, p[0] + 5, J.groundY, top - 3.2, -17, -13, 'pp')]; };
 const picCopBase = { front: true, t: 176, hd: -6, a: [90, [180, 64]], b: [100, 40] };
 
+// Skillmill: cinta corba sota els peus (més alta al davant), i nanses del trineu a les mans o consola al davant/darrere.
+// side: de cara, amb la cinta de costat per a les passes laterals.
+const picSkm = (J, { handles = 0, console: cons = 0, side = 0 } = {}) => {
+  const top = J.groundY + (J.P.lift || 0), x = J.pel[0], cls = 'pp';
+  if (side) return [pk.box(x - 10, x + 10, J.groundY, top, -30, 30, cls), pk.box(x - 10, x + 10, J.groundY, top + 2.4, 26, 32, cls)];
+  const out = [pk.box(x - 30, x + 28, J.groundY, top, -10, 10, cls), pk.box(x + 22, x + 30, J.groundY, top + 2.6, -10, 10, cls)];
+  if (handles) {
+    const h = J.arm[0].h;
+    for (const z of [-11, 11]) out.push(pk.cap([h[0] + 1.5, J.groundY + 2, z], [h[0] + 1.5, h[1] + 3, z], 1.2, 1.2, cls));
+    out.push(pk.cap([h[0] + 1.5, h[1], -11], [h[0] + 1.5, h[1], 11], 1.1, 1.1, 'pmh'));
+  }
+  if (cons) {
+    const cx = cons > 0 ? x + 30 : x - 32, d = cons > 0 ? -8 : 8;
+    out.push(pk.cap([cx, J.groundY + 3, 0], [cx + d, J.groundY + 46, 0], 1.4, 1.4, cls), pk.box(Math.min(cx + d, cx + d + d * 0.9) - 1, Math.max(cx + d, cx + d + d * 0.9) + 1, J.groundY + 44, J.groundY + 48, -9, 9, cls));
+  }
+  return out;
+};
+
 const PICS = {
   // ── Dempeus, squats, estocades, pujades ──
   stand: { label: 'Dempeus', a: [95, 82], b: [85, 95], m: [92, 88] },
@@ -315,6 +333,19 @@ const PICS = {
   run_tread: { from: { l: [118, 146, 70], m: [-8, 84, -10], a: [36, -66], b: [130, 56] }, label: 'Cinta de córrer', t: -78, hd: 4, l: [-8, 84, -10], m: [118, 146, 70], a: [130, 56], b: [36, -66], lift: 4,
     props: (J) => [pk.box(J.pel[0] - 30, J.pel[0] + 30, J.groundY, J.groundY + 3.5, -12, 12, 'pp'), pk.cap([J.pel[0] + 30, J.groundY + 3, 0], [J.pel[0] + 22, J.groundY + 44, 0], 1.4, 1.4, 'pp'),
       pk.box(J.pel[0] + 16, J.pel[0] + 24, J.groundY + 42, J.groundY + 46, -9, 9, 'pp')] },
+  // ── Skillmill (cinta corba sense motor): la cinta sota els peus, les nanses del trineu i la consola ──
+  skm_run: { from: { l: [28, 108, 0], m: [86, 94, 0], a: [36, -66], b: [130, 56] }, label: 'Carrera al Skillmill', t: -80, hd: 4, l: [86, 94, 0], m: [28, 108, 0],
+    a: [130, 56], b: [36, -66], lift: 4, fix: 'pel', props: (J) => picSkm(J, { console: 1 }) },
+  skm_resist: { from: { l: [10, 104, 0], m: [100, 108, 10], a: [32, -70], b: [134, 54] }, label: 'Carrera resistida al Skillmill', t: -64, hd: 10, l: [100, 108, 10], m: [10, 104, 0],
+    a: [134, 54], b: [32, -70], lift: 4, fix: 'pel', props: (J) => picSkm(J, { console: 1 }) },
+  skm_sled: { from: { l: [124, 150, 70], m: [30, 116] }, label: 'Trineu al Skillmill', t: -42, hd: -14, l: [30, 116], m: [124, 150, 70], a: [-12, -6], fix: 'hR', lift: 4,
+    props: (J) => picSkm(J, { handles: 1 }) },
+  skm_march: { from: { l: [112, 128, 64], m: [56, 110] }, label: 'Marxa amb trineu al Skillmill', t: -54, hd: -10, l: [56, 110], m: [112, 128, 64], a: [-6, -2], fix: 'hR', lift: 4,
+    props: (J) => picSkm(J, { handles: 1 }) },
+  skm_back: { from: { l: [124, 96, 20], m: [86, 94, 0], a: [64, -40], b: [116, 62] }, label: 'Carrera d\'esquena al Skillmill', t: -84, hd: 6, l: [86, 94, 0], m: [124, 96, 20],
+    a: [116, 62], b: [64, -40], lift: 4, fix: 'pel', props: (J) => picSkm(J, { console: -1 }) },
+  skm_side: { from: { l: [[112, 32], [96, -22]], m: [[84, 32], [88, -22]] }, front: true, label: 'Passes laterals al Skillmill', t: -90, l: [[98, 32], [90, -22]], m: [[62, 32], [80, -22]],
+    a: [[110, 40], [70, 30]], lift: 4, props: (J) => picSkm(J, { side: 1 }) },
   // bicicleta estàtica: seient, manillar i pedals
   bike: { from: { l: [62, 72, 10], m: [26, 108, 0] }, label: 'Bicicleta', t: -66, hd: -4, l: [26, 108, 0], m: [62, 72, 10], a: [14, 30], fix: 'pel',
     props: (J) => { const seat = [J.pel[0], J.pel[1] - 5, 0], bars = J.arm[0].h, crank = v3.lerp(J.leg[0].a, J.leg[1].a, 0.5);

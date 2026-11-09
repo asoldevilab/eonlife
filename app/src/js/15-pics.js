@@ -1027,7 +1027,7 @@ const PIC_RULES = [
   [/alterg|carrera/, 'run_tread'],
   [/trineu|sled/, 'sled'],
   [/skierg|ski erg/, 'skierg'],
-  [/sprint al skillmill|skillmill/, 'run_tread'],
+  [/skillmill/, 'skm_run'],
   [/knee-to-wall/, 'ankle_wall'],
   [/dorsiflexio en estocada/, 'ankle_kneel'],
   [/mobilitat de turmell/, (t) => (/goma|banda/.test(t) ? 'ankle_band' : 'ankle_wall')],

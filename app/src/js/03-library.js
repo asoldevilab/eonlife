@@ -276,8 +276,36 @@ const SEED_EXERCISES = (() => {
   add('X-ACT-25', 'act', 'GHD sit-up', 'Core', 'Banc GHD', { pos: 'Sd', gm: 'Core', sets: '2', reps: '10', materials: ['Banc GHD'] });
   add('X-MOB-22', 'mob', 'Carrera a l\'AlterG amb descàrrega', 'Escalfament', 'AlterG', { pos: 'Bp', sets: '1', reps: '10\'', intensity: '70 % del pes', cues: 'Pes corporal reduït per córrer sense dolor; es puja el percentatge setmana a setmana.' });
   add('X-MOB-23', 'mob', 'Alliberament amb mobility ball', 'Alliberament miofascial', 'Mobility ball Technogym', { sets: '1', reps: '2\'/zona' });
-  add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'' });
-  add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', 'Skillmill', { pos: 'Bp', gm: 'Tren inferior', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'' });
+  // ── Skillmill Technogym: cinta corba sense motor amb resistència (de carrera lliure a «paracaigudes» i trineu) ──
+  const SKM = 'Skillmill', SKG = { pos: 'Bp', gm: 'Tren inferior', muscles: ['GMax', 'Quàdriceps', 'Isquiotibials'], materials: [SKM] };
+  add('X-POT-39', 'pot', 'Empenta de trineu al Skillmill', 'Acceleració', SKM, { ...SKG, pic: 'skm_sled', sets: '4', reps: '15 m', intensity: 'Màxima intenció', rest: '2\'',
+    family: 'Skillmill · trineu', level: '2', muscles: ['GMax', 'Quàdriceps', 'Bessons i soli'],
+    cues: 'Resistència alta (trineu), mans a les nanses baixes i cos inclinat en línia recta. Passes curtes i potents empenyent la cinta enrere; no aixequis el maluc.' });
+  add('X-POT-40', 'pot', 'Sprint al Skillmill', 'Acceleració', SKM, { ...SKG, pic: 'skm_resist', sets: '4', reps: '8 s', intensity: 'Màxima intenció', rest: '2\'',
+    family: 'Skillmill · carrera', level: '2',
+    cues: 'Resistència baixa. Des de parat, inclina\'t i accelera a tope amb braços de carrera; peu a sota del maluc. Mira la potència (W) i intenta repetir-la a cada sèrie.' });
+  add('X-SKM-01', 'mob', 'Escalfament progressiu al Skillmill', 'Escalfament', SKM, { ...SKG, pic: 'skm_run', sets: '1', reps: '5\'', intensity: 'De suau a moderat',
+    cues: 'Resistència baixa. Comença caminant i ves pujant el ritme cada minut fins a trotar; els darrers 30" una mica més ràpid.' });
+  add('X-SKM-02', 'for', 'Marxa amb trineu pesat al Skillmill', 'Trineu', SKM, { ...SKG, pic: 'skm_march', sets: '4', reps: '20"', rest: '1\'30"', intensity: 'Resistència alta',
+    family: 'Skillmill · trineu', level: '1', muscles: ['GMax', 'Quàdriceps', 'Bessons i soli'],
+    cues: 'Readaptació i força sense impacte. Nanses baixes, cos inclinat i passes llargues i lentes, empenyent amb tot el peu. Sense salts ni fase de vol.' });
+  add('X-SKM-03', 'pot', 'Empenta de trineu reactiva al Skillmill', 'Acceleració', SKM, { ...SKG, pic: 'skm_sled', sets: '6', reps: '5"', rest: '1\'30"', intensity: 'Màxima intenció',
+    family: 'Skillmill · trineu', level: '3', muscles: ['GMax', 'Quàdriceps', 'Bessons i soli'],
+    cues: 'Resistència alta. A la senyal del professional, arrenca a tope des de parat durant 5"; para del tot i torna a començar. Primeres passes curtes i explosives.' });
+  add('X-SKM-04', 'pot', 'Carrera resistida al Skillmill (paracaigudes)', 'Acceleració', SKM, { ...SKG, pic: 'skm_resist', sets: '6', reps: '10"', rest: '1\'', intensity: 'Màxima intenció',
+    family: 'Skillmill · carrera', level: '1',
+    cues: 'Resistència mitjana: com córrer amb paracaigudes. Inclinació de sortida, genolls amunt i braços de carrera; mantén la tècnica encara que la velocitat baixi.' });
+  add('X-SKM-05', 'pot', 'Sprints repetits al Skillmill', 'Velocitat', SKM, { ...SKG, pic: 'skm_resist', sets: '2', reps: '6 × 6"', rest: '24" / 3\' entre sèries', intensity: 'Màxima intenció',
+    family: 'Skillmill · carrera', level: '3',
+    cues: 'Resistència baixa. 6 sprints de 6" amb 24" caminant; mira que la potència (W) no caigui més d\'un 10 % entre el primer i l\'últim.' });
+  add('X-SKM-06', 'act', 'Carrera d\'esquena al Skillmill', 'Readaptació', SKM, { ...SKG, pic: 'skm_back', sets: '3', reps: '30"', rest: '1\'', intensity: 'Moderada',
+    gm: 'Quàdriceps', muscles: ['Bessons i soli', 'GMax'],
+    cues: 'D\'esquena a la consola i agafat a les nanses al principi. Passes curtes enrere amb la punta del peu i genolls una mica flexionats; treballa el quàdriceps sense estrès al genoll.' });
+  add('X-SKM-07', 'act', 'Passes laterals al Skillmill', 'Readaptació', SKM, { ...SKG, pic: 'skm_side', sets: '3', reps: '20"/costat', rest: '45"', intensity: 'Moderada',
+    gm: 'GMed', muscles: ['Adductors', 'Quàdriceps'],
+    cues: 'De costat a la cinta i resistència mitjana. Mig squat, pit amunt i passes laterals curtes sense creuar els peus; el genoll no va cap a dins. Canvia de costat.' });
+  add('X-SKM-08', 'acc', 'Intervals de potència al Skillmill', 'Condicionament', SKM, { ...SKG, pic: 'skm_resist', sets: '1', reps: '8 × 15"', rest: '45"', intensity: 'Màxima intenció',
+    cues: 'Resistència mitjana. 15" a tope i 45" caminant, 8 vegades. Apunta els watts de cada sèrie per seguir la millora d\'una sessió a l\'altra.' });
   // Vídeos d'EON (22/10): llançaments estirat, caiguda de genolls i salts (amb goma i amb mancuernes)
   add('X-POT-41', 'pot', 'Llançament de pilota medicinal estirat amb company (reactiu)', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
     sets: '3', reps: '6-8', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_react',
@@ -445,7 +473,7 @@ const SEED_EXERCISES = (() => {
     cues: 'Tabata: 8 rondes de 20" a tope i 10" de descans (4\'). Empeny i estira els braços alhora que pedales; tronc estable.' });
   add('X-CND-02', 'acc', 'SkiErg · Tabata', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], materials: ['SkiErg'],
     cues: 'Tabata: 8 × 20" a tope / 10". Estira les nanses des de dalt fins als malucs amb tot el cos: braços, tronc i una mica de genolls.' });
-  add('X-CND-03', 'acc', 'Skillmill · Tabata', 'Condicionament', 'Skillmill', { ...TAB, pic: 'run_tread', gm: 'Tren inferior', muscles: ['GMax', 'Isquiotibials', 'Quàdriceps'], materials: ['Skillmill'],
+  add('X-CND-03', 'acc', 'Skillmill · Tabata', 'Condicionament', 'Skillmill', { ...TAB, pic: 'skm_resist', gm: 'Tren inferior', muscles: ['GMax', 'Isquiotibials', 'Quàdriceps'], materials: ['Skillmill'],
     cues: 'Tabata: 8 × 20" de sprint / 10" a peu. Inclina\'t endavant i empeny la cinta amb passes curtes i ràpides.' });
   add('X-CND-04', 'acc', 'Assault bike · intervals', 'Condicionament', 'Assault bike', { ...TAB, pos: 'Sd', pic: 'bike', muscles: ['Quàdriceps', 'GMax', 'Deltoides'], reps: '6 × 30"', rest: '1\'30"',
     materials: ['Assault bike', 'Bike Technogym'], cues: 'Intervals: 30" a tope i 1\'30" suau. Mantén el mateix ritme a totes les sèries.' });
