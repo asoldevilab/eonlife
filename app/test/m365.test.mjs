@@ -291,7 +291,21 @@ test('enllaç que no és d\'una carpeta o que no existeix', async () => {
   const { core, graph } = setup();
   const { M365Api } = core.M365;
   await assert.rejects(M365Api.resolveFolder(graph(), 'hola'), /https/);
-  await assert.rejects(M365Api.resolveFolder(graph(), 'https://eonlife.sharepoint.com/:f:/s/centre/NOEXISTEIX'), /No s'ha pogut obrir/);
+  await assert.rejects(M365Api.resolveFolder(graph(), 'https://eonlife.sharepoint.com/:f:/s/centre/NOEXISTEIX'), /No s'ha pogut obrir/);  // La pàgina d'inici del OneDrive no és cap carpeta.
+  await assert.rejects(M365Api.resolveFolder(graph(), 'https://eonlife.sharepoint.com/_layouts/15/sharepoint.aspx/onedrive'), /pàgina d'inici/);
+});
+
+test('enllaç de la barra d\'adreces de SharePoint (Forms/AllItems.aspx?id=…): es troba la carpeta del paràmetre id', async () => {
+  const { core, mock, shared, graph } = setup();
+  const { M365Api } = core.M365;
+  const direct = 'https://eonlife.sharepoint.com/sites/CENTRE/Documents%20compartits/06%20Human%20Performance/Memberships';
+  mock.shares.set(direct, shared.folder.id);
+  const bar = 'https://eonlife.sharepoint.com/sites/CENTRE/Documents%20compartits/Forms/AllItems.aspx?FolderCTID=0x0120&id=%2Fsites%2FCENTRE%2FDocuments%20compartits%2F06%20Human%20Performance%2FMemberships';
+  assert.deepEqual(Array.from(M365Api.folderUrls(bar)), [direct, bar]);
+  const f = await M365Api.resolveFolder(graph(), bar);
+  assert.equal(f.folderId, shared.folder.id);
+  // Un enllaç de «Copia l'enllaç» continua igual.
+  assert.deepEqual(Array.from(M365Api.folderUrls(shared.url)), [shared.url]);
 });
 
 test('valors de cel·la: números, dates i textos ambigus', () => {
