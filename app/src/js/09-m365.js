@@ -717,6 +717,19 @@ class M365Api {
     return out;
   }
 
+  // Camí de la carpeta dins del lloc (/sites/…/Documents compartits/…) segons l'enllaç; buit per als de «Copia l'enllaç».
+  static folderPath(url) {
+    try {
+      const u = new URL(url);
+      const id = u.searchParams.get('id') || u.searchParams.get('RootFolder');
+      if (id && id.startsWith('/')) return id.replace(/\/$/, '');
+      if (/\/:[a-z]:\/|\/_layouts\/|\.aspx$/i.test(u.pathname)) return '';
+      return decodeURIComponent(u.pathname).replace(/\/$/, '');
+    } catch (e) {
+      return '';
+    }
+  }
+
   // Enllaç d'una carpeta (el de «Copia l'enllaç» o el de la barra d'adreces) → carpeta de Graph.
   static async resolveFolder(graph, url) {
     const clean = String(url || '').trim();
@@ -736,6 +749,24 @@ class M365Api {
       }
     }
     if (!item) throw new M365Error('No s\'ha pogut obrir aquest enllaç. Comprova que és l\'enllaç de la carpeta i que tens permís d\'edició.', 'folder');
+    // Si SharePoint ha tornat una carpeta de més amunt (passa amb les adreces de la barra), es baixa fins a la carpeta
+    // de l'enllaç, nivell a nivell.
+    const target = M365Api.folderPath(clean);
+    const driveId = item.parentReference && item.parentReference.driveId;
+    let here = '';
+    try { here = decodeURIComponent(new URL(item.webUrl).pathname).replace(/\/$/, ''); } catch (e) { /* sense adreça */ }
+    if (target && here && driveId && target.toLowerCase().startsWith(`${here.toLowerCase()}/`)) {
+      for (const name of target.slice(here.length + 1).split('/').filter(Boolean)) {
+        try {
+          const next = await graph.req('GET', `/drives/${driveId}/items/${item.id}:/${encodeURIComponent(name)}?$select=id,name,webUrl,folder,parentReference`);
+          if (!next || !next.folder) break;
+          item = next;
+        } catch (e) {
+          if (e.code === 'network') throw e;
+          break;
+        }
+      }
+    }
     if (!item || !item.folder) throw new M365Error('Aquest enllaç és d\'un fitxer, no d\'una carpeta. Copia l\'enllaç de la carpeta compartida.', 'folder');
     return { driveId: item.parentReference && item.parentReference.driveId, folderId: item.id, folderName: item.name, folderWebUrl: item.webUrl };
   }
@@ -779,6 +810,22 @@ class M365Api {
     this.clientsItem = await this.child(this.cfg.folderId, M365_NAMES.clients) || await this.renamedClients();
     if (this.workbookItem) this.db = new ExcelDb(this.g, this.cfg.driveId, this.workbookItem.id);
     return !!this.workbookItem;
+  }
+
+  // Si a la carpeta no hi ha l'Excel però sí en una subcarpeta (s'ha triat la carpeta de més amunt), es busca fins a dos
+  // nivells per dins. Només serveix si n'hi ha exactament un: la carpeta on és.
+  async findWorkbookBelow() {
+    const hits = [];
+    const walk = async (id, depth) => {
+      const dirs = (await this.children(id)).filter((x) => x.folder).slice(0, 60);
+      for (const d of dirs) {
+        if (await this.child(d.id, M365_NAMES.workbook)) hits.push(d);
+        else if (depth < 2) await walk(d.id, depth + 1);
+        if (hits.length > 1) return;
+      }
+    };
+    try { await walk(this.cfg.folderId, 1); } catch (e) { return null; }
+    return hits.length === 1 ? hits[0] : null;
   }
 
   // Si algú ha canviat el nom de la carpeta de pacients («EON Life · Clients» → «EON Life · Pacients»…), es continua
@@ -1010,6 +1057,16 @@ const M365Backend = {
       Object.assign(cfg, f);
     }
     this.api = new M365Api(this.graph, cfg, user.email || user.name || '');
+    if (!(await this.api.locate())) {
+      // L'Excel és en una subcarpeta: es fa servir aquella (així no es crea una base de dades buida al costat).
+      const d = await this.api.findWorkbookBelow();
+      if (d) {
+        const f = { driveId: cfg.driveId, folderId: d.id, folderName: d.name, folderWebUrl: d.webUrl || '' };
+        M365.save(f);
+        Object.assign(cfg, f);
+        this.api = new M365Api(this.graph, cfg, user.email || user.name || '');
+      }
+    }
     if (!(await this.api.locate())) throw new M365Error(`La carpeta «${cfg.folderName || 'compartida'}» encara no té la base de dades.`, 'setup');
     const records = await this.api.bootstrap();
     return {

@@ -308,6 +308,29 @@ test('enllaç de la barra d\'adreces de SharePoint (Forms/AllItems.aspx?id=…):
   assert.deepEqual(Array.from(M365Api.folderUrls(shared.url)), [shared.url]);
 });
 
+test('enllaç de la barra d\'adreces que SharePoint obre a la carpeta de més amunt: es baixa fins a la de l\'enllaç', async () => {
+  const { core, mock, shared, graph } = setup();
+  const { M365Api } = core.M365;
+  // L'adreça directa de la carpeta torna la carpeta de sobre («Documents»), com passa a SharePoint.
+  const direct = mock.webUrlOf(shared.folder);
+  mock.shares.set(direct, shared.folder.parentId);
+  const bar = `https://eonlife.sharepoint.com/sites/centre/Documents/Forms/AllItems.aspx?id=${encodeURIComponent(decodeURIComponent(new URL(direct).pathname))}`;
+  const f = await M365Api.resolveFolder(graph(), bar);
+  assert.equal(f.folderId, shared.folder.id);
+  assert.equal(f.folderName, shared.folder.name);
+});
+
+test('carpeta de més amunt de la base de dades: es troba l\'Excel a la subcarpeta i no es demana «Prepara la carpeta»', async () => {
+  const { core, shared, graph, api } = setup();
+  const { M365Api } = core.M365;
+  await api(); // l'Excel ja existeix a la carpeta compartida
+  const g = graph();
+  const top = new M365Api(g, { driveId: shared.driveId, folderId: shared.folder.parentId }, 'laura@eonlife.test');
+  assert.equal(await top.locate(), false);
+  const d = await top.findWorkbookBelow();
+  assert.equal(d && d.id, shared.folder.id);
+});
+
 test('valors de cel·la: números, dates i textos ambigus', () => {
   const { core } = setup();
   const { xlCell } = core.M365;
