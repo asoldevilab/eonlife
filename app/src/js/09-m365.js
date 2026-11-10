@@ -704,17 +704,38 @@ class M365Api {
     return `u!${b64url(bytes)}`;
   }
 
+  // Adreces on pot ser la carpeta d'un enllaç. Les de la barra d'adreces de SharePoint (…/Forms/AllItems.aspx?id=/sites/…
+  // o …/onedrive.aspx?id=…) porten la carpeta al paràmetre «id»: primer es prova l'adreça directa de la carpeta.
+  static folderUrls(url) {
+    const out = [];
+    try {
+      const u = new URL(url);
+      const id = u.searchParams.get('id') || u.searchParams.get('RootFolder');
+      if (id && id.startsWith('/')) out.push(u.origin + id.split('/').map((x) => encodeURIComponent(x)).join('/'));
+    } catch (e) { /* no és una adreça */ }
+    out.push(url);
+    return out;
+  }
+
   // Enllaç d'una carpeta (el de «Copia l'enllaç» o el de la barra d'adreces) → carpeta de Graph.
   static async resolveFolder(graph, url) {
     const clean = String(url || '').trim();
     if (!/^https:\/\/\S+$/i.test(clean)) throw new M365Error('Enganxa l\'enllaç complet de la carpeta (comença per https://).', 'folder');
-    let item;
-    try {
-      item = await graph.req('GET', `/shares/${M365Api.encodeShare(clean)}/driveItem?$select=id,name,webUrl,folder,parentReference`, { headers: { Prefer: 'redeemSharingLink' } });
-    } catch (e) {
-      if (e.code === 'network') throw e;
-      throw new M365Error('No s\'ha pogut obrir aquest enllaç. Comprova que és l\'enllaç de la carpeta i que tens permís d\'edició.', 'folder');
+    const urls = M365Api.folderUrls(clean);
+    // La pàgina d'inici del OneDrive o de SharePoint (sense cap carpeta a l'adreça) no diu quina carpeta és.
+    if (urls.length === 1 && /\/_layouts\/15\/(sharepoint|onedrive)\.aspx/i.test(clean)) {
+      throw new M365Error('Aquest enllaç és la pàgina d\'inici del OneDrive, no una carpeta. Obre la carpeta on hi ha l\'Excel «EON Life · Base de dades» i copia\'n l\'enllaç (Compartir › Copia l\'enllaç).', 'folder');
     }
+    let item = null;
+    for (const u of urls) {
+      try {
+        item = await graph.req('GET', `/shares/${M365Api.encodeShare(u)}/driveItem?$select=id,name,webUrl,folder,parentReference`, { headers: { Prefer: 'redeemSharingLink' } });
+        if (item) break;
+      } catch (e) {
+        if (e.code === 'network') throw e;
+      }
+    }
+    if (!item) throw new M365Error('No s\'ha pogut obrir aquest enllaç. Comprova que és l\'enllaç de la carpeta i que tens permís d\'edició.', 'folder');
     if (!item || !item.folder) throw new M365Error('Aquest enllaç és d\'un fitxer, no d\'una carpeta. Copia l\'enllaç de la carpeta compartida.', 'folder');
     return { driveId: item.parentReference && item.parentReference.driveId, folderId: item.id, folderName: item.name, folderWebUrl: item.webUrl };
   }
