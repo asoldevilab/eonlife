@@ -412,11 +412,11 @@ function picKeiserColumn(A, J) {
 
 // Technogym Kinesis Personal: panell fosc amb llistons de fusta i, a dalt i a baix, els braços que pivoten d'on surten
 // els cables. Cada cable surt del braç de dalt (si l'ancoratge és per sobre del maluc) o del de baix.
-function picKinesisAnchor(A, J) { return [A[0], A[1] > 0 ? J.groundY + 86 : J.groundY + 4, A[2]]; }
+function picKinesisAnchor(A, J) { return [A[0], A[1] > 0 ? J.groundY + 80 : J.groundY + 4, A[2]]; }
 function picKinesisWall(As, J) {
   const avg = (i) => As.reduce((s, A) => s + A[i], 0) / As.length;
   const alongX = Math.abs(avg(0)) >= Math.abs(avg(2));
-  const n = alongX ? 0 : 2, q = alongX ? 2 : 0, sg = Math.sign(avg(n)) || -1, c = avg(q), W = 22, H = 92;
+  const n = alongX ? 0 : 2, q = alongX ? 2 : 0, sg = Math.sign(avg(n)) || -1, c = avg(q), W = 22, H = 86;
   const far = Math.max(...As.map((A) => sg * A[n])) + 6;
   const bx = (p0, p1, y0, y1, q0, q1, cls, z) => {
     const [a0, a1] = [sg * p0, sg * p1].sort((x, y) => x - y);

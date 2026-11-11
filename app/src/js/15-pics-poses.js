@@ -648,7 +648,9 @@ PICS.kn_row_one = { ...PICS.row_standing, view: 'q', label: 'Rem a una mà dempe
 PICS.kn_pushpull = { ...PICS.row_standing, view: 'q', label: 'Push-pull al cable', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6], grip: 'hands',
   pull: [-24, 20, -34], pull2: [30, 20, -34], s: 0.84 };
 PICS.kn_row_half = { ...PICS.kx_row_half, view: 'q', label: 'Rem a una mà amb mig genoll al cable' };
-PICS.kn_pulldown = { ...KX_TALL, view: 'q', label: 'Jaló agenollat al cable', from: { a: [-128, -124] }, a: [104, -56], grip: 'hands', pull: [22, 64, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_pulldown = { ...KX_TALL, view: 'q', label: 'Jaló agenollat al cable', from: { a: [-66, -60] }, a: [104, -56], grip: 'hands', pull: [22, 64, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_pulldown_stand = { ...PICS.row_standing, view: 'q', label: 'Jaló dempeus al cable', from: { t: -84, a: [-66, -60] }, t: -76, hd: -8,
+  a: [104, -56], grip: 'hands', pull: [30, 40, 10], pull2: 'mirror', s: 0.86 };
 PICS.kn_crunch = { ...KX_TALL, view: 'q', rel: 'arms', label: 'Crunch agenollat al cable', from: { t: -84, hd: -4 }, t: -38, hd: -14, a: [-24, -168], grip: 'chest', pull: [30, 64, 0], s: 0.86 };
 PICS.kn_ohpress = { ...PICS.ohpress, label: 'Press d\'espatlles al cable', pull: [-4, -34, 18], pull2: 'mirror', s: 0.9 };
 PICS.kn_lat_raise = { ...PICS.lat_raise, label: 'Elevació lateral al cable', pull: [0, -34, -8], pull2: 'mirror', s: 0.9 };

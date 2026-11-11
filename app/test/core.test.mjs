@@ -612,7 +612,7 @@ test('Kinesis Personal de Technogym: exercicis amb el seu dibuix de cables', asy
   const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
   const { SEED_EXERCISES, OPT } = loadCore();
   const kp = SEED_EXERCISES.filter((e) => e.id.startsWith('X-KP-'));
-  assert.equal(kp.length, 39);
+  assert.equal(kp.length, 40);
   assert.ok(kp.every((e) => e.material === 'Kinesis Personal Technogym' && e.tg && e.gm && e.cues && e.pic));
   assert.ok(OPT.material.includes('Kinesis Personal Technogym'));
   const P = new Function('U', `${src}\nreturn { PICS, picKeyOf, picGearOf };`)(U);
