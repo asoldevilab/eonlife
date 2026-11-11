@@ -285,7 +285,8 @@ Cada sessió té només els blocs que necessita el client: no cal que hi siguin 
 - **El professional és obligatori**: no n'hi ha cap per defecte i no es pot crear la sessió sense triar-lo (també en
   planificar el mes, copiar una setmana, duplicar o fer la del pla).
 
-- **Copia l'última sessió** — la manera més ràpida de progressar setmana a setmana.
+- **Copia una sessió anterior** — la manera més ràpida de progressar setmana a setmana. Per defecte és l'última, però al
+  desplegable es pot triar **qualsevol sessió anterior** del pacient (amb la data, l'objectiu i quants exercicis té; ✓ = feta).
 - **Sessió en blanc** — sense cap bloc (és l'opció de sortida per a un client nou). A la sessió surten els botons
   **1 Mobilitat, 2 Activació…** per afegir només els blocs que calguin; es col·loquen sols en l'ordre de la
   metodologia. Mentre se'n puguin afegir més, al final de la sessió hi ha **Afegeix un bloc**.
@@ -356,7 +357,7 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
     primer o l'últim exercici del bloc.
   - **Afegeix el bloc N** n'afegeix un altre; la **×** del bloc el treu. *Uneix els blocs en un de sol* (botó de
     plantilles del bloc) torna a deixar-ho tot junt.
-  - Es veuen a **Presenta** i al PDF, es copien amb *Copia l'última sessió* i les plantilles, i a l'Excel
+  - Es veuen a **Presenta** i al PDF, es copien amb *Copia una sessió anterior* i les plantilles, i a l'Excel
     (*Registre_exercicis*) hi ha la columna **Subbloc**.
 - Botó de **plantilles** de cada bloc: insereix un bloc desat o desa el bloc actual com a plantilla.
 - **Wellness · com arriba avui?** (a dalt de tot, abans dels blocs): cinc preguntes de l'1 al 5 — fatiga, qualitat

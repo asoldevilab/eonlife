@@ -514,7 +514,8 @@ const Store = {
 
   // mode: 'blank' | 'last' | template id
   // professional: qui fa la sessió. No n'hi ha cap per defecte: es tria sempre en crear-la (o abans de marcar-la feta).
-  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null, professional = '' } = {}) {
+  // mode 'last' copia l'última sessió o, amb fromId, la sessió del pacient que es triï.
+  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null, professional = '', fromId = null } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
     // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
@@ -522,7 +523,9 @@ const Store = {
     let goal = '';
     let pillar = '';
     if (mode === 'last') {
-      const last = this.sessionsOf(pid).filter((s) => s.date <= (date || U.today())).pop() || this.sessionsOf(pid).pop();
+      const picked = fromId ? this.get('sessions', fromId) : null;
+      const last = (picked && picked.patientId === pid ? picked : null)
+        || this.sessionsOf(pid).filter((s) => s.date <= (date || U.today())).pop() || this.sessionsOf(pid).pop();
       if (last) {
         blocks = this.usedBlocks(cloneBlocks(last.blocks, true));
         goal = last.goal || '';
