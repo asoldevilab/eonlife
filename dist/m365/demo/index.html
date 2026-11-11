@@ -67,7 +67,7 @@
   --pic-prop: #CEC5BB;
   --pic-prop-top: #DDD6CE; --pic-prop-side: #BCB1A5;
   --pic-metal: #3F5F7F; --pic-metal-2: #8DA2B6; --pic-elastic: #E5592C; --pic-soft: #1F9A8B;
-  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-air: #4C9AD6;
+  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-wood: #B8875A; --pic-air: #4C9AD6;
   --pic-skin: #E4AE8A; --pic-skin-far: #C4906E; --pic-top: #5A1C21; --pic-top-far: #3C1316; --pic-short: #2F2527; --pic-short-far: #1D1618; --pic-shoe: #ECE6DD; --pic-shoe-far: #CFC7BB; --pic-hair: #3B261B; --pic-hair-far: #2A1A12;
   --grid: #ECE6E0;
   --axis: #978985;
@@ -125,7 +125,7 @@
     --pic-prop: #5E5250;
     --pic-prop-top: #6E6260; --pic-prop-side: #514644;
     --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
-  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-wood: #D2A577; --pic-air: #6DB3E8;
   --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
     --grid: #33242A;
     --axis: #9B8C88;
@@ -176,7 +176,7 @@
   --pic-prop: #5E5250;
   --pic-prop-top: #6E6260; --pic-prop-side: #514644;
   --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
-  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-wood: #D2A577; --pic-air: #6DB3E8;
   --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
   --grid: #33242A;
   --axis: #9B8C88;
@@ -1561,6 +1561,7 @@ tfoot .rpc { font-size: 14px; }
 .pic .pc { fill: var(--pic-cone); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pc2 { fill: var(--pic-cone-2); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pkz { fill: var(--pic-keiser); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pwd { fill: var(--pic-wood); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.3; }
 .pic .pka { fill: var(--pic-air); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pfl { fill: none; stroke: var(--line-2); }
 .pic .psh { fill: var(--ink); opacity: 0.08; }
@@ -4327,7 +4328,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-11-11 17:31";
+window.EON_BUILD = "2026-11-11 20:20";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4714,7 +4715,7 @@ const OPT = {
   // Petit material i material general (a més del material del centre, que es configura a Configuració).
   material: ['Pes corporal', 'Banc', 'Caixa', 'Pica', 'Paret', 'Terra', 'Fitball', 'Med ball', 'Foam roller', 'TRX', 'Landmine',
     'Barra hexagonal', 'Cons', 'Tanques', 'Escala de coordinació', 'Coixí d\'equilibri', 'Roda abdominal', 'Cinturó de llast', 'Pilota', 'Encoder', 'Assault bike', 'SkiErg', 'Cunya',
-    'Barra de dominades', 'Paral·leles', 'Enrotllador de canell', 'Hand gripper', 'Disc', 'Tovallola'],
+    'Barra de dominades', 'Paral·leles', 'Enrotllador de canell', 'Hand gripper', 'Disc', 'Tovallola', 'Kinesis Personal Technogym'],
   intensity: ['RIR 3', 'RIR 2', 'RIR 1', 'RPE 6', 'RPE 7', 'RPE 8', 'RPE 9', 'CE 4(8)', 'CE 6(12)', 'CE 8(12)', 'PV 10 %', 'PV 20 %', 'PV 30 %',
     'V ≥ 1,0 m/s', 'V 0,75 m/s', 'V 0,5 m/s', 'Màxima intenció', 'Controlat', 'Suau'],
   // Nivell de progressió d'un exercici dins de la seva família (de més fàcil a més difícil).
@@ -5866,6 +5867,89 @@ const SEED_EXERCISES = (() => {
   tgEx('PP', 36, "for", "Pes mort romanès al Power Personal", "Romanian deadlift", "Isquiotibials", 'Power Personal', PPT, [PPT], { muscles: ["GMax", "Lumbar"], sets: "3", reps: "8", intensity: "RIR 2" });
   tgEx('PP', 37, "acc", "Elevacions laterals assegut al Power Personal", "Lateral raise - seated", "Deltoides", 'Power Personal', PPT, [PPT], { pos: "Sd", sets: "3", reps: "12" });
   tgEx('PP', 38, "for", "Dominades amb presa ampla al Power Personal", "Wide grip chin-up", "Dorsal", 'Power Personal', PPT, [PPT], { muscles: ["Bíceps"], sets: "3", reps: "6", intensity: "RIR 2" });
+
+  // ── Kinesis Personal Technogym (paret amb dos cables a les guies verticals; l'alçada de cada politja es tria) ──
+  // Treball funcional dempeus: sense seient, el cos s'estabilitza sol. Es fa servir a casa del pacient o al centre.
+  const KPT = 'Kinesis Personal Technogym';
+  const kp = (n, block, name, tg, gm, pic, extra) => tgEx('KP', n, block, name, tg, gm, 'Kinesis Personal', KPT, [KPT], { pic, sets: '3', reps: '12', ...extra });
+  kp(1, 'for', 'Press de pit dempeus a la Kinesis', 'Chest press - standing', 'Pectoral', 'kn_press', { muscles: ['Tríceps', 'Deltoides', 'Core'], reps: '10',
+    cues: 'Politges a l\'altura del pit, d\'esquena a la paret i en posició de pas. Empeny endavant sense arquejar l\'esquena ni avançar les espatlles; torna a poc a poc.' });
+  kp(2, 'for', 'Press de pit altern a la Kinesis', 'Chest press - alternate', 'Pectoral', 'kn_press_alt', { muscles: ['Tríceps', 'Core', 'Oblics'], reps: '10/costat',
+    cues: 'Com el press de pit, però un braç empeny mentre l\'altre torna. El tronc no gira: maluc i espatlles mirant endavant.' });
+  kp(3, 'for', 'Press de pit a una mà a la Kinesis', 'Chest press - single arm', 'Pectoral', 'kn_press_one', { muscles: ['Core', 'Oblics', 'Tríceps'], lat: 'UL', reps: '10/costat',
+    cues: 'Posició de pas, cama contrària al braç que empeny al davant. Empeny sense deixar que el cable giri el tronc.' });
+  kp(4, 'acc', 'Obertures dempeus a la Kinesis', 'Chest fly - standing', 'Pectoral', 'kn_fly', { muscles: ['Deltoides'],
+    cues: 'Politges a l\'altura de les espatlles. Colzes una mica flexionats i fixos: tanca en arc fins que les mans es troben davant del pit, sense avançar les espatlles.' });
+  kp(5, 'acc', 'Creuament de dalt a baix a la Kinesis', 'Chest fly - high to low', 'Pectoral', 'kn_fly_high', { muscles: ['Deltoides'],
+    cues: 'Politges a dalt. Baixa les mans en diagonal fins davant dels malucs, amb els colzes poc flexionats i el pit amunt. Pectoral inferior.' });
+  kp(6, 'acc', 'Creuament de baix a dalt a la Kinesis', 'Chest fly - low to high', 'Pectoral', 'kn_fly_low', { muscles: ['Deltoides'],
+    cues: 'Politges a baix, palmells amunt. Puja les mans en arc fins a l\'altura de la barbeta sense arquejar la zona lumbar. Pectoral superior.' });
+  kp(7, 'for', 'Rem dempeus a la Kinesis', 'Low row - standing', 'Dorsal', 'kn_row', { muscles: ['Escàpula', 'Bíceps'], reps: '10',
+    cues: 'De cara a la paret, politges a l\'altura del melic. Estira els colzes enrere a frec del cos i junta els omoplats; el tronc no es tira enrere.' });
+  kp(8, 'for', 'Rem a una mà dempeus a la Kinesis', 'Single arm row - standing', 'Dorsal', 'kn_row_one', { muscles: ['Escàpula', 'Core', 'Oblics'], lat: 'UL', reps: '10/costat',
+    cues: 'Posició de pas, de cara a la paret. Estira el colze enrere sense girar el tronc ni aixecar l\'espatlla.' });
+  kp(9, 'for', 'Rem a una mà amb mig genoll a la Kinesis', 'Single arm row - half kneeling', 'Dorsal', 'kn_row_half', { muscles: ['Escàpula', 'Core'], pos: 'Sa', lat: 'UL', reps: '10/costat',
+    cues: 'Amb un genoll a terra i el tronc dret, estira el cable cap al costat del pit. El maluc no gira i el gluti de la cama de darrere es manté actiu.' });
+  kp(10, 'for', 'Jaló agenollat a la Kinesis', 'Lat pulldown - kneeling', 'Dorsal', 'kn_pulldown', { muscles: ['Bíceps', 'Escàpula'], pos: 'Ag', reps: '10',
+    cues: 'Politges a dalt, de genolls i de cara a la paret. Baixa els colzes cap a les costelles, pit amunt, sense tirar el tronc enrere.' });
+  kp(11, 'for', 'Push-pull a la Kinesis', 'Push and pull - alternate', 'Global', 'kn_pushpull', { muscles: ['Pectoral', 'Dorsal', 'Oblics'], reps: '10/costat',
+    cues: 'De costat a la paret o en posició de pas, un braç empeny endavant mentre l\'altre estira enrere. Moviment fluid i el tronc sense girar gaire.' });
+  kp(12, 'for', 'Press d\'espatlles dempeus a la Kinesis', 'Shoulder press - standing', 'Deltoides', 'kn_ohpress', { muscles: ['Tríceps', 'Core'], reps: '10',
+    cues: 'Politges a baix, nanses a l\'altura de les espatlles. Empeny amunt sense arquejar la zona lumbar; abdomen ferm i costelles avall.' });
+  kp(13, 'acc', 'Elevacions laterals a la Kinesis', 'Lateral raise', 'Deltoides', 'kn_lat_raise', {
+    cues: 'Politges a baix, cada cable creua per davant del cos. Puja els braços fins a l\'altura de les espatlles amb els colzes poc flexionats, sense arronsar-les.' });
+  kp(14, 'acc', 'Elevacions frontals a la Kinesis', 'Front raise', 'Deltoides', 'kn_front_raise', {
+    cues: 'D\'esquena a la paret, politges a baix. Puja els braços estirats endavant fins a l\'altura de les espatlles sense balancejar el cos.' });
+  kp(15, 'acc', 'Ocells dempeus a la Kinesis', 'Reverse fly - standing', 'Deltoides', 'kn_rev_fly', { muscles: ['Escàpula', 'Trapezi'],
+    cues: 'De cara a la paret, politges a l\'altura de les espatlles i cables creuats. Obre els braços en arc fins a la creu, juntant els omoplats.' });
+  kp(16, 'acc', 'Face pull a la Kinesis', 'Face pull', 'Escàpula', 'kn_face_pull', { muscles: ['Deltoides', 'Manegot rotador'],
+    cues: 'Politges a l\'altura dels ulls. Estira les nanses cap a la cara obrint els colzes amunt i enfora, acabant amb rotació externa.' });
+  kp(17, 'acc', 'Rem vertical a la Kinesis', 'Upright row', 'Deltoides', 'kn_upright', { muscles: ['Trapezi'],
+    cues: 'Politges a baix. Puja les nanses a frec del cos fins al pit, colzes per sobre dels canells i sense passar de l\'altura de les espatlles.' });
+  kp(18, 'acc', 'Pullover dempeus a la Kinesis', 'Pullover - standing', 'Dorsal', 'kn_pullover', { muscles: ['Core'],
+    cues: 'Politges a dalt, de cara a la paret. Baixa els braços gairebé estirats fins als malucs, amb el tronc lleugerament inclinat i la zona lumbar neutra.' });
+  kp(19, 'acc', 'Curl de bíceps a la Kinesis', 'Biceps curl', 'Bíceps', 'kn_curl', { muscles: ['Avantbraç'],
+    cues: 'De cara a la paret, politges a baix. Colzes enganxats al cos: flexiona sense balancejar el tronc i baixa a poc a poc.' });
+  kp(20, 'acc', 'Extensió de tríceps a la Kinesis', 'Triceps pushdown', 'Tríceps', 'kn_pushdown', {
+    cues: 'Politges a dalt, de cara a la paret. Colzes fixos al costat del cos: estira fins a baix i torna sense que els colzes avancin.' });
+  kp(21, 'acc', 'Tríceps per sobre del cap a la Kinesis', 'Triceps extension - overhead', 'Tríceps', 'kn_triceps_oh', {
+    cues: 'D\'esquena a la paret, politges a baix i nanses darrere del cap. Estira els braços amunt amb els colzes a prop del cap i sense arquejar l\'esquena.' });
+  kp(22, 'for', 'Squat a la Kinesis', 'Squat', 'Quàdriceps', 'kn_squat', { muscles: ['GMax'], reps: '10',
+    cues: 'Politges a baix, nanses a l\'altura de les espatlles. Baixa amb el pit amunt i els genolls en la línia dels peus; puja empenyent el terra.' });
+  kp(23, 'for', 'Squat i rem a la Kinesis', 'Squat and row', 'Global', 'kn_squat_row', { muscles: ['Quàdriceps', 'GMax', 'Dorsal'], reps: '10',
+    cues: 'De cara a la paret amb els braços estirats. Baixa en squat i, en pujar, estira els colzes enrere juntant els omoplats.' });
+  kp(24, 'for', 'Estocada enrere amb press a la Kinesis', 'Reverse lunge and press', 'Global', 'kn_lunge_press', { muscles: ['Quàdriceps', 'GMax', 'Pectoral'], reps: '8/cama',
+    cues: 'D\'esquena a la paret, nanses al pit. Fes una passa enrere i, mentre baixes, empeny endavant. Genoll de davant sobre el peu.' });
+  kp(25, 'for', 'Estocada amb rem a la Kinesis', 'Lunge and row', 'Global', 'kn_lunge_row', { muscles: ['Quàdriceps', 'GMax', 'Dorsal'], reps: '8/cama',
+    cues: 'De cara a la paret i els braços estirats. Fes l\'estocada i estira els colzes enrere en baixar; torna a dalt sense perdre l\'equilibri.' });
+  kp(26, 'for', 'Pes mort romanès a la Kinesis', 'Romanian deadlift', 'Isquiotibials', 'kn_rdl', { muscles: ['GMax', 'Lumbar'], reps: '10',
+    cues: 'De cara a la paret, politges a baix. Porta el maluc enrere amb els genolls una mica flexionats i l\'esquena neutra; puja empenyent el maluc endavant.' });
+  kp(27, 'act', 'Extensió de maluc a la Kinesis', 'Hip extension - ankle strap', 'GMax', 'kn_kick', { muscles: ['Isquiotibials'], lat: 'UL', reps: '12/cama',
+    cues: 'Turmellera a la politja de baix, de cara a la paret. Porta la cama enrere sense arquejar la zona lumbar; el tronc no s\'inclina.' });
+  kp(28, 'act', 'Abducció de maluc a la Kinesis', 'Hip abduction - ankle strap', 'GMed', 'kn_abd', { muscles: ['Abductors'], lat: 'UL', reps: '12/cama',
+    cues: 'Turmellera a la politja de baix, de costat a la paret. Separa la cama de fora sense inclinar el tronc; la punta del peu mira endavant.' });
+  kp(29, 'act', 'Adducció de maluc a la Kinesis', 'Hip adduction - ankle strap', 'Adductors', 'kn_add', { lat: 'UL', reps: '12/cama',
+    cues: 'Turmellera a la cama de prop de la paret, politja a baix. Porta la cama cap a dins creuant per davant de l\'altra, tronc dret.' });
+  kp(30, 'act', 'Woodchop de dalt a baix a la Kinesis', 'Wood chop - high to low', 'Oblics', 'kn_chop', { muscles: ['Core'], reps: '10/costat',
+    cues: 'Politja a dalt, de costat a la paret. Porta les mans en diagonal fins al genoll contrari girant tronc i maluc alhora; braços gairebé estirats.' });
+  kp(31, 'act', 'Lift de baix a dalt a la Kinesis', 'Lift - low to high', 'Oblics', 'kn_lift', { muscles: ['Core', 'GMax'], reps: '10/costat',
+    cues: 'Politja a baix, de costat a la paret. Puja les mans en diagonal per sobre de l\'espatlla contrària, estenent maluc i genolls.' });
+  kp(32, 'act', 'Chop amb mig genoll a la Kinesis', 'Chop - half kneeling', 'Core', 'kn_chop_half', { muscles: ['Oblics'], pos: 'Sa', reps: '10/costat',
+    cues: 'Amb un genoll a terra, politja a dalt. Estira en diagonal cap avall sense que el tronc giri: primer s\'aprèn a frenar la rotació.' });
+  kp(33, 'act', 'Lift amb mig genoll a la Kinesis', 'Lift - half kneeling', 'Core', 'kn_lift_half', { muscles: ['Oblics'], pos: 'Sa', reps: '10/costat',
+    cues: 'Amb un genoll a terra, politja a baix. Puja en diagonal per sobre de l\'espatlla de fora mantenint el maluc quiet i l\'abdomen ferm.' });
+  kp(34, 'act', 'Rotació de tronc a la Kinesis', 'Trunk rotation', 'Oblics', 'kn_rotation', { muscles: ['Core'], reps: '10/costat',
+    cues: 'Politja a l\'altura del pit, de costat a la paret i els braços estirats. Gira el tronc i els malucs alhora, peus fixos a terra.' });
+  kp(35, 'act', 'Pallof press a la Kinesis', 'Pallof press', 'Core', 'kn_pallof', { muscles: ['Oblics'], reps: '10/costat',
+    cues: 'De costat a la paret, nansa al pit. Empeny endavant i aguanta 2 s sense deixar que el cable giri el tronc.' });
+  kp(36, 'act', 'Flexió lateral a la Kinesis', 'Side bend', 'Oblics', 'kn_side_bend', { muscles: ['Core'], reps: '12/costat',
+    cues: 'De costat a la paret, nansa a la mà de prop i politja a baix. Inclina\'t cap a l\'altre costat sense girar ni avançar el tronc.' });
+  kp(37, 'act', 'Crunch agenollat a la Kinesis', 'Crunch - kneeling', 'Core', 'kn_crunch', { pos: 'Ag', reps: '12',
+    cues: 'De genolls i de cara a la paret, politges a dalt i nanses al costat del cap. Enrotlla el tronc cap avall amb l\'abdomen, sense moure el maluc.' });
+  kp(38, 'act', 'Rotació externa d\'espatlla a la Kinesis', 'External rotation', 'Manegot rotador', 'kn_ext_rot', { lat: 'UL', sets: '2', reps: '15/costat',
+    cues: 'Politja a l\'altura del colze, de costat a la paret. Colze enganxat al cos a 90°: gira l\'avantbraç enfora sense separar el colze.' });
+  kp(39, 'act', 'Rotació interna d\'espatlla a la Kinesis', 'Internal rotation', 'Manegot rotador', 'kn_int_rot', { lat: 'UL', sets: '2', reps: '15/costat',
+    cues: 'Politja a l\'altura del colze, de costat a la paret. Colze enganxat al cos a 90°: porta l\'avantbraç cap a la panxa i torna a poc a poc.' });
 
   // ── Mancuernes Technogym (51 exercicis de l'app de Technogym: «Dumbbells» i, del 48 al 51, «Hexagon dumbbells») ──
   const db = (n, block, name, tg, gm, extra = {}) => tgEx('DB', n, block, name, tg, gm, 'Mancuernes', M, [M, KBT], extra);
@@ -17907,6 +17991,60 @@ PICS.squat_wedge = { ...PICS.squat, band: undefined, label: 'Goblet squat amb cu
 // Press unilateral dempeus a la Keiser: en posició de pas, d'esquena a la columna, empeny amb un braç sense girar el tronc.
 PICS.kx_press_one = { ...PICS.row_standing, label: 'Press unilateral a la Keiser', from: { a: [176, -6] }, a: [4, 2], b: [96, 84], grip: 'near', pull: [-30, 20, 8], s: 0.88 };
 
+// ── Technogym Kinesis Personal: panell amb llistons de fusta i dos cables que surten dels braços de dalt o de baix
+// (picKinesisWall). L'ancoratge [x, y, z] respecte del maluc diu el costat; y > 0 = braç de dalt, y < 0 = braç de baix.
+// Turmellera amb el cable del braç de baix (extensió, abducció i adducció de maluc).
+const picAnkleCable = (J, A) => {
+  const ank = J.leg[0].a, B = picKinesisAnchor([A[0], -1, A[2]], J);
+  return [pk.disc(ank, J.leg[0].d2 || [0, 1, 0], 2.2, 'pe-ring', { gear: 1 }), pk.line([ank, B], 1.1, 'pe', { gear: 1 }), ...picKinesisWall([B], J)];
+};
+PICS.kn_press = { ...PICS.row_standing, view: 'q', label: 'Press de pit dempeus al cable', from: { a: [176, -6] }, a: [4, 2], grip: 'hands', pull: [-30, 22, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_press_alt = { ...PICS.kn_press, label: 'Press de pit altern dempeus al cable', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6] };
+PICS.kn_press_one = { ...PICS.row_standing, view: 'q', label: 'Press de pit a una mà al cable', from: { a: [176, -6] }, a: [4, 2], b: [96, 84], grip: 'near', pull: [-30, 20, 8], s: 0.88 };
+PICS.kn_row = { ...PICS.row_standing, view: 'q', label: 'Rem dempeus al cable', pull: [40, -10, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_row_one = { ...PICS.row_standing, view: 'q', label: 'Rem a una mà dempeus al cable', b: [96, 84], grip: 'near', pull: [40, -10, 8], s: 0.88 };
+PICS.kn_pushpull = { ...PICS.row_standing, view: 'q', label: 'Push-pull al cable', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6], grip: 'hands',
+  pull: [-24, 20, -34], pull2: [30, 20, -34], s: 0.84 };
+PICS.kn_row_half = { ...PICS.kx_row_half, view: 'q', label: 'Rem a una mà amb mig genoll al cable' };
+PICS.kn_pulldown = { ...KX_TALL, view: 'q', label: 'Jaló agenollat al cable', from: { a: [-128, -124] }, a: [104, -56], grip: 'hands', pull: [22, 64, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_crunch = { ...KX_TALL, view: 'q', rel: 'arms', label: 'Crunch agenollat al cable', from: { t: -84, hd: -4 }, t: -38, hd: -14, a: [-24, -168], grip: 'chest', pull: [30, 64, 0], s: 0.86 };
+PICS.kn_ohpress = { ...PICS.ohpress, label: 'Press d\'espatlles al cable', pull: [-4, -34, 18], pull2: 'mirror', s: 0.9 };
+PICS.kn_lat_raise = { ...PICS.lat_raise, label: 'Elevació lateral al cable', pull: [0, -34, -8], pull2: 'mirror', s: 0.9 };
+PICS.kn_front_raise = { ...PICS.front_raise, view: 'q', label: 'Elevació frontal al cable', pull: [-18, -34, 6], pull2: 'mirror', s: 0.9 };
+PICS.kn_upright = { ...PICS.upright_row, label: 'Rem vertical al cable', pull: [6, -34, 4], pull2: 'mirror', s: 0.9 };
+PICS.kn_rev_fly = { ...PICS.cx_mid, label: 'Ocells dempeus al cable', from: { a: PICS.cx_mid.a, b: PICS.cx_mid.b }, a: PICS.cx_mid.from.a, b: PICS.cx_mid.from.b,
+  pull: [30, 24, -44], pull2: 'mirror' };
+PICS.kn_squat = { ...PICS.squat, view: 'q', band: undefined, label: 'Squat al cable', grip: 'hands', pull: [-22, -34, 10], pull2: 'mirror', s: 0.88 };
+PICS.kn_squat_row = { ...PICS.squat, view: 'q', band: undefined, label: 'Squat i rem al cable', from: { t: -60, hd: -10, l: [12, 108], a: [4, 2] }, t: -88, hd: 0, l: [92, 88],
+  a: [176, -6], grip: 'hands', pull: [42, -10, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_lunge_press = { ...PICS.split, view: 'q', band: undefined, label: 'Estocada amb press al cable', from: { ...PICS.split.from, a: [176, -6] }, a: [4, 2], grip: 'hands',
+  pull: [-34, 14, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_lunge_row = { ...PICS.kn_lunge_press, label: 'Estocada amb rem al cable', from: { ...PICS.split.from, a: [4, 2] }, a: [176, -6], pull: [40, -10, 10] };
+PICS.kn_rdl = { ...PICS.hinge, view: 'q', label: 'Pes mort romanès al cable', pull: [26, -34, 8], pull2: 'mirror', s: 0.88 };
+PICS.kn_kick = { ...PICS.stand_kick, view: 'q', propsMove: true, label: 'Extensió de maluc al cable', a: [6, 0],
+  props: (J) => picAnkleCable(J, [J.leg[1].toe[0] + 18, J.groundY + 3, J.leg[1].a[2]]) };
+PICS.kn_abd = { ...PICS.stand_abd, view: 'q', propsMove: true, label: 'Abducció de maluc al cable',
+  props: (J) => picAnkleCable(J, [J.leg[1].a[0], J.groundY + 3, J.leg[1].a[2] + Math.sign(J.leg[1].a[2] - J.leg[0].a[2] || 1) * 16]) };
+PICS.kn_add = { ...PICS.stand_abd, propsMove: true, label: 'Adducció de maluc al cable', from: { l: [112, 112] }, l: [80, 80],
+  props: (J) => picAnkleCable(J, [J.leg[1].a[0], J.groundY + 3, J.leg[1].a[2] + Math.sign(J.sh[0][2] - J.sh[1][2] || 1) * 30]) };
+PICS.kn_face_pull = { ...PICS.face_pull, view: 'q', label: 'Face pull al cable', pull: [40, 30, 6], pull2: 'mirror' };
+PICS.kn_curl = { ...PICS.curl, view: 'q', label: 'Curl de bíceps al cable', pull: [26, -30, 8], pull2: 'mirror' };
+PICS.kn_pushdown = { ...PICS.pushdown, view: 'q', label: 'Extensió de tríceps al cable', pull: [18, 40, 6], pull2: 'mirror' };
+PICS.kn_triceps_oh = { ...PICS.triceps_oh, view: 'q', label: 'Tríceps per sobre del cap al cable', pull: [-26, -30, 6], pull2: 'mirror' };
+PICS.kn_pullover = { ...PICS.pullover, view: 'q', label: 'Pullover al cable', pull: [34, 40, 8], pull2: 'mirror' };
+PICS.kn_fly = { ...PICS.cx_mid, label: 'Obertures al cable', pull: [-8, 24, 30] };
+PICS.kn_fly_high = { ...PICS.cx_high, label: 'Creuament de dalt a baix al cable', pull: [-8, 36, 30] };
+PICS.kn_fly_low = { ...PICS.cx_low, label: 'Creuament de baix a dalt al cable', pull: [-8, -30, 30] };
+PICS.kn_pallof = { ...PICS.pallof, label: 'Pallof press al cable' };
+PICS.kn_ext_rot = { ...PICS.ext_rot, view: 'q', label: 'Rotació externa d\'espatlla al cable' };
+PICS.kn_chop = { ...PICS.woodchop, label: 'Woodchop al cable' };
+PICS.kn_lift = { ...PICS.kx_lift, label: 'Lift al cable' };
+PICS.kn_chop_half = { ...PICS.kx_chop_half, label: 'Chop amb mig genoll al cable' };
+PICS.kn_lift_half = { ...PICS.kx_lift_half, label: 'Lift amb mig genoll al cable' };
+PICS.kn_rotation = { ...PICS.pallof, label: 'Rotació de tronc al cable', from: { tr: 60 }, tr: -50, pull: [12, 14, -46] };
+PICS.kn_side_bend = { ...PICS.side_bend, view: 'q', label: 'Flexió lateral al cable', from: { ts: 20 }, ts: -16, pull: [0, -34, 12] };
+PICS.kn_int_rot = { ...PICS.ext_rot, label: 'Rotació interna d\'espatlla al cable', from: { a: PICS.ext_rot.a }, a: PICS.ext_rot.from.a, pull: [12, 4, 44] };
+
 
 /* ── 15-pics.js ── */
 /* EON Life · miniatures dels exercicis.
@@ -18321,6 +18459,28 @@ function picKeiserColumn(A, J) {
   ];
 }
 
+// Technogym Kinesis Personal: panell fosc amb llistons de fusta i, a dalt i a baix, els braços que pivoten d'on surten
+// els cables. Cada cable surt del braç de dalt (si l'ancoratge és per sobre del maluc) o del de baix.
+function picKinesisAnchor(A, J) { return [A[0], A[1] > 0 ? J.groundY + 86 : J.groundY + 4, A[2]]; }
+function picKinesisWall(As, J) {
+  const avg = (i) => As.reduce((s, A) => s + A[i], 0) / As.length;
+  const alongX = Math.abs(avg(0)) >= Math.abs(avg(2));
+  const n = alongX ? 0 : 2, q = alongX ? 2 : 0, sg = Math.sign(avg(n)) || -1, c = avg(q), W = 22, H = 92;
+  const far = Math.max(...As.map((A) => sg * A[n])) + 6;
+  const bx = (p0, p1, y0, y1, q0, q1, cls, z) => {
+    const [a0, a1] = [sg * p0, sg * p1].sort((x, y) => x - y);
+    return alongX ? pk.box(a0, a1, y0, y1, q0, q1, cls, { gear: 1, nofit: 1, z }) : pk.box(q0, q1, y0, y1, a0, a1, cls, { gear: 1, nofit: 1, z });
+  };
+  const g0 = J.groundY, out = [bx(far, far + 2.6, g0, g0 + H, c - W, c + W, 'pkz', -40)];
+  for (let y = g0 + 9; y < g0 + H - 6; y += 9) out.push(bx(far - 1.1, far, y, y + 1.7, c - W + 1, c + W - 1, 'pwd', -39));
+  for (const A of As) {
+    const P0 = [0, A[1], 0];
+    P0[n] = sg * far; P0[q] = Math.max(c - W + 2, Math.min(c + W - 2, A[q]));
+    out.push(pk.line([P0, A], 1.5, 'pml', { gear: 1, nofit: 1, z: -38 }), pk.ball(A, 1.9, 'pmh', { gear: 1 }));
+  }
+  return out;
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -18404,14 +18564,17 @@ function picGear3(J, P, g, C) {
     if (Array.isArray(P.pull)) {
       // pull2: el cable de la mà esquerra (creuament: dues politges, una a cada costat; 'mirror' = la simètrica)
       const A2 = P.pull2 === 'mirror' ? [P.pull[0], P.pull[1], -P.pull[2]] : P.pull2;
-      const cables = [[h, P.pull]].concat(Array.isArray(A2) ? [[hL, A2]] : []);
+      const kin = g.kind === 'cable' && g.brand === 'kinesis', at = (A) => (kin ? picKinesisAnchor(A, J) : A);
+      const cables = [[h, at(P.pull)]].concat(Array.isArray(A2) ? [[hL, at(A2)]] : []);
       if (A2 && g.kind === 'cable') out.push(pk.cap(v3.along(hL, C.right, -1.6), v3.along(hL, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
       for (const [hh, A] of cables) {
         out.push(pk.line([hh, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
+        if (kin) continue;
         out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
         if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
         else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
       }
+      if (kin) out.push(...picKinesisWall(cables.map((c) => c[1]), J));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -18923,7 +19086,8 @@ function picGearOf(e, key) {
   if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
   // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
   if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
-  if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
+  if (/kinesis/.test(m) && P.pull) return { kind: 'cable', brand: 'kinesis' };
+  if (/politja|cable|pulley|keiser|kinesis|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
 }

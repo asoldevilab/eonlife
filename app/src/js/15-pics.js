@@ -410,6 +410,28 @@ function picKeiserColumn(A, J) {
   ];
 }
 
+// Technogym Kinesis Personal: panell fosc amb llistons de fusta i, a dalt i a baix, els braços que pivoten d'on surten
+// els cables. Cada cable surt del braç de dalt (si l'ancoratge és per sobre del maluc) o del de baix.
+function picKinesisAnchor(A, J) { return [A[0], A[1] > 0 ? J.groundY + 86 : J.groundY + 4, A[2]]; }
+function picKinesisWall(As, J) {
+  const avg = (i) => As.reduce((s, A) => s + A[i], 0) / As.length;
+  const alongX = Math.abs(avg(0)) >= Math.abs(avg(2));
+  const n = alongX ? 0 : 2, q = alongX ? 2 : 0, sg = Math.sign(avg(n)) || -1, c = avg(q), W = 22, H = 92;
+  const far = Math.max(...As.map((A) => sg * A[n])) + 6;
+  const bx = (p0, p1, y0, y1, q0, q1, cls, z) => {
+    const [a0, a1] = [sg * p0, sg * p1].sort((x, y) => x - y);
+    return alongX ? pk.box(a0, a1, y0, y1, q0, q1, cls, { gear: 1, nofit: 1, z }) : pk.box(q0, q1, y0, y1, a0, a1, cls, { gear: 1, nofit: 1, z });
+  };
+  const g0 = J.groundY, out = [bx(far, far + 2.6, g0, g0 + H, c - W, c + W, 'pkz', -40)];
+  for (let y = g0 + 9; y < g0 + H - 6; y += 9) out.push(bx(far - 1.1, far, y, y + 1.7, c - W + 1, c + W - 1, 'pwd', -39));
+  for (const A of As) {
+    const P0 = [0, A[1], 0];
+    P0[n] = sg * far; P0[q] = Math.max(c - W + 2, Math.min(c + W - 2, A[q]));
+    out.push(pk.line([P0, A], 1.5, 'pml', { gear: 1, nofit: 1, z: -38 }), pk.ball(A, 1.9, 'pmh', { gear: 1 }));
+  }
+  return out;
+}
+
 // Material que es porta (a les mans, a l'esquena, als genolls…), en 3D.
 function picGear3(J, P, g, C) {
   if (!g || !g.kind) return [];
@@ -493,14 +515,17 @@ function picGear3(J, P, g, C) {
     if (Array.isArray(P.pull)) {
       // pull2: el cable de la mà esquerra (creuament: dues politges, una a cada costat; 'mirror' = la simètrica)
       const A2 = P.pull2 === 'mirror' ? [P.pull[0], P.pull[1], -P.pull[2]] : P.pull2;
-      const cables = [[h, P.pull]].concat(Array.isArray(A2) ? [[hL, A2]] : []);
+      const kin = g.kind === 'cable' && g.brand === 'kinesis', at = (A) => (kin ? picKinesisAnchor(A, J) : A);
+      const cables = [[h, at(P.pull)]].concat(Array.isArray(A2) ? [[hL, at(A2)]] : []);
       if (A2 && g.kind === 'cable') out.push(pk.cap(v3.along(hL, C.right, -1.6), v3.along(hL, C.right, 1.6), 0.9, 0.9, 'pmh', { gear: 1 }));
       for (const [hh, A] of cables) {
         out.push(pk.line([hh, A], g.kind === 'cable' ? 1.1 : 1.5, 'pe', { gear: 1 }));
+        if (kin) continue;
         out.push(pk.ball(A, 1.9, 'pmh', { gear: 1 }));
         if (g.kind === 'cable' && g.brand === 'keiser') out.push(...picKeiserColumn(A, J));
         else if (g.kind === 'cable') out.push(pk.box(A[0] - 1.6, A[0] + 1.6, J.floorY, Math.max(A[1] + 6, J.floorY + 74), A[2] - 1.6, A[2] + 1.6, 'pp', { gear: 1, nofit: 1, z: -40 }));
       }
+      if (kin) out.push(...picKinesisWall(cables.map((c) => c[1]), J));
     }
     // si no, el cable va cap a la vora del dibuix (picGear2)
     return out;
@@ -1012,7 +1037,8 @@ function picGearOf(e, key) {
   if (/conica|isoinercial|pro c2|pulley pro/.test(m + ' ' + t)) return P.pull ? { kind: 'cone', belt: !!P.belt } : { kind: '' };
   // Keiser: la columna amb el cilindre d'aire (resistència pneumàtica)
   if (/keiser|pneumatic/.test(m) && P.pull) return { kind: 'cable', brand: 'keiser' };
-  if (/politja|cable|pulley|keiser|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
+  if (/kinesis/.test(m) && P.pull) return { kind: 'cable', brand: 'kinesis' };
+  if (/politja|cable|pulley|keiser|kinesis|conica|isoinercial|face pull|creuament/.test(m + ' ' + t)) return P.pull ? { kind: 'cable' } : { kind: '' };
   if (/goma|\bbanda\b|elastic|band\b/.test(m + ' ' + t)) return P.band ? { kind: 'loop', at: P.band } : P.pull || P.grip ? { kind: 'band' } : { kind: '' };
   return { kind: '' };
 }

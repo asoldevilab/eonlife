@@ -50,7 +50,7 @@
   --pic-prop: #CEC5BB;
   --pic-prop-top: #DDD6CE; --pic-prop-side: #BCB1A5;
   --pic-metal: #3F5F7F; --pic-metal-2: #8DA2B6; --pic-elastic: #E5592C; --pic-soft: #1F9A8B;
-  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-air: #4C9AD6;
+  --pic-cone: #8E2A3A; --pic-cone-2: #C0505F; --pic-keiser: #34414F; --pic-wood: #B8875A; --pic-air: #4C9AD6;
   --pic-skin: #E4AE8A; --pic-skin-far: #C4906E; --pic-top: #5A1C21; --pic-top-far: #3C1316; --pic-short: #2F2527; --pic-short-far: #1D1618; --pic-shoe: #ECE6DD; --pic-shoe-far: #CFC7BB; --pic-hair: #3B261B; --pic-hair-far: #2A1A12;
   --grid: #ECE6E0;
   --axis: #978985;
@@ -108,7 +108,7 @@
     --pic-prop: #5E5250;
     --pic-prop-top: #6E6260; --pic-prop-side: #514644;
     --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
-  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-wood: #D2A577; --pic-air: #6DB3E8;
   --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
     --grid: #33242A;
     --axis: #9B8C88;
@@ -159,7 +159,7 @@
   --pic-prop: #5E5250;
   --pic-prop-top: #6E6260; --pic-prop-side: #514644;
   --pic-metal: #8DB4DA; --pic-metal-2: #5B738A; --pic-elastic: #FF8A5E; --pic-soft: #4CC4B4;
-  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-air: #6DB3E8;
+  --pic-cone: #D7707E; --pic-cone-2: #F0A0AA; --pic-keiser: #A9B8C8; --pic-wood: #D2A577; --pic-air: #6DB3E8;
   --pic-skin: #E8B896; --pic-skin-far: #C2916F; --pic-top: #E7D3CD; --pic-top-far: #BBA29B; --pic-short: #6A5558; --pic-short-far: #4A3A3C; --pic-shoe: #F3EFE9; --pic-shoe-far: #C9C2B9; --pic-hair: #4A3326; --pic-hair-far: #36241A;
   --grid: #33242A;
   --axis: #9B8C88;
@@ -1544,6 +1544,7 @@ tfoot .rpc { font-size: 14px; }
 .pic .pc { fill: var(--pic-cone); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pc2 { fill: var(--pic-cone-2); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pkz { fill: var(--pic-keiser); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
+.pic .pwd { fill: var(--pic-wood); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.3; }
 .pic .pka { fill: var(--pic-air); stroke: var(--pic-bg, var(--surface)); stroke-width: 0.45; }
 .pic .pfl { fill: none; stroke: var(--line-2); }
 .pic .psh { fill: var(--ink); opacity: 0.08; }
