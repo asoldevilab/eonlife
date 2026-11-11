@@ -107,7 +107,7 @@ const ExcelClient = (() => {
 
     // Targetes (fórmules sobre el registre)
     const done = rows.filter((x) => x.state.key === 'feta');
-    const pend = rows.filter((x) => x.state.key !== 'feta');
+    const pend = rows.filter((x) => x.state.key !== 'feta' && x.state.key !== 'cancelada');
     const uas = done.map((x) => x.ua).filter((n) => n != null);
     const rpes = done.map((x) => x.rpe).filter((n) => n != null);
     const wls = done.map((x) => x.wellness).filter((n) => n != null);

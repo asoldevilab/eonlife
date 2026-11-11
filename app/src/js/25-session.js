@@ -3,16 +3,8 @@
 
 function SessionEditor({ id }) {
   const s = Store.get('sessions', id);
-  // Última vegada que el client va fer cada exercici (per progressar la càrrega).
-  const prev = useMemo(() => {
-    const m = {};
-    if (!s) return m;
-    const before = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id && x.date <= s.date).reverse();
-    for (const x of before) for (const b of x.blocks || []) for (const it of b.items || []) {
-      if (it.name && !m[it.name]) m[it.name] = { ...it, date: x.date, _rpe: U.num((x.feedback || {}).rpe), _pain: U.num((x.feedback || {}).pain) };
-    }
-    return m;
-  }, [s && s.patientId, s && s.date, id]);
+  // Última vegada que el client va fer cada exercici (per recomanar la càrrega): prevMapOf.
+  const prev = useMemo(() => (s ? prevMapOf(s) : {}), [s && s.patientId, s && s.date, id]);
   if (!s) return html`<div class="page"><${Empty} icon="calendar" title="No trobo aquesta sessió" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
   const p = Store.get('patients', s.patientId);
@@ -29,7 +21,9 @@ function SessionEditor({ id }) {
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
     if (!date) return;
-    const copy = Store.duplicateSession(s.id, date);
+    const prof = await askProfessional({ title: 'Qui farà la nova sessió?', text: `Còpia de la sessió ${s.number} per al ${U.fmtDate(date)}.`, ok: 'Duplica-la' });
+    if (!prof) return;
+    const copy = Store.duplicateSession(s.id, date, prof);
     UI.toast(`Sessió ${copy.number} creada per al ${U.fmtDate(date)}.`);
     go('sessio', copy.id);
   };
@@ -59,8 +53,7 @@ function SessionEditor({ id }) {
     }, 80);
   };
   const addExercise = (key, it) => {
-    const last = (prev || {})[it.name];
-    if (last && last.load) it.load = Calc.carryLoad(last, it);
+    if (!it.load) it.load = loadFor(it, prev);
     upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -100,14 +93,9 @@ function SessionEditor({ id }) {
     UI.toast('Sessió eliminada.');
     go('client', s.patientId, 'sessions');
   };
-  const markDone = () => {
-    upd((x) => {
-      x.status = 'feta';
-      for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
-    });
-    Sync.soon(s.patientId); // l'Excel de la sessió acabada es puja de seguida
-    PdfSync.soon(s.patientId); // i el seu PDF
-  };
+  // Abans de marcar-la com a feta es confirma qui l'ha feta (markSessionDone, 13-shared.js).
+  const markDone = () => markSessionDone(s);
+  const setStatus = (v) => { if (v === 'feta' && s.status !== 'feta') markDone(); else set('status')(v); };
   const leave = () => { Sync.flush(s.patientId); PdfSync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
 
   return html`<div class="page page-edit">
@@ -120,7 +108,7 @@ function SessionEditor({ id }) {
       ${s.planId && Store.get('templates', s.planId) && html`<button type="button" class="pill pill-neutral plan-pill" onClick=${() => go('pla', s.planId, s.planN)}
         title="Obre el pla d'entrenament"><${Icon} name="layers" size=${13} />S${s.planN} del pla</button>`}
       <${SaveStatus} />
-      <${Seg} value=${s.status} onValue=${set('status')} allowEmpty=${false} size="sm" ariaLabel="Estat de la sessió"
+      <${Seg} value=${s.status} onValue=${setStatus} allowEmpty=${false} size="sm" ariaLabel="Estat de la sessió"
         options=${[{ v: 'planificada', label: 'Planificada' }, { v: 'feta', label: 'Feta', tone: 'ok' }]} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('fitxa', s.id)}>Presenta</${Btn}>
       <${Menu} items=${[
@@ -153,7 +141,7 @@ function SessionEditor({ id }) {
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Hora" id="se-time"><${TextInput} id="se-time" type="time" value=${s.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
-        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
+        <${Field} label="Professional" id="se-prof" class=${!s.professional && 'field-missing'} hint=${!s.professional ? 'Falta triar qui fa la sessió.' : ''}><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
         <${Field} label="Objectiu de la sessió" id="se-goal" wide=${true}>
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
@@ -166,7 +154,7 @@ function SessionEditor({ id }) {
     <${WeekVolume} s=${s} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
-    ${(s.blocks || []).map((b, bi, all) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
+    ${(s.blocks || []).map((b, bi, all) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date} sessionId=${s.id}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)}
       onMoveBlock=${(dir) => moveBlock(b.key, dir)} canBlockUp=${bi > 0} canBlockDown=${bi < all.length - 1}
       otherBlocks=${all.filter((o) => o.key !== b.key).map((o) => o.key)} onMoveItemTo=${(iid, to) => moveItemTo(b.key, iid, to)} />`)}
@@ -201,15 +189,53 @@ function SessionEditor({ id }) {
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 // Botons per afegir a la sessió els blocs que encara no hi són.
 // Aplica la càrrega suggerida (segons RPE i dolor de la darrera sessió) als exercicis d'un bloc. Retorna quants n'han canviat.
+// Última vegada que el pacient va fer cada exercici abans d'aquesta sessió, pel nom i per l'exercici de la biblioteca.
+// Només compten les vegades amb dades (feta, o amb càrrega o encoder): no una sessió planificada que no es va fer.
+// _kg: els quilos, encara que estiguin escrits «2 × 16 kg» o només a l'encoder; _rpe i _pain: com va anar la sessió.
+function prevMapOf(s) {
+  const m = {};
+  const before = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id && x.date <= s.date && x.status !== 'cancelada').reverse();
+  for (const x of before) for (const b of x.blocks || []) for (const it of b.items || []) {
+    if (!it.name) continue;
+    const kg = Calc.kg(it);
+    if (x.status !== 'feta' && kg == null) continue;
+    const rec = { ...it, date: x.date, _kg: kg, _rpe: U.num((x.feedback || {}).rpe), _pain: U.num((x.feedback || {}).pain) };
+    if (!m[it.name]) m[it.name] = rec;
+    if (it.exId && !m[`#${it.exId}`]) m[`#${it.exId}`] = rec;
+  }
+  return m;
+}
+function prevFor(prev, it) {
+  if (!prev || !it) return null;
+  return (it.name && prev[it.name]) || (it.exId && prev[`#${it.exId}`]) || null;
+}
+
+// Càrrega recomanada per a un exercici que el pacient ja ha fet: la darrera, pujada o baixada segons l'RPE i el dolor
+// d'aquella sessió (Calc.suggestLoad); sense RPE ni dolor, la mateixa. Adaptada si ha canviat la lateralitat.
 function progressionOf(it, prev) {
-  const p = it && it.name && prev ? prev[it.name] : null;
+  const p = prevFor(prev, it);
   if (!p) return null;
+  const kg = Calc.loadKg(p.load) != null ? Calc.loadKg(p.load) : p._kg;
+  if (kg == null || kg <= 0) return null;
   // si abans el feia bilateral i ara unilateral (o al revés), es parteix de la càrrega equivalent
   const lf = Calc.latFactor(p, it);
-  const base = lf !== 1 && Calc.loadKg(p.load) != null ? { ...p, load: String(Calc.latLoad(Calc.loadKg(p.load), p, it)) } : p;
-  const sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
-  if (sg && lf !== 1) { sg.why += Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)'; sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`; }
+  const base = { ...p, load: String(lf !== 1 ? Calc.latLoad(kg, p, it) : kg) };
+  const lat = lf !== 1 ? (Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)') : '';
+  let sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
+  if (!sg) {
+    const load = Calc.loadKg(base.load);
+    sg = { load, base: load, delta: 0, pct: 0, why: 'la mateixa que la darrera vegada (sense RPE d\'aquella sessió)' };
+  }
+  sg.why += lat;
+  sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`;
   return sg;
+}
+// La càrrega per posar a un exercici que s'afegeix: la recomanada o, si no n'hi ha, la de la darrera vegada.
+function loadFor(it, prev) {
+  const sg = progressionOf(it, prev);
+  if (sg) return String(sg.load).replace('.', ',');
+  const last = prevFor(prev, it);
+  return last && last.load ? Calc.carryLoad(last, it) : '';
 }
 function applyProgression(block, prev) {
   let n = 0;
@@ -302,7 +328,7 @@ function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió',
   </section>`;
 }
 
-function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove, onMoveBlock, canBlockUp, canBlockDown, otherBlocks, onMoveItemTo }) {
+function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove, onMoveBlock, canBlockUp, canBlockDown, otherBlocks, onMoveItemTo, sessionId }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -325,8 +351,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       title: `Afegeix exercici · ${blockName(block.key)}${n ? ` · Bloc ${n}` : ''}`,
       onPick: (ex, mat) => {
         const it = itemFromExercise(ex, { material: mat || ex.material || '' });
-        const last = prev ? prev[ex.name] : null;
-        if (last && last.load) it.load = Calc.carryLoad(last, it);
+        if (prev) it.load = loadFor(it, prev) || it.load;
         put(it, false);
         const cw = patient ? Calc.cautions(patient, ex) : [];
         UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name}${mat ? ` · ${mat}` : ''}`, cw.length ? 'bad' : undefined);
@@ -450,7 +475,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     if (g && Calc.isSuper(g.g)) { const last = g.items[g.items.length - 1]; return last && last.it === it ? Calc.secs(g.g.rest) || 0 : 0; }
     return Calc.secs(it.rest) || 0;
   };
-  const row = (it, i, gi) => html`<${ItemRow} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
+  const row = (it, i, gi) => html`<${ItemRow} sessionId=${sessionId} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
     groups=${[...((groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))) || []),
       ...((onMoveItemTo && otherBlocks) || []).map((k) => ({ id: `blk:${k}`, label: `Mou a ${blockName(k)}` }))]}
@@ -531,21 +556,20 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
   </section>`;
 }
 
-function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
+function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date, sessionId }) {
   const [open, setOpen] = useState(false);
   const [vbtOpen, setVbtOpen] = useState(false);
   const vbtSum = Calc.vbt(it);
   // Registre de l'encoder: a Potència i Força principal (o a qualsevol exercici que ja en tingui).
   const vbtOn = !templateMode && (['pot', 'for'].includes(block) || !!vbtSum);
-  const prev = prevMap && it.name ? prevMap[it.name] : null;
+  const prev = prevFor(prevMap, it);
   const set = (k) => (v) => onChange((x) => { x[k] = v; });
   const pick = (ex) => onChange((x) => {
     x.name = ex.name;
     x.exId = ex.id;
     for (const k of ['gm', 'cont', 'pos', 'lat', 'material']) x[k] = ex[k] || '';
     for (const k of ['sets', 'reps', 'intensity', 'rest', 'tempo']) if (!x[k]) x[k] = ex[k] || '';
-    const last = prevMap ? prevMap[ex.name] : null;
-    if (last && !x.load && last.load) x.load = Calc.carryLoad(last, x);
+    if (prevMap && !x.load) x.load = loadFor(x, prevMap);
   });
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
@@ -605,16 +629,16 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </span>`}
         <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
           onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
-        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} date=${date} where="sessionVideos" onChange=${set('video')} />`}
+        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} date=${date} where="sessionVideos" onChange=${set('video')} target=${sessionId ? { sessionId, itemId: it.id } : null} />`}
         ${vbtOn && html`<button type="button" class=${U.cls('vbt-btn', (vbtOpen || vbtSum) && 'on')} aria-expanded=${vbtOpen} onClick=${() => setVbtOpen(!vbtOpen)}
           title="Registre per sèries de l'encoder ADR o de l'ADR Jumping"><${Icon} name="chart" size=${15} /><span>${vbtSum && vbtSum.text ? vbtSum.text : 'Encoder'}</span></button>`}
         ${!templateMode && html`<${TimerButton} secs=${restSecs} label=${`Descans · ${it.name || 'exercici'}`} />`}
         ${!templateMode && Calc.isTime(it.reps) && html`<${TimerButton} secs=${Calc.secs(it.reps)} kind="work" label=${it.name || 'Exercici'} title="Inicia el temps de l'exercici" />`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Última vegada · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${prev._kg != null && Calc.loadKg(prev.load) == null ? ` · ${Calc.fmtKg(prev._kg)}` : ''}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${prev._rpe != null ? ` · RPE ${U.fmt(prev._rpe, 0)}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
         ${sug && html` <button type="button" class=${U.cls('sug', Calc.loadKg(it.load) === sug.load && 'sug-on')} onClick=${() => set('load')(String(sug.load).replace('.', ','))}
-          title="Càrrega suggerida segons com va anar la darrera sessió. Toca per aplicar-la.">Suggeriment: ${sug.text}</button>`}</div>`}
+          title="Càrrega recomanada segons la darrera vegada i com va anar (RPE i dolor). Toca per posar-la.">${Calc.loadKg(it.load) === sug.load ? '✓ ' : ''}Recomanat: ${sug.text}</button>`}</div>`}
       ${latInfo && html`<div class=${U.cls('prev', (latInfo.state === 'high' || latInfo.state === 'low') && 'caut')} role="note">${latInfo.state === 'high' || latInfo.state === 'low' ? '⚠ ' : latInfo.state === 'ok' ? '✓ ' : ''}${latInfo.text}${latInfo.state !== 'ok' && html` <button type="button" class="sug" onClick=${() => set('load')(String(latInfo.ref).replace('.', ','))}
           title="Posa la càrrega de referència per a la nova lateralitat">Posa-hi ${Calc.fmtKg(latInfo.ref)}</button>`}</div>`}
       ${pct != null && !templateMode && html`<div class="prev">${pctKg
@@ -644,7 +668,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: toggleLat },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
-        !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
+        !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video'), target: sessionId ? { sessionId, itemId: it.id } : null }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />

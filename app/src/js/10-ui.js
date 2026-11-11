@@ -441,19 +441,24 @@ function SaveStatus() {
 
 // Enllaç de vídeo d'un test o exercici (carpeta del client, YouTube…).
 // date i where diuen a quina data i carpeta del client va el vídeo que es gravi (vegeu uploadToClient).
-function VideoButton({ url, onChange, title = 'Vídeo', patient, date, where }) {
-  const has = U.isUrl(url);
-  return html`<button type="button" class=${U.cls('mini', has && 'on')} title=${has ? `${title}: obrir o canviar l'enllaç` : `${title}: afegir enllaç`}
-    onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where })}><${Icon} name="video" size=${16} /></button>`;
+// target = { sessionId, itemId }: vídeo d'un exercici de la sessió, que es grava dins l'app i es puja en segon pla
+// (VideoQueue, 19-videoqueue.js); mentre puja, el botó en mostra el percentatge.
+function VideoButton({ url, onChange, title = 'Vídeo', patient, date, where, target }) {
+  const st = useVideoStatus(target && target.sessionId, target && target.itemId);
+  const has = U.isUrl(url) || LocalFiles.is(url);
+  const label = st ? (st.state === 'uploading' ? `${Math.round((st.pct || 0) * 100)} %` : st.state === 'error' ? 'Error' : 'En cua') : '';
+  return html`<button type="button" class=${U.cls('mini', has && 'on', st && 'mini-up', st && st.state === 'error' && 'mini-err')}
+    title=${st ? (st.state === 'error' ? `${title}: no s'ha pogut pujar el vídeo (${st.error}). Es tornarà a provar sol.` : `${title}: pujant el vídeo a la carpeta del pacient`) : has ? `${title}: obrir o canviar el vídeo` : `${title}: grava el pacient o afegeix un vídeo`}
+    onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where, target })}><${Icon} name="video" size=${16} />${label && html`<span class="mini-txt">${label}</span>`}</button>`;
 }
 
-function openVideoDialog({ url, onChange, title, patient, date, where }) {
+function openVideoDialog({ url, onChange, title, patient, date, where, target }) {
   let close = null;
-  close = UI.open(() => html`<${VideoDialog} url=${url} title=${title} patient=${patient} date=${date} where=${where}
+  close = UI.open(() => html`<${VideoDialog} url=${url} title=${title} patient=${patient} date=${date} where=${where} target=${target}
     onSave=${(v) => { onChange(v); close(); }} onClose=${() => close()} />`);
 }
 
-function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSave, onClose }) {
+function VideoDialog({ url, title, patient, date, where = 'sessionVideos', target, onSave, onClose }) {
   const [v, setV] = useState(url || '');
   const [files, setFiles] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -472,9 +477,28 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
   useEffect(() => { if (cloud && folderId) loadFiles(); }, []);
   // Grava (càmera) o tria un vídeo de la tauleta: es puja a la carpeta de vídeos del client (segons where)
   // i queda enllaçat al test o a l'exercici sense haver de fer res més.
+  const queued = !!target && VideoQueue.available();
+  const st = useVideoStatus(target && target.sessionId, target && target.itemId);
+  // Exercici de la sessió: el vídeo es desa a la tauleta i es puja sol en segon pla (es pot tancar la finestra).
+  const enqueue = async (file) => {
+    try {
+      await VideoQueue.add(file, { target, patient, label: title, date, where });
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat. Es puja sol a la carpeta de ${patient.firstName || 'el pacient'} i quedarà enllaçat a l'exercici.`);
+      onClose();
+    } catch (e) {
+      UI.toast(e.message || 'No s\'ha pogut desar el vídeo.', 'bad');
+    }
+  };
+  const recordInApp = () => {
+    onClose();
+    openVideoRecorder({ title, onFile: (f) => VideoQueue.add(f, { target, patient, label: title, date, where })
+      .then(() => UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat. Es puja sol a la carpeta de ${patient.firstName || 'el pacient'}.`))
+      .catch((e) => UI.toast(e.message || 'No s\'ha pogut desar el vídeo.', 'bad')) });
+  };
   const upload = async (file) => {
     for (const r of [recRef, fileRef]) if (r.current) r.current.value = '';
     if (!file) return;
+    if (queued) { enqueue(file); return; }
     setUp({ pct: 0 });
     try {
       const res = await uploadToClient({ ...patient, folderId }, file, { label: title, date, where, onProgress: (pct) => setUp({ pct }) });
@@ -500,7 +524,10 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
       ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
           <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el pacient'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
           <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
-        : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
+        : html`${st && html`<p class=${U.cls('upload-state', st.state === 'error' && 'warn-text')}>${st.state === 'uploading' ? `Pujant el vídeo a la carpeta de ${patient.firstName || 'el pacient'}… ${Math.round((st.pct || 0) * 100)} % (pots tancar aquesta finestra)`
+            : st.state === 'error' ? html`No s'ha pogut pujar el vídeo: ${st.error} <${Btn} size="sm" variant="ghost" icon="refresh" onClick=${() => VideoQueue.retry()}>Torna-ho a provar</${Btn}>` : 'Vídeo a la cua: es pujarà de seguida.'}</p>`}
+          ${queued && canRecordInApp() ? html`<${Btn} variant="primary" icon="video" onClick=${recordInApp}>Grava ara</${Btn}>`
+            : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>`}
           <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
           <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del pacient.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el pacient'}.`}</span>`}
     </div>`}

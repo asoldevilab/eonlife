@@ -129,7 +129,7 @@ const NoeTools = (() => {
       if (i.professional) list = list.filter((p) => U.norm(p.professional) === U.norm(i.professional));
       const rows = list.map((p) => {
         const sess = Store.sessionsOf(p.id), done = sess.filter((s) => s.status === 'feta');
-        const last = done[done.length - 1], next = sess.find((s) => s.status !== 'feta' && s.date >= today);
+        const last = done[done.length - 1], next = sess.find((s) => Calc.sessionOpen(s) && s.date >= today);
         const as = Store.doneAssessmentsOf(p.id), la = as[as.length - 1];
         return { p, row: compact({ pacient: ctx.ps.ref(p.id), edat: U.age(p.birthDate), sexe: sexName(p.sex), servei: p.service, estat: p.status || 'actiu', professional: p.professional,
           objectiu: enc(ctx, short(p.goal, 140)), darrera_sessio_feta: last ? last.date : '', dies_sense_sessio: last ? U.diffDays(last.date, today) : '', sessions_fetes_30d: done.filter((s) => s.date >= U.addDays(today, -30)).length,
@@ -178,7 +178,7 @@ const NoeTools = (() => {
         lesio: p.injuryDate || p.injuryNote ? compact({ data: p.injuryDate, nota: enc(ctx, short(p.injuryNote, 300)) }) : '',
         cirurgia: p.surgeryDate || p.surgeryNote ? compact({ data: p.surgeryDate, nota: enc(ctx, short(p.surgeryNote, 300)) }) : '',
         notes_internes: enc(ctx, short(p.notes, 500)),
-        sessions: { total: sess.length, fetes: done.length, planificades: sess.filter((s) => s.status !== 'feta' && s.date >= today).length, darrera_feta: done.length ? done[done.length - 1].date : '' },
+        sessions: { total: sess.length, fetes: done.length, planificades: sess.filter((s) => Calc.sessionOpen(s) && s.date >= today).length, darrera_feta: done.length ? done[done.length - 1].date : '' },
         ultimes_sessions: { rpe_mitja: avg('rpe'), eva_mitjana: avg('pain'), wellness_mitja: wl.length ? Math.round((wl.reduce((a, b) => a + b, 0) / wl.length) * 10) / 10 : '' },
         valoracions: as.length, ultima_valoracio: la ? { id: la.id, data: la.date, tipus: la.type, propera: la.nextRetest || '' } : '',
         punts_d_atencio: la ? Calc.alerts(la).slice(0, 12).map((x) => x.text) : [],

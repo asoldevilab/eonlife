@@ -20,10 +20,10 @@ function HomeView() {
     return m;
   }, [Store.version]);
 
-  const todays = U.sortBy(sessions.filter((s) => s.date === today), (s) => U.norm(U.fullName(Store.get('patients', s.patientId))));
+  const todays = U.sortBy(sessions.filter((s) => s.date === today && s.status !== 'cancelada'), (s) => U.norm(U.fullName(Store.get('patients', s.patientId))));
   const upcoming = U.sortBy(sessions.filter((s) => s.date > today && s.date <= U.addDays(today, 7)), 'date');
   const wk0 = U.weekStart(today), wk1 = U.addDays(wk0, 6);
-  const week = sessions.filter((s) => s.date >= wk0 && s.date <= wk1);
+  const week = sessions.filter((s) => s.date >= wk0 && s.date <= wk1 && s.status !== 'cancelada');
   const active = patients.filter((p) => p.status === 'actiu');
   const retests = U.sortBy(active.map((p) => ({ p, r: Calc.retestDue(Store.assessmentsOf(p.id)) }))
     .filter((x) => !x.r || x.r.days <= 21), (x) => (x.r ? x.r.days : -999));
@@ -40,11 +40,13 @@ function HomeView() {
       </div>
       <div class="page-actions">
         <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Nou test</${Btn}>
+        <${Btn} icon="calendar" onClick=${() => openQuickSession(null, { date: U.today() })}>Nova sessió</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou pacient</${Btn}>
       </div>
     </header>
 
     ${Store.meta.demo && html`<${DemoBanner} />`}
+    <${SessionReviewBanner} />
 
     <section class="stats">
       <${Stat} icon="users" label="Pacients actius" value=${active.length} sub=${`${patients.length} en total`} />
@@ -105,7 +107,7 @@ function HomeView() {
 function ClientRow({ p, sessions }) {
   const today = U.today();
   const done = U.sortBy(sessions.filter((s) => s.status === 'feta'), 'date', -1)[0];
-  const next = U.sortBy(sessions.filter((s) => s.date >= today && s.status !== 'feta'), 'date')[0];
+  const next = U.sortBy(sessions.filter((s) => s.date >= today && Calc.sessionOpen(s)), 'date')[0];
   const last = Store.doneAssessmentsOf(p.id).pop();
   const age = U.age(p.birthDate);
   return html`<button type="button" class="crow" onClick=${() => go('client', p.id)}>

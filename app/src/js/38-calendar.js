@@ -224,7 +224,7 @@ function WeekCalendar() {
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
-        ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)}
+        ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan', s.status === 'cancelada' && 'cancel')} onClick=${() => go('sessio', s.id)}
           title=${[name(s.patientId), `Sessió ${s.number || ''}`, s.goal, s.professional].filter(Boolean).join(' · ')}>
           <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
@@ -282,7 +282,7 @@ function ConflictsCard() {
 
 // Avís a dalt de la sessió si coincideix amb una altra.
 function SessionConflicts({ s }) {
-  if (!s.time || s.status === 'feta') return null;
+  if (!s.time || !Calc.sessionOpen(s)) return null;
   const list = scheduleConflictsFor(Store.all('sessions').filter((x) => x.date === s.date), s.date, s.date)
     .filter((c) => c.a.id === s.id || c.b.id === s.id);
   if (!list.length) return null;

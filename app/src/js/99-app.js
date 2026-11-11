@@ -120,6 +120,7 @@ function App() {
     <${UpdateBanner} />
     ${!present && html`<${NoeLauncher} />`}
     ${!present && html`<${TimerDock} route=${route} />`}
+    <${SessionReviewWatch} />
     <${ModalHost} />
   </div>`;
 }
@@ -129,6 +130,7 @@ function App() {
   render(html`<${App} />`, document.getElementById('app'));
   Store.init();
   AppUpdate.start();
+  VideoQueue.start(); // vídeos de les sessions pendents de pujar (també els d'abans de tancar l'app)
   // Desa els canvis pendents si l'app passa a segon pla (tauleta); en tornar, mira si hi ha una versió nova.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') { Store.flushAll(); Sync.kick(); }

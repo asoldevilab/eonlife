@@ -111,6 +111,7 @@ const browser = await chromium.launch();
 
 async function device(name, { user = 'tok-laura', viewport = { width: 1180, height: 820 } } = {}) {
   const ctx = await browser.newContext({ viewport });
+  await ctx.addInitScript(() => { window.EON_REVIEW_OFF = true; }); // sense l'avís automàtic de sessions sense tancar
   const page = await ctx.newPage();
   page.setDefaultTimeout(9000);
   page.on('pageerror', (e) => errors.push(`${name} · pageerror: ${e.message}`));
@@ -353,6 +354,7 @@ let pid = null;
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);
     await page.click('.phead-actions >> text=Nova sessió');
     await page.click('.choice >> text=A partir d\'una plantilla');
+    await page.selectOption('#ns-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Crea la sessió');
     await page.waitForSelector('.block');
     await page.fill('#se-goal', 'Força · dominant de genoll');
@@ -374,13 +376,14 @@ let pid = null;
     await ins.nth(2).fill('0,80');
     await ins.nth(3).fill('0,60');
     await item.locator('.vbt-sum >> text=PV 25 %').waitFor();
-    const [chooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      (async () => { await item.locator('button.mini[title*="afegir enllaç"]').first().click(); await page.click('text=Grava ara'); })(),
-    ]);
-    await chooser.setFiles({ name: 'VID_0007.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(400000, 3) });
+    // Vídeo de l'exercici: es desa a la tauleta, la finestra es tanca de seguida i es puja en segon pla
+    // (si es tanqués la finestra o fallés la connexió, no es perdria).
+    await item.locator('button.mini[title*="grava el pacient"]').first().click();
+    await page.waitForSelector('.dialog >> text=Tria de la galeria');
+    await page.locator('.dialog input[data-kind="gallery"]').setInputFiles({ name: 'VID_0007.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(400000, 3) });
     await page.waitForSelector('.dialog', { state: 'detached', timeout: 15000 });
-    await item.locator('button.mini.on[title*="obrir o canviar"]').waitFor();
+    await item.locator('button.mini.on[title*="obrir o canviar"]').waitFor({ timeout: 30000 });
+    if (await page.evaluate(() => VideoQueue.pending())) throw new Error('el vídeo encara és a la cua');
     await page.waitForTimeout(1300);
     await waitSaved(page);
     const vids = files('Sessions', 'Vídeos sessions d\'entrenament');
@@ -389,6 +392,22 @@ let pid = null;
     const r = log.find((x) => x['Encoder · pèrdua de velocitat (%)'] !== '' && x['Encoder · pèrdua de velocitat (%)'] != null);
     if (!r || r['Encoder · pèrdua de velocitat (%)'] !== 25 || r['Encoder · V 1a rep millor (m/s)'] !== 0.8) throw new Error(`registre: ${JSON.stringify(r || {}).slice(0, 300)}`);
     await shot(page, 'm365-08-sessio-encoder');
+  });
+  await step('vídeo sense connexió: queda a la tauleta (fins i tot si es recarrega l\'app) i es puja sol en tornar', async () => {
+    const item = page.locator('section.block.blk-for .item').nth(1);
+    net.offline = true;
+    await item.locator('button.mini[title*="grava el pacient"]').first().click();
+    await page.locator('.dialog input[data-kind="gallery"]').setInputFiles({ name: 'VID_0008.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(200000, 4) });
+    await page.waitForSelector('.dialog', { state: 'detached', timeout: 15000 });
+    await item.locator('button.mini.mini-up').waitFor();
+    // Es tanca l'app sense connexió i es torna a obrir més tard: el vídeo es puja sol.
+    net.offline = false;
+    await page.reload();
+    await page.waitForSelector('section.block.blk-for .item', { timeout: 30000 });
+    await page.locator('section.block.blk-for .item').nth(1).locator('button.mini.on[title*="obrir o canviar"]').waitFor({ timeout: 60000 });
+    const vids = files('Sessions', 'Vídeos sessions d\'entrenament');
+    if (vids.length !== 2) throw new Error(`vídeos de la sessió: ${vids}`);
+    await waitSaved(page);
   });
   await step('Excel automàtic: l\'Excel del client (sessions i valoracions) es puja sol a la carpeta', async () => {
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);
@@ -437,6 +456,7 @@ let pid = null;
     await page.evaluate((id) => { location.hash = `#/client/${id}/mes`; }, pid);
     await page.click('.month-head >> text=Planifica el mes');
     await page.waitForSelector('.dialog >> text=Planifica el mes');
+    await page.selectOption('#pm-prof', { index: 1 });
     // Mes següent al que es veu, dilluns · dimecres · divendres
     const monthVal = await page.evaluate(() => { const t = U.monthKey(U.today()); return U.monthKey(U.addMonths(`${t}-01`, 1)); });
     await page.selectOption('#pm-month', monthVal);
