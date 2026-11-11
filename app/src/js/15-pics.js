@@ -97,7 +97,16 @@ function picJoints(P) {
     const sp = picSide(P, i ? 'b' : 'a'), side = i ? -1 : 1;
     const d1 = dirA(sp[0], side, i), d2 = dirA(sp[1], side, i);
     const e = v3.along(J.sh[i], d1, L.upper), w = v3.along(e, d2, L.fore);
-    return { s: J.sh[i], e, w, h: v3.along(w, d2, L.hand * 0.55), tip: v3.along(w, d2, L.hand), d1, d2 };
+    // wf: el canell es doblega (graus; positiu, cap al costat on es doblega el colze). Un número o [dret, esquerre].
+    const wf = Array.isArray(P.wf) ? P.wf[i] : P.wf;
+    let d3 = d2;
+    if (wf) {
+      // eix: el del colze si està doblegat; amb el braç estirat, l'eix de costat del cos (la mà puja i baixa)
+      let ax = v3.cross(d1, d2);
+      if (v3.len(ax) < 0.05) ax = v3.mul(rs, -side);
+      d3 = v3.norm(v3.rot(d2, v3.norm(ax), wf));
+    }
+    return { s: J.sh[i], e, w, h: v3.along(w, d3, L.hand * 0.55), tip: v3.along(w, d3, L.hand), d1, d2: d3, dfore: d2 };
   });
   J.leg = [0, 1].map((i) => {
     const sp = picSide(P, i ? 'm' : 'l'), side = i ? -1 : 1;
@@ -708,7 +717,7 @@ function picArmLerp(sa, sb, k, side, front) {
 }
 function picLerp(A, B, k) {
   const out = { ...B, k };
-  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl', 'bu']) {
+  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl', 'bu', 'wf']) {
     const d = f === 't' ? -90 : 0;
     const ang = !['shr', 'shp', 'lift', 'dx', 'bl', 'bu'].includes(f);
     if (A[f] != null || B[f] != null) {
@@ -980,6 +989,7 @@ function picGearOf(e, key) {
   const at = /banda als genolls|band at knees/.test(t) ? 'knees' : /banda als (turmells|peus)|band at (ankles|feet)/.test(t) ? 'ankles' : '';
   const lower = !P.grip || P.band;
   if (/^vor/.test(key)) return { kind: 'card' };
+  if (P.gearKind) return { kind: P.gearKind }; // la postura diu quin material es dibuixa (p. ex. una barra lleugera, sense discs)
   if (/trx/.test(m + ' ' + t)) return { kind: 'trx' };
   if (/landmine/.test(m + ' ' + t)) return { kind: 'landmine' };
   if (/loop band/.test(m) || at) return at || lower ? { kind: 'loop', at: at || P.band || 'knees' } : { kind: 'band' };

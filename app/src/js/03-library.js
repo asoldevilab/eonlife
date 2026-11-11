@@ -306,6 +306,41 @@ const SEED_EXERCISES = (() => {
     cues: 'De costat a la cinta i resistència mitjana. Mig squat, pit amunt i passes laterals curtes sense creuar els peus; el genoll no va cap a dins. Canvia de costat.' });
   add('X-SKM-08', 'acc', 'Intervals de potència al Skillmill', 'Condicionament', SKM, { ...SKG, pic: 'skm_resist', sets: '1', reps: '8 × 15"', rest: '45"', intensity: 'Màxima intenció',
     cues: 'Resistència mitjana. 15" a tope i 45" caminant, 8 vegades. Apunta els watts de cada sèrie per seguir la millora d\'una sessió a l\'altra.' });
+  // ── Canell i avantbraç: escalfament (mobilitat), activació i força (accessoris) ──
+  // Per a qui fa calistènia o recolza les mans (flexions, paral·leles, quadrupèdia) i per a la readaptació del canell
+  // i del colze (epicondilàlgia: excèntrics d'extensors).
+  const wr = (n, block, name, cat, material, extra) => add(`X-WR-${String(n).padStart(2, '0')}`, block, name, cat, material, { pos: 'Bp', gm: 'Avantbraç', materials: [material], ...extra });
+  wr(1, 'mob', 'Cercles de canell', 'Canell', PC, { pic: 'wrist_flex', aka: 'Wrist circles · círculos de muñeca', sets: '1', reps: '10 + 10',
+    cues: 'Mans juntes o separades, dibuixa cercles amplis amb els canells: 10 cap a un costat i 10 cap a l\'altre, sense moure els colzes.' });
+  wr(2, 'mob', 'Flexió i extensió de canell', 'Canell', PC, { pic: 'wrist_flex', aka: 'Flexiones de muñeca · calentar muñecas', sets: '1', reps: '15',
+    cues: 'Braços endavant: porta les mans amunt i avall tant com puguis, a poc a poc. Afegeix desviació a un costat i a l\'altre.' });
+  wr(3, 'mob', 'Balanceig de canells en quadrupèdia', 'Canell', 'Terra', { pic: 'wrist_rock', pos: 'Qd', aka: 'Wrist rocks', sets: '2', reps: '10',
+    cues: 'A quatre grapes, mans planes sota les espatlles. Porta el pes endavant i enrere sobre els canells, sense dolor. Fes-ho també amb els dits cap enrere.' });
+  wr(4, 'mob', 'Estirament de flexors del canell', 'Canell', PC, { pic: 'wrist_stretch', lat: 'UL', aka: 'Estiramiento de muñeca', sets: '2', reps: '20"/costat',
+    cues: 'Braç estirat endavant, palmell amunt. Amb l\'altra mà, porta els dits avall i enrere fins a notar l\'estirament a l\'avantbraç.' });
+  wr(5, 'mob', 'Estirament d\'extensors del canell', 'Canell', PC, { pic: 'wrist_stretch', lat: 'UL', aka: 'Estiramiento de muñeca', sets: '2', reps: '20"/costat',
+    cues: 'Braç estirat endavant, palmell avall. Amb l\'altra mà, doblega el canell cap avall fins a notar l\'estirament a la part de dalt de l\'avantbraç.' });
+  wr(6, 'act', 'Pronació i supinació amb mancuerna', 'Canell', M, { pic: 'wrist_dev', lat: 'UL', aka: 'Pronosupinación', sets: '2', reps: '12/costat', materials: [M, 'Pes corporal'],
+    cues: 'Colze enganxat al cos a 90° i la mancuerna agafada per un extrem. Gira l\'avantbraç cap amunt i cap avall a poc a poc, sense moure el colze.' });
+  wr(7, 'act', 'Desviació radial i cubital amb mancuerna', 'Canell', M, { pic: 'wrist_dev', lat: 'UL', aka: 'Desviación radial y cubital', sets: '2', reps: '12/costat',
+    cues: 'Mancuerna agafada per un extrem, com un martell. Puja i baixa el pes només amb el canell; l\'avantbraç no es mou.' });
+  wr(8, 'act', 'Extensió de dits amb goma', 'Canell', G, { pic: 'wrist_open', aka: 'Extensión de dedos', sets: '2', reps: '15',
+    cues: 'Goma petita al voltant dels dits. Obre la mà tant com puguis contra la goma i tanca-la a poc a poc.' });
+  wr(9, 'acc', 'Curl de canell amb mancuerna', 'Canell', M, { pic: 'wrist_curl', pos: 'Sd', aka: 'Wrist curl · curl de antebrazo', sets: '3', reps: '15',
+    family: 'Canell · flexors', level: '1', materials: [M, B, K],
+    cues: 'Assegut, avantbraç sobre la cuixa i el canell fora del genoll, palmell amunt. Puja la mancuerna només amb el canell i baixa-la a poc a poc.' });
+  wr(10, 'acc', 'Curl de canell amb barra', 'Canell', B, { pic: 'wrist_curl_bar', pos: 'Sd', aka: 'Wrist curl · curl de antebrazo', sets: '3', reps: '12',
+    family: 'Canell · flexors', level: '2', materials: [B, M],
+    cues: 'Assegut, avantbraços sobre les cuixes, palmells amunt. Deixa rodar la barra fins als dits i torna-la a pujar tancant la mà i doblegant el canell.' });
+  wr(11, 'acc', 'Curl de canell invers', 'Canell', M, { pic: 'wrist_curl', pos: 'Sd', aka: 'Reverse wrist curl · curl de antebrazo invertido', sets: '3', reps: '15',
+    family: 'Canell · extensors', level: '2', materials: [M, B],
+    cues: 'Com el curl de canell però amb el palmell avall: puja el dors de la mà i baixa a poc a poc. Menys pes que en el curl de canell.' });
+  wr(12, 'acc', 'Extensió excèntrica de canell', 'Canell', M, { pic: 'wrist_curl', pos: 'Sd', cont: 'ECC', aka: 'Excéntrico de extensores · epicondilitis', sets: '3', reps: '15',
+    family: 'Canell · extensors', level: '1', tempo: '4-0-X',
+    cues: 'Palmell avall i avantbraç recolzat. Puja el pes ajudant-te amb l\'altra mà i baixa\'l només amb el canell en 4". Readaptació de l\'epicondilàlgia.' });
+  wr(13, 'acc', 'Curl invertit', 'Tren superior', M, { pic: 'curl', gm: 'Avantbraç', muscles: ['Bíceps'], aka: 'Reverse curl', sets: '3', reps: '12', materials: [M, B, PT],
+    cues: 'Palmells avall. Doblega els colzes sense moure\'ls del costat del cos, amb el canell recte, i baixa a poc a poc.' });
+
   // ── Calistènia: barra de dominades i paral·leles ──
   // Per a qui encara no té força al tren superior: primer penjar-se (passiu → actiu escapular), després la part
   // excèntrica (dominada i fons negatius) i les isometries, i al final el moviment sencer.

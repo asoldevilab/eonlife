@@ -744,6 +744,13 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   i l'altre estira; les espatlles no giren), i **chop** i **lift** amb mig genoll → de genolls → dret (famílies amb
   nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació), rem a una mà amb mig genoll i press
   unilateral dempeus. També hi ha el **goblet squat amb cunya** (talons elevats), al bloc Força.
+- **Canell i avantbraç** (cerca «canell», «muñeca» o «antebrazo»):
+  - *Mobilitat* (escalfament): cercles de canell, flexió i extensió de canell, balanceig de canells en quadrupèdia
+    (abans de flexions, paral·leles o quadrupèdia) i estiraments de flexors i d'extensors.
+  - *Activació*: pronació i supinació i desviació radial i cubital amb mancuerna, i extensió de dits amb goma.
+  - *Accessoris*: curl de canell (mancuerna i barra, família *Canell · flexors*), extensió excèntrica de canell i curl de
+    canell invers (família *Canell · extensors*; l'excèntric és per a la readaptació de l'epicondilàlgia) i curl invertit.
+  - Als dibuixos el canell es doblega (puja i baixa la mà).
 - **Calistènia** (barra de dominades i paral·leles; cerca «penjat», «pull-up», «paral·leles» o «calistènia»): per a qui
   encara no té força al tren superior, de més fàcil a més difícil.
   - *Activació*: **penjat passiu** a la barra (desactivat, espatlles relaxades), **penjat actiu** amb activació

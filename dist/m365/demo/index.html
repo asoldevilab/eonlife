@@ -4327,7 +4327,7 @@ var qrcode = function() {
 <script>window.EON_UPDATE = true;
 window.EON_NO_DEMO = true;
 window.EON_AI = '../ai/';
-window.EON_BUILD = "2026-11-11 16:53";
+window.EON_BUILD = "2026-11-11 17:06";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -5377,6 +5377,41 @@ const SEED_EXERCISES = (() => {
     cues: 'De costat a la cinta i resistència mitjana. Mig squat, pit amunt i passes laterals curtes sense creuar els peus; el genoll no va cap a dins. Canvia de costat.' });
   add('X-SKM-08', 'acc', 'Intervals de potència al Skillmill', 'Condicionament', SKM, { ...SKG, pic: 'skm_resist', sets: '1', reps: '8 × 15"', rest: '45"', intensity: 'Màxima intenció',
     cues: 'Resistència mitjana. 15" a tope i 45" caminant, 8 vegades. Apunta els watts de cada sèrie per seguir la millora d\'una sessió a l\'altra.' });
+  // ── Canell i avantbraç: escalfament (mobilitat), activació i força (accessoris) ──
+  // Per a qui fa calistènia o recolza les mans (flexions, paral·leles, quadrupèdia) i per a la readaptació del canell
+  // i del colze (epicondilàlgia: excèntrics d'extensors).
+  const wr = (n, block, name, cat, material, extra) => add(`X-WR-${String(n).padStart(2, '0')}`, block, name, cat, material, { pos: 'Bp', gm: 'Avantbraç', materials: [material], ...extra });
+  wr(1, 'mob', 'Cercles de canell', 'Canell', PC, { pic: 'wrist_flex', aka: 'Wrist circles · círculos de muñeca', sets: '1', reps: '10 + 10',
+    cues: 'Mans juntes o separades, dibuixa cercles amplis amb els canells: 10 cap a un costat i 10 cap a l\'altre, sense moure els colzes.' });
+  wr(2, 'mob', 'Flexió i extensió de canell', 'Canell', PC, { pic: 'wrist_flex', aka: 'Flexiones de muñeca · calentar muñecas', sets: '1', reps: '15',
+    cues: 'Braços endavant: porta les mans amunt i avall tant com puguis, a poc a poc. Afegeix desviació a un costat i a l\'altre.' });
+  wr(3, 'mob', 'Balanceig de canells en quadrupèdia', 'Canell', 'Terra', { pic: 'wrist_rock', pos: 'Qd', aka: 'Wrist rocks', sets: '2', reps: '10',
+    cues: 'A quatre grapes, mans planes sota les espatlles. Porta el pes endavant i enrere sobre els canells, sense dolor. Fes-ho també amb els dits cap enrere.' });
+  wr(4, 'mob', 'Estirament de flexors del canell', 'Canell', PC, { pic: 'wrist_stretch', lat: 'UL', aka: 'Estiramiento de muñeca', sets: '2', reps: '20"/costat',
+    cues: 'Braç estirat endavant, palmell amunt. Amb l\'altra mà, porta els dits avall i enrere fins a notar l\'estirament a l\'avantbraç.' });
+  wr(5, 'mob', 'Estirament d\'extensors del canell', 'Canell', PC, { pic: 'wrist_stretch', lat: 'UL', aka: 'Estiramiento de muñeca', sets: '2', reps: '20"/costat',
+    cues: 'Braç estirat endavant, palmell avall. Amb l\'altra mà, doblega el canell cap avall fins a notar l\'estirament a la part de dalt de l\'avantbraç.' });
+  wr(6, 'act', 'Pronació i supinació amb mancuerna', 'Canell', M, { pic: 'wrist_dev', lat: 'UL', aka: 'Pronosupinación', sets: '2', reps: '12/costat', materials: [M, 'Pes corporal'],
+    cues: 'Colze enganxat al cos a 90° i la mancuerna agafada per un extrem. Gira l\'avantbraç cap amunt i cap avall a poc a poc, sense moure el colze.' });
+  wr(7, 'act', 'Desviació radial i cubital amb mancuerna', 'Canell', M, { pic: 'wrist_dev', lat: 'UL', aka: 'Desviación radial y cubital', sets: '2', reps: '12/costat',
+    cues: 'Mancuerna agafada per un extrem, com un martell. Puja i baixa el pes només amb el canell; l\'avantbraç no es mou.' });
+  wr(8, 'act', 'Extensió de dits amb goma', 'Canell', G, { pic: 'wrist_open', aka: 'Extensión de dedos', sets: '2', reps: '15',
+    cues: 'Goma petita al voltant dels dits. Obre la mà tant com puguis contra la goma i tanca-la a poc a poc.' });
+  wr(9, 'acc', 'Curl de canell amb mancuerna', 'Canell', M, { pic: 'wrist_curl', pos: 'Sd', aka: 'Wrist curl · curl de antebrazo', sets: '3', reps: '15',
+    family: 'Canell · flexors', level: '1', materials: [M, B, K],
+    cues: 'Assegut, avantbraç sobre la cuixa i el canell fora del genoll, palmell amunt. Puja la mancuerna només amb el canell i baixa-la a poc a poc.' });
+  wr(10, 'acc', 'Curl de canell amb barra', 'Canell', B, { pic: 'wrist_curl_bar', pos: 'Sd', aka: 'Wrist curl · curl de antebrazo', sets: '3', reps: '12',
+    family: 'Canell · flexors', level: '2', materials: [B, M],
+    cues: 'Assegut, avantbraços sobre les cuixes, palmells amunt. Deixa rodar la barra fins als dits i torna-la a pujar tancant la mà i doblegant el canell.' });
+  wr(11, 'acc', 'Curl de canell invers', 'Canell', M, { pic: 'wrist_curl', pos: 'Sd', aka: 'Reverse wrist curl · curl de antebrazo invertido', sets: '3', reps: '15',
+    family: 'Canell · extensors', level: '2', materials: [M, B],
+    cues: 'Com el curl de canell però amb el palmell avall: puja el dors de la mà i baixa a poc a poc. Menys pes que en el curl de canell.' });
+  wr(12, 'acc', 'Extensió excèntrica de canell', 'Canell', M, { pic: 'wrist_curl', pos: 'Sd', cont: 'ECC', aka: 'Excéntrico de extensores · epicondilitis', sets: '3', reps: '15',
+    family: 'Canell · extensors', level: '1', tempo: '4-0-X',
+    cues: 'Palmell avall i avantbraç recolzat. Puja el pes ajudant-te amb l\'altra mà i baixa\'l només amb el canell en 4". Readaptació de l\'epicondilàlgia.' });
+  wr(13, 'acc', 'Curl invertit', 'Tren superior', M, { pic: 'curl', gm: 'Avantbraç', muscles: ['Bíceps'], aka: 'Reverse curl', sets: '3', reps: '12', materials: [M, B, PT],
+    cues: 'Palmells avall. Doblega els colzes sense moure\'ls del costat del cos, amb el canell recte, i baixa a poc a poc.' });
+
   // ── Calistènia: barra de dominades i paral·leles ──
   // Per a qui encara no té força al tren superior: primer penjar-se (passiu → actiu escapular), després la part
   // excèntrica (dominada i fons negatius) i les isometries, i al final el moviment sencer.
@@ -17476,6 +17511,16 @@ const PICS = {
         pk.line([c, [c[0], c[1] + 60, c[2]]], 1.1, 'pe'), pk.cap(v3.along(c, ax, -20), v3.along(c, ax, 20), 1.0, 1.0, 'pmh')]; } },
   pullup: { hang: true, from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
     props: (J) => { const c = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5); return [pk.cap([c[0], c[1] + 1.2, c[2] - 26], [c[0], c[1] + 1.2, c[2] + 26], 1.1, 1.1, 'pmh')]; } },
+  // ── Canell (wf: el canell es doblega) ──
+  wrist_curl: { from: { wf: -45 }, label: 'Curl de canell', t: -66, hd: -10, l: [0, 92], m: [2, 90], a: [72, -4], wf: 45, grip: 'hands', fix: 'pel',
+    props: (J) => PROP3.seat(J, false) },
+  wrist_curl_bar: { from: { wf: -45 }, label: 'Curl de canell amb barra', t: -66, hd: -10, l: [0, 92], m: [2, 90], a: [72, -4], wf: 45, grip: 'hands', gearKind: 'db', fix: 'pel',
+    props: (J) => PROP3.seat(J, false) },
+  wrist_flex: { from: { wf: -60 }, label: 'Flexió i extensió de canell', t: -90, a: [2, 0], wf: 60, grip: 'none' },
+  wrist_stretch: { label: 'Estirament del canell', t: -90, a: [0, 0], wf: -70, b: [[30, 30], [-10, 40]], grip: 'none' },
+  wrist_rock: { from: { t: -22, sh: 0 }, label: 'Balanceig de canells en quadrupèdia', t: -12, hd: 10, l: [96, 180, 180], a: [76, 76], wf: 14, fix: 'kL' },
+  wrist_dev: { from: { wf: -30 }, label: 'Desviació radial i cubital', t: -90, a: [92, 2], wf: 30, grip: 'hands' },
+  wrist_open: { from: { wf: -20 }, label: 'Extensió de dits', t: -90, a: [92, 2], wf: 20, grip: 'none' },
   // ── Calistènia: penjat a la barra (de cara) i paral·leles (de costat) ──
   hang_passive: { hang: true, front: true, label: 'Penjat passiu', t: -90, shr: 2.6, hd: 6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
   hang_active: { hang: true, front: true, label: 'Penjat actiu', t: -90, shr: -0.6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
@@ -17914,7 +17959,16 @@ function picJoints(P) {
     const sp = picSide(P, i ? 'b' : 'a'), side = i ? -1 : 1;
     const d1 = dirA(sp[0], side, i), d2 = dirA(sp[1], side, i);
     const e = v3.along(J.sh[i], d1, L.upper), w = v3.along(e, d2, L.fore);
-    return { s: J.sh[i], e, w, h: v3.along(w, d2, L.hand * 0.55), tip: v3.along(w, d2, L.hand), d1, d2 };
+    // wf: el canell es doblega (graus; positiu, cap al costat on es doblega el colze). Un número o [dret, esquerre].
+    const wf = Array.isArray(P.wf) ? P.wf[i] : P.wf;
+    let d3 = d2;
+    if (wf) {
+      // eix: el del colze si està doblegat; amb el braç estirat, l'eix de costat del cos (la mà puja i baixa)
+      let ax = v3.cross(d1, d2);
+      if (v3.len(ax) < 0.05) ax = v3.mul(rs, -side);
+      d3 = v3.norm(v3.rot(d2, v3.norm(ax), wf));
+    }
+    return { s: J.sh[i], e, w, h: v3.along(w, d3, L.hand * 0.55), tip: v3.along(w, d3, L.hand), d1, d2: d3, dfore: d2 };
   });
   J.leg = [0, 1].map((i) => {
     const sp = picSide(P, i ? 'm' : 'l'), side = i ? -1 : 1;
@@ -18525,7 +18579,7 @@ function picArmLerp(sa, sb, k, side, front) {
 }
 function picLerp(A, B, k) {
   const out = { ...B, k };
-  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl', 'bu']) {
+  for (const f of ['t', 'tl', 'tf', 'ts', 'tr', 'roll', 'shr', 'shp', 'hd', 'ht', 'lift', 'dx', 'bl', 'bu', 'wf']) {
     const d = f === 't' ? -90 : 0;
     const ang = !['shr', 'shp', 'lift', 'dx', 'bl', 'bu'].includes(f);
     if (A[f] != null || B[f] != null) {
@@ -18797,6 +18851,7 @@ function picGearOf(e, key) {
   const at = /banda als genolls|band at knees/.test(t) ? 'knees' : /banda als (turmells|peus)|band at (ankles|feet)/.test(t) ? 'ankles' : '';
   const lower = !P.grip || P.band;
   if (/^vor/.test(key)) return { kind: 'card' };
+  if (P.gearKind) return { kind: P.gearKind }; // la postura diu quin material es dibuixa (p. ex. una barra lleugera, sense discs)
   if (/trx/.test(m + ' ' + t)) return { kind: 'trx' };
   if (/landmine/.test(m + ' ' + t)) return { kind: 'landmine' };
   if (/loop band/.test(m) || at) return at || lower ? { kind: 'loop', at: at || P.band || 'knees' } : { kind: 'band' };

@@ -275,6 +275,16 @@ const PICS = {
         pk.line([c, [c[0], c[1] + 60, c[2]]], 1.1, 'pe'), pk.cap(v3.along(c, ax, -20), v3.along(c, ax, 20), 1.0, 1.0, 'pmh')]; } },
   pullup: { hang: true, from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
     props: (J) => { const c = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5); return [pk.cap([c[0], c[1] + 1.2, c[2] - 26], [c[0], c[1] + 1.2, c[2] + 26], 1.1, 1.1, 'pmh')]; } },
+  // ── Canell (wf: el canell es doblega) ──
+  wrist_curl: { from: { wf: -45 }, label: 'Curl de canell', t: -66, hd: -10, l: [0, 92], m: [2, 90], a: [72, -4], wf: 45, grip: 'hands', fix: 'pel',
+    props: (J) => PROP3.seat(J, false) },
+  wrist_curl_bar: { from: { wf: -45 }, label: 'Curl de canell amb barra', t: -66, hd: -10, l: [0, 92], m: [2, 90], a: [72, -4], wf: 45, grip: 'hands', gearKind: 'db', fix: 'pel',
+    props: (J) => PROP3.seat(J, false) },
+  wrist_flex: { from: { wf: -60 }, label: 'Flexió i extensió de canell', t: -90, a: [2, 0], wf: 60, grip: 'none' },
+  wrist_stretch: { label: 'Estirament del canell', t: -90, a: [0, 0], wf: -70, b: [[30, 30], [-10, 40]], grip: 'none' },
+  wrist_rock: { from: { t: -22, sh: 0 }, label: 'Balanceig de canells en quadrupèdia', t: -12, hd: 10, l: [96, 180, 180], a: [76, 76], wf: 14, fix: 'kL' },
+  wrist_dev: { from: { wf: -30 }, label: 'Desviació radial i cubital', t: -90, a: [92, 2], wf: 30, grip: 'hands' },
+  wrist_open: { from: { wf: -20 }, label: 'Extensió de dits', t: -90, a: [92, 2], wf: 20, grip: 'none' },
   // ── Calistènia: penjat a la barra (de cara) i paral·leles (de costat) ──
   hang_passive: { hang: true, front: true, label: 'Penjat passiu', t: -90, shr: 2.6, hd: 6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
   hang_active: { hang: true, front: true, label: 'Penjat actiu', t: -90, shr: -0.6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
