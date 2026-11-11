@@ -31,6 +31,7 @@ const browser = await chromium.launch();
 // `viewer`: 'accepta' | 'rebutja' | 'sense' (el visor no ofereix les descàrregues)
 async function open(viewer) {
   const ctx = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  await ctx.addInitScript(() => { window.EON_REVIEW_OFF = true; }); // sense l'avís automàtic de sessions sense tancar
   await ctx.addInitScript((mode) => {
     window.__saves = [];
     window.claude = {

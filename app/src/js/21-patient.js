@@ -84,7 +84,7 @@ function GoalCard({ p, compact }) {
 
 function PatientSummary({ p, sessions, assessments }) {
   const today = U.today();
-  const next = sessions.filter((s) => s.date >= today && s.status !== 'feta')[0];
+  const next = sessions.filter((s) => s.date >= today && Calc.sessionOpen(s))[0];
   const lastDone = sessions.filter((s) => s.status === 'feta').pop();
   const last = assessments[assessments.length - 1];
   const alerts = last ? Calc.alerts(last) : [];

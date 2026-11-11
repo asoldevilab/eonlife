@@ -51,12 +51,13 @@ function PatientChip({ p }) {
 }
 
 // ── Nou client ──
-function openNewPatient() {
+// onCreated: en lloc d'anar a la fitxa del pacient nou, el torna (p. ex. a «Nova sessió» de l'inici).
+function openNewPatient({ onCreated } = {}) {
   let close = null;
-  close = UI.open(() => html`<${NewPatientDialog} onClose=${() => close()} />`);
+  close = UI.open(() => html`<${NewPatientDialog} onClose=${() => close()} onCreated=${onCreated} />`);
 }
 
-function NewPatientDialog({ onClose }) {
+function NewPatientDialog({ onClose, onCreated }) {
   const [f, setF] = useState({ firstName: '', lastName: '', service: 'membership', professional: Store.professionals()[0] || '', birthDate: '' });
   // Opcional: deixar ja reservada la valoració inicial al calendari (dia i hora).
   const [va, setVa] = useState({ date: '', time: '' });
@@ -72,6 +73,7 @@ function NewPatientDialog({ onClose }) {
     onClose();
     if (Store.cloud()) ensureFolder(p);
     if (va.date) UI.toast(`Valoració inicial programada el ${U.fmtDate(va.date)}${va.time ? ` a les ${va.time}` : ''}.`);
+    if (onCreated) { onCreated(p); return; }
     go('client', p.id, va.date ? 'mes' : 'fitxa');
   };
   return html`<${Dialog} title="Nou pacient" onClose=${onClose} footer=${html`
@@ -101,6 +103,47 @@ function NewPatientDialog({ onClose }) {
 // Desplegable amb l'equip de Configuració (si el registre porta un nom que ja no hi és, es manté).
 function ProfSelect({ id, value, onValue }) {
   return html`<${Select} id=${id} value=${value} onValue=${onValue} options=${Store.professionals()} placeholder="—" />`;
+}
+
+// Qui fa (o ha fet) una sessió: no hi ha cap professional per defecte, s'ha de triar sempre (així no queda el de la
+// tauleta o el del pacient sense voler). value = el que hi ha ara (per confirmar-lo d'un toc).
+function askProfessional({ title = 'Qui fa la sessió?', text = '', value = '', ok = 'D\'acord' } = {}) {
+  return new Promise((resolve) => {
+    let close = null;
+    const done = (v) => { close(); resolve(v); };
+    close = UI.open(() => html`<${AskProfessional} title=${title} text=${text} value=${value} ok=${ok} onDone=${done} />`, { size: 'sm', onDismiss: () => done(null) });
+  });
+}
+function AskProfessional({ title, text, value, ok, onDone }) {
+  const [v, setV] = useState(value || '');
+  return html`<${Dialog} title=${title} onClose=${() => onDone(null)} footer=${html`
+    <${Btn} variant="ghost" onClick=${() => onDone(null)}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" disabled=${!v} onClick=${() => onDone(v)}>${ok}</${Btn}>`}>
+    ${text && html`<p class="dialog-text">${text}</p>`}
+    <${Field} label="Professional" id="ask-prof"><${ProfSelect} id="ask-prof" value=${v} onValue=${setV} /></${Field}>
+  </${Dialog}>`;
+}
+
+// Marca una sessió com a feta, després de confirmar qui l'ha feta. extra: l'RPE, el dolor… (de l'avís del vespre).
+async function markSessionDone(s, extra = null) {
+  const p = Store.get('patients', s.patientId) || {};
+  const prof = await askProfessional({
+    title: s.professional ? `L'ha feta ${s.professional}?` : 'Qui ha fet la sessió?',
+    text: `Sessió ${s.number || ''} de ${U.fullName(p)} · ${U.fmtDateLong(s.date)}. ${s.professional ? 'Si l\'ha feta un altre professional, canvia-ho abans de confirmar.' : 'Tria el professional que l\'ha feta.'}`,
+    value: s.professional || '',
+    ok: 'Sí, marca-la com a feta',
+  });
+  if (!prof) return false;
+  Store.update('sessions', s.id, (x) => {
+    x.professional = prof;
+    x.status = 'feta';
+    if (extra) x.feedback = { ...(x.feedback || {}), ...extra };
+    for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
+  });
+  deviceProfessional(prof);
+  if (typeof Sync !== 'undefined') Sync.soon(s.patientId);      // l'Excel de la sessió acabada es puja de seguida
+  if (typeof PdfSync !== 'undefined') PdfSync.soon(s.patientId); // i el seu PDF
+  return true;
 }
 
 // Crea (si cal) la carpeta del client (Google Drive o Microsoft 365) i en desa l'enllaç.
@@ -188,8 +231,11 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [planN, setPlanN] = useState(plans[0] ? String(Store.nextPlanN(plans[0])) : '');
   const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
+  const [prof, setProf] = useState('');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
+    if (!prof) { UI.toast('Tria qui farà la sessió.', 'bad'); return; }
+    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN), professional: prof });
+    deviceProfessional(prof);
     onClose();
     go('sessio', s.id);
   };
@@ -199,8 +245,9 @@ function NewSessionDialog({ pid, date, onClose }) {
   </label>`;
   return html`<${Dialog} title="Nova sessió" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
-    <div class="form-grid"><${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <${Btn} variant="primary" icon="plus" disabled=${!prof} onClick=${create}>Crea la sessió</${Btn}>`}>
+    <div class="form-grid"><${Field} label="Professional" id="ns-prof" wide=${true} class=${!prof && 'field-missing'} hint="Qui farà la sessió. S'ha de triar sempre."><${ProfSelect} id="ns-prof" value=${prof} onValue=${setProf} /></${Field}>
+    <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
     <${Field} label="Hora" id="ns-time"><${TextInput} id="ns-time" type="time" value=${time} onValue=${setTime} /></${Field}></div>
     <div class="choices">
       ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,

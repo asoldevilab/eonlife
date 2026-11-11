@@ -43,7 +43,7 @@ function MaterialPrep({ sessions, title = 'Material per a la sessió', tone, ope
 
 // Avís de l'inici amb el material de les sessions d'avui que encara no s'han fet.
 function MaterialToday({ sessions }) {
-  const pend = sessions.filter((s) => s.status !== 'feta');
+  const pend = sessions.filter((s) => Calc.sessionOpen(s));
   if (!pend.length || !Calc.sessionMaterial(pend).length) return null;
   return html`<${MaterialPrep} sessions=${pend} tone="today" title=${`Material d'avui · ${U.plural(pend.length, 'sessió', 'sessions')}`} showWho=${true} />`;
 }

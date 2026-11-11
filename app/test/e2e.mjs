@@ -37,6 +37,7 @@ const browser = await chromium.launch();
 
 async function open(viewport, scheme = 'light') {
   const ctx = await browser.newContext({ viewport, colorScheme: scheme, deviceScaleFactor: 1 });
+  await ctx.addInitScript(() => { window.EON_REVIEW_OFF = true; }); // sense l'avís automàtic de sessions sense tancar
   const page = await ctx.newPage();
   page.setDefaultTimeout(8000);
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
@@ -432,6 +433,7 @@ const step = async (label, fn) => {
     await goHash(page, '#/client/P-DEMO-ALEX');
     await page.click('.phead-actions >> text=Nova sessió');
     await page.click('.choice >> text=A partir d\'una plantilla');
+    await page.selectOption('#ns-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Crea la sessió');
     await page.waitForSelector('.block');
     const n = await page.locator('.item').count();
@@ -441,6 +443,7 @@ const step = async (label, fn) => {
     await goHash(page, '#/client/P-DEMO-ALEX');
     await page.click('.phead-actions >> text=Nova sessió');
     await page.click('.choice >> text=Sessió en blanc');
+    await page.selectOption('#ns-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Crea la sessió');
     await page.waitForSelector('.addblocks-empty');
     if (await page.locator('section.block').count()) throw new Error('la sessió en blanc no ha de tenir blocs');
@@ -476,10 +479,15 @@ const step = async (label, fn) => {
     await page.waitForSelector('.cal');
     if (!(await page.locator('.cal-s.ghost').count())) await page.click('.month-nav button[title="Mes següent"]');
     await page.locator('.cal-s.ghost').first().click();
+    // Abans de crear-la, qui la farà (sense cap professional per defecte).
+    await page.waitForSelector('.dialog >> text=Qui farà la sessió?');
+    await page.selectOption('#ask-prof', { index: 1 });
+    await page.click('.dialog-foot >> text=Crea la sessió');
     await page.waitForSelector('.plan-pill >> text=S1 del pla');
     await goHash(page, '#/client/P-DEMO-ALEX/sessions');
     await page.click('.page .card-head >> text=Nova sessió');
     await page.waitForSelector('.choice.on >> text=Del pla d\'entrenament');
+    await page.selectOption('#ns-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Crea la sessió');
     await page.waitForSelector('.plan-pill >> text=S2 del pla');
   });
@@ -1329,6 +1337,10 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Continua');
     await page.fill('#qs-goal', 'Readaptació ràpida de prova');
     await page.selectOption('#qs-pillar', 'Readaptació');
+    // Sense professional no es pot anotar: s'ha de triar sempre.
+    await page.click('.dialog-foot >> text=Anota-la al calendari');
+    await page.waitForSelector('.toast >> text=Tria qui farà la sessió');
+    await page.selectOption('#qs-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Anota-la al calendari');
     await page.waitForSelector('.cal-s.quick >> text=Readaptació ràpida de prova');
     await page.click('.cal-s.quick >> text=Readaptació ràpida de prova');
@@ -1336,6 +1348,8 @@ const step = async (label, fn) => {
     await page.click('[role="radiogroup"][aria-label="RPE de la sessió"] >> text="7"');
     await page.click('[role="radiogroup"][aria-label="Dolor en acabar"] >> text="3"');
     await page.click('.dialog-foot >> text=Desa');
+    // En marcar-la com a feta es confirma qui l'ha feta.
+    await page.click('.dialog-foot >> text=Sí, marca-la com a feta');
     await page.waitForSelector('.cal-s.quick.done .cal-m-rpe >> text=7');
     await page.waitForSelector('.cal-s.quick.done .cal-m-pain.cal-m-warn >> text=3');
     await shot(page, '12-calendari-rapid');
@@ -1344,6 +1358,94 @@ const step = async (label, fn) => {
     await page.click('.dialog-foot >> text=Programa-la sencera');
     await page.waitForSelector('#se-pillar');
     if (await page.$eval('#se-pillar', (e) => e.value) !== 'Readaptació') throw new Error('pilar');
+  });
+  await step('inici: «Nova sessió» amb el pacient, el professional (obligatori) i l\'objectiu; confirmació en marcar-la feta', async () => {
+    await goHash(page, '#/inici');
+    await page.click('.page-actions >> text=Nova sessió');
+    await page.waitForSelector('.dialog-head >> text=Nova sessió');
+    await page.selectOption('#qs-pid', 'P-DEMO-JORDI');
+    await page.fill('#qs-goal', 'Sessió des de l\'inici');
+    await page.click('.dialog-foot >> text=Desa al calendari');
+    await page.waitForSelector('.toast >> text=Tria qui farà la sessió');
+    const prof = await page.$eval('#qs-prof', (e) => e.options[1].value);
+    await page.selectOption('#qs-prof', prof);
+    await page.click('.dialog-foot >> text=Desa al calendari');
+    await page.waitForSelector('.toast >> text=/Sessió de Jordi anotada/');
+    const made = await page.evaluate(() => Store.sessionsOf('P-DEMO-JORDI').find((x) => x.goal === 'Sessió des de l\'inici'));
+    if (!made || !made.professional || made.date !== await page.evaluate(() => U.today())) throw new Error(JSON.stringify(made || {}).slice(0, 200));
+    // «Dissenya la sessió»: es crea i s'obre l'editor, amb el professional triat.
+    await page.click('.page-actions >> text=Nova sessió');
+    await page.selectOption('#qs-pid', 'P-DEMO-JORDI');
+    await page.selectOption('#qs-prof', prof);
+    await page.fill('#qs-goal', 'Sessió dissenyada des de l\'inici');
+    await page.click('.dialog-foot >> text=Dissenya la sessió');
+    await page.waitForSelector('#se-goal');
+    if (await page.$eval('#se-prof', (e) => e.value) !== prof) throw new Error('professional');
+    // Marca com a feta → es confirma qui l'ha feta.
+    await page.click('.feedback >> text=Marca com a feta');
+    await page.waitForSelector(`.dialog-head >> text=L'ha feta ${prof}?`);
+    await shot(page, '12c-confirma-professional', false);
+    await page.click('.dialog-foot >> text=Sí, marca-la com a feta');
+    await page.waitForFunction(() => Store.sessionsOf('P-DEMO-JORDI').find((x) => x.goal === 'Sessió dissenyada des de l\'inici').status === 'feta');
+  });
+  await step('sessions sense tancar: avís a l\'inici, Feta (amb el professional), No s\'ha fet i Reprograma', async () => {
+    const ids = await page.evaluate(() => {
+      const y = U.addDays(U.today(), -1);
+      const mk = (goal) => Store.addPlanned('P-DEMO-LAURA', { date: y, time: '10:00', blocks: [], goal, professional: Store.professionals()[0] }).id;
+      return [mk('Pendent A'), mk('Pendent B'), mk('Pendent C')];
+    });
+    await goHash(page, '#/inici');
+    await page.waitForSelector('.review-banner >> text=sense tancar');
+    await page.click('.review-banner >> text=Revisa-les');
+    await page.waitForSelector('.dialog-head >> text=Sessions pendents de tancar');
+    await shot(page, '12d-sessions-sense-tancar', false);
+    const row = (g) => page.locator('.review-row', { hasText: g });
+    await row('Pendent A').locator('select').first().selectOption('7');
+    await row('Pendent A').locator('text=Feta').click();
+    await page.click('.dialog-foot >> text=Sí, marca-la com a feta');
+    await row('Pendent B').locator('text=No s\'ha fet').click();
+    await row('Pendent B').locator('text=No s\'ha presentat').click();
+    await row('Pendent C').locator('text=Reprograma').click();
+    await page.click('.dialog-foot >> text=D\'acord');
+    await page.waitForFunction(() => !document.querySelector('.review-row') || ![...document.querySelectorAll('.review-row')].some((r) => /Pendent [ABC]/.test(r.textContent)));
+    const st = await page.evaluate((ids) => ids.map((id) => { const x = Store.get('sessions', id); return [x.status, x.cancelReason || '', (x.feedback || {}).rpe || '', x.date]; }), ids);
+    const tomorrow = await page.evaluate(() => U.addDays(U.today(), 1));
+    if (st[0][0] !== 'feta' || st[0][2] !== '7') throw new Error(`A: ${st[0]}`);
+    if (st[1][0] !== 'cancelada' || st[1][1] !== 'noshow') throw new Error(`B: ${st[1]}`);
+    if (st[2][0] !== 'planificada' || st[2][3] !== tomorrow) throw new Error(`C: ${st[2]}`);
+    await page.keyboard.press('Escape');
+    // L'avís s'obre sol en obrir l'app si en queda alguna (aquí, sense el commutador de les proves).
+    const left = await page.evaluate(() => { const y = U.addDays(U.today(), -1); return Store.addPlanned('P-DEMO-LAURA', { date: y, blocks: [], goal: 'Pendent D' }).id; });
+    await page.evaluate(() => { localStorage.setItem('eonlife:review:test', '1'); localStorage.removeItem('eonlife:review:later'); });
+    await page.reload();
+    await page.waitForSelector('.dialog-head >> text=Sessions pendents de tancar', { timeout: 15000 });
+    await page.click('.dialog-foot >> text=Més tard');
+    await page.reload();
+    await page.waitForSelector('.crow-name', { timeout: 15000 });
+    await page.waitForTimeout(3500);
+    if (await page.locator('.dialog-head >> text=Sessions pendents de tancar').count()) throw new Error('«Més tard» no s\'ha respectat');
+    await page.evaluate((id) => { Store.remove('sessions', id); localStorage.removeItem('eonlife:review:test'); }, left);
+    // Fora les sessions de prova (no han de canviar les proves de després).
+    await page.evaluate(() => {
+      for (const x of Store.all('sessions')) if (/^(Pendent [A-D]|Sessió des de l'inici|Sessió dissenyada des de l'inici)$/.test(x.goal || '')) Store.remove('sessions', x.id);
+    });
+  });
+  await step('pes recomanat: un exercici que ja ha fet s\'omple amb la càrrega recomanada i es veu l\'última vegada', async () => {
+    const r = await page.evaluate(() => {
+      const s = Store.newSession('P-DEMO-LAURA', { date: U.today(), mode: 'blank', professional: Store.professionals()[0] });
+      const m = prevMapOf(s);
+      const name = Object.keys(m).find((k) => !k.startsWith('#') && m[k]._kg != null);
+      const last = m[name];
+      const it = itemFromExercise(Store.exercise(last.exId) || null, { name });
+      it.name = name; it.lat = last.lat;
+      const sg = progressionOf(it, m);
+      Store.remove('sessions', s.id);
+      return { name, kg: last._kg, rpe: last._rpe, load: loadFor(it, m), sg: sg && sg.load, text: sg && sg.text };
+    });
+    if (!r.name || r.load === '' || Number(String(r.load).replace(',', '.')) !== r.sg) throw new Error(JSON.stringify(r));
+    // Amb RPE baix la recomanació puja; sense RPE, la mateixa càrrega.
+    if (r.rpe != null && r.rpe <= 6 && !(r.sg > r.kg)) throw new Error(`hauria de pujar: ${JSON.stringify(r)}`);
+    if (r.rpe == null && r.sg !== r.kg) throw new Error(`hauria de ser la mateixa: ${JSON.stringify(r)}`);
   });
   await step('biblioteca: un exercici propi, ben classificat, surt a «Els nostres exercicis» i a la carpeta del seu múscul', async () => {
     await goHash(page, '#/biblioteca');
@@ -1419,6 +1521,7 @@ const step = async (label, fn) => {
     const label = await page.evaluate((m) => U.fmtMonth(m), month);
     await page.click('.month-head >> text=Planifica el mes');
     await page.waitForSelector('.dialog >> text=Crea d\'una vegada les sessions');
+    await page.selectOption('#pm-prof', { index: 1 });
     await page.selectOption('#pm-month', month);
     for (const d of ['dilluns', 'dimarts', 'dimecres', 'dijous', 'divendres', 'dissabte', 'diumenge']) {
       const chip = page.locator('.dialog .chips .chip', { hasText: new RegExp(`^${d}$`) });
@@ -1446,6 +1549,7 @@ const step = async (label, fn) => {
     await page.click('.cal-w-copy >> nth=0');
     await page.waitForSelector('.dialog >> text=Copia la setmana del');
     await page.fill('#cw-n', '2');
+    await page.selectOption('#cw-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Copia a les 2 setmanes següents');
     try {
       await page.waitForSelector('.toast >> text=2 sessions planificades');
@@ -1582,6 +1686,7 @@ const step = async (label, fn) => {
 }
 {
   const ctx = await browser.newContext({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1 });
+  await ctx.addInitScript(() => { window.EON_REVIEW_OFF = true; }); // sense l'avís automàtic de sessions sense tancar
   await ctx.addInitScript(() => { window.EON_NO_DEMO = true; });
   const page = await ctx.newPage();
   page.setDefaultTimeout(8000);

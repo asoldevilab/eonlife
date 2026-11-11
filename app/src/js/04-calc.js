@@ -507,6 +507,10 @@ const Calc = {
     return /^\d+([.,]\d+)?$/.test(s) ? `${s.replace('.', ',')} kg` : s;
   },
 
+  // Sessió encara oberta: ni feta ni anul·lada (no feta).
+  sessionOpen(s) { return !!s && s.status !== 'feta' && s.status !== 'cancelada'; },
+  cancelLabel(s) { return ((OPT.cancelReasons || []).find((o) => o.v === (s && s.cancelReason)) || {}).label || 'No feta'; },
+
   sessionLoad(s) {
     const f = (s && s.feedback) || {};
     const rpe = U.num(f.rpe), min = U.num(f.duration);

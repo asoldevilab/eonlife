@@ -100,6 +100,7 @@ function xlAsymFill(pct) {
 function xlSessionState(s, today) {
   if (s.ghost) return { key: 'prevista', label: 'Prevista al pla', fill: XL_C.PREV };
   if (s.status === 'feta') return { key: 'feta', label: 'Feta', fill: XL_C.GRN };
+  if (s.status === 'cancelada') return { key: 'cancelada', label: Calc.cancelLabel(s), fill: XL_C.OFF };
   if (s.date && s.date < (today || U.today())) return { key: 'sense', label: 'Sense tancar', fill: XL_C.AMB };
   return { key: 'planificada', label: 'Planificada', fill: XL_C.BRAND_L };
 }

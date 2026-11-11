@@ -161,6 +161,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const [times, setTimes] = useState({});
   const [every, setEvery] = useState('0');
   const [skip, setSkip] = useState(true);
+  const [prof, setProf] = useState('');
   const thisMonth = U.monthKey(U.today());
   const months = Array.from({ length: 9 }, (_, i) => U.monthKey(U.addMonths(`${thisMonth}-01`, i - 1)));
   if (!months.includes(month)) months.unshift(month);
@@ -174,9 +175,10 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const lastOn = (wd) => [...sessions].reverse().find((s) => Calc.itemCount(s) > 0 && U.parse(s.date).getDay() === wd);
   const create = () => {
     if (!days.length) { UI.toast('Tria almenys un dia de la setmana.', 'bad'); return; }
+    if (!prof) { UI.toast('Tria qui farà les sessions.', 'bad'); return; }
     const objs = {};
     for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; objs[d].time = timeOf(d); }
-    const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip });
+    const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip, professional: prof });
     onClose();
     MonthNav.show(p.id, month);
     UI.toast(res.created.length ? `${U.plural(res.created.length, 'sessió planificada', 'sessions planificades')} per a ${U.monthLow(month)}.` : 'No hi havia cap dia lliure: no s\'ha creat cap sessió.', res.created.length ? 'ok' : 'bad');
@@ -190,9 +192,10 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   ];
   return html`<${Dialog} title="Planifica el mes" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="calendar" disabled=${!count} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
+    <${Btn} variant="primary" icon="calendar" disabled=${!count || !prof} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
     <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten al full del mes de l'Excel del pacient.</p>
     <div class="form-grid">
+      <${Field} label="Professional" id="pm-prof" class=${!prof && 'field-missing'} hint="Qui farà les sessions (es pot canviar a cada sessió)."><${ProfSelect} id="pm-prof" value=${prof} onValue=${setProf} /></${Field}>
       <${Field} label="Mes" id="pm-month"><${Select} id="pm-month" value=${month} onValue=${setMonth} options=${months.map((m) => ({ v: m, label: U.fmtMonth(m) }))} /></${Field}>
       <${Field} label="Progressió dels exercicis" id="pm-every" hint="Els exercicis que tenen nivells a la biblioteca pugen un nivell (p. ex. Goblet squat → Back squat).">
         <${Select} id="pm-every" value=${every} onValue=${setEvery} options=${[
@@ -223,18 +226,21 @@ function CopyWeekDialog({ p, weekStart, onClose }) {
   const src = Store.sessionsOf(p.id).filter((s) => s.date >= weekStart && s.date <= U.addDays(weekStart, 6));
   const [weeks, setWeeks] = useState('3');
   const [progress, setProgress] = useState(false);
+  const [prof, setProf] = useState('');
   const n = Math.max(1, Math.min(12, U.num(weeks) || 1));
   const create = () => {
-    const res = Store.copyWeek(p.id, weekStart, { weeks: n, progress, skipExisting: true });
+    if (!prof) { UI.toast('Tria qui farà les sessions.', 'bad'); return; }
+    const res = Store.copyWeek(p.id, weekStart, { weeks: n, progress, skipExisting: true, professional: prof });
     onClose();
     UI.toast(res.created.length ? `${U.plural(res.created.length, 'sessió planificada', 'sessions planificades')}${res.skipped.length ? ` (${U.plural(res.skipped.length, 'dia ocupat saltat', 'dies ocupats saltats')})` : ''}.` : 'Tots els dies ja tenen sessió: no s\'ha creat res.', res.created.length ? 'ok' : 'bad');
     Sync.soon(p.id);
   };
   return html`<${Dialog} title=${`Copia la setmana del ${U.fmtDateLong(weekStart, false)}`} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="copy" disabled=${!src.length} onClick=${create}>Copia a les ${n} setmanes següents</${Btn}>`}>
+    <${Btn} variant="primary" icon="copy" disabled=${!src.length || !prof} onClick=${create}>Copia a les ${n} setmanes següents</${Btn}>`}>
     ${src.length ? html`<p class="muted">Copia ${U.plural(src.length, 'sessió', 'sessions')} (${src.map((s) => `${U.weekdayShort(s.date)} ${U.parse(s.date).getDate()}`).join(' · ')}) a les setmanes següents, com a sessions planificades. Les podràs ajustar una a una.</p>
       <div class="form-grid">
+        <${Field} label="Professional" id="cw-prof" class=${!prof && 'field-missing'} hint="Qui farà les sessions."><${ProfSelect} id="cw-prof" value=${prof} onValue=${setProf} /></${Field}>
         <${Field} label="Quantes setmanes" id="cw-n" hint="Fins a 12"><${NumInput} id="cw-n" value=${weeks} onValue=${setWeeks} /></${Field}>
       </div>
       <label class="check"><input type="checkbox" checked=${progress} onChange=${(e) => setProgress(e.currentTarget.checked)} /> Cada setmana puja un nivell els exercicis que tenen progressió</label>`

@@ -21,6 +21,7 @@ const browser = await chromium.launch();
 
 async function openApp() {
   const ctx = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  await ctx.addInitScript(() => { window.EON_REVIEW_OFF = true; }); // sense l'avís automàtic de sessions sense tancar
   const page = await ctx.newPage();
   page.setDefaultTimeout(8000);
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
@@ -94,6 +95,7 @@ let pid = null;
     await page.evaluate((id) => { location.hash = `#/client/${id}`; }, pid);
     await page.click('.phead-actions >> text=Nova sessió');
     await page.click('.choice >> text=A partir d\'una plantilla');
+    await page.selectOption('#ns-prof', { index: 1 });
     await page.click('.dialog-foot >> text=Crea la sessió');
     await page.waitForSelector('.block');
     await page.fill('#se-goal', 'Força · dominant de genoll');

@@ -279,6 +279,12 @@ Cada sessió té només els blocs que necessita el client: no cal que hi siguin 
 
 **Nova sessió** a la fitxa del client (o toca un dia buit del *Seguiment mensual*) i tria:
 
+- **Des de l'inici**: el botó **Nova sessió** (al costat de *Nou test* i *Nou pacient*) obre una finestra amb el
+  **pacient** (o *Nou pacient* allà mateix), el **professional**, l'objectiu, la data i l'hora. **Desa al calendari** la
+  deixa planificada només amb l'objectiu; **Dissenya la sessió** la crea i obre l'editor dels blocs.
+- **El professional és obligatori**: no n'hi ha cap per defecte i no es pot crear la sessió sense triar-lo (també en
+  planificar el mes, copiar una setmana, duplicar o fer la del pla).
+
 - **Copia l'última sessió** — la manera més ràpida de progressar setmana a setmana.
 - **Sessió en blanc** — sense cap bloc (és l'opció de sortida per a un client nou). A la sessió surten els botons
   **1 Mobilitat, 2 Activació…** per afegir només els blocs que calguin; es col·loquen sols en l'ordre de la
@@ -326,9 +332,14 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
 - **Vídeo de demostració** (icona ▶ de cada exercici): l'enllaç del vídeo de YouTube on el professional fa
   l'exercici. Es veu allà mateix. Si marques *Desa'l a la biblioteca*, aquell exercici sortirà sempre amb el vídeo.
   A YouTube, pugeu-lo com a **No llistat** (no *Privat*: un vídeo privat només el pot veure qui l'ha pujat).
-- **Grava el client** (icona de càmera de cada exercici): amb Microsoft 365, **Grava ara** obre la càmera de la
-  tauleta i el vídeo es desa sol a *Sessions › Vídeos sessions d'entrenament* de la carpeta del client (amb un nom com
-  `hipthrust_lauravidalserra_20261002_01.mp4`), enllaçat a l'exercici.
+- **Grava el client** (icona de càmera de cada exercici): **Grava ara** obre la càmera **dins de l'app** (sense sortir a
+  l'app de càmera, que a vegades feia que la tauleta tanqués l'app i el vídeo no arribés). Botó vermell per gravar i per
+  aturar, *Gira la càmera*, i en acabar es mira i **Desa i puja a la carpeta** (o *Torna a gravar*). També es pot
+  **Triar de la galeria**. El vídeo es desa primer a la tauleta i es puja **en segon pla** a *Sessions › Vídeos sessions
+  d'entrenament* de la carpeta del client, amb el nom exercici + client + data
+  (`hipthrust_lauravidalserra_20261002_01.mp4`), i queda **enllaçat a l'exercici**. Mentre puja, la icona de la càmera
+  mostra el percentatge; es pot tancar la finestra i continuar treballant. Si no hi ha connexió o es tanca l'app, el vídeo
+  no es perd: es puja sol en tornar-la a obrir, i quan acaba surt un avís.
 - **Encoder** (a *Potència* i *Força principal*): obre el registre per sèries.
   - **Encoder ADR**: càrrega, reps, velocitat de la 1a rep, velocitat de l'última rep, pèrdua de velocitat (%)
     i potència màxima. Si poses la 1a i l'última velocitat, la pèrdua de velocitat es calcula sola.
@@ -354,7 +365,8 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   respostes d'1 o 2 es marquen. Es desa a l'Excel (una columna per pregunta, el total i les observacions) i a la
   taula *Sessions* de la base de dades.
 - **Tancament**: RPE de la sessió (1–10) i minuts › la **càrrega** (RPE × minuts, UA) es calcula
-  sola; dolor en acabar, observacions i decisió per a la propera sessió. **Marca com a feta**.
+  sola; dolor en acabar, observacions i decisió per a la propera sessió. **Marca com a feta**: l'app pregunta
+  *«L'ha feta Arnau?»* amb el professional de la sessió ja posat, per confirmar-lo o canviar-lo abans de tancar-la.
 
 ### Presentar-la al client
 
@@ -459,10 +471,13 @@ orientativa i es pot canviar o ampliar des de la biblioteca. Surt al catàleg ex
 
 ### Ajudes per dissenyar la sessió
 
-- **Anterior i suggeriment.** Sota cada exercici surt què va fer el pacient l'última vegada (sèries, reps, càrrega). Si aquella
-  sessió té RPE (o dolor), també surt un **Suggeriment** de càrrega: RPE ≤ 6 puja un 5 %, RPE 7 un 2,5 %, RPE 8-9 es manté,
-  RPE 10 baixa un 2,5 % i un dolor ≥ 4 baixa un 5 %. Toca el suggeriment per aplicar-lo. Al menú del bloc o de la sessió hi ha
-  **Aplica la càrrega suggerida** per fer-ho de cop. És una proposta: l'últim mot és del professional.
+- **Pes recomanat.** En afegir un exercici que el pacient ja ha fet, la *Càrrega* s'omple sola amb la **recomanada**, i a
+  sota surt *Última vegada · data: sèries, reps, càrrega, RPE* i **Recomanat: X kg (motiu)**. Es busca l'última vegada
+  que el va **fer** (no una sessió planificada que no es va fer), pel nom o per l'exercici de la biblioteca, i compten
+  també els quilos escrits com «2 × 16 kg» o només a l'encoder. La recomanació: RPE ≤ 6 puja un 5 %, RPE 7 un 2,5 %,
+  RPE 8-9 es manté, RPE 10 baixa un 2,5 % i un dolor ≥ 4 baixa un 5 %; sense RPE d'aquella sessió, la mateixa càrrega.
+  Si ara és unilateral i abans bilateral (o al revés), s'adapta (½ o ×2). Toca *Recomanat* per tornar-la a posar; al menú
+  del bloc o de la sessió hi ha **Aplica la càrrega suggerida** per fer-ho de cop. L'últim mot és del professional.
 - **Càrrega en %.** A *Càrrega* escriu «75 %» i l'app calcula els kg amb la 1RM del pacient (la de la darrera valoració
   càrrega-velocitat o, si no n'hi ha, la millor estimada amb les seves sessions) i et deixa posar-los amb un toc.
 - **Buscador.** En afegir un exercici surten primer les carpetes **Fets amb aquest pacient** (amb la data i la càrrega de
@@ -482,9 +497,23 @@ orientativa i es pot canviar o ampliar des de la biblioteca. Surt al catàleg ex
 
 ### Professional de la sessió
 
-Les sessions noves es fan a nom del professional que va triar l'última vegada **aquella tauleta** (no del
-professional de referència del client). Si avui el client el porta un altre company, el canvia a dalt de la
-sessió i la tauleta ho recorda per a la propera.
+Cap sessió té un professional posat per defecte: s'ha de triar **sempre** en crear-la (si una sessió en queda sense,
+per exemple una que ha creat NOE, el camp surt en vermell). En **marcar-la com a feta** l'app torna a preguntar qui
+l'ha feta, amb el de la sessió ja posat, per confirmar-lo o canviar-lo.
+
+### Sessions sense tancar
+
+Perquè cap sessió quedi com a pendent per oblit de marcar-la com a feta:
+
+- A partir de les **21:00**, i en obrir l'app els dies següents, surt la finestra **Sessions pendents de tancar** amb
+  les sessions del centre (de tots els professionals) que encara consten com a planificades: les d'avui des de les 21:00
+  i les dels darrers 30 dies.
+- Per a cadascuna: **Feta** (es pot posar l'RPE i l'EVA allà mateix i es confirma el professional), **No s'ha fet**
+  (*Cancel·lada pel pacient*, *No s'ha presentat* o *Cancel·lada pel centre*) o **Reprograma** (a un altre dia).
+- **Més tard** la tanca fins a la franja següent (l'endemà al matí o a les 21:00). Mentre en quedi alguna, a l'inici hi
+  ha l'avís *N sessions sense tancar · Revisa-les*.
+- Les que **no s'han fet** surten ratllades al calendari, no compten com a pendents ni com a fetes, i a l'Excel tenen
+  l'estat *Cancel·lada pel pacient*, *No s'ha presentat* o *Cancel·lada pel centre*.
 
 ## FC i HRV a cada sessió
 

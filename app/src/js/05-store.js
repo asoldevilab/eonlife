@@ -513,7 +513,8 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
+  // professional: qui fa la sessió. No n'hi ha cap per defecte: es tria sempre en crear-la (o abans de marcar-la feta).
+  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null, professional = '' } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
     // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
@@ -544,19 +545,20 @@ const Store = {
     }
     const s = {
       id: U.uid('S'), patientId: pid, date: date || U.today(), number: this.nextSessionNumber(pid),
-      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      professional, goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
     if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
-  duplicateSession(sid, date) {
+  duplicateSession(sid, date, professional = '') {
     const s = this.get('sessions', sid);
     if (!s) return null;
     const copy = {
       ...U.clone(s), id: U.uid('S'), date: date || U.today(), number: this.nextSessionNumber(s.patientId),
       status: 'planificada', wellness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
+      professional,
     };
     delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });
@@ -564,11 +566,10 @@ const Store = {
 
   // ── Planificar per endavant: sessions futures (un mes sencer, o una setmana copiada a les següents) ──
   // Crea una sessió planificada amb aquests blocs.
-  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '' }) {
-    const p = this.get('patients', pid);
+  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '', professional = '' }) {
     const s = {
       id: U.uid('S'), patientId: pid, date, number: this.nextSessionNumber(pid),
-      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      professional, goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
     };
     if (time) s.time = time;
@@ -587,7 +588,7 @@ const Store = {
   // Planifica un mes: una sessió per cada dia triat. bases[dia de la setmana] = { mode: 'last' | 'template' | 'blank', templateId }:
   //   'last' = còpia de l'última sessió d'aquell dia de la setmana (o, si no n'hi ha, de l'última sessió del client).
   // every = cada quantes setmanes puja un nivell cada exercici que té progressió (0 = mai).
-  planMonth(pid, { month, days, bases = {}, every = 0, skipExisting = true }) {
+  planMonth(pid, { month, days, bases = {}, every = 0, skipExisting = true, professional = '' }) {
     const sessions = this.sessionsOf(pid);
     const taken = new Set(sessions.map((s) => s.date));
     const filled = (s) => (s.blocks || []).some((b) => (b.items || []).some((i) => i.name));
@@ -616,13 +617,13 @@ const Store = {
       }
       seen[wd] = (seen[wd] || 0) + 1;
       chain[wd] = { blocks, goal, pillar };
-      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
+      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar, professional }));
     }
     return { created, skipped };
   },
 
   // Copia les sessions d'una setmana (dilluns = weekStart) a les setmanes següents; amb progress, cada setmana puja un nivell.
-  copyWeek(pid, weekStart, { weeks = 1, progress = false, skipExisting = true } = {}) {
+  copyWeek(pid, weekStart, { weeks = 1, progress = false, skipExisting = true, professional = '' } = {}) {
     const end = U.addDays(weekStart, 6);
     const src = this.sessionsOf(pid).filter((s) => s.date >= weekStart && s.date <= end);
     const taken = new Set(this.sessionsOf(pid).map((s) => s.date));
@@ -636,7 +637,7 @@ const Store = {
         cur[s.id] = blocks;
         if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
         taken.add(date);
-        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
+        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '', professional }));
       }
     }
     return { created, skipped };

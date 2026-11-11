@@ -36,9 +36,11 @@ function PlanCard({ plan, p, main }) {
   const next = Store.nextPlanN(plan);
   const dates = Calc.planDates(plan);
   // Sessió del pla ja creada però encara no feta (p. ex. la d'avui).
-  const pending = U.sortBy(real.filter((s) => s.status !== 'feta'), 'date')[0];
-  const start = () => {
-    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: next });
+  const pending = U.sortBy(real.filter((s) => Calc.sessionOpen(s)), 'date')[0];
+  const start = async () => {
+    const professional = await askProfessional({ title: 'Qui fa la sessió?', text: `S${next} del pla «${plan.name}» · avui.`, ok: 'Comença la sessió' });
+    if (!professional) return;
+    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: next, professional });
     go('sessio', s.id);
   };
   return html`<section class=${U.cls('card plancard', main && 'plancard-main')}>
@@ -165,8 +167,10 @@ function PlanEditor({ id, n }) {
     upd((x) => { x.sessions = x.sessions.filter((y) => y.n !== last.n); });
     setSel(Math.min(sel, last.n - 1));
   };
-  const startToday = () => {
-    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: cur.n });
+  const startToday = async () => {
+    const professional = await askProfessional({ title: 'Qui fa la sessió?', text: `S${cur.n} del pla «${plan.name}» · avui.`, ok: 'Comença la sessió' });
+    if (!professional) return;
+    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: cur.n, professional });
     go('sessio', s.id);
   };
   const remove = async () => {

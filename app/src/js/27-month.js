@@ -49,8 +49,10 @@ function MonthView({ p, sessions }) {
       if (ps && !used.has(ps.n)) (planned[date] = planned[date] || []).push({ plan, ps });
     });
   }
-  const fromPlan = (date, x) => {
-    const s = Store.newSession(p.id, { date, mode: 'plan', planId: x.plan.id, planN: x.ps.n });
+  const fromPlan = async (date, x) => {
+    const professional = await askProfessional({ title: 'Qui farà la sessió?', text: `S${x.ps.n} del pla «${x.plan.name}» · ${U.fmtDateLong(date)}.`, ok: 'Crea la sessió' });
+    if (!professional) return;
+    const s = Store.newSession(p.id, { date, mode: 'plan', planId: x.plan.id, planN: x.ps.n, professional });
     go('sessio', s.id);
   };
 
@@ -93,7 +95,7 @@ function MonthView({ p, sessions }) {
                   const quick = !sessionFilled(s);
                   const nums = sessionNums(s);
                   const picked = sel.includes(s.id);
-                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick', selecting && 'selectable', picked && 'picked')}
+                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', s.status === 'cancelada' && 'cancel', quick && 'quick', selecting && 'selectable', picked && 'picked')}
                     ...${CalDrag.props(() => (selecting && picked ? sel : [s.id]), `S${s.number || ''} · ${s.goal || 'Sessió'}`, onDrop)}
                     aria-pressed=${selecting ? picked : undefined}
                     onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
@@ -233,6 +235,7 @@ function CalendarAddDialog({ p, date, onClose }) {
   </${Dialog}>`;
 }
 
+// Sense pacient (p = null): «Nova sessió» de l'inici, amb el pacient a triar.
 function openQuickSession(p, { s, date } = {}) {
   let close = null;
   close = UI.open(() => html`<${QuickSessionDialog} p=${p} s=${s} date=${date} onClose=${() => close()} />`);
@@ -244,23 +247,35 @@ function QuickSessionDialog({ p, s, date, onClose }) {
   const [f, setF] = useState({
     goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
     rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '', date: (s && s.date) || date,
+    professional: (s && s.professional) || '', pid: (p && p.id) || '',
   });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const when = f.date || (s && s.date) || date;
-  const save = (thenFull) => {
-    if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
+  const pickPatient = !p && !s;
+  const patients = U.sortBy(Store.all('patients').filter((x) => !x.deleted), (x) => U.norm(U.fullName(x)));
+  const pat = p || Store.get('patients', f.pid);
+  // Sessió nova: n'hi ha prou amb l'objectiu (es pot dissenyar després). Professional sempre obligatori.
+  const save = async (thenFull) => {
+    if (!pat) { UI.toast('Tria el pacient.', 'bad'); return null; }
+    if (!f.professional) { UI.toast('Tria qui farà la sessió.', 'bad'); return null; }
+    if (!f.goal.trim() && !thenFull) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
     if (!f.date) { UI.toast('Tria la data de la sessió.', 'bad'); return null; }
+    // Passar-la a feta: primer es confirma qui l'ha feta (markSessionDone).
+    const toDone = f.status === 'feta' && !(s && s.status === 'feta');
     const apply = (x) => {
-      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status; x.date = f.date;
+      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = toDone ? (x.status || 'planificada') : f.status; x.date = f.date;
+      x.professional = f.professional;
       if (f.time) x.time = f.time; else delete x.time;
       x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
     };
     let rec;
     if (s) rec = Store.update('sessions', s.id, apply);
-    else { rec = Store.addPlanned(p.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar }); rec = Store.update('sessions', rec.id, apply); }
+    else { rec = Store.addPlanned(pat.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar, professional: f.professional }); rec = Store.update('sessions', rec.id, apply); }
+    deviceProfessional(f.professional);
     onClose();
+    if (toDone && !(await markSessionDone(rec))) return rec;
     if (thenFull) go('sessio', rec.id);
-    else UI.toast(s ? (s.date !== when ? `Sessió desada i moguda al ${U.fmtDate(when)}.` : 'Sessió desada.') : `Sessió anotada el ${U.fmtDate(when)}.`);
+    else UI.toast(s ? (s.date !== when ? `Sessió desada i moguda al ${U.fmtDate(when)}.` : 'Sessió desada.') : `Sessió de ${pat.firstName || U.fullName(pat)} anotada el ${U.fmtDate(when)}.`);
     return rec;
   };
   const remove = async () => {
@@ -269,13 +284,20 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     onClose();
   };
   const done = f.status === 'feta';
-  return html`<${Dialog} title=${s ? `Sessió ${s.number} · ${U.fmtDateLong(when)}` : `Només l'objectiu · ${U.fmtDateLong(when)}`} onClose=${onClose} footer=${html`
+  return html`<${Dialog} title=${s ? `Sessió ${s.number} · ${U.fmtDateLong(when)}` : pickPatient ? 'Nova sessió' : `Només l'objectiu · ${U.fmtDateLong(when)}`} onClose=${onClose} footer=${html`
     ${s && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Elimina</${Btn}>`}
-    <${Btn} variant="ghost" icon="edit" onClick=${() => save(true)}>Programa-la sencera</${Btn}>
-    <${Btn} variant="primary" icon="check" onClick=${() => save(false)}>${s ? 'Desa' : 'Anota-la al calendari'}</${Btn}>`}>
+    <${Btn} variant="ghost" icon="edit" onClick=${() => save(true)}>${pickPatient ? 'Dissenya la sessió' : 'Programa-la sencera'}</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${() => save(false)}>${s ? 'Desa' : pickPatient ? 'Desa al calendari' : 'Anota-la al calendari'}</${Btn}>`}>
     <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); save(false); }}>
+      ${pickPatient && html`<${Field} label="Pacient" id="qs-pid" wide=${true} class=${!f.pid && 'field-missing'}>
+        <div class="inline"><${Select} id="qs-pid" value=${f.pid} onValue=${set('pid')} placeholder="Tria el pacient…" options=${patients.map((x) => ({ v: x.id, label: U.fullName(x) }))} />
+          <${Btn} variant="ghost" icon="plus" onClick=${() => openNewPatient({ onCreated: (np) => setF((cur) => ({ ...cur, pid: np.id })) })}>Nou pacient</${Btn}></div>
+      </${Field}>`}
+      <${Field} label="Professional" id="qs-prof" class=${!f.professional && 'field-missing'} hint=${f.professional ? '' : 'Qui farà la sessió. S\'ha de triar sempre.'}>
+        <${ProfSelect} id="qs-prof" value=${f.professional} onValue=${set('professional')} />
+      </${Field}>
       <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
-        <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
+        <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${!pickPatient} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
       </${Field}>
       <${Field} label="Data" id="qs-date"><${TextInput} id="qs-date" type="date" value=${f.date} onValue=${set('date')} /></${Field}>
       <${Field} label="Hora" id="qs-time"><${TextInput} id="qs-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>

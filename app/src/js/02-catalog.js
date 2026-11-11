@@ -92,6 +92,13 @@ const OPT = {
   sessionStatus: [
     { v: 'planificada', label: 'Planificada' },
     { v: 'feta', label: 'Feta' },
+    { v: 'cancelada', label: 'No feta' },
+  ],
+  // Per què no s'ha fet una sessió (status 'cancelada'): ho diu l'avís de sessions sense tancar.
+  cancelReasons: [
+    { v: 'client', label: 'Cancel·lada pel pacient' },
+    { v: 'noshow', label: 'No s\'ha presentat' },
+    { v: 'centre', label: 'Cancel·lada pel centre' },
   ],
   jumpTypes: ['CMJ', 'SJ', 'CMJ lliure', 'DJ', 'RSI 10-5', 'Salt horitzontal', 'CMJ unipodal D', 'CMJ unipodal E', 'Perfil F-V'],
   readiness: [

@@ -457,6 +457,36 @@ input[type="search"].input { -webkit-appearance: none; }
 .mini { width: 38px; height: 38px; flex: none; border-radius: 10px; border: 0; background: none; color: var(--ink-3); display: inline-grid; place-items: center; cursor: pointer; text-decoration: none; }
 .mini:hover { background: var(--surface-3); color: var(--ink); }
 .mini.on { background: var(--brand-soft); color: var(--link); }
+/* camp obligatori encara buit (el professional de la sessió) */
+.field-missing .select, .field-missing select, .field-missing .input { border-color: var(--bad, #C0392B); box-shadow: 0 0 0 1px var(--bad, #C0392B); }
+.field-missing .field-hint { color: var(--bad, #C0392B); font-weight: 600; }
+/* vídeo de l'exercici pujant (o amb error): el botó en mostra l'estat */
+.mini.mini-up { width: auto; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; background: var(--brand-soft); color: var(--link); }
+.mini.mini-err { background: var(--warn-bg); color: var(--warn-ink, var(--ink)); }
+.mini-txt { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.upload-state { margin: 0 0 6px; flex-basis: 100%; }
+
+/* Gravadora de vídeo dins l'app (19-videoqueue.js) */
+.vrec { width: min(980px, 100%); max-height: calc(100vh - 24px); display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; border-radius: 18px; background: #14090A; color: #F3EDE6; box-shadow: var(--shadow-2); }
+.vrec .eyebrow { color: #C4BFB6; margin: 0; }
+.vrec .btn-ghost, .vrec .btn.ghost { color: #F3EDE6; }
+.vrec-head { display: flex; align-items: center; gap: 12px; }
+.vrec-title { margin: 2px 0 0; color: #F3EDE6; }
+.vrec-time { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 18px; }
+.vrec-dot { width: 12px; height: 12px; border-radius: 50%; background: #E5484D; animation: vrecBlink 1s steps(2, start) infinite; }
+@keyframes vrecBlink { to { visibility: hidden; } }
+.vrec-stage { position: relative; flex: 1 1 auto; min-height: 220px; border-radius: 12px; overflow: hidden; background: #000; display: grid; place-items: center; }
+.vrec-video { width: 100%; height: 100%; max-height: calc(100vh - 220px); object-fit: contain; background: #000; }
+.vrec-video.mirror { transform: scaleX(-1); }
+.vrec-msg { position: absolute; inset: auto 16px 16px; margin: 0; padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, .6); text-align: center; }
+.vrec-err { background: #5C1F22; }
+.vrec-foot { display: flex; align-items: center; gap: 10px; min-height: 76px; }
+.vrec-spacer { width: 130px; }
+.vrec-btn { width: 72px; height: 72px; flex: none; border-radius: 50%; border: 4px solid #F3EDE6; background: transparent; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.vrec-btn span { width: 54px; height: 54px; border-radius: 50%; background: #E5484D; transition: all .15s ease; }
+.vrec-btn.on span { width: 28px; height: 28px; border-radius: 6px; }
+.vrec-btn:focus-visible { outline: 3px solid var(--accent, #D8A340); outline-offset: 3px; }
+@media (max-width: 560px) { .vrec-spacer { display: none; } }
 
 /* Menús, diàlegs i avisos */
 .menu { position: relative; display: inline-flex; }
@@ -922,6 +952,8 @@ input[type="search"].input { -webkit-appearance: none; }
 .cal-s { display: flex; flex-direction: column; gap: 1px; padding: 6px 7px; border: 0; border-radius: 9px; text-align: left; cursor: pointer; font-size: 12px; line-height: 1.25; min-width: 0; }
 .cal-s.done { background: var(--brand); color: var(--brand-ink); }
 .cal-s.plan { background: var(--brand-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--brand-2); }
+/* sessió que no s'ha fet (cancel·lada o no presentat) */
+.cal-s.cancel, .weekcal-it.cancel { background: var(--surface-3); color: var(--ink-3); box-shadow: none; text-decoration: line-through; }
 .cal-s-n { font-weight: 750; }
 .cal-s-goal { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cal-s-fb { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; font-variant-numeric: tabular-nums; }
@@ -1972,6 +2004,17 @@ body.cal-dragging .cal-s { pointer-events: none; }
 .conf-pair { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .conf-s { flex: 1 1 240px; text-align: left; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: 13.5px; cursor: pointer; }
 .conf-s.me { border-color: #C8382F; }
+
+/* Sessions sense tancar (39-review.js) */
+.review-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 16px; padding: 12px 16px; border-radius: var(--r); background: var(--warn-bg); }
+.review-list { display: grid; gap: 8px; }
+.review-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 14px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.review-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.review-fb { display: flex; gap: 8px; }
+.review-mini { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--ink-3); }
+.review-mini .select { width: auto; min-width: 56px; }
+.review-acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+@media (max-width: 760px) { .review-row { grid-template-columns: minmax(0, 1fr); } .review-acts { justify-content: flex-start; } }
 </style>
 </head>
 <body>
@@ -4284,7 +4327,7 @@ var qrcode = function() {
 <script>window.EON_M365 = {"clientId":"db4f7458-f9f6-4670-b70d-3f026b31ffdb","tenantId":"beefedfd-4a67-4606-b890-4ba7415b4763","folderUrl":"https://eonlifeclinic.sharepoint.com/sites/EONLIFECLINICSITE/Documents%20compartits/06%20Human%20Performance/Memberships"};
 window.EON_AI = 'ai/';
 window.EON_UPDATE = true;
-window.EON_BUILD = "2026-11-10 16:08";
+window.EON_BUILD = "2026-11-11 13:54";
 /* ── 01-util.js ── */
 /* EON Life · utilitats generals (dates, números, text, fitxers). */
 'use strict';
@@ -4718,6 +4761,13 @@ const OPT = {
   sessionStatus: [
     { v: 'planificada', label: 'Planificada' },
     { v: 'feta', label: 'Feta' },
+    { v: 'cancelada', label: 'No feta' },
+  ],
+  // Per què no s'ha fet una sessió (status 'cancelada'): ho diu l'avís de sessions sense tancar.
+  cancelReasons: [
+    { v: 'client', label: 'Cancel·lada pel pacient' },
+    { v: 'noshow', label: 'No s\'ha presentat' },
+    { v: 'centre', label: 'Cancel·lada pel centre' },
   ],
   jumpTypes: ['CMJ', 'SJ', 'CMJ lliure', 'DJ', 'RSI 10-5', 'Salt horitzontal', 'CMJ unipodal D', 'CMJ unipodal E', 'Perfil F-V'],
   readiness: [
@@ -7069,6 +7119,10 @@ const Calc = {
     return /^\d+([.,]\d+)?$/.test(s) ? `${s.replace('.', ',')} kg` : s;
   },
 
+  // Sessió encara oberta: ni feta ni anul·lada (no feta).
+  sessionOpen(s) { return !!s && s.status !== 'feta' && s.status !== 'cancelada'; },
+  cancelLabel(s) { return ((OPT.cancelReasons || []).find((o) => o.v === (s && s.cancelReason)) || {}).label || 'No feta'; },
+
   sessionLoad(s) {
     const f = (s && s.feedback) || {};
     const rpe = U.num(f.rpe), min = U.num(f.duration);
@@ -8070,7 +8124,7 @@ Object.assign(Calc, {
     const dur = opt.minutes || 60;
     const unique = opt.unique || new Set();
     const prof = (s) => s.professional || (opt.profOf ? opt.profOf(s.patientId) : '') || '';
-    const list = (sessions || []).filter((s) => s.status !== 'feta' && Calc.minutesOf(s.time) != null
+    const list = (sessions || []).filter((s) => Calc.sessionOpen(s) && Calc.minutesOf(s.time) != null
       && (!opt.from || s.date >= opt.from) && (!opt.to || s.date <= opt.to));
     const byDate = {};
     for (const s of list) (byDate[s.date] = byDate[s.date] || []).push(s);
@@ -8839,7 +8893,8 @@ const Store = {
   },
 
   // mode: 'blank' | 'last' | template id
-  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null } = {}) {
+  // professional: qui fa la sessió. No n'hi ha cap per defecte: es tria sempre en crear-la (o abans de marcar-la feta).
+  newSession(pid, { date, time = '', mode = 'blank', templateId = null, planId = null, planN = null, professional = '' } = {}) {
     const p = this.get('patients', pid);
     let fromPlan = null;
     // En blanc, la sessió no té cap bloc: s'afegeixen a mà segons el client.
@@ -8870,19 +8925,20 @@ const Store = {
     }
     const s = {
       id: U.uid('S'), patientId: pid, date: date || U.today(), number: this.nextSessionNumber(pid),
-      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      professional, goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(), ...(fromPlan || {}),
     };
     if (time) s.time = time;
     return this.put('sessions', s, { immediate: true });
   },
 
-  duplicateSession(sid, date) {
+  duplicateSession(sid, date, professional = '') {
     const s = this.get('sessions', sid);
     if (!s) return null;
     const copy = {
       ...U.clone(s), id: U.uid('S'), date: date || U.today(), number: this.nextSessionNumber(s.patientId),
       status: 'planificada', wellness: {}, feedback: {}, blocks: cloneBlocks(s.blocks, true), createdAt: new Date().toISOString(),
+      professional,
     };
     delete copy.updatedAt; delete copy.updatedBy; delete copy.planId; delete copy.planN;
     return this.put('sessions', copy, { immediate: true });
@@ -8890,11 +8946,10 @@ const Store = {
 
   // ── Planificar per endavant: sessions futures (un mes sencer, o una setmana copiada a les següents) ──
   // Crea una sessió planificada amb aquests blocs.
-  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '' }) {
-    const p = this.get('patients', pid);
+  addPlanned(pid, { date, time = '', blocks, goal = '', pillar = '', professional = '' }) {
     const s = {
       id: U.uid('S'), patientId: pid, date, number: this.nextSessionNumber(pid),
-      professional: deviceProfessional() || (p && p.professional) || '', goal, pillar, status: 'planificada',
+      professional, goal, pillar, status: 'planificada',
       wellness: {}, blocks, feedback: {}, createdAt: new Date().toISOString(),
     };
     if (time) s.time = time;
@@ -8913,7 +8968,7 @@ const Store = {
   // Planifica un mes: una sessió per cada dia triat. bases[dia de la setmana] = { mode: 'last' | 'template' | 'blank', templateId }:
   //   'last' = còpia de l'última sessió d'aquell dia de la setmana (o, si no n'hi ha, de l'última sessió del client).
   // every = cada quantes setmanes puja un nivell cada exercici que té progressió (0 = mai).
-  planMonth(pid, { month, days, bases = {}, every = 0, skipExisting = true }) {
+  planMonth(pid, { month, days, bases = {}, every = 0, skipExisting = true, professional = '' }) {
     const sessions = this.sessionsOf(pid);
     const taken = new Set(sessions.map((s) => s.date));
     const filled = (s) => (s.blocks || []).some((b) => (b.items || []).some((i) => i.name));
@@ -8942,13 +8997,13 @@ const Store = {
       }
       seen[wd] = (seen[wd] || 0) + 1;
       chain[wd] = { blocks, goal, pillar };
-      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar }));
+      created.push(this.addPlanned(pid, { date, time: chainTime[wd] || '', blocks: this.usedBlocks(cloneBlocks(blocks, true)), goal, pillar, professional }));
     }
     return { created, skipped };
   },
 
   // Copia les sessions d'una setmana (dilluns = weekStart) a les setmanes següents; amb progress, cada setmana puja un nivell.
-  copyWeek(pid, weekStart, { weeks = 1, progress = false, skipExisting = true } = {}) {
+  copyWeek(pid, weekStart, { weeks = 1, progress = false, skipExisting = true, professional = '' } = {}) {
     const end = U.addDays(weekStart, 6);
     const src = this.sessionsOf(pid).filter((s) => s.date >= weekStart && s.date <= end);
     const taken = new Set(this.sessionsOf(pid).map((s) => s.date));
@@ -8962,7 +9017,7 @@ const Store = {
         cur[s.id] = blocks;
         if (skipExisting && taken.has(date)) { skipped.push(date); continue; }
         taken.add(date);
-        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '' }));
+        created.push(this.addPlanned(pid, { date, time: s.time || '', blocks: this.usedBlocks(blocks), goal: s.goal || '', pillar: s.pillar || '', professional }));
       }
     }
     return { created, skipped };
@@ -10323,6 +10378,7 @@ function xlAsymFill(pct) {
 function xlSessionState(s, today) {
   if (s.ghost) return { key: 'prevista', label: 'Prevista al pla', fill: XL_C.PREV };
   if (s.status === 'feta') return { key: 'feta', label: 'Feta', fill: XL_C.GRN };
+  if (s.status === 'cancelada') return { key: 'cancelada', label: Calc.cancelLabel(s), fill: XL_C.OFF };
   if (s.date && s.date < (today || U.today())) return { key: 'sense', label: 'Sense tancar', fill: XL_C.AMB };
   return { key: 'planificada', label: 'Planificada', fill: XL_C.BRAND_L };
 }
@@ -12106,7 +12162,7 @@ const ExcelClient = (() => {
 
     // Targetes (fórmules sobre el registre)
     const done = rows.filter((x) => x.state.key === 'feta');
-    const pend = rows.filter((x) => x.state.key !== 'feta');
+    const pend = rows.filter((x) => x.state.key !== 'feta' && x.state.key !== 'cancelada');
     const uas = done.map((x) => x.ua).filter((n) => n != null);
     const rpes = done.map((x) => x.rpe).filter((n) => n != null);
     const wls = done.map((x) => x.wellness).filter((n) => n != null);
@@ -14869,7 +14925,7 @@ const NoeTools = (() => {
       if (i.professional) list = list.filter((p) => U.norm(p.professional) === U.norm(i.professional));
       const rows = list.map((p) => {
         const sess = Store.sessionsOf(p.id), done = sess.filter((s) => s.status === 'feta');
-        const last = done[done.length - 1], next = sess.find((s) => s.status !== 'feta' && s.date >= today);
+        const last = done[done.length - 1], next = sess.find((s) => Calc.sessionOpen(s) && s.date >= today);
         const as = Store.doneAssessmentsOf(p.id), la = as[as.length - 1];
         return { p, row: compact({ pacient: ctx.ps.ref(p.id), edat: U.age(p.birthDate), sexe: sexName(p.sex), servei: p.service, estat: p.status || 'actiu', professional: p.professional,
           objectiu: enc(ctx, short(p.goal, 140)), darrera_sessio_feta: last ? last.date : '', dies_sense_sessio: last ? U.diffDays(last.date, today) : '', sessions_fetes_30d: done.filter((s) => s.date >= U.addDays(today, -30)).length,
@@ -14918,7 +14974,7 @@ const NoeTools = (() => {
         lesio: p.injuryDate || p.injuryNote ? compact({ data: p.injuryDate, nota: enc(ctx, short(p.injuryNote, 300)) }) : '',
         cirurgia: p.surgeryDate || p.surgeryNote ? compact({ data: p.surgeryDate, nota: enc(ctx, short(p.surgeryNote, 300)) }) : '',
         notes_internes: enc(ctx, short(p.notes, 500)),
-        sessions: { total: sess.length, fetes: done.length, planificades: sess.filter((s) => s.status !== 'feta' && s.date >= today).length, darrera_feta: done.length ? done[done.length - 1].date : '' },
+        sessions: { total: sess.length, fetes: done.length, planificades: sess.filter((s) => Calc.sessionOpen(s) && s.date >= today).length, darrera_feta: done.length ? done[done.length - 1].date : '' },
         ultimes_sessions: { rpe_mitja: avg('rpe'), eva_mitjana: avg('pain'), wellness_mitja: wl.length ? Math.round((wl.reduce((a, b) => a + b, 0) / wl.length) * 10) / 10 : '' },
         valoracions: as.length, ultima_valoracio: la ? { id: la.id, data: la.date, tipus: la.type, propera: la.nextRetest || '' } : '',
         punts_d_atencio: la ? Calc.alerts(la).slice(0, 12).map((x) => x.text) : [],
@@ -16075,19 +16131,24 @@ function SaveStatus() {
 
 // Enllaç de vídeo d'un test o exercici (carpeta del client, YouTube…).
 // date i where diuen a quina data i carpeta del client va el vídeo que es gravi (vegeu uploadToClient).
-function VideoButton({ url, onChange, title = 'Vídeo', patient, date, where }) {
-  const has = U.isUrl(url);
-  return html`<button type="button" class=${U.cls('mini', has && 'on')} title=${has ? `${title}: obrir o canviar l'enllaç` : `${title}: afegir enllaç`}
-    onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where })}><${Icon} name="video" size=${16} /></button>`;
+// target = { sessionId, itemId }: vídeo d'un exercici de la sessió, que es grava dins l'app i es puja en segon pla
+// (VideoQueue, 19-videoqueue.js); mentre puja, el botó en mostra el percentatge.
+function VideoButton({ url, onChange, title = 'Vídeo', patient, date, where, target }) {
+  const st = useVideoStatus(target && target.sessionId, target && target.itemId);
+  const has = U.isUrl(url) || LocalFiles.is(url);
+  const label = st ? (st.state === 'uploading' ? `${Math.round((st.pct || 0) * 100)} %` : st.state === 'error' ? 'Error' : 'En cua') : '';
+  return html`<button type="button" class=${U.cls('mini', has && 'on', st && 'mini-up', st && st.state === 'error' && 'mini-err')}
+    title=${st ? (st.state === 'error' ? `${title}: no s'ha pogut pujar el vídeo (${st.error}). Es tornarà a provar sol.` : `${title}: pujant el vídeo a la carpeta del pacient`) : has ? `${title}: obrir o canviar el vídeo` : `${title}: grava el pacient o afegeix un vídeo`}
+    onClick=${() => openVideoDialog({ url, onChange, title, patient, date, where, target })}><${Icon} name="video" size=${16} />${label && html`<span class="mini-txt">${label}</span>`}</button>`;
 }
 
-function openVideoDialog({ url, onChange, title, patient, date, where }) {
+function openVideoDialog({ url, onChange, title, patient, date, where, target }) {
   let close = null;
-  close = UI.open(() => html`<${VideoDialog} url=${url} title=${title} patient=${patient} date=${date} where=${where}
+  close = UI.open(() => html`<${VideoDialog} url=${url} title=${title} patient=${patient} date=${date} where=${where} target=${target}
     onSave=${(v) => { onChange(v); close(); }} onClose=${() => close()} />`);
 }
 
-function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSave, onClose }) {
+function VideoDialog({ url, title, patient, date, where = 'sessionVideos', target, onSave, onClose }) {
   const [v, setV] = useState(url || '');
   const [files, setFiles] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -16106,9 +16167,28 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
   useEffect(() => { if (cloud && folderId) loadFiles(); }, []);
   // Grava (càmera) o tria un vídeo de la tauleta: es puja a la carpeta de vídeos del client (segons where)
   // i queda enllaçat al test o a l'exercici sense haver de fer res més.
+  const queued = !!target && VideoQueue.available();
+  const st = useVideoStatus(target && target.sessionId, target && target.itemId);
+  // Exercici de la sessió: el vídeo es desa a la tauleta i es puja sol en segon pla (es pot tancar la finestra).
+  const enqueue = async (file) => {
+    try {
+      await VideoQueue.add(file, { target, patient, label: title, date, where });
+      UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat. Es puja sol a la carpeta de ${patient.firstName || 'el pacient'} i quedarà enllaçat a l'exercici.`);
+      onClose();
+    } catch (e) {
+      UI.toast(e.message || 'No s\'ha pogut desar el vídeo.', 'bad');
+    }
+  };
+  const recordInApp = () => {
+    onClose();
+    openVideoRecorder({ title, onFile: (f) => VideoQueue.add(f, { target, patient, label: title, date, where })
+      .then(() => UI.toast(filesOnDevice() ? 'Vídeo desat a la tauleta.' : `Vídeo desat. Es puja sol a la carpeta de ${patient.firstName || 'el pacient'}.`))
+      .catch((e) => UI.toast(e.message || 'No s\'ha pogut desar el vídeo.', 'bad')) });
+  };
   const upload = async (file) => {
     for (const r of [recRef, fileRef]) if (r.current) r.current.value = '';
     if (!file) return;
+    if (queued) { enqueue(file); return; }
     setUp({ pct: 0 });
     try {
       const res = await uploadToClient({ ...patient, folderId }, file, { label: title, date, where, onProgress: (pct) => setUp({ pct }) });
@@ -16134,7 +16214,10 @@ function VideoDialog({ url, title, patient, date, where = 'sessionVideos', onSav
       ${up ? html`<div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${Math.round(up.pct * 100)}>
           <span class="muted">${filesOnDevice() ? 'Desant el vídeo…' : `Pujant el vídeo a la carpeta de ${patient.firstName || 'el pacient'}… ${Math.round(up.pct * 100)} %`} · no tanquis aquesta finestra</span>
           <span class="bar"><span style=${`width:${Math.round(up.pct * 100)}%`}></span></span></div>`
-        : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>
+        : html`${st && html`<p class=${U.cls('upload-state', st.state === 'error' && 'warn-text')}>${st.state === 'uploading' ? `Pujant el vídeo a la carpeta de ${patient.firstName || 'el pacient'}… ${Math.round((st.pct || 0) * 100)} % (pots tancar aquesta finestra)`
+            : st.state === 'error' ? html`No s'ha pogut pujar el vídeo: ${st.error} <${Btn} size="sm" variant="ghost" icon="refresh" onClick=${() => VideoQueue.retry()}>Torna-ho a provar</${Btn}>` : 'Vídeo a la cua: es pujarà de seguida.'}</p>`}
+          ${queued && canRecordInApp() ? html`<${Btn} variant="primary" icon="video" onClick=${recordInApp}>Grava ara</${Btn}>`
+            : html`<${Btn} variant="primary" icon="video" onClick=${() => recRef.current && recRef.current.click()}>Grava ara</${Btn}>`}
           <${Btn} icon="upload" onClick=${() => fileRef.current && fileRef.current.click()}>Tria de la galeria</${Btn}>
           <span class="muted small">${filesOnDevice() ? 'Versió de prova: el vídeo es desa només en aquesta tauleta. Amb Microsoft 365 va sol a la carpeta del pacient.' : `Es desa sol a «${(EXPORT_FOLDERS[where] || EXPORT_FOLDERS.sessionVideos).join(' › ')}» de la carpeta de ${patient.firstName || 'el pacient'}.`}</span>`}
     </div>`}
@@ -16573,12 +16656,13 @@ function PatientChip({ p }) {
 }
 
 // ── Nou client ──
-function openNewPatient() {
+// onCreated: en lloc d'anar a la fitxa del pacient nou, el torna (p. ex. a «Nova sessió» de l'inici).
+function openNewPatient({ onCreated } = {}) {
   let close = null;
-  close = UI.open(() => html`<${NewPatientDialog} onClose=${() => close()} />`);
+  close = UI.open(() => html`<${NewPatientDialog} onClose=${() => close()} onCreated=${onCreated} />`);
 }
 
-function NewPatientDialog({ onClose }) {
+function NewPatientDialog({ onClose, onCreated }) {
   const [f, setF] = useState({ firstName: '', lastName: '', service: 'membership', professional: Store.professionals()[0] || '', birthDate: '' });
   // Opcional: deixar ja reservada la valoració inicial al calendari (dia i hora).
   const [va, setVa] = useState({ date: '', time: '' });
@@ -16594,6 +16678,7 @@ function NewPatientDialog({ onClose }) {
     onClose();
     if (Store.cloud()) ensureFolder(p);
     if (va.date) UI.toast(`Valoració inicial programada el ${U.fmtDate(va.date)}${va.time ? ` a les ${va.time}` : ''}.`);
+    if (onCreated) { onCreated(p); return; }
     go('client', p.id, va.date ? 'mes' : 'fitxa');
   };
   return html`<${Dialog} title="Nou pacient" onClose=${onClose} footer=${html`
@@ -16623,6 +16708,47 @@ function NewPatientDialog({ onClose }) {
 // Desplegable amb l'equip de Configuració (si el registre porta un nom que ja no hi és, es manté).
 function ProfSelect({ id, value, onValue }) {
   return html`<${Select} id=${id} value=${value} onValue=${onValue} options=${Store.professionals()} placeholder="—" />`;
+}
+
+// Qui fa (o ha fet) una sessió: no hi ha cap professional per defecte, s'ha de triar sempre (així no queda el de la
+// tauleta o el del pacient sense voler). value = el que hi ha ara (per confirmar-lo d'un toc).
+function askProfessional({ title = 'Qui fa la sessió?', text = '', value = '', ok = 'D\'acord' } = {}) {
+  return new Promise((resolve) => {
+    let close = null;
+    const done = (v) => { close(); resolve(v); };
+    close = UI.open(() => html`<${AskProfessional} title=${title} text=${text} value=${value} ok=${ok} onDone=${done} />`, { size: 'sm', onDismiss: () => done(null) });
+  });
+}
+function AskProfessional({ title, text, value, ok, onDone }) {
+  const [v, setV] = useState(value || '');
+  return html`<${Dialog} title=${title} onClose=${() => onDone(null)} footer=${html`
+    <${Btn} variant="ghost" onClick=${() => onDone(null)}>Cancel·la</${Btn}>
+    <${Btn} variant="primary" icon="check" disabled=${!v} onClick=${() => onDone(v)}>${ok}</${Btn}>`}>
+    ${text && html`<p class="dialog-text">${text}</p>`}
+    <${Field} label="Professional" id="ask-prof"><${ProfSelect} id="ask-prof" value=${v} onValue=${setV} /></${Field}>
+  </${Dialog}>`;
+}
+
+// Marca una sessió com a feta, després de confirmar qui l'ha feta. extra: l'RPE, el dolor… (de l'avís del vespre).
+async function markSessionDone(s, extra = null) {
+  const p = Store.get('patients', s.patientId) || {};
+  const prof = await askProfessional({
+    title: s.professional ? `L'ha feta ${s.professional}?` : 'Qui ha fet la sessió?',
+    text: `Sessió ${s.number || ''} de ${U.fullName(p)} · ${U.fmtDateLong(s.date)}. ${s.professional ? 'Si l\'ha feta un altre professional, canvia-ho abans de confirmar.' : 'Tria el professional que l\'ha feta.'}`,
+    value: s.professional || '',
+    ok: 'Sí, marca-la com a feta',
+  });
+  if (!prof) return false;
+  Store.update('sessions', s.id, (x) => {
+    x.professional = prof;
+    x.status = 'feta';
+    if (extra) x.feedback = { ...(x.feedback || {}), ...extra };
+    for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
+  });
+  deviceProfessional(prof);
+  if (typeof Sync !== 'undefined') Sync.soon(s.patientId);      // l'Excel de la sessió acabada es puja de seguida
+  if (typeof PdfSync !== 'undefined') PdfSync.soon(s.patientId); // i el seu PDF
+  return true;
 }
 
 // Crea (si cal) la carpeta del client (Google Drive o Microsoft 365) i en desa l'enllaç.
@@ -16710,8 +16836,11 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [planN, setPlanN] = useState(plans[0] ? String(Store.nextPlanN(plans[0])) : '');
   const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
+  const [prof, setProf] = useState('');
   const create = () => {
-    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN) });
+    if (!prof) { UI.toast('Tria qui farà la sessió.', 'bad'); return; }
+    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN), professional: prof });
+    deviceProfessional(prof);
     onClose();
     go('sessio', s.id);
   };
@@ -16721,8 +16850,9 @@ function NewSessionDialog({ pid, date, onClose }) {
   </label>`;
   return html`<${Dialog} title="Nova sessió" onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="plus" onClick=${create}>Crea la sessió</${Btn}>`}>
-    <div class="form-grid"><${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
+    <${Btn} variant="primary" icon="plus" disabled=${!prof} onClick=${create}>Crea la sessió</${Btn}>`}>
+    <div class="form-grid"><${Field} label="Professional" id="ns-prof" wide=${true} class=${!prof && 'field-missing'} hint="Qui farà la sessió. S'ha de triar sempre."><${ProfSelect} id="ns-prof" value=${prof} onValue=${setProf} /></${Field}>
+    <${Field} label="Data" id="ns-date"><${TextInput} id="ns-date" type="date" value=${d} onValue=${setD} /></${Field}>
     <${Field} label="Hora" id="ns-time"><${TextInput} id="ns-time" type="time" value=${time} onValue=${setTime} /></${Field}></div>
     <div class="choices">
       ${plans.length > 0 && option('plan', 'Del pla d\'entrenament', plan ? `${plan.name} · la pròxima és la S${Store.nextPlanN(plan)}` : '', false,
@@ -20508,6 +20638,262 @@ const PdfSync = (() => {
 })();
 
 
+/* ── 19-videoqueue.js ── */
+/* EON Life · vídeos dels exercicis de la sessió: gravadora dins l'app i cua de pujada que no es perd.
+   Abans el vídeo es pujava mentre la finestra era oberta: si es tancava, la tauleta s'apagava o tallava la
+   connexió, el vídeo quedava a la galeria però no arribava a la carpeta del pacient. Ara:
+   · el vídeo es desa primer a la tauleta (IndexedDB) i la finestra es tanca de seguida;
+   · es puja en segon pla a «Sessions › Vídeos sessions d'entrenament» de la carpeta del pacient, amb el nom
+     exercici_pacient_data_01 (uploadToClient), reintentant si falla, i també en tornar a obrir l'app;
+   · quan acaba, l'enllaç queda a l'exercici de la sessió (it.video) i el vídeo s'esborra de la tauleta. */
+
+const VideoQueue = (() => {
+  const STORE = 'queue';
+  const BACKOFF = [15e3, 60e3, 3 * 60e3, 10 * 60e3];
+  let dbp = null;
+  let busy = false;
+  let timer = null;
+  let lock = null;
+  const live = {};              // clau (sessió/exercici) → { state: 'waiting' | 'uploading' | 'error', pct, error }
+  const listeners = new Set();
+  const emit = () => { for (const fn of listeners) fn(); };
+  const keyOf = (t) => `${t.sessionId}/${t.itemId}`;
+
+  const db = () => dbp || (dbp = new Promise((resolve, reject) => {
+    const r = indexedDB.open('eonlife-videos', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' });
+    r.onsuccess = () => resolve(r.result);
+    r.onerror = () => { dbp = null; reject(r.error || new Error('No es poden desar vídeos en aquesta tauleta.')); };
+  }));
+  const run = async (mode, fn) => {
+    const d = await db();
+    return new Promise((resolve, reject) => {
+      const t = d.transaction(STORE, mode);
+      const req = fn(t.objectStore(STORE));
+      t.oncomplete = () => resolve(req && req.result);
+      t.onerror = () => reject(t.error);
+      t.onabort = () => reject(t.error || new Error('No s\'ha pogut desar el vídeo a la tauleta.'));
+    });
+  };
+  const all = () => run('readonly', (s) => s.getAll());
+
+  // La pantalla no s'apaga mentre es puja (si la tauleta ho permet).
+  const keepAwake = async (on) => {
+    try {
+      if (on && !lock && navigator.wakeLock) lock = await navigator.wakeLock.request('screen');
+      if (!on && lock) { await lock.release(); lock = null; }
+    } catch (e) { lock = null; }
+  };
+
+  const ready = () => typeof Store !== 'undefined' && Store.ready && !Store.error && canUploadFiles();
+
+  // L'enllaç va a l'exercici de la sessió (encara que s'hagi mogut de bloc).
+  function link(job, url) {
+    const s = Store.get('sessions', job.sessionId);
+    if (!s || !url) return false;
+    let found = false;
+    Store.update('sessions', job.sessionId, (x) => {
+      for (const b of x.blocks || []) for (const it of b.items || []) if (it.id === job.itemId) { it.video = url; found = true; }
+    });
+    return found;
+  }
+
+  async function tick() {
+    clearTimeout(timer);
+    timer = null;
+    if (busy) return;
+    if (!ready()) { timer = setTimeout(tick, 5000); return; }
+    let jobs;
+    try { jobs = await all(); } catch (e) { return; }
+    const now = Date.now();
+    for (const j of jobs) if (!live[keyOf(j)]) live[keyOf(j)] = { state: j.error ? 'error' : 'waiting', pct: 0, error: j.error || '' };
+    const job = jobs.filter((j) => (j.nextAt || 0) <= now).sort((a, b) => a.createdAt - b.createdAt)[0];
+    if (!job) {
+      const next = Math.min(...jobs.map((j) => j.nextAt || now));
+      if (jobs.length) timer = setTimeout(tick, Math.max(2000, next - now));
+      emit();
+      return;
+    }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) { timer = setTimeout(tick, 15000); return; }
+    busy = true;
+    const k = keyOf(job);
+    live[k] = { state: 'uploading', pct: 0, error: '' };
+    emit();
+    keepAwake(true);
+    try {
+      const p = Store.get('patients', job.patientId);
+      if (!p) throw new Error('No trobo el pacient d\'aquest vídeo.');
+      const file = new File([job.blob], job.fileName || 'video', { type: job.type || (job.blob && job.blob.type) || 'video/mp4' });
+      const res = await uploadToClient(p, file, { label: job.label, date: job.date, where: job.where || 'sessionVideos',
+        onProgress: (pct) => { live[k] = { state: 'uploading', pct, error: '' }; emit(); } });
+      link(job, res.url);
+      await run('readwrite', (s) => s.delete(job.id));
+      delete live[k];
+      UI.toast(`Vídeo pujat a la carpeta de ${p.firstName || 'el pacient'}: ${res.name || job.label}.`);
+    } catch (e) {
+      const tries = (job.tries || 0) + 1;
+      const msg = (e && e.message) || 'No s\'ha pogut pujar el vídeo.';
+      try { await run('readwrite', (s) => s.put({ ...job, tries, error: msg, nextAt: Date.now() + BACKOFF[Math.min(tries, BACKOFF.length) - 1] })); } catch (e2) { /* es tornarà a provar */ }
+      live[k] = { state: 'error', pct: 0, error: msg };
+    }
+    busy = false;
+    let left = [];
+    try { left = await all(); } catch (e) { /* res */ }
+    if (!left.length) keepAwake(false);
+    emit();
+    timer = setTimeout(tick, left.length ? 300 : 60000);
+  }
+
+  return {
+    available() { try { return typeof indexedDB !== 'undefined' && !!indexedDB; } catch (e) { return false; } },
+    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+    status(sessionId, itemId) { return live[`${sessionId}/${itemId}`] || null; },
+    pending() { return Object.values(live).filter((x) => x.state !== 'error').length; },
+
+    // Afegeix un vídeo a la cua. target = { sessionId, itemId }; patient, label (nom de l'exercici), date.
+    async add(file, { target, patient, label, date, where = 'sessionVideos' }) {
+      if (!file || !file.size) throw new Error('El vídeo és buit.');
+      const job = {
+        id: U.uid('V'), sessionId: target.sessionId, itemId: target.itemId, patientId: patient.id, label: label || 'Exercici',
+        date: date || U.today(), where, blob: file, fileName: file.name || '', type: file.type || '', size: file.size,
+        createdAt: Date.now(), tries: 0, nextAt: 0,
+      };
+      await run('readwrite', (s) => s.put(job));
+      live[keyOf(job)] = { state: 'waiting', pct: 0, error: '' };
+      emit();
+      tick();
+      return job.id;
+    },
+
+    // Torna a provar ara els que han fallat.
+    retry() {
+      all().then((jobs) => Promise.all(jobs.map((j) => run('readwrite', (s) => s.put({ ...j, nextAt: 0 }))))).then(() => tick()).catch(() => {});
+    },
+
+    start() {
+      if (!this.available()) return;
+      tick();
+      window.addEventListener('online', () => this.retry());
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') tick(); });
+    },
+  };
+})();
+
+// Estat de pujada d'un vídeo d'un exercici, per tornar a pintar el botó mentre puja.
+function useVideoStatus(sessionId, itemId) {
+  const [, setN] = useState(0);
+  useEffect(() => VideoQueue.subscribe(() => setN((n) => n + 1)), []);
+  return sessionId && itemId ? VideoQueue.status(sessionId, itemId) : null;
+}
+
+// ── Gravadora dins l'app ──
+// Grava amb la càmera sense sortir de l'app (si se surt a l'app de càmera, Android a vegades tanca l'app i el vídeo es
+// perd). Vídeo a 720p, sense so, en MP4 si la tauleta en sap fer (si no, WebM).
+function videoRecorderType() {
+  if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
+  return ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+    .find((t) => { try { return MediaRecorder.isTypeSupported(t); } catch (e) { return false; } }) || '';
+}
+function canRecordInApp() {
+  return typeof navigator !== 'undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && typeof MediaRecorder !== 'undefined';
+}
+
+function openVideoRecorder({ title, onFile }) {
+  let close = null;
+  close = UI.open(() => html`<${VideoRecorder} title=${title} onFile=${(f) => { close(); onFile(f); }} onClose=${() => close()} />`, { onDismiss: () => close() });
+}
+
+function VideoRecorder({ title, onFile, onClose }) {
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const recRef = useRef(null);
+  const chunks = useRef([]);
+  const [facing, setFacing] = useState('environment');
+  const [phase, setPhase] = useState('starting'); // starting · ready · recording · review · error
+  const [err, setErr] = useState('');
+  const [secs, setSecs] = useState(0);
+  const [clip, setClip] = useState(null);       // { file, url }
+  const type = videoRecorderType();
+
+  const stopStream = () => { const st = streamRef.current; if (st) st.getTracks().forEach((t) => t.stop()); streamRef.current = null; };
+  const startStream = async (face) => {
+    stopStream();
+    setPhase('starting');
+    try {
+      const st = await navigator.mediaDevices.getUserMedia({ audio: false,
+        video: { facingMode: { ideal: face }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } });
+      streamRef.current = st;
+      if (videoRef.current) { videoRef.current.srcObject = st; videoRef.current.play().catch(() => {}); }
+      setPhase('ready');
+    } catch (e) {
+      setErr(e && e.name === 'NotAllowedError' ? 'La tauleta no deixa fer servir la càmera. Dona permís a la càmera per a aquesta app (icona del cadenat de la barra d\'adreces o Configuració de la tauleta).' : 'No s\'ha pogut obrir la càmera.');
+      setPhase('error');
+    }
+  };
+  useEffect(() => {
+    startStream(facing);
+    const unEsc = EscStack.push(() => onClose());
+    return () => { unEsc(); try { if (recRef.current && recRef.current.state !== 'inactive') recRef.current.stop(); } catch (e) { /* res */ } stopStream(); };
+  }, []);
+  useEffect(() => {
+    if (phase !== 'recording') return undefined;
+    const t0 = Date.now();
+    const iv = setInterval(() => setSecs(Math.floor((Date.now() - t0) / 1000)), 250);
+    return () => clearInterval(iv);
+  }, [phase]);
+  useEffect(() => () => { if (clip) URL.revokeObjectURL(clip.url); }, [clip]);
+
+  const record = () => {
+    const st = streamRef.current;
+    if (!st) return;
+    chunks.current = [];
+    let rec;
+    try { rec = new MediaRecorder(st, { ...(type ? { mimeType: type } : {}), videoBitsPerSecond: 2500000 }); } catch (e) {
+      try { rec = new MediaRecorder(st); } catch (e2) { setErr('Aquesta tauleta no pot gravar vídeo dins l\'app.'); setPhase('error'); return; }
+    }
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.current.push(e.data); };
+    rec.onstop = () => {
+      const t = rec.mimeType || type || 'video/webm';
+      const blob = new Blob(chunks.current, { type: t.split(';')[0] });
+      const file = new File([blob], `video.${/mp4/.test(t) ? 'mp4' : 'webm'}`, { type: t.split(';')[0] });
+      setClip({ file, url: URL.createObjectURL(blob) });
+      setPhase('review');
+      stopStream();
+    };
+    recRef.current = rec;
+    rec.start(1000);
+    setSecs(0);
+    setPhase('recording');
+  };
+  const stop = () => { try { recRef.current && recRef.current.stop(); } catch (e) { /* res */ } };
+  const again = () => { setClip(null); startStream(facing); };
+  const flip = () => { const f = facing === 'environment' ? 'user' : 'environment'; setFacing(f); startStream(f); };
+  const mmss = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+
+  return html`<div class="vrec" role="dialog" aria-modal="true" aria-label=${`Grava · ${title}`}>
+    <header class="vrec-head">
+      <div class="grow"><p class="eyebrow">Grava el pacient</p><h2 class="h2 vrec-title">${title}</h2></div>
+      ${phase === 'recording' && html`<span class="vrec-time" aria-live="polite"><span class="vrec-dot"></span>${mmss}</span>`}
+      <${Btn} variant="ghost" icon="x" title="Tanca" onClick=${onClose} disabled=${phase === 'recording'} />
+    </header>
+    <div class="vrec-stage">
+      ${phase === 'review' && clip ? html`<video src=${clip.url} controls playsinline class="vrec-video"></video>`
+        : html`<video ref=${videoRef} muted playsinline autoplay class=${U.cls('vrec-video', facing === 'user' && 'mirror')}></video>`}
+      ${phase === 'starting' && html`<p class="vrec-msg">Obrint la càmera…</p>`}
+      ${phase === 'error' && html`<p class="vrec-msg vrec-err">${err}</p>`}
+    </div>
+    <footer class="vrec-foot">
+      ${phase === 'ready' && html`<${Btn} variant="ghost" icon="refresh" onClick=${flip}>Gira la càmera</${Btn}><span class="grow"></span>
+        <button type="button" class="vrec-btn" onClick=${record} aria-label="Comença a gravar"><span></span></button><span class="grow"></span><span class="vrec-spacer"></span>`}
+      ${phase === 'recording' && html`<span class="grow"></span><button type="button" class="vrec-btn on" onClick=${stop} aria-label="Atura la gravació"><span></span></button><span class="grow"></span>`}
+      ${phase === 'review' && html`<${Btn} variant="ghost" icon="refresh" onClick=${again}>Torna a gravar</${Btn}><span class="grow"></span>
+        <${Btn} variant="primary" icon="upload" onClick=${() => onFile(clip.file)}>Desa i puja a la carpeta</${Btn}>`}
+      ${phase === 'error' && html`<span class="grow"></span><${Btn} onClick=${onClose}>Tanca</${Btn}>`}
+    </footer>
+  </div>`;
+}
+
+
 /* ── 20-home.js ── */
 /* EON Life · pantalla d'inici: sessions d'avui, re-tests pendents i llista de clients. */
 
@@ -20531,10 +20917,10 @@ function HomeView() {
     return m;
   }, [Store.version]);
 
-  const todays = U.sortBy(sessions.filter((s) => s.date === today), (s) => U.norm(U.fullName(Store.get('patients', s.patientId))));
+  const todays = U.sortBy(sessions.filter((s) => s.date === today && s.status !== 'cancelada'), (s) => U.norm(U.fullName(Store.get('patients', s.patientId))));
   const upcoming = U.sortBy(sessions.filter((s) => s.date > today && s.date <= U.addDays(today, 7)), 'date');
   const wk0 = U.weekStart(today), wk1 = U.addDays(wk0, 6);
-  const week = sessions.filter((s) => s.date >= wk0 && s.date <= wk1);
+  const week = sessions.filter((s) => s.date >= wk0 && s.date <= wk1 && s.status !== 'cancelada');
   const active = patients.filter((p) => p.status === 'actiu');
   const retests = U.sortBy(active.map((p) => ({ p, r: Calc.retestDue(Store.assessmentsOf(p.id)) }))
     .filter((x) => !x.r || x.r.days <= 21), (x) => (x.r ? x.r.days : -999));
@@ -20551,11 +20937,13 @@ function HomeView() {
       </div>
       <div class="page-actions">
         <${Btn} icon="clipboard" onClick=${() => openAddMeasurement('dades')}>Nou test</${Btn}>
+        <${Btn} icon="calendar" onClick=${() => openQuickSession(null, { date: U.today() })}>Nova sessió</${Btn}>
         <${Btn} variant="primary" icon="plus" onClick=${openNewPatient}>Nou pacient</${Btn}>
       </div>
     </header>
 
     ${Store.meta.demo && html`<${DemoBanner} />`}
+    <${SessionReviewBanner} />
 
     <section class="stats">
       <${Stat} icon="users" label="Pacients actius" value=${active.length} sub=${`${patients.length} en total`} />
@@ -20616,7 +21004,7 @@ function HomeView() {
 function ClientRow({ p, sessions }) {
   const today = U.today();
   const done = U.sortBy(sessions.filter((s) => s.status === 'feta'), 'date', -1)[0];
-  const next = U.sortBy(sessions.filter((s) => s.date >= today && s.status !== 'feta'), 'date')[0];
+  const next = U.sortBy(sessions.filter((s) => s.date >= today && Calc.sessionOpen(s)), 'date')[0];
   const last = Store.doneAssessmentsOf(p.id).pop();
   const age = U.age(p.birthDate);
   return html`<button type="button" class="crow" onClick=${() => go('client', p.id)}>
@@ -20729,7 +21117,7 @@ function GoalCard({ p, compact }) {
 
 function PatientSummary({ p, sessions, assessments }) {
   const today = U.today();
-  const next = sessions.filter((s) => s.date >= today && s.status !== 'feta')[0];
+  const next = sessions.filter((s) => s.date >= today && Calc.sessionOpen(s))[0];
   const lastDone = sessions.filter((s) => s.status === 'feta').pop();
   const last = assessments[assessments.length - 1];
   const alerts = last ? Calc.alerts(last) : [];
@@ -23441,16 +23829,8 @@ function QrCode({ text, size = 80 }) {
 
 function SessionEditor({ id }) {
   const s = Store.get('sessions', id);
-  // Última vegada que el client va fer cada exercici (per progressar la càrrega).
-  const prev = useMemo(() => {
-    const m = {};
-    if (!s) return m;
-    const before = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id && x.date <= s.date).reverse();
-    for (const x of before) for (const b of x.blocks || []) for (const it of b.items || []) {
-      if (it.name && !m[it.name]) m[it.name] = { ...it, date: x.date, _rpe: U.num((x.feedback || {}).rpe), _pain: U.num((x.feedback || {}).pain) };
-    }
-    return m;
-  }, [s && s.patientId, s && s.date, id]);
+  // Última vegada que el client va fer cada exercici (per recomanar la càrrega): prevMapOf.
+  const prev = useMemo(() => (s ? prevMapOf(s) : {}), [s && s.patientId, s && s.date, id]);
   if (!s) return html`<div class="page"><${Empty} icon="calendar" title="No trobo aquesta sessió" text="Potser s'ha eliminat.">
     <${Btn} onClick=${() => go('inici')}>Torna a l'inici</${Btn}></${Empty}></div>`;
   const p = Store.get('patients', s.patientId);
@@ -23467,7 +23847,9 @@ function SessionEditor({ id }) {
   const duplicate = async () => {
     const date = await askDate({ title: 'Duplica la sessió', label: 'Data de la nova sessió', value: U.addDays(s.date, 7) });
     if (!date) return;
-    const copy = Store.duplicateSession(s.id, date);
+    const prof = await askProfessional({ title: 'Qui farà la nova sessió?', text: `Còpia de la sessió ${s.number} per al ${U.fmtDate(date)}.`, ok: 'Duplica-la' });
+    if (!prof) return;
+    const copy = Store.duplicateSession(s.id, date, prof);
     UI.toast(`Sessió ${copy.number} creada per al ${U.fmtDate(date)}.`);
     go('sessio', copy.id);
   };
@@ -23497,8 +23879,7 @@ function SessionEditor({ id }) {
     }, 80);
   };
   const addExercise = (key, it) => {
-    const last = (prev || {})[it.name];
-    if (last && last.load) it.load = Calc.carryLoad(last, it);
+    if (!it.load) it.load = loadFor(it, prev);
     upd((x) => { x.blocks = [...(x.blocks || [])]; putExercise(x.blocks, key, it); });
     setTimeout(() => {
       const el = document.querySelector(`section.block.blk-${key}`);
@@ -23538,14 +23919,9 @@ function SessionEditor({ id }) {
     UI.toast('Sessió eliminada.');
     go('client', s.patientId, 'sessions');
   };
-  const markDone = () => {
-    upd((x) => {
-      x.status = 'feta';
-      for (const b of x.blocks || []) for (const it of b.items || []) if (it.name) it.done = true;
-    });
-    Sync.soon(s.patientId); // l'Excel de la sessió acabada es puja de seguida
-    PdfSync.soon(s.patientId); // i el seu PDF
-  };
+  // Abans de marcar-la com a feta es confirma qui l'ha feta (markSessionDone, 13-shared.js).
+  const markDone = () => markSessionDone(s);
+  const setStatus = (v) => { if (v === 'feta' && s.status !== 'feta') markDone(); else set('status')(v); };
   const leave = () => { Sync.flush(s.patientId); PdfSync.flush(s.patientId); go('client', s.patientId, 'sessions'); };
 
   return html`<div class="page page-edit">
@@ -23558,7 +23934,7 @@ function SessionEditor({ id }) {
       ${s.planId && Store.get('templates', s.planId) && html`<button type="button" class="pill pill-neutral plan-pill" onClick=${() => go('pla', s.planId, s.planN)}
         title="Obre el pla d'entrenament"><${Icon} name="layers" size=${13} />S${s.planN} del pla</button>`}
       <${SaveStatus} />
-      <${Seg} value=${s.status} onValue=${set('status')} allowEmpty=${false} size="sm" ariaLabel="Estat de la sessió"
+      <${Seg} value=${s.status} onValue=${setStatus} allowEmpty=${false} size="sm" ariaLabel="Estat de la sessió"
         options=${[{ v: 'planificada', label: 'Planificada' }, { v: 'feta', label: 'Feta', tone: 'ok' }]} />
       <${Btn} variant="primary" icon="play" onClick=${() => go('fitxa', s.id)}>Presenta</${Btn}>
       <${Menu} items=${[
@@ -23591,7 +23967,7 @@ function SessionEditor({ id }) {
         <${Field} label="Data" id="se-date"><${TextInput} id="se-date" type="date" value=${s.date} onValue=${set('date')} /></${Field}>
         <${Field} label="Hora" id="se-time"><${TextInput} id="se-time" type="time" value=${s.time || ''} onValue=${set('time')} /></${Field}>
         <${Field} label="Nº de sessió" id="se-num"><${NumInput} id="se-num" value=${s.number} onValue=${set('number')} /></${Field}>
-        <${Field} label="Professional" id="se-prof"><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
+        <${Field} label="Professional" id="se-prof" class=${!s.professional && 'field-missing'} hint=${!s.professional ? 'Falta triar qui fa la sessió.' : ''}><${ProfSelect} id="se-prof" value=${s.professional} onValue=${(v) => { set('professional')(v); deviceProfessional(v); }} /></${Field}>
         <${Field} label="Pilar" id="se-pillar"><${Select} id="se-pillar" value=${s.pillar} onValue=${set('pillar')} options=${OPT.pillars} placeholder="—" /></${Field}>
         <${Field} label="Objectiu de la sessió" id="se-goal" wide=${true}>
           <${TextInput} id="se-goal" value=${s.goal} onValue=${set('goal')} placeholder="p. ex. Força de tren inferior · dominant de genoll" />
@@ -23604,7 +23980,7 @@ function SessionEditor({ id }) {
     <${WeekVolume} s=${s} />
 
     ${!(s.blocks || []).length && html`<${AddBlocks} blocks=${s.blocks} onAdd=${addBlock} onAddExercise=${addExercise} patient=${p} />`}
-    ${(s.blocks || []).map((b, bi, all) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date}
+    ${(s.blocks || []).map((b, bi, all) => html`<${BlockCard} key=${b.key} block=${b} prev=${prev} patient=${p} date=${s.date} sessionId=${s.id}
       onChange=${(fn) => setBlock(b.key, fn)} onRemove=${() => removeBlock(b.key)}
       onMoveBlock=${(dir) => moveBlock(b.key, dir)} canBlockUp=${bi > 0} canBlockDown=${bi < all.length - 1}
       otherBlocks=${all.filter((o) => o.key !== b.key).map((o) => o.key)} onMoveItemTo=${(iid, to) => moveItemTo(b.key, iid, to)} />`)}
@@ -23639,15 +24015,53 @@ function SessionEditor({ id }) {
 // (Bloc 1, Bloc 2…), cadascun amb els seus exercicis: p. ex. a Força principal, un bloc de 2 i un de 5.
 // Botons per afegir a la sessió els blocs que encara no hi són.
 // Aplica la càrrega suggerida (segons RPE i dolor de la darrera sessió) als exercicis d'un bloc. Retorna quants n'han canviat.
+// Última vegada que el pacient va fer cada exercici abans d'aquesta sessió, pel nom i per l'exercici de la biblioteca.
+// Només compten les vegades amb dades (feta, o amb càrrega o encoder): no una sessió planificada que no es va fer.
+// _kg: els quilos, encara que estiguin escrits «2 × 16 kg» o només a l'encoder; _rpe i _pain: com va anar la sessió.
+function prevMapOf(s) {
+  const m = {};
+  const before = Store.sessionsOf(s.patientId).filter((x) => x.id !== s.id && x.date <= s.date && x.status !== 'cancelada').reverse();
+  for (const x of before) for (const b of x.blocks || []) for (const it of b.items || []) {
+    if (!it.name) continue;
+    const kg = Calc.kg(it);
+    if (x.status !== 'feta' && kg == null) continue;
+    const rec = { ...it, date: x.date, _kg: kg, _rpe: U.num((x.feedback || {}).rpe), _pain: U.num((x.feedback || {}).pain) };
+    if (!m[it.name]) m[it.name] = rec;
+    if (it.exId && !m[`#${it.exId}`]) m[`#${it.exId}`] = rec;
+  }
+  return m;
+}
+function prevFor(prev, it) {
+  if (!prev || !it) return null;
+  return (it.name && prev[it.name]) || (it.exId && prev[`#${it.exId}`]) || null;
+}
+
+// Càrrega recomanada per a un exercici que el pacient ja ha fet: la darrera, pujada o baixada segons l'RPE i el dolor
+// d'aquella sessió (Calc.suggestLoad); sense RPE ni dolor, la mateixa. Adaptada si ha canviat la lateralitat.
 function progressionOf(it, prev) {
-  const p = it && it.name && prev ? prev[it.name] : null;
+  const p = prevFor(prev, it);
   if (!p) return null;
+  const kg = Calc.loadKg(p.load) != null ? Calc.loadKg(p.load) : p._kg;
+  if (kg == null || kg <= 0) return null;
   // si abans el feia bilateral i ara unilateral (o al revés), es parteix de la càrrega equivalent
   const lf = Calc.latFactor(p, it);
-  const base = lf !== 1 && Calc.loadKg(p.load) != null ? { ...p, load: String(Calc.latLoad(Calc.loadKg(p.load), p, it)) } : p;
-  const sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
-  if (sg && lf !== 1) { sg.why += Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)'; sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`; }
+  const base = { ...p, load: String(lf !== 1 ? Calc.latLoad(kg, p, it) : kg) };
+  const lat = lf !== 1 ? (Calc.latOf(it) === 'UL' ? ' · adaptat a unilateral (½)' : ' · adaptat a bilateral (×2)') : '';
+  let sg = Calc.suggestLoad(base, { rpe: p._rpe, pain: p._pain });
+  if (!sg) {
+    const load = Calc.loadKg(base.load);
+    sg = { load, base: load, delta: 0, pct: 0, why: 'la mateixa que la darrera vegada (sense RPE d\'aquella sessió)' };
+  }
+  sg.why += lat;
+  sg.text = `${Calc.fmtKg(sg.load)} (${sg.why})`;
   return sg;
+}
+// La càrrega per posar a un exercici que s'afegeix: la recomanada o, si no n'hi ha, la de la darrera vegada.
+function loadFor(it, prev) {
+  const sg = progressionOf(it, prev);
+  if (sg) return String(sg.load).replace('.', ',');
+  const last = prevFor(prev, it);
+  return last && last.load ? Calc.carryLoad(last, it) : '';
 }
 function applyProgression(block, prev) {
   let n = 0;
@@ -23740,7 +24154,7 @@ function AddBlocks({ blocks, onAdd, onAddExercise, patient, what = 'la sessió',
   </section>`;
 }
 
-function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove, onMoveBlock, canBlockUp, canBlockDown, otherBlocks, onMoveItemTo }) {
+function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemove, onMoveBlock, canBlockUp, canBlockDown, otherBlocks, onMoveItemTo, sessionId }) {
   const def = blockDef(block.key);
   const items = block.items || [];
   const groups = Calc.groups(block);
@@ -23763,8 +24177,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
       title: `Afegeix exercici · ${blockName(block.key)}${n ? ` · Bloc ${n}` : ''}`,
       onPick: (ex, mat) => {
         const it = itemFromExercise(ex, { material: mat || ex.material || '' });
-        const last = prev ? prev[ex.name] : null;
-        if (last && last.load) it.load = Calc.carryLoad(last, it);
+        if (prev) it.load = loadFor(it, prev) || it.load;
         put(it, false);
         const cw = patient ? Calc.cautions(patient, ex) : [];
         UI.toast(cw.length ? `⚠ ${ex.name}: té anotat ${cw.map((c) => c.label).join(' i ')} (${cw[0].why}). Valora si encaixa.` : `${ex.name}${mat ? ` · ${mat}` : ''}`, cw.length ? 'bad' : undefined);
@@ -23888,7 +24301,7 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
     if (g && Calc.isSuper(g.g)) { const last = g.items[g.items.length - 1]; return last && last.it === it ? Calc.secs(g.g.rest) || 0 : 0; }
     return Calc.secs(it.rest) || 0;
   };
-  const row = (it, i, gi) => html`<${ItemRow} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
+  const row = (it, i, gi) => html`<${ItemRow} sessionId=${sessionId} restSecs=${restFor(it, gi)} key=${it.id} it=${it} idx=${i} num=${`${def.num}.${i + 1}`} inSuper=${!!(groups && Calc.isSuper(groups[gi].g))}
     canUp=${i > 0 || (groups && gi > 0)} canDown=${i < items.length - 1 || (groups && gi < groups.length - 1)}
     groups=${[...((groups && groups.filter((x, k) => k !== gi).map((x) => ({ id: x.g.id, label: `Mou al bloc ${x.n}` }))) || []),
       ...((onMoveItemTo && otherBlocks) || []).map((k) => ({ id: `blk:${k}`, label: `Mou a ${blockName(k)}` }))]}
@@ -23969,21 +24382,20 @@ function BlockCard({ block, onChange, prev, patient, date, templateMode, onRemov
   </section>`;
 }
 
-function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date }) {
+function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, block, prevMap, onChange, onMove, onRemove, onDuplicate, autoFocus, templateMode, patient, date, sessionId }) {
   const [open, setOpen] = useState(false);
   const [vbtOpen, setVbtOpen] = useState(false);
   const vbtSum = Calc.vbt(it);
   // Registre de l'encoder: a Potència i Força principal (o a qualsevol exercici que ja en tingui).
   const vbtOn = !templateMode && (['pot', 'for'].includes(block) || !!vbtSum);
-  const prev = prevMap && it.name ? prevMap[it.name] : null;
+  const prev = prevFor(prevMap, it);
   const set = (k) => (v) => onChange((x) => { x[k] = v; });
   const pick = (ex) => onChange((x) => {
     x.name = ex.name;
     x.exId = ex.id;
     for (const k of ['gm', 'cont', 'pos', 'lat', 'material']) x[k] = ex[k] || '';
     for (const k of ['sets', 'reps', 'intensity', 'rest', 'tempo']) if (!x[k]) x[k] = ex[k] || '';
-    const last = prevMap ? prevMap[ex.name] : null;
-    if (last && !x.load && last.load) x.load = Calc.carryLoad(last, x);
+    if (prevMap && !x.load) x.load = loadFor(x, prevMap);
   });
   const tags = [
     it.cont && (OPT.cont.find((o) => o.v === it.cont) || {}).label,
@@ -24043,16 +24455,16 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         </span>`}
         <button type="button" class=${U.cls('mini', demo && 'on')} title=${demo ? 'Vídeo de demostració: veure o canviar' : 'Afegeix el vídeo de demostració (YouTube)'}
           onClick=${() => openDemoDialog({ it, onSave: set('demo') })}><${Icon} name="playfill" size=${15} /></button>
-        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} date=${date} where="sessionVideos" onChange=${set('video')} />`}
+        ${!templateMode && html`<${VideoButton} url=${it.video} title=${it.name || 'Exercici'} patient=${patient} date=${date} where="sessionVideos" onChange=${set('video')} target=${sessionId ? { sessionId, itemId: it.id } : null} />`}
         ${vbtOn && html`<button type="button" class=${U.cls('vbt-btn', (vbtOpen || vbtSum) && 'on')} aria-expanded=${vbtOpen} onClick=${() => setVbtOpen(!vbtOpen)}
           title="Registre per sèries de l'encoder ADR o de l'ADR Jumping"><${Icon} name="chart" size=${15} /><span>${vbtSum && vbtSum.text ? vbtSum.text : 'Encoder'}</span></button>`}
         ${!templateMode && html`<${TimerButton} secs=${restSecs} label=${`Descans · ${it.name || 'exercici'}`} />`}
         ${!templateMode && Calc.isTime(it.reps) && html`<${TimerButton} secs=${Calc.secs(it.reps)} kind="work" label=${it.name || 'Exercici'} title="Inicia el temps de l'exercici" />`}
         <input class="input item-note" value=${it.note} placeholder="Observacions (consigna, variant, ajust…)" onInput=${(e) => set('note')(e.currentTarget.value)} aria-label="Observacions de l'exercici" />
       </div>
-      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Anterior · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
+      ${prev && !templateMode && html`<div class="prev" title="Última vegada que el va fer">Última vegada · ${U.fmtDateShort(prev.date)}: ${Calc.presc(prev) || '—'}${prev._kg != null && Calc.loadKg(prev.load) == null ? ` · ${Calc.fmtKg(prev._kg)}` : ''}${Calc.vbt(prev) && Calc.vbt(prev).text ? ` · ${Calc.vbt(prev).text}` : ''}${prev._rpe != null ? ` · RPE ${U.fmt(prev._rpe, 0)}` : ''}${Calc.latFactor(prev, it) !== 1 ? ` (${Calc.latOf(prev) === 'BL' ? 'bilateral' : 'unilateral'})` : ''}
         ${sug && html` <button type="button" class=${U.cls('sug', Calc.loadKg(it.load) === sug.load && 'sug-on')} onClick=${() => set('load')(String(sug.load).replace('.', ','))}
-          title="Càrrega suggerida segons com va anar la darrera sessió. Toca per aplicar-la.">Suggeriment: ${sug.text}</button>`}</div>`}
+          title="Càrrega recomanada segons la darrera vegada i com va anar (RPE i dolor). Toca per posar-la.">${Calc.loadKg(it.load) === sug.load ? '✓ ' : ''}Recomanat: ${sug.text}</button>`}</div>`}
       ${latInfo && html`<div class=${U.cls('prev', (latInfo.state === 'high' || latInfo.state === 'low') && 'caut')} role="note">${latInfo.state === 'high' || latInfo.state === 'low' ? '⚠ ' : latInfo.state === 'ok' ? '✓ ' : ''}${latInfo.text}${latInfo.state !== 'ok' && html` <button type="button" class="sug" onClick=${() => set('load')(String(latInfo.ref).replace('.', ','))}
           title="Posa la càrrega de referència per a la nova lateralitat">Posa-hi ${Calc.fmtKg(latInfo.ref)}</button>`}</div>`}
       ${pct != null && !templateMode && html`<div class="prev">${pctKg
@@ -24082,7 +24494,7 @@ function ItemRow({ it, inSuper, restSecs, num, canUp, canDown, groups, onGroup, 
         { label: it.lat === 'UL' ? 'Fes-lo bilateral' : `Fes-lo unilateral (per ${Calc.uniSide(it)})`, icon: 'layers', onClick: toggleLat },
         { label: 'Duplica', icon: 'copy', onClick: onDuplicate },
         { label: 'Vídeo de demostració', icon: 'play', onClick: () => openDemoDialog({ it, onSave: set('demo') }) },
-        !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video') }) } : null,
+        !templateMode ? { label: 'Grava el pacient', icon: 'video', onClick: () => openVideoDialog({ url: it.video, title: it.name || 'Exercici', patient, date, where: 'sessionVideos', onChange: set('video'), target: sessionId ? { sessionId, itemId: it.id } : null }) } : null,
         { sep: true },
         { label: 'Elimina', icon: 'trash', danger: true, onClick: onRemove },
       ]} />
@@ -24461,8 +24873,10 @@ function MonthView({ p, sessions }) {
       if (ps && !used.has(ps.n)) (planned[date] = planned[date] || []).push({ plan, ps });
     });
   }
-  const fromPlan = (date, x) => {
-    const s = Store.newSession(p.id, { date, mode: 'plan', planId: x.plan.id, planN: x.ps.n });
+  const fromPlan = async (date, x) => {
+    const professional = await askProfessional({ title: 'Qui farà la sessió?', text: `S${x.ps.n} del pla «${x.plan.name}» · ${U.fmtDateLong(date)}.`, ok: 'Crea la sessió' });
+    if (!professional) return;
+    const s = Store.newSession(p.id, { date, mode: 'plan', planId: x.plan.id, planN: x.ps.n, professional });
     go('sessio', s.id);
   };
 
@@ -24505,7 +24919,7 @@ function MonthView({ p, sessions }) {
                   const quick = !sessionFilled(s);
                   const nums = sessionNums(s);
                   const picked = sel.includes(s.id);
-                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', quick && 'quick', selecting && 'selectable', picked && 'picked')}
+                  return html`<button type="button" class=${U.cls('cal-s', s.status === 'feta' ? 'done' : 'plan', s.status === 'cancelada' && 'cancel', quick && 'quick', selecting && 'selectable', picked && 'picked')}
                     ...${CalDrag.props(() => (selecting && picked ? sel : [s.id]), `S${s.number || ''} · ${s.goal || 'Sessió'}`, onDrop)}
                     aria-pressed=${selecting ? picked : undefined}
                     onClick=${() => { if (CalDrag.recent()) return; if (selecting) toggleSel(s.id); else if (quick) openQuickSession(p, { s }); else go('sessio', s.id); }}
@@ -24645,6 +25059,7 @@ function CalendarAddDialog({ p, date, onClose }) {
   </${Dialog}>`;
 }
 
+// Sense pacient (p = null): «Nova sessió» de l'inici, amb el pacient a triar.
 function openQuickSession(p, { s, date } = {}) {
   let close = null;
   close = UI.open(() => html`<${QuickSessionDialog} p=${p} s=${s} date=${date} onClose=${() => close()} />`);
@@ -24656,23 +25071,35 @@ function QuickSessionDialog({ p, s, date, onClose }) {
   const [f, setF] = useState({
     goal: (s && s.goal) || '', pillar: (s && s.pillar) || '', status: (s && s.status) || 'planificada',
     rpe: f0.rpe || '', pain: f0.pain || '', duration: f0.duration || '', time: (s && s.time) || '', date: (s && s.date) || date,
+    professional: (s && s.professional) || '', pid: (p && p.id) || '',
   });
   const set = (k) => (v) => setF({ ...f, [k]: v });
   const when = f.date || (s && s.date) || date;
-  const save = (thenFull) => {
-    if (!f.goal.trim()) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
+  const pickPatient = !p && !s;
+  const patients = U.sortBy(Store.all('patients').filter((x) => !x.deleted), (x) => U.norm(U.fullName(x)));
+  const pat = p || Store.get('patients', f.pid);
+  // Sessió nova: n'hi ha prou amb l'objectiu (es pot dissenyar després). Professional sempre obligatori.
+  const save = async (thenFull) => {
+    if (!pat) { UI.toast('Tria el pacient.', 'bad'); return null; }
+    if (!f.professional) { UI.toast('Tria qui farà la sessió.', 'bad'); return null; }
+    if (!f.goal.trim() && !thenFull) { UI.toast('Escriu l\'objectiu de la sessió.', 'bad'); return null; }
     if (!f.date) { UI.toast('Tria la data de la sessió.', 'bad'); return null; }
+    // Passar-la a feta: primer es confirma qui l'ha feta (markSessionDone).
+    const toDone = f.status === 'feta' && !(s && s.status === 'feta');
     const apply = (x) => {
-      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = f.status; x.date = f.date;
+      x.goal = f.goal.trim(); x.pillar = f.pillar; x.status = toDone ? (x.status || 'planificada') : f.status; x.date = f.date;
+      x.professional = f.professional;
       if (f.time) x.time = f.time; else delete x.time;
       x.feedback = { ...(x.feedback || {}), rpe: f.rpe, pain: f.pain, duration: f.duration };
     };
     let rec;
     if (s) rec = Store.update('sessions', s.id, apply);
-    else { rec = Store.addPlanned(p.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar }); rec = Store.update('sessions', rec.id, apply); }
+    else { rec = Store.addPlanned(pat.id, { date: when, blocks: [], goal: f.goal.trim(), pillar: f.pillar, professional: f.professional }); rec = Store.update('sessions', rec.id, apply); }
+    deviceProfessional(f.professional);
     onClose();
+    if (toDone && !(await markSessionDone(rec))) return rec;
     if (thenFull) go('sessio', rec.id);
-    else UI.toast(s ? (s.date !== when ? `Sessió desada i moguda al ${U.fmtDate(when)}.` : 'Sessió desada.') : `Sessió anotada el ${U.fmtDate(when)}.`);
+    else UI.toast(s ? (s.date !== when ? `Sessió desada i moguda al ${U.fmtDate(when)}.` : 'Sessió desada.') : `Sessió de ${pat.firstName || U.fullName(pat)} anotada el ${U.fmtDate(when)}.`);
     return rec;
   };
   const remove = async () => {
@@ -24681,13 +25108,20 @@ function QuickSessionDialog({ p, s, date, onClose }) {
     onClose();
   };
   const done = f.status === 'feta';
-  return html`<${Dialog} title=${s ? `Sessió ${s.number} · ${U.fmtDateLong(when)}` : `Només l'objectiu · ${U.fmtDateLong(when)}`} onClose=${onClose} footer=${html`
+  return html`<${Dialog} title=${s ? `Sessió ${s.number} · ${U.fmtDateLong(when)}` : pickPatient ? 'Nova sessió' : `Només l'objectiu · ${U.fmtDateLong(when)}`} onClose=${onClose} footer=${html`
     ${s && html`<${Btn} variant="ghost" icon="trash" onClick=${remove}>Elimina</${Btn}>`}
-    <${Btn} variant="ghost" icon="edit" onClick=${() => save(true)}>Programa-la sencera</${Btn}>
-    <${Btn} variant="primary" icon="check" onClick=${() => save(false)}>${s ? 'Desa' : 'Anota-la al calendari'}</${Btn}>`}>
+    <${Btn} variant="ghost" icon="edit" onClick=${() => save(true)}>${pickPatient ? 'Dissenya la sessió' : 'Programa-la sencera'}</${Btn}>
+    <${Btn} variant="primary" icon="check" onClick=${() => save(false)}>${s ? 'Desa' : pickPatient ? 'Desa al calendari' : 'Anota-la al calendari'}</${Btn}>`}>
     <form class="form-grid" onSubmit=${(e) => { e.preventDefault(); save(false); }}>
+      ${pickPatient && html`<${Field} label="Pacient" id="qs-pid" wide=${true} class=${!f.pid && 'field-missing'}>
+        <div class="inline"><${Select} id="qs-pid" value=${f.pid} onValue=${set('pid')} placeholder="Tria el pacient…" options=${patients.map((x) => ({ v: x.id, label: U.fullName(x) }))} />
+          <${Btn} variant="ghost" icon="plus" onClick=${() => openNewPatient({ onCreated: (np) => setF((cur) => ({ ...cur, pid: np.id })) })}>Nou pacient</${Btn}></div>
+      </${Field}>`}
+      <${Field} label="Professional" id="qs-prof" class=${!f.professional && 'field-missing'} hint=${f.professional ? '' : 'Qui farà la sessió. S\'ha de triar sempre.'}>
+        <${ProfSelect} id="qs-prof" value=${f.professional} onValue=${set('professional')} />
+      </${Field}>
       <${Field} label="Objectiu de la sessió" id="qs-goal" wide=${true}>
-        <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${true} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
+        <${TextInput} id="qs-goal" value=${f.goal} onValue=${set('goal')} autoFocus=${!pickPatient} placeholder="p. ex. Força de tren inferior · readaptació LCA" />
       </${Field}>
       <${Field} label="Data" id="qs-date"><${TextInput} id="qs-date" type="date" value=${f.date} onValue=${set('date')} /></${Field}>
       <${Field} label="Hora" id="qs-time"><${TextInput} id="qs-time" type="time" value=${f.time} onValue=${set('time')} /></${Field}>
@@ -25771,9 +26205,11 @@ function PlanCard({ plan, p, main }) {
   const next = Store.nextPlanN(plan);
   const dates = Calc.planDates(plan);
   // Sessió del pla ja creada però encara no feta (p. ex. la d'avui).
-  const pending = U.sortBy(real.filter((s) => s.status !== 'feta'), 'date')[0];
-  const start = () => {
-    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: next });
+  const pending = U.sortBy(real.filter((s) => Calc.sessionOpen(s)), 'date')[0];
+  const start = async () => {
+    const professional = await askProfessional({ title: 'Qui fa la sessió?', text: `S${next} del pla «${plan.name}» · avui.`, ok: 'Comença la sessió' });
+    if (!professional) return;
+    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: next, professional });
     go('sessio', s.id);
   };
   return html`<section class=${U.cls('card plancard', main && 'plancard-main')}>
@@ -25900,8 +26336,10 @@ function PlanEditor({ id, n }) {
     upd((x) => { x.sessions = x.sessions.filter((y) => y.n !== last.n); });
     setSel(Math.min(sel, last.n - 1));
   };
-  const startToday = () => {
-    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: cur.n });
+  const startToday = async () => {
+    const professional = await askProfessional({ title: 'Qui fa la sessió?', text: `S${cur.n} del pla «${plan.name}» · avui.`, ok: 'Comença la sessió' });
+    if (!professional) return;
+    const s = Store.newSession(p.id, { date: U.today(), mode: 'plan', planId: plan.id, planN: cur.n, professional });
     go('sessio', s.id);
   };
   const remove = async () => {
@@ -26295,6 +26733,7 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const [times, setTimes] = useState({});
   const [every, setEvery] = useState('0');
   const [skip, setSkip] = useState(true);
+  const [prof, setProf] = useState('');
   const thisMonth = U.monthKey(U.today());
   const months = Array.from({ length: 9 }, (_, i) => U.monthKey(U.addMonths(`${thisMonth}-01`, i - 1)));
   if (!months.includes(month)) months.unshift(month);
@@ -26308,9 +26747,10 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   const lastOn = (wd) => [...sessions].reverse().find((s) => Calc.itemCount(s) > 0 && U.parse(s.date).getDay() === wd);
   const create = () => {
     if (!days.length) { UI.toast('Tria almenys un dia de la setmana.', 'bad'); return; }
+    if (!prof) { UI.toast('Tria qui farà les sessions.', 'bad'); return; }
     const objs = {};
     for (const d of days) { const v = baseOf(d); objs[d] = v.startsWith('tpl:') ? { mode: 'template', templateId: v.slice(4) } : { mode: v }; objs[d].time = timeOf(d); }
-    const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip });
+    const res = Store.planMonth(p.id, { month, days, bases: objs, every: U.num(every) || 0, skipExisting: skip, professional: prof });
     onClose();
     MonthNav.show(p.id, month);
     UI.toast(res.created.length ? `${U.plural(res.created.length, 'sessió planificada', 'sessions planificades')} per a ${U.monthLow(month)}.` : 'No hi havia cap dia lliure: no s\'ha creat cap sessió.', res.created.length ? 'ok' : 'bad');
@@ -26324,9 +26764,10 @@ function PlanMonthDialog({ p, month: m0, onClose }) {
   ];
   return html`<${Dialog} title="Planifica el mes" wide=${true} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="calendar" disabled=${!count} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
+    <${Btn} variant="primary" icon="calendar" disabled=${!count || !prof} onClick=${create}>${count ? `Crea ${U.plural(count, 'sessió', 'sessions')}` : 'No hi ha cap dia'}</${Btn}>`}>
     <p class="muted">Crea d'una vegada les sessions d'un mes, ja planificades: les podràs obrir i ajustar una a una, i surten al full del mes de l'Excel del pacient.</p>
     <div class="form-grid">
+      <${Field} label="Professional" id="pm-prof" class=${!prof && 'field-missing'} hint="Qui farà les sessions (es pot canviar a cada sessió)."><${ProfSelect} id="pm-prof" value=${prof} onValue=${setProf} /></${Field}>
       <${Field} label="Mes" id="pm-month"><${Select} id="pm-month" value=${month} onValue=${setMonth} options=${months.map((m) => ({ v: m, label: U.fmtMonth(m) }))} /></${Field}>
       <${Field} label="Progressió dels exercicis" id="pm-every" hint="Els exercicis que tenen nivells a la biblioteca pugen un nivell (p. ex. Goblet squat → Back squat).">
         <${Select} id="pm-every" value=${every} onValue=${setEvery} options=${[
@@ -26357,18 +26798,21 @@ function CopyWeekDialog({ p, weekStart, onClose }) {
   const src = Store.sessionsOf(p.id).filter((s) => s.date >= weekStart && s.date <= U.addDays(weekStart, 6));
   const [weeks, setWeeks] = useState('3');
   const [progress, setProgress] = useState(false);
+  const [prof, setProf] = useState('');
   const n = Math.max(1, Math.min(12, U.num(weeks) || 1));
   const create = () => {
-    const res = Store.copyWeek(p.id, weekStart, { weeks: n, progress, skipExisting: true });
+    if (!prof) { UI.toast('Tria qui farà les sessions.', 'bad'); return; }
+    const res = Store.copyWeek(p.id, weekStart, { weeks: n, progress, skipExisting: true, professional: prof });
     onClose();
     UI.toast(res.created.length ? `${U.plural(res.created.length, 'sessió planificada', 'sessions planificades')}${res.skipped.length ? ` (${U.plural(res.skipped.length, 'dia ocupat saltat', 'dies ocupats saltats')})` : ''}.` : 'Tots els dies ja tenen sessió: no s\'ha creat res.', res.created.length ? 'ok' : 'bad');
     Sync.soon(p.id);
   };
   return html`<${Dialog} title=${`Copia la setmana del ${U.fmtDateLong(weekStart, false)}`} onClose=${onClose} footer=${html`
     <${Btn} variant="ghost" onClick=${onClose}>Cancel·la</${Btn}>
-    <${Btn} variant="primary" icon="copy" disabled=${!src.length} onClick=${create}>Copia a les ${n} setmanes següents</${Btn}>`}>
+    <${Btn} variant="primary" icon="copy" disabled=${!src.length || !prof} onClick=${create}>Copia a les ${n} setmanes següents</${Btn}>`}>
     ${src.length ? html`<p class="muted">Copia ${U.plural(src.length, 'sessió', 'sessions')} (${src.map((s) => `${U.weekdayShort(s.date)} ${U.parse(s.date).getDate()}`).join(' · ')}) a les setmanes següents, com a sessions planificades. Les podràs ajustar una a una.</p>
       <div class="form-grid">
+        <${Field} label="Professional" id="cw-prof" class=${!prof && 'field-missing'} hint="Qui farà les sessions."><${ProfSelect} id="cw-prof" value=${prof} onValue=${setProf} /></${Field}>
         <${Field} label="Quantes setmanes" id="cw-n" hint="Fins a 12"><${NumInput} id="cw-n" value=${weeks} onValue=${setWeeks} /></${Field}>
       </div>
       <label class="check"><input type="checkbox" checked=${progress} onChange=${(e) => setProgress(e.currentTarget.checked)} /> Cada setmana puja un nivell els exercicis que tenen progressió</label>`
@@ -26838,7 +27282,7 @@ function MaterialPrep({ sessions, title = 'Material per a la sessió', tone, ope
 
 // Avís de l'inici amb el material de les sessions d'avui que encara no s'han fet.
 function MaterialToday({ sessions }) {
-  const pend = sessions.filter((s) => s.status !== 'feta');
+  const pend = sessions.filter((s) => Calc.sessionOpen(s));
   if (!pend.length || !Calc.sessionMaterial(pend).length) return null;
   return html`<${MaterialPrep} sessions=${pend} tone="today" title=${`Material d'avui · ${U.plural(pend.length, 'sessió', 'sessions')}`} showWho=${true} />`;
 }
@@ -27282,7 +27726,7 @@ function WeekCalendar() {
       const rr = retests.filter((x) => x.r.due === d);
       return html`<div class=${U.cls('weekcal-day', d === today && 'today', d < today && 'past')}>
         <div class="weekcal-dn"><span>${U.weekdayShort(d)}</span><strong>${U.parse(d).getDate()}</strong></div>
-        ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan')} onClick=${() => go('sessio', s.id)}
+        ${ss.map((s) => html`<button type="button" class=${U.cls('weekcal-it', s.status === 'feta' ? 'done' : 'plan', s.status === 'cancelada' && 'cancel')} onClick=${() => go('sessio', s.id)}
           title=${[name(s.patientId), `Sessió ${s.number || ''}`, s.goal, s.professional].filter(Boolean).join(' · ')}>
           <span class="weekcal-who">${s.time && html`<span class="cal-s-time">${s.time}</span>`}${name(s.patientId)}</span>
           <span class="weekcal-what">S${s.number || ''}${s.status === 'feta' ? ' ✓' : ''}${s.goal ? ` · ${s.goal}` : ''}</span>
@@ -27340,13 +27784,135 @@ function ConflictsCard() {
 
 // Avís a dalt de la sessió si coincideix amb una altra.
 function SessionConflicts({ s }) {
-  if (!s.time || s.status === 'feta') return null;
+  if (!s.time || !Calc.sessionOpen(s)) return null;
   const list = scheduleConflictsFor(Store.all('sessions').filter((x) => x.date === s.date), s.date, s.date)
     .filter((c) => c.a.id === s.id || c.b.id === s.id);
   if (!list.length) return null;
   return html`<section class="card conflicts conflicts-inline no-print" role="alert">
     <ul class="conf-list">${list.map((c) => html`<${ConflictItem} c=${c} focus=${s.id} />`)}</ul>
   </section>`;
+}
+
+
+/* ── 39-review.js ── */
+/* EON Life · sessions sense tancar: avís al vespre (a partir de les 21:00) i en obrir l'app els dies següents.
+   Perquè cap sessió quedi com a no feta per oblit: per a cadascuna, Feta (confirmant qui l'ha feta, i amb l'RPE i el
+   dolor si es volen posar), No s'ha fet (cancel·lada pel pacient, no presentat o cancel·lada pel centre) o Reprograma.
+   Totes les tauletes veuen les de tot el centre. Si es tanca amb «Més tard», torna a sortir a la franja següent
+   (l'endemà al matí o a les 21:00). */
+
+const REVIEW_HOUR = 21;
+const REVIEW_DAYS = 30; // les de més d'un mes enrere ja no s'hi posen
+const REVIEW_KEY = 'eonlife:review:later';
+
+const SessionReview = {
+  // Les sessions que ja s'haurien d'haver tancat: les d'abans d'avui i, des de les 21:00, les d'avui.
+  pending(now = new Date()) {
+    const today = U.today();
+    const lateToday = now.getHours() >= REVIEW_HOUR;
+    const from = U.addDays(today, -REVIEW_DAYS);
+    return U.sortBy(Store.all('sessions').filter((s) => Calc.sessionOpen(s) && s.date >= from
+      && (s.date < today || (lateToday && s.date === today)) && Store.get('patients', s.patientId)),
+    (s) => `${s.date} ${s.time || '99:99'}`);
+  },
+  // Franja de l'avís: el matí d'un dia (sessions dels dies anteriors) o el vespre (les d'avui).
+  slot(now = new Date()) { return `${U.today()}-${now.getHours() >= REVIEW_HOUR ? 'vespre' : 'dia'}`; },
+  later() { try { window.localStorage.setItem(REVIEW_KEY, this.slot()); } catch (e) { /* sense emmagatzematge */ } },
+  postponed() { try { return window.localStorage.getItem(REVIEW_KEY) === this.slot(); } catch (e) { return false; } },
+  // Sense l'avís automàtic (proves automàtiques): l'avís de l'inici continua sortint.
+  off() { try { return window.EON_REVIEW_OFF === true && window.localStorage.getItem('eonlife:review:test') !== '1'; } catch (e) { return false; } },
+};
+
+let reviewOpen = false;
+function openSessionReview() {
+  if (reviewOpen) return;
+  reviewOpen = true;
+  let close = null;
+  const done = () => { reviewOpen = false; close(); };
+  close = UI.open(() => html`<${SessionReviewDialog} onClose=${done} />`, { onDismiss: () => { SessionReview.later(); done(); } });
+}
+
+// S'obre sol (un cop per franja) quan hi ha sessions per tancar. Va dins de l'App.
+function SessionReviewWatch() {
+  useEffect(() => {
+    const check = () => {
+      if (!Store.ready || Store.error || reviewOpen || SessionReview.postponed() || SessionReview.off()) return;
+      if (location.hash.startsWith('#/fitxa') || location.hash.startsWith('#/informe')) return; // no a sobre d'una presentació
+      if (SessionReview.pending().length) openSessionReview();
+    };
+    const off = Store.subscribe(() => setTimeout(check, 1500));
+    const iv = setInterval(check, 5 * 60 * 1000);
+    const vis = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', vis);
+    setTimeout(check, 2500);
+    return () => { off(); clearInterval(iv); document.removeEventListener('visibilitychange', vis); };
+  }, []);
+  return null;
+}
+
+// Avís a l'inici mentre en quedi alguna.
+function SessionReviewBanner() {
+  const n = SessionReview.pending().length;
+  if (!n) return null;
+  return html`<div class="review-banner" role="status">
+    <${Icon} name="alert" size=${18} />
+    <span class="grow"><strong>${U.plural(n, 'sessió', 'sessions')} sense tancar.</strong> Marca si s'han fet o no perquè no quedin com a pendents.</span>
+    <${Btn} variant="primary" size="sm" icon="check" onClick=${openSessionReview}>Revisa-les</${Btn}>
+  </div>`;
+}
+
+function SessionReviewDialog({ onClose }) {
+  const [, setN] = useState(0);
+  useEffect(() => Store.subscribe(() => setN((n) => n + 1)), []);
+  const list = SessionReview.pending();
+  const later = () => { SessionReview.later(); onClose(); };
+  return html`<${Dialog} title="Sessions pendents de tancar" wide=${true} onClose=${later} footer=${html`
+    <span class="muted small grow">${list.length ? `Queden ${U.plural(list.length, 'sessió', 'sessions')}.` : ''}</span>
+    ${list.length ? html`<${Btn} variant="ghost" onClick=${later}>Més tard</${Btn}>` : html`<${Btn} variant="primary" onClick=${onClose}>Tanca</${Btn}>`}`}>
+    ${list.length ? html`<p class="dialog-text">Aquestes sessions encara consten com a planificades. Marca, per a cadascuna, si s'ha fet o no.</p>
+      <div class="review-list">${list.map((s) => html`<${ReviewRow} key=${s.id} s=${s} />`)}</div>`
+      : html`<${Empty} icon="check" title="Tot al dia" text="Totes les sessions estan tancades." />`}
+  </${Dialog}>`;
+}
+
+function ReviewRow({ s }) {
+  const p = Store.get('patients', s.patientId) || {};
+  const [rpe, setRpe] = useState((s.feedback || {}).rpe || '');
+  const [pain, setPain] = useState((s.feedback || {}).pain || '');
+  const [why, setWhy] = useState(false);
+  const done = () => markSessionDone(s, { ...(rpe ? { rpe } : {}), ...(pain ? { pain } : {}) });
+  const notDone = (reason) => {
+    Store.update('sessions', s.id, (x) => { x.status = 'cancelada'; x.cancelReason = reason; });
+    if (typeof Sync !== 'undefined') Sync.soon(s.patientId);
+    UI.toast(`Sessió ${s.number} de ${p.firstName || U.fullName(p)}: ${Calc.cancelLabel({ cancelReason: reason }).toLowerCase()}.`);
+  };
+  const move = async () => {
+    const date = await askDate({ title: 'Reprograma la sessió', label: 'Nova data', value: U.addDays(U.today(), 1) });
+    if (!date) return;
+    Store.update('sessions', s.id, (x) => { x.date = date; });
+    if (typeof Sync !== 'undefined') Sync.soon(s.patientId);
+    UI.toast(`Sessió ${s.number} de ${p.firstName || U.fullName(p)} moguda al ${U.fmtDate(date)}.`);
+  };
+  return html`<div class="review-row">
+    <div class="review-who">
+      <strong>${U.fullName(p)}</strong>
+      <span class="muted small">S${s.number || ''} · ${U.fmtDateLong(s.date)}${s.time ? ` · ${s.time}` : ''}${s.professional ? ` · ${s.professional}` : ''}</span>
+      ${s.goal && html`<span class="small">${s.goal}</span>`}
+    </div>
+    <div class="review-fb">
+      <label class="review-mini"><span>RPE</span><select class="select select-sm" value=${rpe} onChange=${(e) => setRpe(e.currentTarget.value)} aria-label=${`RPE de la sessió de ${U.fullName(p)}`}>
+        <option value="">—</option>${RPE_SCALE.map((v) => html`<option value=${v}>${v}</option>`)}</select></label>
+      <label class="review-mini"><span>EVA</span><select class="select select-sm" value=${pain} onChange=${(e) => setPain(e.currentTarget.value)} aria-label=${`Dolor en acabar de ${U.fullName(p)}`}>
+        <option value="">—</option>${EVA_SCALE.map((v) => html`<option value=${v}>${v}</option>`)}</select></label>
+    </div>
+    <div class="review-acts">
+      <${Btn} size="sm" variant="primary" icon="check" onClick=${done}>Feta</${Btn}>
+      ${why ? html`${OPT.cancelReasons.map((o) => html`<${Btn} size="sm" onClick=${() => notDone(o.v)}>${o.label}</${Btn}>`)}
+          <${Btn} size="sm" variant="ghost" icon="x" title="Torna" onClick=${() => setWhy(false)} />`
+        : html`<${Btn} size="sm" icon="x" onClick=${() => setWhy(true)}>No s'ha fet</${Btn}>
+          <${Btn} size="sm" variant="ghost" icon="calendar" onClick=${move}>Reprograma</${Btn}>`}
+    </div>
+  </div>`;
 }
 
 
@@ -27552,6 +28118,7 @@ function App() {
     <${UpdateBanner} />
     ${!present && html`<${NoeLauncher} />`}
     ${!present && html`<${TimerDock} route=${route} />`}
+    <${SessionReviewWatch} />
     <${ModalHost} />
   </div>`;
 }
@@ -27561,6 +28128,7 @@ function App() {
   render(html`<${App} />`, document.getElementById('app'));
   Store.init();
   AppUpdate.start();
+  VideoQueue.start(); // vídeos de les sessions pendents de pujar (també els d'abans de tancar l'app)
   // Desa els canvis pendents si l'app passa a segon pla (tauleta); en tornar, mira si hi ha una versió nova.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') { Store.flushAll(); Sync.kick(); }

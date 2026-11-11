@@ -311,7 +311,7 @@ Object.assign(Calc, {
     const dur = opt.minutes || 60;
     const unique = opt.unique || new Set();
     const prof = (s) => s.professional || (opt.profOf ? opt.profOf(s.patientId) : '') || '';
-    const list = (sessions || []).filter((s) => s.status !== 'feta' && Calc.minutesOf(s.time) != null
+    const list = (sessions || []).filter((s) => Calc.sessionOpen(s) && Calc.minutesOf(s.time) != null
       && (!opt.from || s.date >= opt.from) && (!opt.to || s.date <= opt.to));
     const byDate = {};
     for (const s of list) (byDate[s.date] = byDate[s.date] || []).push(s);
