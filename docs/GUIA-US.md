@@ -357,7 +357,7 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
     primer o l'últim exercici del bloc.
   - **Afegeix el bloc N** n'afegeix un altre; la **×** del bloc el treu. *Uneix els blocs en un de sol* (botó de
     plantilles del bloc) torna a deixar-ho tot junt.
-  - Es veuen a **Presenta** i al PDF, es copien amb *Copia l'última sessió* i les plantilles, i a l'Excel
+  - Es veuen a **Presenta** i al PDF, es copien amb *Copia una sessió anterior* i les plantilles, i a l'Excel
     (*Registre_exercicis*) hi ha la columna **Subbloc**.
 - Botó de **plantilles** de cada bloc: insereix un bloc desat o desa el bloc actual com a plantilla.
 - **Wellness · com arriba avui?** (a dalt de tot, abans dels blocs): cinc preguntes de l'1 al 5 — fatiga, qualitat
