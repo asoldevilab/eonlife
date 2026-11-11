@@ -45,7 +45,7 @@ function materialFolders(list) {
 function ExCard({ e, onClick, sub }) {
   const muscles = exerciseMuscles(e).map(muscleLabel);
   return html`<button type="button" class="xb-ex" onClick=${onClick}
-    title=${[e.name, muscles.join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}>
+    title=${[e.name, e.aka, muscles.join(' · '), Calc.presc(e), e.tg && `Technogym: ${e.tg}`].filter(Boolean).join(' — ')}>
     <${ExThumb} ex=${e} size=${96} />
     <span class="xb-ex-name"><${CodeChip} e=${e} />${e.name}</span>
     <span class="xb-ex-meta">${e.level && html`<span class="lvl-chip">N${e.level}</span> `}${muscles.slice(0, 2).join(' · ')}</span>
@@ -143,7 +143,7 @@ function ExerciseBrowser({ block, title, onPick, onBlank, onClose, patientId }) 
   const f = z && folder && z.list.find((x) => x.name === folder);
   const nq = U.norm(q.trim());
   const found = nq ? Store.exercises().filter((e) => (!scope || scope.includes(e.block) || nq.length > 2)
-    && U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 80) : null;
+    && U.norm(`${e.code || ''} ${e.name} ${e.aka || ''} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${exerciseMuscles(e).map(muscleLabel).join(' ')}`).includes(nq)).slice(0, 80) : null;
   // Si s'hi arriba des d'una carpeta de material, el material ja està triat.
   const choose = (e) => (zone === 'mat' && folder ? onPick(e, folder) : (e.materials || []).length > 1 ? setEx(e) : onPick(e, e.material || ''));
   const crumb = [

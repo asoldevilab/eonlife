@@ -115,7 +115,7 @@ const NoeSearch = (() => {
     const df = {};
     const docs = list.map((e) => {
       const name = [...new Set(tokens(e.name))];
-      const rest = [...new Set(tokens([e.cat, e.gm, e.family, e.material, ...(e.materials || []), ...(e.muscles || [])].filter(Boolean).join(' ')))].filter((t) => !name.includes(t));
+      const rest = [...new Set(tokens([e.aka, e.cat, e.gm, e.family, e.material, ...(e.materials || []), ...(e.muscles || [])].filter(Boolean).join(' ')))].filter((t) => !name.includes(t));
       for (const t of new Set([...name, ...rest])) df[t] = (df[t] || 0) + 1;
       return { e, name, rest };
     });

@@ -744,6 +744,17 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   i l'altre estira; les espatlles no giren), i **chop** i **lift** amb mig genoll → de genolls → dret (famílies amb
   nivells, per progressar). A més: flexió de maluc estirat, split squat assistit (readaptació), rem a una mà amb mig genoll i press
   unilateral dempeus. També hi ha el **goblet squat amb cunya** (talons elevats), al bloc Força.
+- **Calistènia** (barra de dominades i paral·leles; cerca «penjat», «pull-up», «paral·leles» o «calistènia»): per a qui
+  encara no té força al tren superior, de més fàcil a més difícil.
+  - *Activació*: **penjat passiu** a la barra (desactivat, espatlles relaxades), **penjat actiu** amb activació
+    escapular, **penjat alternant** passiu i actiu (p. ex. 30" + 30", o 3' + 3'), **pull-up escapular**, **suport** i
+    **fons escapular** a les paral·leles. Família *Penjat a la barra*: passiu → actiu → pull-up escapular.
+  - *Força principal*: **dominada negativa** (comença amb la barbeta per sobre de la barra i baixa a poc a poc, 3-5"),
+    **dominada isomètrica a dalt**, **chin-up** (agafada supina) i **fons negatiu** i **fons a les paral·leles**. La
+    dominada negativa és dins la família *Tracció vertical*: jalón al pit → dominades amb goma → **dominada negativa** →
+    dominades → dominades amb llast. Família *Fons a les paral·leles*: suport → fons negatiu → fons.
+  - *Accessoris*: **elevació de genolls** i **de cames** penjat (família *Core penjat*) i **L-sit agrupat** a les paral·leles.
+  - Les *Dominades* (pull-up) es troben també cercant «pull-up». Material nou: *Barra de dominades* i *Paral·leles*.
 - **Skillmill Technogym** (cerca «Skillmill»): la cinta corba sense motor, amb dues famílies amb nivells per progressar.
   *Skillmill · trineu*: marxa amb trineu pesat (força i readaptació, sense impacte) → empenta de trineu → empenta de
   trineu reactiva. *Skillmill · carrera*: carrera resistida (paracaigudes) → sprint → sprints repetits (mirant que la

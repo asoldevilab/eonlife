@@ -69,6 +69,24 @@ const picSkm = (J, { handles = 0, console: cons = 0, side = 0 } = {}) => {
   return out;
 };
 
+// Barra de dominades a les mans (de cara: travessera; de costat, side = true: la veiem de punta, al llarg de z).
+const picPullBar = (J, side = false) => {
+  const c = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5);
+  const bar = [pk.cap([c[0], c[1] + 1.2, c[2] - 26], [c[0], c[1] + 1.2, c[2] + 26], 1.1, 1.1, 'pmh')];
+  // de costat la barra es veu de punta: un cercle i el suport fins al sostre del dibuix
+  return side ? bar.concat([pk.ball([c[0], c[1] + 1.2, c[2] + 27], 2, 'pmh'), pk.cap([c[0] + 1.5, c[1] + 1.2, c[2] + 27], [c[0] + 1.5, c[1] + 14, c[2] + 27], 0.9, 0.9, 'pp')]) : bar;
+};
+// Paral·leles (de costat): una barra a cada mà, al llarg del cos, amb els dos peus fins a terra.
+const picParallels = (J) => {
+  const out = [];
+  for (const h of [J.arm[0].h, J.arm[1].h]) {
+    const y = h[1] - 1.2, x0 = h[0] - 22, x1 = h[0] + 18;
+    out.push(pk.cap([x0, y, h[2]], [x1, y, h[2]], 1.2, 1.2, 'pmh'));
+    for (const x of [x0 + 3, x1 - 3]) out.push(pk.cap([x, y, h[2]], [x, J.groundY, h[2]], 1.1, 1.1, 'pp'));
+  }
+  return out;
+};
+
 const PICS = {
   // ── Dempeus, squats, estocades, pujades ──
   stand: { label: 'Dempeus', a: [95, 82], b: [85, 95], m: [92, 88] },
@@ -257,6 +275,19 @@ const PICS = {
         pk.line([c, [c[0], c[1] + 60, c[2]]], 1.1, 'pe'), pk.cap(v3.along(c, ax, -20), v3.along(c, ax, 20), 1.0, 1.0, 'pmh')]; } },
   pullup: { hang: true, from: { a: [-112, -100], l: [92, 90] }, front: true, label: 'Dominades', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR',
     props: (J) => { const c = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5); return [pk.cap([c[0], c[1] + 1.2, c[2] - 26], [c[0], c[1] + 1.2, c[2] + 26], 1.1, 1.1, 'pmh')]; } },
+  // ── Calistènia: penjat a la barra (de cara) i paral·leles (de costat) ──
+  hang_passive: { hang: true, front: true, label: 'Penjat passiu', t: -90, shr: 2.6, hd: 6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
+  hang_active: { hang: true, front: true, label: 'Penjat actiu', t: -90, shr: -0.6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
+  hang_scap: { hang: true, from: { shr: 2.6, hd: 6 }, front: true, label: 'Pull-up escapular', t: -90, shr: -0.6, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
+  pullup_neg: { hang: true, from: { a: [150, -84], l: [[94, 20], [96, -40]] }, front: true, label: 'Dominada negativa', t: -90, a: [-112, -100], l: [92, 90], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
+  pullup_top: { hang: true, front: true, label: 'Dominada isomètrica', t: -90, a: [150, -84], l: [[94, 20], [96, -40]], grip: 'none', fix: 'hR', props: (J) => picPullBar(J) },
+  hang_knee: { hang: true, from: { l: [92, 90], m: [92, 90] }, label: 'Elevació de genolls penjat', t: -92, a: [-92, -92], l: [-4, 92], m: [-4, 92], grip: 'none', fix: 'hR', props: (J) => picPullBar(J, true) },
+  hang_leg: { hang: true, from: { l: [92, 90], m: [92, 90] }, label: 'Elevació de cames penjat', t: -96, a: [-92, -92], l: [2, 2], m: [2, 2], grip: 'none', fix: 'hR', props: (J) => picPullBar(J, true) },
+  pdip_top: { label: 'Suport a les paral·leles', t: -88, a: [92, 90], l: [104, 150], m: [100, 156], grip: 'none', fix: 'hR', lift: 22, props: (J) => picParallels(J) },
+  pdip_scap: { from: { shr: 2.4 }, label: 'Fons escapular', t: -88, shr: -0.4, a: [92, 90], l: [104, 150], m: [100, 156], grip: 'none', fix: 'hR', lift: 22, props: (J) => picParallels(J) },
+  pdip: { from: { t: -88, a: [92, 90] }, label: 'Fons a les paral·leles', t: -74, a: [162, 84], l: [110, 160], m: [106, 166], grip: 'none', fix: 'hR', lift: 22, props: (J) => picParallels(J) },
+  pdip_neg: { from: { t: -88, a: [92, 90] }, label: 'Fons negatiu', t: -74, a: [162, 84], l: [110, 160], m: [106, 166], grip: 'none', fix: 'hR', lift: 22, props: (J) => picParallels(J) },
+  lsit_tuck: { label: 'L-sit agrupat', t: -84, a: [94, 90], l: [-14, 84], m: [-10, 88], grip: 'none', fix: 'hR', lift: 22, props: (J) => picParallels(J) },
   pullover: { from: { a: [-56, -60] }, label: 'Pullover a la politja', t: -64, hd: -4, l: [80, 98], a: [68, 72], grip: 'chest', pull: 'fronthigh', fix: 'fR' },
   pullover_supine: { from: { a: [-152, -166] }, anchor: 'hip', label: 'Pullover estirat', t: 180, hd: -4, l: [26, 92], a: [-92, -94], grip: 'chest',
     props: (J) => PROP3.bench(J.neck[0] - 8, J.pel[0] + 6, J.pel[1] - 4.8, J) },
