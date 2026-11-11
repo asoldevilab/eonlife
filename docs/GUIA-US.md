@@ -751,6 +751,13 @@ refà sol. A **Configuració › Excel de cada client** es pot pausar la pujada 
   - *Accessoris*: curl de canell (mancuerna i barra, família *Canell · flexors*), extensió excèntrica de canell i curl de
     canell invers (família *Canell · extensors*; l'excèntric és per a la readaptació de l'epicondilàlgia) i curl invertit.
   - Als dibuixos el canell es doblega (puja i baixa la mà).
+- **Agafada (grip)** (cerca «agafada», «agarre», «rodillo» o «pinza»): **enrotllador de canell** (rodillo de muñeca),
+  **tancar la pinça de mà** (hand gripper o pilota) i la família *Agafada*: agafada isomètrica amb mancuernes (farmer
+  hold) → **pinça de discs** → penjat amb tovalloles. Material nou: *Enrotllador de canell*, *Hand gripper*, *Disc* i
+  *Tovallola*.
+- **Elevació escapular** (cerca «elevació escapular», «elevación escapular» o «encongiments»): **encongiments amb braços
+  amunt** (overhead shrug, activació de la rotació superior), **encongiment a una mà** amb mancuerna, **encongiments a la
+  politja** i **amb barra**. Família *Elevació escapular*: amb braços amunt → amb mancuernes → amb barra.
 - **Calistènia** (barra de dominades i paral·leles; cerca «penjat», «pull-up», «paral·leles» o «calistènia»): per a qui
   encara no té força al tren superior, de més fàcil a més difícil.
   - *Activació*: **penjat passiu** a la barra (desactivat, espatlles relaxades), **penjat actiu** amb activació
