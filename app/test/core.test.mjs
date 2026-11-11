@@ -607,6 +607,19 @@ test('exercicis de kettlebell, mobility ball, Power Personal i mancuernes de Tec
   assert.ok(Store.materials().center.includes('Power Personal Technogym'));
 });
 
+test('Kinesis Personal de Technogym: exercicis amb el seu dibuix de cables', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES, OPT } = loadCore();
+  const kp = SEED_EXERCISES.filter((e) => e.id.startsWith('X-KP-'));
+  assert.equal(kp.length, 39);
+  assert.ok(kp.every((e) => e.material === 'Kinesis Personal Technogym' && e.tg && e.gm && e.cues && e.pic));
+  assert.ok(OPT.material.includes('Kinesis Personal Technogym'));
+  const P = new Function('U', `${src}\nreturn { PICS, picKeyOf, picGearOf };`)(U);
+  assert.ok(kp.every((e) => P.PICS[e.pic]), 'cada exercici té una postura que existeix');
+  assert.equal(P.picGearOf(kp[0], P.picKeyOf(kp[0])).kind, 'cable');
+});
+
 test('miniatures: cada exercici té un pictograma propi amb el material', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');

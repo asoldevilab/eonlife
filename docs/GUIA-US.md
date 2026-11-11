@@ -310,6 +310,10 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   exercicis de l'app de Technogym: *Loop band Technogym* (50), *Kettlebell* (50), *Power Personal Technogym* (38)
   *Mobility ball Technogym* (9, al bloc de mobilitat) i *Mancuernes Technogym* (51, de les manuelles i les manuelles
   hexagonals). Són una proposta de nom i bloc: es poden editar a la biblioteca.
+  A *Kinesis Personal Technogym* hi ha 39 exercicis de la paret de cables (Kinesis Personal Vision, la que tenen
+  alguns clients a casa): press de pit, obertures i creuaments, rems, jaló agenollat, push-pull, espatlles, bíceps,
+  tríceps, squat, estocades, pes mort romanès, maluc amb turmellera, chop i lift, rotacions, Pallof press i rotadors.
+  Cada un té el dibuix amb el panell de llistons i el cable que surt del braç de dalt o de baix.
   A dalt hi ha el cercador (nom, múscul, material o el nom en anglès de l'app de Technogym) i *Tots els blocs*. A Força principal i Accessoris surten els
   exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
   S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la

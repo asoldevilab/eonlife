@@ -632,3 +632,57 @@ PICS.squat_wedge = { ...PICS.squat, band: undefined, label: 'Goblet squat amb cu
   l: [6, 118, 26], m: [6, 118, 26], a: [70, -74], fix: 'tR', props: (J) => picWedge(J) };
 // Press unilateral dempeus a la Keiser: en posició de pas, d'esquena a la columna, empeny amb un braç sense girar el tronc.
 PICS.kx_press_one = { ...PICS.row_standing, label: 'Press unilateral a la Keiser', from: { a: [176, -6] }, a: [4, 2], b: [96, 84], grip: 'near', pull: [-30, 20, 8], s: 0.88 };
+
+// ── Technogym Kinesis Personal: panell amb llistons de fusta i dos cables que surten dels braços de dalt o de baix
+// (picKinesisWall). L'ancoratge [x, y, z] respecte del maluc diu el costat; y > 0 = braç de dalt, y < 0 = braç de baix.
+// Turmellera amb el cable del braç de baix (extensió, abducció i adducció de maluc).
+const picAnkleCable = (J, A) => {
+  const ank = J.leg[0].a, B = picKinesisAnchor([A[0], -1, A[2]], J);
+  return [pk.disc(ank, J.leg[0].d2 || [0, 1, 0], 2.2, 'pe-ring', { gear: 1 }), pk.line([ank, B], 1.1, 'pe', { gear: 1 }), ...picKinesisWall([B], J)];
+};
+PICS.kn_press = { ...PICS.row_standing, view: 'q', label: 'Press de pit dempeus al cable', from: { a: [176, -6] }, a: [4, 2], grip: 'hands', pull: [-30, 22, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_press_alt = { ...PICS.kn_press, label: 'Press de pit altern dempeus al cable', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6] };
+PICS.kn_press_one = { ...PICS.row_standing, view: 'q', label: 'Press de pit a una mà al cable', from: { a: [176, -6] }, a: [4, 2], b: [96, 84], grip: 'near', pull: [-30, 20, 8], s: 0.88 };
+PICS.kn_row = { ...PICS.row_standing, view: 'q', label: 'Rem dempeus al cable', pull: [40, -10, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_row_one = { ...PICS.row_standing, view: 'q', label: 'Rem a una mà dempeus al cable', b: [96, 84], grip: 'near', pull: [40, -10, 8], s: 0.88 };
+PICS.kn_pushpull = { ...PICS.row_standing, view: 'q', label: 'Push-pull al cable', from: { a: [176, -6], b: [4, 2] }, a: [4, 2], b: [176, -6], grip: 'hands',
+  pull: [-24, 20, -34], pull2: [30, 20, -34], s: 0.84 };
+PICS.kn_row_half = { ...PICS.kx_row_half, view: 'q', label: 'Rem a una mà amb mig genoll al cable' };
+PICS.kn_pulldown = { ...KX_TALL, view: 'q', label: 'Jaló agenollat al cable', from: { a: [-128, -124] }, a: [104, -56], grip: 'hands', pull: [22, 64, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_crunch = { ...KX_TALL, view: 'q', rel: 'arms', label: 'Crunch agenollat al cable', from: { t: -84, hd: -4 }, t: -38, hd: -14, a: [-24, -168], grip: 'chest', pull: [30, 64, 0], s: 0.86 };
+PICS.kn_ohpress = { ...PICS.ohpress, label: 'Press d\'espatlles al cable', pull: [-4, -34, 18], pull2: 'mirror', s: 0.9 };
+PICS.kn_lat_raise = { ...PICS.lat_raise, label: 'Elevació lateral al cable', pull: [0, -34, -8], pull2: 'mirror', s: 0.9 };
+PICS.kn_front_raise = { ...PICS.front_raise, view: 'q', label: 'Elevació frontal al cable', pull: [-18, -34, 6], pull2: 'mirror', s: 0.9 };
+PICS.kn_upright = { ...PICS.upright_row, label: 'Rem vertical al cable', pull: [6, -34, 4], pull2: 'mirror', s: 0.9 };
+PICS.kn_rev_fly = { ...PICS.cx_mid, label: 'Ocells dempeus al cable', from: { a: PICS.cx_mid.a, b: PICS.cx_mid.b }, a: PICS.cx_mid.from.a, b: PICS.cx_mid.from.b,
+  pull: [30, 24, -44], pull2: 'mirror' };
+PICS.kn_squat = { ...PICS.squat, view: 'q', band: undefined, label: 'Squat al cable', grip: 'hands', pull: [-22, -34, 10], pull2: 'mirror', s: 0.88 };
+PICS.kn_squat_row = { ...PICS.squat, view: 'q', band: undefined, label: 'Squat i rem al cable', from: { t: -60, hd: -10, l: [12, 108], a: [4, 2] }, t: -88, hd: 0, l: [92, 88],
+  a: [176, -6], grip: 'hands', pull: [42, -10, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_lunge_press = { ...PICS.split, view: 'q', band: undefined, label: 'Estocada amb press al cable', from: { ...PICS.split.from, a: [176, -6] }, a: [4, 2], grip: 'hands',
+  pull: [-34, 14, 10], pull2: 'mirror', s: 0.86 };
+PICS.kn_lunge_row = { ...PICS.kn_lunge_press, label: 'Estocada amb rem al cable', from: { ...PICS.split.from, a: [4, 2] }, a: [176, -6], pull: [40, -10, 10] };
+PICS.kn_rdl = { ...PICS.hinge, view: 'q', label: 'Pes mort romanès al cable', pull: [26, -34, 8], pull2: 'mirror', s: 0.88 };
+PICS.kn_kick = { ...PICS.stand_kick, view: 'q', propsMove: true, label: 'Extensió de maluc al cable', a: [6, 0],
+  props: (J) => picAnkleCable(J, [J.leg[1].toe[0] + 18, J.groundY + 3, J.leg[1].a[2]]) };
+PICS.kn_abd = { ...PICS.stand_abd, view: 'q', propsMove: true, label: 'Abducció de maluc al cable',
+  props: (J) => picAnkleCable(J, [J.leg[1].a[0], J.groundY + 3, J.leg[1].a[2] + Math.sign(J.leg[1].a[2] - J.leg[0].a[2] || 1) * 16]) };
+PICS.kn_add = { ...PICS.stand_abd, propsMove: true, label: 'Adducció de maluc al cable', from: { l: [112, 112] }, l: [80, 80],
+  props: (J) => picAnkleCable(J, [J.leg[1].a[0], J.groundY + 3, J.leg[1].a[2] + Math.sign(J.sh[0][2] - J.sh[1][2] || 1) * 30]) };
+PICS.kn_face_pull = { ...PICS.face_pull, view: 'q', label: 'Face pull al cable', pull: [40, 30, 6], pull2: 'mirror' };
+PICS.kn_curl = { ...PICS.curl, view: 'q', label: 'Curl de bíceps al cable', pull: [26, -30, 8], pull2: 'mirror' };
+PICS.kn_pushdown = { ...PICS.pushdown, view: 'q', label: 'Extensió de tríceps al cable', pull: [18, 40, 6], pull2: 'mirror' };
+PICS.kn_triceps_oh = { ...PICS.triceps_oh, view: 'q', label: 'Tríceps per sobre del cap al cable', pull: [-26, -30, 6], pull2: 'mirror' };
+PICS.kn_pullover = { ...PICS.pullover, view: 'q', label: 'Pullover al cable', pull: [34, 40, 8], pull2: 'mirror' };
+PICS.kn_fly = { ...PICS.cx_mid, label: 'Obertures al cable', pull: [-8, 24, 30] };
+PICS.kn_fly_high = { ...PICS.cx_high, label: 'Creuament de dalt a baix al cable', pull: [-8, 36, 30] };
+PICS.kn_fly_low = { ...PICS.cx_low, label: 'Creuament de baix a dalt al cable', pull: [-8, -30, 30] };
+PICS.kn_pallof = { ...PICS.pallof, label: 'Pallof press al cable' };
+PICS.kn_ext_rot = { ...PICS.ext_rot, view: 'q', label: 'Rotació externa d\'espatlla al cable' };
+PICS.kn_chop = { ...PICS.woodchop, label: 'Woodchop al cable' };
+PICS.kn_lift = { ...PICS.kx_lift, label: 'Lift al cable' };
+PICS.kn_chop_half = { ...PICS.kx_chop_half, label: 'Chop amb mig genoll al cable' };
+PICS.kn_lift_half = { ...PICS.kx_lift_half, label: 'Lift amb mig genoll al cable' };
+PICS.kn_rotation = { ...PICS.pallof, label: 'Rotació de tronc al cable', from: { tr: 60 }, tr: -50, pull: [12, 14, -46] };
+PICS.kn_side_bend = { ...PICS.side_bend, view: 'q', label: 'Flexió lateral al cable', from: { ts: 20 }, ts: -16, pull: [0, -34, 12] };
+PICS.kn_int_rot = { ...PICS.ext_rot, label: 'Rotació interna d\'espatlla al cable', from: { a: PICS.ext_rot.a }, a: PICS.ext_rot.from.a, pull: [12, 4, 44] };
