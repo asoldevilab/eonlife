@@ -232,9 +232,13 @@ function NewSessionDialog({ pid, date, onClose }) {
   const [mode, setMode] = useState(plans.length ? 'plan' : last ? 'last' : 'blank');
   const [tpl, setTpl] = useState(tpls[0] ? tpls[0].id : '');
   const [prof, setProf] = useState('');
+  // Qualsevol sessió anterior del pacient per copiar (la més recent primer; per defecte, l'última).
+  const copyable = [...sessions].reverse().filter((x) => x.status !== 'cancelada' && Calc.itemCount(x) > 0);
+  const [fromId, setFromId] = useState(() => ((last && copyable.find((x) => x.id === last.id)) || copyable[0] || last || {}).id || '');
+  const from = Store.get('sessions', fromId) || last;
   const create = () => {
     if (!prof) { UI.toast('Tria qui farà la sessió.', 'bad'); return; }
-    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN), professional: prof });
+    const s = Store.newSession(pid, { date: d, time, mode: mode === 'template' && !tpl ? 'blank' : mode, templateId: tpl, planId, planN: U.num(planN), professional: prof, fromId });
     deviceProfessional(prof);
     onClose();
     go('sessio', s.id);
@@ -256,7 +260,9 @@ function NewSessionDialog({ pid, date, onClose }) {
           ${plan && html`<${Select} value=${planN} onValue=${setPlanN} ariaLabel="Sessió del pla"
             options=${(plan.sessions || []).map((x) => ({ v: String(x.n), label: `Sessió ${x.n}${x.phase ? ` · ${x.phase}` : ''}${x.goal ? ` · ${x.goal}` : ''}` }))} />`}
         </div>`)}
-      ${option('last', 'Copia l\'última sessió', last ? `Sessió ${last.number} · ${U.fmtDate(last.date)} · ${last.goal || 'sense objectiu'}` : 'Encara no hi ha cap sessió', !last)}
+      ${option('last', 'Copia una sessió anterior', from ? `Sessió ${from.number} · ${U.fmtDate(from.date)} · ${from.goal || 'sense objectiu'}${from === last ? ' (l\'última)' : ''}` : 'Encara no hi ha cap sessió', !last,
+        mode === 'last' && copyable.length > 1 && html`<${Select} id="ns-from" value=${fromId} onValue=${setFromId} ariaLabel="Sessió per copiar"
+          options=${copyable.map((x) => ({ v: x.id, label: `S${x.number} · ${U.fmtDate(x.date)}${x.goal ? ` · ${x.goal}` : ''} · ${U.plural(Calc.itemCount(x), 'exercici', 'exercicis')}${x.status === 'feta' ? ' ✓' : ''}` }))} />`)}
       ${option('blank', 'Sessió en blanc', 'Sense cap bloc: afegeix només els que necessiti el pacient (mobilitat, activació, potència, força principal, accessoris o tornada a la calma).', false)}
       ${option('template', 'A partir d\'una plantilla', 'Els blocs i els exercicis d\'una sessió tipus.', false,
         mode === 'template' && html`<${Select} value=${tpl} onValue=${setTpl} options=${tpls.map((t) => ({ v: t.id, label: t.name }))} ariaLabel="Plantilla" />`)}

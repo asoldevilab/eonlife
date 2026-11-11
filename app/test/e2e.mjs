@@ -439,6 +439,26 @@ const step = async (label, fn) => {
     const n = await page.locator('.item').count();
     if (n < 10) throw new Error(`només ${n} exercicis`);
   });
+  await step('nova sessió: copia una sessió anterior qualsevol (no només l\'última)', async () => {
+    await goHash(page, '#/client/P-DEMO-LAURA');
+    await page.click('.phead-actions >> text=Nova sessió');
+    await page.click('.choice >> text=Copia una sessió anterior');
+    const opts = await page.$$eval('#ns-from option', (o) => o.map((x) => x.value));
+    if (opts.length < 2) throw new Error(`sessions per copiar: ${opts.length}`);
+    const pick = opts[opts.length - 1]; // la més antiga
+    await page.selectOption('#ns-from', pick);
+    await page.selectOption('#ns-prof', { index: 1 });
+    await page.click('.dialog-foot >> text=Crea la sessió');
+    await page.waitForSelector('.block');
+    const r = await page.evaluate((pick) => {
+      const src = Store.get('sessions', pick);
+      const s = Store.get('sessions', location.hash.split('/').pop());
+      const names = (x) => x.blocks.flatMap((b) => b.items.map((i) => i.name)).filter(Boolean).join('|');
+      return { same: names(src) === names(s), id: s.id, src: names(src).slice(0, 80), now: names(s).slice(0, 80) };
+    }, pick);
+    if (!r.same) throw new Error(JSON.stringify(r));
+    await page.evaluate((id) => Store.remove('sessions', id), r.id);
+  });
   await step('sessió en blanc: sense blocs i afegits a mà', async () => {
     await goHash(page, '#/client/P-DEMO-ALEX');
     await page.click('.phead-actions >> text=Nova sessió');
