@@ -260,7 +260,8 @@ const SEED_EXERCISES = (() => {
   add('X-ACC-42', 'acc', 'Obertures amb mancuernes', 'Tren superior', M, { pos: 'Ds', gm: 'Pectoral', sets: '3', reps: '12', materials: [M, PT] });
   add('X-ACC-43', 'acc', 'Creuament a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Pectoral', sets: '3', reps: '12', materials: [PT, KS, G] });
   add('X-ACC-44', 'acc', 'Pullover a la politja', 'Tren superior', PT, { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '12', materials: [PT, M, G] });
-  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tren superior', M, { pos: 'Bp', gm: 'Trapezi', sets: '3', reps: '12', materials: [M, B, K] });
+  add('X-ACC-45', 'acc', 'Encongiments d\'espatlles', 'Tren superior', M, { aka: 'Elevació escapular · elevación escapular · shrug', pos: 'Bp', gm: 'Trapezi', muscles: ['Escàpula'], sets: '3', reps: '12', materials: [M, B, K],
+    family: 'Elevació escapular', level: '2', cues: 'Braços estirats amb les mancuernes. Puja les espatlles cap a les orelles (sense fer cercles ni doblegar els colzes), aguanta 1" i baixa a poc a poc.' });
   add('X-ACC-46', 'acc', 'Leg extension', 'Tren inferior', 'Leg extension Technogym', { pos: 'Sd', gm: 'Quàdriceps', sets: '3', reps: '10', intensity: 'RIR 2', materials: ['Leg extension Technogym', KS, G] });
   add('X-ACC-47', 'acc', 'Adductor a la màquina', 'Tren inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Adductors', sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
   add('X-ACC-48', 'acc', 'Abductor a la màquina', 'Tren inferior', 'Abductor/adductor 700 Technogym', { pos: 'Sd', gm: 'Abductors', muscles: ['GMed'], sets: '3', reps: '12', materials: ['Abductor/adductor 700 Technogym', PT, G] });
@@ -340,6 +341,34 @@ const SEED_EXERCISES = (() => {
     cues: 'Palmell avall i avantbraç recolzat. Puja el pes ajudant-te amb l\'altra mà i baixa\'l només amb el canell en 4". Readaptació de l\'epicondilàlgia.' });
   wr(13, 'acc', 'Curl invertit', 'Tren superior', M, { pic: 'curl', gm: 'Avantbraç', muscles: ['Bíceps'], aka: 'Reverse curl', sets: '3', reps: '12', materials: [M, B, PT],
     cues: 'Palmells avall. Doblega els colzes sense moure\'ls del costat del cos, amb el canell recte, i baixa a poc a poc.' });
+
+  // Agafada (grip): força de la mà i de l'avantbraç, per a la calistènia, els carries i el pes mort.
+  wr(14, 'acc', 'Enrotllador de canell', 'Agafada', 'Enrotllador de canell', { pic: 'wrist_roller', aka: 'Wrist roller · rodillo de muñeca', sets: '3', reps: '2 pujades', materials: ['Enrotllador de canell', 'Pica', 'Disc'],
+    cues: 'Braços estirats endavant. Enrotlla la corda girant la barra amb els canells, una mà i després l\'altra, fins que el disc arribi a dalt; desenrotlla-la a poc a poc.' });
+  wr(15, 'acc', 'Agafada isomètrica amb mancuernes (farmer hold)', 'Agafada', M, { pic: 'grip_hold', aka: 'Farmer hold · agarre', sets: '3', reps: '30"', cont: 'ISO', materials: [M, K, 'Barra hexagonal'],
+    family: 'Agafada', level: '1',
+    cues: 'Dret, mancuernes pesades a les mans i braços estirats. Aguanta-les sense que s\'obrin els dits, amb les espatlles avall i el tronc recte.' });
+  wr(16, 'acc', 'Pinça de discs (plate pinch)', 'Agafada', 'Disc', { pic: 'plate_pinch', aka: 'Plate pinch · pinza · agarre', sets: '3', reps: '20"', cont: 'ISO', materials: ['Disc'],
+    family: 'Agafada', level: '2',
+    cues: 'Agafa dos discs junts (cara llisa enfora) amb pinça: el polze per un costat i els dits per l\'altre. Aguanta amb els braços estirats.' });
+  wr(17, 'acc', 'Penjat amb tovalloles', 'Agafada', 'Barra de dominades', { pic: 'hang_active', pos: 'Bp', aka: 'Towel hang · colgarse con toalla · agarre', sets: '3', reps: '20"', cont: 'ISO',
+    family: 'Agafada', level: '3', muscles: ['Escàpula', 'Dorsal'], materials: ['Barra de dominades', 'Tovallola'],
+    cues: 'Dues tovalloles penjades de la barra: agafa-les amb força i penja\'t amb les escàpules actives. Si costa massa, recolza els peus.' });
+  wr(18, 'act', 'Tancar la pinça de mà (hand gripper)', 'Agafada', 'Hand gripper', { pic: 'wrist_open', lat: 'UL', aka: 'Hand gripper · apretar la mano', sets: '2', reps: '10/costat', materials: ['Hand gripper', 'Pilota'],
+    cues: 'Tanca la pinça del tot (o prem una pilota tova), aguanta 1-2" i obre a poc a poc. Alterna amb l\'extensió de dits amb goma.' });
+
+  // ── Elevació escapular: el trapezi superior i la rotació superior de l'escàpula ──
+  const sc = (n, block, name, material, extra) => add(`X-SCP-${String(n).padStart(2, '0')}`, block, name, 'Escàpules', material, { pos: 'Bp', gm: 'Trapezi', muscles: ['Escàpula'], materials: [material], ...extra });
+  sc(1, 'act', 'Encongiments amb braços amunt (overhead shrug)', PC, { pic: 'overhead_shrug', aka: 'Elevació escapular · elevación escapular · overhead shrug', sets: '2', reps: '12',
+    family: 'Elevació escapular', level: '1', materials: [PC, 'Pica', M],
+    cues: 'Braços estirats amunt (sense pes, amb una pica o amb mancuernes lleugeres). Puja les espatlles cap a les orelles i aguanta 1": activa la rotació superior de l\'escàpula.' });
+  sc(2, 'act', 'Encongiment a una mà amb mancuerna', M, { pic: 'shrug_one', lat: 'UL', aka: 'Elevació escapular unilateral · shrug', sets: '2', reps: '12/costat',
+    cues: 'Mancuerna a una mà, l\'altra relaxada. Puja l\'espatlla cap a l\'orella sense inclinar el cap ni el tronc, aguanta 1" i baixa a poc a poc.' });
+  sc(3, 'acc', 'Encongiments a la politja', PT, { pic: 'shrug_cable', aka: 'Elevació escapular · cable shrug', sets: '3', reps: '12', materials: [PT, KS],
+    cues: 'Dues nanses de la politja baixa. Puja les espatlles cap a les orelles amb els braços estirats; la politja manté la tensió a baix.' });
+  sc(4, 'acc', 'Encongiments amb barra', B, { pic: 'shrug', aka: 'Elevació escapular · barbell shrug', sets: '3', reps: '10', intensity: 'RIR 2',
+    family: 'Elevació escapular', level: '3', materials: [B, 'Barra hexagonal'],
+    cues: 'Barra davant de les cuixes, braços estirats. Puja les espatlles amunt tan alt com puguis, aguanta 1" i baixa controlat. Sense fer servir les cames.' });
 
   // ── Calistènia: barra de dominades i paral·leles ──
   // Per a qui encara no té força al tren superior: primer penjar-se (passiu → actiu escapular), després la part

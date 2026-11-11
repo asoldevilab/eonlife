@@ -280,6 +280,17 @@ const PICS = {
     props: (J) => PROP3.seat(J, false) },
   wrist_curl_bar: { from: { wf: -45 }, label: 'Curl de canell amb barra', t: -66, hd: -10, l: [0, 92], m: [2, 90], a: [72, -4], wf: 45, grip: 'hands', gearKind: 'db', fix: 'pel',
     props: (J) => PROP3.seat(J, false) },
+  // enrotllador de canell: braços endavant, la corda va de les mans fins al disc (que puja en enrotllar-la)
+  wrist_roller: { from: { wf: -40, bl: 0 }, label: 'Enrotllador de canell', t: -90, a: [4, 2], wf: 40, bl: 1, grip: 'none', propsMove: true,
+    props: (J) => { const h = v3.lerp(J.arm[0].h, J.arm[1].h, 0.5), k = J.P.bl == null ? 1 : J.P.bl, y = J.groundY + 6 + k * 22;
+      return [pk.cap([h[0], h[1], h[2] - 9], [h[0], h[1], h[2] + 9], 0.9, 0.9, 'pmh'), pk.line([h, [h[0], y, h[2]]], 0.7, 'pe'), picCyl([h[0], y - 1.2, h[2]], [0, 1, 0], 1.2, 4.2, 'pm')]; } },
+  overhead_shrug: { from: { shr: 0 }, front: true, label: 'Encongiments amb braços amunt', t: -90, shr: 2.8, a: [-112, -100], grip: 'none' },
+  shrug_cable: { from: { shr: 0 }, front: true, label: 'Encongiments a la politja', t: -90, shr: 2.8, a: [95, 91], grip: 'hands', pull: 'low' },
+  shrug_one: { from: { shr: 0 }, front: true, label: 'Encongiment a una mà', t: -90, shr: 2.8, a: [95, 91], b: [85, 95], grip: 'near' },
+  grip_hold: { label: 'Agafada isomètrica', t: -90, a: [93, 90], b: [87, 90], grip: 'hands' },
+  // pinça de discs: dos discs junts a cada mà, agafats amb els dits (es veuen de cara)
+  plate_pinch: { view: 'q', label: 'Pinça de discs', t: -90, a: [93, 90], b: [87, 90], grip: 'none',
+    props: (J) => J.arm.map((A) => picCyl(v3.add(A.tip, [0, -4.2, A === J.arm[0] ? 1.5 : -1.5]), [0, 0, 1], 1.2, 5, 'pm', { gear: 1 })) },
   wrist_flex: { from: { wf: -60 }, label: 'Flexió i extensió de canell', t: -90, a: [2, 0], wf: 60, grip: 'none' },
   wrist_stretch: { label: 'Estirament del canell', t: -90, a: [0, 0], wf: -70, b: [[30, 30], [-10, 40]], grip: 'none' },
   wrist_rock: { from: { t: -22, sh: 0 }, label: 'Balanceig de canells en quadrupèdia', t: -12, hd: 10, l: [96, 180, 180], a: [76, 76], wf: 14, fix: 'kL' },
