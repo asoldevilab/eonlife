@@ -30,7 +30,7 @@ function ExerciseList() {
   const [view, setView] = useState('llista');
   const nq = U.norm(q);
   const [own, setOwn] = useState(false);
-  const all = Store.exercises().filter((e) => (!own || isOwnExercise(e)) && (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
+  const all = Store.exercises().filter((e) => (!own || isOwnExercise(e)) && (!blk || e.block === blk) && (!nq || U.norm(`${e.code || ''} ${e.name} ${e.aka || ''} ${e.tg || ''} ${e.cat} ${e.family || ''} ${e.material} ${(e.materials || []).join(' ')} ${e.gm}`).includes(nq)));
   return html`<section class="card">
     <details class="libhelp">
       <summary><${Icon} name="info" size=${16} />Com afegir els vostres exercicis</summary>

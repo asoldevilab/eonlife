@@ -73,7 +73,7 @@ const SEED_EXERCISES = (() => {
   ex('X-FOR-14', 'for', 'Press militar amb mancuernes', 'Empenta', 'Mancuernes', { pos: 'Bp', gm: 'Deltoides', sets: '3', reps: '8', intensity: 'RIR 2' });
   ex('X-FOR-15', 'for', 'Landmine press', 'Empenta', 'Landmine', { pos: 'Sa', gm: 'Deltoides', lat: 'UL', sets: '3', reps: '8/costat', intensity: 'RIR 2' });
   ex('X-FOR-16', 'for', 'Flexions', 'Empenta', 'Pes corporal', { pos: 'Dp', gm: 'Pectoral', sets: '3', reps: '10' });
-  ex('X-FOR-17', 'for', 'Dominades', 'Tracció', 'Pes corporal', { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '6', intensity: 'RIR 2' });
+  ex('X-FOR-17', 'for', 'Dominades', 'Tracció', 'Barra de dominades', { aka: 'Pull-up', pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '6', intensity: 'RIR 2', materials: ['Barra de dominades', 'Pes corporal'] });
   ex('X-FOR-18', 'for', 'Rem amb barra', 'Tracció', 'Barra', { pos: 'Bp', gm: 'Dorsal', sets: '3', reps: '8', intensity: 'RIR 2' });
   ex('X-FOR-19', 'for', 'Rem amb mancuerna', 'Tracció', 'Mancuernes', { pos: 'Bp', gm: 'Dorsal', lat: 'UL', sets: '3', reps: '10/costat', intensity: 'RIR 2' });
   ex('X-FOR-20', 'for', 'Jalón al pit', 'Tracció', 'Politja', { pos: 'Sd', gm: 'Dorsal', sets: '3', reps: '10', intensity: 'RIR 2' });
@@ -230,7 +230,7 @@ const SEED_EXERCISES = (() => {
     'Empenta horitzontal': ['X-FOR-31', 'X-FOR-16', 'X-FOR-32', 'X-FOR-13', 'X-FOR-33'],
     'Empenta vertical': ['X-FOR-15', 'X-FOR-14', 'X-FOR-34'],
     'Tracció horitzontal': ['X-FOR-21', 'X-FOR-19', 'X-FOR-18', 'X-FOR-35'],
-    'Tracció vertical': ['X-FOR-20', 'X-FOR-36', 'X-FOR-17', 'X-FOR-37'],
+    'Tracció vertical': ['X-FOR-20', 'X-FOR-36', 'X-CST-05', 'X-FOR-17', 'X-FOR-37'],
     'Equilibri': ['X-ACC-20', 'X-ACC-21', 'X-ACC-22', 'X-ACC-23', 'X-ACC-24'],
     'Vestibular · estabilitat de la mirada': ['X-ACC-25', 'X-ACC-26', 'X-ACC-27', 'X-ACC-28'],
     'Isquiotibials': ['X-ACC-17', 'X-ACC-06', 'X-ACC-29', 'X-ACC-16'],
@@ -306,6 +306,50 @@ const SEED_EXERCISES = (() => {
     cues: 'De costat a la cinta i resistència mitjana. Mig squat, pit amunt i passes laterals curtes sense creuar els peus; el genoll no va cap a dins. Canvia de costat.' });
   add('X-SKM-08', 'acc', 'Intervals de potència al Skillmill', 'Condicionament', SKM, { ...SKG, pic: 'skm_resist', sets: '1', reps: '8 × 15"', rest: '45"', intensity: 'Màxima intenció',
     cues: 'Resistència mitjana. 15" a tope i 45" caminant, 8 vegades. Apunta els watts de cada sèrie per seguir la millora d\'una sessió a l\'altra.' });
+  // ── Calistènia: barra de dominades i paral·leles ──
+  // Per a qui encara no té força al tren superior: primer penjar-se (passiu → actiu escapular), després la part
+  // excèntrica (dominada i fons negatius) i les isometries, i al final el moviment sencer.
+  const BAR = 'Barra de dominades', PAR = 'Paral·leles';
+  const cst = (n, block, name, cat, material, extra) => add(`X-CST-${String(n).padStart(2, '0')}`, block, name, cat, material, { pos: 'Bp', materials: [material], ...extra });
+  const HANG = { gm: 'Escàpula', muscles: ['Dorsal', 'Avantbraç'], sets: '3', rest: '1\'' };
+  cst(1, 'act', 'Penjat passiu a la barra', 'Calistènia · penjat', BAR, { aka: 'Dead hang · colgarse', ...HANG, pic: 'hang_passive', reps: '30"', cont: 'ISO',
+    family: 'Penjat a la barra', level: '1',
+    cues: 'Penjat amb els braços estirats i les espatlles relaxades (desactivat): deixa que el cos s\'allargui. Agafada a l\'amplada de les espatlles, sense balancejar-te.' });
+  cst(2, 'act', 'Penjat actiu amb activació escapular', 'Calistènia · penjat', BAR, { aka: 'Active hang · colgarse activo', ...HANG, pic: 'hang_active', reps: '20"', cont: 'ISO',
+    family: 'Penjat a la barra', level: '2',
+    cues: 'Penjat amb els braços estirats però les escàpules avall i enrere (lluny de les orelles), pit una mica amunt. Els colzes no es dobleguen. Aguanta l\'activació tot el temps.' });
+  cst(3, 'act', 'Penjat alternant passiu i actiu', 'Calistènia · penjat', BAR, { aka: 'Colgarse alternando pasivo y activo', ...HANG, pic: 'hang_scap', sets: '2', reps: '30" passiu + 30" actiu', rest: '1\'30"',
+    cues: 'Sense baixar de la barra, alterna temps desactivat (espatlles relaxades) i temps amb activació escapular (escàpules avall). Ajusta els temps al pacient (p. ex. 3\' i 3\').' });
+  cst(4, 'act', 'Pull-up escapular', 'Calistènia · penjat', BAR, { aka: 'Scapular pull-up', ...HANG, pic: 'hang_scap', reps: '8', family: 'Penjat a la barra', level: '3',
+    cues: 'Des del penjat passiu, porta les escàpules avall i enrere (el cos puja uns centímetres) sense doblegar els colzes; aguanta 1" i torna a poc a poc.' });
+  cst(5, 'for', 'Dominada negativa', 'Tracció', BAR, { aka: 'Pull-up negatiu · negative pull-up', family: 'Tracció vertical', level: '3', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], pic: 'pullup_neg', cont: 'ECC', sets: '3', reps: '4', tempo: '5-0-X', rest: '1\'30"',
+    materials: [BAR, 'Caixa'],
+    cues: 'Comença a dalt, amb la barbeta per sobre de la barra (puja amb un salt o amb una caixa). Baixa a poc a poc (3-5") fins als braços estirats, amb les escàpules avall. Torna a pujar sense fer força.' });
+  cst(6, 'for', 'Dominada isomètrica a dalt', 'Tracció', BAR, { aka: 'Flexed arm hang · pull-up isomètric', gm: 'Dorsal', muscles: ['Bíceps', 'Escàpula'], pic: 'pullup_top', cont: 'ISO', sets: '3', reps: '10"', rest: '1\'30"',
+    materials: [BAR, 'Caixa'],
+    cues: 'Amb la barbeta per sobre de la barra (amb un salt o una caixa), aguanta a dalt amb el pit a prop de la barra i les escàpules avall. Si no aguanta, que baixi a poc a poc.' });
+  cst(7, 'for', 'Chin-up (agafada supina)', 'Tracció', BAR, { gm: 'Dorsal', muscles: ['Bíceps'], pic: 'pullup', sets: '3', reps: '6', intensity: 'RIR 2',
+    cues: 'Palmells cap a tu, a l\'amplada de les espatlles. Escàpules avall i porta el pit cap a la barra fins que la barbeta la passi; baixa sencer i controlat.' });
+  const DIP = { gm: 'Tríceps', muscles: ['Pectoral', 'Deltoides'], sets: '3', rest: '1\'30"' };
+  cst(8, 'act', 'Suport a les paral·leles', 'Calistènia · paral·leles', PAR, { aka: 'Support hold', ...DIP, gm: 'Escàpula', muscles: ['Tríceps', 'Pectoral'], pic: 'pdip_top', cont: 'ISO', reps: '20"',
+    family: 'Fons a les paral·leles', level: '1',
+    cues: 'Braços estirats sobre les paral·leles, espatlles avall (lluny de les orelles) i cos quiet. Aguanta sense que les espatlles pugin.' });
+  cst(9, 'act', 'Fons escapular a les paral·leles', 'Calistènia · paral·leles', PAR, { ...DIP, gm: 'Escàpula', muscles: ['Pectoral'], pic: 'pdip_scap', reps: '8',
+    cues: 'Amb els braços estirats, deixa pujar les espatlles cap a les orelles i torna-les a baixar empenyent les paral·leles. Els colzes no es dobleguen.' });
+  cst(10, 'for', 'Fons negatiu a les paral·leles', 'Empenta', PAR, { aka: 'Negative dips · fondos negativos', ...DIP, pic: 'pdip_neg', cont: 'ECC', reps: '4', tempo: '4-0-X',
+    family: 'Fons a les paral·leles', level: '2',
+    cues: 'Des de dalt amb els braços estirats, baixa a poc a poc (3-4") fins que els colzes facin 90°, amb el tronc una mica inclinat. Puja ajudant-te amb les cames o una caixa.' });
+  cst(11, 'for', 'Fons a les paral·leles', 'Empenta', PAR, { aka: 'Dips · fondos', ...DIP, pic: 'pdip', reps: '6', intensity: 'RIR 2',
+    family: 'Fons a les paral·leles', level: '3',
+    cues: 'Baixa fins que els colzes facin 90° (tronc una mica inclinat, espatlles lluny de les orelles) i empeny fins a estirar els braços. Sense balancejar-te.' });
+  const CHG = { gm: 'Core', muscles: ['Flexors de maluc', 'Avantbraç'], sets: '3', reps: '8', rest: '1\'' };
+  cst(12, 'acc', 'Elevació de genolls penjat', 'Calistènia · core', BAR, { aka: 'Hanging knee raise', ...CHG, pic: 'hang_knee', family: 'Core penjat', level: '1',
+    cues: 'Penjat amb activació escapular, porta els genolls cap al pit sense balancejar-te i baixa controlat.' });
+  cst(13, 'acc', 'Elevació de cames penjat', 'Calistènia · core', BAR, { aka: 'Hanging leg raise', ...CHG, pic: 'hang_leg', reps: '6', family: 'Core penjat', level: '2',
+    cues: 'Penjat amb activació escapular, puja les cames estirades fins a l\'horitzontal (o més) i baixa a poc a poc, sense balanceig.' });
+  cst(14, 'acc', 'L-sit agrupat a les paral·leles', 'Calistènia · core', PAR, { ...CHG, muscles: ['Flexors de maluc', 'Tríceps'], pic: 'lsit_tuck', cont: 'ISO', reps: '10"',
+    cues: 'Sobre les paral·leles amb els braços estirats i les espatlles avall, puja els genolls cap al pit i aguanta. Progressió: estira una cama i després les dues.' });
+
   // Vídeos d'EON (22/10): llançaments estirat, caiguda de genolls i salts (amb goma i amb mancuernes)
   add('X-POT-41', 'pot', 'Llançament de pilota medicinal estirat amb company (reactiu)', 'Llançament', 'Med ball', { pos: 'Ds', gm: 'Pectoral', muscles: ['Tríceps', 'Deltoides', 'Core'],
     sets: '3', reps: '6-8', rest: '1\'30"', intensity: 'Màxima intenció', pic: 'mb_supine_react',
