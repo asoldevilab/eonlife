@@ -1,0 +1,418 @@
+<title>Revisió de dibuixos EON</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: capçalera amb el progrés, barra de filtres enganxada a dalt i graella de fitxes (dibuix en moviment,
+   inici → final, i el veredicte de l'equip). Identitat d'EON Life: bordeus i pedra. */
+:root {
+  --bg: #F3F0EC; --surface: #FFFFFF; --surface-2: #FAF8F6; --line: #E6DFD8; --line-2: #D2C9C0;
+  --ink: #231416; --ink-2: #5B4A4B; --ink-3: #716360;
+  --brand: #421215; --brand-soft: #F4E9E7; --on-brand: #FFFFFF; --focus: #B8862F;
+  --ok: #3D6B2E; --ok-bg: #EEF4EA; --bad: #A3302A; --bad-bg: #FBEBE9; --chg: #875D0A; --chg-bg: #FBF2E0;
+  --font-ui: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --pic-bg: var(--surface);
+  /*__PIC_LIGHT__*/
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #171112; --surface: #221A1B; --surface-2: #2A2021; --line: #3A2E2F; --line-2: #4C3E3F;
+  --ink: #F2E8E4; --ink-2: #CDB7B2; --ink-3: #A8948F;
+  --brand: #E2B9B4; --brand-soft: #3A2427; --on-brand: #231416; --focus: #E0B45A;
+  --ok: #9CCB8A; --ok-bg: #1F2E1B; --bad: #F08A80; --bad-bg: #3A1D1B; --chg: #E8C06A; --chg-bg: #33280F;
+  /*__PIC_DARK__*/ color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #171112; --surface: #221A1B; --surface-2: #2A2021; --line: #3A2E2F; --line-2: #4C3E3F;
+  --ink: #F2E8E4; --ink-2: #CDB7B2; --ink-3: #A8948F;
+  --brand: #E2B9B4; --brand-soft: #3A2427; --on-brand: #231416; --focus: #E0B45A;
+  --ok: #9CCB8A; --ok-bg: #1F2E1B; --bad: #F08A80; --bad-bg: #3A1D1B; --chg: #E8C06A; --chg-bg: #33280F;
+  /*__PIC_DARK__*/ color-scheme: dark; }
+
+/*__PIC_CSS__*/
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.45; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { padding-block: 28px 18px; display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(32px, 5vw, 46px); line-height: 1.02; margin: 0; color: var(--brand); text-wrap: balance; }
+.lead { margin: 0; max-width: 68ch; color: var(--ink-2); }
+.lead strong { color: var(--ink); }
+.progress { display: grid; gap: 8px; }
+.bar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--line); }
+.bar span { display: block; height: 100%; transition: width .3s; }
+.bar .b-ok { background: var(--ok); } .bar .b-bad { background: var(--bad); } .bar .b-chg { background: var(--chg); }
+.counts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.counts b { color: var(--ink); font-weight: 650; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: var(--line-2); }
+.dot.ok { background: var(--ok); } .dot.bad { background: var(--bad); } .dot.chg { background: var(--chg); }
+
+.tools { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 10px; }
+.tools .wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: flex; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; font: inherit; font-size: 14px; padding: 7px 12px; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); }
+.seg .n { font-variant-numeric: tabular-nums; opacity: .75; margin-left: 4px; }
+input[type="search"], select { font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; padding: 7px 10px; min-width: 0; }
+input[type="search"] { flex: 1 1 200px; }
+select { flex: 0 1 auto; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.notice { margin-top: 14px; padding: 10px 14px; border-radius: 10px; background: var(--chg-bg); color: var(--chg); font-size: 14px; }
+.shown { margin: 14px 0 10px; font-size: 13px; color: var(--ink-3); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 14px; padding-bottom: 60px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.card[data-st="ok"] { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.card[data-st="bad"] { border-color: color-mix(in srgb, var(--bad) 55%, var(--line)); }
+.card[data-st="chg"] { border-color: color-mix(in srgb, var(--chg) 55%, var(--line)); }
+.stage { aspect-ratio: 1 / 1; max-width: 100%; background: var(--surface); position: relative; }
+.stage .pic { position: absolute; inset: 0; }
+.frames { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px; padding: 0 10px 6px; }
+.frames figure { margin: 0; aspect-ratio: 1 / 1; background: var(--surface-2); border-radius: 8px; position: relative; overflow: hidden; }
+.frames figure .pic { position: absolute; inset: 0; }
+.frames figcaption { position: absolute; left: 6px; top: 4px; font-size: 11px; color: var(--ink-3); z-index: 1; }
+.frames .arrow { color: var(--ink-3); font-size: 14px; }
+.still-note { padding: 0 12px 6px; font-size: 12px; color: var(--ink-3); }
+.body { padding: 4px 12px 12px; display: grid; gap: 8px; }
+.card h3 { margin: 0; font-size: 15px; font-weight: 650; line-height: 1.25; }
+.sub { margin: 0; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+.sub code { font-size: 11px; }
+.pill { justify-self: start; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 99px; background: var(--chg-bg); color: var(--chg); }
+.acts { display: flex; gap: 8px; }
+.acts button, .fix button { font: inherit; font-size: 14px; font-weight: 600; border-radius: 9px; padding: 7px 12px; cursor: pointer; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); }
+.acts button { flex: 1; }
+.acts .ok[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.acts .bad[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: var(--surface); }
+.acts button:disabled { opacity: .5; cursor: default; }
+.fix { display: grid; gap: 8px; padding: 10px; border-radius: 10px; background: var(--bad-bg); }
+.fix label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags button { font-size: 12px; font-weight: 500; padding: 4px 9px; border-radius: 99px; }
+.tags button[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: var(--surface); }
+textarea { font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-2); border-radius: 9px; padding: 8px; min-height: 76px; resize: vertical; width: 100%; }
+.fix-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fix-row .save { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.photo-btn { position: relative; overflow: hidden; }
+.photo-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photos { display: flex; flex-wrap: wrap; gap: 6px; }
+.photos img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); }
+.hint { font-size: 12px; color: var(--ink-2); margin: 0; }
+.who { font-size: 12px; color: var(--ink-3); margin: 0; }
+.note-view { font-size: 13px; color: var(--ink-2); margin: 0; white-space: pre-wrap; }
+.linkish { background: none !important; border: 0 !important; padding: 0 !important; font-size: 12px !important; font-weight: 500 !important; color: var(--ink-3) !important; text-decoration: underline; cursor: pointer; }
+.empty { grid-column: 1 / -1; padding: 40px 10px; text-align: center; color: var(--ink-3); }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 10px; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
+@media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+</style>
+
+<header class="top wrap">
+  <span class="eyebrow">EON Life · biblioteca d'exercicis · __COUNT__ dibuixos</span>
+  <h1>Revisió de dibuixos</h1>
+  <p class="lead">Mira cada dibuix en moviment i marca'l com a <strong>Bé</strong> o <strong>Malament</strong>. Si està malament, digues què falla i, si pots, afegeix una foto de la posició correcta (de cos sencer i millor de costat). Claude llegeix les revisions, corregeix els dibuixos i els torna a deixar aquí com a <strong>Corregit</strong> perquè els confirmeu.</p>
+  <div class="progress" aria-live="polite">
+    <div class="bar" id="bar"><span class="b-ok"></span><span class="b-bad"></span><span class="b-chg"></span></div>
+    <div class="counts" id="counts"></div>
+  </div>
+</header>
+
+<div class="tools">
+  <div class="wrap">
+    <div class="seg" role="group" aria-label="Estat" id="seg">
+      <button type="button" data-f="pend" aria-pressed="true">Per revisar<span class="n"></span></button>
+      <button type="button" data-f="bad" aria-pressed="false">Malament<span class="n"></span></button>
+      <button type="button" data-f="ok" aria-pressed="false">Bé<span class="n"></span></button>
+      <button type="button" data-f="all" aria-pressed="false">Tots<span class="n"></span></button>
+    </div>
+    <input type="search" id="q" placeholder="Cerca un exercici, múscul o codi" aria-label="Cerca">
+    <select id="zone" aria-label="Grup muscular">
+      <option value="">Tots els grups</option>
+      <option value="sup">Tren superior</option>
+      <option value="inf">Tren inferior</option>
+      <option value="core">Core</option>
+      <option value="altres">Cos sencer i altres</option>
+    </select>
+    <select id="mat" aria-label="Material"><option value="">Tot el material</option></select>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="notice" id="notice" hidden></div>
+  <p class="shown" id="shown"></p>
+  <div class="grid" id="grid"></div>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const U = {
+  norm: (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(),
+  cls: (...p) => p.flat().filter(Boolean).join(' '),
+};
+</script>
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+(() => {
+  const EX = /*__EXERCISES__*/[];
+  const BUILT = '__BUILT__';
+  const TAGS = ['Posició inicial', 'Posició final', 'Recorregut', 'Tronc', 'Braços', 'Cames', 'Material', 'Cable o goma', 'Vista'];
+  const S = { reviews: new Map(), f: 'pend', zone: '', mat: '', q: '', db: null, assets: null, user: null, me: null, names: {}, open: new Set(), drafts: new Map() };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const toast = (msg) => { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 3200); };
+  const exObj = (e) => ({ name: e.name, tg: e.tg, material: e.material, gm: e.gm, block: e.block, pic: e.pic });
+
+  // Estat d'un exercici: per revisar, bé, malament o corregit (el dibuix ha canviat des de la revisió).
+  const status = (e) => {
+    const r = S.reviews.get(e.id);
+    if (!r || !r.status) return 'pend';
+    if (r.hash && r.hash !== e.h) return 'chg';
+    return r.status === 'ok' ? 'ok' : 'bad';
+  };
+  const inFilter = (st) => (S.f === 'all' ? true : S.f === 'pend' ? st === 'pend' || st === 'chg' : st === S.f);
+
+  // Material
+  const mats = [...new Set(EX.map((e) => e.material).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ca'));
+  $('mat').insertAdjacentHTML('beforeend', mats.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`).join(''));
+
+  // Fitxes (es creen un cop; els filtres només les amaguen)
+  const cards = new Map();
+  const grid = $('grid');
+  for (const e of EX) {
+    const a = document.createElement('article');
+    a.className = 'card';
+    a.dataset.id = e.id;
+    a.innerHTML = `<div class="stage" aria-label="Dibuix de ${esc(e.name)}"></div><div class="frames" hidden></div><p class="still-note" hidden>Postura quieta</p>
+      <div class="body"><h3>${esc(e.name)}</h3><p class="sub">${[e.id, e.gm, e.material].filter(Boolean).map(esc).join(' · ')} · <code>${esc(e.key)}</code></p>
+      <span class="pill" hidden>Corregit: revisa'l</span>
+      <div class="acts"><button type="button" class="ok" aria-pressed="false">Bé</button><button type="button" class="bad" aria-pressed="false">Malament</button></div>
+      <div class="slot"></div><p class="who" hidden></p></div>`;
+    a._search = U.norm(`${e.name} ${e.tg} ${e.id} ${e.gm} ${e.material} ${e.key}`);
+    cards.set(e.id, a);
+    grid.appendChild(a);
+  }
+  const empty = document.createElement('p');
+  empty.className = 'empty';
+  empty.hidden = true;
+  grid.appendChild(empty);
+
+  // Dibuixos quan la fitxa s'acosta a la pantalla
+  const draw = (a) => {
+    if (a._drawn) return;
+    a._drawn = true;
+    const e = EX.find((x) => x.id === a.dataset.id), o = exObj(e);
+    try {
+      a.querySelector('.stage').innerHTML = exercisePicSvg(o, null, 'auto');
+      if (picMoves(e.key, o)) {
+        const f = a.querySelector('.frames');
+        f.innerHTML = `<figure><figcaption>Inici</figcaption>${exercisePicSvg(o, null, 'start')}</figure><span class="arrow" aria-hidden="true">→</span><figure><figcaption>Final</figcaption>${exercisePicSvg(o, null, 'end')}</figure>`;
+        f.hidden = false;
+      } else a.querySelector('.still-note').hidden = false;
+    } catch (err) { a.querySelector('.stage').textContent = 'No s\'ha pogut dibuixar.'; }
+  };
+  const io = 'IntersectionObserver' in window
+    ? new IntersectionObserver((list) => list.forEach((x) => { if (x.isIntersecting) { draw(x.target); io.unobserve(x.target); } }), { rootMargin: '600px 0px' })
+    : null;
+  cards.forEach((a) => (io ? io.observe(a) : draw(a)));
+
+  // Pinta l'estat d'una fitxa
+  const fmtDate = (iso) => { try { return new Date(iso).toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' }); } catch (e) { return ''; } };
+  const paint = (e) => {
+    const a = cards.get(e.id), st = status(e), r = S.reviews.get(e.id) || {};
+    a.dataset.st = st;
+    a.querySelector('.pill').hidden = st !== 'chg';
+    a.querySelector('.acts .ok').setAttribute('aria-pressed', String(st === 'ok'));
+    a.querySelector('.acts .bad').setAttribute('aria-pressed', String(st === 'bad'));
+    a.querySelectorAll('.acts button').forEach((b) => { b.disabled = !S.db; });
+    const who = a.querySelector('.who');
+    if (r.status && r.at) {
+      const name = (r.by && S.names[r.by]) || '';
+      who.textContent = `${st === 'chg' ? (r.status === 'ok' ? 'Marcat bé' : 'Marcat malament') + ' abans de la correcció' : r.status === 'ok' ? 'Marcat bé' : 'Marcat malament'}${name ? ` per ${name}` : ''} · ${fmtDate(r.at)}`;
+      who.hidden = false;
+    } else who.hidden = true;
+    const slot = a.querySelector('.slot');
+    const open = S.open.has(e.id) || (st === 'bad' && !r.note);
+    if (st === 'bad' || st === 'chg' || S.open.has(e.id)) {
+      if (open && S.db) slot.innerHTML !== '' && slot.firstElementChild?.classList.contains('fix') ? refreshFix(e, slot) : buildFix(e, slot);
+      else {
+        slot.innerHTML = r.note || (r.tags || []).length || (r.photos || []).length
+          ? `<p class="note-view">${(r.tags || []).length ? `<b>${esc(r.tags.join(' · '))}</b>\n` : ''}${esc(r.note || '')}</p>${photosHtml(r)}${S.db && st === 'bad' ? '<button type="button" class="linkish" data-act="edit">Edita la nota</button>' : ''}`
+          : '';
+      }
+    } else slot.innerHTML = '';
+  };
+  const photosHtml = (r) => ((r.photos || []).length ? `<div class="photos">${r.photos.map((id) => `<img src="/_blob/${esc(id)}" alt="Foto de referència" loading="lazy">`).join('')}</div>` : '');
+
+  // Panell de «Malament»: què falla (etiquetes), nota i foto
+  const draft = (e) => {
+    if (!S.drafts.has(e.id)) { const r = S.reviews.get(e.id) || {}; S.drafts.set(e.id, { note: r.note || '', tags: [...(r.tags || [])] }); }
+    return S.drafts.get(e.id);
+  };
+  const buildFix = (e, slot) => {
+    const d = draft(e), r = S.reviews.get(e.id) || {};
+    slot.innerHTML = `<div class="fix">
+      <label>Què falla?</label>
+      <div class="tags">${TAGS.map((t) => `<button type="button" data-tag="${esc(t)}" aria-pressed="${d.tags.includes(t)}">${esc(t)}</button>`).join('')}</div>
+      <label for="n-${esc(e.id)}">Explica-ho</label>
+      <textarea id="n-${esc(e.id)}" placeholder="P. ex.: al final el genoll no ha de passar de la punta del peu; el cable ha de venir de baix">${esc(d.note)}</textarea>
+      <div class="photos-slot">${photosHtml(r)}</div>
+      <div class="fix-row">
+        <button type="button" class="save" data-act="save">Desa</button>
+        ${S.assets ? '<span class="photo-btn"><button type="button" tabindex="-1">Afegeix una foto</button><input type="file" accept="image/*" aria-label="Afegeix una foto de la posició correcta"></span>' : ''}
+        <button type="button" class="linkish" data-act="clear">Treu la marca</button>
+      </div>
+      ${S.assets ? '' : '<p class="hint">Per afegir fotos cal permís d\'edició de la pàgina. Si no en tens, envia-les a Claude pel xat amb el nom de l\'exercici.</p>'}
+    </div>`;
+  };
+  const refreshFix = (e, slot) => { const r = S.reviews.get(e.id) || {}; const ps = slot.querySelector('.photos-slot'); if (ps) ps.innerHTML = photosHtml(r); };
+
+  // Filtres i comptadors
+  const apply = () => {
+    const q = U.norm(S.q);
+    let shown = 0;
+    for (const e of EX) {
+      const a = cards.get(e.id);
+      const ok = inFilter(status(e)) && (!S.zone || e.z === S.zone) && (!S.mat || e.material === S.mat) && (!q || a._search.includes(q));
+      a.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    empty.textContent = S.f === 'pend' && !q && !S.zone && !S.mat ? 'No queda cap dibuix per revisar. Gràcies!' : 'Cap exercici amb aquests filtres.';
+    $('shown').textContent = `${shown} ${shown === 1 ? 'exercici' : 'exercicis'}`;
+  };
+  const counts = () => {
+    const n = { pend: 0, ok: 0, bad: 0, chg: 0 };
+    EX.forEach((e) => { n[status(e)]++; });
+    const T = EX.length, pct = (v) => `${(100 * v / T).toFixed(2)}%`;
+    const [bOk, bBad, bChg] = $('bar').children;
+    bOk.style.width = pct(n.ok); bBad.style.width = pct(n.bad); bChg.style.width = pct(n.chg);
+    $('counts').innerHTML = `<span><span class="dot ok"></span><b>${n.ok}</b> bé</span><span><span class="dot bad"></span><b>${n.bad}</b> malament</span>
+      <span><span class="dot chg"></span><b>${n.chg}</b> corregits per revisar</span><span><span class="dot"></span><b>${n.pend}</b> sense revisar</span>
+      <span>Dibuixos del ${esc(BUILT.split('-').reverse().join('/'))}</span>`;
+    const segN = { pend: n.pend + n.chg, bad: n.bad, ok: n.ok, all: T };
+    $('seg').querySelectorAll('button').forEach((b) => { b.querySelector('.n').textContent = segN[b.dataset.f]; });
+  };
+  const paintAll = () => { EX.forEach(paint); counts(); apply(); };
+
+  $('seg').addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    S.f = b.dataset.f;
+    $('seg').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    apply();
+  });
+  $('q').addEventListener('input', (ev) => { S.q = ev.target.value; apply(); });
+  $('zone').addEventListener('change', (ev) => { S.zone = ev.target.value; apply(); });
+  $('mat').addEventListener('change', (ev) => { S.mat = ev.target.value; apply(); });
+
+  // Escriptura: una a la vegada per exercici
+  const queue = new Map();
+  const write = (id, fn) => {
+    const p = (queue.get(id) || Promise.resolve()).then(fn).catch((err) => {
+      const c = err && err.code;
+      toast(c === 'quota_exceeded' ? 'La base de dades de la pàgina és plena.' : c === 'unavailable' || c === 'revoked' ? 'No s\'ha pogut desar: torna a obrir la pàgina.' : 'No s\'ha pogut desar. Comprova que tens permís per editar la pàgina.');
+    });
+    queue.set(id, p);
+    return p;
+  };
+  const base = (e) => ({ hash: e.h, name: e.name, key: e.key, by: S.me || null, at: new Date().toISOString() });
+  const ref = (e) => S.db.collection('reviews').doc(e.id);
+
+  grid.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b || !S.db) return;
+    const a = b.closest('.card'), e = EX.find((x) => x.id === a.dataset.id);
+    if (b.classList.contains('ok') && b.closest('.acts')) {
+      S.open.delete(e.id); S.drafts.delete(e.id);
+      const r = { ...base(e), status: 'ok', note: '', tags: [], photos: [] };
+      S.reviews.set(e.id, r); paint(e); counts(); apply();
+      write(e.id, () => ref(e).set(r));
+    } else if (b.classList.contains('bad') && b.closest('.acts')) {
+      const old = S.reviews.get(e.id) || {};
+      const r = { ...base(e), status: 'bad', note: old.status === 'bad' ? old.note || '' : '', tags: old.status === 'bad' ? old.tags || [] : [], photos: old.photos || [] };
+      S.reviews.set(e.id, r); S.open.add(e.id); paint(e); counts(); apply();
+      write(e.id, () => ref(e).set(r));
+      setTimeout(() => a.querySelector('textarea')?.focus(), 30);
+    } else if (b.dataset.tag) {
+      const d = draft(e), t = b.dataset.tag;
+      d.tags = d.tags.includes(t) ? d.tags.filter((x) => x !== t) : [...d.tags, t];
+      b.setAttribute('aria-pressed', String(d.tags.includes(t)));
+    } else if (b.dataset.act === 'edit') {
+      S.open.add(e.id); paint(e);
+    } else if (b.dataset.act === 'save') {
+      const d = draft(e);
+      d.note = a.querySelector('textarea').value.trim();
+      const old = S.reviews.get(e.id) || {};
+      const r = { ...old, ...base(e), status: 'bad', note: d.note, tags: d.tags };
+      S.reviews.set(e.id, r); S.open.delete(e.id); S.drafts.delete(e.id); paint(e);
+      write(e.id, () => ref(e).set(r)).then(() => toast('Desat. Claude ho veurà a la propera revisió.'));
+    } else if (b.dataset.act === 'clear') {
+      S.reviews.delete(e.id); S.open.delete(e.id); S.drafts.delete(e.id); paint(e); counts(); apply();
+      write(e.id, () => ref(e).delete());
+    }
+  });
+  grid.addEventListener('input', (ev) => {
+    if (ev.target.tagName !== 'TEXTAREA') return;
+    const e = EX.find((x) => x.id === ev.target.closest('.card').dataset.id);
+    draft(e).note = ev.target.value;
+  });
+  grid.addEventListener('change', async (ev) => {
+    const inp = ev.target; if (inp.type !== 'file' || !inp.files[0] || !S.assets) return;
+    const a = inp.closest('.card'), e = EX.find((x) => x.id === a.dataset.id), file = inp.files[0];
+    inp.value = '';
+    toast('Pujant la foto…');
+    try {
+      const up = await S.assets.upload(file);
+      const old = S.reviews.get(e.id) || {};
+      const r = { ...old, ...base(e), status: 'bad', note: draft(e).note, tags: draft(e).tags, photos: [...(old.photos || []), up.id] };
+      S.reviews.set(e.id, r); paint(e);
+      await write(e.id, () => ref(e).set(r));
+      toast('Foto afegida.');
+    } catch (err) {
+      const c = err && err.code;
+      toast(c === 'unsupported_type' ? 'Aquest fitxer no és una imatge que es pugui pujar.' : c === 'quota_exceeded' ? 'No queda espai per a més fotos.' : 'No s\'ha pogut pujar la foto.');
+    }
+  });
+
+  paintAll();
+
+  // Capacitats: base de dades (revisions), qui és qui i fotos
+  (async () => {
+    const C = window.claude;
+    const [db, user, assets] = await Promise.all([C?.use?.('db'), C?.use?.('user'), C?.use?.('assets')].map((p) => Promise.resolve(p).catch(() => null)));
+    S.db = db || null; S.user = user || null; S.assets = assets || null;
+    if (!S.db) {
+      const n = $('notice');
+      n.textContent = 'Obre aquesta pàgina a claude.ai amb la sessió iniciada per poder marcar els dibuixos. Ara només es poden mirar.';
+      n.hidden = false;
+      paintAll();
+      return;
+    }
+    try { S.me = S.user ? await S.user.id() : null; } catch (e) { S.me = null; }
+    S.db.collection('reviews').onSnapshot((snap) => {
+      const next = new Map();
+      snap.docs.forEach((d) => { if (d.exists) next.set(d.id, d.data()); });
+      // les revisions a mig escriure d'aquest aparell manen fins que es desen
+      S.reviews.forEach((v, k) => { if (S.open.has(k) && !next.has(k)) next.set(k, v); });
+      S.reviews = next;
+      paintAll();
+      resolveNames();
+    }, (err) => {
+      const n = $('notice');
+      n.textContent = 'S\'ha perdut la connexió amb les revisions. Torna a obrir la pàgina.';
+      n.hidden = false;
+    });
+  })();
+  const resolveNames = async () => {
+    if (!S.user || !S.user.profiles) return;
+    const ids = [...new Set([...S.reviews.values()].map((r) => r.by).filter(Boolean))].filter((id) => !(id in S.names));
+    if (!ids.length) return;
+    try {
+      const ps = await S.user.profiles(ids);
+      ids.forEach((id) => { S.names[id] = (ps[id] && ps[id].name) || ''; });
+      EX.forEach(paint);
+    } catch (e) { /* sense noms */ }
+  };
+})();
+</script>
