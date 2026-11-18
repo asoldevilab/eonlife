@@ -314,6 +314,9 @@ sessió o fent la del pla, també només hi passen els blocs que tenen alguna co
   alguns clients a casa): press de pit, obertures i creuaments, rems, jaló dempeus i agenollat, push-pull, espatlles, bíceps,
   tríceps, squat, estocades, pes mort romanès, maluc amb turmellera, chop i lift, rotacions, Pallof press i rotadors.
   Cada un té el dibuix amb el panell de llistons i el cable que surt del braç de dalt o de baix.
+  A *Rem ergòmetre* hi ha 10 exercicis per a la màquina de rem (p. ex. Titanium Rower XL): escalfament tècnic, només
+  braços, només cames, ritme continu, intervals de 500 m, piràmide, Tabata, sprints de potència, test de 2.000 m i
+  tornada a la calma, amb el dibuix de la màquina (seient que llisca, volant i monitor).
   A dalt hi ha el cercador (nom, múscul, material o el nom en anglès de l'app de Technogym) i *Tots els blocs*. A Força principal i Accessoris surten els
   exercicis de tots dos blocs. **Exercici en blanc** és per escriure'n un que no és a la biblioteca.
   S'omplen sols el material, la contracció (CON/ECC/ISO), la posició (Bp, Ds…), la lateralitat (BL/UL) i la

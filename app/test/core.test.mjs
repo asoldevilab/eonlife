@@ -620,6 +620,27 @@ test('Kinesis Personal de Technogym: exercicis amb el seu dibuix de cables', asy
   assert.equal(P.picGearOf(kp[0], P.picKeyOf(kp[0])).kind, 'cable');
 });
 
+test('rem ergòmetre: exercicis de tècnica, resistència, potència i test, amb el dibuix de la màquina', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');
+  const { SEED_EXERCISES, OPT } = loadCore();
+  const rw = SEED_EXERCISES.filter((e) => e.id.startsWith('X-ROW-'));
+  assert.equal(rw.length, 10);
+  assert.ok(rw.every((e) => e.material === 'Rem ergòmetre' && e.cues && e.cues.length <= 200 && e.pic));
+  assert.ok(OPT.material.includes('Rem ergòmetre'));
+  const P = new Function('U', `${src}\nreturn { PICS, exercisePicSvg };`)(U);
+  assert.ok(rw.every((e) => P.PICS[e.pic]));
+  assert.ok(P.exercisePicSvg(rw[0], null, 'start').includes('pkz'), 'el volant de la màquina');
+});
+
+test('press militar a una mà amb mig genoll', () => {
+  const { SEED_EXERCISES } = loadCore();
+  const e = SEED_EXERCISES.find((x) => x.id === 'X-FOR-91');
+  assert.equal(e.pic, 'ohpress_half');
+  assert.equal(e.pos, 'Sa');
+  assert.ok(e.cues.length <= 200);
+});
+
 test('miniatures: cada exercici té un pictograma propi amb el material', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/js/15-pics-poses.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/js/15-pics.js', import.meta.url), 'utf8');

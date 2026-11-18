@@ -559,6 +559,33 @@ PICS.kb_latraise_grip = { ...PICS.lat_raise, label: 'Elevació lateral amb nansa
 PICS.kb_triceps_grip = { ...PICS.triceps_oh_one, label: 'Extensió de tríceps amb nansa a la kBox', kb: 'grip' };
 
 // ── SkiErg: estirada de les dues nanses des de dalt fins al costat dels malucs, amb flexió de maluc i genolls ──
+// ── Rem ergòmetre (p. ex. Titanium Rower XL): seient que llisca pel rail, reposapeus, volant (aire i magnètic) amb el
+// monitor, i la cadena fins al mànec. Atac (cames plegades, tronc endavant, braços estirats) → final (cames estirades,
+// tronc una mica enrere, mànec a les costelles). Els peus no es mouen: el seient llisca.
+const picRower = (J) => {
+  const toe = J.leg[0].toe, g = J.groundY, fw = [toe[0] + 11, g + 9.5, 0], rail = g + 5.5, h = J.arm[0].h;
+  return [
+    pk.box(toe[0] - 62, toe[0] + 6, rail - 2.2, rail, -2.6, 2.6, 'pp'),
+    pk.box(toe[0] - 62, toe[0] - 58, g, rail - 2.2, -5, 5, 'pp'),
+    pk.box(J.pel[0] - 6, J.pel[0] + 6, rail, J.pel[1] - 4.6, -5.5, 5.5, 'pp', { z: -1 }),
+    pk.box(toe[0] - 2, toe[0] + 1.2, rail, toe[1] + 4.5, -7, 7, 'pp'),
+    picCyl(fw, [0, 0, 1], 4.5, 7.8, 'pkz'),
+    pk.disc([fw[0], fw[1], 4.6], [0, 0, 1], 2.8, 'pka'),
+    pk.box(fw[0] - 5, fw[0] + 5, g, g + 2.5, -7, 7, 'pp'),
+    pk.cap([fw[0] - 2, fw[1] + 7, 0], [toe[0] + 3, g + 30, 0], 0.9, 0.9, 'pmh'),
+    pk.box(toe[0] - 1, toe[0] + 6, g + 30, g + 35, -3.5, 3.5, 'pkz'),
+    pk.line([h, [fw[0] - 6, fw[1] + 2, 0]], 0.6, 'pml', { gear: 1 }),
+    pk.cap(v3.add(h, [0, 0, -5.5]), v3.add(h, [0, 0, 5.5]), 0.9, 0.9, 'pmh', { gear: 1 }),
+  ];
+};
+PICS.rower = { propsMove: true, label: 'Rem ergòmetre', grip: 'none', fix: 'tR', lift: 6, s: 0.86,
+  from: { t: -58, hd: -4, l: [-58, 68, -62], m: [-58, 68, -62], a: [6, 6] },
+  t: -103, hd: 2, l: [2, 6, -74], m: [2, 6, -74], a: [146, -8], props: (J) => picRower(J) };
+// Només braços (exercici de tècnica): cames estirades i tronc quiet, els braços estiren el mànec fins a les costelles.
+PICS.rower_arms = { ...PICS.rower, label: 'Rem ergòmetre · només braços', from: { t: -100, hd: 2, l: [2, 6, -74], m: [2, 6, -74], a: [6, 6] } };
+// Només cames: braços estirats i tronc endavant; les cames empenyen i el seient llisca enrere.
+PICS.rower_legs = { ...PICS.rower, label: 'Rem ergòmetre · només cames', t: -62, hd: -2, a: [6, 6] };
+
 PICS.skierg = { from: { t: -86, hd: -4, l: [92, 88], a: [-64, -56] }, label: 'SkiErg', t: -42, hd: 10, l: [62, 112], a: [104, 96], grip: 'hands',
   pull: 'fronthigh', fix: 'fR' };
 
@@ -620,6 +647,9 @@ PICS.kx_hipflex = { propsMove: true, s: 0.82, anchor: 'hip', label: 'Flexió de 
 PICS.kx_split_assist = { ...PICS.split, from: { ...PICS.split.from, a: [-14, -24] }, band: undefined, label: 'Split squat assistit a la Keiser', a: [-34, -44], grip: 'chest', pull: [40, 36, 0] };
 // Rem a una mà amb mig genoll: el cable surt de davant a l'alçada del pit.
 PICS.kx_row_half = { ...KX_HALF, label: 'Rem a una mà amb mig genoll a la Keiser', from: { a: [4, 2] }, a: [176, -6], b: [96, 84], grip: 'near', pull: [46, 16, 8] };
+// Press militar a una mà amb mig genoll: el genoll del costat que empeny a terra i l'altra cama al davant a 90°.
+PICS.ohpress_half = { t: -90, hd: -2, l: [110, 180, 180], m: [6, 92], fix: 'kR', label: 'Press militar a una mà amb mig genoll',
+  from: { a: [102, -76] }, a: [-86, -92], b: [96, 84], grip: 'near' };
 
 // Goblet squat amb cunya: els talons damunt d'una cunya (falca) inclinada; el genoll avança més i el tronc queda més dret.
 const picWedge = (J) => {

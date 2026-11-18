@@ -588,6 +588,32 @@ const SEED_EXERCISES = (() => {
   add('X-CND-05', 'acc', 'SkiErg · intervals', 'Condicionament', 'SkiErg', { ...TAB, pic: 'skierg', muscles: ['Dorsal', 'Tríceps', 'Core', 'GMax'], reps: '6 × 250 m', rest: '1\'',
     materials: ['SkiErg'], cues: 'Intervals: 250 m forts i 1\' suau. Estirada llarga amb tot el cos i recuperació relaxada.' });
 
+  // ── Rem ergòmetre (p. ex. Titanium Rower XL, resistència d'aire i magnètica): tècnica, resistència aeròbica,
+  // intervals, potència i test. Monitor: watts, ritme per 500 m (split), palades per minut i calories. ──
+  const RW = 'Rem ergòmetre';
+  const rw = (n, block, name, extra) => add(`X-ROW-${String(n).padStart(2, '0')}`, block, name, 'Rem ergòmetre', RW,
+    { pos: 'Sd', lat: 'BL', gm: 'Global', muscles: ['Quàdriceps', 'GMax', 'Dorsal', 'Core'], materials: [RW], pic: 'rower', aka: 'Rower, remo, rowing, Titanium Rower XL', sets: '1', ...extra });
+  rw(1, 'act', 'Rem ergòmetre · escalfament tècnic (pick drill)', { reps: '5\'', intensity: 'Suau', family: 'Rem ergòmetre · tècnica', level: '3',
+    cues: 'Per parts: 1\' només braços, 1\' braços i tronc, 1\' amb mig recorregut de cames i 2\' sencer. Ordre: cames, tronc, braços; tornada al revés.' });
+  rw(2, 'act', 'Rem ergòmetre · només braços', { pic: 'rower_arms', muscles: ['Dorsal', 'Bíceps', 'Escàpula'], reps: '20 palades', intensity: 'Suau', family: 'Rem ergòmetre · tècnica', level: '1',
+    cues: 'Cames estirades i tronc quiet una mica enrere. Estira el mànec fins a les costelles baixes amb els colzes a prop del cos i torna a estirar els braços.' });
+  rw(3, 'act', 'Rem ergòmetre · només cames', { pic: 'rower_legs', muscles: ['Quàdriceps', 'GMax'], reps: '20 palades', intensity: 'Suau', family: 'Rem ergòmetre · tècnica', level: '2',
+    cues: 'Braços estirats i tronc inclinat endavant. Empeny el reposapeus fins a estirar les cames sense que el tronc es mogui; la força surt de les cames.' });
+  rw(4, 'acc', 'Rem ergòmetre · ritme continu suau', { gm: 'Global', reps: '20\'', intensity: 'Suau', family: 'Rem ergòmetre · resistència', level: '1',
+    cues: 'Ritme còmode (pots parlar): 18-22 palades per minut i split constant. Cames, tronc i braços, i tornada lenta, el doble de temps que l\'estirada.' });
+  rw(5, 'acc', 'Rem ergòmetre · intervals 500 m', { reps: '5 × 500 m', rest: '1\'30"', intensity: 'RPE 8', family: 'Rem ergòmetre · resistència', level: '2',
+    cues: '500 m forts a 24-28 palades per minut i 1\'30" suau. Apunta l\'split de cada sèrie: ha de ser semblant a totes (±2").' });
+  rw(6, 'acc', 'Rem ergòmetre · piràmide', { reps: '250-500-750-500-250 m', rest: '1\'', intensity: 'RPE 8', family: 'Rem ergòmetre · resistència', level: '3',
+    cues: 'Piràmide amb 1\' suau entre trams. Com més llarg el tram, més baix el ritme de palades; mantén la tècnica fins al final.' });
+  rw(7, 'acc', 'Rem ergòmetre · Tabata', { reps: '8 × 20"', rest: '10"', intensity: 'Màxima intenció', family: 'Rem ergòmetre · potència', level: '2',
+    cues: 'Tabata: 8 × 20" a tope i 10" de descans. Estirades potents amb les cames; no escurcis el recorregut quan arribi la fatiga.' });
+  rw(8, 'pot', 'Rem ergòmetre · sprints de potència', { reps: '6 × 10 palades', rest: '1\'30"', intensity: 'Màxima intenció', family: 'Rem ergòmetre · potència', level: '1',
+    cues: '10 palades a la màxima potència (mira els watts) i 1\'30" de descans. Empenta explosiva de cames i tornada controlada.' });
+  rw(9, 'acc', 'Rem ergòmetre · test de 2.000 m', { reps: '1 × 2.000 m', intensity: 'Màxima intenció', family: 'Rem ergòmetre · resistència', level: '4',
+    cues: 'Test: 2.000 m tan ràpid com puguis. Sortida forta 10-15 palades, ritme estable al mig i final a tope. Apunta el temps i l\'split mitjà.' });
+  rw(10, 'cal', 'Rem ergòmetre · tornada a la calma', { reps: '5\'', intensity: 'Suau', muscles: ['Quàdriceps', 'Dorsal'],
+    cues: 'Rem molt suau, 18 palades per minut, respirant fons. Acaba amb 1\' només braços i tronc.' });
+
   // ── Keiser Functional Trainer: exercicis que fa servir Michael Boyle (MBSC) ──
   // Core: primer s'aprèn a evitar la rotació (Pallof, chop i lift) i després el Push/Pull, «un dels millors exercicis de
   // core»; la progressió del chop i el lift va de mig genoll a genolls i a dret.
@@ -895,6 +921,10 @@ const SEED_EXERCISES = (() => {
   add('X-FOR-90', 'for', 'Goblet squat amb cunya', 'Dominant de genoll', K, { pos: 'Bp', gm: 'Quàdriceps', muscles: ['GMax', 'Core'], sets: '3', reps: '10', intensity: 'RIR 2',
     pic: 'squat_wedge', materials: [K, M, 'Cunya'],
     cues: 'Talons damunt de la cunya, pes al pit. Baixa tan avall com puguis amb el tronc dret i els genolls endavant per sobre dels dits.' });
+  add('X-FOR-91', 'for', 'Press militar a una mà amb mig genoll', 'Empenta', M, { pos: 'Sa', lat: 'UL', gm: 'Deltoides', muscles: ['Tríceps', 'Core', 'GMax'],
+    sets: '3', reps: '8/costat', intensity: 'RIR 2', materials: [M, K], pic: 'ohpress_half', tg: 'Half-kneeling single-arm overhead press',
+    aka: 'Half-kneeling press, press de hombro a una mano de rodillas',
+    cues: 'Genoll del costat que empeny a terra i l\'altra cama davant a 90°. Gluti actiu i costelles avall: empeny amunt fins a estirar el braç, sense arquejar l\'esquena.' });
   db(10, 'for', "Squat sumo amb mancuernes", "Sumo squat", 'Quàdriceps', { muscles: ['Adductors', 'GMax'], sets: '3', reps: '10' });
   db(11, 'acc', "Press francès estirat amb mancuernes", "French press - supine", 'Tríceps', { pos: 'Ds' });
   db(12, 'acc', "Curl martell amb mancuernes", "Hammer curl", 'Bíceps', { muscles: ['Avantbraç'] });
